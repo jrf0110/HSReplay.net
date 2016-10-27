@@ -2,7 +2,7 @@ from django.contrib import admin
 from hsreplaynet.uploads.models import UploadEvent
 from hsreplaynet.uploads.processing import queue_upload_event_for_reprocessing
 from hsreplaynet.utils.admin import admin_urlify as urlify, set_user
-from .models import GameReplay, GlobalGame, GlobalGamePlayer
+from .models import GameReplay, GlobalGame, GlobalGamePlayer, PlayList, PlayListItem
 
 
 def queue_for_reprocessing(admin, request, queryset):
@@ -84,3 +84,15 @@ class GlobalGamePlayerAdmin(admin.ModelAdmin):
 	list_filter = ("rank", "is_ai", "is_first", "hero_premium", "final_state", "player_id")
 	raw_id_fields = ("game", "hero", "user", "deck_list")
 	search_fields = ("name", "real_name")
+
+
+class PlayListItemInline(admin.StackedInline):
+	model = PlayListItem
+	raw_id_fields = ("game", )
+
+
+@admin.register(PlayList)
+class PlayListAdmin(admin.ModelAdmin):
+	actions = (set_user, )
+	raw_id_fields = ("user", )
+	inlines = (PlayListItemInline, )
