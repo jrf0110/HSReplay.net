@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import View
 from django.views.decorators.clickjacking import xframe_options_exempt
 from .models import GameReplay, PlayList
@@ -11,6 +11,18 @@ class MyReplaysView(LoginRequiredMixin, View):
 		replays = GameReplay.objects.live().filter(user=request.user).count()
 		context = {"replays": replays}
 		return render(request, "games/my_replays.html", context)
+
+
+class PlayListView(View):
+	teplate_name = "games/playlist.html"
+
+	def get(self, request, id):
+		playlist = get_object_or_404(PlayList, shortid=id)
+		context = {
+			"playlist": playlist,
+			"replays": playlist.games,
+		}
+		return render(request, self.template_name, context)
 
 
 class ReplayDetailView(View):

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{{ playlist }} - Replay Playlist{% endblock %}
+
+{% block fullcontent %}
+<div class="content replay-listing">
+{% if not replays %}
+	<section>
+		<h1>This playlist is empty!</h1>
+		<p>
+			{% if request.user == playlist.user %}
+				Add some games to it maybe?
+			{% endif %}
+		</p>
+	</section>
+{% else %}
+	<div class="container-fluid" id="my-games-container">
+	{% render_bundle "my_replays" %}
+{% endif %}
+</div>
+</div>
+{% endblock %}
