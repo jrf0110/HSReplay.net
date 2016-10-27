@@ -204,14 +204,12 @@ class GlobalGamePlayer(models.Model):
 
 	@property
 	def opponent(self):
+		opponent_id = 2 if self.player_id == 1 else 2
 		try:
-			if self.player_id == 1:
-				return GlobalGamePlayer.objects.get(game=self.game_id, player_id=2)
-			else:
-				return GlobalGamePlayer.objects.get(game=self.game_id, player_id=1)
-		except:
-			# Some games where processing failed midway through do not have both players
-			return None
+			player = GlobalGamePlayer.objects.get(game=self.game_id, player_id=opponent_id)
+		except GlobalGamePlayer.DoesNotExist:
+			player = None
+		return player
 
 	@property
 	def hero_class_name(self):
