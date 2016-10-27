@@ -426,6 +426,32 @@ class ReplayAlias(models.Model):
 	replay = models.ForeignKey(GameReplay, on_delete=models.CASCADE, related_name="aliases")
 
 
+class PlayList(models.Model):
+	id = models.BigAutoField(primary_key=True)
+	name = models.CharField(max_length=100)
+	shortid = ShortUUIDField("Short ID")
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.SET_NULL, null=True, blank=True, related_name="playlists"
+	)
+	games = models.ManyToManyField(
+		GameReplay, blank=True, through="games.PlayListItem", related_name="in_playlists"
+	)
+
+	def __str__(self):
+		return self.name
+
+
+class PlayListItem(models.Model):
+	id = models.BigAutoField(primary_key=True)
+	game = models.ForeignKey(GameReplay)
+	playlist = models.ForeignKey(PlayList)
+	index = models.PositiveIntegerField()
+
+	class Meta:
+		ordering = ("index", )
+
+
 @receiver(models.signals.post_delete, sender=GameReplay)
 def cleanup_hsreplay_file(sender, instance, **kwargs):
 	from hsreplaynet.utils import delete_file_async
