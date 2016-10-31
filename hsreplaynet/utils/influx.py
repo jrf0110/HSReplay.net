@@ -48,12 +48,12 @@ else:
 	influx = None
 
 
-def influx_write_payload(payload, influx=influx):
-	if influx is None:
+def influx_write_payload(payload, client=influx):
+	if client is None:
 		return
 
 	try:
-		result = influx.write_points(payload)
+		result = client.write_points(payload)
 		if not result:
 			log.warn("Influx write failure")
 	except Exception as e:

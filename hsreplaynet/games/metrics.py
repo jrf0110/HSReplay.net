@@ -82,4 +82,4 @@ class InstrumentedExporter(EntityTreeExporter):
 		for pl in self._payload:
 			pl["fields"]["replay_xml"] = replay_xml_path
 		influx = get_influx_client("metastats")
-		influx_write_payload(self._payload, influx=influx)
+		influx_write_payload(self._payload, client=influx)
