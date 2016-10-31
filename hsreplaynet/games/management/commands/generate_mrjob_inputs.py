@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		query = options["query"]
-		rs = influx.query(query)
+		rs = influx.query(query, database="metastats")
 
 		for point in rs.get_points():
 			print("%s:%s" % (settings.AWS_STORAGE_BUCKET_NAME, point["replay_xml"]))
