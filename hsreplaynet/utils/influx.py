@@ -8,6 +8,9 @@ from django.utils.timezone import now
 from . import log
 
 
+_influx_clients = {}
+
+
 def create_influx_client(dbdict):
 	from influxdb import InfluxDBClient
 
@@ -29,17 +32,23 @@ def create_influx_client(dbdict):
 	return InfluxDBClient(**kwargs)
 
 
-if settings.INFLUX_ENABLED:
+def get_influx_client(name):
+	if name not in _influx_clients:
+		dbs = getattr(settings, "INFLUX_DATABASES", None)
+		if not dbs or name not in dbs:
+			raise ImproperlyConfigured("INFLUX_DATABASES[%r] setting is not set" % (name))
+		_influx_clients[name] = create_influx_client(dbs[name])
 
-	dbs = getattr(settings, "INFLUX_DATABASES", None)
-	if not dbs or "hsreplaynet" not in dbs:
-		raise ImproperlyConfigured('settings.INFLUX_DATABASES["hsreplaynet"] setting is not set')
-	influx = create_influx_client(dbs["hsreplaynet"])
+	return _influx_clients[name]
+
+
+if settings.INFLUX_ENABLED:
+	influx = get_influx_client("hsreplaynet")
 else:
 	influx = None
 
 
-def influx_write_payload(payload):
+def influx_write_payload(payload, influx=influx):
 	if influx is None:
 		return
 
