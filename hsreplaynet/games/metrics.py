@@ -1,4 +1,5 @@
 from math import floor
+from django.conf import settings
 from django.utils.timezone import now
 from hearthstone.enums import GameTag, BlockType, BnetGameType
 from hearthstone.hslog.export import EntityTreeExporter
@@ -72,6 +73,8 @@ class InstrumentedExporter(EntityTreeExporter):
 		return player.tags.get(GameTag.RESOURCES, 0)
 
 	def write_payload(self, replay_xml_path):
+		if not settings.INFLUX_ENABLED:
+			return
 		# We include the replay_xml_path so that we can more accurately target
 		# map-reduce jobs to only process replays where the cards of interest
 		# were actually played.
