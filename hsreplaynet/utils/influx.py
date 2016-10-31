@@ -8,31 +8,33 @@ from django.utils.timezone import now
 from . import log
 
 
-if settings.INFLUX_ENABLED:
+def create_influx_client(dbdict):
 	from influxdb import InfluxDBClient
 
-	dbs = getattr(settings, "INFLUX_DATABASES", None)
-	if not dbs or "hsreplaynet" not in dbs:
-		raise ImproperlyConfigured('settings.INFLUX_DATABASES["hsreplaynet"] setting is not set')
-
-	influx_settings = settings.INFLUX_DATABASES["hsreplaynet"]
-
 	kwargs = {
-		"host": influx_settings["HOST"],
-		"port": influx_settings.get("PORT", 8086),
-		"username": influx_settings["USER"],
-		"password": influx_settings["PASSWORD"],
-		"database": influx_settings["NAME"],
-		"ssl": influx_settings.get("SSL", False),
-		"timeout": influx_settings.get("TIMEOUT", 2)
+		"host": dbdict["HOST"],
+		"port": dbdict.get("PORT", 8086),
+		"username": dbdict["USER"],
+		"password": dbdict["PASSWORD"],
+		"database": dbdict["NAME"],
+		"ssl": dbdict.get("SSL", False),
+		"timeout": dbdict.get("TIMEOUT", 2)
 	}
 
-	udp_port = influx_settings.get("UDP_PORT", 0)
+	udp_port = dbdict.get("UDP_PORT", 0)
 	if udp_port:
 		kwargs["use_udp"] = True
 		kwargs["udp_port"] = udp_port
 
-	influx = InfluxDBClient(**kwargs)
+	return InfluxDBClient(**kwargs)
+
+
+if settings.INFLUX_ENABLED:
+
+	dbs = getattr(settings, "INFLUX_DATABASES", None)
+	if not dbs or "hsreplaynet" not in dbs:
+		raise ImproperlyConfigured('settings.INFLUX_DATABASES["hsreplaynet"] setting is not set')
+	influx = create_influx_client(dbs["hsreplaynet"])
 else:
 	influx = None
 
