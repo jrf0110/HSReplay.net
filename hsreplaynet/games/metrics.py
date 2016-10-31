@@ -2,7 +2,7 @@ from math import floor
 from django.utils.timezone import now
 from hearthstone.enums import GameTag, BlockType, BnetGameType
 from hearthstone.hslog.export import EntityTreeExporter
-from hsreplaynet.utils.influx import influx_write_payload
+from hsreplaynet.utils.influx import get_influx_client, influx_write_payload
 
 
 class InstrumentedExporter(EntityTreeExporter):
@@ -78,4 +78,5 @@ class InstrumentedExporter(EntityTreeExporter):
 		# Populate the payload with it before writing to influx
 		for pl in self._payload:
 			pl["fields"]["replay_xml"] = replay_xml_path
-		influx_write_payload(self._payload)
+		influx = get_influx_client("metastats")
+		influx_write_payload(self._payload, influx=influx)
