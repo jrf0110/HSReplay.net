@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseForbidden
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView, UpdateView, View
 from allauth.socialaccount.models import SocialAccount
@@ -22,6 +22,14 @@ class EditAccountView(LoginRequiredMixin, UpdateView):
 
 	def get_object(self, queryset=None):
 		return self.request.user
+
+
+class APIAccountView(LoginRequiredMixin, View):
+	template_name = "account/api.html"
+
+	def get(self, request):
+		context = {"tokens": request.user.auth_tokens.all()}
+		return render(request, self.template_name, context)
 
 
 class ClaimAccountView(LoginRequiredMixin, View):
