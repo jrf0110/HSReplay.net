@@ -33,4 +33,40 @@
 		{% endif %}
 		</div>
 	</section>
+
+	<section id="account-webhooks" class="box-section">
+		<h3>Webhooks</h3>
+		<div class="inner">
+			<p>
+				Webhooks allow you, or an authorized application, to automatically POST to a URL
+				whenever you complete a game and it is made available on HSReplay.net.
+			</p>
+			{% if not webhooks.count %}
+				<p>
+					You do not have any webhook set up right now.
+				</p>
+			{% else %}
+				<table class="table table-bordered">
+					<thead>
+						<th>UUID</th>
+						<th>URL</th>
+						<th>Created</th>
+						<th>Active</th>
+					</thead>
+					{% for webhook in webhooks %}
+						<tr>
+							<td>{{ webhook.uuid }}</td>
+							<td>{{ webhook.url }}</td>
+							<td>{{ webhook.created.isoformat }}</td>
+							{% if webhook.is_active %}
+								<td class="webhook-active">✓</td>
+							{% else %}
+								<td class="webhook-inactive">✗</td>
+							{% endif %}
+						</tr>
+					{% endfor %}
+				</table>
+			{% endif %}
+		</div>
+	</section>
 {% endblock %}

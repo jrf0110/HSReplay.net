@@ -44,3 +44,15 @@ h2 {
 		margin-top: 0.5em;
 	}
 }
+
+.webhook-active {
+	color: green;
+	font-weight: bold;
+	text-align: center;
+}
+
+.webhook-inactive {
+	color: darkred;
+	font-weight: bold;
+	text-align: center;
+}

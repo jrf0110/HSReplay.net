@@ -28,7 +28,10 @@ class APIAccountView(LoginRequiredMixin, View):
 	template_name = "account/api.html"
 
 	def get(self, request):
-		context = {"tokens": request.user.auth_tokens.all()}
+		context = {
+			"tokens": request.user.auth_tokens.all(),
+			"webhooks": request.user.webhooks.all(),
+		}
 		return render(request, self.template_name, context)
 
 
