@@ -57,6 +57,7 @@ INSTALLED_APPS_CORE = [
 	"hsreplaynet.scenarios",
 	"hsreplaynet.uploads",
 	"hsreplaynet.utils",
+	"hsreplaynet.webhooks",
 ]
 
 # The following apps are not needed on Lambda
