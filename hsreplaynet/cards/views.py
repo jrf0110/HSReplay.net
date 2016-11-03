@@ -5,6 +5,14 @@ from hearthstone.enums import CardClass, BnetGameType
 from .models import Card
 from .queries import DeckWinRateQueryBuilder, CardCountersQueryBuilder
 from hsreplaynet.features.decorators import view_requires_feature_access
+from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates_by_archetype_table
+
+
+@login_required
+@view_requires_feature_access("winrates")
+def archetypes(request):
+	win_rates, frequencies, expected_winrates = get_head_to_head_winrates_by_archetype_table()
+	return None
 
 
 @login_required
