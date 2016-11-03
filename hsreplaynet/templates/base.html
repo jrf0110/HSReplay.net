@@ -67,10 +67,9 @@
 						{% if user.is_authenticated %}
 							<li><a href="{% url 'my_replays' %}">My Replays</a></li>
 
-							{% feature "scenarios" as scenarios %}
-							{% if scenarios.is_enabled %}
+							{% featureguard "scenarios" %}
 								<li><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
-							{% endif %}
+							{% endfeatureguard %}
 
 							{% if user.is_staff %}
 								<li><a href="{% url 'admin:index' %}">Admin</a></li>

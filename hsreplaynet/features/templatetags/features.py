@@ -41,3 +41,39 @@ def feature(context, feature_name):
 		feature_context["read_only"] = feature.read_only
 
 	return feature_context
+
+
+@register.tag
+def featureguard(parser, token):
+	"""
+	Expected usage:
+
+	{% featureguard "winrate" %}
+		...
+	{% endfeatureguard %}
+	"""
+	try:
+		tag_name, feature_name = token.split_contents()
+	except ValueError:
+		raise template.TemplateSyntaxError(
+			"%r tag requires exactly one argument" % token.contents.split()[0]
+		)
+	if not (feature_name[0] == feature_name[-1] and feature_name[0] in ('"', "'")):
+		raise template.TemplateSyntaxError(
+			"%r tag's argument should be in quotes" % tag_name
+		)
+	nodelist = parser.parse(('end' + tag_name,))
+	parser.delete_first_token()
+	return GuardNode(feature_name[1:-1], nodelist)
+
+
+class GuardNode(template.Node):
+	def __init__(self, feature_name, nodelist):
+		self.feature_name = feature_name
+		self.nodelist = nodelist
+
+	def render(self, context):
+		feature_context = feature(context, self.feature_name)
+		if feature_context["is_enabled"]:
+			return self.nodelist.render(context)
+		return ''
