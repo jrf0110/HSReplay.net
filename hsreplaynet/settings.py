@@ -143,12 +143,13 @@ STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
 	os.path.join(BASE_DIR, "hsreplaynet", "static"),
+	os.path.join(BASE_DIR, "build", "generated"),
 ]
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 WEBPACK_LOADER = {
 	"DEFAULT": {
-		"BUNDLE_DIR_NAME": "bundles/",
+		"BUNDLE_DIR_NAME": "webpack/",
 		"STATS_FILE": os.path.join(BUILD_DIR, "webpack-stats.json"),
 	}
 }

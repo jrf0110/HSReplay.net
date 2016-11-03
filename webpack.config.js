@@ -51,7 +51,7 @@ module.exports = {
 		replay_embed: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/replay_embed"),
 	},
 	output: {
-		path: path.resolve(__dirname, "./hsreplaynet/static/bundles/"),
+		path: path.resolve(__dirname, "./build/generated/webpack"),
 		filename: "[name].js",
 	},
 	resolve: {
