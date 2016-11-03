@@ -44,45 +44,53 @@ body, html {
 	padding: 8px;
 	height: 50px;
 	width: 40px;
+	float: left;
 }
 
-header nav {
+.container .navbar-collapse {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.navbar {
+	border-radius: 0;
+}
+
+.navbar-hsreplay {
 	background-color: $blue;
-	border-bottom: 1px solid $blue;
-	height: 50px;
-}
+	color: $offwhite;
+	margin-bottom: 0;
+	border: 0;
 
-header nav ul {
-	list-style-type: none;
-	margin: 0;
-}
+	.navbar-toggle {
+		border-color: $offwhite;
 
-header nav ul li a {
-	padding: 1em;
-}
+		.icon-bar {
+			background-color: $offwhite;
+		}
+	}
 
-header nav ul.left {
-	float: left;
-}
+	.navbar-brand {
+		padding: 0;
+		padding-right: 15px;
 
-header nav ul.right {
-	float: right;
-}
+		h1 {
+			padding: 12px 0;
+			display: inline-block;
+			font-size: 1.2em;
+		}
+	}
 
-header nav a {
-	color: #ccc;
-	float: left;
-}
-header nav a:hover, header nav a:focus {
-	color: white;
-	text-decoration: none;
-}
+	.nav > li {
+		> a:focus, > a:hover {
+			color: $lightgrey;
+			background-color: transparent;
+		}
+	}
 
-header nav h1 {
-	display: inline;
-	vertical-align: middle;
-	font-size: 1.5em;
-	text-shadow: 1px 1px black;
+	a {
+		color: inherit;
+	}
 }
 
 .site-footer {
@@ -129,7 +137,6 @@ header nav h1 {
 	padding: 1em;
 }
 
-
 /* Elements */
 
 .promo-button, .promo-button:visited, .promo-button-outline, .promo-button-outline:visited {
@@ -155,13 +162,12 @@ header nav h1 {
 	border-color: $red;
 }
 
-
 .promo-button-outline, .promo-button-outline:visited {
 	background-color: transparent;
 	color: $red;
 }
 
-.promo-button-outline:hover, .promo-button-outline:active{
+.promo-button-outline:hover, .promo-button-outline:active {
 	text-decoration: none;
 	color: $red;
 }
