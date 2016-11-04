@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% load web_extras %}
+
+{% block title %}Archetypes{% endblock %}
+
+{% block fullcontent %}
+	<div class="page-header">
+		<div class="container">
+			<h1>Archetypes</h1>
+		</div>
+	</div>
+	<div class="content">
+		<div class="container">
+			<h2 id="frequencies">Popularities</h2>
+			<table class="table table-condensed table-hover">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Archetype</th>
+						<th>Frequency</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for archetype, frequency in frequencies %}
+						<tr>
+							<th>{{ forloop.counter }}</th>
+							<th>{{ archetype }}</th>
+							<td>{{ frequency|floatformat:-2 }}%</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% endblock %}

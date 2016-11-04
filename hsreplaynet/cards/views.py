@@ -1,24 +1,35 @@
+from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from hearthstone.enums import CardClass, BnetGameType
+
+from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates_by_archetype_table
+from hsreplaynet.features.decorators import view_requires_feature_access
 from .models import Card
 from .queries import DeckWinRateQueryBuilder, CardCountersQueryBuilder
-from hsreplaynet.features.decorators import view_requires_feature_access
-from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates_by_archetype_table
 
 
 @login_required
 @view_requires_feature_access("winrates")
 def archetypes(request):
+	context = {}
+
 	win_rates, frequencies, expected_winrates = get_head_to_head_winrates_by_archetype_table()
-	return None
+
+	context["win_rates"] = win_rates
+	context["frequencies"] = sorted(
+		((k, v * 100) for k, v in frequencies.items()),
+		key=lambda x: x[1],
+		reverse=True
+	)
+	context["expected_winrates"] = expected_winrates
+
+	return render(request, "cards/deck_archetypes.html", context)
 
 
 @login_required
 @view_requires_feature_access("winrates")
 def winrates(request):
-
 	query_builder = DeckWinRateQueryBuilder()
 	context = {}
 
@@ -81,7 +92,6 @@ def winrates(request):
 @login_required
 @view_requires_feature_access("winrates")
 def counters(request):
-
 	query_builder = CardCountersQueryBuilder()
 	context = {}
 
