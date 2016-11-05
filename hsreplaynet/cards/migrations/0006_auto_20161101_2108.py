@@ -50,6 +50,12 @@ BEGIN
 
 		IF player_1.deck_list_id IS NOT NULL AND player_1.account_hi IS NOT NULL
 		AND player_2.deck_list_id IS NOT NULL AND player_2.account_hi IS NOT NULL
+		-- Filter out draws to keep head_to_head stats symmetrical
+		AND (
+			(player_1.final_state = 4 AND player_2.final_state != 4)
+			OR
+			(player_1.final_state != 4 AND player_2.final_state = 4)
+		)
 		THEN
 
 			SELECT * INTO player_1_deck
