@@ -1,12 +1,14 @@
 import * as React from "react";
 import Distribution from "./Distribution";
 import {BnetGameType} from "../hearthstone";
+import Matrix from "./Matrix";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 }
 
 interface ArchetypeClientState {
 	popularities?: any;
+	winrates?: any;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -21,16 +23,25 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		).then((response) => {
 			return response.json();
 		}).then((json: any) => {
-			this.setState({popularities: json.frequencies});
+			this.setState({
+				popularities: json.frequencies,
+				winrates: json.win_rates,
+			});
 		});
 		this.state = {
 			popularities: {},
+			winrates: {},
 		};
 	}
 
 	public render(): JSX.Element {
 		return (
 			<div>
+				<h2>Winrates</h2>
+				<Matrix
+					matrix={this.state.winrates}
+				/>
+				<h2>Popularities</h2>
 				<Distribution
 					distributions={this.state.popularities}
 					title="Archetype"

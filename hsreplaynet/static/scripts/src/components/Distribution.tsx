@@ -20,7 +20,7 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 		let count = 0;
 		const rows = $.map(this.props.distributions, (value: number, key: string) => {
 			return (
-				<tr>
+				<tr key={count}>
 					<th>{++count}</th>
 					<th>{key}</th>
 					<td>{(value * 100).toFixed(2)}%</td>
