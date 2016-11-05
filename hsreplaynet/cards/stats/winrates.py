@@ -74,12 +74,12 @@ def get_head_to_head_winrates(lookback, game_types, regions, min_rank, max_rank,
 		return _generate_win_rates_by_archetype_table_from_db(query)
 
 	m = hashlib.md5()
-	m.update(lookback)
-	m.update(game_types)
-	m.update(regions)
-	m.update(min_rank)
-	m.update(max_rank)
-	m.update(arches)
+	m.update(lookback.encode("utf8"))
+	m.update(game_types.encode("utf8"))
+	m.update(regions.encode("utf8"))
+	m.update(min_rank.encode("utf8"))
+	m.update(max_rank.encode("utf8"))
+	m.update(arches.encode("utf8"))
 	cache_key = m.hexdigest()
 
 	win_rates_table, archetype_frequencies, expected_winrates = cache.get_or_set(
