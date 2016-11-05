@@ -66,22 +66,22 @@
 					<ul class="nav navbar-nav">
 						{% if user.is_authenticated %}
 							<li><a href="{% url 'my_replays' %}">My Replays</a></li>
-
-							{% feature "archetypes" %}
-								<li><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
-							{% endfeature %}
-
-							{% feature "scenarios" %}
-								<li><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
-							{% endfeature %}
-
-							{% if user.is_staff %}
-								<li><a href="{% url 'admin:index' %}">Admin</a></li>
-							{% endif %}
-
 						{% endif %}
+
+						{% feature "archetypes" %}
+							<li><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
+						{% endfeature %}
+
+						{% feature "scenarios" %}
+							<li><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
+						{% endfeature %}
+
+						{% if user.is_authenticated and user.is_staff %}
+							<li><a href="{% url 'admin:index' %}">Admin</a></li>
+						{% endif %}
+
 						{% if twitter_handle %}
-							<li><a href="https://twitter.com/{{ twitter_handle }}" class="hidden-xs" target="_blank">@{{ twitter_handle }}</a></li>
+							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank">@{{ twitter_handle }}</a></li>
 						{% endif %}
 						</ul>
 
