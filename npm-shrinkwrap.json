@@ -413,6 +413,11 @@
       "from": "binary-extensions@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/binary-extensions/-/binary-extensions-1.7.0.tgz"
     },
+    "blob": {
+      "version": "0.0.4",
+      "from": "blob@latest",
+      "resolved": "https://registry.npmjs.org/blob/-/blob-0.0.4.tgz"
+    },
     "bluebird": {
       "version": "3.4.6",
       "from": "bluebird@>=3.1.1 <4.0.0",

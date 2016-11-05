@@ -9,6 +9,10 @@ declare var JOUST_RAVEN_ENVIRONMENT: string;
 declare var HEARTHSTONEJSON_URL: string;
 declare var INFLUX_DATABASE_JOUST: string;
 
+declare module "blob" {
+	export default Blob;
+}
+
 declare module "clipboard" {
 	export default class Clipboard {
 		constructor(selector: any, options?: any);

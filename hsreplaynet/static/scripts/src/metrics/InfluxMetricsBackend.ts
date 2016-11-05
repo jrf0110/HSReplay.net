@@ -1,4 +1,5 @@
 import {MetricsBackend, Point} from "./MetricsBackend";
+import Blob from "blob";
 
 
 export default class InfluxMetricsBackend implements MetricsBackend {
@@ -10,6 +11,9 @@ export default class InfluxMetricsBackend implements MetricsBackend {
 			return;
 		}
 		let url = this.url;
+		if(!Blob) {
+			return;
+		}
 		let blob = new Blob([
 			points.map(function (point) {
 				let tags = [];
