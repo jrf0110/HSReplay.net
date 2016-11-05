@@ -83,9 +83,9 @@
 						{% if twitter_handle %}
 							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank">@{{ twitter_handle }}</a></li>
 						{% endif %}
-						</ul>
+					</ul>
 
-						<ul class="nav navbar-nav navbar-right">
+					<ul class="nav navbar-nav navbar-right">
 						{% if user.is_authenticated %}
 							<li>
 								<a href="{% url 'account_edit' %}">
