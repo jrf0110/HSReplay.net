@@ -46,9 +46,9 @@ const settings = exportSettings.reduce((obj, current) => {
 module.exports = {
 	context: __dirname,
 	entry: {
-		my_replays: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/my_replays"),
-		replay_detail: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/replay_detail"),
-		replay_embed: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/replay_embed"),
+		my_replays: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/my_replays"),
+		replay_detail: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/replay_detail"),
+		replay_embed: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/replay_embed"),
 	},
 	output: {
 		path: path.resolve(__dirname, "./build/generated/webpack"),

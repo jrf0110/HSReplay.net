@@ -1,15 +1,15 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import $ from "jquery";
-import ShareGameDialog from "./components/ShareGameDialog";
-import JoustEmbedder from "./JoustEmbedder";
-import MetricsReporter from "./metrics/MetricsReporter";
-import BatchingMiddleware from "./metrics/BatchingMiddleware";
-import InfluxMetricsBackend from "./metrics/InfluxMetricsBackend";
-import jQueryCSRF from "./jQueryCSRF";
-import VisibilityDropdown from "./components/VisibilityDropdown";
-import {Visibility} from "./interfaces";
-import DeleteReplayButton from "./components/DeleteReplayButton";
+import ShareGameDialog from "../components/ShareGameDialog";
+import JoustEmbedder from "../JoustEmbedder";
+import MetricsReporter from "../metrics/MetricsReporter";
+import BatchingMiddleware from "../metrics/BatchingMiddleware";
+import InfluxMetricsBackend from "../metrics/InfluxMetricsBackend";
+import jQueryCSRF from "../jQueryCSRF";
+import VisibilityDropdown from "../components/VisibilityDropdown";
+import {Visibility} from "../interfaces";
+import DeleteReplayButton from "../components/DeleteReplayButton";
 
 
 // add Django CSRF token to jQuery.ajax

@@ -1,5 +1,5 @@
 import * as React from "react";
-import JoustEmbedder from "./JoustEmbedder";
+import JoustEmbedder from "../JoustEmbedder";
 
 
 // Joust
