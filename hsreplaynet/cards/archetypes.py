@@ -59,11 +59,12 @@ def classify_deck(
 	# 10 cards: we accept 2 divergent cards, distance is: 4 + 10 (unrevealed) = 14
 	# 5 cards: we accept 0 divergent cards, distance is: 12.5 (unrevealed) = 12.5
 	CUTOFF_DISTANCE = 14
-	for archetype, canonical_deck in candidates.items():
-		dist = edit_distance(canonical_deck, unclassified_deck)
-		log.info("Archetype: %s, Distance: %s" % (archetype.name, str(dist)))
-		if dist <= CUTOFF_DISTANCE:
-			distances.append((archetype, dist))
+	for archetype, canonical_decks in candidates.items():
+		for canonical_deck in canonical_decks:
+			dist = edit_distance(canonical_deck, unclassified_deck)
+			log.info("Archetype: %s, Distance: %s" % (archetype.name, str(dist)))
+			if dist <= CUTOFF_DISTANCE:
+				distances.append((archetype, dist))
 
 	if distances:
 		return sorted(distances, key=lambda t: t[1])[0][0]

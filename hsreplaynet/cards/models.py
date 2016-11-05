@@ -265,9 +265,9 @@ class ArchetypeManager(models.Manager):
 		result = {}
 
 		for archetype in Archetype.objects.filter(player_class=player_class):
-			canonical_deck = archetype.canonical_deck(format)
-			if canonical_deck:
-				result[archetype] = canonical_deck
+			canonical_decks = archetype.get_canonical_decks(format)
+			if canonical_decks:
+				result[archetype] = canonical_decks
 
 		return result
 
@@ -284,19 +284,19 @@ class Archetype(models.Model):
 	name = models.CharField(max_length=250, blank=True)
 	player_class = IntEnumField(enum=enums.CardClass, default=enums.CardClass.INVALID)
 
-	def canonical_deck(self, format=enums.FormatType.FT_STANDARD, as_of=None):
+	def get_canonical_decks(self, format=enums.FormatType.FT_STANDARD, as_of=None):
 		if as_of is None:
-			canonical = self.canonical_decks.filter(
+			canonicals = self.canonical_decks.filter(
 				format=format,
-			).order_by('-created').prefetch_related("deck__includes").first()
+			).order_by('-created').prefetch_related("deck__includes").all()
 		else:
-			canonical = self.canonical_decks.filter(
+			canonicals = self.canonical_decks.filter(
 				format=format,
 				created__lte=as_of
-			).order_by('-created').prefetch_related("deck__includes").first()
+			).order_by('-created').prefetch_related("deck__includes").all()
 
-		if canonical:
-			return canonical.deck
+		if canonicals:
+			return [c.deck for c in canonicals]
 		else:
 			return None
 
