@@ -105,6 +105,14 @@ body, html {
 		padding-bottom: 8px;
 	}
 
+	@media (max-width: 767px) {
+		.promo-button, .promo-button-outline {
+			width: auto;
+			float: left;
+			margin: 0 15px 10px 10px;
+		}
+	}
+
 	li.button-container {
 		padding-top: 5px;
 	}
