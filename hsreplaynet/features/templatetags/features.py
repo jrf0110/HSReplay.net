@@ -83,10 +83,16 @@ class GuardNode(template.Node):
 	def render(self, context):
 		feature_context = get_feature_context(context["request"].user, self.feature_name)
 		if feature_context["is_enabled"]:
+			previous = None
 			if self.variable:
+				if self.variable in context:
+					previous = context[self.variable]
 				context[self.variable] = feature_context
 			result = self.nodelist.render(context)
 			if self.variable:
-				del context[self.variable]
+				if previous:
+					context[self.variable] = previous
+				else:
+					del context[self.variable]
 			return result
 		return ''
