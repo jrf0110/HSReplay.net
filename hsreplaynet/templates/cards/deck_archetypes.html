@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load web_extras %}
+{% load render_bundle from webpack_loader %}
 
 {% block title %}Archetypes{% endblock %}
 
@@ -12,25 +13,10 @@
 	</div>
 	<div class="content">
 		<div class="container">
-			<h2 id="frequencies">Popularities</h2>
-			<table class="table table-condensed table-hover">
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>Archetype</th>
-						<th>Frequency</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for archetype, frequency in frequencies %}
-						<tr>
-							<th>{{ forloop.counter }}</th>
-							<th>{{ archetype }}</th>
-							<td>{{ frequency|floatformat:-2 }}%</td>
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
+			<h2>Popularities</h2>
+			<div id="popularity-container"></div>
 		</div>
 	</div>
-{% endblock %}
+
+	{% render_bundle "archetypes" %}
+s{% endblock %}

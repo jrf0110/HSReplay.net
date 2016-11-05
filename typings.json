@@ -9,6 +9,8 @@
 		"node": "registry:dt/node#6.0.0+20161019125345",
 		"ravenjs": "registry:dt/ravenjs#0.0.0+20161018135108",
 		"react": "registry:dt/react#0.14.0+20161008064207",
-		"react-dom": "registry:dt/react-dom#0.14.0+20160412154040"
+		"react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
+		"whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20161004182750",
+		"whatwg-streams": "registry:dt/whatwg-streams#0.0.0+20160829180742"
 	}
 }
