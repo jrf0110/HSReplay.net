@@ -8,6 +8,7 @@ register = template.Library()
 
 def get_feature_context(user, feature_name):
 	feature_context = {
+		"name": feature_name,
 		"is_enabled": True,
 		"read_only": False,
 	}
