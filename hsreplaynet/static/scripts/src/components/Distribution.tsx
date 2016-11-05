@@ -23,7 +23,7 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 				<tr>
 					<th>{++count}</th>
 					<th>{key}</th>
-					<td>{Math.round(value * 100 * 100) / 100}%</td>
+					<td>{(value * 100).toFixed(2)}%</td>
 				</tr>
 			);
 		});
