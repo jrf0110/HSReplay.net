@@ -2,7 +2,6 @@ from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest
 import json
 from django.shortcuts import render
-from hearthstone.enums import BnetRegion
 from django.http import HttpResponse
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates_by_archetype_table
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
@@ -37,10 +36,10 @@ def winrates(request):
 	regions_param = request.GET.get("regions", "")
 	if not regions_param:
 		regions = ",".join((
-			BnetRegion.REGION_US,
-			BnetRegion.REGION_EU,
-			BnetRegion.REGION_KR,
-			BnetRegion.REGION_CN)
+			"144115193835963207",
+			"144115198130930503",
+			"144115202425897799",
+			"144115211015832391")
 		)
 	else:
 		regions = regions_param
