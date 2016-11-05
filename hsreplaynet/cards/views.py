@@ -1,12 +1,15 @@
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest
+import json
 from django.shortcuts import render
-from hearthstone.enums import CardClass, BnetGameType
-
+from hearthstone.enums import BnetRegion
+from django.http import HttpResponse
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates_by_archetype_table
+from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
+from hsreplaynet.cards.models import Archetype
 from hsreplaynet.features.decorators import view_requires_feature_access
 from .models import Card
-from .queries import DeckWinRateQueryBuilder, CardCountersQueryBuilder
+from .queries import CardCountersQueryBuilder
 
 
 @login_required
@@ -30,63 +33,44 @@ def archetypes(request):
 @login_required
 @view_requires_feature_access("winrates")
 def winrates(request):
-	query_builder = DeckWinRateQueryBuilder()
-	context = {}
+	lookback = request.GET.get("lookback", "7")
+	regions_param = request.GET.get("regions", "")
+	if not regions_param:
+		regions = ",".join((
+			BnetRegion.REGION_US,
+			BnetRegion.REGION_EU,
+			BnetRegion.REGION_KR,
+			BnetRegion.REGION_CN)
+		)
+	else:
+		regions = regions_param
 
-	player_class_param = request.GET.get("class", "").upper()
-	if player_class_param:
-		if player_class_param not in CardClass.__members__:
-			return HttpResponseBadRequest("'class' must be the name of a class, e.g. 'priest'")
-		else:
-			context["player_class"] = CardClass[player_class_param].name
-			query_builder.player_class = CardClass[player_class_param].value
+	archetypes_param = request.GET.get("archetypes", "")
+	if not archetypes_param:
+		archetypes = ",".join([str(a.id) for a in Archetype.objects.all()])
+	else:
+		archetypes = archetypes_param
 
-	player_rank_param = request.GET.get("player_rank", "")
-	if player_rank_param:
-		if not player_rank_param.isnumeric():
-			return HttpResponseBadRequest("'player_rank' must be numeric")
-		else:
-			context["max_rank"] = int(player_rank_param)
-			query_builder.max_rank = context["max_rank"]
+	game_types = request.GET.get("game_types", "2")
+	max_rank = int(request.GET.get("game_types", "15"))
+	min_rank = int(request.GET.get("game_types", "-1"))
+	win_rates, frequencies, expected_winrates = get_head_to_head_winrates(
+		lookback,
+		game_types,
+		regions,
+		min_rank,
+		max_rank,
+		archetypes
+	)
 
-	min_games_param = request.GET.get("min_games", "")
-	if min_games_param:
-		if not min_games_param.isnumeric():
-			return HttpResponseBadRequest("'min_games' must be numeric")
-		else:
-			context["min_games"] = int(min_games_param)
-			query_builder.min_games = context["min_games"]
+	payload = {
+		"win_rates": winrates,
+		"frequencies": frequencies,
+		"expected_winrates": expected_winrates
+	}
 
-	game_type_param = request.GET.get("game_type", "").upper()
-	if game_type_param:
-		if game_type_param not in BnetGameType.__members__:
-			return HttpResponseBadRequest(
-				"'game_type' must be a value like 'bgt_ranked_standard'"
-			)
-		else:
-			context["game_type"] = BnetGameType[game_type_param].name
-			query_builder.game_type = BnetGameType[game_type_param].value
-
-	cards_param = request.GET.get("cards", "")
-	if cards_param:
-		card_names = [c.strip('"') for c in cards_param.split(",")]
-		cards = []
-		for name in card_names:
-			card = Card.objects.get_by_partial_name(name)
-			if card:
-				cards.append(card)
-			else:
-				return HttpResponseBadRequest("Unknown card '%s'" % name)
-
-		context["cards"] = cards
-		query_builder.cards = context["cards"]
-
-	columns, decks_by_winrate = query_builder.result()
-
-	context["winrate_columns"] = columns
-	context["decks_by_winrate"] = decks_by_winrate
-
-	return render(request, "cards/deck_winrates.html", context)
+	payload_str = json.dumps(payload, indent=4, sort_keys=True)
+	return HttpResponse(payload_str, content_type="application/json")
 
 
 @login_required

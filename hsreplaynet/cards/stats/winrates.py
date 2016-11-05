@@ -1,4 +1,5 @@
 from collections import defaultdict
+import hashlib
 from django.core.cache import cache
 from django.db import connection
 from decimal import Decimal
@@ -31,27 +32,86 @@ GROUP BY friendly_arch.id, opposing_arch.id;
 """
 
 
-def get_head_to_head_winrates_by_archetype_table():
-	# Cache results for 1 hour (since that's the resolution that the trigger stores data at.
-	# See Thundering Herd Protection
-	# https://github.com/sebleier/django-redis-cache
+WINRATES_BY_ARCHETYPE_QUERY_TEMPLATE = """
+SELECT
+friendly_arch.id,
+max(friendly_arch.name) AS "friendly_arch_name",
+opposing_arch.id,
+max(opposing_arch.name) AS "opposing_arch_name",
+sum(hth.matches) as "match_count",
+sum(hth.friendly_player_wins) AS "friendly_wins",
+round(((1.0 * sum(hth.friendly_player_wins)) / sum(hth.matches)) * 100, 2) AS f_wr_vs_o
+FROM cards_archetype friendly_arch
+JOIN cards_archetype opposing_arch ON TRUE
+JOIN head_to_head_archetype_stats hth
+	ON hth.friendly_player_archetype_id = friendly_arch.id
+	AND hth.opposing_player_archetype_id = opposing_arch.id
+WHERE hth.epoch_seconds > date_part('epoch', current_timestamp - interval '%s days')
+AND game_type IN (%s)
+AND hth.region_id in (%s)
+AND hth.rank BETWEEN %s AND %s
+-- The following two rows allow limiting the result set to certain archetypes
+-- Both in clauses should contain the same set of IDs
+AND friendly_arch.id IN (%s)
+AND opposing_arch.id IN (%s)
+GROUP BY friendly_arch.id, opposing_arch.id;
+"""
+
+
+def get_head_to_head_winrates(lookback, game_types, regions, min_rank, max_rank, arches):
+	query_params = (
+		lookback,
+		game_types,
+		regions,
+		min_rank,
+		max_rank,
+		arches,
+		arches
+	)
+	query = WINRATES_BY_ARCHETYPE_QUERY_TEMPLATE % query_params
+
+	def gen_cache_value():
+		return _generate_win_rates_by_archetype_table_from_db(query)
+
+	m = hashlib.md5()
+	m.update(lookback)
+	m.update(game_types)
+	m.update(regions)
+	m.update(min_rank)
+	m.update(max_rank)
+	m.update(arches)
+	cache_key = m.hexdigest()
+
 	win_rates_table, archetype_frequencies, expected_winrates = cache.get_or_set(
-		'archetype_winrates',
-		_generate_win_rates_by_archetype_table_from_db,
+		cache_key,
+		gen_cache_value,
 		timeout=300
 	)
 	return win_rates_table, archetype_frequencies, expected_winrates
 
-	pass
+
+def get_head_to_head_winrates_by_archetype_table():
+	# Cache results for 1 hour (since that's the resolution that the trigger stores data at.
+	# See Thundering Herd Protection
+	# https://github.com/sebleier/django-redis-cache
+	def generate_cache_value():
+		return _generate_win_rates_by_archetype_table_from_db(WINRATES_BY_ARCHETYPE_QUERY)
+
+	win_rates_table, archetype_frequencies, expected_winrates = cache.get_or_set(
+		'archetype_winrates',
+		generate_cache_value,
+		timeout=300
+	)
+	return win_rates_table, archetype_frequencies, expected_winrates
 
 
-def _generate_win_rates_by_archetype_table_from_db():
+def _generate_win_rates_by_archetype_table_from_db(query):
 	win_rates_table = defaultdict(lambda: defaultdict(dict))
 	archetype_counts = defaultdict(int)
 	total_matches = 0
 
 	cursor = connection.cursor()
-	cursor.execute(WINRATES_BY_ARCHETYPE_QUERY)
+	cursor.execute(query)
 
 	for record in dictfetchall(cursor):
 
