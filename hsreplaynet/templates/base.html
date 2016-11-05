@@ -67,13 +67,13 @@
 						{% if user.is_authenticated %}
 							<li><a href="{% url 'my_replays' %}">My Replays</a></li>
 
-							{% featureguard "archetypes" %}
+							{% feature "archetypes" %}
 								<li><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
-							{% endfeatureguard %}
+							{% endfeature %}
 
-							{% featureguard "scenarios" %}
+							{% feature "scenarios" %}
 								<li><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
-							{% endfeatureguard %}
+							{% endfeature %}
 
 							{% if user.is_staff %}
 								<li><a href="{% url 'admin:index' %}">Admin</a></li>
