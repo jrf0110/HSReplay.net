@@ -40,7 +40,8 @@ opposing_arch.id,
 max(opposing_arch.name) AS "opposing_arch_name",
 sum(hth.matches) as "match_count",
 sum(hth.friendly_player_wins) AS "friendly_wins",
-round(((1.0 * sum(hth.friendly_player_wins)) / sum(hth.matches)) * 100, 2) AS f_wr_vs_o
+round(((1.0 * sum(hth.friendly_player_wins)) / sum(hth.matches)) * 100, 2) AS f_wr_vs_o,
+CASE WHEN friendly_arch.id = opposing_arch.id THEN 1 ELSE 0 END AS "is_mirror"
 FROM cards_archetype friendly_arch
 JOIN cards_archetype opposing_arch ON TRUE
 JOIN head_to_head_archetype_stats hth
@@ -127,6 +128,7 @@ def _generate_win_rates_by_archetype_table_from_db(query):
 		head_to_head["friendly_wins"] = record["friendly_wins"]
 		head_to_head["match_count"] = record["match_count"]
 		head_to_head["f_wr_vs_o"] = float(record["f_wr_vs_o"])
+		head_to_head["is_mirror"] = bool(record["is_mirror"])
 
 	win_rates_table = defaultdict_to_vanilla_dict(win_rates_table)
 
