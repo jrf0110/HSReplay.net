@@ -27,12 +27,21 @@ CREATE_FUNC_ELIGABLE_FOR_ARCHETYPE_STATS = """
 CREATE OR REPLACE FUNCTION is_eligable_for_archetype_stats(replay games_gamereplay)
 RETURNS boolean AS $$
 DECLARE
+	user_record accounts_user%ROWTYPE;
 	global_game games_globalgame%ROWTYPE;
 	player_1 games_globalgameplayer%ROWTYPE;
 	player_1_deck cards_deck%ROWTYPE;
 	player_2 games_globalgameplayer%ROWTYPE;
 	player_2_deck cards_deck%ROWTYPE;
 BEGIN
+
+	SELECT * INTO user_record
+	FROM accounts_user
+	WHERE id = replay.user_id;
+
+	IF user_record IS NOT NULL AND user_record.exclude_from_statistics THEN
+		return false;
+	END IF;
 
 	SELECT * INTO STRICT global_game
 	FROM games_globalgame
