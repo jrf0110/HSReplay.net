@@ -22,7 +22,7 @@ const enum Colors {
 	REDGREEN,
 	REDGREEN2,
 	ORANGEBLUE,
-};
+}
 
 export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
@@ -45,11 +45,23 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			const cells = $.map(archetypes, (key: string) => {
 				const class2 = key;
 				const matchup: any = row[key];
-				const winrate = matchup ? (matchup.f_wr_vs_o * 100).toFixed(2) + "%" : "unknown";
 				const style = {
 					backgroundColor: this.getColorString(matchup ? matchup.f_wr_vs_o : null, matchup ? !!matchup.is_mirror : false),
 				};
-				return <td key={cellcount++} title={class1 + " vs " + class2 + String.fromCharCode(10) + "Winrate: " + winrate} style={style}></td>;
+				let tooltip = class1 + " vs. " + class2;
+				if (matchup && matchup.is_mirror) {
+					tooltip += "\nMirror matchup (" + matchup.match_count + " games)";
+				}
+				else {
+					let winrate = matchup ? (matchup.f_wr_vs_o * 100).toFixed(2) + "%" : "unknown";
+					if (matchup) {
+						winrate += " (won " + matchup.friendly_wins + "/" + matchup.match_count + ")";
+					}
+					tooltip += "\nWinrate: " + winrate;
+				}
+				return <td key={cellcount++}
+						   title={tooltip.replace("\n",  String.fromCharCode(10))}
+						   style={style}></td>;
 			});
 			return (
 				<tr key={rowcount++}>
@@ -60,7 +72,8 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		});
 
 		const headers = [<th></th>].concat($.map(archetypes, (key: string) => {
-			return <th style={{width: "20px", overflow: "hidden", whiteSpace: "nowrap"}}>{key}</th>;
+			return <th
+				style={{width: "20px", overflow: "hidden", whiteSpace: "nowrap"}}>{key}</th>;
 		}));
 
 		return (
@@ -72,12 +85,13 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				<div>
 					<label>
 						Intensity
-						<input type="range" min={0} max={100} value={"" + this.state.intensity * 100}
+						<input type="range" min={0} max={100}
+							   value={"" + this.state.intensity * 100}
 							   onChange={(e: any) => {
 							this.setState({
 								intensity: +e.target.value / 100,
 							});
-						}} />
+						}}/>
 					</label>
 					<label>
 						Colors
@@ -87,7 +101,8 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 							});
 						}}>
 							<option value={"" + Colors.REDGREEN}>Red/Green</option>
-							<option value={"" + Colors.REDGREEN2}>Alternate Red/Green</option>
+							<option value={"" + Colors.REDGREEN2}>Alternate Red/Green
+							</option>
 							<option value={"" + Colors.ORANGEBLUE}>Orange/Blue</option>
 						</select>
 					</label>
@@ -109,7 +124,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		let positive = [0, 0, 0];
 		let negative = [0, 0, 0];
 
-		switch(this.state.colors) {
+		switch (this.state.colors) {
 			case Colors.REDGREEN:
 				positive = [120, 60, 50];
 				neutral = [60, 100, 100];
@@ -128,7 +143,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		}
 
 		const _fn = (x: number, from: number, to: number): number => {
-			if(from === null || to === null) {
+			if (from === null || to === null) {
 				return +(to || from);
 			}
 			x = Math.pow(x, this.state.intensity);
@@ -149,10 +164,10 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 		const severity = Math.abs(0.5 - winrate) * 2;
 
-		if(winrate > 0.5) {
+		if (winrate > 0.5) {
 			return hsl(fn(severity, neutral, positive));
 		}
-		else if(winrate < 0.5) {
+		else if (winrate < 0.5) {
 			return hsl(fn(severity, neutral, negative));
 		}
 		else {
