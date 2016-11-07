@@ -245,6 +245,7 @@ REST_FRAMEWORK = {
 if ENV_DEV:
 	INSTALLED_APPS += [
 		"debug_toolbar",
+		"explorer",
 	]
 	MIDDLEWARE_CLASSES += [
 		"debug_toolbar.middleware.DebugToolbarMiddleware",
