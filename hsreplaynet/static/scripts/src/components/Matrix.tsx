@@ -190,10 +190,10 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 						<label>
 							Intensity
 							<input type="range" min={0} max={100}
-								   value={"" + this.state.intensity * 100}
+								   value={"" + (100 - this.state.intensity * 100)}
 								   onChange={(e: any) => {
 								this.setState({
-									intensity: +e.target.value / 100,
+									intensity: (100 - e.target.value) / 100,
 								});
 							}}/>
 						</label>
