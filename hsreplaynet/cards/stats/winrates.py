@@ -2,7 +2,6 @@ from collections import defaultdict
 import hashlib
 from django.core.cache import cache
 from django.db import connection
-from decimal import Decimal
 from hsreplaynet.utils.db import dictfetchall
 from hsreplaynet.utils.collections import defaultdict_to_vanilla_dict
 
@@ -41,7 +40,7 @@ opposing_arch.id,
 max(opposing_arch.name) AS "opposing_arch_name",
 sum(hth.matches) as "match_count",
 sum(hth.friendly_player_wins) AS "friendly_wins",
-round(((1.0 * sum(hth.friendly_player_wins)) / sum(hth.matches)) * 100, 2) AS f_wr_vs_o,
+(1.0 * sum(hth.friendly_player_wins)) / sum(hth.matches) AS f_wr_vs_o,
 CASE WHEN friendly_arch.id = opposing_arch.id THEN 1 ELSE 0 END AS "is_mirror"
 FROM cards_archetype friendly_arch
 JOIN cards_archetype opposing_arch ON TRUE
@@ -116,12 +115,6 @@ def _generate_win_rates_by_archetype_table_from_db(query):
 	cursor.execute(query)
 
 	for record in dictfetchall(cursor):
-
-		if record["friendly_arch_name"] == record["opposing_arch_name"]:
-			if record["f_wr_vs_o"] != Decimal(50.00):
-				# Draws could cause this not to be 50%
-				record["f_wr_vs_o"] = Decimal(50.00)
-
 		total_matches += record["match_count"]
 		archetype_counts[record["friendly_arch_name"]] += record["match_count"]
 
@@ -160,5 +153,6 @@ def _generate_win_rates_by_archetype_table_from_db(query):
 					expected_win_rate += opponent_frequency * .5
 			else:
 				expected_win_rate += opponent_frequency * .5
+		expected_winrates[archetype] = expected_win_rate
 
 	return win_rates_table, archetype_frequencies, expected_winrates
