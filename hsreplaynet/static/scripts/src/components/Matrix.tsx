@@ -22,6 +22,7 @@ const enum Colors {
 	REDGREEN,
 	REDGREEN2,
 	ORANGEBLUE,
+	HSREPLAY,
 }
 
 export default class Matrix extends React.Component<MatrixProps, MatrixState> {
@@ -45,19 +46,24 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			const cells = $.map(archetypes, (key: string) => {
 				const class2 = key;
 				const matchup: any = row[key];
+				const cellColor = this.getColorString(matchup.f_wr_vs_o, !!matchup.is_mirror);
 				const style = {
-					backgroundColor: this.getColorString(matchup ? matchup.f_wr_vs_o : null, matchup ? !!matchup.is_mirror : false),
+					backgroundColor: cellColor,
+					borderColor: cellColor,
 				};
 				let tooltip = class1 + " vs. " + class2;
-				if (matchup && matchup.is_mirror) {
+				if (matchup.is_mirror) {
 					tooltip += "\nMirror matchup (" + matchup.match_count + " games)";
 				}
 				else {
-					let winrate = matchup ? (matchup.f_wr_vs_o * 100).toFixed(2) + "%" : "unknown";
-					if (matchup) {
+					if (matchup.match_count > 0) {
+						let winrate = (matchup.f_wr_vs_o * 100).toFixed(2) + "%";
 						winrate += " (won " + matchup.friendly_wins + "/" + matchup.match_count + ")";
+						tooltip += "\nWinrate: " + winrate;
 					}
-					tooltip += "\nWinrate: " + winrate;
+					else {
+						tooltip += "\nNot enough games";
+					}
 				}
 				return <td key={cellcount++}
 						   title={tooltip.replace("\n",  String.fromCharCode(10))}
@@ -65,21 +71,20 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			});
 			return (
 				<tr key={rowcount++}>
-					<th style={{height: "20px"}}>{key}</th>
+					<th>{key}</th>
 					{cells}
 				</tr>
 			);
 		});
 
 		const headers = [<th></th>].concat($.map(archetypes, (key: string) => {
-			return <th
-				style={{width: "20px", overflow: "hidden", whiteSpace: "nowrap"}}>{key}</th>;
+			return <th className="vertical-text">{key}</th>;
 		}));
 
 		return (
 			<div className="component-matrix">
 				<table style={{fontSize: "0.7em"}}>
-					{headers}
+					<tr>{headers}</tr>
 					{rows}
 				</table>
 				<div>
@@ -101,9 +106,9 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 							});
 						}}>
 							<option value={"" + Colors.REDGREEN}>Red/Green</option>
-							<option value={"" + Colors.REDGREEN2}>Alternate Red/Green
-							</option>
+							<option value={"" + Colors.REDGREEN2}>Alternate Red/Green</option>
 							<option value={"" + Colors.ORANGEBLUE}>Orange/Blue</option>
+							<option value={"" + Colors.HSREPLAY}>HSReplay</option>
 						</select>
 					</label>
 				</div>
@@ -139,6 +144,11 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				positive = [202, 100, 50];
 				neutral = [null, 100, 100];
 				negative = [41, 100, 50];
+				break;
+			case Colors.HSREPLAY:
+				positive = [214, 66, 34];
+				neutral = [null, 100, 100];
+				negative = [351, 51, 51];
 				break;
 		}
 

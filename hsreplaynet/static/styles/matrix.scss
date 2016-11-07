@@ -5,10 +5,23 @@
 
 		tr {
 			height: 1vw;
+		}
 
-			th, td {
-				width: 1vw;
-			}
+		th {
+
+		}
+
+		td {
+			width: 1vw;
+		}
+
+		th, td {
+			white-space: nowrap;
+		}
+
+		.vertical-text {
+			transform: rotate(90deg);
+			transform-origin: left top 0;
 		}
 	}
 }

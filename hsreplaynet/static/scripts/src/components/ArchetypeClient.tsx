@@ -16,7 +16,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 	constructor(props: ArchetypeClientProps, context: any) {
 		super(props, context);
 		fetch(
-			"/cards/winrates/?lookback=7&game_types=" + BnetGameType.BGT_RANKED_STANDARD + "",
+			"/cards/winrates/?lookback=7&game_types=" + BnetGameType.BGT_RANKED_STANDARD + "," + BnetGameType.BGT_CASUAL_STANDARD + "&min_rank=0&max_rank=25",
 			{
 				credentials: "include",
 			}
@@ -36,17 +36,21 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 
 	public render(): JSX.Element {
 		return (
-			<div>
-				<h2>Winrates</h2>
-				<Matrix
-					matrix={this.state.winrates}
-				/>
-				<h2>Popularities</h2>
-				<Distribution
-					distributions={this.state.popularities}
-					title="Archetype"
-					value="Popularity"
-				/>
+			<div className="row">
+				<div className="col-lg-9 col-lg-push-3">
+					<h2>Winrates</h2>
+					<Matrix
+						matrix={this.state.winrates}
+					/>
+				</div>
+				<div className="col-lg-3 col-lg-pull-9">
+					<h2>Popularities</h2>
+					<Distribution
+						distributions={this.state.popularities}
+						title="Archetype"
+						value="Popularity"
+					/>
+				</div>
 			</div>
 		);
 	}
