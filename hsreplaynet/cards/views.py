@@ -14,19 +14,7 @@ from .queries import CardCountersQueryBuilder
 @login_required
 @view_requires_feature_access("winrates")
 def archetypes(request):
-	context = {}
-
-	win_rates, frequencies, expected_winrates = get_head_to_head_winrates_by_archetype_table()
-
-	context["win_rates"] = win_rates
-	context["frequencies"] = sorted(
-		((k, v * 100) for k, v in frequencies.items()),
-		key=lambda x: x[1],
-		reverse=True
-	)
-	context["expected_winrates"] = expected_winrates
-
-	return render(request, "cards/deck_archetypes.html", context)
+	return render(request, "cards/deck_archetypes.html", {})
 
 
 @login_required
