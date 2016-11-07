@@ -102,7 +102,6 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					}
 				}
 
-				cellcount++;
 				return <MatrixCell
 					key={rowcount * length + cellcount}
 					winrate={is_cutoff ? null : matchup.f_wr_vs_o}
@@ -110,7 +109,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					intensity={this.state.intensity}
 					colors={this.state.colors}
 					title={tooltip}
-					x={offsetx + cellcount * mult}
+					x={offsetx + cellcount++ * mult}
 					y={offsety + rowcount * mult}
 					edge={mult}
 					onHoverStart={() => {
