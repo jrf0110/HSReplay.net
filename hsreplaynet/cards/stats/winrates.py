@@ -90,12 +90,14 @@ def _generate_win_rates_by_archetype_table_from_db(query):
 			archetype_counts[record["friendly_arch_name"]] += record["match_count"]
 
 		head_to_head = win_rates_table[record["friendly_arch_name"]][record["opposing_arch_name"]]
-		head_to_head["friendly_wins"] = record["friendly_wins"]
-		head_to_head["match_count"] = record["match_count"]
-		if record["f_wr_vs_o"]:
-			head_to_head["f_wr_vs_o"] = float(record["f_wr_vs_o"])
-		else:
+		head_to_head["friendly_wins"] = record["friendly_wins"] if record["friendly_wins"] else 0
+		head_to_head["match_count"] = record["match_count"] if record["match_count"] else 0
+
+		if record["f_wr_vs_o"] is None:
 			head_to_head["f_wr_vs_o"] = None
+		else:
+			head_to_head["f_wr_vs_o"] = float(record["f_wr_vs_o"])
+
 		head_to_head["is_mirror"] = bool(record["is_mirror"])
 
 	win_rates_table = defaultdict_to_vanilla_dict(win_rates_table)

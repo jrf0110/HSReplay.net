@@ -38,7 +38,7 @@ def winrates(request):
 		archetypes = archetypes_param
 
 	game_types = request.GET.get("game_types", "2")
-	max_rank = request.GET.get("max_rank", "15")
+	max_rank = request.GET.get("max_rank", "25")
 	min_rank = request.GET.get("min_rank", "-1")
 	win_rates, frequencies, expected_winrates = get_head_to_head_winrates(
 		lookback,
