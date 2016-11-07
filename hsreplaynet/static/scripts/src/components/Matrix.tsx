@@ -111,6 +111,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					title={tooltip}
 					x={offsetx + cellcount++ * mult}
 					y={offsety + rowcount * mult}
+					disable={this.state.highlight.length && this.state.highlight.indexOf(class1) !== 0 && this.state.highlight.lastIndexOf(class2) !== 1}
 					edge={mult}
 					onHoverStart={() => {
 						this.setState({

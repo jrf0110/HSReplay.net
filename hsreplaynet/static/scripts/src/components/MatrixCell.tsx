@@ -10,6 +10,7 @@ interface MatrixCellProps extends React.ClassAttributes<MatrixCell> {
 	x: number;
 	y: number;
 	edge: number;
+	disable?: boolean;
 	onHoverStart: () => void;
 	onHoverEnd: () => void;
 }
@@ -50,7 +51,8 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 			this.props.title !== nextProps.title ||
 			this.props.x !== nextProps.x ||
 			this.props.y !== nextProps.y ||
-			this.props.edge !== nextProps.edge
+			this.props.edge !== nextProps.edge ||
+			this.props.disable !== nextProps.disable
 		);
 	}
 
@@ -88,6 +90,12 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 				neutral = [null, 100, 100];
 				negative = [351, 51, 51];
 				break;
+		}
+
+		if(this.props.disable) {
+			positive[1] = 0;
+			neutral[1] = 0;
+			negative[1] = 0;
 		}
 
 		const _fn = (x: number, from: number, to: number): number => {
