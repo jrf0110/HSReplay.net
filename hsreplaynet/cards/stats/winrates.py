@@ -6,28 +6,32 @@ from hsreplaynet.utils.db import dictfetchall
 from hsreplaynet.utils.collections import defaultdict_to_vanilla_dict
 
 
+WINRATES_BY_ARCHETYPE_FILTER_TEMPLATE = """
+FILTER (
+WHERE epoch_seconds > date_part('epoch', CURRENT_TIMESTAMP - INTERVAL '%s days')
+AND game_type IN (%s)
+AND region_id IN (%s)
+AND rank BETWEEN %s AND %s
+)
+"""
+
+
 WINRATES_BY_ARCHETYPE_QUERY_TEMPLATE = """
 SELECT
 friendly_arch.id,
 max(friendly_arch.name) AS "friendly_arch_name",
 opposing_arch.id,
 max(opposing_arch.name) AS "opposing_arch_name",
-sum(hth.matches) as "match_count",
-sum(hth.friendly_player_wins) AS "friendly_wins",
-(1.0 * sum(hth.friendly_player_wins)) / sum(hth.matches) AS f_wr_vs_o,
+sum(hth.matches) %s as "match_count",
+sum(hth.friendly_player_wins) %s AS "friendly_wins",
+(1.0 * sum(hth.friendly_player_wins) %s ) / sum(hth.matches) %s AS f_wr_vs_o,
 CASE WHEN friendly_arch.id = opposing_arch.id THEN 1 ELSE 0 END AS "is_mirror"
 FROM cards_archetype friendly_arch
 JOIN cards_archetype opposing_arch ON TRUE
-JOIN head_to_head_archetype_stats hth
+LEFT JOIN head_to_head_archetype_stats hth
 	ON hth.friendly_player_archetype_id = friendly_arch.id
 	AND hth.opposing_player_archetype_id = opposing_arch.id
-WHERE hth.epoch_seconds > date_part('epoch', current_timestamp - interval '%s days')
-AND game_type IN (%s)
-AND hth.region_id in (%s)
-AND hth.rank BETWEEN %s AND %s
--- The following two rows allow limiting the result set to certain archetypes
--- Both in clauses should contain the same set of IDs
-AND friendly_arch.id IN (%s)
+WHERE friendly_arch.id IN (%s)
 AND opposing_arch.id IN (%s)
 GROUP BY friendly_arch.id, opposing_arch.id;
 """
@@ -40,10 +44,17 @@ def get_head_to_head_winrates(lookback, game_types, regions, min_rank, max_rank,
 		regions,
 		min_rank,
 		max_rank,
+	)
+	filter_expr = WINRATES_BY_ARCHETYPE_FILTER_TEMPLATE % query_params
+
+	query = WINRATES_BY_ARCHETYPE_QUERY_TEMPLATE % (
+		filter_expr,
+		filter_expr,
+		filter_expr,
+		filter_expr,
 		arches,
 		arches
 	)
-	query = WINRATES_BY_ARCHETYPE_QUERY_TEMPLATE % query_params
 
 	def gen_cache_value():
 		return _generate_win_rates_by_archetype_table_from_db(query)
@@ -74,13 +85,17 @@ def _generate_win_rates_by_archetype_table_from_db(query):
 	cursor.execute(query)
 
 	for record in dictfetchall(cursor):
-		total_matches += record["match_count"]
-		archetype_counts[record["friendly_arch_name"]] += record["match_count"]
+		if record["match_count"]:
+			total_matches += record["match_count"]
+			archetype_counts[record["friendly_arch_name"]] += record["match_count"]
 
 		head_to_head = win_rates_table[record["friendly_arch_name"]][record["opposing_arch_name"]]
 		head_to_head["friendly_wins"] = record["friendly_wins"]
 		head_to_head["match_count"] = record["match_count"]
-		head_to_head["f_wr_vs_o"] = float(record["f_wr_vs_o"])
+		if record["f_wr_vs_o"]:
+			head_to_head["f_wr_vs_o"] = float(record["f_wr_vs_o"])
+		else:
+			head_to_head["f_wr_vs_o"] = None
 		head_to_head["is_mirror"] = bool(record["is_mirror"])
 
 	win_rates_table = defaultdict_to_vanilla_dict(win_rates_table)
@@ -105,8 +120,10 @@ def _generate_win_rates_by_archetype_table_from_db(query):
 			if opponent_archetype in archetype_win_rates_vs_opponents:
 				head_to_head_winrate = archetype_win_rates_vs_opponents[opponent_archetype]
 				MIN_SAMPLE_CUTOFF = 10
-				if head_to_head_winrate["match_count"] >= MIN_SAMPLE_CUTOFF:
-					win_rate_for_match = float(head_to_head_winrate["f_wr_vs_o"])
+				if head_to_head_winrate["match_count"] \
+					and head_to_head_winrate["match_count"] >= MIN_SAMPLE_CUTOFF\
+					and head_to_head_winrate["f_wr_vs_o"]:
+					win_rate_for_match = head_to_head_winrate["f_wr_vs_o"]
 					expected_win_rate += opponent_frequency * win_rate_for_match
 				else:
 					expected_win_rate += opponent_frequency * .5
