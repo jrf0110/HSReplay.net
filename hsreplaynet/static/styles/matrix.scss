@@ -1,27 +1,22 @@
 .component-matrix {
-	table {
-		table-layout: fixed;
+	svg {
 		width: 100%;
+	}
 
-		tr {
-			height: 1vw;
+	text {
+		stroke: black;
+		stroke-width: 0;
+	}
+
+	.cells {
+		rect {
+			stroke: white;
+			stroke-width: 1;
 		}
+	}
 
-		th {
-
-		}
-
-		td {
-			width: 1vw;
-		}
-
-		th, td {
-			white-space: nowrap;
-		}
-
-		.vertical-text {
-			transform: rotate(90deg);
-			transform-origin: left top 0;
-		}
+	.vertical-text {
+		transform: rotate(90deg);
+		transform-origin: left top 0;
 	}
 }

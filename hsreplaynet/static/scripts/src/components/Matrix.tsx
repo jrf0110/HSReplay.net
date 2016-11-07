@@ -37,19 +37,25 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 	}
 
 	public render(): JSX.Element {
-		let rowcount = 0;
 		const archetypes = Object.keys(this.props.matrix);
-		const rows = $.map(archetypes, (key: string) => {
+		let cells = [];
+		let titles = [];
+		let rowcount = 0;
+		let cellcount = 0;
+		const offsetx = 150;
+		const offsety = 150;
+		const mult = 30;
+		const width = archetypes.length;
+		$.each(archetypes, (index: number, key: string) => {
+			cellcount = 0;
 			const class1 = key;
 			const row: NumberRow = this.props.matrix[key];
-			let cellcount = 0;
-			const cells = $.map(archetypes, (key: string) => {
+			cells.push(<g key={rowcount}>{$.map(archetypes, (key: string) => {
 				const class2 = key;
 				const matchup: any = row[key];
 				const cellColor = this.getColorString(matchup.f_wr_vs_o, !!matchup.is_mirror);
 				const style = {
-					backgroundColor: cellColor,
-					borderColor: cellColor,
+					fill: cellColor,
 				};
 				let tooltip = class1 + " vs. " + class2;
 				if (matchup.is_mirror) {
@@ -65,28 +71,44 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 						tooltip += "\nNot enough games";
 					}
 				}
-				return <td key={cellcount++}
-						   title={tooltip.replace("\n",  String.fromCharCode(10))}
-						   style={style}></td>;
-			});
-			return (
-				<tr key={rowcount++}>
-					<th>{key}</th>
-					{cells}
-				</tr>
-			);
-		});
+				const cell = <g key={rowcount * length + cellcount}><rect
+					x={offsetx + cellcount * mult}
+					y={offsety + rowcount * mult}
+					width={mult}
+					height={mult}
+					style={style}/><title>{tooltip.replace("\n",  String.fromCharCode(10))}</title></g>;
+				cellcount++;
+				return cell;
+			})}</g>);
 
-		const headers = [<th></th>].concat($.map(archetypes, (key: string) => {
-			return <th className="vertical-text">{key}</th>;
-		}));
+			titles.push(<text
+				key={"h" + rowcount}
+				x={offsetx + -mult / 4}
+				y={offsety + rowcount * mult}
+				textAnchor="end"
+				dominantBaseline={"middle"}
+				transform={"translate(0 " + mult / 2 + ")"}
+			>{class1}</text>);
+
+			titles.push(<text
+				key={"v" + rowcount}
+				x={rowcount * mult + offsetx}
+				y={offsety}
+				textAnchor="start"
+				dominantBaseline={"middle"}
+				transform={"translate(" + (-1.7 * mult) + " " + (offsety - mult / 3)+ ") rotate(315" +
+				 " " + rowcount * mult +" 0)"}
+			>{class1}</text>);
+
+			rowcount++;
+		});
 
 		return (
 			<div className="component-matrix">
-				<table style={{fontSize: "0.7em"}}>
-					<tr>{headers}</tr>
-					{rows}
-				</table>
+				<svg viewBox={"0 0 " + (rowcount * mult + offsetx + 50) + " " + (cellcount * mult + offsety)}>
+					<g>{titles}</g>
+					<g className="cells">{cells}</g>
+				</svg>
 				<div>
 					<label>
 						Intensity
