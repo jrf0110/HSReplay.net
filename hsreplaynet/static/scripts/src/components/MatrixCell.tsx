@@ -60,7 +60,7 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 		}
 
 		if (winrate === null) {
-			return "gray";
+			return "#ddd";
 		}
 
 		let neutral = [0, 100, 100];
