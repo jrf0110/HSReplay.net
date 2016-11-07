@@ -17,6 +17,8 @@
 	}
 
 	.cells {
+		user-select: none;
+
 		rect {
 			stroke: white;
 			stroke-width: 1;
