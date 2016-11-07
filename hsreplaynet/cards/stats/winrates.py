@@ -71,7 +71,7 @@ def get_head_to_head_winrates(lookback, game_types, regions, min_rank, max_rank,
 	win_rates_table, archetype_frequencies, expected_winrates = cache.get_or_set(
 		cache_key,
 		gen_cache_value,
-		timeout=300
+		timeout=10
 	)
 	return win_rates_table, archetype_frequencies, expected_winrates
 
