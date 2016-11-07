@@ -4,8 +4,16 @@
 	}
 
 	text {
-		stroke: black;
-		stroke-width: 0;
+		fill: black;
+		font-weight: normal;
+
+		&.interesting {
+			font-weight: bold;
+		}
+
+		&.boring {
+			fill: #ccc;
+		}
 	}
 
 	.cells {
