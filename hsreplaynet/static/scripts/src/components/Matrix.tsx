@@ -45,7 +45,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			const cells = $.map(archetypes, (key: string) => {
 				const class2 = key;
 				const matchup: any = row[key];
-				const winrate = matchup ? (matchup.f_wr_vs_o).toFixed(2) + "%" : "unknown";
+				const winrate = matchup ? (matchup.f_wr_vs_o * 100).toFixed(2) + "%" : "unknown";
 				const style = {
 					backgroundColor: this.getColorString(matchup ? matchup.f_wr_vs_o : null, matchup ? !!matchup.is_mirror : false),
 				};
@@ -147,12 +147,12 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			return "hsl(" + hsl[0] + ", " + hsl[1] + "%, " + hsl[2] + "%)";
 		};
 
-		const severity = Math.abs(50 - winrate) / 100 * 2;
+		const severity = Math.abs(0.5 - winrate) * 2;
 
-		if(winrate > 50) {
+		if(winrate > 0.5) {
 			return hsl(fn(severity, neutral, positive));
 		}
-		else if(winrate < 50) {
+		else if(winrate < 0.5) {
 			return hsl(fn(severity, neutral, negative));
 		}
 		else {

@@ -16,7 +16,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 	constructor(props: ArchetypeClientProps, context: any) {
 		super(props, context);
 		fetch(
-			"/cards/winrates/?lookback=7&game_types=" + BnetGameType.BGT_RANKED_STANDARD,
+			"/cards/winrates/?lookback=7&game_types=" + BnetGameType.BGT_RANKED_STANDARD + "",
 			{
 				credentials: "include",
 			}
