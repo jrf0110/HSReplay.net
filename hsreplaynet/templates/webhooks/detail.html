@@ -1,0 +1,49 @@
+{% extends "webhooks/base.html" %}
+
+{% block content %}
+	<section id="webhooks-form" class="box-section">
+	<h3>Webhooks</h3>
+
+	<div class="inner">
+		<p>
+			Whenever an uploaded game finishes processing, a configured webhook
+			will send an HTTP POST to the configured URL.<br/>
+			The data will contain a JSON representation of the game's metadata.
+		</p>
+		<p>
+			This is useful if you want to build applications which will react to a
+			completed game.
+			The time from upload to trigger should be, on average, below 30 seconds.
+		</p>
+		<hr/>
+
+		<form action="" method="POST" id="webhook-create-form">
+			{% csrf_token %}
+
+			<p>
+				<label for="id_url">Payload URL</label>
+				<input
+					type="url" name="url" id="id_url" size="30" maxlength="200"
+					required="required" placeholder="https://example.com/..."
+					class="form-control" value="{{ form.instance.url }}"
+				/>
+			</p>
+			{% if form.url.errors %}
+				<div class="alert alert-danger">{{ form.url.errors }}</div>
+			{% endif %}
+			<p>
+				This URL will receive the JSON POST request.
+				It should always return either HTTP 200 or HTTP 201.
+			</p>
+
+			<p>
+				{{ form.is_active }}
+				<label for="id_is_active">Active</label>
+			</p>
+
+			<input type="submit" class="btn btn-primary right" value="Add webhook"/>
+		</form>
+	</div>
+
+	</section>
+{% endblock %}
