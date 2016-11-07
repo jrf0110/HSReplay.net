@@ -1,0 +1,14 @@
+.component-matrix {
+	table {
+		table-layout: fixed;
+		width: 100%;
+
+		tr {
+			height: 1vw;
+
+			th, td {
+				width: 1vw;
+			}
+		}
+	}
+}
