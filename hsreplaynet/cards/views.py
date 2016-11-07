@@ -3,7 +3,6 @@ from django.http.response import HttpResponseBadRequest
 import json
 from django.shortcuts import render
 from django.http import HttpResponse
-from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates_by_archetype_table
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
 from hsreplaynet.cards.models import Archetype
 from hsreplaynet.features.decorators import view_requires_feature_access
