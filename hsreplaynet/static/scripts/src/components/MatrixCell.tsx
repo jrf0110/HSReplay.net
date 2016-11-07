@@ -11,8 +11,7 @@ interface MatrixCellProps extends React.ClassAttributes<MatrixCell> {
 	y: number;
 	edge: number;
 	disable?: boolean;
-	onHoverStart: () => void;
-	onHoverEnd: () => void;
+	onClick: () => void;
 }
 
 interface MatrixCellState {
@@ -27,10 +26,15 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 		};
 
 		return <g
-			onMouseOver={(e) => {this.props.onHoverStart()}}
-			onTouchStart={(e) => {this.props.onHoverStart()}}
-			onMouseOut={(e) => {this.props.onHoverEnd()}}
-			onTouchEnd={(e) => {this.props.onHoverEnd()}}
+			onClick={(e) => {
+				if(this.props.onClick) {
+					this.props.onClick();
+				}
+				e.preventDefault();
+			}}
+			onMouseDown={(e) => {
+				e.preventDefault();
+			}}
 		>
 			<rect
 				x={this.props.x}

@@ -18,10 +18,19 @@
 
 	.cells {
 		user-select: none;
+		cursor: pointer;
 
 		rect {
 			stroke: white;
 			stroke-width: 1;
+		}
+	}
+
+	.selections {
+		rect {
+			fill: none;
+			stroke: $lightblue;
+			stroke-width: 3;
 		}
 	}
 

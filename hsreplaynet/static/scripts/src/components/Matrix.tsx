@@ -39,12 +39,13 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		const archetypes = Object.keys(this.props.matrix);
 		let cells = [];
 		let titles = [];
+		let selections = [];
 		let rowcount = 0;
 		let cellcount = 0;
 		const offsetx = 150;
 		const offsety = 150;
 		const mult = 30;
-		const width = archetypes.length;
+		const width = archetypes.length * mult;
 
 		let games = [];
 
@@ -111,17 +112,9 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					title={tooltip}
 					x={offsetx + cellcount++ * mult}
 					y={offsety + rowcount * mult}
-					disable={this.state.highlight.length && this.state.highlight.indexOf(class1) !== 0 && this.state.highlight.lastIndexOf(class2) !== 1}
 					edge={mult}
-					onHoverStart={() => {
-						this.setState({
-							highlight: [class1, class2],
-						});
-					}}
-					onHoverEnd={() => {
-						this.setState({
-							highlight: [],
-						});
+					onClick={() => {
+						this.toggleRow(class1);
 					}}
 				/>;
 			})}</g>);
@@ -135,12 +128,8 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			let hClassNames = classNames.slice();
 			let vClassNames = classNames.slice();
 
-			if(this.state.highlight.indexOf(key) === 0) {
+			if(this.state.highlight.indexOf(key) !== -1) {
 				hClassNames.push("interesting");
-			}
-
-			if(this.state.highlight.lastIndexOf(key) === 1) {
-				vClassNames.push("interesting");
 			}
 
 			titles.push(<text
@@ -164,6 +153,15 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				className={vClassNames.join(" ")}
 			>{class1}</text>);
 
+			if(this.state.highlight.indexOf(key) !== -1) {
+				selections.push(<rect
+				x={offsetx}
+				y={offsety + rowcount * mult}
+				height={mult}
+				width={width}
+				/>);
+			}
+
 			rowcount++;
 		});
 
@@ -172,6 +170,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				<svg viewBox={"0 0 " + (rowcount * mult + offsetx + 50) + " " + (cellcount * mult + offsety)}>
 					<g>{titles}</g>
 					<g className="cells">{cells}</g>
+					<g className="selections">{selections}</g>
 				</svg>
 				<div>
 					<div>
@@ -217,4 +216,19 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		);
 	}
 
+	private toggleRow(row: string): void {
+		const index = this.state.highlight.indexOf(row);
+		if(index === -1) {
+			this.setState({
+				highlight: this.state.highlight.concat([row]),
+			});
+		}
+		else {
+			this.setState({
+				highlight: this.state.highlight.filter((key) => {
+					return key !== row;
+				}),
+			});
+		}
+	}
 }
