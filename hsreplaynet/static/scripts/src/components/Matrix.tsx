@@ -19,10 +19,19 @@ interface MatrixState {
 	intensity?: number;
 	colors?: Colors;
 	cutoff?: number;
-	highlight?: string[];
+	mark?: string[];
+	highlight?: number[];
+	hideBoring?: boolean;
 }
 
+const mult = 30;
+
+const cellOffsetX = 150;
+const cellOffsetY = 150;
+
 export default class Matrix extends React.Component<MatrixProps, MatrixState> {
+
+	private ref: any;
 
 	constructor(props: MatrixProps, context: any) {
 		super(props, context);
@@ -31,54 +40,66 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			intensity: 0.25,
 			colors: Colors.REDGREEN,
 			cutoff: 0,
+			mark: [],
 			highlight: [],
+			hideBoring: false,
 		};
 	}
 
 	public render(): JSX.Element {
-		const archetypes = Object.keys(this.props.matrix);
 		let cells = [];
 		let titles = [];
 		let selections = [];
 		let rowcount = 0;
 		let cellcount = 0;
-		const offsetx = 150;
-		const offsety = 150;
-		const mult = 30;
-		const width = archetypes.length * mult;
+		const width = this.archetypes.length * mult;
 
 		let games = [];
 
-		// count pass
-		$.each(archetypes, (index: number, outer: string) => {
+		let archetypeList = [];
 
-			if(!games[outer]) {
+		// count pass
+		$.each(this.archetypes, (index: number, outer: string) => {
+
+			if (!games[outer]) {
 				games[outer] = 0;
 			}
 
 			const row: NumberRow = this.props.matrix[outer];
-			$.each(archetypes, (index: number, inner: string) => {
+			$.each(this.archetypes, (index: number, inner: string) => {
 
-				if(!games[inner]) {
+				if (!games[inner]) {
 					games[inner] = 0;
 				}
 
 				const matchup: any = row[inner];
 				const matches = matchup.match_count;
 				const is_cutoff = matchup.match_count < this.state.cutoff;
-				if(!is_cutoff) {
+				if (!is_cutoff) {
 					games[outer] += matches;
 					games[inner] += matches;
 				}
 			});
+
+			archetypeList.push(outer);
 		});
 
+		let index = 0;
+
 		// render pass
-		$.each(archetypes, (index: number, key: string) => {
+		$.each(this.archetypes, (i: number, key: string) => {
+			if (this.state.hideBoring && !games[key]) {
+				return;
+			}
+
 			cellcount = 0;
 			const class1 = key;
 			const row: NumberRow = this.props.matrix[key];
-			cells.push(<g key={rowcount}>{$.map(archetypes, (key: string) => {
+			cells.push(<g key={rowcount}>{$.map(this.archetypes, (key: string) => {
+				if (this.state.hideBoring && !games[key]) {
+					return null;
+				}
+
 				const class2 = key;
 				const matchup: any = row[key];
 				const is_cutoff = matchup.match_count < this.state.cutoff;
@@ -88,9 +109,9 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				}
 				else {
 					if (is_cutoff || !matchup.match_count) {
-						if(this.state.cutoff > 0) {
+						if (this.state.cutoff > 0) {
 							tooltip += "\nNot enough games";
-							tooltip += " (" + matchup.match_count + " of " + this.state.cutoff +")";
+							tooltip += " (" + matchup.match_count + " of " + this.state.cutoff + ")";
 						}
 						else {
 							tooltip += "\nNo game";
@@ -110,8 +131,8 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					intensity={this.state.intensity}
 					colors={this.state.colors}
 					title={tooltip}
-					x={offsetx + cellcount++ * mult}
-					y={offsety + rowcount * mult}
+					x={cellOffsetX + cellcount++ * mult}
+					y={cellOffsetY + rowcount * mult}
 					edge={mult}
 					onClick={() => {
 						this.toggleRow(class1);
@@ -121,21 +142,25 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 			let classNames = [];
 
-			if(!games[key]) {
+			if (!games[key]) {
 				classNames.push("boring");
 			}
 
 			let hClassNames = classNames.slice();
 			let vClassNames = classNames.slice();
 
-			if(this.state.highlight.indexOf(key) !== -1) {
+			if (this.state.highlight.indexOf(index) === 0) {
+				vClassNames.push("interesting");
+			}
+
+			if (this.state.highlight.lastIndexOf(index) === 1) {
 				hClassNames.push("interesting");
 			}
 
 			titles.push(<text
 				key={"h" + rowcount}
-				x={offsetx + -mult / 4}
-				y={offsety + rowcount * mult}
+				x={cellOffsetX + -mult / 4}
+				y={cellOffsetY + rowcount * mult}
 				textAnchor="end"
 				dominantBaseline={"middle"}
 				transform={"translate(0 " + mult / 2 + ")"}
@@ -144,30 +169,44 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 			titles.push(<text
 				key={"v" + rowcount}
-				x={rowcount * mult + offsetx}
-				y={offsety}
+				x={rowcount * mult + cellOffsetX}
+				y={cellOffsetY}
 				textAnchor="start"
 				dominantBaseline={"middle"}
-				transform={"translate(" + (-1.7 * mult) + " " + (offsety - mult / 3)+ ") rotate(315" +
+				transform={"translate(" + (-1.7 * mult) + " " + (cellOffsetY - mult / 3)+ ") rotate(315" +
 				 " " + rowcount * mult +" 0)"}
 				className={vClassNames.join(" ")}
 			>{class1}</text>);
 
-			if(this.state.highlight.indexOf(key) !== -1) {
+			if (this.state.mark.indexOf(key) !== -1) {
 				selections.push(<rect
-				x={offsetx}
-				y={offsety + rowcount * mult}
-				height={mult}
-				width={width}
+					x={cellOffsetX}
+					y={cellOffsetY + rowcount * mult}
+					height={mult}
+					width={width}
 				/>);
 			}
 
+			index++;
 			rowcount++;
 		});
 
+		const dimensions = this.getSVGDimensions();
+
 		return (
 			<div className="component-matrix">
-				<svg viewBox={"0 0 " + (rowcount * mult + offsetx + 50) + " " + (cellcount * mult + offsety)}>
+				<svg
+					viewBox={"0 0 " + dimensions[0] + " " + dimensions[1]}
+					ref={(ref) => {
+						this.ref = ref;
+					}}
+					onMouseMove={(e) => this.hover(e.clientX, e.clientY)}
+					onTouchStart={(e) => this.touch(e)}
+					onTouchMove={(e) => this.touch(e)}
+					onMouseLeave={() => this.clearHover()}
+					onTouchCancel={() => this.clearHover()}
+					onTouchEnd={() => this.clearHover()}
+				>
 					<g>{titles}</g>
 					<g className="cells">{cells}</g>
 					<g className="selections">{selections}</g>
@@ -205,7 +244,8 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 								});
 							}}>
 								<option value={"" + Colors.REDGREEN}>Red/Green</option>
-								<option value={"" + Colors.REDGREEN2}>Alternate Red/Green</option>
+								<option value={"" + Colors.REDGREEN2}>Alternate Red/Green
+								</option>
 								<option value={"" + Colors.ORANGEBLUE}>Orange/Blue</option>
 								<option value={"" + Colors.HSREPLAY}>HSReplay</option>
 							</select>
@@ -216,16 +256,91 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		);
 	}
 
+	public shouldComponentUpdate(nextProps: MatrixProps, nextState: MatrixState, nextContext: any): boolean {
+		if(nextState.highlight.length !== this.state.highlight.length) {
+			return true;
+		}
+		for(let i = 0; i < nextState.highlight.length; i++) {
+			if(nextState.highlight[i] !== this.state.highlight[i]) {
+				return true;
+			}
+		}
+		return true;
+	}
+
+	private get archetypes(): string[] {
+		 return Object.keys(this.props.matrix);
+	}
+
+	private getSVGDimensions(): number[] {
+		return [
+			this.archetypes.length * mult + cellOffsetX + 50,
+			this.archetypes.length * mult + cellOffsetY,
+		];
+	}
+
+	private touch(e): void {
+		if (!e.touches[0]) {
+			return;
+		}
+
+		const touch = e.touches[0];
+
+		if(this.hover(touch.clientX, touch.clientY)) {
+			e.preventDefault();
+		}
+	}
+
+	private hover(clientX: number, clientY: number): boolean {
+		if(!this.ref) {
+			return false;
+		}
+
+		const rect = this.ref.getBoundingClientRect();
+		const dimensions = this.getSVGDimensions();
+
+		const correctionX = dimensions[0] / rect.width;
+		const correctionY = dimensions[1] / rect.height;
+
+		const pxOffsetX = clientX - rect.left;
+		const pxOffsetY = clientY - rect.top;
+
+		const offsetX = pxOffsetX * correctionX  - cellOffsetX;
+		const offsetY = pxOffsetY * correctionY - cellOffsetY;
+
+		const max = this.archetypes.length * mult;
+
+		if(offsetX < 0 || offsetX > max || offsetY < 0 || offsetY > max) {
+			this.clearHover();
+			return false;
+		}
+
+		const cellX = Math.floor(offsetX / mult);
+		const cellY = Math.floor(offsetY / mult);
+
+		this.setState({
+			highlight: [cellX, cellY],
+		});
+
+		return true;
+	}
+
+	private clearHover(): void {
+		this.setState({
+			highlight: [],
+		})
+	}
+
 	private toggleRow(row: string): void {
-		const index = this.state.highlight.indexOf(row);
-		if(index === -1) {
+		const index = this.state.mark.indexOf(row);
+		if (index === -1) {
 			this.setState({
-				highlight: this.state.highlight.concat([row]),
+				mark: this.state.mark.concat([row]),
 			});
 		}
 		else {
 			this.setState({
-				highlight: this.state.highlight.filter((key) => {
+				mark: this.state.mark.filter((key) => {
 					return key !== row;
 				}),
 			});
