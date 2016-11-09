@@ -6,6 +6,7 @@
 	},
 	"globalDependencies": {
 		"jquery": "registry:dt/jquery#1.10.0+20160929162922",
+		"lodash": "registry:dt/lodash#4.14.0+20161028154038",
 		"node": "registry:dt/node#6.0.0+20161019125345",
 		"ravenjs": "registry:dt/ravenjs#0.0.0+20161018135108",
 		"react": "registry:dt/react#0.14.0+20161008064207",

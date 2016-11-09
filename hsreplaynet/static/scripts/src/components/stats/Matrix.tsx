@@ -1,7 +1,7 @@
 import * as React from "react";
 import $ from "jquery";
-import {Colors} from "../Colors";
-import MatrixCell from "./MatrixCell";
+import {Colors} from "../../Colors";
+import MatrixBody from "./MatrixBody";
 
 interface MatrixProps extends React.ClassAttributes<Matrix> {
 	matrix: NumberMatrix;
@@ -12,7 +12,20 @@ interface NumberMatrix {
 }
 
 interface NumberRow {
-	[key: string]: number;
+	[key: string]: Matchup;
+}
+
+interface Matchup {
+	f_wr_vs_o: number|null;
+	friendly_wins: number;
+	is_mirror: boolean;
+	match_count: number;
+}
+
+export interface Cell {
+	ratio: number|null;
+	mirror?: boolean;
+	title?: string;
 }
 
 interface MatrixState {
@@ -42,12 +55,11 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			cutoff: 0,
 			mark: [],
 			highlight: [],
-			hideBoring: false,
+			hideBoring: true,
 		};
 	}
 
 	public render(): JSX.Element {
-		let cells = [];
 		let titles = [];
 		let selections = [];
 		let rowcount = 0;
@@ -85,62 +97,12 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		});
 
 		let index = 0;
+		let cells = [];
 
 		// render pass
 		$.each(this.archetypes, (i: number, key: string) => {
-			if (this.state.hideBoring && !games[key]) {
-				return;
-			}
-
-			cellcount = 0;
-			const class1 = key;
-			const row: NumberRow = this.props.matrix[key];
-			cells.push(<g key={rowcount}>{$.map(this.archetypes, (key: string) => {
-				if (this.state.hideBoring && !games[key]) {
-					return null;
-				}
-
-				const class2 = key;
-				const matchup: any = row[key];
-				const is_cutoff = matchup.match_count < this.state.cutoff;
-				let tooltip = class1 + " vs. " + class2;
-				if (matchup.is_mirror) {
-					tooltip += "\nMirror matchup (" + matchup.match_count + " games)";
-				}
-				else {
-					if (is_cutoff || !matchup.match_count) {
-						if (this.state.cutoff > 0) {
-							tooltip += "\nNot enough games";
-							tooltip += " (" + matchup.match_count + " of " + this.state.cutoff + ")";
-						}
-						else {
-							tooltip += "\nNo game";
-						}
-					}
-					else {
-						let winrate = (matchup.f_wr_vs_o * 100).toFixed(2) + "%";
-						winrate += " (won " + matchup.friendly_wins + "/" + matchup.match_count + ")";
-						tooltip += "\nWinrate: " + winrate;
-					}
-				}
-
-				return <MatrixCell
-					key={rowcount * length + cellcount}
-					winrate={is_cutoff ? null : matchup.f_wr_vs_o}
-					mirror={matchup.is_mirror}
-					intensity={this.state.intensity}
-					colors={this.state.colors}
-					title={tooltip}
-					x={cellOffsetX + cellcount++ * mult}
-					y={cellOffsetY + rowcount * mult}
-					edge={mult}
-					onClick={() => {
-						this.toggleRow(class1);
-					}}
-				/>;
-			})}</g>);
-
 			let classNames = [];
+			const class1 = key;
 
 			if (!games[key]) {
 				classNames.push("boring");
@@ -156,6 +118,41 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			if (this.state.highlight.lastIndexOf(index) === 1) {
 				hClassNames.push("interesting");
 			}
+
+			let row: NumberRow = this.props.matrix[key];
+			let cellRow: Cell[] = [];
+			$.each(row, (class2: string, matchup: Matchup) => {
+				let title = class1 + " vs. " + class2;
+
+				const valid = matchup.match_count >= this.state.cutoff;
+				const ratio = valid ? matchup.f_wr_vs_o : null;
+
+				if (matchup.is_mirror) {
+					title += "\nMirror matchup (" + matchup.match_count + " games)";
+				}
+				else {
+					if (!valid && !matchup.match_count) {
+						if (this.state.cutoff > 0) {
+							title += "\nNot enough games";
+							title += " (" + matchup.match_count + " of " + this.state.cutoff + ")";
+						}
+						else {
+							title += "\nNo game";
+						}
+					}
+					else {
+						let winrate = (matchup.f_wr_vs_o * 100).toFixed(2) + "%";
+						winrate += " (won " + matchup.friendly_wins + "/" + matchup.match_count + ")";
+						title += "\nWinrate: " + winrate;
+					}
+				}
+				cellRow.push({
+					ratio: ratio,
+					mirror: matchup.is_mirror,
+					title: title,
+				});
+			});
+			cells.push(cellRow);
 
 			titles.push(<text
 				key={"h" + rowcount}
@@ -208,7 +205,14 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					onTouchEnd={() => this.clearHover()}
 				>
 					<g>{titles}</g>
-					<g className="cells">{cells}</g>
+					<g className="cells"><MatrixBody
+						cells={cells}
+						colors={this.state.colors}
+						intensity={this.state.intensity}
+						offsetX={cellOffsetX}
+						offsetY={cellOffsetY}
+						edge={mult}
+					/></g>
 					<g className="selections">{selections}</g>
 				</svg>
 				<div>
@@ -257,11 +261,11 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 	}
 
 	public shouldComponentUpdate(nextProps: MatrixProps, nextState: MatrixState, nextContext: any): boolean {
-		if(nextState.highlight.length !== this.state.highlight.length) {
+		if (nextState.highlight.length !== this.state.highlight.length) {
 			return true;
 		}
-		for(let i = 0; i < nextState.highlight.length; i++) {
-			if(nextState.highlight[i] !== this.state.highlight[i]) {
+		for (let i = 0; i < nextState.highlight.length; i++) {
+			if (nextState.highlight[i] !== this.state.highlight[i]) {
 				return true;
 			}
 		}
@@ -269,7 +273,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 	}
 
 	private get archetypes(): string[] {
-		 return Object.keys(this.props.matrix);
+		return Object.keys(this.props.matrix);
 	}
 
 	private getSVGDimensions(): number[] {
@@ -286,13 +290,13 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 		const touch = e.touches[0];
 
-		if(this.hover(touch.clientX, touch.clientY)) {
+		if (this.hover(touch.clientX, touch.clientY)) {
 			e.preventDefault();
 		}
 	}
 
 	private hover(clientX: number, clientY: number): boolean {
-		if(!this.ref) {
+		if (!this.ref) {
 			return false;
 		}
 
@@ -305,12 +309,12 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		const pxOffsetX = clientX - rect.left;
 		const pxOffsetY = clientY - rect.top;
 
-		const offsetX = pxOffsetX * correctionX  - cellOffsetX;
+		const offsetX = pxOffsetX * correctionX - cellOffsetX;
 		const offsetY = pxOffsetY * correctionY - cellOffsetY;
 
 		const max = this.archetypes.length * mult;
 
-		if(offsetX < 0 || offsetX > max || offsetY < 0 || offsetY > max) {
+		if (offsetX < 0 || offsetX > max || offsetY < 0 || offsetY > max) {
 			this.clearHover();
 			return false;
 		}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Colors} from "../Colors";
+import {Colors} from "../../Colors";
 
 interface MatrixCellProps extends React.ClassAttributes<MatrixCell> {
 	winrate: number,
@@ -11,7 +11,7 @@ interface MatrixCellProps extends React.ClassAttributes<MatrixCell> {
 	y: number;
 	edge: number;
 	disable?: boolean;
-	onClick: () => void;
+	onClick?: () => void;
 }
 
 interface MatrixCellState {
@@ -24,6 +24,8 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 		const style = {
 			fill: cellColor,
 		};
+
+		const title = this.props.title ? <title>{this.props.title.replace("\n", String.fromCharCode(10))}</title> : null;
 
 		return <g
 			onClick={(e) => {
@@ -42,7 +44,7 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 				width={this.props.edge}
 				height={this.props.edge}
 				style={style}/>
-			<title>{this.props.title.replace("\n", String.fromCharCode(10))}</title>
+			{title}
 		</g>;
 	}
 

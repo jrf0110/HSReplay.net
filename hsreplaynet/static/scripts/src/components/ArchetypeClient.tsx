@@ -1,7 +1,7 @@
 import * as React from "react";
 import Distribution from "./Distribution";
 import {BnetGameType} from "../hearthstone";
-import Matrix from "./Matrix";
+import Matrix from "./stats/Matrix";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 }
