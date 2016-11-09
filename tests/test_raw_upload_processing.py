@@ -144,7 +144,8 @@ def do_process_raw_upload(raw_upload, is_reprocessing):
 	assert created_upload_event.upload_ip == raw_upload.source_ip
 
 	replay = created_upload_event.game
-
+	assert replay.opponent_revealed_deck is not None
+	assert replay.opponent_revealed_deck.size > 0
 	validate_fuzzy_date_match(raw_upload.timestamp, replay.global_game.match_start)
 	validate_player_data(raw_upload, replay, 1)
 	validate_player_data(raw_upload, replay, 2)

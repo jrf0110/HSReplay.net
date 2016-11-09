@@ -130,6 +130,21 @@ def find_or_create_global_game(entity_tree, meta):
 	return global_game, created
 
 
+def get_opponent_revealed_deck(entity_tree, friendly_player_id, game_type):
+	for player in entity_tree.players:
+		if player.player_id != friendly_player_id:
+			decklist = [c.card_id for c in player.initial_deck if c.card_id]
+
+			deck, created = Deck.objects.get_or_create_from_id_list(
+				decklist,
+				hero_id=player._hero.card_id,
+				game_type=game_type,
+				classify_into_archetype=True
+			)
+			log.debug("Opponent revealed deck %i (created=%r)", deck.id, created)
+			return deck
+
+
 def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, players):
 	client_handle = meta.get("client_handle") or None
 	existing_replay = upload_event.game
@@ -140,7 +155,11 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 	# The user that owns the replay
 	user = upload_event.token.user if upload_event.token else None
 	friendly_player = players[meta["friendly_player"]]
-
+	opponent_revealed_deck = get_opponent_revealed_deck(
+		entity_tree,
+		friendly_player.player_id,
+		global_game.game_type
+	)
 	hsreplay_doc = create_hsreplay_document(parser, entity_tree, meta, global_game)
 
 	common = {
@@ -161,6 +180,7 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 		"replay_xml": replay_xml_path,
 		"hsreplay_version": hsreplay_version,
 		"hslog_version": hslog_version,
+		"opponent_revealed_deck": opponent_revealed_deck,
 	}
 
 	# Create and save hsreplay.xml file

@@ -92,6 +92,10 @@ class GlobalGame(models.Model):
 		max_length=40, unique=True, null=True, db_index=True,
 		help_text="SHA1 of str(game_handle), str(server_address), str(lo1), str(lo2)"
 	)
+	# has_private_replays = models.BooleanField(
+	# 	default=False,
+	# 	help_text="True if any replay was marked private at the time of upload."
+	# )
 
 	class Meta:
 		ordering = ("-match_start", )
@@ -303,6 +307,17 @@ class GameReplay(models.Model):
 		null=True, help_text="PlayerID of the friendly player (1 or 2)",
 	)
 
+	# When serving replay data in the security context of the user who uploaded this replay
+	# this deck list should be used for the opponent, so as to avoid revealing unplayed cards
+	# in the opponent's deck, which we might know in the case where multiple uploads were
+	# unified. If the other uploader has set their replay visibility to private, then we cannot
+	# leak the cards in their deck, via the globalgameplayer.
+	opponent_revealed_deck = models.ForeignKey(
+		Deck, on_delete=models.PROTECT,
+		null=True,
+		help_text="As much as is known of the opponent's starting deck list."
+	)
+
 	# This is useful to know because replays that are spectating both players
 	# will have more data then those from a single player.
 	# For example, they will have access to the cards that are in each players hand.
@@ -399,8 +414,16 @@ class GameReplay(models.Model):
 		return self.global_game.players.get(player_id=self.friendly_player_id)
 
 	@property
+	def friendly_deck(self):
+		return self.friendly_player.deck_list
+
+	@property
 	def opposing_player(self):
 		return self.global_game.players.exclude(player_id=self.friendly_player_id).get()
+
+	@property
+	def opposing_deck(self):
+		return self.opponent_revealed_deck
 
 	def related_replays(self, num=3):
 		"""
