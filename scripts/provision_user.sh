@@ -62,4 +62,6 @@ if [[ ! -d $PROJECT/hsreplaynet/static/vendor ]]; then
 	"$PROJECT/scripts/get_vendor_static.sh"
 fi
 
+mkdir -p "$PROJECT/build/generated"
+
 "$PROJECT/scripts/update_log_data.sh"
