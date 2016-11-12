@@ -6,7 +6,7 @@ from hsreplaynet.utils.db import dictfetchall
 from hsreplaynet.utils.collections import defaultdict_to_vanilla_dict
 
 
-WINRATES_BY_ARCHETYPE_FILTER_TEMPLATE = """
+WINRATES_BY_ARCHETYPE_FILTER_TEMPLATE_DEPRICATED = """
 FILTER (
 WHERE epoch_seconds > date_part('epoch', CURRENT_TIMESTAMP - INTERVAL '%s days')
 AND game_type IN (%s)
@@ -15,6 +15,15 @@ AND rank BETWEEN %s AND %s
 )
 """
 
+WINRATES_BY_ARCHETYPE_FILTER_TEMPLATE = """
+FILTER (
+WHERE epoch_seconds BETWEEN date_part('epoch', CURRENT_TIMESTAMP - INTERVAL '%s days')
+					AND date_part('epoch', CURRENT_TIMESTAMP - INTERVAL '%s days')
+AND game_type IN (%s)
+AND region_id IN (%s)
+AND rank BETWEEN %s AND %s
+)
+"""
 
 WINRATES_BY_ARCHETYPE_QUERY_TEMPLATE = """
 SELECT
@@ -37,9 +46,20 @@ GROUP BY friendly_arch.id, opposing_arch.id;
 """
 
 
-def get_head_to_head_winrates(lookback, game_types, regions, min_rank, max_rank, arches):
+def get_head_to_head_winrates(
+	lookback,
+	offset,
+	game_types,
+	regions,
+	min_rank,
+	max_rank,
+	archetypes
+):
+	lookback_window_start = str(int(lookback) + int(offset))
+	lookback_window_end = offset
 	query_params = (
-		lookback,
+		lookback_window_start,
+		lookback_window_end,
 		game_types,
 		regions,
 		min_rank,
@@ -52,20 +72,21 @@ def get_head_to_head_winrates(lookback, game_types, regions, min_rank, max_rank,
 		filter_expr,
 		filter_expr,
 		filter_expr,
-		arches,
-		arches
+		archetypes,
+		archetypes
 	)
 
 	def gen_cache_value():
 		return _generate_win_rates_by_archetype_table_from_db(query)
 
 	m = hashlib.md5()
+	m.update(offset.encode("utf8"))
 	m.update(lookback.encode("utf8"))
 	m.update(game_types.encode("utf8"))
 	m.update(regions.encode("utf8"))
 	m.update(min_rank.encode("utf8"))
 	m.update(max_rank.encode("utf8"))
-	m.update(arches.encode("utf8"))
+	m.update(archetypes.encode("utf8"))
 	cache_key = m.hexdigest()
 
 	win_rates_table, archetype_frequencies, expected_winrates = cache.get_or_set(

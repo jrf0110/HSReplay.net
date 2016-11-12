@@ -20,6 +20,7 @@ def archetypes(request):
 @view_requires_feature_access("winrates")
 def winrates(request):
 	lookback = request.GET.get("lookback", "7")
+	offset = request.GET.get("offset", "1")
 	regions_param = request.GET.get("regions", "")
 	if not regions_param:
 		regions = ",".join((
@@ -42,6 +43,7 @@ def winrates(request):
 	min_rank = request.GET.get("min_rank", "-1")
 	win_rates, frequencies, expected_winrates = get_head_to_head_winrates(
 		lookback,
+		offset,
 		game_types,
 		regions,
 		min_rank,
