@@ -56,7 +56,7 @@
 					</thead>
 					{% for webhook in webhooks %}
 						<tr>
-							<td>{{ webhook.uuid }}</td>
+							<td><a href="{{ webhook.get_absolute_url }}">{{ webhook.uuid }}</a></td>
 							<td>{{ webhook.url }}</td>
 							<td>{{ webhook.created.isoformat }}</td>
 							{% if webhook.is_active %}

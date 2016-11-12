@@ -1,6 +1,7 @@
 import requests
 import time
 from django.db import models
+from django.urls import reverse
 from hsreplaynet.accounts.models import User
 
 
@@ -21,6 +22,9 @@ class Webhook(models.Model):
 
 	def __str__(self):
 		return str(self.uuid)
+
+	def get_absolute_url(self):
+		return reverse("account_update_webhook", kwargs={"pk": self.pk})
 
 	def delete(self):
 		self.is_deleted = True

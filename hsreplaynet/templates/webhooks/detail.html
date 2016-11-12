@@ -5,6 +5,7 @@
 	<h3>Webhooks</h3>
 
 	<div class="inner">
+		{% if not webhook %}
 		<p>
 			Whenever an uploaded game finishes processing, a configured webhook
 			will send an HTTP POST to the configured URL.<br/>
@@ -16,6 +17,11 @@
 			The time from upload to trigger should be, on average, below 30 seconds.
 		</p>
 		<hr/>
+		{% else %}
+			{% if user.is_staff %}
+				<p><a href="{% url 'admin:webhooks_webhook_change' webhook.pk %}">View in admin</a></p>
+			{% endif %}
+		{% endif %}
 
 		<form action="" method="POST" id="webhook-create-form">
 			{% csrf_token %}
@@ -41,7 +47,11 @@
 				<label for="id_is_active">Active</label>
 			</p>
 
-			<input type="submit" class="btn btn-primary right" value="Add webhook"/>
+			{% if webhook %}
+				<input type="submit" class="btn btn-info right" value="Update webhook"/>
+			{% else %}
+				<input type="submit" class="btn btn-primary right" value="Add webhook"/>
+			{% endif %}
 		</form>
 	</div>
 
