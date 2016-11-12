@@ -34,6 +34,7 @@
 		</div>
 	</section>
 
+	{% if user.is_staff %}
 	<section id="account-webhooks" class="box-section">
 		<h3>Webhooks</h3>
 		<div class="inner">
@@ -69,4 +70,5 @@
 			{% endif %}
 		</div>
 	</section>
+	{% endif %}
 {% endblock %}
