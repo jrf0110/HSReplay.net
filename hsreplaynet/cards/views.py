@@ -3,6 +3,7 @@ from django.http.response import HttpResponseBadRequest
 import json
 from django.shortcuts import render
 from django.http import HttpResponse
+from hearthstone.enums import CardClass
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
 from hsreplaynet.cards.models import Archetype
 from hsreplaynet.features.decorators import view_requires_feature_access
@@ -14,6 +15,33 @@ from .queries import CardCountersQueryBuilder
 @view_requires_feature_access("winrates")
 def archetypes(request):
 	return render(request, "cards/deck_archetypes.html", {})
+
+
+@login_required
+@view_requires_feature_access("winrates")
+def canonicals(request):
+	result = []
+	archetypes = Archetype.objects.prefetch_related(
+		"canonical_decks__deck__includes"
+	).all()
+	for archetype in archetypes:
+		record = {
+			"name": archetype.name,
+			"player_class_id": archetype.player_class,
+			"player_class_name": CardClass(archetype.player_class).name
+		}
+
+		canonical_deck = archetype.canonical_decks.order_by('-created').first()
+		if canonical_deck:
+			record["representative_deck"] = {
+				"card_ids": canonical_deck.deck.card_id_list(),
+				"digest": canonical_deck.deck.digest
+			}
+
+		result.append(record)
+
+	payload_str = json.dumps(result, indent=4, sort_keys=True)
+	return HttpResponse(payload_str, content_type="application/json")
 
 
 @login_required
