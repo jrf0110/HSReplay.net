@@ -71,8 +71,8 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 			return "#ddd";
 		}
 
-		let neutral = [0, 100, 100];
 		let positive = [0, 0, 0];
+		let neutral = [0, 100, 100];
 		let negative = [0, 0, 0];
 
 		switch (this.props.colors) {
@@ -120,8 +120,8 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 			];
 		};
 
-		const hsl = (hsl: number[]): string => {
-			return "hsl(" + hsl[0] + ", " + hsl[1] + "%, " + hsl[2] + "%)";
+		const hsl = (hsl: number[]|null[]): string => {
+			return "hsl(" + (+hsl[0]) + ", " + (+hsl[1]) + "%, " + (+hsl[2]) + "%)";
 		};
 
 		const severity = Math.abs(0.5 - winrate) * 2;
@@ -132,8 +132,7 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 		else if (winrate < 0.5) {
 			return hsl(fn(severity, neutral, negative));
 		}
-		else {
-			return hsl(neutral);
-		}
+
+		return hsl(neutral);
 	}
 }
