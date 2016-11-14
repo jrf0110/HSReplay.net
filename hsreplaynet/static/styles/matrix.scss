@@ -11,18 +11,19 @@
 		fill: black;
 		font-weight: normal;
 
-		&.interesting {
-			font-weight: bold;
-		}
+		&.archetype {
+			&.interesting {
+				font-weight: bold;
+			}
 
-		&.boring {
-			fill: #ccc;
+			&.boring {
+				fill: #ccc;
+			}
 		}
 	}
 
 	.cells {
 		user-select: none;
-		cursor: pointer;
 
 		rect {
 			stroke: white;

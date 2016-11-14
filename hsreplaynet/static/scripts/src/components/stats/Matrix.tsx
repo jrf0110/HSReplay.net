@@ -99,7 +99,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 		// render pass
 		$.each(this.archetypes, (i: number, key: string) => {
-			let classNames = [];
+			let classNames = ["archetype"];
 			const class1 = key;
 
 			if (!games[key]) {
