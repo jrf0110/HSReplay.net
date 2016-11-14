@@ -93,6 +93,15 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		return !!this.props.onChangeLargest && !this.props.disabled;
 	}
 
+	protected componentDidUpdate(prevProps: RankRangeSelectorProps, prevState: RankRangeSelectorState, prevContext: any): void {
+		if (this.state.instantCommit && (
+			(this.state.smallest !== null && this.state.smallest !== prevState.smallest) ||
+			(this.state.largest !== null && this.state.largest !== prevState.largest))
+		) {
+			this.commit();
+		}
+	}
+
 	protected prepare(): void {
 		this.setState({
 			instantCommit: false,
