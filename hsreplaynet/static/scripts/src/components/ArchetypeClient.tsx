@@ -20,6 +20,7 @@ interface ArchetypeClientState {
 	colorScheme?: Colors;
 	intensity?: number;
 	fetching?: boolean;
+	archetypes?: any[];
 	selectedArchetype?: string;
 }
 
@@ -38,10 +39,20 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			colorScheme: Colors.HSREPLAY,
 			intensity: 25,
 			fetching: true,
+			archetypes: [],
 			selectedArchetype: null,
 		};
 		this.nonce = 0;
 		this.fetch();
+		fetch("/cards/canonicals/", {
+			credentials: "include",
+		}).then((response) => {
+			return response.json();
+		}).then((json: any) => {
+			this.setState({
+				archetypes: json,
+			});
+		});
 	}
 
 	public render(): JSX.Element {
@@ -80,6 +91,18 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 						working={this.state.fetching}
 						selectKey={this.state.selectedArchetype}
 						onSelectKey={(selectKey: string): void => {
+							// search for digest
+							let digest = null;
+							for(let i = 0; i < this.state.archetypes.length; i++) {
+								const archetype = this.state.archetypes[i];
+								if(archetype.name === selectKey) {
+									const deck = archetype.representative_deck;
+									digest = deck.digest;
+								}
+							}
+							if(digest && history && typeof history.pushState === "function") {
+								history.pushState({}, document.title, "?deck_digest=" + digest);
+							}
 							this.setState({
 								selectedArchetype: selectKey,
 							});
