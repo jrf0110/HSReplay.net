@@ -59,7 +59,7 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 					}}
 					onFocus={() => this.focus()}
 					onBlur={() => this.blur()}
-					onKeyDown={(e) => this.keyDown(e, false)}
+					onKeyDown={(e) => this.keyDown(e, true)}
 				/>
 			</label>
 			<label>
@@ -84,7 +84,7 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 					}}
 					onFocus={() => this.focus()}
 					onBlur={() => this.blur()}
-					onKeyDown={(e) => this.keyDown(e, true)}
+					onKeyDown={(e) => this.keyDown(e, false)}
 				/>
 			</label>
 		</div>;
@@ -119,15 +119,23 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		}
 	}
 
-	protected keyDown(e: any, largest: boolean) {
+	protected keyDown(e: any, smallest: boolean) {
 		switch (e.keyCode) {
 			case 8: // Backspace
-				if ((largest && this.state.largest === 0) || (!largest && this.state.smallest === 0)) {
+				if ((smallest && this.state.largest === 0) || (!smallest && this.state.smallest === 0)) {
 					this.commit();
 				}
 				break;
 			case 27: // Escape
 				this.rollback();
+				break;
+			case 76: // L
+				if (smallest) {
+					this.commit(0, null);
+				}
+				else {
+					this.commit(null, 0);
+				}
 				break;
 		}
 	}
@@ -160,18 +168,18 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		this.timeout = null;
 	}
 
-	protected commit(): void {
+	protected commit(customSmallest?: number, customLargest?: number): void {
 		this.clearTimeout();
 
-		let smallest = this.state.smallest;
-		let largest = this.state.largest;
+		let smallest = typeof customSmallest === "number" ? customSmallest : this.state.smallest;
+		let largest = typeof customLargest === "number" ? customLargest : this.state.largest;
 
 		if (largest !== null && largest < this.props.smallest) {
 			smallest = largest;
 		}
 
 		if (smallest !== null && smallest !== this.props.smallest && this.canChangeSmallest) {
-			this.props.onChangeSmallest(smallest);
+			this.props.onChangeSmallest(+smallest);
 		}
 
 		if (smallest !== null && smallest > this.props.largest) {
@@ -180,7 +188,7 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		}
 
 		if (largest !== null && largest !== this.props.largest && this.canChangeLargest) {
-			this.props.onChangeLargest(largest);
+			this.props.onChangeLargest(+largest);
 		}
 
 		this.setState({
