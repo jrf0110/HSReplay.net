@@ -7,6 +7,7 @@ interface MatrixProps extends React.ClassAttributes<Matrix> {
 	matrix: NumberMatrix;
 	sampleSize?: number;
 	colorScheme?: Colors;
+	intensity?: number;
 }
 
 interface NumberMatrix {
@@ -31,7 +32,6 @@ export interface Cell {
 }
 
 interface MatrixState {
-	intensity?: number;
 	mark?: string[];
 	highlight?: number[];
 	hideBoring?: boolean;
@@ -50,7 +50,6 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		super(props, context);
 
 		this.state = {
-			intensity: 0.25,
 			mark: [],
 			highlight: [],
 			hideBoring: true,
@@ -206,28 +205,13 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					<g className="cells"><MatrixBody
 						cells={cells}
 						colors={this.props.colorScheme}
-						intensity={this.state.intensity}
+						intensity={this.props.intensity}
 						offsetX={cellOffsetX}
 						offsetY={cellOffsetY}
 						edge={mult}
 					/></g>
 					<g className="selections">{selections}</g>
 				</svg>
-				<div>
-					<div>
-						<label>
-							Intensity
-							<input type="range" min={0} max={100}
-								   value={"" + (100 - this.state.intensity * 100)}
-								   onChange={(e: any) => {
-								this.setState({
-									intensity: (100 - e.target.value) / 100,
-								});
-							}}/>
-						</label>
-
-					</div>
-				</div>
 			</div>
 		);
 	}

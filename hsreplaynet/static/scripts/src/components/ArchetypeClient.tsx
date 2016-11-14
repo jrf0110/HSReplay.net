@@ -6,6 +6,7 @@ import SampleSizeSelector from "./stats/controls/SampleSizeSelector";
 import RankRangeSelector from "./stats/controls/RankRangeSelector";
 import {Colors} from "../Colors";
 import ColorSchemeSelector from "./stats/controls/ColorSchemeSelector";
+import IntensitySelector from "./stats/controls/IntensitySelector";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 }
@@ -17,6 +18,7 @@ interface ArchetypeClientState {
 	smallestRank?: number;
 	largestRank?: number;
 	colorScheme?: Colors;
+	intensity?: number;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -30,6 +32,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			smallestRank: 0,
 			largestRank: 25,
 			colorScheme: Colors.HSREPLAY,
+			intensity: 25,
 		};
 		this.fetch();
 	}
@@ -56,12 +59,17 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 						colorScheme={this.state.colorScheme}
 						onChangeColorScheme={(colorScheme: Colors): void => this.setState({colorScheme: colorScheme})}
 					/>
+					<IntensitySelector
+						intensity={this.state.intensity}
+						onChangeIntensity={(intensity: number): void => this.setState({intensity: intensity})}
+					/>
 				</div>
 				<div className="col-lg-9">
 					<Matrix
 						matrix={this.state.winrates}
 						sampleSize={this.state.sampleSize}
 						colorScheme={this.state.colorScheme}
+						intensity={this.state.intensity}
 					/>
 				</div>
 			</div>

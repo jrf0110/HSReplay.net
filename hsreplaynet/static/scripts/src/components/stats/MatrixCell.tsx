@@ -108,7 +108,7 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 			if (from === null || to === null) {
 				return +(to || from);
 			}
-			x = Math.pow(x, this.props.intensity);
+			x = Math.pow(x, 1 - this.props.intensity / 100);
 			return from + (to - from) * x;
 		};
 
