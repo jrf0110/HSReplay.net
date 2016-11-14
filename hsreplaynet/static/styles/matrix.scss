@@ -12,6 +12,11 @@
 		font-weight: normal;
 
 		&.archetype {
+
+			&.selectable {
+				cursor: pointer;
+			}
+
 			&.interesting {
 				font-weight: bold;
 			}

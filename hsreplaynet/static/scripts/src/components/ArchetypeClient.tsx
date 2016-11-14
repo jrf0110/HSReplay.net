@@ -20,6 +20,7 @@ interface ArchetypeClientState {
 	colorScheme?: Colors;
 	intensity?: number;
 	fetching?: boolean;
+	selectedArchetype?: string;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -37,6 +38,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			colorScheme: Colors.HSREPLAY,
 			intensity: 25,
 			fetching: true,
+			selectedArchetype: null,
 		};
 		this.nonce = 0;
 		this.fetch();
@@ -76,6 +78,12 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 						colorScheme={this.state.colorScheme}
 						intensity={this.state.intensity}
 						working={this.state.fetching}
+						selectKey={this.state.selectedArchetype}
+						onSelectKey={(selectKey: string): void => {
+							this.setState({
+								selectedArchetype: selectKey,
+							});
+						}}
 					/>
 				</div>
 			</div>

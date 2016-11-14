@@ -9,6 +9,8 @@ interface MatrixProps extends React.ClassAttributes<Matrix> {
 	colorScheme?: Colors;
 	intensity?: number;
 	working?: boolean;
+	selectKey?: string;
+	onSelectKey?: (selectKey: string) => void;
 }
 
 interface NumberMatrix {
@@ -33,7 +35,6 @@ export interface Cell {
 }
 
 interface MatrixState {
-	mark?: string[];
 	highlight?: number[];
 	hideBoring?: boolean;
 }
@@ -51,7 +52,6 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		super(props, context);
 
 		this.state = {
-			mark: [],
 			highlight: [],
 			hideBoring: true,
 		};
@@ -113,7 +113,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				vClassNames.push("interesting");
 			}
 
-			if (this.state.highlight.lastIndexOf(index) === 1) {
+			if (this.state.highlight.lastIndexOf(index) === 1 || this.props.selectKey === key) {
 				hClassNames.push("interesting");
 			}
 
@@ -152,6 +152,10 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			});
 			cells.push(cellRow);
 
+			if (this.props.onSelectKey) {
+				hClassNames.push("selectable");
+			}
+
 			titles.push(<text
 				key={"h" + rowcount}
 				x={cellOffsetX + -mult / 4}
@@ -160,6 +164,12 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				dominantBaseline={"middle"}
 				transform={"translate(0 " + mult / 2 + ")"}
 				className={hClassNames.join(" ")}
+				onClick={() => {
+					if(!this.props.onSelectKey) {
+						return
+					}
+					this.props.onSelectKey(key);
+				}}
 			>{class1}</text>);
 
 			titles.push(<text
@@ -173,7 +183,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				className={vClassNames.join(" ")}
 			>{class1}</text>);
 
-			if (this.state.mark.indexOf(key) !== -1) {
+			if (this.props.selectKey === key) {
 				selections.push(<rect
 					x={cellOffsetX}
 					y={cellOffsetY + rowcount * mult}
@@ -272,16 +282,16 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 		const max = this.archetypes.length * mult;
 
-		if (offsetX < 0 || offsetX > max || offsetY < 0 || offsetY > max) {
-			this.clearHover();
-			return false;
-		}
+		/*if (offsetX < 0 || offsetX > max || offsetY < 0 || offsetY > max) {
+		 this.clearHover();
+		 return false;
+		 }*/
 
-		const cellX = Math.floor(offsetX / mult);
-		const cellY = Math.floor(offsetY / mult);
+		const rowX = Math.floor(offsetX / mult);
+		const rowY = Math.floor(offsetY / mult);
 
 		this.setState({
-			highlight: [cellX, cellY],
+			highlight: [rowX, rowY],
 		});
 
 		return true;
@@ -291,21 +301,5 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		this.setState({
 			highlight: [],
 		})
-	}
-
-	private toggleRow(row: string): void {
-		const index = this.state.mark.indexOf(row);
-		if (index === -1) {
-			this.setState({
-				mark: this.state.mark.concat([row]),
-			});
-		}
-		else {
-			this.setState({
-				mark: this.state.mark.filter((key) => {
-					return key !== row;
-				}),
-			});
-		}
 	}
 }
