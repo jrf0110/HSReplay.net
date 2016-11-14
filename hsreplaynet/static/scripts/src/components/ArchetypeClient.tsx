@@ -4,6 +4,8 @@ import {BnetGameType} from "../hearthstone";
 import Matrix from "./stats/Matrix";
 import SampleSizeSelector from "./stats/controls/SampleSizeSelector";
 import RankRangeSelector from "./stats/controls/RankRangeSelector";
+import {Colors} from "../Colors";
+import ColorSchemeSelector from "./stats/controls/ColorSchemeSelector";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 }
@@ -14,6 +16,7 @@ interface ArchetypeClientState {
 	sampleSize?: number;
 	smallestRank?: number;
 	largestRank?: number;
+	colorScheme?: Colors;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -26,6 +29,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			sampleSize: 0,
 			smallestRank: 0,
 			largestRank: 25,
+			colorScheme: Colors.HSREPLAY,
 		};
 		this.fetch();
 	}
@@ -48,11 +52,16 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 						sampleSize={this.state.sampleSize}
 						onChangeSampleSize={(sampelSize: number): void => this.setState({sampleSize: sampelSize})}
 					/>
+					<ColorSchemeSelector
+						colorScheme={this.state.colorScheme}
+						onChangeColorScheme={(colorScheme: Colors): void => this.setState({colorScheme: colorScheme})}
+					/>
 				</div>
 				<div className="col-lg-9">
 					<Matrix
 						matrix={this.state.winrates}
 						sampleSize={this.state.sampleSize}
+						colorScheme={this.state.colorScheme}
 					/>
 				</div>
 			</div>

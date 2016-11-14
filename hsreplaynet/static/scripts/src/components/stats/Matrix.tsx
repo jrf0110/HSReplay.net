@@ -6,6 +6,7 @@ import MatrixBody from "./MatrixBody";
 interface MatrixProps extends React.ClassAttributes<Matrix> {
 	matrix: NumberMatrix;
 	sampleSize?: number;
+	colorScheme?: Colors;
 }
 
 interface NumberMatrix {
@@ -31,7 +32,6 @@ export interface Cell {
 
 interface MatrixState {
 	intensity?: number;
-	colors?: Colors;
 	mark?: string[];
 	highlight?: number[];
 	hideBoring?: boolean;
@@ -51,7 +51,6 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 		this.state = {
 			intensity: 0.25,
-			colors: Colors.REDGREEN,
 			mark: [],
 			highlight: [],
 			hideBoring: true,
@@ -206,7 +205,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					<g>{titles}</g>
 					<g className="cells"><MatrixBody
 						cells={cells}
-						colors={this.state.colors}
+						colors={this.props.colorScheme}
 						intensity={this.state.intensity}
 						offsetX={cellOffsetX}
 						offsetY={cellOffsetY}
@@ -226,20 +225,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 								});
 							}}/>
 						</label>
-						<label>
-							Colors
-							<select value={"" + this.state.colors} onChange={(e: any) => {
-								this.setState({
-									colors: +e.target.value,
-								});
-							}}>
-								<option value={"" + Colors.REDGREEN}>Red/Green</option>
-								<option value={"" + Colors.REDGREEN2}>Alternate Red/Green
-								</option>
-								<option value={"" + Colors.ORANGEBLUE}>Orange/Blue</option>
-								<option value={"" + Colors.HSREPLAY}>HSReplay</option>
-							</select>
-						</label>
+
 					</div>
 				</div>
 			</div>
