@@ -19,6 +19,7 @@ interface ArchetypeClientState {
 	largestRank?: number;
 	colorScheme?: Colors;
 	intensity?: number;
+	fetching?: boolean;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -35,6 +36,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			largestRank: 25,
 			colorScheme: Colors.HSREPLAY,
 			intensity: 25,
+			fetching: true,
 		};
 		this.nonce = 0;
 		this.fetch();
@@ -47,12 +49,12 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 					<RankRangeSelector
 						smallest={this.state.smallestRank}
 						onChangeSmallest={(smallestRank: number): void => {
-								this.setState({smallestRank: smallestRank});
-							}}
+							this.setState({smallestRank: smallestRank});
+						}}
 						largest={this.state.largestRank}
 						onChangeLargest={(largestRank: number): void => {
-								this.setState({largestRank: largestRank});
-							}}
+							this.setState({largestRank: largestRank});
+						}}
 					/>
 					<SampleSizeSelector
 						sampleSize={this.state.sampleSize}
@@ -73,6 +75,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 						sampleSize={this.state.sampleSize}
 						colorScheme={this.state.colorScheme}
 						intensity={this.state.intensity}
+						working={this.state.fetching}
 					/>
 				</div>
 			</div>
@@ -95,6 +98,10 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		const nonce = ++this.nonce;
 		const REASON_NONCE_OUTDATED = "Nonce outdated";
 
+		this.setState({
+			fetching: true,
+		});
+
 		fetch(
 			"/cards/winrates/?lookback=7&game_types=" + BnetGameType.BGT_RANKED_STANDARD + "," + BnetGameType.BGT_CASUAL_STANDARD + "&min_rank=" + this.state.smallestRank + "&max_rank=" + this.state.largestRank,
 			{
@@ -109,6 +116,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			this.setState({
 				popularities: json.frequencies,
 				winrates: json.win_rates,
+				fetching: false,
 			});
 		}).catch((reason: any) => {
 			if(reason === REASON_NONCE_OUTDATED) {

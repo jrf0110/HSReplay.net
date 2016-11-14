@@ -8,6 +8,7 @@ interface MatrixProps extends React.ClassAttributes<Matrix> {
 	sampleSize?: number;
 	colorScheme?: Colors;
 	intensity?: number;
+	working?: boolean;
 }
 
 interface NumberMatrix {
@@ -200,6 +201,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					onMouseLeave={() => this.clearHover()}
 					onTouchCancel={() => this.clearHover()}
 					onTouchEnd={() => this.clearHover()}
+					className={this.props.working ? "loading" : null}
 				>
 					<g>{titles}</g>
 					<g className="cells"><MatrixBody
