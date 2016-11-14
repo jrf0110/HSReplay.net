@@ -22,6 +22,7 @@ interface ArchetypeClientState {
 	fetching?: boolean;
 	archetypes?: any[];
 	selectedArchetype?: string;
+	visibleNonce?: number;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -41,6 +42,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			fetching: true,
 			archetypes: [],
 			selectedArchetype: null,
+			visibleNonce: 0,
 		};
 		this.nonce = 0;
 		this.fetch();
@@ -139,7 +141,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 				credentials: "include",
 			}
 		).then((response) => {
-			if(this.nonce !== nonce) {
+			if (nonce < this.state.visibleNonce) {
 				return Promise.reject(REASON_NONCE_OUTDATED);
 			}
 			return response.json();
@@ -147,10 +149,11 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			this.setState({
 				popularities: json.frequencies,
 				winrates: json.win_rates,
-				fetching: false,
+				fetching: this.nonce === nonce ? false : true,
+				visibleNonce: nonce,
 			});
 		}).catch((reason: any) => {
-			if(reason === REASON_NONCE_OUTDATED) {
+			if (reason === REASON_NONCE_OUTDATED) {
 				return; // noop
 			}
 			return Promise.reject(reason);
