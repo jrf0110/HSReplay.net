@@ -5,6 +5,7 @@ import MatrixBody from "./MatrixBody";
 
 interface MatrixProps extends React.ClassAttributes<Matrix> {
 	matrix: NumberMatrix;
+	sampleSize?: number;
 }
 
 interface NumberMatrix {
@@ -31,7 +32,6 @@ export interface Cell {
 interface MatrixState {
 	intensity?: number;
 	colors?: Colors;
-	cutoff?: number;
 	mark?: string[];
 	highlight?: number[];
 	hideBoring?: boolean;
@@ -52,7 +52,6 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		this.state = {
 			intensity: 0.25,
 			colors: Colors.REDGREEN,
-			cutoff: 0,
 			mark: [],
 			highlight: [],
 			hideBoring: true,
@@ -86,7 +85,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 				const matchup: any = row[inner];
 				const matches = matchup.match_count;
-				const is_cutoff = matchup.match_count < this.state.cutoff;
+				const is_cutoff = matchup.match_count < this.props.sampleSize;
 				if (!is_cutoff) {
 					games[outer] += matches;
 					games[inner] += matches;
@@ -124,7 +123,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			$.each(row, (class2: string, matchup: Matchup) => {
 				let title = class1 + " vs. " + class2;
 
-				const valid = matchup.match_count >= this.state.cutoff;
+				const valid = matchup.match_count >= this.props.sampleSize;
 				const ratio = valid ? matchup.f_wr_vs_o : null;
 
 				if (matchup.is_mirror) {
@@ -132,9 +131,9 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				}
 				else {
 					if (!valid && !matchup.match_count) {
-						if (this.state.cutoff > 0) {
+						if (this.props.sampleSize > 0) {
 							title += "\nNot enough games";
-							title += " (" + matchup.match_count + " of " + this.state.cutoff + ")";
+							title += " (" + matchup.match_count + " of " + this.props.sampleSize + ")";
 						}
 						else {
 							title += "\nNo game";
@@ -216,19 +215,6 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 					<g className="selections">{selections}</g>
 				</svg>
 				<div>
-					<div>
-						<label>
-							Cutoff
-							<input type="number"
-								   min={0}
-								   value={"" + this.state.cutoff}
-								   onChange={(e: any) => {
-										this.setState({
-											cutoff: +e.target.value,
-										});
-							}}/>
-						</label>
-					</div>
 					<div>
 						<label>
 							Intensity

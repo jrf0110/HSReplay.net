@@ -2,6 +2,7 @@ import * as React from "react";
 import Distribution from "./Distribution";
 import {BnetGameType} from "../hearthstone";
 import Matrix from "./stats/Matrix";
+import SampleSizeSelector from "./stats/controls/SampleSizeSelector";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 }
@@ -9,6 +10,7 @@ interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 interface ArchetypeClientState {
 	popularities?: any;
 	winrates?: any;
+	sampleSize?: number;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -31,6 +33,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		this.state = {
 			popularities: {},
 			winrates: {},
+			sampleSize: 0,
 		};
 	}
 
@@ -41,6 +44,11 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 					<h2>Winrates</h2>
 					<Matrix
 						matrix={this.state.winrates}
+						sampleSize={this.state.sampleSize}
+					/>
+					<SampleSizeSelector
+						sampleSize={this.state.sampleSize}
+						onChangeSampleSize={(sampleSize: number): void => this.setState({sampleSize: sampleSize})}
 					/>
 				</div>
 				<div className="col-lg-3 col-lg-pull-9">
