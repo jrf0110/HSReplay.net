@@ -23,6 +23,8 @@ interface ArchetypeClientState {
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
 
+	private nonce?: number;
+
 	constructor(props: ArchetypeClientProps, context: any) {
 		super(props, context);
 		this.state = {
@@ -34,6 +36,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			colorScheme: Colors.HSREPLAY,
 			intensity: 25,
 		};
+		this.nonce = 0;
 		this.fetch();
 	}
 
@@ -89,18 +92,29 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 	}
 
 	private fetch(): void {
+		const nonce = ++this.nonce;
+		const REASON_NONCE_OUTDATED = "Nonce outdated";
+
 		fetch(
 			"/cards/winrates/?lookback=7&game_types=" + BnetGameType.BGT_RANKED_STANDARD + "," + BnetGameType.BGT_CASUAL_STANDARD + "&min_rank=" + this.state.smallestRank + "&max_rank=" + this.state.largestRank,
 			{
 				credentials: "include",
 			}
 		).then((response) => {
+			if(this.nonce !== nonce) {
+				return Promise.reject(REASON_NONCE_OUTDATED);
+			}
 			return response.json();
 		}).then((json: any) => {
 			this.setState({
 				popularities: json.frequencies,
 				winrates: json.win_rates,
 			});
+		}).catch((reason: any) => {
+			if(reason === REASON_NONCE_OUTDATED) {
+				return; // noop
+			}
+			return Promise.reject(reason);
 		});
 	}
 }
