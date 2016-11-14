@@ -20,6 +20,8 @@ interface RankRangeSelectorState {
  */
 export default class RankRangeSelector extends React.Component<RankRangeSelectorProps, RankRangeSelectorState> {
 
+	private timeout: number|null;
+
 	constructor(props: RankRangeSelectorProps, context: any) {
 		super(props, context);
 		this.state = {
@@ -27,6 +29,7 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 			largest: null,
 			instantCommit: true,
 		}
+		this.timeout = null;
 	}
 
 	public render(): JSX.Element {
@@ -54,8 +57,9 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 							smallest: smallest,
 						});
 					}}
-					onFocus={() => this.prepare()}
-					onBlur={() => this.commit()}
+					onFocus={() => this.focus()}
+					onBlur={() => this.blur()}
+					onKeyDown={(e) => this.keyDown(e, false)}
 				/>
 			</label>
 			<label>
@@ -78,8 +82,9 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 							largest: largest,
 						});
 					}}
-					onFocus={() => this.prepare()}
-					onBlur={() => this.commit()}
+					onFocus={() => this.focus()}
+					onBlur={() => this.blur()}
+					onKeyDown={(e) => this.keyDown(e, true)}
 				/>
 			</label>
 		</div>;
@@ -94,18 +99,50 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 	}
 
 	protected componentDidUpdate(prevProps: RankRangeSelectorProps, prevState: RankRangeSelectorState, prevContext: any): void {
-		if (this.state.instantCommit && (
-			(this.state.smallest !== null && this.state.smallest !== prevState.smallest) ||
-			(this.state.largest !== null && this.state.largest !== prevState.largest))
-		) {
+		if ((this.state.smallest !== null && this.state.smallest !== prevState.smallest) ||
+			(this.state.largest !== null && this.state.largest !== prevState.largest)) {
+			if (this.state.instantCommit) {
+				this.commit();
+			}
+			else {
+				this.clearTimeout();
+				this.timeout = window.setTimeout(() => this.commit(), this.state.smallest + this.state.largest > 0 ? 400 : 1000);
+			}
+		}
+
+		if (this.state.smallest !== null && this.state.smallest >= 3 && this.state.smallest > prevState.smallest) {
+			this.commit();
+		}
+
+		if (this.state.largest !== null && this.state.largest >= 3 && this.state.largest > prevState.largest) {
 			this.commit();
 		}
 	}
 
-	protected prepare(): void {
+	protected keyDown(e: any, largest: boolean) {
+		switch (e.keyCode) {
+			case 8: // Backspace
+				if ((largest && this.state.largest === 0) || (!largest && this.state.smallest === 0)) {
+					this.commit();
+				}
+				break;
+			case 27: // Escape
+				this.rollback();
+				break;
+		}
+	}
+
+	protected focus(): void {
 		this.setState({
 			instantCommit: false,
 		});
+	}
+
+	protected blur(): void {
+		this.setState({
+			instantCommit: true,
+		});
+		this.commit();
 	}
 
 	protected rollback(): void {
@@ -115,7 +152,17 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		});
 	}
 
+	private clearTimeout(): void {
+		if (this.timeout === null) {
+			return;
+		}
+		clearTimeout(this.timeout);
+		this.timeout = null;
+	}
+
 	protected commit(): void {
+		this.clearTimeout();
+
 		let smallest = this.state.smallest;
 		let largest = this.state.largest;
 
@@ -139,7 +186,6 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		this.setState({
 			smallest: null,
 			largest: null,
-			instantCommit: true,
 		})
 	}
 
