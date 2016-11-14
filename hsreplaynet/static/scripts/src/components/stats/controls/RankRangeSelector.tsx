@@ -48,8 +48,8 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 						if(!this.canChangeSmallest) {
 							return;
 						}
-						let smallest = Math.min(Math.max(+e.target.value, 0), 25);
-						if(smallest > largest && !this.canChangeLargest) {
+						let smallest = this.cleanRank(e.target.value);
+						if(!this.canChangeLargest && smallest > largest) {
 							// if we can't change largest, clamp to it
 							smallest = largest;
 						}
@@ -73,8 +73,8 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 						if(!this.canChangeLargest) {
 							return;
 						}
-						let largest = Math.min(Math.max(+e.target.value, 0), 25);
-						if(largest < smallest && !this.canChangeSmallest) {
+						let largest = this.cleanRank(e.target.value);
+						if(!this.canChangeSmallest && largest < smallest) {
 							// if we can't change smallest, clamp to it
 							largest = smallest;
 						}
@@ -88,6 +88,13 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 				/>
 			</label>
 		</div>;
+	}
+
+	protected cleanRank(input: any): number {
+		const number = +input;
+		const integer = isFinite(number) ? number : 0;
+		const rank = Math.min(Math.max(integer, 0), 25);
+		return rank;
 	}
 
 	protected get canChangeSmallest(): boolean {
