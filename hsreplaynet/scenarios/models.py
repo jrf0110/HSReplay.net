@@ -139,7 +139,7 @@ class Scenario(models.Model):
 		complete_replays = []
 		for replay in GameReplay.objects.filter(global_game__scenario_id=scenario_id).all():
 			if replay.friendly_player.final_state == PlayState.WON:
-				if replay.friendly_player.deck_list.size() == 30:
+				if replay.friendly_player.deck_list.size == 30:
 					complete_replays.append(replay)
 
 		all_decks = defaultdict(dict)

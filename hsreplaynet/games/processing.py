@@ -405,7 +405,7 @@ def update_global_players(global_game, entity_tree, meta):
 
 			# Skip updating the deck if we already have a bigger one
 			# TODO: We should make deck_list nullable and only create it here
-			if len(decklist) > game_player.deck_list.size():
+			if len(decklist) > game_player.deck_list.size:
 				# XXX: Maybe we should also check friendly_player_id for good measure
 				game_player.deck_list = deck
 				updated = True

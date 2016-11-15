@@ -2,6 +2,7 @@ import hashlib
 import random
 from django.db import models, connection
 from django.conf import settings
+from django.dispatch.dispatcher import receiver
 from hearthstone import enums
 from hsreplaynet.utils.fields import IntEnumField
 
@@ -135,8 +136,9 @@ class DeckManager(models.Manager):
 			created_ts = result_row[1]
 			digest = result_row[2]
 			created = result_row[3]
+			deck_size = result_row[4]
 			cursor.close()
-			d = Deck(id=deck_id, created=created_ts, digest=digest)
+			d = Deck(id=deck_id, created=created_ts, digest=digest, size=deck_size)
 			return d, created
 		else:
 			digest = generate_digest_from_deck_list(id_list)
@@ -195,6 +197,7 @@ class Deck(models.Model):
 	digest = models.CharField(max_length=32, unique=True, db_index=True)
 	created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 	archetype = models.ForeignKey("Archetype", null=True, on_delete=models.SET_NULL)
+	size = models.IntegerField(null=True)
 
 	def __str__(self):
 		return repr(self)
@@ -240,11 +243,15 @@ class Deck(models.Model):
 
 		return result
 
-	def size(self):
-		"""
-		The number of cards in the deck.
-		"""
-		return sum(i.count for i in self.includes.all())
+
+@receiver(models.signals.post_save, sender=Deck)
+def update_deck_size_field(sender, instance, **kwargs):
+	current_deck_size = sum(i.count for i in instance.includes.all())
+
+	if instance.size != current_deck_size:
+		instance.size = current_deck_size
+		# Make sure to only save when updating to prevent recursion
+		instance.save()
 
 
 class Include(models.Model):

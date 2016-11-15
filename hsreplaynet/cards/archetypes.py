@@ -10,7 +10,7 @@ def edit_distance(canonical_list, unclassified_deck):
 	DELETE_PENALTY = 1.0
 	INSERT_PENALTY = 1.0
 
-	unrevealed_count = 30 - unclassified_deck.size()
+	unrevealed_count = 30 - unclassified_deck.size
 	distance = 0.0
 	delete_count = 0
 	canonical_copy = list(canonical_list.card_id_list())

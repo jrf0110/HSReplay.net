@@ -76,7 +76,7 @@ def test_archetype_classification(freeze_mage_archetype, tempo_mage_archetype):
 	)
 	end_time1 = time.time()
 	duration_sec1 = end_time1 - start_time1
-	assert duration_sec1 <= .1
+	assert duration_sec1 <= .2
 	assert deck1.archetype == freeze_mage_archetype
 
 	# Then assert that we can classify partial decks around our average length
@@ -89,7 +89,7 @@ def test_archetype_classification(freeze_mage_archetype, tempo_mage_archetype):
 	)
 	end_time2 = time.time()
 	duration_sec2 = end_time2 - start_time2
-	assert duration_sec2 <= .1
+	assert duration_sec2 <= .2
 	assert deck2.archetype == tempo_mage_archetype
 
 	# Finally, check that when we see too few cards we don't classify
@@ -102,5 +102,5 @@ def test_archetype_classification(freeze_mage_archetype, tempo_mage_archetype):
 	)
 	end_time3 = time.time()
 	duration_sec3 = end_time3 - start_time3
-	assert duration_sec3 <= .1
+	assert duration_sec3 <= .2
 	assert deck3.archetype is None
