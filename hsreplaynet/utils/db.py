@@ -1,3 +1,4 @@
+from django.db import connection
 
 
 def dictfetchall(cursor):
@@ -7,3 +8,9 @@ def dictfetchall(cursor):
 		dict(zip(columns, row))
 		for row in cursor.fetchall()
 	]
+
+
+def execute_query(query):
+	cursor = connection.cursor()
+	cursor.execute(query)
+	return dictfetchall(cursor)
