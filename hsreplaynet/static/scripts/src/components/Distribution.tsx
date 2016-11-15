@@ -1,5 +1,5 @@
 import * as React from "react";
-import $ from "jquery";
+import * as _ from "lodash";
 
 interface DistributionProps extends React.ClassAttributes<Distribution> {
 	distributions: NumberDistribution;
@@ -18,7 +18,19 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 
 	public render(): JSX.Element {
 		let count = 0;
-		const rows = $.map(this.props.distributions, (value: number, key: string) => {
+
+		const elements = _.map(this.props.distributions, (value: number, key: string) => {
+			return [key, value];
+		});
+
+		const distributions = _.sortBy(elements, (tuple: any[]) => {
+			const value = tuple[1];
+			return 1 - value;
+		});
+
+		const rows = _.map(distributions, (tuple: any[]) => {
+			const key = tuple[0];
+			const value = tuple[1];
 			return (
 				<tr key={count}>
 					<th>{++count}</th>
@@ -31,14 +43,14 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 		return (
 			<table className="table table-condensed table-hover">
 				<thead>
-					<tr>
-						<th>#</th>
-						<th>{this.props.title || "Title"}</th>
-						<th>{this.props.value || "Value"}</th>
-					</tr>
+				<tr>
+					<th>#</th>
+					<th>{this.props.title || "Title"}</th>
+					<th>{this.props.value || "Value"}</th>
+				</tr>
 				</thead>
 				<tbody>
-					{rows}
+				{rows}
 				</tbody>
 			</table>
 		);
