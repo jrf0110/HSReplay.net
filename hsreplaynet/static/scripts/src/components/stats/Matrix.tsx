@@ -257,10 +257,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		}
 
 		const touch = e.touches[0];
-
-		if (this.hover(touch.clientX, touch.clientY)) {
-			e.preventDefault();
-		}
+		this.hover(touch.clientX, touch.clientY);
 	}
 
 	private hover(clientX: number, clientY: number): boolean {
