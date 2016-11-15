@@ -4,5 +4,5 @@ import ArchetypeClient from "../components/ArchetypeClient";
 
 ReactDOM.render(
 	<ArchetypeClient />,
-	document.getElementById("popularity-container")
+	document.getElementById("archetypes-container")
 );

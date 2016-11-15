@@ -36,13 +36,14 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		const smallest = this.state.smallest !== null ? this.state.smallest : this.props.smallest;
 		const largest = this.state.largest !== null ? this.state.largest : this.props.largest;
 
-		return <div>
-			<label>
-				From
+		return <div className="control-rank-range-selector">
+			<label className="control-label">
+				<span>Rank</span>
 				<input
 					type="number"
+					className="form-control"
 					value={smallest === 0 ? "" : ""+smallest}
-					placeholder={smallest === 0 ? "Legend" : "Rank"}
+					placeholder={smallest === 0 ? "Legend" : null}
 					disabled={!this.canChangeSmallest}
 					onChange={(e: any): void => {
 						if(!this.canChangeSmallest) {
@@ -62,12 +63,13 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 					onKeyDown={(e) => this.keyDown(e, true)}
 				/>
 			</label>
-			<label>
-				To
+			<label className="control-label">
+				<span>Rank</span>
 				<input
 					type="number"
+					className="form-control"
 					value={largest === 0 ? "" : "" + largest}
-					placeholder={largest === 0 ? "Legend" : "Rank"}
+					placeholder={smallest === 0 ? "Legend" : null}
 					disabled={!this.canChangeLargest}
 					onChange={(e: any): void => {
 						if(!this.canChangeLargest) {

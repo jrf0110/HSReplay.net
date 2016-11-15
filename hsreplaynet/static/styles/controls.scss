@@ -1,0 +1,34 @@
+.control-rank-range-selector {
+	width: 100%;
+	margin-bottom: 15px;
+
+	label {
+		> input {
+			width: 100%;
+			text-align: center;
+		}
+	}
+}
+
+.control-label {
+	width: 100%;
+
+	> span:first-child {
+		width: 100%;
+		text-align: center;
+		display: block;
+		margin-bottom: 3px;
+	}
+}
+
+.control-sample-size-selector {
+	width: 100%;
+	margin-bottom: 15px;
+
+	label {
+		> input {
+			width: 100%;
+			text-align: center;
+		}
+	}
+}

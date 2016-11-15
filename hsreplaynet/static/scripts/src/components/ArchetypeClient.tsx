@@ -60,64 +60,74 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 	public render(): JSX.Element {
 		return <div>
 			<div className="row">
-				<div className="col-lg-3">
-					<RankRangeSelector
-						smallest={this.state.smallestRank}
-						onChangeSmallest={(smallestRank: number): void => {
-							this.setState({smallestRank: smallestRank});
-						}}
-						largest={this.state.largestRank}
-						onChangeLargest={(largestRank: number): void => {
-							this.setState({largestRank: largestRank});
-						}}
-					/>
-					<SampleSizeSelector
-						sampleSize={this.state.sampleSize}
-						onChangeSampleSize={(sampelSize: number): void => this.setState({sampleSize: sampelSize})}
-					/>
-					<ColorSchemeSelector
-						colorScheme={this.state.colorScheme}
-						onChangeColorScheme={(colorScheme: Colors): void => this.setState({colorScheme: colorScheme})}
-					/>
-					<IntensitySelector
-						intensity={this.state.intensity}
-						onChangeIntensity={(intensity: number): void => this.setState({intensity: intensity})}
-					/>
+				<div className="col-lg-9 col-md-12">
+					<div className="row">
+						<div className="col-lg-2 col-md-2 col-sm-12">
+							<h2 className="text-center">&nbsp;</h2>
+							<div>
+								<RankRangeSelector
+									smallest={this.state.smallestRank}
+									onChangeSmallest={(smallestRank: number): void => {
+										this.setState({smallestRank: smallestRank});
+									}}
+									largest={this.state.largestRank}
+									onChangeLargest={(largestRank: number): void => {
+										this.setState({largestRank: largestRank});
+									}}
+								/>
+								<SampleSizeSelector
+									sampleSize={this.state.sampleSize}
+									onChangeSampleSize={(sampelSize: number): void => this.setState({sampleSize: sampelSize})}
+								/>
+							</div>
+						</div>
+						<div className="col-lg-10 col-md-10 col-xs-12">
+							<h2 className="text-center">Matchups</h2>
+							<Matrix
+								matrix={this.state.winrates}
+								sampleSize={this.state.sampleSize}
+								colorScheme={this.state.colorScheme}
+								intensity={this.state.intensity}
+								working={this.state.fetching}
+								selectKey={this.state.selectedArchetype}
+								onSelectKey={(selectKey: string): void => {
+									// search for digest
+									let digest = null;
+									for(let i = 0; i < this.state.archetypes.length; i++) {
+										const archetype = this.state.archetypes[i];
+										if(archetype.name === selectKey) {
+											const deck = archetype.representative_deck;
+											digest = deck.digest;
+										}
+									}
+									if(digest && history && typeof history.pushState === "function") {
+										history.pushState({}, document.title, "?deck_digest=" + digest);
+									}
+									this.setState({
+										selectedArchetype: selectKey,
+									});
+								}}
+							/>
+							<ColorSchemeSelector
+								colorScheme={this.state.colorScheme}
+								onChangeColorScheme={(colorScheme: Colors): void => this.setState({colorScheme: colorScheme})}
+							/>
+							<IntensitySelector
+								intensity={this.state.intensity}
+								onChangeIntensity={(intensity: number): void => this.setState({intensity: intensity})}
+							/>
+						</div>
+					</div>
 				</div>
-				<div className="col-lg-9">
-					<Matrix
-						matrix={this.state.winrates}
-						sampleSize={this.state.sampleSize}
-						colorScheme={this.state.colorScheme}
-						intensity={this.state.intensity}
-						working={this.state.fetching}
-						selectKey={this.state.selectedArchetype}
-						onSelectKey={(selectKey: string): void => {
-							// search for digest
-							let digest = null;
-							for(let i = 0; i < this.state.archetypes.length; i++) {
-								const archetype = this.state.archetypes[i];
-								if(archetype.name === selectKey) {
-									const deck = archetype.representative_deck;
-									digest = deck.digest;
-								}
-							}
-							if(digest && history && typeof history.pushState === "function") {
-								history.pushState({}, document.title, "?deck_digest=" + digest);
-							}
-							this.setState({
-								selectedArchetype: selectKey,
-							});
-						}}
+				<div className="col-lg-3 col-sm-12">
+					<h2 className="text-center">Popularities</h2>
+					<Distribution
+						distributions={this.state.popularities}
+						title="Archetype"
+						value="Popularity"
 					/>
 				</div>
 			</div>
-			<h2>Popularities</h2>
-			<Distribution
-				distributions={this.state.popularities}
-				title="Archetype"
-				value="Popularity"
-			/>
 		</div>;
 	}
 

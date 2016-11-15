@@ -42,7 +42,7 @@ interface MatrixState {
 const mult = 30;
 
 const cellOffsetX = 150;
-const cellOffsetY = 150;
+const cellOffsetY = 125;
 
 export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
