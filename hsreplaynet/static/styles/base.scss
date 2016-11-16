@@ -164,61 +164,6 @@ body, html {
 
 /* Elements */
 
-.promo-button, .promo-button:visited, .promo-button-outline, .promo-button-outline:visited {
-	display: inline-block;
-	font-weight: bold;
-	padding: 7px 30px;
-	line-height: 2em;
-	font-size: 1.2em;
-	text-decoration: none;
-	border: solid 1px $red;
-	color: white;
-	background-color: $red;
-}
-
-.promo-button {
-	text-transform: uppercase;
-}
-
-.promo-button:hover, .promo-button:active {
-	color: $red;
-	background-color: white;
-	text-decoration: none;
-	border-color: $red;
-}
-
-.promo-button-outline, .promo-button-outline:visited {
-	background-color: transparent;
-	color: $red;
-}
-
-.promo-button-outline:hover, .promo-button-outline:active {
-	text-decoration: none;
-	color: $red;
-}
-
-.promo-button img, .promo-button-outline img {
-	vertical-align: text-bottom;
-}
-
-.promo-button.hero-button {
-	padding-left: 25px;
-	padding-right: 25px;
-}
-
-.promo-link, .promo-help {
-	font-size: 1.2em;
-}
-
-.promo-link, .promo-link:visited {
-	text-decoration: underline;
-	color: white;
-}
-
-.promo-link:hover, .promo-link:active {
-	color: $red;
-}
-
 #site-messages:not(:empty) {
 	background-color: $blue;
 	color: white;

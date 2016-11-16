@@ -1,0 +1,78 @@
+.promo-button, .promo-button:visited, .promo-button-outline, .promo-button-outline:visited {
+	display: inline-block;
+	font-weight: bold;
+	padding: 7px 30px;
+	line-height: 2em;
+	font-size: 1.2em;
+	text-decoration: none;
+
+	color: white;
+	border: solid 1px $red;
+	background-color: $red;
+
+	&.blue-style {
+		border: solid 1px $blue;
+		background-color: $blue;
+	}
+
+	&.aqua-style {
+		border: solid 1px $aqua;
+		background-color: $aqua;
+	}
+}
+
+.promo-button {
+	text-transform: uppercase;
+}
+
+.promo-button:hover, .promo-button:active {
+	text-decoration: none;
+
+	color: $red;
+	background-color: white;
+	border-color: $red;
+
+	&.blue-style {
+		color: $blue;
+		background-color: white;
+		border-color: $blue;
+	}
+
+	&.aqua-style {
+		color: $aqua;
+		background-color: white;
+		border-color: $aqua;
+	}
+}
+
+.promo-button-outline, .promo-button-outline:visited {
+	background-color: transparent;
+	color: $red;
+}
+
+.promo-button-outline:hover, .promo-button-outline:active {
+	text-decoration: none;
+	color: $red;
+}
+
+.promo-button img, .promo-button-outline img {
+	vertical-align: text-bottom;
+}
+
+.promo-button.hero-button {
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.promo-link, .promo-help {
+	font-size: 1.2em;
+}
+
+.promo-link, .promo-link:visited {
+	text-decoration: underline;
+	color: white;
+}
+
+.promo-link:hover, .promo-link:active {
+	color: $red;
+}
