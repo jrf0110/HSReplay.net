@@ -162,10 +162,12 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 	private buildQueryUrl(): string {
 		const baseUrl = "/cards/winrates/";
 
+		const gametypes = [BnetGameType.BGT_RANKED_STANDARD];
+
 		const params = [];
 		params.push("lookback=" + this.state.lookback);
 		params.push("offset=" + this.state.offset);
-		params.push("game_types=" + BnetGameType.BGT_RANKED_STANDARD + "," + BnetGameType.BGT_CASUAL_STANDARD);
+		params.push("game_types=" + gametypes.join(","));
 		params.push("min_rank=" + this.state.smallestRank);
 		params.push("max_rank=" + this.state.largestRank);
 
