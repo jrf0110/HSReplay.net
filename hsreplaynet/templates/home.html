@@ -2,6 +2,7 @@
 {% load static %}
 {% load socialaccount %}
 {% load web_extras %}
+{% load features %}
 
 {% block header %}
 {% get_featured_game as featured_game %}
@@ -58,6 +59,19 @@
 			{% endif %}
 		</div>
 	</header>
+
+	{% feature "archetypes" %}
+		<div id="archetypes-promo" class="promo">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-8 col-md-offset-2 col-xs-12 col-xs-offset-0 text-center">
+							<h2>Now available:</h2>
+							<a href="{% url 'deck_archetypes' %}" class="promo-button">Archetypes</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfeature %}
 
 	<article id="demo">
 		<div class="container">
