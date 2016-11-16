@@ -37,7 +37,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		this.state = {
 			popularities: {},
 			winrates: {},
-			sampleSize: 0,
+			sampleSize: 100,
 			smallestRank: 0,
 			largestRank: 25,
 			colorScheme: Colors.HSREPLAY,
