@@ -141,6 +141,18 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		});
 	}
 
+	private buildQueryUrl(): string {
+		const baseUrl = "/cards/winrates/";
+
+		const params = [];
+		params.push("lookback=7");
+		params.push("game_types=" + BnetGameType.BGT_RANKED_STANDARD + "," + BnetGameType.BGT_CASUAL_STANDARD);
+		params.push("min_rank=" + this.state.smallestRank);
+		params.push("max_rank=" + this.state.largestRank);
+
+		return baseUrl + "?" + params.join("&");
+	}
+
 	private fetch(): void {
 		const nonce = ++this.nonce;
 		const REASON_NONCE_OUTDATED = "Nonce outdated";
@@ -150,7 +162,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		});
 
 		fetch(
-			"/cards/winrates/?lookback=7&game_types=" + BnetGameType.BGT_RANKED_STANDARD + "," + BnetGameType.BGT_CASUAL_STANDARD + "&min_rank=" + this.state.smallestRank + "&max_rank=" + this.state.largestRank,
+			this.buildQueryUrl(),
 			{
 				credentials: "include",
 			}
