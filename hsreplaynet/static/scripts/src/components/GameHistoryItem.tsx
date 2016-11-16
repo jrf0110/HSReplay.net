@@ -11,6 +11,7 @@ interface GameHistoryItemProps extends ImageProps, CardArtProps, React.ClassAttr
 	endTime: Date;
 	gameType: number;
 	disconnected: boolean;
+	scenarioId: number;
 	turns: number;
 	won: boolean;
 	friendlyPlayer: number;
@@ -90,8 +91,12 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 		return null;
 	}
 
+	isHeroicTavernBrawl(): boolean {
+		return this.props.scenarioId == 2103
+	}
+
 	getIconInfo(): string {
-		var player = this. getFriendlyPlayer();
+		var player = this.getFriendlyPlayer();
 		if (!player) {
 			return null;
 		}
@@ -110,7 +115,10 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 			case BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI:
 			case BnetGameType.BGT_TAVERNBRAWL_2P_COOP:
 			case BnetGameType.BGT_TAVERNBRAWL_PVP:
-				return "Tavern Brawl"
+				if (this.isHeroicTavernBrawl()) {
+					return "Heroic Tavern Brawl";
+				}
+				return "Tavern Brawl";
 			default:
 				return null;
 		}

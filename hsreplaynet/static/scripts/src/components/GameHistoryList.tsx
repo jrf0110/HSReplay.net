@@ -35,6 +35,7 @@ export default class GameHistoryList extends React.Component<GameHistoryListProp
 					endTime={endTime}
 					gameType={game.global_game.game_type}
 					disconnected={game.disconnected}
+					scenarioId={game.global_game.scenario_id}
 					turns={game.global_game.num_turns}
 					won={game.won}
 					friendlyPlayer={game.friendly_player_id}
