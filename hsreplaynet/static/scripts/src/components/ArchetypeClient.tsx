@@ -7,6 +7,7 @@ import RankRangeSelector from "./stats/controls/RankRangeSelector";
 import {Colors} from "../Colors";
 import ColorSchemeSelector from "./stats/controls/ColorSchemeSelector";
 import IntensitySelector from "./stats/controls/IntensitySelector";
+import DateRangeSelector from "./stats/controls/DateRangeSelector";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 }
@@ -23,6 +24,8 @@ interface ArchetypeClientState {
 	archetypes?: any[];
 	selectedArchetype?: string;
 	visibleNonce?: number;
+	lookback?: number;
+	offset?: number;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -43,6 +46,8 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			archetypes: [],
 			selectedArchetype: null,
 			visibleNonce: 0,
+			lookback: 7,
+			offset: 0,
 		};
 		this.nonce = 0;
 		this.fetch();
@@ -73,6 +78,16 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 									largest={this.state.largestRank}
 									onChangeLargest={(largestRank: number): void => {
 										this.setState({largestRank: largestRank});
+									}}
+								/>
+								<DateRangeSelector
+									lookback={this.state.lookback}
+									onChangeLookback={(lookback: number): void => {
+										this.setState({lookback: lookback});
+									}}
+									offset={this.state.offset}
+									onChangeOffset={(offset: number): void => {
+										this.setState({offset: offset});
 									}}
 								/>
 								<SampleSizeSelector
@@ -121,6 +136,9 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		if (prevState.smallestRank !== this.state.smallestRank || prevState.largestRank !== this.state.largestRank) {
 			this.fetch();
 		}
+		if (prevState.lookback !== this.state.lookback || prevState.offset !== this.state.offset) {
+			this.fetch();
+		}
 	}
 
 	private select(key: string): void {
@@ -145,7 +163,8 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		const baseUrl = "/cards/winrates/";
 
 		const params = [];
-		params.push("lookback=7");
+		params.push("lookback=" + this.state.lookback);
+		params.push("offset=" + this.state.offset);
 		params.push("game_types=" + BnetGameType.BGT_RANKED_STANDARD + "," + BnetGameType.BGT_CASUAL_STANDARD);
 		params.push("min_rank=" + this.state.smallestRank);
 		params.push("max_rank=" + this.state.largestRank);

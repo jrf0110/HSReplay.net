@@ -1,11 +1,14 @@
-.control-rank-range-selector {
+.control-rank-range-selector, .control-date-range-selector, .control-sample-size-selector {
 	width: 100%;
 	margin-bottom: 15px;
 
 	label {
+		input {
+			text-align: center;
+		}
+
 		> input {
 			width: 100%;
-			text-align: center;
 		}
 	}
 }
@@ -18,17 +21,5 @@
 		text-align: center;
 		display: block;
 		margin-bottom: 3px;
-	}
-}
-
-.control-sample-size-selector {
-	width: 100%;
-	margin-bottom: 15px;
-
-	label {
-		> input {
-			width: 100%;
-			text-align: center;
-		}
 	}
 }
