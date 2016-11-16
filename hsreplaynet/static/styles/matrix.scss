@@ -17,6 +17,11 @@
 				cursor: pointer;
 			}
 
+			&.selected {
+				fill: $lightblue;
+				font-weight: bold;
+			}
+
 			&.interesting {
 				font-weight: bold;
 			}
@@ -47,5 +52,23 @@
 	.vertical-text {
 		transform: rotate(90deg);
 		transform-origin: left top 0;
+	}
+}
+
+.component-distribution {
+	tr {
+		&.selectable {
+			cursor: pointer;
+		}
+
+		&.active {
+			color: $lightblue;
+		}
+	}
+
+	th, td {
+		&, &:hover {
+			background-color: inherit;
+		}
 	}
 }

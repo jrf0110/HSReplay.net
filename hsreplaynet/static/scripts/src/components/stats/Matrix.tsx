@@ -2,15 +2,14 @@ import * as React from "react";
 import $ from "jquery";
 import {Colors} from "../../Colors";
 import MatrixBody from "./MatrixBody";
+import {SelectableProps} from "../../interfaces";
 
-interface MatrixProps extends React.ClassAttributes<Matrix> {
+interface MatrixProps extends SelectableProps, React.ClassAttributes<Matrix> {
 	matrix: NumberMatrix;
 	sampleSize?: number;
 	colorScheme?: Colors;
 	intensity?: number;
 	working?: boolean;
-	selectKey?: string;
-	onSelectKey?: (selectKey: string) => void;
 }
 
 interface NumberMatrix {
@@ -113,8 +112,12 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				vClassNames.push("interesting");
 			}
 
-			if (this.state.highlight.lastIndexOf(index) === 1 || this.props.selectKey === key) {
+			if (this.state.highlight.lastIndexOf(index) === 1) {
 				hClassNames.push("interesting");
+			}
+
+			if (this.props.select === key) {
+				hClassNames.push("selected");
 			}
 
 			let row: NumberRow = this.props.matrix[key];
@@ -152,7 +155,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 			});
 			cells.push(cellRow);
 
-			if (this.props.onSelectKey) {
+			if (this.props.onSelect) {
 				hClassNames.push("selectable");
 			}
 
@@ -165,10 +168,10 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				transform={"translate(0 " + mult / 2 + ")"}
 				className={hClassNames.join(" ")}
 				onClick={() => {
-					if(!this.props.onSelectKey) {
+					if(!this.props.onSelect) {
 						return
 					}
-					this.props.onSelectKey(key);
+					this.props.onSelect(key);
 				}}
 			>{class1}</text>);
 
@@ -183,7 +186,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				className={vClassNames.join(" ")}
 			>{class1}</text>);
 
-			if (this.props.selectKey === key) {
+			if (this.props.select === key) {
 				selections.push(<rect
 					x={cellOffsetX}
 					y={cellOffsetY + rowcount * mult}

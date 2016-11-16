@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as _ from "lodash";
+import {SelectableProps} from "../interfaces";
 
-interface DistributionProps extends React.ClassAttributes<Distribution> {
+interface DistributionProps extends SelectableProps, React.ClassAttributes<Distribution> {
 	distributions: NumberDistribution;
 	title?: string;
 	value?: string;
@@ -31,8 +32,26 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 		const rows = _.map(distributions, (tuple: any[]) => {
 			const key = tuple[0];
 			const value = tuple[1];
+
+			const classNames = [];
+			if(this.props.onSelect) {
+				classNames.push("selectable");
+			}
+			if(key === this.props.select) {
+				classNames.push("active");
+			}
+
 			return (
-				<tr key={count}>
+				<tr
+					key={count}
+					className={classNames.join(" ")}
+					onClick={() => {
+						if(!this.props.onSelect) {
+							return;
+						}
+						this.props.onSelect(key);
+					}}
+				>
 					<th>{++count}</th>
 					<th>{key}</th>
 					<td>{(value * 100).toFixed(2)}%</td>
@@ -41,7 +60,7 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 		});
 
 		return (
-			<table className="table table-condensed table-hover">
+			<table className="table table-condensed component-distribution">
 				<thead>
 				<tr>
 					<th>#</th>

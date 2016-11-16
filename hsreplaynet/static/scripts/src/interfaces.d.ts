@@ -67,3 +67,8 @@ export interface ReplayFilter {
 	default: string;
 	options: [string, string][];
 }
+
+export interface SelectableProps {
+	select?: string;
+	onSelect?: (key: string) => void;
+}

@@ -89,24 +89,8 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 								colorScheme={this.state.colorScheme}
 								intensity={this.state.intensity}
 								working={this.state.fetching}
-								selectKey={this.state.selectedArchetype}
-								onSelectKey={(selectKey: string): void => {
-									// search for digest
-									let digest = null;
-									for(let i = 0; i < this.state.archetypes.length; i++) {
-										const archetype = this.state.archetypes[i];
-										if(archetype.name === selectKey) {
-											const deck = archetype.representative_deck;
-											digest = deck.digest;
-										}
-									}
-									if(digest && history && typeof history.pushState === "function") {
-										history.pushState({}, document.title, "?deck_digest=" + digest);
-									}
-									this.setState({
-										selectedArchetype: selectKey,
-									});
-								}}
+								select={this.state.selectedArchetype}
+								onSelect={(k) => this.select(k)}
 							/>
 							<ColorSchemeSelector
 								colorScheme={this.state.colorScheme}
@@ -125,6 +109,8 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 						distributions={this.state.popularities}
 						title="Archetype"
 						value="Popularity"
+						select={this.state.selectedArchetype}
+						onSelect={(k) => this.select(k)}
 					/>
 				</div>
 			</div>
@@ -135,6 +121,24 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		if (prevState.smallestRank !== this.state.smallestRank || prevState.largestRank !== this.state.largestRank) {
 			this.fetch();
 		}
+	}
+
+	private select(key: string): void {
+		// search for digest
+		let digest = null;
+		for (let i = 0; i < this.state.archetypes.length; i++) {
+			const archetype = this.state.archetypes[i];
+			if (archetype.name === key) {
+				const deck = archetype.representative_deck;
+				digest = deck.digest;
+			}
+		}
+		if (digest && history && typeof history.pushState === "function") {
+			history.pushState({}, document.title, "?deck_digest=" + digest);
+		}
+		this.setState({
+			selectedArchetype: key,
+		});
 	}
 
 	private fetch(): void {
