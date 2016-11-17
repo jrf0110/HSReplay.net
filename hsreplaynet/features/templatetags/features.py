@@ -1,5 +1,4 @@
 from django import template
-from django.conf import settings
 from hsreplaynet.features.models import Feature
 from hsreplaynet.utils.instrumentation import error_handler
 
@@ -12,10 +11,6 @@ def get_feature_context(user, feature_name):
 		"is_enabled": True,
 		"read_only": False,
 	}
-
-	if settings.DEBUG:
-		# Feature policies are not enforced in development mode
-		return feature_context
 
 	try:
 		feature = Feature.objects.get(name=feature_name)

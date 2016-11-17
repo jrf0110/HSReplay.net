@@ -1,5 +1,4 @@
 from functools import wraps
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.views.generic import View
 from .models import Feature
@@ -11,10 +10,6 @@ def view_requires_feature_access(feature_name):
 	def decorator(view_func):
 		@wraps(view_func)
 		def wrapper(arg1, *args, **kwargs):
-
-			if settings.DEBUG:
-				# Feature policies are not enforced in development mode
-				return view_func(arg1, *args, **kwargs)
 
 			try:
 				feature = Feature.objects.get(name=feature_name)

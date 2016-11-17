@@ -1,6 +1,5 @@
 from enum import IntEnum
 from django.contrib.auth.models import Group
-from django.conf import settings
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from hsreplaynet.utils.fields import IntEnumField
@@ -76,10 +75,6 @@ class Feature(models.Model):
 		return self.name
 
 	def enabled_for_user(self, user):
-		if settings.DEBUG:
-			# Feature policies are not enforced in development mode
-			return True
-
 		if self.status == FeatureStatus.OFF:
 			return False
 
