@@ -20,6 +20,22 @@
 			text-align: center;
 			width: 100%;
 		}
+
+		&.rarity-common, &.rarity-free {
+			background-color: #858585;
+		}
+
+		&.rarity-rare {
+			background-color: #315376;
+		}
+
+		&.rarity-epic {
+			background-color: #644C82;
+		}
+
+		&.rarity-legendary {
+			background-color: #855C25;
+		}
 	}
 
 	.card-frame {

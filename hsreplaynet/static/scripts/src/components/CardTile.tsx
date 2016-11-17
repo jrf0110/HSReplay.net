@@ -4,6 +4,7 @@ interface CardTileProps extends React.ClassAttributes<CardTile> {
 	card: any;
 	count: number;
 	height?: number;
+	rarityColored?: boolean;
 }
 
 export default class CardTile extends React.Component<CardTileProps, any> {
@@ -38,9 +39,14 @@ export default class CardTile extends React.Component<CardTileProps, any> {
 			);
 		}
 
+		let gemClassNames = ["card-gem"];
+		if (this.props.rarityColored) {
+			gemClassNames.push("rarity-" + this.props.card.rarity.toLowerCase());
+		}
+
 		return (
 			<div className="card-tile" style={tileStyle}>
-				<div className="card-gem" style={gemStyle}>
+				<div className={gemClassNames.join(" ")} style={gemStyle}>
 					<span className="card-cost" style={costStyle}>{this.props.card.cost}</span>
 				</div>
 				<div className="card-frame">

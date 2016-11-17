@@ -5,6 +5,7 @@ interface DeckListProps extends React.ClassAttributes<DeckList> {
 	cardDb: Map<string, any>;
 	cards: Map<string, number>;
 	cardHeight?: number;
+	rarityColored?: boolean;
 }
 
 export default class DeckList extends React.Component<DeckListProps, any> {
@@ -17,7 +18,7 @@ export default class DeckList extends React.Component<DeckListProps, any> {
 		this.props.cards.forEach((count, id) => {
 			let card = this.props.cardDb.get(id);
 			if (card) {
-				cards.push(<CardTile card={card} count={count} height={cardHeight} />);
+				cards.push(<CardTile card={card} count={count} height={cardHeight} rarityColored={this.props.rarityColored} />);
 			}
 		});
 		cards = cards.sort(this.sortBy("name")).sort(this.sortBy("cost"));
