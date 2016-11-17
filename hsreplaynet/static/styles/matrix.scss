@@ -39,6 +39,10 @@
 			stroke: white;
 			stroke-width: 1;
 		}
+
+		.selectable {
+			cursor: pointer;
+		}
 	}
 
 	.selections {

@@ -227,6 +227,12 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 						offsetX={cellOffsetX}
 						offsetY={cellOffsetY}
 						edge={mult}
+						onClick={(x: number, y: number): void => {
+							if(!this.props.onSelect) {
+								return
+							}
+							this.props.onSelect(archetypeList[y]);
+						}}
 					/></g>
 					<g className="selections">{selections}</g>
 				</svg>

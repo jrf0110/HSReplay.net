@@ -25,9 +25,15 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 			fill: cellColor,
 		};
 
+		const classNames = [];
+		if(this.props.onClick) {
+			classNames.push("selectable");
+		}
+
 		const title = this.props.title ? <title>{this.props.title.replace("\n", String.fromCharCode(10))}</title> : null;
 
 		return <g
+			className={classNames.join(" ")}
 			onClick={(e) => {
 				if(this.props.onClick) {
 					this.props.onClick();

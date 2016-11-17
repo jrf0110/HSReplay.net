@@ -11,6 +11,7 @@ interface MatrixBodyProps extends React.ClassAttributes<MatrixBody> {
 	offsetX?: number;
 	offsetY?: number;
 	edge: number;
+	onClick?: (x: number, y: number) => void;
 }
 
 export default class MatrixBody extends React.Component<MatrixBodyProps, void> {
@@ -35,6 +36,7 @@ export default class MatrixBody extends React.Component<MatrixBodyProps, void> {
 					x={this.props.offsetX + j * this.props.edge}
 					y={this.props.offsetY + i * this.props.edge}
 					edge={this.props.edge}
+					onClick={() => this.props.onClick && this.props.onClick(j,i)}
 				/>);
 			}
 		}
