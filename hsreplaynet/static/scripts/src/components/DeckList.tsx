@@ -22,7 +22,7 @@ export default class DeckList extends React.Component<DeckListProps, any> {
 			}
 		});
 		cards = cards.sort(this.sortBy("name")).sort(this.sortBy("cost"));
-		return <ul>{cards}</ul>;
+		return <ul className="decklist">{cards}</ul>;
 	}
 
 	sortBy(prop: string): any {
