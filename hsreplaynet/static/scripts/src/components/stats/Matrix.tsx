@@ -3,6 +3,7 @@ import $ from "jquery";
 import {Colors} from "../../Colors";
 import MatrixBody from "./MatrixBody";
 import {SelectableProps} from "../../interfaces";
+import {EvaluatedArchetype} from "../ArchetypeClient";
 
 interface MatrixProps extends SelectableProps, React.ClassAttributes<Matrix> {
 	matrix: NumberMatrix;
@@ -10,6 +11,7 @@ interface MatrixProps extends SelectableProps, React.ClassAttributes<Matrix> {
 	colorScheme?: Colors;
 	intensity?: number;
 	working?: boolean;
+	popularities?: EvaluatedArchetype;
 }
 
 export interface NumberMatrix {
@@ -41,7 +43,8 @@ interface MatrixState {
 const mult = 30;
 
 const cellOffsetX = 150;
-const cellOffsetY = 125;
+const rightMarginX = 100;
+const cellOffsetY = 150;
 
 export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
@@ -184,7 +187,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				transform={"translate(" + (-1.7 * mult) + " " + (cellOffsetY - mult / 3)+ ") rotate(315" +
 				 " " + rowcount * mult +" 0)"}
 				className={vClassNames.join(" ")}
-			>{class1}</text>);
+			>{class1 + (this.props.popularities[class1] ? " (" + (this.props.popularities[class1] * 100).toFixed(2) + "%)" : "")}</text>);
 
 			if (this.props.select === key) {
 				selections.push(<rect
@@ -249,7 +252,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 	private getSVGDimensions(): number[] {
 		return [
-			this.archetypes.length * mult + cellOffsetX + 50,
+			this.archetypes.length * mult + cellOffsetX + rightMarginX,
 			this.archetypes.length * mult + cellOffsetY,
 		];
 	}

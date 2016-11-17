@@ -14,7 +14,7 @@ import {Matchup} from "./stats/Matrix";
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 }
 
-interface EvaluatedArchetype {
+export interface EvaluatedArchetype {
 	[archetype: string]: number;
 }
 
@@ -116,6 +116,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 								working={this.state.fetching}
 								select={this.state.selectedArchetype}
 								onSelect={(k) => this.select(k)}
+								popularities={this.state.popularities}
 							/>
 							<ColorSchemeSelector
 								colorScheme={this.state.colorScheme}
@@ -129,18 +130,6 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 					</div>
 				</div>
 				<div className="col-lg-3 col-sm-12">
-					<h2 className="text-center">Popularities</h2>
-					<Distribution
-						distributions={_.pickBy<EvaluatedArchetype, EvaluatedArchetype>(this.state.popularities, (v: any, archetye: string) => {
-							return this.state.games_per_archetype[archetye] >= this.state.sampleSize;
-						})}
-						title="Archetype"
-						value="Popularity"
-						select={this.state.selectedArchetype}
-						onSelect={(k) => this.select(k)}
-					/>
-				</div>
-				<div className="col-sm-12">
 					<h2 className="text-center">Expected Winrates</h2>
 					<Distribution
 						distributions={_.pickBy<EvaluatedArchetype, EvaluatedArchetype>(this.state.expected_winrates, (v: any, archetye: string) => {
