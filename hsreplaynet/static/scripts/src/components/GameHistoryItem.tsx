@@ -62,6 +62,9 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 			case BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI:
 			case BnetGameType.BGT_TAVERNBRAWL_2P_COOP:
 			case BnetGameType.BGT_TAVERNBRAWL_PVP:
+				if (this.isHeroicTavernBrawl()) {
+					return <img src={STATIC_URL + "images/brawl_skull.png"} className="hsreplay-type" alt="Heroic Tavern Brawl"/>;
+				}
 				return <img src={STATIC_URL + "images/modeID_Brawl.png"} className="hsreplay-type" alt="Tavern Brawl"/>;
 			case BnetGameType.BGT_CASUAL_STANDARD:
 				return <img src={STATIC_URL + "images/casual.png"} className="hsreplay-type" alt="Casual"/>;
@@ -92,7 +95,7 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 	}
 
 	isHeroicTavernBrawl(): boolean {
-		return this.props.scenarioId == 2103
+		return this.props.scenarioId == 2109;
 	}
 
 	getIconInfo(): string {
