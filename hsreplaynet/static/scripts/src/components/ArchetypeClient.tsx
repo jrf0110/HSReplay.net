@@ -51,7 +51,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			expected_winrates: {},
 			sampleSize: 100,
 			smallestRank: 0,
-			largestRank: 25,
+			largestRank: 20,
 			colorScheme: Colors.HSREPLAY,
 			intensity: 25,
 			fetching: true,
