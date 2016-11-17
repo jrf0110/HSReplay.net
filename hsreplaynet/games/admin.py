@@ -30,7 +30,7 @@ class UploadEventInline(admin.StackedInline):
 class GameReplayInline(admin.StackedInline):
 	model = GameReplay
 	extra = 0
-	raw_id_fields = ("upload_token", "user")
+	raw_id_fields = ("upload_token", "user", "opponent_revealed_deck")
 	show_change_link = True
 
 
@@ -46,7 +46,7 @@ class GameReplayAdmin(admin.ModelAdmin):
 		"won", "spectator_mode", "disconnected", "reconnecting", "is_deleted"
 	)
 	raw_id_fields = (
-		"upload_token", "user", "global_game",
+		"upload_token", "user", "global_game", "opponent_revealed_deck",
 	)
 	readonly_fields = ("shortid", )
 	search_fields = ("shortid", "global_game__players__name", "user__username")
