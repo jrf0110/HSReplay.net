@@ -27,6 +27,7 @@ def canonicals(request):
 	for archetype in archetypes:
 		record = {
 			"name": archetype.name,
+			"archetype_id": archetype.id,
 			"player_class_id": archetype.player_class,
 			"player_class_name": CardClass(archetype.player_class).name
 		}
