@@ -934,6 +934,11 @@
       "from": "has-unicode@>=2.0.1 <3.0.0",
       "resolved": "https://registry.npmjs.org/has-unicode/-/has-unicode-2.0.1.tgz"
     },
+    "hearthstonejson": {
+      "version": "0.0.7",
+      "from": "hearthstonejson@latest",
+      "resolved": "https://registry.npmjs.org/hearthstonejson/-/hearthstonejson-0.0.7.tgz"
+    },
     "home-or-tmp": {
       "version": "2.0.0",
       "from": "home-or-tmp@>=2.0.0 <3.0.0",

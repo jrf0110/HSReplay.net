@@ -10,8 +10,10 @@ import IntensitySelector from "./stats/controls/IntensitySelector";
 import DateRangeSelector from "./stats/controls/DateRangeSelector";
 import {NumberRow} from "./stats/Matrix";
 import {Matchup} from "./stats/Matrix";
+import DeckList from "./DeckList";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
+	cardData: Map<string, any>;
 }
 
 export interface EvaluatedArchetype {
@@ -33,6 +35,7 @@ interface ArchetypeClientState {
 	visibleNonce?: number;
 	lookback?: number;
 	offset?: number;
+	max_games_per_archetype?: EvaluatedArchetype;
 	games_per_archetype?: EvaluatedArchetype;
 }
 
@@ -58,6 +61,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			lookback: 7,
 			offset: 0,
 			games_per_archetype: {},
+			max_games_per_archetype: {},
 		};
 		this.nonce = 0;
 		this.fetch();
@@ -130,16 +134,8 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 					</div>
 				</div>
 				<div className="col-lg-3 col-sm-12">
-					<h2 className="text-center">Expected Winrates</h2>
-					<Distribution
-						distributions={_.pickBy<EvaluatedArchetype, EvaluatedArchetype>(this.state.expected_winrates, (v: any, archetye: string) => {
-							return this.state.games_per_archetype[archetye] >= this.state.sampleSize;
-						})}
-						title="Archetype"
-						value="Winrate"
-						select={this.state.selectedArchetype}
-						onSelect={(k) => this.select(k)}
-					/>
+					<h2 className="text-center">{this.state.selectedArchetype ? this.state.selectedArchetype : "Archetype"}</h2>
+					{this.renderDecklist()}
 				</div>
 			</div>
 		</div>;
@@ -152,6 +148,66 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		if (prevState.lookback !== this.state.lookback || prevState.offset !== this.state.offset) {
 			this.fetch();
 		}
+	}
+
+	private renderDecklist(): JSX.Element {
+		const key = this.state.selectedArchetype;
+
+		if (!key) {
+			return <p className="text-center">Select an Archetype…</p>;
+		}
+		if (!this.props.cardData || !this.props.cardData.size) {
+			return <p className="text-center">Loading cards…</p>;
+		}
+
+		const archetype = this.state.archetypes.find((archetype: any) => archetype.name === key);
+
+		if (!archetype || !archetype.representative_deck) {
+			return <div className="alert alert-error" role="alert">Missing Archetype data</div>;
+		}
+
+		const cardList = archetype.representative_deck.card_ids;
+		const cards = new Map<string, number>();
+
+		for (let i = 0; i < cardList.length; i++) {
+			const card = cardList[i];
+			if (cards.has(card)) {
+				cards.set(card, cards.get(card) + 1);
+			}
+			else {
+				cards.set(card, 1);
+			}
+		}
+
+		let winrate = this.state.expected_winrates && this.state.expected_winrates[key] ? (this.state.expected_winrates[key] * 100).toFixed(2) : null;
+		let popularity = this.state.popularities && this.state.popularities[key] ? (this.state.popularities[key] * 100).toFixed(1) : null;
+
+		if(popularity && this.state.popularities[key] < 0.001) {
+			popularity = "<0.1";
+		}
+
+		return <div className="text-center">
+			<h3 className="text-center">Details</h3>
+			<ul className="list-group text-left">
+				<li className="list-group-item">
+					<span className="badge badge-blue">{+this.state.games_per_archetype[key]}</span>
+					Games
+				</li>
+				<li className="list-group-item">
+					<span className="badge badge-blue">{popularity ? popularity + "%" : "unknown"}</span>
+					Popularity
+				</li>
+				<li className="list-group-item">
+					<span className="badge badge-blue">{winrate ? winrate + "%" : "unknown"}</span>
+					Expected Winrate
+				</li>
+			</ul>
+			<h3 className="text-center">Decklist</h3>
+			<DeckList
+				cardDb={this.props.cardData}
+				cards={cards}
+			/>
+		</div>;
 	}
 
 	private select(key: string): void {
@@ -210,12 +266,15 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			const winrates = json.win_rates || {};
 
 			let games = {};
+			let max = {};
 			_.forEach(winrates, (row: NumberRow, archetype: string): void => {
 				if (typeof games[archetype] === "undefined") {
 					games[archetype] = 0;
+					max[archetype] = 0;
 				}
 				_.forEach(row, (matchup: Matchup): void => {
-					games[archetype] = Math.max(matchup.match_count, games[archetype]);
+					games[archetype] = matchup.match_count + games[archetype];
+					max[archetype] = Math.max(matchup.match_count, games[archetype]);
 				});
 			});
 
@@ -224,6 +283,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 				winrates: winrates,
 				expected_winrates: json.expected_winrates || {},
 				games_per_archetype: games,
+				max_games_per_archetype: max,
 				fetching: this.nonce === nonce ? false : true,
 				visibleNonce: nonce,
 			});
