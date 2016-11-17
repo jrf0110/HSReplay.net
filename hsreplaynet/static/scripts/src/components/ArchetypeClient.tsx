@@ -8,12 +8,18 @@ import {Colors} from "../Colors";
 import ColorSchemeSelector from "./stats/controls/ColorSchemeSelector";
 import IntensitySelector from "./stats/controls/IntensitySelector";
 import DateRangeSelector from "./stats/controls/DateRangeSelector";
+import {NumberRow} from "./stats/Matrix";
+import {Matchup} from "./stats/Matrix";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 }
 
+interface EvaluatedArchetype {
+	[archetype: string]: number;
+}
+
 interface ArchetypeClientState {
-	popularities?: any;
+	popularities?: EvaluatedArchetype;
 	winrates?: any;
 	sampleSize?: number;
 	smallestRank?: number;
@@ -26,6 +32,7 @@ interface ArchetypeClientState {
 	visibleNonce?: number;
 	lookback?: number;
 	offset?: number;
+	games_per_archetype?: EvaluatedArchetype;
 }
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
@@ -48,6 +55,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			visibleNonce: 0,
 			lookback: 7,
 			offset: 0,
+			games_per_archetype: {},
 		};
 		this.nonce = 0;
 		this.fetch();
@@ -121,7 +129,9 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 				<div className="col-lg-3 col-sm-12">
 					<h2 className="text-center">Popularities</h2>
 					<Distribution
-						distributions={this.state.popularities}
+						distributions={_.pickBy<EvaluatedArchetype, EvaluatedArchetype>(this.state.popularities, (v: any, archetye: string) => {
+							return this.state.games_per_archetype[archetye] >= this.state.sampleSize;
+						})}
 						title="Archetype"
 						value="Popularity"
 						select={this.state.selectedArchetype}
@@ -193,9 +203,23 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			}
 			return response.json();
 		}).then((json: any) => {
+
+			const winrates = json.win_rates || {};
+
+			let games = {};
+			_.forEach(winrates, (row: NumberRow, archetype: string): void => {
+				if (typeof games[archetype] === "undefined") {
+					games[archetype] = 0;
+				}
+				_.forEach(row, (matchup: Matchup): void => {
+					games[archetype] = Math.max(matchup.match_count, games[archetype]);
+				});
+			});
+
 			this.setState({
-				popularities: json.frequencies,
-				winrates: json.win_rates,
+				popularities: json.frequencies || {},
+				winrates: winrates,
+				games_per_archetype: games,
 				fetching: this.nonce === nonce ? false : true,
 				visibleNonce: nonce,
 			});

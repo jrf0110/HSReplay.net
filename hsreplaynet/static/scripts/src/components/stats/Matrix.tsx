@@ -12,15 +12,15 @@ interface MatrixProps extends SelectableProps, React.ClassAttributes<Matrix> {
 	working?: boolean;
 }
 
-interface NumberMatrix {
+export interface NumberMatrix {
 	[key: string]: NumberRow;
 }
 
-interface NumberRow {
+export interface NumberRow {
 	[key: string]: Matchup;
 }
 
-interface Matchup {
+export interface Matchup {
 	f_wr_vs_o: number|null;
 	friendly_wins: number;
 	is_mirror: boolean;
