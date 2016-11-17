@@ -21,6 +21,7 @@ interface EvaluatedArchetype {
 interface ArchetypeClientState {
 	popularities?: EvaluatedArchetype;
 	winrates?: any;
+	expected_winrates?: EvaluatedArchetype
 	sampleSize?: number;
 	smallestRank?: number;
 	largestRank?: number;
@@ -44,6 +45,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		this.state = {
 			popularities: {},
 			winrates: {},
+			expected_winrates: {},
 			sampleSize: 100,
 			smallestRank: 0,
 			largestRank: 25,
@@ -138,6 +140,18 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 						onSelect={(k) => this.select(k)}
 					/>
 				</div>
+				<div className="col-sm-12">
+					<h2 className="text-center">Expected Winrates</h2>
+					<Distribution
+						distributions={_.pickBy<EvaluatedArchetype, EvaluatedArchetype>(this.state.expected_winrates, (v: any, archetye: string) => {
+							return this.state.games_per_archetype[archetye] >= this.state.sampleSize;
+						})}
+						title="Archetype"
+						value="Winrate"
+						select={this.state.selectedArchetype}
+						onSelect={(k) => this.select(k)}
+					/>
+				</div>
 			</div>
 		</div>;
 	}
@@ -219,6 +233,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			this.setState({
 				popularities: json.frequencies || {},
 				winrates: winrates,
+				expected_winrates: json.expected_winrates || {},
 				games_per_archetype: games,
 				fetching: this.nonce === nonce ? false : true,
 				visibleNonce: nonce,
