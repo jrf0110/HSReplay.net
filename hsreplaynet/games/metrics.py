@@ -1,9 +1,68 @@
 from math import floor
 from django.conf import settings
 from django.utils.timezone import now
-from hearthstone.enums import GameTag, BlockType, BnetGameType
+from hearthstone.enums import BlockType, GameTag, BnetGameType, Step, Zone, CardType
 from hearthstone.hslog.export import EntityTreeExporter
 from hsreplaynet.utils.influx import get_influx_client, influx_write_payload
+
+
+class StateSnapshottingExporter(EntityTreeExporter):
+	def __init__(self, packet_tree):
+		super(StateSnapshottingExporter, self).__init__(packet_tree)
+		self.players = {
+			1: {},
+			2: {},
+		}
+
+	def handle_tag_change(self, packet):
+		if self.is_main_start(packet):
+			self.capture_board_state_snapshot(packet)
+		super(StateSnapshottingExporter, self).handle_tag_change(packet)
+
+	def is_main_start(self, packet):
+		return packet.tag == GameTag.STEP and packet.value == Step.MAIN_START
+
+	def zone_size_for_player(self, zone, player):
+		return sum(1 for e in self.game.in_zone(zone) if e.controller == player)
+
+	def capture_board_state_snapshot(self, packet):
+		turn_number = self.game.tags.get(GameTag.TURN, 0)
+		current_player = self.game.current_player
+		current_player_snapshots = self.players[current_player.player_id]
+		snapshot = current_player_snapshots.get(turn_number, {})
+
+		snapshot["secret_info"] = {
+			"count": self.zone_size_for_player(Zone.SECRET, current_player)
+		}
+		snapshot["hand_info"] = {
+			"size": self.zone_size_for_player(Zone.HAND, current_player)
+		}
+		snapshot["weapon_info"] = {
+			"weapon_equipped": False
+		}
+		snapshot["minion_info"] = {
+			"minions": []
+		}
+
+		for entity in self.game.in_zone(Zone.PLAY):
+			if entity.controller == current_player:
+				entity_type = entity.tags.get(GameTag.CARDTYPE, CardType.INVALID)
+
+				if entity_type == CardType.MINION:
+					snapshot["minion_info"]["minions"].append({
+						"card_id": entity.card_id,
+						"atk": entity.tags.get(GameTag.ATK, 0),
+						"health": entity.tags.get(GameTag.HEALTH, 0),
+						"has_taunt": entity.tags.get(GameTag.TAUNT, False),
+						"has_deathrattle": entity.tags.get(GameTag.DEATHRATTLE, False),
+					})
+
+				elif entity_type == CardType.WEAPON:
+					weapon_info = snapshot["weapon_info"]
+					weapon_info["weapon_equipped"] = True
+					weapon_info["card_id"] = entity.card_id
+					weapon_info["atk"] = entity.tags.get(GameTag.ATK, 0)
+					weapon_info["durability"] = entity.tags.get(GameTag.DURABILITY, 0)
 
 
 class InstrumentedExporter(EntityTreeExporter):
