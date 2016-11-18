@@ -71,6 +71,7 @@ INSTALLED_APPS_WEB = [
 	"allauth.account",
 	"allauth.socialaccount",
 	"allauth.socialaccount.providers.battlenet",
+	"oauth2_provider",
 	"django_rq",
 	"django_rq_dashboard",
 	"loginas",
@@ -233,10 +234,23 @@ RQ_QUEUES = {
 REST_FRAMEWORK = {
 	# Use Django's standard `django.contrib.auth` permissions,
 	# or allow read-only access for unauthenticated users.
+	"DEFAULT_AUTHENTICATION_CLASSES": [
+		"rest_framework.authentication.SessionAuthentication",
+	],
 	"DEFAULT_PERMISSION_CLASSES": [
 		"rest_framework.permissions.IsAuthenticatedOrReadOnly",
 	],
 	"DEFAULT_PAGINATION_CLASS": "hsreplaynet.api.pagination.DefaultPagination",
+}
+
+
+##
+# OAuth2
+# https://django-oauth-toolkit.readthedocs.io/en/latest/settings.html
+
+OAUTH2_PROVIDER = {
+	"SCOPES": {
+	}
 }
 
 

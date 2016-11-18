@@ -29,6 +29,7 @@ if not settings.ENV_LAMBDA:
 		url(r"^about/tos/$", flatpage, {"url": "/about/tos/"}, name="terms_of_service"),
 		url(r"^downloads/", downloads, name="downloads"),
 		url(r"^pages/", include("django.contrib.flatpages.urls")),
+		url(r"^oauth2/", include("hsreplaynet.oauth2.urls")),
 	]
 
 if settings.DEBUG:

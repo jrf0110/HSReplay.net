@@ -17,6 +17,7 @@ The full backend stack is written in Python 3.
 
 * API: [Django REST Framework](http://www.django-rest-framework.org/)
 * Authentication: [Django Allauth](https://github.com/pennersr/django-allauth)
+* OAuth2: [Django OAuth Toolkit](https://github.com/evonove/django-oauth-toolkit)
 * Storage backends: [Django-Storages](https://github.com/jschneier/django-storages)
 * Short IDs: [ShortUUID](https://github.com/stochastic-technologies/shortuuid)
 
