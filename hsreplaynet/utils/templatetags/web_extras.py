@@ -85,4 +85,10 @@ def render_deck_list_meta_for_digest_param(context):
 					result["card_ids"] = ",".join(deck.card_id_list())
 					result["hero_id"] = str(hero_card.id)
 
+					if deck.archetype:
+						name = deck.archetype.name
+					else:
+						name = "Deck"
+					result["deck_name"] = "HSReplay.net %s" % name
+
 	return result
