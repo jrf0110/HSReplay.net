@@ -276,6 +276,10 @@ LAMBDA_DEFAULT_EXECUTION_ROLE_NAME = "iam_lambda_execution_role"
 # Orphan descriptor.json files created this many days previously will be automatically reaped.
 LAMBDA_ORPHAN_REAPING_DELAY_DAYS = 3
 
+# How much memory we give to Lambda processing instances by default
+# They only need 128MB but higher memory = better CPU (= less processing time)
+LAMBDA_PROCESSING_MEMORY_MB = 256
+
 SUCCESSFUL_UPLOAD_EVENT_REAPING_DELAY_DAYS = 5
 UNSUCCESSFUL_UPLOAD_EVENT_REAPING_DELAY_DAYS = 30
 
