@@ -11,8 +11,6 @@ from .models import Card
 from .queries import CardCountersQueryBuilder
 
 
-@login_required
-@view_requires_feature_access("winrates")
 def archetypes(request):
 	return render(request, "cards/deck_archetypes.html", {})
 
