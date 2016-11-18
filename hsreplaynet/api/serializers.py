@@ -3,6 +3,7 @@ from django.core.files.storage import default_storage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.six import string_types
 from rest_framework import serializers
+from hsreplaynet.cards.models import Deck
 from hsreplaynet.games.models import GameReplay, GlobalGame, GlobalGamePlayer
 from .models import AuthToken, APIKey
 
@@ -135,13 +136,22 @@ class GlobalGamePlayerSerializer(serializers.ModelSerializer):
 
 
 class GlobalGameSerializer(serializers.ModelSerializer):
-	players = GlobalGamePlayerSerializer(many=True, read_only=True)
 
 	class Meta:
 		model = GlobalGame
 		fields = (
 			"build", "match_start", "match_end", "game_type", "brawl_season",
-			"ladder_season", "scenario_id", "players", "num_turns", "format"
+			"ladder_season", "scenario_id", "num_turns", "format"
+		)
+
+
+class DeckSerializer(serializers.ModelSerializer):
+	cards = DeckListField(source="card_id_list", read_only=True)
+
+	class Meta:
+		model = Deck
+		fields = (
+			"digest", "size", "cards"
 		)
 
 
@@ -149,10 +159,17 @@ class GameReplaySerializer(serializers.ModelSerializer):
 	user = UserSerializer(read_only=True)
 	global_game = GlobalGameSerializer(read_only=True)
 
+	friendly_player = GlobalGamePlayerSerializer(read_only=True)
+	friendly_deck = DeckSerializer(read_only=True)
+
+	opposing_player = GlobalGamePlayerSerializer(read_only=True)
+	opposing_deck = DeckSerializer(read_only=True)
+
 	class Meta:
 		model = GameReplay
 		fields = (
-			"shortid", "user", "global_game", "spectator_mode", "friendly_player_id",
+			"shortid", "user", "global_game", "friendly_player", "friendly_deck",
+			"opposing_player", "opposing_deck", "spectator_mode", "friendly_player_id",
 			"replay_xml", "build", "won", "disconnected", "reconnecting", "visibility"
 		)
 		read_only_fields = ("user", "global_game", "replay_xml")
