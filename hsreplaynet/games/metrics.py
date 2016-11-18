@@ -113,10 +113,12 @@ class InstrumentedExporter(EntityTreeExporter):
 	def to_hero_class(self, player):
 		if player.is_ai:
 			return "AI"
-		elif player.starting_hero.card_id.startswith("HERO_"):
-			return player.starting_hero.card_id[0:7]
-		else:
-			return "OTHER"
+
+		if player.starting_hero:
+			card_id = player.starting_hero.card_id or ""
+			if card_id.startswith("HERO_"):
+				return player.starting_hero.card_id[0:7]
+		return "OTHER"
 
 	def to_rank_bucket(self, rank):
 		if not rank:
