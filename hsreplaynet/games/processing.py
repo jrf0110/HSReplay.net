@@ -39,6 +39,12 @@ def eligible_for_unification(meta):
 	return all([meta.get("game_handle"), meta.get("server_ip")])
 
 
+def get_replay_url(shortid):
+	# Not using get_absolute_url() to avoid tying into Django
+	# (not necessarily avail on lambda)
+	return "https://hsreplay.net/replay/%s" % (shortid)
+
+
 def get_valid_match_start(match_start, upload_date):
 	"""
 	Returns a valid match_start value given the match_start and upload_date.
@@ -73,9 +79,7 @@ def create_hsreplay_document(parser, entity_tree, meta, global_game):
 
 
 def save_hsreplay_document(hsreplay_doc, shortid, existing_replay):
-	# Not using get_absolute_url() to avoid tying into Django
-	# (not necessarily avail on lambda)
-	url = "https://hsreplay.net/replay/%s" % (shortid)
+	url = get_replay_url(shortid)
 
 	xml_str = hsreplay_doc.to_xml()
 	# Add the replay's full URL as a comment
