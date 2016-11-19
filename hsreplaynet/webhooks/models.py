@@ -41,7 +41,7 @@ class Webhook(models.Model):
 			payload=payload,
 		)
 		# Firing the webhook will save it
-		t.fire(timeout=self.timeout)
+		t.deliver(timeout=self.timeout)
 
 		if self.max_triggers:
 			num_triggers = self.triggers.count()

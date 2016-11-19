@@ -215,9 +215,15 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 
 	# No existing replay, so we assign a default user/visibility to the replay
 	# (eg. we never update those fields on existing replays)
+	# We also prepare a webhook for triggering, if there's one.
+	webhooks = []
 	if user:
 		defaults["user"] = user
 		defaults["visibility"] = user.default_replay_visibility
+
+		if not user.is_fake:
+			# Fake users should never have webhooks
+			webhooks = user.webhooks.filter(is_active=True, is_deleted=False)
 
 	if client_handle:
 		# Get or create a replay object based on our defaults
@@ -237,6 +243,20 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 		# We must ensure an alias for this upload_event.shortid is recorded
 		# We use get or create in case this is not the first time processing this replay
 		ReplayAlias.objects.get_or_create(replay=replay, shortid=upload_event.shortid)
+
+	for webhook in webhooks:
+		# TODO: Use a DRF serializer instead of a hardcoded representation
+		serialized = {
+			"url": get_replay_url(replay.shortid),
+			"user": {
+				"id": user.id,
+				"username": user.username,
+				"battletag": user.battletag,
+			},
+		}
+		serialized.update(defaults)
+		serialized.update(common)
+		webhook.trigger(serialized)
 
 	return replay, created
 
