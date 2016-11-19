@@ -35,7 +35,7 @@ class UserSerializer(serializers.Serializer):
 	def to_representation(self, instance):
 		if instance.is_fake:
 			return None
-		return super().to_representation(instance)
+		return super(UserSerializer, self).to_representation(instance)
 
 
 class AuthTokenSerializer(serializers.HyperlinkedModelSerializer):

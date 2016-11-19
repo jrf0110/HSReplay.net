@@ -32,7 +32,7 @@ class Webhook(models.Model):
 
 	def trigger(self, data):
 		payload = {
-			"webhook_uuid": self.uuid,
+			"webhook_uuid": str(self.uuid),
 			"data": data,
 		}
 		t = WebhookTrigger(
@@ -67,10 +67,10 @@ class WebhookTrigger(models.Model):
 	def deliver(self, timeout):
 		begin = time.time()
 		try:
-			r = requests.post(self.url, data=self.payload, timeout=timeout)
-			self.response_status = r.status
+			r = requests.post(self.url, json=self.payload, timeout=timeout)
+			self.response_status = r.status_code
 			self.response = r.text
-			self.success = r.status in (200, 201)
+			self.success = r.status_code in (200, 201)
 		except Exception as e:
 			self.response_status = 0
 			self.response = str(e)

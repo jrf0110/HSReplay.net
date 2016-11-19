@@ -245,17 +245,11 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 		ReplayAlias.objects.get_or_create(replay=replay, shortid=upload_event.shortid)
 
 	for webhook in webhooks:
-		# TODO: Use a DRF serializer instead of a hardcoded representation
-		serialized = {
-			"url": get_replay_url(replay.shortid),
-			"user": {
-				"id": user.id,
-				"username": user.username,
-				"battletag": user.battletag,
-			},
-		}
-		serialized.update(defaults)
-		serialized.update(common)
+		from hsreplaynet.api.serializers import GameReplaySerializer
+
+		s = GameReplaySerializer(replay)
+		serialized = s.data
+		serialized["url"] = get_replay_url(replay.shortid)
 		webhook.trigger(serialized)
 
 	return replay, created
