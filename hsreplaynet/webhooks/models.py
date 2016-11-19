@@ -1,3 +1,4 @@
+import json
 import requests
 import time
 from django.db import models
@@ -38,7 +39,7 @@ class Webhook(models.Model):
 		t = WebhookTrigger(
 			webhook=self,
 			url=self.url,
-			payload=payload,
+			payload=json.dumps(payload),
 		)
 		# Firing the webhook will save it
 		t.deliver(timeout=self.timeout)
@@ -64,10 +65,16 @@ class WebhookTrigger(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	completed_time = models.PositiveIntegerField()
 
+	@property
+	def content_type(self):
+		return "application/json"
+
 	def deliver(self, timeout):
 		begin = time.time()
+		headers = {"Content-Type": self.content_type}
+
 		try:
-			r = requests.post(self.url, json=self.payload, timeout=timeout)
+			r = requests.post(self.url, data=self.payload, headers=headers, timeout=timeout)
 			self.response_status = r.status_code
 			self.response = r.text
 			self.success = r.status_code in (200, 201)
@@ -75,5 +82,6 @@ class WebhookTrigger(models.Model):
 			self.response_status = 0
 			self.response = str(e)
 			self.success = False
+
 		self.completed_time = int((time.time() - begin) * 1000)
 		self.save()
