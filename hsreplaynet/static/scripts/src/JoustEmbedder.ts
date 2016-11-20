@@ -147,6 +147,18 @@ export default class JoustEmbedder extends EventEmitter {
 			launcher.startPaused(false);
 		}
 
+		// hint at player names
+		if (typeof launcher.addPlayerName === "function") {
+			for (let i = 1; true; i++) {
+				const key = "data-player" + i;
+				if (!target.hasAttribute(key)) {
+					break;
+				}
+				const playerName = target.getAttribute(key);
+				launcher.addPlayerName(playerName);
+			}
+		}
+
 		// initialize joust
 		let url = target.getAttribute("data-replayurl");
 		if(!url.match(/^http(s?):\/\//) && !url.startsWith("/")) {

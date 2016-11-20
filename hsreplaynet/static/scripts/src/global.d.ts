@@ -69,6 +69,8 @@ declare module "joust" {
 
 		disableKeybindings(): Launcher;
 
+		addPlayerName(playerName: string): Launcher;
+
 		fromUrl(url: string): void;
 
 		readonly percentageWatched: number;
