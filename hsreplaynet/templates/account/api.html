@@ -15,18 +15,18 @@
 			<p>The following tokens can be used to upload your games. Keep them private!</p>
 			<table class="table table-bordered">
 				<thead>
+					<th>Application</th>
 					<th>Token</th>
-					<th>Created by</th>
 					<th>Created on</th>
 				</thead>
 			{% for token in tokens %}
 				<tr>
-					<td>{{ token }}</td>
 					{% if token.creation_apikey.website %}
 						<td><a href="{{ token.creation_apikey.website }}">{{ token.creation_apikey }}</a></td>
 					{% else %}
 						<td>{{ token.creation_apikey }}</td>
 					{% endif %}
+					<td>{{ token }}</td>
 					<td>{{ token.created }}</td>
 				</tr>
 			{% endfor %}
