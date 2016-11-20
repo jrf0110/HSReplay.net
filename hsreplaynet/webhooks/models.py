@@ -76,7 +76,7 @@ class WebhookTrigger(models.Model):
 		try:
 			r = requests.post(self.url, data=self.payload, headers=headers, timeout=timeout)
 			self.response_status = r.status_code
-			self.response = r.text
+			self.response = r.text[:8192]
 			self.success = r.status_code in (200, 201)
 		except Exception as e:
 			self.response_status = 0
