@@ -10,6 +10,10 @@ export interface GameReplay {
 	shortid: string;
 	user: User;
 	global_game: GlobalGame;
+	friendly_player?: GlobalGamePlayer;
+	friendly_deck?: Deck;
+	opposing_player?: GlobalGamePlayer;
+	opposing_deck?: Deck|null;
 	spectator_mode: boolean;
 	friendly_player_id: number;
 	replay_xml: string;
@@ -28,7 +32,7 @@ export interface GlobalGame {
 	format: number;
 	ladder_season: number;
 	scenario_id: number;
-	players: GlobalGamePlayer[];
+	players?: GlobalGamePlayer[]; // deprecated
 	num_turns: number;
 }
 
@@ -46,6 +50,12 @@ export interface GlobalGamePlayer {
 	losses: number;
 	rank: number;
 	legend_rank: number;
+}
+
+export interface Deck {
+	digest: string;
+	size: any;
+	cards: string[];
 }
 
 export const enum Visibility {

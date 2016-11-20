@@ -24,13 +24,25 @@ export default class GameHistoryList extends React.Component<GameHistoryListProp
 					columns.push(<div className="clearfix visible-lg-block"/>);
 				}
 			}
+
+			let players = [];
+			if (game.friendly_player) {
+				players.push(game.friendly_player);
+			}
+			if (game.opposing_player) {
+				players.push(game.opposing_player);
+			}
+			if (!players.length) {
+				players = game.global_game.players || [];
+			}
+
 			columns.push(
 				<GameHistoryItem
 					key={i}
 					cardArt={this.props.cardArt}
 					image={this.props.image}
 					shortid={game.shortid}
-					players={game.global_game.players}
+					players={players}
 					startTime={startTime}
 					endTime={endTime}
 					gameType={game.global_game.game_type}
