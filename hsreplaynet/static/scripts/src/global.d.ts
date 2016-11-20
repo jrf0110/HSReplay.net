@@ -59,13 +59,25 @@ declare module "joust" {
 
 		locale(locale?: string): Launcher;
 
+		play(): void;
+
+		pause(): void;
+
+		toggle(): void;
+
+		enableKeybindings(): Launcher;
+
+		disableKeybindings(): Launcher;
+
 		fromUrl(url: string): void;
 
-		percentageWatched: number;
+		readonly percentageWatched: number;
 
-		secondsWatched: number;
+		readonly secondsWatched: number;
 
-		replayDuration: number;
+		readonly replayDuration: number;
+
+		turn: number;
 	}
 
 	export function release(): string;
