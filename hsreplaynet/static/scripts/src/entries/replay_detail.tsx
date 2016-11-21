@@ -10,6 +10,7 @@ import jQueryCSRF from "../jQueryCSRF";
 import VisibilityDropdown from "../components/VisibilityDropdown";
 import {Visibility} from "../interfaces";
 import DeleteReplayButton from "../components/DeleteReplayButton";
+import PlayerInfo from "../components/PlayerInfo";
 
 
 // add Django CSRF token to jQuery.ajax
@@ -104,3 +105,17 @@ if(deleteTarget) {
 		deleteTarget
 	);
 }
+
+// Player info
+const playerInfo = document.getElementById("infobox-players-container");
+if (playerInfo) {
+	const gameId = playerInfo.getAttribute("game-id");
+	const playerName = playerInfo.getAttribute("player-name");
+	const opponentName = playerInfo.getAttribute("opponent-name");
+	const build = +playerInfo.getAttribute("build");
+	ReactDOM.render(
+		<PlayerInfo gameId={gameId} playerName={playerName} opponentName={opponentName} build={build}/>,
+		playerInfo
+	);
+}
+
