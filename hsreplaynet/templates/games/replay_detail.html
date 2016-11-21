@@ -9,6 +9,10 @@
 	{% include "games/stylesheets.html" %}
 {% endblock %}
 
+{% block error_reporting %}
+	{% comment %}Disable error reporting since it conflicts with Joust's Sentry{% endcomment %}
+{% endblock %}
+
 {% block meta %}
 {% with replay.generate_description as description %}
 	{{ block.super }}
