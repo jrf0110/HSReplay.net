@@ -144,13 +144,11 @@ class GlobalGamePlayerSerializer(serializers.ModelSerializer):
 
 
 class GlobalGameSerializer(serializers.ModelSerializer):
-	players = GlobalGamePlayerSerializer(many=True, read_only=True)
-
 	class Meta:
 		model = GlobalGame
 		fields = (
 			"build", "match_start", "match_end", "game_type", "brawl_season",
-			"ladder_season", "scenario_id", "players", "num_turns", "format"
+			"ladder_season", "scenario_id", "num_turns", "format"
 		)
 
 
@@ -178,6 +176,9 @@ class GameReplaySerializer(serializers.ModelSerializer):
 # Shorter serializer for list queries
 
 class GameReplayListSerializer(GameReplaySerializer):
+	friendly_player = GlobalGamePlayerSerializer(read_only=True)
+	opposing_player = GlobalGamePlayerSerializer(read_only=True)
+
 	class Meta:
 		model = GameReplay
 		fields = (
