@@ -13,6 +13,10 @@
 {% endif %}
 {% endblock %}
 
+{% block error_reporting %}
+	{% comment %}Disable error reporting on front page (e.g. don't care about embedded Joust errors){% endcomment %}
+{% endblock %}
+
 {% block meta %}
 {% with "Share your Hearthstone games - Watch them in any browser and show off your craziest plays!" as description %}
 	{{ block.super }}
