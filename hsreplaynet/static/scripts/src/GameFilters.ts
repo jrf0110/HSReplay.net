@@ -2,7 +2,8 @@ import {GameReplay} from './interfaces';
 import {BnetGameType, FormatType} from "./hearthstone";
 
 export function nameMatch(game: GameReplay, name: string): boolean {
-	return game.global_game.players.some(player => {
+	const players = [game.friendly_player, game.opposing_player];
+	return players.some(player => {
 		let pName = player.name.toLowerCase();
 		if (pName.indexOf(name) !== -1) {
 			return true;
@@ -63,13 +64,11 @@ export function resultMatch(game: GameReplay, result: string): boolean {
 }
 
 export function heroMatch(game: GameReplay, hero: string): boolean {
-	let id = game.global_game.players.find(p => p.player_id == game.friendly_player_id).hero_id;
-	return getHero(id) == hero;
+	return getHero(game.friendly_player.hero_id) == hero;
 }
 
 export function opponentMatch(game: GameReplay, hero: string): boolean {
-	let id = game.global_game.players.find(p => p.player_id != game.friendly_player_id).hero_id;
-	return getHero(id) == hero;
+	return getHero(game.opposing_player.hero_id) == hero;
 }
 
 //This should be a dictionary
