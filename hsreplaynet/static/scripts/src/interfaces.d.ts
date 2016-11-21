@@ -32,7 +32,6 @@ export interface GlobalGame {
 	format: number;
 	ladder_season: number;
 	scenario_id: number;
-	players?: GlobalGamePlayer[]; // deprecated
 	num_turns: number;
 }
 

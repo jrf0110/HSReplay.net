@@ -32,9 +32,6 @@ export default class GameHistoryList extends React.Component<GameHistoryListProp
 			if (game.opposing_player) {
 				players.push(game.opposing_player);
 			}
-			if (!players.length) {
-				players = game.global_game.players || [];
-			}
 
 			columns.push(
 				<GameHistoryItem
