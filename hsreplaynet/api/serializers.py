@@ -176,12 +176,10 @@ class GameReplaySerializer(serializers.ModelSerializer):
 # Shorter serializer for list queries
 
 class GameReplayListSerializer(GameReplaySerializer):
-	friendly_player = GlobalGamePlayerSerializer(read_only=True)
-	opposing_player = GlobalGamePlayerSerializer(read_only=True)
-
 	class Meta:
 		model = GameReplay
 		fields = (
 			"shortid", "spectator_mode", "build", "won", "disconnected", "reconnecting",
-			"visibility", "global_game", "user", "friendly_player_id"
+			"visibility", "global_game", "user", "friendly_player_id", "friendly_player",
+			"opposing_player"
 		)
