@@ -194,7 +194,7 @@ class Deck(models.Model):
 	id = models.BigAutoField(primary_key=True)
 	objects = DeckManager()
 	cards = models.ManyToManyField(Card, through="Include")
-	digest = models.CharField(max_length=32, unique=True, db_index=True)
+	digest = models.CharField(max_length=32, unique=True)
 	created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 	archetype = models.ForeignKey("Archetype", null=True, on_delete=models.SET_NULL)
 	size = models.IntegerField(null=True)
