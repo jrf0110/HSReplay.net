@@ -47,7 +47,17 @@
 		{% setting "RAVEN_CONFIG_FRONTEND" as raven_config_frontend %}
 		{% if raven_config_frontend %}
 			<script src="{% static 'vendor/raven.min.js' %}"></script>
-			<script>Raven.config("{{ raven_config_frontend.dsn }}").install();</script>
+			<script>
+				var raven = Raven.config("{{ raven_config_frontend.dsn }}", {
+					release: "{{ raven_config_frontend.release }}",
+					environment: "{% if DEBUG %}development{% else %}production{% endif %}",
+				}).install();
+				{% if user.is_authenticated %}
+				raven.setUserContext({
+					username: "{{ user.username }}",
+				});
+				{% endif %}
+			</script>
 		{% endif %}
 	{% endblock %}
 	{% endblock %}
