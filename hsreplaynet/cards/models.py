@@ -42,6 +42,7 @@ class CardManager(models.Manager):
 
 class Card(models.Model):
 	id = models.CharField(primary_key=True, max_length=50)
+	dbf_id = models.IntegerField(null=True, unique=True, db_index=True)
 	objects = CardManager()
 
 	name = models.CharField(max_length=50)
