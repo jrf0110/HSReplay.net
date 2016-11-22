@@ -1,8 +1,8 @@
 from enum import IntEnum
 from django.db import models
+from django_intenum import IntEnumField
 from hsreplaynet.accounts.models import User
 from hsreplaynet.cards.models import Card
-from hsreplaynet.utils.fields import IntEnumField
 
 
 class BoosterType(IntEnum):

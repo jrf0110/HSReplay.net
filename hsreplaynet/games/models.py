@@ -4,10 +4,11 @@ from django.conf import settings
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
+from django_intenum import IntEnumField
 from hearthstone.enums import BnetGameType, FormatType, PlayState
 from hsreplaynet.api.models import AuthToken
 from hsreplaynet.cards.models import Card, Deck
-from hsreplaynet.utils.fields import IntEnumField, PlayerIDField, ShortUUIDField
+from hsreplaynet.utils.fields import PlayerIDField, ShortUUIDField
 
 
 def _generate_upload_path(timestamp, shortid):

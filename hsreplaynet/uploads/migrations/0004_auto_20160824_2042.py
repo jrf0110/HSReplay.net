@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import hsreplaynet.uploads.models
-import hsreplaynet.utils.fields
+from django_intenum import IntEnumField, IntEnumValidator
 
 
 class Migration(migrations.Migration):
@@ -22,6 +22,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='uploadevent',
             name='status',
-            field=hsreplaynet.utils.fields.IntEnumField(choices=[(0, 'UNKNOWN'), (1, 'PROCESSING'), (2, 'SERVER_ERROR'), (3, 'PARSING_ERROR'), (4, 'SUCCESS'), (5, 'UNSUPPORTED'), (6, 'VALIDATION_ERROR'), (7, 'VALIDATING')], default=0, validators=[hsreplaynet.utils.fields.IntEnumValidator(hsreplaynet.uploads.models.UploadEventStatus)]),
+            field=IntEnumField(choices=[(0, 'UNKNOWN'), (1, 'PROCESSING'), (2, 'SERVER_ERROR'), (3, 'PARSING_ERROR'), (4, 'SUCCESS'), (5, 'UNSUPPORTED'), (6, 'VALIDATION_ERROR'), (7, 'VALIDATING')], default=0, validators=[IntEnumValidator(hsreplaynet.uploads.models.UploadEventStatus)]),
         ),
     ]

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import hsreplaynet.packs.models
-import hsreplaynet.utils.fields
+from django_intenum import IntEnumField, IntEnumValidator
 
 
 class Migration(migrations.Migration):
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             name='Pack',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('booster_type', hsreplaynet.utils.fields.IntEnumField(choices=[(1, 'CLASSIC'), (2, 'GVG'), (3, 'TGT'), (4, 'OG')], validators=[hsreplaynet.utils.fields.IntEnumValidator(hsreplaynet.packs.models.BoosterType)])),
+                ('booster_type', IntEnumField(choices=[(1, 'CLASSIC'), (2, 'GVG'), (3, 'TGT'), (4, 'OG')], validators=[IntEnumValidator(hsreplaynet.packs.models.BoosterType)])),
                 ('date', models.DateTimeField()),
             ],
         ),

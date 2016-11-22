@@ -6,7 +6,7 @@ import django.contrib.auth.models
 from django.db import migrations, models
 import django.utils.timezone
 import hsreplaynet.games.models
-import hsreplaynet.utils.fields
+from django_intenum import IntEnumField, IntEnumValidator
 
 
 class Migration(migrations.Migration):
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('username', models.CharField(max_length=150, unique=True)),
                 ('is_fake', models.BooleanField(default=False)),
-                ('default_replay_visibility', hsreplaynet.utils.fields.IntEnumField(choices=[(1, 'Public'), (2, 'Unlisted')], default=1, validators=[hsreplaynet.utils.fields.IntEnumValidator(hsreplaynet.games.models.Visibility)], verbose_name='Default replay visibility')),
+                ('default_replay_visibility', IntEnumField(choices=[(1, 'Public'), (2, 'Unlisted')], default=1, validators=[IntEnumValidator(hsreplaynet.games.models.Visibility)], verbose_name='Default replay visibility')),
                 ('delete_account_request', models.DateTimeField(null=True)),
                 ('delete_replay_data', models.BooleanField(default=False)),
             ],

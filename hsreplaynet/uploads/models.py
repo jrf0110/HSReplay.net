@@ -1,16 +1,17 @@
-from enum import IntEnum
-import re
-import json
 import base64
+import json
 import os
+import re
 import time
 from botocore.vendored.requests.packages.urllib3.exceptions import ReadTimeoutError
 from datetime import datetime, timedelta
+from enum import IntEnum
 from django.conf import settings
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
-from hsreplaynet.utils.fields import IntEnumField, ShortUUIDField
+from django_intenum import IntEnumField
+from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
 
 

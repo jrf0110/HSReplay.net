@@ -8,7 +8,7 @@ from django.db import migrations, models
 import django.db.models.deletion
 import hearthstone.enums
 import hsreplaynet.games.models
-import hsreplaynet.utils.fields
+from django_intenum import IntEnumField, IntEnumValidator
 
 
 class Migration(migrations.Migration):
@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('disconnected', models.BooleanField(default=False)),
                 ('reconnecting', models.BooleanField(default=False, help_text='Whether the player is reconnecting to an existing game', verbose_name='Is reconnecting')),
                 ('resumable', models.NullBooleanField()),
-                ('visibility', hsreplaynet.utils.fields.IntEnumField(choices=[(1, 'Public'), (2, 'Unlisted')], default=1, validators=[hsreplaynet.utils.fields.IntEnumValidator(hsreplaynet.games.models.Visibility)])),
+                ('visibility', IntEnumField(choices=[(1, 'Public'), (2, 'Unlisted')], default=1, validators=[IntEnumValidator(hsreplaynet.games.models.Visibility)])),
                 ('hide_player_names', models.BooleanField(default=False)),
             ],
             options={
@@ -58,8 +58,8 @@ class Migration(migrations.Migration):
                 ('build', models.PositiveIntegerField(blank=True, help_text='Hearthstone build number the game was played on.', null=True)),
                 ('match_start', models.DateTimeField(help_text='Must be a timezone aware datetime.', verbose_name='Match start')),
                 ('match_end', models.DateTimeField(help_text='Must be a timezone aware datetime.', verbose_name='Match end')),
-                ('game_type', hsreplaynet.utils.fields.IntEnumField(blank=True, choices=[(0, 'BGT_UNKNOWN'), (1, 'BGT_FRIENDS'), (2, 'BGT_RANKED_STANDARD'), (3, 'BGT_ARENA'), (4, 'BGT_VS_AI'), (5, 'BGT_TUTORIAL'), (6, 'BGT_ASYNC'), (9, 'BGT_NEWBIE'), (7, 'BGT_CASUAL_STANDARD'), (8, 'BGT_TEST1'), (10, 'BGT_TEST3'), (16, 'BGT_TAVERNBRAWL_PVP'), (17, 'BGT_TAVERNBRAWL_1P_VERSUS_AI'), (18, 'BGT_TAVERNBRAWL_2P_COOP'), (30, 'BGT_RANKED_WILD'), (31, 'BGT_CASUAL_WILD'), (32, 'BGT_LAST')], null=True, validators=[hsreplaynet.utils.fields.IntEnumValidator(hearthstone.enums.BnetGameType)], verbose_name='Game type')),
-                ('format', hsreplaynet.utils.fields.IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=0, validators=[hsreplaynet.utils.fields.IntEnumValidator(hearthstone.enums.FormatType)], verbose_name='Format type')),
+                ('game_type', IntEnumField(blank=True, choices=[(0, 'BGT_UNKNOWN'), (1, 'BGT_FRIENDS'), (2, 'BGT_RANKED_STANDARD'), (3, 'BGT_ARENA'), (4, 'BGT_VS_AI'), (5, 'BGT_TUTORIAL'), (6, 'BGT_ASYNC'), (9, 'BGT_NEWBIE'), (7, 'BGT_CASUAL_STANDARD'), (8, 'BGT_TEST1'), (10, 'BGT_TEST3'), (16, 'BGT_TAVERNBRAWL_PVP'), (17, 'BGT_TAVERNBRAWL_1P_VERSUS_AI'), (18, 'BGT_TAVERNBRAWL_2P_COOP'), (30, 'BGT_RANKED_WILD'), (31, 'BGT_CASUAL_WILD'), (32, 'BGT_LAST')], null=True, validators=[IntEnumValidator(hearthstone.enums.BnetGameType)], verbose_name='Game type')),
+                ('format', IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=0, validators=[IntEnumValidator(hearthstone.enums.FormatType)], verbose_name='Format type')),
                 ('ladder_season', models.IntegerField(blank=True, help_text='The season as calculated from the match start timestamp.', null=True, verbose_name='Ladder season')),
                 ('brawl_season', models.IntegerField(default=0, help_text='The brawl season which increments every time the brawl changes.', verbose_name='Tavern Brawl season')),
                 ('scenario_id', models.IntegerField(blank=True, help_text='ID from DBF/SCENARIO.xml or Scenario cache', null=True, verbose_name='Scenario ID')),
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
                 ('is_ai', models.BooleanField(default=False, help_text='Whether the player is an AI.', verbose_name='Is AI')),
                 ('is_first', models.BooleanField(help_text='Whether the player is the first player', verbose_name='Is first player')),
                 ('hero_premium', models.BooleanField(default=False, help_text="Whether the player's initial hero is golden.", verbose_name='Hero Premium')),
-                ('final_state', hsreplaynet.utils.fields.IntEnumField(choices=[(0, 'INVALID'), (1, 'PLAYING'), (2, 'WINNING'), (3, 'LOSING'), (4, 'WON'), (5, 'LOST'), (6, 'TIED'), (7, 'DISCONNECTED'), (8, 'CONCEDED')], default=0, validators=[hsreplaynet.utils.fields.IntEnumValidator(hearthstone.enums.PlayState)], verbose_name='Final State')),
+                ('final_state', IntEnumField(choices=[(0, 'INVALID'), (1, 'PLAYING'), (2, 'WINNING'), (3, 'LOSING'), (4, 'WON'), (5, 'LOST'), (6, 'TIED'), (7, 'DISCONNECTED'), (8, 'CONCEDED')], default=0, validators=[IntEnumValidator(hearthstone.enums.PlayState)], verbose_name='Final State')),
                 ('rank', models.SmallIntegerField(blank=True, help_text='1 through 25, or 0 for legend.', null=True, verbose_name='Rank')),
                 ('legend_rank', models.PositiveIntegerField(blank=True, null=True, verbose_name='Legend rank')),
                 ('stars', models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='Stars')),

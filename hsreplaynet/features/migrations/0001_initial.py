@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import hsreplaynet.features.models
-import hsreplaynet.utils.fields
+from django_intenum import IntEnumField, IntEnumValidator
 
 
 class Migration(migrations.Migration):
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255, unique=True)),
                 ('description', models.TextField(blank=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('status', hsreplaynet.utils.fields.IntEnumField(choices=[(0, 'OFF'), (1, 'STAFF_ONLY'), (2, 'IN_PROGRESS'), (3, 'PUBLIC'), (4, 'AUTHORIZED_ONLY')], default=2, validators=[hsreplaynet.utils.fields.IntEnumValidator(hsreplaynet.features.models.FeatureStatus)])),
+                ('status', IntEnumField(choices=[(0, 'OFF'), (1, 'STAFF_ONLY'), (2, 'IN_PROGRESS'), (3, 'PUBLIC'), (4, 'AUTHORIZED_ONLY')], default=2, validators=[IntEnumValidator(hsreplaynet.features.models.FeatureStatus)])),
                 ('read_only', models.BooleanField(default=False)),
             ],
         ),

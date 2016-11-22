@@ -2,7 +2,7 @@ from enum import IntEnum
 from django.contrib.auth.models import Group
 from django.db import models
 from django.dispatch.dispatcher import receiver
-from hsreplaynet.utils.fields import IntEnumField
+from django_intenum import IntEnumField
 
 
 class FeatureStatus(IntEnum):
@@ -120,6 +120,5 @@ class Feature(models.Model):
 
 @receiver(models.signals.post_save, sender=Feature)
 def create_feature_membership_groups(sender, instance, **kwargs):
-
 	Group.objects.get_or_create(name=instance.preview_group_name)
 	Group.objects.get_or_create(name=instance.authorized_group_name)

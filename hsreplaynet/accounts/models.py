@@ -2,8 +2,8 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
+from django_intenum import IntEnumField
 from hsreplaynet.games.models import Visibility
-from hsreplaynet.utils.fields import IntEnumField
 
 
 HEARTHSTONE_LOCALES = (

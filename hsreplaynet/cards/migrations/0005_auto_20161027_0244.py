@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import hearthstone.enums
-import hsreplaynet.utils.fields
+from django_intenum import IntEnumField, IntEnumValidator
 
 
 class Migration(migrations.Migration):
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(blank=True, max_length=250)),
-                ('player_class', hsreplaynet.utils.fields.IntEnumField(choices=[(0, 'INVALID'), (1, 'DEATHKNIGHT'), (2, 'DRUID'), (3, 'HUNTER'), (4, 'MAGE'), (5, 'PALADIN'), (6, 'PRIEST'), (7, 'ROGUE'), (8, 'SHAMAN'), (9, 'WARLOCK'), (10, 'WARRIOR'), (11, 'DREAM'), (12, 'NEUTRAL')], default=0, validators=[hsreplaynet.utils.fields.IntEnumValidator(hearthstone.enums.CardClass)])),
+                ('player_class', IntEnumField(choices=[(0, 'INVALID'), (1, 'DEATHKNIGHT'), (2, 'DRUID'), (3, 'HUNTER'), (4, 'MAGE'), (5, 'PALADIN'), (6, 'PRIEST'), (7, 'ROGUE'), (8, 'SHAMAN'), (9, 'WARLOCK'), (10, 'WARRIOR'), (11, 'DREAM'), (12, 'NEUTRAL')], default=0, validators=[IntEnumValidator(hearthstone.enums.CardClass)])),
             ],
         ),
         migrations.CreateModel(
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('format', hsreplaynet.utils.fields.IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=0, validators=[hsreplaynet.utils.fields.IntEnumValidator(hearthstone.enums.FormatType)])),
+                ('format', IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=0, validators=[IntEnumValidator(hearthstone.enums.FormatType)])),
                 ('archetype', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='canonical_decks', to='cards.Archetype')),
                 ('deck', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='canonical_for_archetypes', to='cards.Deck')),
             ],

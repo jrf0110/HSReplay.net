@@ -3,8 +3,8 @@ import random
 from django.db import models, connection
 from django.conf import settings
 from django.dispatch.dispatcher import receiver
+from django_intenum import IntEnumField
 from hearthstone import enums
-from hsreplaynet.utils.fields import IntEnumField
 
 
 class CardManager(models.Manager):

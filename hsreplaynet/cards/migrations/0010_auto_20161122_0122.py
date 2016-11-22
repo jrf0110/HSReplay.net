@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import hearthstone.enums
-import hsreplaynet.utils.fields
+from django_intenum import IntEnumField, IntEnumValidator
 
 
 class Migration(migrations.Migration):
@@ -22,6 +22,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='canonicaldeck',
             name='format',
-            field=hsreplaynet.utils.fields.IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=2, validators=[hsreplaynet.utils.fields.IntEnumValidator(hearthstone.enums.FormatType)]),
+            field=IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=2, validators=[IntEnumValidator(hearthstone.enums.FormatType)]),
         ),
     ]

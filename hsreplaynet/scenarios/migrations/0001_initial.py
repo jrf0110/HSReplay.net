@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 import hsreplaynet.scenarios.models
-import hsreplaynet.utils.fields
+from django_intenum import IntEnumField, IntEnumValidator
 
 
 class Migration(migrations.Migration):
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 ('is_expert', models.BooleanField(default=False)),
                 ('is_coop', models.BooleanField(default=False)),
                 ('sort_order', models.PositiveIntegerField(default=0)),
-                ('mode', hsreplaynet.utils.fields.IntEnumField(choices=[(1, 'NORMAL'), (2, 'EXPERT'), (3, 'HEROIC'), (4, 'CLASS_CHALLENGE')], default=0, validators=[hsreplaynet.utils.fields.IntEnumValidator(hsreplaynet.scenarios.models.AdventureMode)])),
+                ('mode', IntEnumField(choices=[(1, 'NORMAL'), (2, 'EXPERT'), (3, 'HEROIC'), (4, 'CLASS_CHALLENGE')], default=0, validators=[IntEnumValidator(hsreplaynet.scenarios.models.AdventureMode)])),
                 ('client_player2_hero_card_id', models.IntegerField(null=True)),
                 ('name', models.CharField(max_length=64)),
                 ('description', models.TextField()),
