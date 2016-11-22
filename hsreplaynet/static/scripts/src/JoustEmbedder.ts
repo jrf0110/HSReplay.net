@@ -23,6 +23,7 @@ export default class JoustEmbedder extends EventEmitter {
 		if (!Joust.launcher) {
 			console.error("Could not load Joust");
 			target.innerHTML = '<p class="alert alert-danger">' +
+				'<strong>Loading failed:</strong> ' +
 				'Replay applet (Joust) could not be loaded. Please ensure you can access ' +
 				'<a href="' + JOUST_STATIC_URL + '">' + JOUST_STATIC_URL + '</a>.</p>';
 			return;
@@ -170,7 +171,7 @@ export default class JoustEmbedder extends EventEmitter {
 
 		// initialize joust
 		let url = target.getAttribute("data-replayurl");
-		if(!url.match(/^http(s?):\/\//) && !url.startsWith("/")) {
+		if (!url.match(/^http(s?):\/\//) && !url.startsWith("/")) {
 			url = "/" + url;
 		}
 		launcher.fromUrl(url);
