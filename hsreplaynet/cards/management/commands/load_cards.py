@@ -7,6 +7,7 @@ class Command(BaseCommand):
 	def add_arguments(self, parser):
 		parser.add_argument("path", nargs="?", help="CardDefs.xml file")
 		parser.add_argument("--locale", default="enUS")
+		parser.add_argument("--force", action="store_true", help="Force update all cards")
 
 	def handle(self, *args, **options):
 		path = options["path"]
@@ -21,3 +22,11 @@ class Command(BaseCommand):
 		new_cards = [Card.from_cardxml(db[id]) for id in missing]
 		Card.objects.bulk_create(new_cards)
 		self.stdout.write("%i new cards" % (len(new_cards)))
+
+		if options["force"]:
+			existing = Card.objects.filter(id__in=known_ids)
+			for card in existing:
+				c = db[card.id]
+				if c:
+					card.update_from_cardxml(c, save=True)
+			self.stdout.write("%i updated cards" % (len(existing)))

@@ -92,20 +92,22 @@ class Card(models.Model):
 	@classmethod
 	def from_cardxml(cls, card, save=False):
 		obj = cls(id=card.id)
-		for k in dir(card):
-			if k.startswith("_"):
-				continue
-			# Transfer all existing CardXML attributes to our model
-			if hasattr(obj, k):
-				setattr(obj, k, getattr(card, k))
-
-		if save:
-			obj.save()
-
+		obj.update_from_cardxml(card, save=save)
 		return obj
 
 	def __str__(self):
 		return self.name
+
+	def update_from_cardxml(self, cardxml, save=False):
+		for k in dir(cardxml):
+			if k.startswith("_"):
+				continue
+			# Transfer all existing CardXML attributes to our model
+			if hasattr(self, k):
+				setattr(self, k, getattr(cardxml, k))
+
+		if save:
+			self.save()
 
 
 class DeckManager(models.Manager):
