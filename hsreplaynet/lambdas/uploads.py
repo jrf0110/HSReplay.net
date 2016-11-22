@@ -252,22 +252,18 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	logger.info("RawUpload event processing is complete")
 
 
-@instrumentation.lambda_handler(
-	cpu_seconds=120,
-)
-def fire_game_replay_webhooks(event, context):
+@instrumentation.lambda_handler(cpu_seconds=120)
+def trigger_webhook(event, context):
 	"""
 	A handler that handles firing game replay webhooks.
 	"""
-	logger = logging.getLogger(
-		"hsreplaynet.lambdas.fire_game_replay_webhooks"
-	)
+	from hsreplaynet.webhooks import Webhook
 
-	replay_shortid = event["Replay"]["shortid"]
-	logger.info("Fire webhooks lambda invoked for replay shortid: %s", replay_shortid)
+	logger = logging.getLogger("hsreplaynet.lambdas.trigger_webhook")
+	webhook_uuid = event["webhook_uuid"]
+	url = event["webhook_url"]
+	payload = event["payload"]
 
-	from hsreplaynet.webhooks.processing import immediate_fire_web_hooks_for_user
-	from hsreplaynet.games.models import GameReplay
-
-	replay = GameReplay.objects.get(shortid=replay_shortid)
-	immediate_fire_web_hooks_for_user(replay.user, replay)
+	logger.info("Triggering webhook %r on %r", webhook_uuid, url)
+	webhook = Webhook.objects.get(uuid=webhook_uuid)
+	webhook.immediate_trigger(url, payload)

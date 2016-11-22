@@ -16,7 +16,6 @@ from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.uploads.models import UploadEventStatus
-from hsreplaynet.webhooks.processing import fire_web_hooks_for_user
 from .metrics import InstrumentedExporter
 from .models import (
 	GameReplay, GlobalGame, GlobalGamePlayer,
@@ -240,7 +239,8 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 		# We use get or create in case this is not the first time processing this replay
 		ReplayAlias.objects.get_or_create(replay=replay, shortid=upload_event.shortid)
 
-	fire_web_hooks_for_user(user, replay)
+	if user:
+		user.trigger_webhooks(replay)
 
 	return replay, created
 

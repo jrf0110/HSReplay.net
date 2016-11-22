@@ -1,6 +1,6 @@
 import json
-import requests
 import time
+import requests
 from django.db import models
 from django.urls import reverse
 from hsreplaynet.accounts.models import User
@@ -32,14 +32,38 @@ class Webhook(models.Model):
 		self.save()
 
 	def trigger(self, data):
+		from django.conf import settings
+
 		payload = {
 			"webhook_uuid": str(self.uuid),
 			"data": data,
 		}
+
+		if settings.ENV_AWS:
+			self.schedule_lambda_trigger(self.url, payload)
+		else:
+			self.immediate_trigger(self.url, payload)
+
+	def schedule_lambda_trigger(self, url, payload):
+		from hsreplaynet.utils.aws.clients import LAMBDA
+
+		final_payload = json.dumps({
+			"webhook_uuid": self.uuid,
+			"url": url,
+			"payload": payload,
+		})
+
+		LAMBDA.invoke(
+			FunctionName="trigger_webhook",
+			InvocationType="Event",  # Triggers asynchronous invocation
+			Payload=final_payload,
+		)
+
+	def immediate_trigger(self, url, payload):
 		t = WebhookTrigger(
 			webhook=self,
-			url=self.url,
-			payload=json.dumps(payload),
+			url=url,
+			payload=payload,
 		)
 		# Firing the webhook will save it
 		t.deliver(timeout=self.timeout)

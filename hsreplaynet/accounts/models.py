@@ -68,6 +68,17 @@ class User(AbstractUser):
 	def delete_replays(self):
 		self.replays.update(is_deleted=True)
 
+	def trigger_webhooks(self, replay):
+		if self.is_fake:
+			# Fake users should never have webhooks
+			return
+
+		webhooks = self.webhooks.filter(is_active=True, is_deleted=False)
+		if webhooks.count():
+			data = replay.serialize()
+			for webhook in webhooks:
+				webhook.trigger(data)
+
 
 class AccountDeleteRequest(models.Model):
 	user = models.OneToOneField(User)

@@ -436,6 +436,14 @@ class GameReplay(models.Model):
 
 		return recommend_related_replays(self, num)
 
+	def serialize(self):
+		from hsreplaynet.api.serializers import GameReplaySerializer
+		from .processing import get_replay_url
+
+		s = GameReplaySerializer(self)
+		serialized = s.data
+		serialized["url"] = get_replay_url(self.shortid)
+
 
 class ReplayAlias(models.Model):
 	"""
