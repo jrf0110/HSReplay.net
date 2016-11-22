@@ -19,6 +19,15 @@ export default class JoustEmbedder extends EventEmitter {
 		if (!target) {
 			throw new Error("No target specified");
 		}
+
+		if (!Joust.launcher) {
+			console.error("Could not load Joust");
+			target.innerHTML = '<p class="alert alert-danger">' +
+				'Replay applet (Joust) could not be loaded. Please ensure you can access ' +
+				'<a href="' + JOUST_STATIC_URL + '">' + JOUST_STATIC_URL + '</a>.</p>';
+			return;
+		}
+
 		let launcher = Joust.launcher(target);
 		let release = Joust.release();
 

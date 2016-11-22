@@ -162,6 +162,7 @@
 </div>
 
 <script src="{% joust_static 'joust.js' %}"></script>
+<script>if(typeof Joust === "undefined") var Joust = null;</script>
 {% render_bundle "replay_detail" %}
 
 <div id="replay-comments" class="container-fluid">
