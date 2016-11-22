@@ -17,7 +17,6 @@ from hsreplaynet.utils.influx import influx_metric
 	cpu_seconds=180,
 	stream_name="replay-upload-processing-stream",
 	stream_batch_size=128,
-	memory=settings.LAMBDA_PROCESSING_MEMORY_MB,
 )
 def process_replay_upload_stream_handler(event, context):
 	"""
@@ -73,7 +72,10 @@ def process_replay_upload_stream_handler(event, context):
 	logger.info("All child invocations have completed")
 
 
-@instrumentation.lambda_handler(cpu_seconds=180)
+@instrumentation.lambda_handler(
+	cpu_seconds=180,
+	memory=settings.LAMBDA_PROCESSING_MEMORY_MB,
+)
 def process_single_replay_upload_stream_handler(event, context):
 	"""
 	A handler that consumes single records from an AWS Kinesis stream.
