@@ -296,6 +296,13 @@ CONNECT_TO_AWS = ENV_AWS
 
 ARCHETYPE_CLASSIFICATION_ENABLED = True
 
+WEBHOOKS = {
+	"SCHEME_WHITELIST": ["http", "https"],
+	"NETLOC_BLACKLIST": ["localhost"],
+	"IP_BLACKLIST": ["127.0.0.1", "::1"],
+}
+
+
 # Monkeypatch default collectstatic ignore patterns
 from django.contrib.staticfiles.apps import StaticFilesConfig
 StaticFilesConfig.ignore_patterns += ["*.scss", "*.ts", "*.tsx", "typings.json"]

@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+import hsreplaynet.webhooks.validators
 
 
 class Migration(migrations.Migration):
@@ -20,7 +21,7 @@ class Migration(migrations.Migration):
             name='Webhook',
             fields=[
                 ('uuid', models.UUIDField(primary_key=True, serialize=False)),
-                ('url', models.URLField(help_text='The URL the webhook will POST to.')),
+                ('url', models.URLField(help_text='The URL the webhook will POST to.', validators=[hsreplaynet.webhooks.validators.WebhookURLValidator()])),
                 ('is_active', models.BooleanField(default=True)),
                 ('is_deleted', models.BooleanField(default=False)),
                 ('max_triggers', models.PositiveSmallIntegerField(default=0, help_text='How many triggers after which the Webhook will be deleted. (0 for unlimited)')),

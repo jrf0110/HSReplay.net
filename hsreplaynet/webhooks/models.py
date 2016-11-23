@@ -4,12 +4,16 @@ import requests
 from django.db import models
 from django.urls import reverse
 from hsreplaynet.accounts.models import User
+from .validators import WebhookURLValidator
 
 
 class Webhook(models.Model):
 	uuid = models.UUIDField(primary_key=True)
 
-	url = models.URLField(help_text="The URL the webhook will POST to.")
+	url = models.URLField(
+		validators=[WebhookURLValidator()],
+		help_text="The URL the webhook will POST to."
+	)
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="webhooks")
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
