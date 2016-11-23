@@ -1,6 +1,7 @@
 import json
 import time
 import requests
+from uuid import uuid4
 from django.db import models
 from django.urls import reverse
 from hsreplaynet.accounts.models import User
@@ -8,7 +9,7 @@ from .validators import WebhookURLValidator
 
 
 class Webhook(models.Model):
-	uuid = models.UUIDField(primary_key=True)
+	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
 
 	url = models.URLField(
 		validators=[WebhookURLValidator()],
