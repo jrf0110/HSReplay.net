@@ -6,7 +6,6 @@ import {PlayState, BnetGameType} from "../hearthstone";
 
 interface GameHistoryItemProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryItem> {
 	shortid: string;
-	players: GlobalGamePlayer[];
 	startTime: Date;
 	endTime: Date;
 	gameType: number;
@@ -14,7 +13,8 @@ interface GameHistoryItemProps extends ImageProps, CardArtProps, React.ClassAttr
 	scenarioId: number;
 	turns: number;
 	won: boolean;
-	friendlyPlayer: number;
+	friendlyPlayer: GlobalGamePlayer;
+	opposingPlayer: GlobalGamePlayer;
 }
 
 interface GameHistoryItemState {
@@ -76,13 +76,13 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 	}
 
 	getArenaIcon(): JSX.Element {
-		var player = this.getFriendlyPlayer();
+		var player = this.props.friendlyPlayer;
 		var wins = player ? player.wins + 1 : 1;
 		return <img src={STATIC_URL + "images/arena-medals/Medal_Key_" + wins + ".png"} className="hsreplay-type" alt="Arena"/>;
 	}
 
 	getRankedIcon(): JSX.Element {
-		var player = this.getFriendlyPlayer();
+		var player = this.props.friendlyPlayer;
 		if (player) {
 			if (player.rank) {
 				return <img src={STATIC_URL + "images/ranked-medals/Medal_Ranked_" + player.rank + ".png"} className="hsreplay-type" alt={"Ranked"}/>
@@ -99,7 +99,7 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 	}
 
 	getIconInfo(): string {
-		var player = this.getFriendlyPlayer();
+		var player = this.props.friendlyPlayer;
 		if (!player) {
 			return null;
 		}
@@ -127,17 +127,14 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 		}
 	}
 
-	getFriendlyPlayer(): GlobalGamePlayer {
-			return this.props.friendlyPlayer && this.props.players.find(x => x.player_id == this.props.friendlyPlayer);
-	}
-
 	render(): JSX.Element {
 		return (<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3 game-history-item">
 			<a href={"/replay/" + this.props.shortid} className={this.props.won ? "won" : "lost"}>
 				<div className="hsreplay-involved">
 					<img src={this.props.image("vs.png")} className="hsreplay-versus"/>
-					{this.props.players.sort(x => x.player_id == this.props.friendlyPlayer ? -1 : 1).map((player: GlobalGamePlayer, i: number) => {
+					{$.map([this.props.friendlyPlayer, this.props.opposingPlayer], (player: GlobalGamePlayer, i: number) => {
 						return <GameHistoryPlayer
+							key={i}
 							cardArt={this.props.cardArt}
 							name={player.name}
 							heroId={player.hero_id}

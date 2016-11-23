@@ -39,7 +39,6 @@ export default class GameHistoryList extends React.Component<GameHistoryListProp
 					cardArt={this.props.cardArt}
 					image={this.props.image}
 					shortid={game.shortid}
-					players={players}
 					startTime={startTime}
 					endTime={endTime}
 					gameType={game.global_game.game_type}
@@ -47,7 +46,8 @@ export default class GameHistoryList extends React.Component<GameHistoryListProp
 					scenarioId={game.global_game.scenario_id}
 					turns={game.global_game.num_turns}
 					won={game.won}
-					friendlyPlayer={game.friendly_player_id}
+					friendlyPlayer={game.friendly_player}
+					opposingPlayer={game.opposing_player}
 				/>
 			);
 		});
