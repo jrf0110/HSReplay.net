@@ -93,7 +93,6 @@ export default class DateRangeSelector extends React.Component<DateRangeSelector
 				<span>Last day</span>
 				<span className="input-group">
 					<input
-						key={"offsetInput"}
 						type="number"
 						className="form-control"
 						value={offset > 0 ? "" + offset : ""}
