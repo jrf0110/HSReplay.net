@@ -68,6 +68,7 @@ export default class DateRangeSelector extends React.Component<DateRangeSelector
 						className="form-control"
 						value={this.state.maskedLookback ? "" : "" + lookback}
 						min={1}
+						step={1}
 						disabled={!this.canChangeLookback}
 						placeholder={this.props.lookback === 1 ? "1" : null}
 						required={true}
@@ -97,6 +98,7 @@ export default class DateRangeSelector extends React.Component<DateRangeSelector
 						className="form-control"
 						value={offset > 0 ? "" + offset : ""}
 						min={0}
+						step={1}
 						disabled={!this.canChangeOffset}
 						placeholder={offset === 0 ? "Today" : null}
 						required={false}
@@ -116,7 +118,7 @@ export default class DateRangeSelector extends React.Component<DateRangeSelector
 	private sanitizeNumber(input: any): number {
 		const number = +input;
 		const integer = isFinite(number) ? number : 0;
-		return integer;
+		return Math.round(integer);
 	}
 
 	protected get canChangeLookback(): boolean {
