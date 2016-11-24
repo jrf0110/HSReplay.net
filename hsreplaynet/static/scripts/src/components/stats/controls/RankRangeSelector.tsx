@@ -37,10 +37,10 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		const largest = this.state.largest !== null ? this.state.largest : this.props.largest;
 
 		const getMedal = (rank: number) => {
-			let alt = "Rank " + rank;
+			let alt = "Legend";
 			let src = STATIC_URL + "images/ranked-medals/Medal_Ranked_Legend.png";
 			if(rank > 0) {
-				alt = "Legend";
+				alt = "Rank " + rank;
 				src = STATIC_URL + "images/ranked-medals/Medal_Ranked_" + (rank) + ".png";
 			}
 			return  <img src={src} alt={alt} />;
