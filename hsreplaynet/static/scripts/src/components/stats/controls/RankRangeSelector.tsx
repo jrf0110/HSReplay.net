@@ -12,7 +12,8 @@ interface RankRangeSelectorProps extends React.ClassAttributes<RankRangeSelector
 interface RankRangeSelectorState {
 	smallest?: number;
 	largest?: number;
-	instantCommit?: boolean;
+	focussed?: boolean;
+	delay?: boolean;
 }
 
 /**
@@ -28,7 +29,8 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		this.state = {
 			smallest: null,
 			largest: null,
-			instantCommit: true,
+			focussed: false,
+			delay: false,
 		};
 		this.timeout = null;
 	}
@@ -78,8 +80,8 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 				min={0}
 				max={25}
 				low={smallest}
-				onChangeLow={(smallest: number) => this.setState({smallest: smallest})}
-				onChangeHigh={(largest: number) => this.setState({largest: largest})}
+				onChangeLow={(smallest: number) => this.setState({smallest: smallest, delay: true})}
+				onChangeHigh={(largest: number) => this.setState({largest: largest, delay: true})}
 				high={largest}
 			/>
 			<label className="control-label">
@@ -129,7 +131,7 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 	protected componentDidUpdate(prevProps: RankRangeSelectorProps, prevState: RankRangeSelectorState, prevContext: any): void {
 		if ((this.state.smallest !== null && this.state.smallest !== prevState.smallest) ||
 			(this.state.largest !== null && this.state.largest !== prevState.largest)) {
-			if (this.state.instantCommit) {
+			if (!this.state.focussed && !this.state.delay) {
 				this.commit();
 			}
 			else {
@@ -138,12 +140,14 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 			}
 		}
 
-		if (this.state.smallest !== null && this.state.smallest >= 3 && this.state.smallest > prevState.smallest) {
-			this.commit();
-		}
+		if(this.state.focussed) {
+			if (this.state.smallest !== null && this.state.smallest >= 3 && this.state.smallest > prevState.smallest) {
+				this.commit();
+			}
 
-		if (this.state.largest !== null && this.state.largest >= 3 && this.state.largest > prevState.largest) {
-			this.commit();
+			if (this.state.largest !== null && this.state.largest >= 3 && this.state.largest > prevState.largest) {
+				this.commit();
+			}
 		}
 	}
 
@@ -170,13 +174,13 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 
 	protected focus(): void {
 		this.setState({
-			instantCommit: false,
+			focussed: true,
 		});
 	}
 
 	protected blur(): void {
 		this.setState({
-			instantCommit: true,
+			focussed: false,
 		});
 		this.commit();
 	}
@@ -222,6 +226,7 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		this.setState({
 			smallest: null,
 			largest: null,
+			delay: false,
 		})
 	}
 

@@ -69,10 +69,16 @@ export default class RangeSlider extends React.Component<RangeSliderProps, Range
 				if (this.props.onChangeLow) {
 					this.props.onChangeLow(row);
 				}
+				if (row > this.props.high && this.props.onChangeHigh) {
+					this.props.onChangeHigh(row);
+				}
 				return;
 			case DragState.HIGH:
 				if (this.props.onChangeHigh) {
 					this.props.onChangeHigh(row);
+				}
+				if (row < this.props.low && this.props.onChangeLow) {
+					this.props.onChangeLow(row);
 				}
 				return;
 			case DragState.BOTH:
