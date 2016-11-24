@@ -33,8 +33,7 @@ SECRET_KEY = "be8^qa&f2fut7_1%q@x2%nkw5u=-r6-rwj8c^+)5m-6e^!zags"
 if ENV_DEV:
 	DEBUG = True
 else:
-	# Set DEBUG mode only on dev.hsreplay.net
-	ALLOWED_HOSTS = [".hsreplay.net"]
+	# Force SECRET_KEY to None to ensure it gets imported from local settings
 	SECRET_KEY = None
 
 
