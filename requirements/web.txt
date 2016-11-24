@@ -2,19 +2,19 @@
 
 -r base.txt
 
-django-allauth==0.28.0
+django-allauth==0.29.0
 django-contrib-comments==1.7.3
 django-debug-toolbar==1.6
 django-loginas==0.2.3
-django-webpack-loader==0.3.3
+django-webpack-loader==0.4.1
 humanize==0.5.1
 libsass==0.11.1
 nodeenv==1.0.0
 uwsgi==2.0.14
 
 # redis requirements
-django-redis-cache==1.7.0
-django-rq==0.9.3
+django-redis-cache==1.7.1
+django-rq==0.9.4
 django-rq-dashboard==0.3.0
 redis==2.10.5
-rq==0.6.0
+rq==0.7.0
