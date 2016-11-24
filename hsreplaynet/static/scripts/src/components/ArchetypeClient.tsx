@@ -69,7 +69,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		this.nonce = 0;
 		this.samplesPerDay = this.state.sampleSize / this.state.lookback;
 		this.fetch();
-		fetch("/cards/canonicals/", {
+		fetch("https://hsreplay.net/cards/canonicals/", {
 			credentials: "include",
 		}).then((response) => {
 			return response.json();
@@ -98,6 +98,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 										this.setState({largestRank: largestRank});
 									}}
 								/>
+								<hr />
 								<DateRangeSelector
 									lookback={this.state.lookback}
 									onChangeLookback={(lookback: number): void => {
@@ -112,6 +113,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 										this.setState({offset: offset});
 									}}
 								/>
+								<hr />
 								<SampleSizeSelector
 									sampleSize={this.state.sampleSize}
 									onChangeSampleSize={(sampelSize: number): void => this.setState({sampleSize: sampelSize, hasChangedSampleSize: true})}
@@ -237,7 +239,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 	}
 
 	private buildQueryUrl(): string {
-		const baseUrl = "/cards/winrates/";
+		const baseUrl = "https://hsreplay.net/cards/winrates/";
 
 		const gametypes = [BnetGameType.BGT_RANKED_STANDARD];
 
