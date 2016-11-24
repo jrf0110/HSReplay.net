@@ -28,7 +28,7 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 			smallest: null,
 			largest: null,
 			instantCommit: true,
-		}
+		};
 		this.timeout = null;
 	}
 
@@ -36,9 +36,19 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 		const smallest = this.state.smallest !== null ? this.state.smallest : this.props.smallest;
 		const largest = this.state.largest !== null ? this.state.largest : this.props.largest;
 
+		const getMedal = (rank: number) => {
+			let alt = "Rank " + rank;
+			let src = STATIC_URL + "images/ranked-medals/Medal_Ranked_Legend.png";
+			if(rank > 0) {
+				alt = "Legend";
+				src = STATIC_URL + "images/ranked-medals/Medal_Ranked_" + (rank) + ".png";
+			}
+			return  <img src={src} alt={alt} />;
+		};
+
 		return <div className="control-rank-range-selector">
 			<label className="control-label">
-				<span>Rank</span>
+				{getMedal(smallest)}
 				<input
 					type="number"
 					className="form-control"
@@ -64,7 +74,7 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 				/>
 			</label>
 			<label className="control-label">
-				<span>Rank</span>
+				{getMedal(largest)}
 				<input
 					type="number"
 					className="form-control"
