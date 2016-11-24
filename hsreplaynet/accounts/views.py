@@ -30,7 +30,7 @@ class APIAccountView(LoginRequiredMixin, View):
 	def get(self, request):
 		context = {
 			"tokens": request.user.auth_tokens.all(),
-			"webhooks": request.user.webhooks.all(),
+			"webhooks": request.user.webhooks.filter(is_deleted=False),
 		}
 		return render(request, self.template_name, context)
 

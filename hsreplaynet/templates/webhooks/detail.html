@@ -61,7 +61,16 @@
 			{% else %}
 				<button type="submit" class="btn btn-success">Add webhook</button>
 			{% endif %}
+		</form>
 
+		<form
+			action="{% url 'account_delete_webhook' webhook.pk %}"
+			method="POST"
+			id="webhook-delete-form"
+			onsubmit="return confirm('Are you sure? There is no undo.')"
+		>
+			{% csrf_token %}
+			<input type="submit" class="btn btn-danger" value="Delete webhook"/>
 		</form>
 	</div>
 

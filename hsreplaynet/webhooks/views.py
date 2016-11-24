@@ -1,6 +1,6 @@
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, DeleteView, UpdateView
 from .models import Webhook
 
 
@@ -21,6 +21,12 @@ class WebhookCreateView(WebhookFormView, CreateView):
 class WebhookUpdateView(WebhookFormView, UpdateView):
 	context_object_name = "webhook"
 
+	def get_queryset(self):
+		qs = super().get_queryset()
+		return qs.filter(user=self.request.user, is_deleted=False)
+
+
+class WebhookDeleteView(WebhookFormView, DeleteView):
 	def get_queryset(self):
 		qs = super().get_queryset()
 		return qs.filter(user=self.request.user, is_deleted=False)
