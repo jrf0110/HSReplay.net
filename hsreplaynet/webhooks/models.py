@@ -41,6 +41,7 @@ class Webhook(models.Model):
 
 		payload = {
 			"webhook_uuid": str(self.uuid),
+			"url": self.url,
 			"data": data,
 		}
 
@@ -52,11 +53,7 @@ class Webhook(models.Model):
 	def schedule_lambda_trigger(self, url, payload):
 		from hsreplaynet.utils.aws.clients import LAMBDA
 
-		final_payload = json.dumps({
-			"webhook_uuid": self.uuid,
-			"url": url,
-			"payload": payload,
-		})
+		final_payload = json.dumps(payload)
 
 		LAMBDA.invoke(
 			FunctionName="trigger_webhook",
