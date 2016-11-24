@@ -32,12 +32,14 @@ export interface Matchup {
 export interface Cell {
 	ratio: number|null;
 	mirror?: boolean;
-	title?: string;
 }
 
 interface MatrixState {
 	highlight?: number[];
 	hideBoring?: boolean;
+	hovering?: number[];
+	tooltipX?: number;
+	tooltipY?: number;
 }
 
 const mult = 30;
@@ -56,6 +58,9 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		this.state = {
 			highlight: [],
 			hideBoring: true,
+			hovering: [],
+			tooltipX: 0,
+			tooltipY: 0,
 		};
 	}
 
@@ -99,6 +104,9 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		let index = 0;
 		let cells = [];
 
+		let tooltipHeading = null;
+		let tooltipText = null;
+
 		// render pass
 		$.each(this.archetypes, (i: number, key: string) => {
 			let classNames = ["archetype"];
@@ -125,36 +133,43 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 			let row: NumberRow = this.props.matrix[key];
 			let cellRow: Cell[] = [];
+			let j = 0;
 			$.each(row, (class2: string, matchup: Matchup) => {
-				let title = class1 + " vs. " + class2;
-
 				const valid = matchup.match_count >= this.props.sampleSize;
 				const ratio = valid ? matchup.f_wr_vs_o : null;
 
-				if (matchup.is_mirror) {
-					title += "\nMirror matchup (" + matchup.match_count + " games)";
-				}
-				else {
-					if (!valid && !matchup.match_count) {
-						if (this.props.sampleSize > 0) {
-							title += "\nNot enough games";
-							title += " (" + matchup.match_count + " of " + this.props.sampleSize + ")";
-						}
-						else {
-							title += "\nNo game";
-						}
+				if (this.state.hovering.length === 2 && this.state.hovering[0] === j && this.state.hovering[1] === i) {
+					tooltipHeading = class1 + " vs. " + class2;
+					let title = "";
+
+					if (matchup.is_mirror) {
+						title += "\nMirror matchup (" + matchup.match_count + " games)";
 					}
 					else {
-						let winrate = (matchup.f_wr_vs_o * 100).toFixed(2) + "%";
-						winrate += " (won " + matchup.friendly_wins + "/" + matchup.match_count + ")";
-						title += "\nWinrate: " + winrate;
+						if (!valid) {
+							if (this.props.sampleSize > 0) {
+								title += "\nNot enough games";
+								title += " (" + matchup.match_count + " of " + this.props.sampleSize + ")";
+							}
+							else {
+								title += "\nNo game";
+							}
+						}
+						else {
+							let winrate = (matchup.f_wr_vs_o * 100).toFixed(2) + "%";
+							winrate += " (won " + matchup.friendly_wins + "/" + matchup.match_count + ")";
+							title += "\nWinrate: " + winrate;
+						}
 					}
+
+					tooltipText = title;
 				}
 				cellRow.push({
 					ratio: ratio,
 					mirror: matchup.is_mirror,
-					title: title,
 				});
+
+				j++;
 			});
 			cells.push(cellRow);
 
@@ -204,38 +219,56 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 
 		const dimensions = this.getSVGDimensions();
 
+		const tooltip = tooltipText ? <div
+			className="matrix-tooltip"
+			style={{top: this.state.tooltipY + "px", left: this.state.tooltipX + "px"}}
+		><strong>{tooltipHeading}</strong><br />{tooltipText}</div> : null;
+
 		return (
-			<div className="component-matrix">
-				<svg
-					viewBox={"0 0 " + dimensions[0] + " " + dimensions[1]}
-					ref={(ref) => {
+			<div
+				className="component-matrix"
+				onMouseMove={(e: any) => {
+					if(!this.ref) {
+						return;
+					}
+
+					const rect = this.ref.getBoundingClientRect();
+					this.setState({tooltipX: e.clientX - rect.left, tooltipY: e.clientY - rect.top + 20});
+				}}
+			>
+			<svg
+				viewBox={"0 0 " + dimensions[0] + " " + dimensions[1]}
+				ref={(ref) => {
 						this.ref = ref;
 					}}
-					onMouseMove={(e) => this.hover(e.clientX, e.clientY)}
-					onTouchStart={(e) => this.touch(e)}
-					onTouchMove={(e) => this.touch(e)}
-					onMouseLeave={() => this.clearHover()}
-					onTouchCancel={() => this.clearHover()}
-					onTouchEnd={() => this.clearHover()}
-					className={this.props.working ? "loading" : null}
-				>
-					<g>{titles}</g>
-					<g className="cells"><MatrixBody
-						cells={cells}
-						colors={this.props.colorScheme}
-						intensity={this.props.intensity}
-						offsetX={cellOffsetX}
-						offsetY={cellOffsetY}
-						edge={mult}
-						onClick={(x: number, y: number): void => {
+				onMouseMove={(e) => this.hover(e.clientX, e.clientY)}
+				onTouchStart={(e) => this.touch(e)}
+				onTouchMove={(e) => this.touch(e)}
+				onMouseLeave={() => this.clearHighlight()}
+				onTouchCancel={() => this.clearHighlight()}
+				onTouchEnd={() => this.clearHighlight()}
+				className={this.props.working ? "loading" : null}
+			>
+				<g>{titles}</g>
+				<g className="cells"><MatrixBody
+					cells={cells}
+					colors={this.props.colorScheme}
+					intensity={this.props.intensity}
+					offsetX={cellOffsetX}
+					offsetY={cellOffsetY}
+					edge={mult}
+					onClick={(x: number, y: number): void => {
 							if(!this.props.onSelect) {
 								return
 							}
 							this.props.onSelect(archetypeList[y]);
 						}}
-					/></g>
-					<g className="selections">{selections}</g>
-				</svg>
+					onHoverStart={(x: number, y: number): void => this.setState({hovering: [x, y]})}
+					onHoverEnd={(x: number, y: number): void => this.setState({hovering: []})}
+				/></g>
+				<g className="selections">{selections}</g>
+			</svg>
+				{tooltip}
 			</div>
 		);
 	}
@@ -292,7 +325,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		const max = this.archetypes.length * mult;
 
 		/*if (offsetX < 0 || offsetX > max || offsetY < 0 || offsetY > max) {
-		 this.clearHover();
+		 this.clearHighlight();
 		 return false;
 		 }*/
 
@@ -306,7 +339,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 		return true;
 	}
 
-	private clearHover(): void {
+	private clearHighlight(): void {
 		this.setState({
 			highlight: [],
 		})

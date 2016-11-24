@@ -6,12 +6,13 @@ interface MatrixCellProps extends React.ClassAttributes<MatrixCell> {
 	mirror: boolean;
 	intensity: number,
 	colors: Colors,
-	title?: string;
 	x: number;
 	y: number;
 	edge: number;
 	disable?: boolean;
 	onClick?: () => void;
+	onHoverStart?: () => void;
+	onHoverEnd?: () => void;
 }
 
 interface MatrixCellState {
@@ -26,11 +27,9 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 		};
 
 		const classNames = [];
-		if(this.props.onClick) {
+		if (this.props.onClick) {
 			classNames.push("selectable");
 		}
-
-		const title = this.props.title ? <title>{this.props.title.replace("\n", String.fromCharCode(10))}</title> : null;
 
 		return <g
 			className={classNames.join(" ")}
@@ -43,14 +42,16 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 			onMouseDown={(e) => {
 				e.preventDefault();
 			}}
+			onMouseEnter={(e) => this.props.onHoverStart && this.props.onHoverStart()}
+			onMouseLeave={(e) => this.props.onHoverEnd && this.props.onHoverEnd()}
 		>
 			<rect
 				x={this.props.x}
 				y={this.props.y}
 				width={this.props.edge}
 				height={this.props.edge}
-				style={style}/>
-			{title}
+				style={style}
+			/>
 		</g>;
 	}
 
@@ -60,7 +61,6 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 			this.props.mirror !== nextProps.mirror ||
 			this.props.intensity !== nextProps.intensity ||
 			this.props.colors !== nextProps.colors ||
-			this.props.title !== nextProps.title ||
 			this.props.x !== nextProps.x ||
 			this.props.y !== nextProps.y ||
 			this.props.edge !== nextProps.edge ||
@@ -104,7 +104,7 @@ export default class MatrixCell extends React.Component<MatrixCellProps, MatrixC
 				break;
 		}
 
-		if(this.props.disable) {
+		if (this.props.disable) {
 			positive[1] = 0;
 			neutral[1] = 0;
 			negative[1] = 0;

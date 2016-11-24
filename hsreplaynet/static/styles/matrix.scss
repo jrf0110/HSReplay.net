@@ -1,4 +1,6 @@
 .component-matrix {
+	position: relative;
+
 	svg {
 		width: 100%;
 
@@ -56,6 +58,20 @@
 	.vertical-text {
 		transform: rotate(90deg);
 		transform-origin: left top 0;
+	}
+
+	.matrix-tooltip {
+		color: white;
+		background-color: rgba(0, 0, 0, 0.8);
+		position: absolute;
+		z-index: 100;
+		text-align: left;
+		font-size: 1em;
+		font-family: sans-serif;
+		padding: 4px 8px;
+		transform: translateX(-50%);
+		border-radius: 4px;
+		white-space: nowrap;
 	}
 }
 

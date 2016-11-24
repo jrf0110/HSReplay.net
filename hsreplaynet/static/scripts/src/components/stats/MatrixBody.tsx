@@ -12,6 +12,8 @@ interface MatrixBodyProps extends React.ClassAttributes<MatrixBody> {
 	offsetY?: number;
 	edge: number;
 	onClick?: (x: number, y: number) => void;
+	onHoverStart?: (x: number, y: number) => void;
+	onHoverEnd?: (x: number, y: number) => void;
 }
 
 export default class MatrixBody extends React.Component<MatrixBodyProps, void> {
@@ -32,11 +34,12 @@ export default class MatrixBody extends React.Component<MatrixBodyProps, void> {
 					mirror={cell.mirror}
 					intensity={this.props.intensity}
 					colors={this.props.colors}
-					title={cell.title}
 					x={this.props.offsetX + j * this.props.edge}
 					y={this.props.offsetY + i * this.props.edge}
 					edge={this.props.edge}
 					onClick={() => this.props.onClick && this.props.onClick(j,i)}
+					onHoverStart={() => this.props.onHoverStart && this.props.onHoverStart(j,i)}
+					onHoverEnd={() => this.props.onHoverEnd && this.props.onHoverEnd(j,i)}
 				/>);
 			}
 		}
