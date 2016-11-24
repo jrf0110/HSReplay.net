@@ -1,4 +1,5 @@
 import * as React from "react";
+import RangeSlider from "./RangeSlider";
 
 interface RankRangeSelectorProps extends React.ClassAttributes<RankRangeSelector> {
 	smallest?: number;
@@ -73,6 +74,14 @@ export default class RankRangeSelector extends React.Component<RankRangeSelector
 					onKeyDown={(e) => this.keyDown(e, true)}
 				/>
 			</label>
+			<RangeSlider
+				min={0}
+				max={25}
+				low={smallest}
+				onChangeLow={(smallest: number) => this.setState({smallest: smallest})}
+				onChangeHigh={(largest: number) => this.setState({largest: largest})}
+				high={largest}
+			/>
 			<label className="control-label">
 				{getMedal(largest)}
 				<input
