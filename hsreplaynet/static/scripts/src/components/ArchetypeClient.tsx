@@ -25,6 +25,7 @@ interface ArchetypeClientState {
 	winrates?: any;
 	expected_winrates?: EvaluatedArchetype
 	sampleSize?: number;
+	hasChangedSampleSize?: boolean;
 	smallestRank?: number;
 	largestRank?: number;
 	colorScheme?: Colors;
@@ -41,7 +42,8 @@ interface ArchetypeClientState {
 
 export default class ArchetypeClient extends React.Component<ArchetypeClientProps, ArchetypeClientState> {
 
-	private nonce?: number;
+	private samplesPerDay: number;
+	private nonce: number;
 
 	constructor(props: ArchetypeClientProps, context: any) {
 		super(props, context);
@@ -50,6 +52,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			winrates: {},
 			expected_winrates: {},
 			sampleSize: 100,
+			hasChangedSampleSize: false,
 			smallestRank: 0,
 			largestRank: 20,
 			colorScheme: Colors.HSREPLAY,
@@ -64,6 +67,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			max_games_per_archetype: {},
 		};
 		this.nonce = 0;
+		this.samplesPerDay = this.state.sampleSize / this.state.lookback;
 		this.fetch();
 		fetch("/cards/canonicals/", {
 			credentials: "include",
@@ -97,7 +101,11 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 								<DateRangeSelector
 									lookback={this.state.lookback}
 									onChangeLookback={(lookback: number): void => {
-										this.setState({lookback: lookback});
+										let changes: ArchetypeClientState = {lookback: lookback};
+										if (!this.state.hasChangedSampleSize) {
+											changes.sampleSize = Math.round(this.samplesPerDay * lookback);
+										}
+										this.setState(changes);
 									}}
 									offset={this.state.offset}
 									onChangeOffset={(offset: number): void => {
@@ -106,7 +114,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 								/>
 								<SampleSizeSelector
 									sampleSize={this.state.sampleSize}
-									onChangeSampleSize={(sampelSize: number): void => this.setState({sampleSize: sampelSize})}
+									onChangeSampleSize={(sampelSize: number): void => this.setState({sampleSize: sampelSize, hasChangedSampleSize: true})}
 								/>
 							</div>
 						</div>
