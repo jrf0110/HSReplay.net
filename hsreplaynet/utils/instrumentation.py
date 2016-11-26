@@ -21,23 +21,24 @@ def get_tracing_id(event):
 	Used in the Lambda logging system to trace sessions.
 	"""
 	UNKNOWN_ID = "unknown-id"
-	records = event["Records"]
+	if "Records" in event:
+		records = event["Records"]
 
-	if len(records) > 1:
-		# This is a kinesis batch invocation
-		return ":".join(r["kinesis"]["partitionKey"] for r in records)
+		if len(records) > 1:
+			# This is a kinesis batch invocation
+			return ":".join(r["kinesis"]["partitionKey"] for r in records)
 
-	event_data = records[0]
+		event_data = records[0]
 
-	if "s3" in event_data:
-		# We are in the process_s3_object Lambda
-		s3_event = event_data["s3"]
-		raw_upload = RawUpload.from_s3_event(s3_event)
-		return raw_upload.shortid
-	elif "kinesis" in event_data:
-		kinesis_event = event_data["kinesis"]
-		# We always use the shortid as the partitionKey in kinesis streams
-		return kinesis_event["partitionKey"]
+		if "s3" in event_data:
+			# We are in the process_s3_object Lambda
+			s3_event = event_data["s3"]
+			raw_upload = RawUpload.from_s3_event(s3_event)
+			return raw_upload.shortid
+		elif "kinesis" in event_data:
+			kinesis_event = event_data["kinesis"]
+			# We always use the shortid as the partitionKey in kinesis streams
+			return kinesis_event["partitionKey"]
 
 	return UNKNOWN_ID
 
