@@ -261,8 +261,8 @@ def trigger_webhook(event, context):
 
 	logger = logging.getLogger("hsreplaynet.lambdas.trigger_webhook")
 	webhook_uuid = event["webhook_uuid"]
-	url = event["webhook_url"]
-	payload = event["payload"]
+	url = event["url"]
+	payload = event["data"]
 
 	logger.info("Triggering webhook %r on %r", webhook_uuid, url)
 	webhook = Webhook.objects.get(uuid=webhook_uuid)
