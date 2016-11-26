@@ -257,7 +257,7 @@ def trigger_webhook(event, context):
 	"""
 	A handler that handles firing game replay webhooks.
 	"""
-	from hsreplaynet.webhooks import Webhook
+	from hsreplaynet.webhooks.models import Webhook
 
 	logger = logging.getLogger("hsreplaynet.lambdas.trigger_webhook")
 	webhook_uuid = event["webhook_uuid"]
