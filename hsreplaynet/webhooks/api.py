@@ -1,5 +1,5 @@
+from oauth2_provider.ext.rest_framework import TokenHasReadWriteScope, OAuth2Authentication
 from rest_framework import serializers
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 from hsreplaynet.api.permissions import IsOwnerOrStaff
@@ -21,10 +21,11 @@ class WebhookSerializer(serializers.ModelSerializer):
 
 
 class WebhookViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
-	authentication_classes = (SessionAuthentication, )
-	permission_classes = (IsOwnerOrStaff, )
+	authentication_classes = (OAuth2Authentication, )
+	permission_classes = (IsOwnerOrStaff, TokenHasReadWriteScope)
 	queryset = Webhook.objects.filter(is_deleted=False)
 	serializer_class = WebhookSerializer
+	required_scopes = ["webhooks"]
 
 	def get_queryset(self):
 		queryset = super().get_queryset()

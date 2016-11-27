@@ -250,6 +250,8 @@ REST_FRAMEWORK = {
 
 OAUTH2_PROVIDER = {
 	"SCOPES": {
+		"webhooks:read": "View your webhooks",
+		"webhooks:write": "Create and delete webhooks on your behalf",
 	}
 }
 
