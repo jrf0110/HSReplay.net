@@ -13,7 +13,7 @@ class Command(BaseCommand):
 	def add_arguments(self, parser):
 		parser.add_argument("module", help="The comma separated modules to inspect")
 		parser.add_argument(
-			"artifact", default="hsreplay.zip", help="The path to the lambdas zip artifact"
+			"artifact", default="hsreplay.zip", help="The name of the lambdas zip artifact"
 		)
 		parser.add_argument(
 			"--wait", action="store_true",
@@ -35,12 +35,11 @@ class Command(BaseCommand):
 		execution_role_arn = response["Role"]["Arn"]
 		self.stdout.write("Execution Role Arn: %r" % (execution_role_arn))
 
-		artifact_path = options["artifact"]
-		self.stdout.write("Using code at path: %r" % (artifact_path))
-
-		with open(artifact_path, "rb") as artifact:
-			code_payload_bytes = artifact.read()
-		self.stdout.write("Code Payload Bytes: %s" % (len(code_payload_bytes)))
+		artifact_obj = options["artifact"]
+		artifact_bucket = settings.AWS_LAMBDA_ARTIFACTS_BUCKET
+		self.stdout.write(
+			"Using code at S3 path: %r/%r" % (artifact_bucket, artifact_obj)
+		)
 
 		for descriptor in descriptors:
 			self.stdout.write("About to deploy: %s" % (descriptor["name"]))
@@ -63,7 +62,8 @@ class Command(BaseCommand):
 
 				LAMBDA.update_function_code(
 					FunctionName=descriptor["name"],
-					ZipFile=code_payload_bytes,
+					S3Bucket=artifact_bucket,
+					S3Key=artifact_obj,
 				)
 
 			else:
@@ -74,7 +74,10 @@ class Command(BaseCommand):
 					Runtime="python2.7",
 					Role=execution_role_arn,
 					Handler=descriptor["handler"],
-					Code={"ZipFile": code_payload_bytes},
+					Code={
+						"S3Bucket": artifact_bucket,
+						"S3Key": artifact_obj,
+					},
 					Timeout=descriptor["cpu_seconds"],
 					MemorySize=descriptor["memory"],
 				)

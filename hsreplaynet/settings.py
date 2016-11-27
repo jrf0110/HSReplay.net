@@ -176,6 +176,7 @@ GZIP_CONTENT_TYPES = [
 	"application/octet-stream",
 ]
 
+AWS_LAMBDA_ARTIFACTS_BUCKET = "hsreplaynet-lambda-artifacts"
 
 ##
 # Account/Allauth settings
