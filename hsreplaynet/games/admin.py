@@ -23,7 +23,6 @@ class GlobalGamePlayerInline(admin.StackedInline):
 class UploadEventInline(admin.StackedInline):
 	model = UploadEvent
 	extra = 0
-	raw_id_fields = ("token", )
 	show_change_link = True
 
 
@@ -50,7 +49,6 @@ class GameReplayAdmin(admin.ModelAdmin):
 	)
 	readonly_fields = ("shortid", )
 	search_fields = ("shortid", "global_game__players__name", "user__username")
-	inlines = (UploadEventInline, )
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)

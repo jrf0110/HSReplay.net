@@ -8,7 +8,6 @@ class UploadEventInline(admin.TabularInline):
 	model = UploadEvent
 	fields = ("game", "created", "file", "upload_ip", "status", "api_key")
 	readonly_fields = fields[1:]
-	raw_id_fields = ("game", )
 	extra = 0
 	show_change_link = True
 
@@ -21,7 +20,6 @@ class AuthTokenAdmin(admin.ModelAdmin):
 	list_filter = ("test_data", )
 	raw_id_fields = ("user", )
 	search_fields = ("key", "user__username")
-	inlines = (UploadEventInline, )
 
 
 @admin.register(APIKey)

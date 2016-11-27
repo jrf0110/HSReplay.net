@@ -247,18 +247,9 @@ class UploadEvent(models.Model):
 	"""
 	id = models.BigAutoField(primary_key=True)
 	shortid = ShortUUIDField("Short ID")
-	token = models.ForeignKey(
-		"api.AuthToken", on_delete=models.CASCADE,
-		null=True, blank=True, related_name="uploads"
-	)
-	api_key = models.ForeignKey(
-		"api.APIKey", on_delete=models.SET_NULL,
-		null=True, blank=True, related_name="uploads"
-	)
-	game = models.ForeignKey(
-		"games.GameReplay", on_delete=models.SET_NULL,
-		null=True, blank=True, related_name="uploads"
-	)
+	token_uuid = models.UUIDField(null=True, blank=True, db_column="token_id")
+	api_key_id = models.IntegerField(null=True, blank=True, db_column="api_key_id")
+	game_id = models.BigIntegerField(null=True, blank=True, db_column="game_id")
 	created = models.DateTimeField(auto_now_add=True, db_index=True)
 	upload_ip = models.GenericIPAddressField(null=True)
 	status = IntEnumField(enum=UploadEventStatus, default=UploadEventStatus.UNKNOWN)
@@ -275,6 +266,45 @@ class UploadEvent(models.Model):
 	log_stream_name = models.CharField(max_length=64, blank=True)
 	log_group_name = models.CharField(max_length=64, blank=True)
 	updated = models.DateTimeField(auto_now=True)
+
+	@property
+	def token(self):
+		from hsreplaynet.api.models import AuthToken
+		if self.token_uuid:
+			return AuthToken.objects.get(key=self.token_uuid)
+		else:
+			return None
+
+	@token.setter
+	def token(self, auth_token):
+		if auth_token:
+			self.token_uuid = auth_token.key
+
+	@property
+	def api_key(self):
+		from hsreplaynet.api.models import APIKey
+		if self.api_key_id:
+			return APIKey.objects.get(id=self.api_key_id)
+		else:
+			return None
+
+	@api_key.setter
+	def api_key(self, key):
+		if key:
+			self.api_key_id = key.id
+
+	@property
+	def game(self):
+		from hsreplaynet.games.models import GameReplay
+		if self.game_id:
+			return GameReplay.objects.get(id=self.game_id)
+		else:
+			return None
+
+	@game.setter
+	def game(self, g):
+		if g:
+			self.game_id = g.id
 
 	def __str__(self):
 		return self.shortid
