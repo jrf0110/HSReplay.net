@@ -23,5 +23,12 @@ class WebhookSerializer(serializers.ModelSerializer):
 class WebhookViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
 	authentication_classes = (SessionAuthentication, )
 	permission_classes = (IsOwnerOrStaff, )
-	queryset = Webhook.objects.all()
+	queryset = Webhook.objects.filter(is_deleted=False)
 	serializer_class = WebhookSerializer
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		user = self.request.user
+		if not user.is_authenticated:
+			return queryset.none()
+		return queryset.filter(user=user)
