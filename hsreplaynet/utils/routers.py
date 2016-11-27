@@ -30,3 +30,40 @@ class ReadReplicaRouter(object):
 				return False
 
 		return True
+
+
+class UploadEventRouter(object):
+	def db_for_read(self, model, **hints):
+		uploads_db = getattr(settings, "UPLOAD_EVENTS_DB", None)
+		model_name = model._meta.model_name
+		if model_name == 'uploadevent' and uploads_db and uploads_db in settings.DATABASES:
+			return uploads_db
+		else:
+			return "default"
+
+	def db_for_write(self, model, **hints):
+		uploads_db = getattr(settings, "UPLOAD_EVENTS_DB", None)
+		model_name = model._meta.model_name
+		if model_name == 'uploadevent' and uploads_db and uploads_db in settings.DATABASES:
+			return uploads_db
+		else:
+			return "default"
+
+	def allow_relation(self, obj1, obj2, **hints):
+		# Prevent foreign keys to or from the UploadEvent table
+		obj1_name = obj1._meta.model_name
+		obj2_name = obj2._meta.model_name
+
+		if obj1_name == 'uploadevent' or obj2_name == 'uploadevent':
+			return False
+
+		# None indicates the router has no opinion
+		return None
+
+	def allow_migrate(self, db, app_label, model_name=None, **hints):
+		uploads_db = getattr(settings, "UPLOAD_EVENTS_DB", None)
+
+		if model_name == 'uploadevent':
+			return db == uploads_db
+
+		return None
