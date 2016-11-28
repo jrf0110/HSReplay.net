@@ -32,9 +32,10 @@ class ReadReplicaRouter(object):
 		return True
 
 
-class UploadEventRouter(object):
+class UploadEventsRouter(object):
+	"""A Django DB Router for interacting with the hsreplay.net uploads-db"""
 	def db_for_read(self, model, **hints):
-		uploads_db = getattr(settings, "UPLOAD_EVENTS_DB", None)
+		uploads_db = getattr(settings, "UPLOADS_DB", None)
 		model_name = model._meta.model_name
 		if model_name == 'uploadevent' and uploads_db and uploads_db in settings.DATABASES:
 			return uploads_db
@@ -42,7 +43,7 @@ class UploadEventRouter(object):
 			return "default"
 
 	def db_for_write(self, model, **hints):
-		uploads_db = getattr(settings, "UPLOAD_EVENTS_DB", None)
+		uploads_db = getattr(settings, "UPLOADS_DB", None)
 		model_name = model._meta.model_name
 		if model_name == 'uploadevent' and uploads_db and uploads_db in settings.DATABASES:
 			return uploads_db
@@ -61,9 +62,16 @@ class UploadEventRouter(object):
 		return None
 
 	def allow_migrate(self, db, app_label, model_name=None, **hints):
-		uploads_db = getattr(settings, "UPLOAD_EVENTS_DB", None)
+		uploads_db = getattr(settings, "UPLOADS_DB", None)
 
+		# This router restricts UploadEvents to the uploads-db
 		if model_name == 'uploadevent':
 			return db == uploads_db
-
-		return None
+		else:
+			# This router also makes sure nothing else gets created in uploads-db
+			if db == uploads_db:
+				return False
+			else:
+				# We have no opinions about what should happen to other DBs
+				# None indicates the router has no opinion
+				return None
