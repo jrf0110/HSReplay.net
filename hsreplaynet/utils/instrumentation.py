@@ -140,8 +140,8 @@ def lambda_handler(
 				if not trap_exceptions:
 					raise
 			finally:
-				from django.db import connection
-				connection.close()
+				from django import db
+				db.connections.close_all()
 
 		return wrapper
 
