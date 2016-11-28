@@ -26,6 +26,9 @@ class Command(BaseCommand):
 		if options["force"]:
 			existing = Card.objects.filter(id__in=known_ids)
 			for card in existing:
+				if card.id not in db:
+					self.stderr.write("WARNING: %r (%s) not in CardDefs.xml. Skipping." % (card, card.id))
+					continue
 				c = db[card.id]
 				if c:
 					card.update_from_cardxml(c, save=True)
