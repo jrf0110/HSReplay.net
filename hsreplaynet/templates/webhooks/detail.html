@@ -77,4 +77,45 @@
 	</div>
 
 	</section>
+
+	{% if webhook %}
+		<section id="webhooks-deliveries" class="box-section">
+		<h3>Deliveries</h3>
+		<div class="inner">
+		{% with webhook.triggers.all as triggers %}
+			{% if triggers %}
+				<table class="table table-bordered">
+					<thead>
+						<th>URL</th>
+						<th>Date</th>
+						<th>Success</th>
+					</thead>
+					{% for trigger in triggers %}
+						<tr>
+							<td><a href="{{ trigger.url }}">{{ trigger.url }}</a></td>
+							<td><time datetime="{{ trigger.created|date:'c' }}">{{ trigger.created }}</time></td>
+							<td>
+								{% if trigger.success %}
+									<strong class="webhook-active">✓</strong>
+									({{ trigger.completed_time }}ms)
+								{% else %}
+									<strong class="webhook-inactive">✗</strong>
+									{% if trigger.response_status %}(HTTP {{ trigger.response_status }}){% endif %}
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+				</table>
+			{% else %}
+				<p>
+					This webhook has not been triggered yet.
+					{% if not webhook.is_active %}
+						<em>Try enabling it!</em>
+					{% endif %}
+				</p>
+			{% endif %}
+		{% endwith %}
+		</div>
+		</section>
+	{% endif %}
 {% endblock %}
