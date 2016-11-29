@@ -9,6 +9,7 @@ from django.views.generic import TemplateView, UpdateView, View
 from allauth.socialaccount.models import SocialAccount
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils import get_uuid_object_or_404, log
+from hsreplaynet.utils.influx import influx_metric
 from .models import AccountClaim, AccountDeleteRequest, User
 
 
@@ -49,6 +50,7 @@ class ClaimAccountView(LoginRequiredMixin, View):
 				log.warning("%r is a real user. Deleting %r.", claim.token.user, claim)
 				# Something's wrong. Get rid of the claim and reject the request.
 				claim.delete()
+				influx_metric("hsreplaynet_account_claim", {"success": 0})
 				return HttpResponseForbidden("This token has already been claimed.")
 		claim.token.user = request.user
 		claim.token.save()
@@ -57,6 +59,7 @@ class ClaimAccountView(LoginRequiredMixin, View):
 		msg = "You have claimed your account. Yay!"
 		# XXX: using WARNING as a hack to ignore login/logout messages for now
 		messages.add_message(request, messages.WARNING, msg)
+		influx_metric("hsreplaynet_account_claim", {"success": 1})
 		return redirect(settings.LOGIN_REDIRECT_URL)
 
 
