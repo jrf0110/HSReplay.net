@@ -49,7 +49,7 @@
 {% else %}
 	<p>Something went wrong generating this replay. We're on it.</p>
 {% endif %}
-{% if user.is_staff %}
+{% if user.is_staff and upload %}
 	<p><a href="{% url 'admin:uploads_uploadevent_change' upload.id %}">View in admin</a></p>
 {% endif %}
 </div>
