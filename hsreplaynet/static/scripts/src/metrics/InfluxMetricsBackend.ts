@@ -18,7 +18,14 @@ export default class InfluxMetricsBackend implements MetricsBackend {
 			points.map(function (point) {
 				let tags = [];
 				for (let tagKey in point.tags) {
-					tags.push(tagKey + "=" + point.tags[tagKey]);
+					let tag = point.tags[tagKey];
+					if(typeof tag === "boolean") {
+						tag = !!tag ? 1 : 0;
+					}
+					if(typeof tag === "number") {
+						tag = "" + tag;
+					}
+					tags.push(tagKey + "=" + tag);
 				}
 				let values = [];
 				for (let valueKey in point.values) {
