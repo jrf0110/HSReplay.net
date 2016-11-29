@@ -37,3 +37,20 @@ chsh -s /bin/zsh
 chsh -s /bin/zsh vagrant
 cp /etc/skel/.zshrc "$HOME/.zshrc"
 mkdir -p "$HOME/.cache"
+
+
+# Install fswatch for file change notifications (no debian package for it)
+if [[ ! -e /usr/bin/fswatch ]]; then
+	pkgver="1.9.3"
+	pkgname="fswatch-$pkgver"
+	rm -rf /tmp/fswatch
+	mkdir -p /tmp/fswatch
+	wget -q "https://github.com/emcrisostomo/fswatch/releases/download/$pkgver/$pkgname.tar.gz" -O "/tmp/fswatch/$pkgname.tar.gz"
+	cd /tmp/fswatch
+	tar -xf "$pkgname.tar.gz"
+	cd "/tmp/fswatch/$pkgname/libfswatch/"
+	./configure --prefix=/usr && make && make install
+	cd "/tmp/fswatch/$pkgname/"
+	./configure --prefix=/usr && make && make install
+	rm -rf /tmp/fswatch
+fi
