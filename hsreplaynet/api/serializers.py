@@ -34,6 +34,7 @@ class SmartFileField(serializers.FileField):
 
 class AccountClaimSerializer(serializers.Serializer):
 	url = serializers.ReadOnlyField(source="get_absolute_url")
+	full_url = serializers.ReadOnlyField(source="get_full_url")
 
 
 class UserSerializer(serializers.Serializer):

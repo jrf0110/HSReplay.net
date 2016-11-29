@@ -42,6 +42,9 @@ class AccountClaim(models.Model):
 	def get_absolute_url(self):
 		return reverse("account_claim", kwargs={"id": self.id})
 
+	def get_full_url(self):
+		return "https://hsreplay.net" + self.get_absolute_url()
+
 
 class User(AbstractUser):
 	id = models.BigAutoField(primary_key=True)
