@@ -17,8 +17,14 @@
 {% if not upload %}
 	<p>
 		Your replay is still uploading. Hold on!<br/>
-		<em style="font-size: 0.5em;">Hmm. Or maybe something went wrong...</em>
+		<small><em>Hmm. Or maybe something went wrong&hellip;</em></small>
 	</p>
+	{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
+	{% if twitter_handle %}
+		<p>
+			<small><a href="https://twitter.com/{{ twitter_handle }}">Follow us on Twitter</a> for maintenance announcements.</small>
+		</p>
+	{% endif %}
 {% elif upload.is_processing %}
 	<p>Your replay is still processing. Check back soon!</p>
 {% elif upload.status.name == "UNSUPPORTED" %}
