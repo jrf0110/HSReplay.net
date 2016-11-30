@@ -269,41 +269,53 @@ class UploadEvent(models.Model):
 
 	@property
 	def token(self):
-		from hsreplaynet.api.models import AuthToken
-		if self.token_uuid:
-			return AuthToken.objects.get(key=self.token_uuid)
-		else:
-			return None
+		if not hasattr(self, "_token"):
+			from hsreplaynet.api.models import AuthToken
+			if self.token_uuid:
+				self._token = AuthToken.objects.get(key=self.token_uuid)
+			else:
+				self._token = None
+
+		return self._token
 
 	@token.setter
 	def token(self, auth_token):
 		if auth_token:
+			self._token = auth_token
 			self.token_uuid = auth_token.key
 
 	@property
 	def api_key(self):
-		from hsreplaynet.api.models import APIKey
-		if self.api_key_id:
-			return APIKey.objects.get(id=self.api_key_id)
-		else:
-			return None
+		if not hasattr(self, "_api_key"):
+			from hsreplaynet.api.models import APIKey
+			if self.api_key_id:
+				self._api_key = APIKey.objects.get(id=self.api_key_id)
+			else:
+				self._api_key = None
+
+		return self._api_key
 
 	@api_key.setter
 	def api_key(self, key):
 		if key:
+			self._api_key = key
 			self.api_key_id = key.id
 
 	@property
 	def game(self):
-		from hsreplaynet.games.models import GameReplay
-		if self.game_id:
-			return GameReplay.objects.get(id=self.game_id)
-		else:
-			return None
+		if not hasattr(self, "_game"):
+			from hsreplaynet.games.models import GameReplay
+			if self.game_id:
+				self._game = GameReplay.objects.get(id=self.game_id)
+			else:
+				self._game = None
+
+		return self._game
 
 	@game.setter
 	def game(self, g):
 		if g:
+			self._game = g
 			self.game_id = g.id
 
 	def __str__(self):
