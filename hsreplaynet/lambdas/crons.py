@@ -6,7 +6,7 @@ import re
 from collections import defaultdict
 from datetime import datetime, date, timedelta
 from django.conf import settings
-from django.db import connection
+from django.db import connections
 from django.utils import timezone
 from hsreplaynet.uploads.models import RawUpload, UploadEvent
 from hsreplaynet.utils import instrumentation, log, aws
@@ -29,7 +29,7 @@ def reap_upload_events_asof(year, month, day, hour):
 	success_reaping_delay = settings.SUCCESSFUL_UPLOAD_EVENT_REAPING_DELAY_DAYS
 	nonsuccess_reaping_delay = settings.UNSUCCESSFUL_UPLOAD_EVENT_REAPING_DELAY_DAYS
 
-	cursor = connection['uploads'].cursor()
+	cursor = connections['uploads'].cursor()
 	args = (year, month, day, hour, success_reaping_delay, nonsuccess_reaping_delay,)
 	# Note: this stored proc will only delete the DB records
 	# The objects in S3 will age out naturally after 90 days
