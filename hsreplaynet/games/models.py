@@ -444,6 +444,8 @@ class GameReplay(models.Model):
 		serialized = s.data
 		serialized["url"] = get_replay_url(self.shortid)
 
+		return serialized
+
 
 class ReplayAlias(models.Model):
 	"""
