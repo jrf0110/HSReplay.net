@@ -45,7 +45,7 @@ def process_replay_upload_stream_handler(event, context):
 	logger = logging.getLogger("hsreplaynet.lambdas.process_replay_upload_stream_handler")
 	records = event["Records"]
 	num_records = len(records)
-	logger.info("Kinesis batch handler invoked with %s records", num_records)
+	logger.debug("Kinesis batch handler invoked with %s records", num_records)
 
 	countdown_latch = CountDownLatch(num_records)
 
@@ -57,19 +57,19 @@ def process_replay_upload_stream_handler(event, context):
 				Payload=payload,
 			)
 		finally:
-			logger.info("Lambda completed for %s Decrementing latch.", shortid)
+			logger.debug("Lambda completed for %s Decrementing latch.", shortid)
 			countdown_latch.count_down()
 
 	for record in records:
 		shortid = record["kinesis"]["partitionKey"]
 		payload = json.dumps({"Records": [record]})
-		logger.info("Invoking Lambda for %s", shortid)
+		logger.debug("Invoking Lambda for %s", shortid)
 		lambda_invocation = Thread(target=lambda_invoker, args=(payload, shortid))
 		lambda_invocation.start()
 
 	# We will exit once all child invocations have returned.
 	countdown_latch.await()
-	logger.info("All child invocations have completed")
+	logger.debug("All child invocations have completed")
 
 
 @instrumentation.lambda_handler(
@@ -134,7 +134,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 		defaults={"status": UploadEventStatus.PENDING}
 	)
 
-	logger.info("UploadEvent Created: %r", created)
+	logger.debug("UploadEvent Created: %r", created)
 	if not created and not reprocess:
 		# This can occur two ways:
 		# 1) The client sends the PUT request twice
