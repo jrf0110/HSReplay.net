@@ -66,14 +66,14 @@ def reap_orphans_for_date(reaping_date):
 		for minute, minute_inventory in hour_inventory.items():
 			for shortid, keys in minute_inventory.items():
 				if is_safe_to_reap(shortid, keys):
-					log.info("Reaping Descriptor: %r", keys["descriptor"])
+					log.debug("Reaping Descriptor: %r", keys["descriptor"])
 					aws.S3.delete_object(
 						Bucket=settings.S3_RAW_LOG_UPLOAD_BUCKET,
 						Key=keys["descriptor"]
 					)
 					reaped_orphan_count += 1
 				else:
-					log.info("Skipping Descriptor: %r (Unsafe To Reap)", keys["descriptor"])
+					log.debug("Skipping: %r (Unsafe To Reap)", keys["descriptor"])
 
 		log.info(
 			"A total of %s descriptors reaped for hour: %s" % (
