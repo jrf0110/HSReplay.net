@@ -49,7 +49,7 @@ def classify_deck(
 	However, if the deck is not within at least 5 cards from an Archetype then no Archetype
 	will be assigned.
 	"""
-	log.info("Classifying Deck With Cards: %r" % repr(unclassified_deck))
+	log.debug("Classifying Deck With Cards: %r" % repr(unclassified_deck))
 	candidates = Archetype.objects.archetypes_for_class(player_class, format)
 
 	distances = []
