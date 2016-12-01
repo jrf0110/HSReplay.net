@@ -1,7 +1,8 @@
 import time
 import sys
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.core.management.base import BaseCommand
+from django.utils.timezone import now
 from hsreplaynet.uploads.models import UploadEvent, UploadEventStatus
 from hsreplaynet.uploads.processing import queue_upload_events_for_reprocessing
 from hsreplaynet.utils.aws import is_processing_disabled
@@ -67,7 +68,7 @@ class Command(BaseCommand):
 		self.log("New version is: %s" % new_version_num)
 
 		# This causes the new code to start getting used on canary upload events.
-		canary_period_start = datetime.now()
+		canary_period_start = now()
 		self.set_canary_version(new_version_num)
 
 		if options["bypass_canary"]:
@@ -88,7 +89,7 @@ class Command(BaseCommand):
 
 		# If we did not exit already, then we are doing a canary deployment.
 		max_wait_seconds = options["max_wait_seconds"]
-		max_wait_time = datetime.now() + timedelta(seconds=max_wait_seconds)
+		max_wait_time = now() + timedelta(seconds=max_wait_seconds)
 
 		min_canary_uploads = options["min_canary_uploads"]
 
@@ -106,7 +107,7 @@ class Command(BaseCommand):
 					# Exit early since some canaries have already failed
 					wait_for_more_canary_uploads = False
 				else:
-					if datetime.now() > max_wait_time:
+					if now() > max_wait_time:
 						msg = "Waited too long for canary events. Exiting."
 						self.log(msg)
 						raise RuntimeError(msg)

@@ -7,7 +7,7 @@ from collections import defaultdict
 from datetime import datetime, date, timedelta
 from django.conf import settings
 from django.db import connections
-from django.utils import timezone
+from django.utils.timezone import now
 from hsreplaynet.uploads.models import RawUpload, UploadEvent
 from hsreplaynet.utils import instrumentation, log, aws
 from hsreplaynet.utils.influx import influx_metric
@@ -16,7 +16,7 @@ from hsreplaynet.utils.influx import influx_metric
 @instrumentation.lambda_handler(cpu_seconds=300, tracing=False)
 def reap_upload_events(event, context):
 	"""A periodic job to cleanup old upload events."""
-	current_timestamp = timezone.now()
+	current_timestamp = now()
 	reap_upload_events_asof(
 		current_timestamp.year,
 		current_timestamp.month,
