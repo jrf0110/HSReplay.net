@@ -1,3 +1,4 @@
+import json
 import pytest
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -5,6 +6,7 @@ from rest_framework.serializers import ValidationError
 from hsreplaynet.accounts.models import User
 from hsreplaynet.api.models import AuthToken
 from hsreplaynet.api.serializers import SmartFileField
+from hearthstone.enums import PlayState
 
 
 def test_smart_file_field():
@@ -15,6 +17,17 @@ def test_smart_file_field():
 	value = default_storage.save("test_file.txt", ContentFile("test data"))
 	field.run_validation(value)
 	default_storage.delete(value)
+
+
+def test_valid_webhook_serialization():
+	# Check that Webhooks can reserialize themselves.
+	# Python 2 issue. Get rid of this in Py3
+	from hsreplaynet.webhooks.models import Webhook
+
+	payload = {"final_state": PlayState.WON}
+	d = Webhook()._serialize_payload(payload)
+	decoded = json.loads(d)
+	assert decoded["final_state"] == PlayState.WON
 
 
 @pytest.mark.django_db

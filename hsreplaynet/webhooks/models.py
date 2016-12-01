@@ -50,10 +50,32 @@ class Webhook(models.Model):
 		else:
 			self.immediate_trigger(self.url, payload)
 
+	def _serialize_payload(self, payload):
+		import sys
+		from enum import IntEnum
+
+		if sys.version_info.major == 2:
+			# I wasted six hours on this.
+			# No, using a custom encoder isn't possible.
+			# Thanks Amazon, for not supporting Python 3 on Lambda. No really.
+
+			def recurse_transform_intenum(o):
+				if isinstance(o, dict):
+					for k, v in o.items():
+						if isinstance(v, IntEnum):
+							o[k] = int(v)
+						elif isinstance(v, dict):
+							recurse_transform_intenum(v)
+				return o
+
+			recurse_transform_intenum(payload)
+
+		return json.dumps(payload)
+
 	def schedule_lambda_trigger(self, url, payload):
 		from hsreplaynet.utils.aws.clients import LAMBDA
 
-		final_payload = json.dumps(payload)
+		final_payload = self._serialize_payload(payload)
 
 		LAMBDA.invoke(
 			FunctionName="trigger_webhook",
