@@ -62,7 +62,7 @@ def classify_deck(
 	for archetype, canonical_decks in candidates.items():
 		for canonical_deck in canonical_decks:
 			dist = edit_distance(canonical_deck, unclassified_deck)
-			log.info("Archetype: %s, Distance: %s" % (archetype.name, str(dist)))
+			log.debug("Archetype: %s, Distance: %s" % (archetype.name, str(dist)))
 			if dist <= CUTOFF_DISTANCE:
 				distances.append((archetype, dist))
 

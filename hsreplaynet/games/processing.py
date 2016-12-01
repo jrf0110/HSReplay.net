@@ -124,7 +124,7 @@ def find_or_create_global_game(entity_tree, meta):
 		players = entity_tree.players
 		lo1, lo2 = players[0].account_lo, players[1].account_lo
 		digest = generate_globalgame_digest(meta, lo1, lo2)
-		log.info("GlobalGame digest is %r" % (digest))
+		log.debug("GlobalGame digest is %r" % (digest))
 		global_game, created = GlobalGame.objects.get_or_create(digest=digest, defaults=defaults)
 	else:
 		global_game = GlobalGame.objects.create(digest=None, **defaults)
