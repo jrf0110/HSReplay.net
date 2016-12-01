@@ -93,7 +93,7 @@ def process_single_replay_upload_stream_handler(event, context):
 	reprocessing = raw_upload.attempt_reprocessing
 
 	logger.info(
-		"Processing a Kinesis RawUpload: %r (reprocessing=%r)", raw_upload, reprocessing
+		"Kinesis RawUpload: %r (reprocessing=%r)", raw_upload, reprocessing
 	)
 	process_raw_upload(raw_upload, reprocessing, log_group_name, log_stream_name)
 
@@ -118,7 +118,7 @@ def process_s3_create_handler(event, context):
 	reprocessing = False
 
 	logger.info(
-		"Processing an S3 RawUpload: %r (reprocessing=%r)", raw_upload, reprocessing
+		"S3 RawUpload: %r (reprocessing=%r)", raw_upload, reprocessing
 	)
 	process_raw_upload(raw_upload, reprocessing, log_group_name, log_stream_name)
 
@@ -134,7 +134,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 		defaults={"status": UploadEventStatus.PENDING}
 	)
 
-	logger.info("The created flag for this upload event is: %r", created)
+	logger.info("UploadEvent Created: %r", created)
 	if not created and not reprocess:
 		# This can occur two ways:
 		# 1) The client sends the PUT request twice
@@ -167,9 +167,9 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	gateway_headers = descriptor["gateway_headers"]
 
 	if "User-Agent" in gateway_headers:
-		logger.info("The uploading user agent is: %s", gateway_headers["User-Agent"])
+		logger.debug("User Agent: %s", gateway_headers["User-Agent"])
 	else:
-		logger.info("A User-Agent header was not provided.")
+		logger.debug("User Agent: UNKNOWN")
 
 	obj.file = new_log_key
 	obj.descriptor = new_descriptor_key
@@ -204,7 +204,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 		raise
 	else:
 		if "test_data" in upload_metadata or obj.token.test_data:
-			logger.info("Upload Event Is TEST DATA")
+			logger.debug("Upload Event Is TEST DATA")
 
 		if obj.token.test_data:
 			# When token.test_data = True, then all UploadEvents are test_data = True
@@ -222,11 +222,11 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 			obj.status = UploadEventStatus.UNSUPPORTED_CLIENT
 
 		obj.save()
-		logger.info("All state successfully saved to UploadEvent with id: %r", obj.id)
+		logger.debug("Saved: UploadEvent.id = %r", obj.id)
 
 		# If we get here, now everything is in the DB.
 		raw_upload.delete()
-		logger.info("Deleting objects from S3 succeeded")
+		logger.debug("Deleting objects from S3 succeeded")
 
 		if is_unsupported_client:
 			# Wait until after we have deleted the raw_upload to exit
@@ -236,11 +236,11 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 
 	serializer = UploadEventSerializer(obj, data=upload_metadata)
 	if serializer.is_valid():
-		logger.info("UploadEvent passed serializer validation")
+		logger.debug("UploadEvent passed serializer validation")
 		obj.status = UploadEventStatus.PROCESSING
 		serializer.save()
 
-		logger.info("Starting GameReplay processing for UploadEvent")
+		logger.debug("Starting GameReplay processing for UploadEvent")
 		obj.process()
 	else:
 		obj.error = serializer.errors
@@ -249,7 +249,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 		obj.status = UploadEventStatus.VALIDATION_ERROR
 		obj.save()
 
-	logger.info("RawUpload event processing is complete")
+	logger.debug("Done")
 
 
 @instrumentation.lambda_handler(cpu_seconds=120)
