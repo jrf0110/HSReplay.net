@@ -62,6 +62,9 @@ class Webhook(models.Model):
 		)
 
 	def immediate_trigger(self, url, payload):
+		if payload is None:
+			raise ValueError("Cannot trigger Webhook with a null payload")
+
 		t = WebhookTrigger(
 			webhook=self,
 			url=url,
