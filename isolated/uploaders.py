@@ -76,10 +76,6 @@ def generate_log_upload_address_handler(event, context):
 	ts = get_timestamp()
 	ts_path = ts.strftime("%Y/%m/%d/%H/%M")
 
-	logger.info("Token: %s", auth_token)
-	logger.info("ShortID: %s", shortid)
-	logger.info("Timestamp: %s", ts_path)
-
 	upload_metadata = json.loads(b64decode(event.pop("body")).decode("utf8"))
 
 	if not isinstance(upload_metadata, dict):
@@ -92,8 +88,10 @@ def generate_log_upload_address_handler(event, context):
 	# To handle 100% of the upload volume.
 	is_canary = is_canary_upload(event)
 	if is_canary:
-		logger.info("Upload is a canary")
 		upload_metadata["canary"] = is_canary
+
+	log_template = "Token: %s | ShortID: %s | TS: %s | Canary: %s"
+	logger.info(log_template % (auth_token, shortid, ts_path, is_canary))
 
 	descriptor = {
 		"gateway_headers": gateway_headers,
@@ -103,14 +101,11 @@ def generate_log_upload_address_handler(event, context):
 	}
 
 	s3_descriptor_key = "raw/%s/%s.descriptor.json" % (ts_path, shortid)
-	logger.info("S3 Descriptor Key: %s", s3_descriptor_key)
 
 	# S3 only triggers downstream lambdas for PUTs suffixed with
 	#  '...power.log' or '...canary.log'
 	log_key_suffix = "power.log" if not is_canary else "canary.log"
 	s3_powerlog_key = "raw/%s/%s.%s" % (ts_path, shortid, log_key_suffix)
-
-	logger.info("S3 Powerlog Key: %s", s3_powerlog_key)
 
 	descriptor["event"] = event
 
@@ -133,7 +128,6 @@ def generate_log_upload_address_handler(event, context):
 		ExpiresIn=log_put_expiration,
 		HttpMethod="PUT"
 	)
-	logger.info("Presigned Put URL:\n%s", presigned_put_url)
 
 	return {
 		"put_url": presigned_put_url,
