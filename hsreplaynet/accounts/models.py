@@ -71,6 +71,15 @@ class User(AbstractUser):
 	def delete_replays(self):
 		self.replays.update(is_deleted=True)
 
+	def guess_player_name(self):
+		names = []
+		for replay in self.replays.filter(spectator_mode=False):
+			name = replay.friendly_player.name
+			if name:
+				names.append(name)
+		if names:
+			return max(set(names), key=names.count)
+
 	def trigger_webhooks(self, replay):
 		if self.is_fake:
 			# Fake users should never have webhooks
