@@ -2,6 +2,7 @@ import logging
 import json
 from threading import Thread
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from hsreplaynet.api.models import APIKey, AuthToken
 from hsreplaynet.api.serializers import UploadEventSerializer
 from hsreplaynet.uploads.models import (
@@ -179,17 +180,16 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	obj.status = UploadEventStatus.VALIDATING
 
 	try:
-		header = gateway_headers["Authorization"]
+		header = gateway_headers.get("Authorization", "")
 		token = AuthToken.get_token_from_header(header)
-
 		if not token:
 			msg = "Malformed or Invalid Authorization Header: %r" % (header)
 			logger.error(msg)
-			raise Exception(msg)
+			raise ValidationError(msg)
 
 		obj.token = token
 		obj.api_key = APIKey.objects.get(api_key=gateway_headers["X-Api-Key"])
-	except Exception as e:
+	except (ValidationError, APIKey.DoesNotExist) as e:
 		logger.error("Exception: %r", e)
 		obj.status = UploadEventStatus.VALIDATION_ERROR
 		obj.error = e
