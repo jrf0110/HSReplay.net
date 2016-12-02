@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django_intenum
-import hsreplaynet.packs.models
+import hearthstone.enums
 
 
 class Migration(migrations.Migration):
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             name='Pack',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('booster_type', django_intenum.IntEnumField(choices=[(1, 'CLASSIC'), (9, 'GOBLINS_VS_GNOMES'), (10, 'THE_GRAND_TOURNAMENT'), (11, 'OLD_GODS'), (17, 'FIRST_PURCHASE')], validators=[django_intenum.IntEnumValidator(hsreplaynet.packs.models.BoosterType)])),
+                ('booster_type', django_intenum.IntEnumField(choices=[(0, 'INVALID'), (1, 'CLASSIC'), (9, 'GOBLINS_VS_GNOMES'), (10, 'THE_GRAND_TOURNAMENT'), (11, 'OLD_GODS'), (17, 'FIRST_PURCHASE'), (19, 'MEAN_STREETS')], validators=[django_intenum.IntEnumValidator(hearthstone.enums.Booster)])),
                 ('date', models.DateTimeField()),
                 ('account_hi', models.BigIntegerField()),
                 ('account_lo', models.BigIntegerField()),
