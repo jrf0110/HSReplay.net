@@ -23,6 +23,8 @@ def process_delete_request(admin, request, queryset):
 	for obj in queryset:
 		obj.process()
 	queryset.delete()
+
+
 process_delete_request.short_description = "Process selected delete requests"
 
 

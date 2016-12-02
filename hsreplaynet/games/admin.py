@@ -10,6 +10,8 @@ def queue_for_reprocessing(admin, request, queryset):
 		uploads = obj.uploads.all()
 		if uploads:
 			queue_upload_event_for_reprocessing(uploads[0])
+
+
 queue_for_reprocessing.short_description = "Queue original upload for reprocessing"
 
 

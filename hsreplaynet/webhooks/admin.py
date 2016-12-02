@@ -5,6 +5,8 @@ from .models import Webhook, WebhookTrigger
 def send_test_payload(admin, request, queryset):
 	for obj in queryset:
 		obj.trigger({"test_data": True})
+
+
 send_test_payload.short_description = "Send test payload"
 
 

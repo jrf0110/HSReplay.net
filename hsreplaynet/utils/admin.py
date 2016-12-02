@@ -38,6 +38,7 @@ def set_field_admin_action(qs, field_name):
 
 	return set_field
 
+
 set_user = set_field_admin_action(User.objects, "user")
 
 

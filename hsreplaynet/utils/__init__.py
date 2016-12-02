@@ -16,6 +16,7 @@ def get_logger(name="hsreplaynet", level=logging.DEBUG):
 
 	return logger
 
+
 log = get_logger()
 
 

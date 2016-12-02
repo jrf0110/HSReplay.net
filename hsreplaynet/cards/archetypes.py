@@ -71,6 +71,7 @@ def classify_deck(
 	else:
 		return None
 
+
 # ##### ALL CODE BELOW IS PART OF THE EXPERT SYSTEM MODEL FOR CLASSIFICATION ##### #
 
 MALYGOS = "EX1_563"

@@ -6,6 +6,8 @@ from .processing import queue_upload_events_for_reprocessing
 
 def queue_for_reprocessing(admin, request, queryset):
 	queue_upload_events_for_reprocessing(queryset)
+
+
 queue_for_reprocessing.short_description = "Queue for reprocessing"
 
 
