@@ -4,5 +4,6 @@
 
 q
 django-sql-explorer
+django-sslserver
 flake8
 pytest-django

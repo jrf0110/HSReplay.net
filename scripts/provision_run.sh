@@ -1,9 +1,13 @@
 PROJECT="$HOME/hsreplay.net"
 source "$HOME/env/bin/activate"
+export ENV_VAGRANT=1
 export PATH="$VIRTUAL_ENV/nodeenv/bin:$HOME/node_modules/.bin:$PATH"
 
 # Kill remnants
 killall -9 -q python node sassc
+
+echo "Starting Django server"
+python "$PROJECT/manage.py" runserver 0.0.0.0:8000 &
 
 echo "Starting webpack watcher"
 webpack --verbose -d \
@@ -19,5 +23,5 @@ sassc "$PROJECT/hsreplaynet/static/styles/main.scss" "$PROJECT/hsreplaynet/stati
 echo "Starting RQ Workers"
 python "$PROJECT/manage.py" rqworker &
 
-echo "Starting Django server"
-python "$PROJECT/manage.py" runserver 0.0.0.0:8000
+echo "Starting Django SSL server"
+python "$PROJECT/manage.py" runsslserver 0.0.0.0:8443

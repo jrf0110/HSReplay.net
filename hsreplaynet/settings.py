@@ -255,6 +255,13 @@ if ENV_DEV:
 	]
 
 
+# sslserver (for local development only)
+if ENV_VAGRANT:
+	INSTALLED_APPS += [
+		"sslserver",
+	]
+
+
 ##
 # Custom site settings
 
