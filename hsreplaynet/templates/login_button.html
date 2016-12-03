@@ -1,3 +1,13 @@
 {% load socialaccount %}
+{% load web_extras %}
 
-<p><a href="{% provider_login_url 'battlenet' %}" class="promo-button hero-button">Log in with Battle.net</a></p>
+{% setting "ENV_VAGRANT" as vagrant %}
+<p><a
+	{# This is to support login with battle.net on local dev #}
+	{% if vagrant %}
+		href="https://localhost:8443{% provider_login_url 'battlenet' %}"
+	{% else %}
+		href="{% provider_login_url 'battlenet' %}"
+	{% endif %}
+		class="promo-button hero-button">Log in with Battle.net</a>
+</p>
