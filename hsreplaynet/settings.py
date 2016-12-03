@@ -13,12 +13,14 @@ from django.urls import reverse_lazy
 # ENV_LAMBDA: True if running on AWS Lambda
 # ENV_AWS: True if running on AWS (ENV_LIVE or ENV_LAMBDA)
 # ENV_DEV: True if running on dev.hsreplay.net, or not on LIVE/LAMBDA
+# ENV_VAGRANT: True if running on the Vagrant box
 
 HOSTNAME = platform.node()
 ENV_LIVE = HOSTNAME.endswith("hsreplay.net")
 ENV_LAMBDA = bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
 ENV_AWS = ENV_LIVE or ENV_LAMBDA
 ENV_DEV = not ENV_AWS or HOSTNAME == "dev.hsreplay.net"
+ENV_VAGRANT = ENV_DEV and bool(os.environ.get("ENV_VAGRANT"))
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
