@@ -16,6 +16,7 @@ from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
 from django.contrib.flatpages.models import FlatPage
 from hsreplaynet.api.models import APIKey, AuthToken
+from allauth.socialaccount.models import SocialApp
 
 
 User = get_user_model()
@@ -61,6 +62,15 @@ def create_default_flatpage(url, title):
 	return page
 
 
+def create_socialapp(provider="battlenet", name="Battle.net (development)"):
+	socialapp, created = SocialApp.objects.get_or_create(provider=provider)
+	socialapp.name = name
+	socialapp.save()
+	if not socialapp.sites.count():
+		socialapp.sites.add(settings.SITE_ID)
+	return socialapp
+
+
 def main():
 	update_default_site(settings.SITE_ID)
 	apikey = create_default_api_key()
@@ -68,6 +78,7 @@ def main():
 	create_or_update_user("user", "user", apikey)
 	create_default_flatpage("/about/privacy/", "Privacy Policy")
 	create_default_flatpage("/about/tos/", "Terms of Service")
+	create_socialapp()
 
 
 if __name__ == "__main__":
