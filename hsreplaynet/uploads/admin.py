@@ -18,7 +18,6 @@ class UploadEventAdmin(admin.ModelAdmin):
 		"__str__", "status", "tainted", urlify("token"),
 		urlify("game"), "upload_ip", "created", "file", "user_agent"
 	)
-	list_filter = ("status", "tainted", "canary")
 	readonly_fields = ("created", "cloudwatch_url")
 	search_fields = ("shortid", )
 	show_full_result_count = False
