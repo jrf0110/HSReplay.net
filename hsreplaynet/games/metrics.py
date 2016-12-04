@@ -49,10 +49,13 @@ class StateSnapshottingExporter(EntityTreeExporter):
 				entity_type = entity.tags.get(GameTag.CARDTYPE, CardType.INVALID)
 
 				if entity_type == CardType.MINION:
+					cur_health = entity.tags.get(GameTag.HEALTH, 0)
+					cur_damage = entity.tags.get(GameTag.DAMAGE, 0),
+
 					snapshot["minion_info"]["minions"].append({
 						"card_id": entity.card_id,
 						"atk": entity.tags.get(GameTag.ATK, 0),
-						"health": entity.tags.get(GameTag.HEALTH, 0),
+						"health": cur_health - cur_damage,
 						"has_taunt": entity.tags.get(GameTag.TAUNT, False),
 						"has_deathrattle": entity.tags.get(GameTag.DEATHRATTLE, False),
 					})
