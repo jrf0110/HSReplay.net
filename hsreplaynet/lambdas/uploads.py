@@ -186,9 +186,12 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 			msg = "Malformed or Invalid Authorization Header: %r" % (header)
 			logger.error(msg)
 			raise ValidationError(msg)
-
 		obj.token = token
-		obj.api_key = APIKey.objects.get(api_key=gateway_headers["X-Api-Key"])
+
+		api_key = gateway_headers.get("X-Api-Key", "")
+		if not api_key:
+			raise ValidationError("Missing X-Api-Key header. Please contact us for an API key.")
+		obj.api_key = APIKey.objects.get(api_key=api_key)
 	except (ValidationError, APIKey.DoesNotExist) as e:
 		logger.error("Exception: %r", e)
 		obj.status = UploadEventStatus.VALIDATION_ERROR
