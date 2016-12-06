@@ -1,4 +1,4 @@
-import uuid
+from uuid import uuid4
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
@@ -27,17 +27,12 @@ HEARTHSTONE_LOCALES = (
 
 
 class AccountClaim(models.Model):
-	id = models.UUIDField(primary_key=True)
+	id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
 	token = models.OneToOneField("api.AuthToken")
 	created = models.DateTimeField("Created", auto_now_add=True)
 
 	def __str__(self):
 		return str(self.id)
-
-	def save(self, *args, **kwargs):
-		if not self.id:
-			self.id = uuid.uuid4()
-		return super().save(*args, **kwargs)
 
 	def get_absolute_url(self):
 		return reverse("account_claim", kwargs={"id": self.id})
