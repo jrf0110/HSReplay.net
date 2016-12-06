@@ -71,6 +71,23 @@ def test_auth_token_request(client, settings):
 	response = client.post(url)
 	assert response.status_code == 403
 
+	# Attempt creating an account claim without an API key
+	response = client.post(
+		CLAIM_ACCOUNT_API,
+		content_type="application/json",
+		HTTP_AUTHORIZATION="Token %s" % (token),
+	)
+	assert response.status_code == 403
+
+	# Attempt creating an account claim with a non-existant API key
+	response = client.post(
+		CLAIM_ACCOUNT_API,
+		content_type="application/json",
+		HTTP_AUTHORIZATION="Token %s" % (token),
+		HTTP_X_API_KEY="nope",
+	)
+	assert response.status_code == 403
+
 	# Now create a claim for the account
 	response = client.post(
 		CLAIM_ACCOUNT_API,

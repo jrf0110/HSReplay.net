@@ -35,7 +35,7 @@ class APIKeyViewSet(WriteOnlyOnceViewSet):
 
 class CreateAccountClaimView(CreateAPIView):
 	authentication_classes = (AuthTokenAuthentication, )
-	permission_classes = (RequireAuthToken, )
+	permission_classes = (RequireAuthToken, APIKeyPermission)
 	queryset = AccountClaim.objects.all()
 	serializer_class = serializers.AccountClaimSerializer
 
