@@ -113,10 +113,14 @@ def lambda_handler(
 					context.log_group_name,
 					context.log_stream_name
 				)
-				sentry.user_context({
+				# Tags context can be used to group exceptions
+				sentry.tags_context({
+					"aws_function_name": context.function_name
+				})
+				# Extra context is just attached to the exception in Sentry
+				sentry.extra_context({
 					"aws_log_group_name": context.log_group_name,
 					"aws_log_stream_name": context.log_stream_name,
-					"aws_function_name": context.function_name,
 					"aws_cloudwatch_url": cloudwatch_url,
 					"admin_url": build_admin_url(tracing_id),
 					"tracing_id": tracing_id
