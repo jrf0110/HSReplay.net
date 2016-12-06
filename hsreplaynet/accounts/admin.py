@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import AccountClaim, AccountDeleteRequest, User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from hsreplaynet.utils.admin import admin_urlify as urlify
 
 
 @admin.register(User)
@@ -15,8 +16,10 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(AccountClaim)
 class AccountClaimAdmin(admin.ModelAdmin):
-	list_display = ("__str__", "id", "token", "created")
+	list_display = ("__str__", "created", urlify("token"), urlify("api_key"))
+	list_filter = ("api_key", )
 	raw_id_fields = ("token", )
+	readonly_fields = ("created", )
 
 
 def process_delete_request(admin, request, queryset):
