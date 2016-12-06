@@ -29,6 +29,7 @@ HEARTHSTONE_LOCALES = (
 class AccountClaim(models.Model):
 	id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
 	token = models.OneToOneField("api.AuthToken")
+	api_key = models.ForeignKey("api.APIKey", on_delete=models.CASCADE, null=True)
 	created = models.DateTimeField("Created", auto_now_add=True)
 
 	def __str__(self):

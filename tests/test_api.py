@@ -3,7 +3,7 @@ import pytest
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from rest_framework.serializers import ValidationError
-from hsreplaynet.accounts.models import User
+from hsreplaynet.accounts.models import AccountClaim, User
 from hsreplaynet.api.models import AuthToken
 from hsreplaynet.api.serializers import SmartFileField
 from hearthstone.enums import PlayState
@@ -99,6 +99,10 @@ def test_auth_token_request(client, settings):
 	json = response.json()
 	url = json["url"]
 	assert url.startswith("/account/claim/")
+
+	# Check the claim was created correctly
+	claim = AccountClaim.objects.get(token=token)
+	assert str(claim.api_key.api_key) == api_key
 
 	# verify that the url works and requires a login
 	response = client.get(url)

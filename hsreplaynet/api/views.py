@@ -42,7 +42,10 @@ class CreateAccountClaimView(CreateAPIView):
 	def create(self, request):
 		if request.auth_token.user and not request.auth_token.user.is_fake:
 			raise ValidationError("This token has already been claimed.")
-		claim, _ = AccountClaim.objects.get_or_create(token=request.auth_token)
+		claim, _ = AccountClaim.objects.get_or_create(
+			token=request.auth_token,
+			defaults={"api_key": request.api_key}
+		)
 		serializer = self.get_serializer(claim)
 		headers = self.get_success_headers(serializer.data)
 		response = Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
