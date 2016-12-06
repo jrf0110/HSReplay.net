@@ -66,6 +66,7 @@ class GlobalGameAdmin(admin.ModelAdmin):
 	list_filter = (
 		"game_type", "ladder_season", "brawl_season", "build",
 	)
+	readonly_fields = ("digest", )
 	search_fields = ("replays__shortid", "players__name")
 	inlines = (GlobalGamePlayerInline, GameReplayInline)
 
