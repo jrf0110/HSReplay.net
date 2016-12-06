@@ -1,4 +1,5 @@
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, RetrieveModelMixin
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny
@@ -39,6 +40,8 @@ class CreateAccountClaimView(CreateAPIView):
 	serializer_class = serializers.AccountClaimSerializer
 
 	def create(self, request):
+		if request.auth_token.user and not request.auth_token.user.is_fake:
+			raise ValidationError("This token has already been claimed.")
 		claim, _ = AccountClaim.objects.get_or_create(token=request.auth_token)
 		serializer = self.get_serializer(claim)
 		headers = self.get_success_headers(serializer.data)

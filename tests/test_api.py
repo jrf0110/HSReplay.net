@@ -9,6 +9,9 @@ from hsreplaynet.api.serializers import SmartFileField
 from hearthstone.enums import PlayState
 
 
+CLAIM_ACCOUNT_API = "/api/v1/claim_account/"
+
+
 def test_smart_file_field():
 	field = SmartFileField()
 	with pytest.raises(ValidationError):
@@ -70,7 +73,7 @@ def test_auth_token_request(client, settings):
 
 	# Now create a claim for the account
 	response = client.post(
-		"/api/v1/claim_account/",
+		CLAIM_ACCOUNT_API,
 		content_type="application/json",
 		HTTP_AUTHORIZATION="Token %s" % (token),
 		HTTP_X_API_KEY=api_key,
@@ -97,3 +100,12 @@ def test_auth_token_request(client, settings):
 	assert token
 	assert str(token.creation_apikey.api_key) == api_key
 	assert token.user == real_user
+
+	# Check that it's no longer possible to create a claim for the token
+	response = client.post(
+		CLAIM_ACCOUNT_API,
+		content_type="application/json",
+		HTTP_AUTHORIZATION="Token %s" % (token),
+		HTTP_X_API_KEY=api_key,
+	)
+	assert response.status_code == 400
