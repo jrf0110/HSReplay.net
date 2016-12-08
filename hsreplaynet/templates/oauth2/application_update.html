@@ -19,6 +19,22 @@
 			</form>
 		</p>
 
+		<hr/>
+		<h4>Client ID</h4>
+		<code>{{ application.client_id }}</code>
+
+		<h4>Client secret</h4>
+		<code>{{ application.client_secret }}</code>
+		<p>
+			If your secret has been compromised, you should reset it.
+			<form
+				action="{% url 'oauth2_reset_secret' pk=application.pk %}" method="POST"
+				onsubmit="return confirm('This is immediate and there is no undo!')"
+			>
+				{% csrf_token %}
+				<input type="submit" class="btn btn-danger" value="Reset client secret"/>
+			</form>
+		</p>
 
 		<hr/>
 		<h4>Details</h4>

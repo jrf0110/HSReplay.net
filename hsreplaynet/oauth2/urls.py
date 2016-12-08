@@ -1,18 +1,23 @@
 from django.conf.urls import url
 from oauth2_provider import views as oauth2_views
-from .views import ApplicationUpdateView, ApplicationListView, RevokeAllTokensView
+from . import views
 
 
-app_list_view = ApplicationListView.as_view()
-app_update_view = ApplicationUpdateView.as_view()
+app_list_view = views.ApplicationListView.as_view()
+app_update_view = views.ApplicationUpdateView.as_view()
 authorization_view = oauth2_views.AuthorizationView.as_view()
 
 urlpatterns = [
 	url(r"^applications/$", app_list_view, name="oauth2_app_list"),
 	url(r"^application/(?P<pk>\d+)/$", app_update_view, name="oauth2_app_update"),
 	url(
+		r"^application/(?P<pk>\d+)/reset_secret/$",
+		views.ResetSecretView.as_view(),
+		name="oauth2_reset_secret"
+	),
+	url(
 		r"^application/(?P<pk>\d+)/revoke_all_tokens/$",
-		RevokeAllTokensView.as_view(), name="oauth2_revoke_all_tokens"
+		views.RevokeAllTokensView.as_view(), name="oauth2_revoke_all_tokens"
 	),
 	url(r"^authorize/$", authorization_view, name="authorize"),
 ]
