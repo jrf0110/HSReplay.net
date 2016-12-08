@@ -1,0 +1,33 @@
+{% extends "oauth2/base.html" %}
+
+{% block content %}
+	<section id="account-oauth2-applications" class="box-section">
+		<h3>Developer applications</h3>
+
+		<div class="inner">
+		{% if not application_list.count %}
+			<p>
+				Want to use our OAuth2 API in your own app?
+				<a href="mailto:contact@hsreplay.net">Contact us</a> to apply for a token.
+			</p>
+		{% else %}
+			<table class="table table-bordered">
+				<thead>
+					<th>Application</th>
+					<th>Homepage</th>
+					<th>Client ID</th>
+					<th>Users</th>
+				</thead>
+			{% for app in application_list %}
+				<tr>
+					<td><a href="{% url 'oauth2_app_update' pk=app.pk %}">{{ app }}</a></td>
+					<td><a href="{{ app.url }}">{{ app.url }}</a></td>
+					<td>{{ app.client_id }}</td>
+					<td>{{ app.accesstoken_set.count }}</td>
+				</tr>
+			{% endfor %}
+			</table>
+		{% endif %}
+		</div>
+	</section>
+{% endblock %}

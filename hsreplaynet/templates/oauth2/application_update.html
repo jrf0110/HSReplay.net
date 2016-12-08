@@ -1,0 +1,33 @@
+{% extends "oauth2/base.html" %}
+
+{% block title %}{{ application }} - OAuth2 apps{% endblock %}
+
+{% block content %}
+	<section id="oauth2-form" class="box-section">
+	<h3>{{ application }}</h3>
+
+	<div class="inner">
+		<form action="" method="POST" id="oauth2-application-edit-form">
+			{% csrf_token %}
+
+			<div class="form-group">
+				<label for="id_name">Name</label>
+				<input
+					type="text" name="name" id="id_name" size="30" maxlength="255"
+					required="required"
+					class="form-control" value="{{ form.instance.name }}"
+				/>
+				<p><em>This is the name your users will see upon authorization.</em></p>
+			</div>
+
+			<div class="form-group">
+				<label for="id_redirect_uris">Redirect URL</label>
+				<textarea name="redirect_uris" id="id_redirect_uris" class="form-control">{{ form.instance.redirect_uris }}</textarea>
+				<p><em>You may specify multiple valid URLs (one per line).</em></p>
+			</div>
+
+			<input type="submit" class="btn btn-primary" value="Update application"/>
+		</form>
+	</div>
+	</section>
+{% endblock %}
