@@ -1,68 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "skeleton.html" %}
 {% load static %}
+{% load features %}
 {% load socialaccount %}
 {% load web_extras %}
-{% load features %}
-{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 
-<head>
-	{% block head %}
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+{% block stylesheets %}
+	<link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700" rel="stylesheet">
+	<link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+	<link href="{% static 'styles/main.css' %}" rel="stylesheet"/>
+{% endblock stylesheets %}
 
-	<title>{% block title %}HSReplay.net{% endblock title %}</title>
+{% block meta %}
+	<meta name="format-detection" content="telephone=no"/>
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="HSReplay.net" />
+	<meta property="og:locale" content="en_US" />
 
-	{% block stylesheets %}
-		<link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700" rel="stylesheet">
-		<link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-		<link href="{% static 'styles/main.css' %}" rel="stylesheet"/>
-	{% endblock stylesheets %}
+	{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
+	{% if twitter_handle %}
+		<meta name="twitter:site" content="@{{ twitter_handle }}" />
+		<link rel="me" href="https://twitter.com/{{ twitter_handle }}" />
+	{% endif %}
 
-	{% block meta %}
-		<meta property="og:type" content="website" />
-		<meta property="og:site_name" content="HSReplay.net" />
-		<meta property="og:locale" content="en_US" />
-		{% setting 'HSREPLAY_FACEBOOK_APP_ID' as facebook_app_id %}
-		{% if twitter_handle %}
-			<meta name="twitter:site" content="@{{ twitter_handle }}" />
-			<link rel="me" href="https://twitter.com/{{ twitter_handle }}" />
-		{% endif %}
-		{% if facebook_app_id %}
-			<meta property="fb:app_id" content="{{ facebook_app_id }}" />
-		{% endif %}
-	{% endblock %}
+	{% setting 'HSREPLAY_FACEBOOK_APP_ID' as facebook_app_id %}
+	{% if facebook_app_id %}
+		<meta property="fb:app_id" content="{{ facebook_app_id }}" />
+	{% endif %}
 
 	{% render_deck_list_meta_for_digest_param %}
-	<meta name="format-detection" content="telephone=no">
+{% endblock %}
 
-	<link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
-	<script type="text/javascript" src="{% static 'vendor/jquery.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'vendor/react.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'vendor/react-dom.min.js' %}"></script>
-	{% block error_reporting %}
-		{% setting "RAVEN_CONFIG_FRONTEND" as raven_config_frontend %}
-		{% if raven_config_frontend %}
-			<script src="{% static 'vendor/raven.min.js' %}"></script>
-			<script>
-				var raven = Raven.config("{{ raven_config_frontend.dsn }}", {
-					release: "{{ raven_config_frontend.release }}",
-					environment: "{% if DEBUG %}development{% else %}production{% endif %}",
-				}).install();
-				{% if user.is_authenticated %}
-				raven.setUserContext({
-					username: "{{ user.username }}",
-				});
-				{% endif %}
-			</script>
-		{% endif %}
-	{% endblock %}
-	{% endblock %}
-</head>
-<body {% if user.is_authenticated %}data-username="{{user.username}}"{% endif %}>
+{% block javascript %}
+<script type="text/javascript" src="{% static 'vendor/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/react.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/react-dom.min.js' %}"></script>
+{% endblock %}
+
+{% block error_reporting %}
+	{% setting "RAVEN_CONFIG_FRONTEND" as raven_config_frontend %}
+	{% if raven_config_frontend %}
+		<script src="{% static 'vendor/raven.min.js' %}"></script>
+		<script>
+			var raven = Raven.config("{{ raven_config_frontend.dsn }}", {
+				release: "{{ raven_config_frontend.release }}",
+				environment: "{% if debug %}development{% else %}production{% endif %}",
+			}).install();
+			{% if user.is_authenticated %}
+			raven.setUserContext({
+				username: "{{ user.username }}",
+			});
+			{% endif %}
+		</script>
+	{% endif %}
+{% endblock %}
+
+{% block body %}
 	<header>
 	{% block header %}
 		<div class="navbar navbar-hsreplay">
@@ -81,6 +74,7 @@
 
 			<div class="container-fluid">
 				<nav class="collapse navbar-collapse" id="navbar-collapse">
+					{% block navlinks %}
 					<ul class="nav navbar-nav">
 						{% if user.is_authenticated %}
 							<li><a href="{% url 'my_replays' %}">My Replays</a></li>
@@ -98,10 +92,12 @@
 							<li><a href="{% url 'admin:index' %}">Admin</a></li>
 						{% endif %}
 
+						{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 						{% if twitter_handle %}
 							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank">@{{ twitter_handle }}</a></li>
 						{% endif %}
 					</ul>
+					{% endblock %}
 
 					<ul class="nav navbar-nav navbar-right">
 						{% if user.is_authenticated %}
@@ -139,42 +135,14 @@
 
 	{% block fullcontent %}
 	<div id="content">
-	{% block content %}
-	{% endblock content %}
+	{% block content %}{% endblock %}
 	</div>
 	{% endblock fullcontent %}
 
 	<footer class="site-footer">
 		{% block footer %}
-		<p>
-			<a href="https://hearthsim.info">HearthSim</a> &copy; {% now 'Y' %} &middot;
-			<a href="{% url 'privacy_policy' %}">Privacy Policy</a> &middot;
-			<a href="{% url 'terms_of_service' %}">Terms of Service</a>
-			{% if user.is_staff or debug %}
-				{% setting "RAVEN_CONFIG" as raven_config %}
-				&middot;
-				{% if raven_config.release %}
-					<a href="https://github.com/HearthSim/HSReplay.net/commits/{{ raven_config.release }}">
-						@<abbr title="{{ raven_config.release }}">{{ raven_config.release|slice:":12" }}</abbr>
-					</a>
-				{% else %}
-					@unknown revision
-				{% endif %}
-			{% endif %}
-		</p>
-		<p>
-			This website is not affiliated with Blizzard Entertainment.
-		</p>
-		{% if debug %}
-		<p>
-			Running in DEBUG mode.
-		</p>
-		{% endif %}
-	{% endblock %}
+			{% include "footer.html" %}
+		{% endblock %}
 	</footer>
 
-{% block analytics %}
-	{% include "analytics.html" %}
 {% endblock %}
-</body>
-</html>
