@@ -1,21 +1,28 @@
 .card div.visuals .inhand-minion {
 	clip-path: url({{svg}}#inhand-minion-clip);
+	-webkit-clip-path: ellipse(36% 47% at 50% 50%);
 }
 .card div.visuals .inhand-spell {
 	clip-path: url({{svg}}#inhand-spell-clip);
+	-webkit-clip-path: inset(8% 0% 4% 0%);
 }
 .card div.visuals .inhand-weapon {
 	clip-path: url({{svg}}#inhand-weapon-clip);
+	-webkit-clip-path: circle(50% at 50% 50%);
 }
 .minion div.visuals .inplay-portrait {
 	clip-path: url({{svg}}#inplay-minion-clip);
+	-webkit-clip-path: ellipse(35% 46% at 51% 50%);
 }
 .hero div.visuals .hero-portrait {
 	clip-path: url({{svg}}#hero-clip);
+	-webkit-clip-path: polygon(0% 100%, 0 40%, 20% 10%, 30% 3%, 50% 0%, 70% 3%, 80% 10%, 100% 40%, 100% 100%);
 }
 .heroPower div.visuals .hero-power-portrait {
 	clip-path: url({{svg}}#hero-power-clip);
+	-webkit-clip-path: circle(60% at 50% 50%);
 }
 .weapon div.visuals .hero-weapon-portrait {
 	clip-path: url({{svg}}#hero-weapon-clip);
+	-webkit-clip-path: circle(50% at 50% 50%);
 }
