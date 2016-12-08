@@ -52,6 +52,16 @@
 			</div>
 
 			<div class="form-group">
+				<label for="id_homepage">Homepage</label>
+				<input
+					type="url" name="homepage" id="id_homepage" size="30" maxlength="200"
+					required="required"
+					class="form-control" value="{{ form.instance.homepage }}"
+				/>
+				<p><em>The full URL to your app's homepage.</em></p>
+			</div>
+
+			<div class="form-group">
 				<label for="id_redirect_uris">Redirect URL</label>
 				<textarea name="redirect_uris" id="id_redirect_uris" class="form-control">{{ form.instance.redirect_uris }}</textarea>
 				<p><em>You may specify multiple valid URLs (one per line).</em></p>

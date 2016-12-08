@@ -78,6 +78,7 @@ INSTALLED_APPS_WEB = [
 	"webpack_loader",
 	"hsreplaynet.admin",
 	"hsreplaynet.packs",
+	"hsreplaynet.oauth2",
 ]
 
 INSTALLED_APPS = INSTALLED_APPS_CORE
@@ -254,6 +255,8 @@ OAUTH2_PROVIDER = {
 		"webhooks:write": "Create and delete webhooks on your behalf",
 	}
 }
+
+OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2.Application"
 
 
 ##

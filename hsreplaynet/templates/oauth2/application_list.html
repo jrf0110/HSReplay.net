@@ -21,7 +21,7 @@
 			{% for app in application_list %}
 				<tr>
 					<td><a href="{% url 'oauth2_app_update' pk=app.pk %}">{{ app }}</a></td>
-					<td><a href="{{ app.url }}">{{ app.url }}</a></td>
+					<td><a href="{{ app.homepage }}">{{ app.homepage }}</a></td>
 					<td>{{ app.client_id }}</td>
 					<td>{{ app.accesstoken_set.count }}</td>
 				</tr>

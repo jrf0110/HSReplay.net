@@ -1,8 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import UpdateView, ListView, View
-from oauth2_provider.models import Application
 from oauth2_provider.generators import generate_client_secret
+from .models import Application
 
 
 class ApplicationBaseView(LoginRequiredMixin, View):
@@ -14,7 +14,7 @@ class ApplicationBaseView(LoginRequiredMixin, View):
 
 class ApplicationUpdateView(ApplicationBaseView, UpdateView):
 	template_name = "oauth2/application_update.html"
-	fields = ("name", "redirect_uris")
+	fields = ("name", "homepage", "redirect_uris")
 
 
 class ApplicationListView(ApplicationBaseView, ListView):
