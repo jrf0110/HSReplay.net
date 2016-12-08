@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block navlinks %}{% endblock %}
+
+{% block content %}
+
+<div class="center-block oauth-authorization px-3">
+	{% if error %}
+		<p class="alert alert-danger">
+			Some error happened during authorization.
+			<!-- Error details: {{ error.description }} ({{ error.error }}) -->
+		</p>
+		<p>
+			<a href="mailto:contact@hsreplay.net">Contact us</a> if you need help.
+		</p>
+	{% else %}
+		<h3>Permission request</h3>
+		<hr/>
+
+		<form action="" method="POST" id="oauth-authorization-form">
+			{% csrf_token %}
+
+			<p>
+			<strong><a href="{{ application.homepage }}" target="_blank">{{ application.name }}</a></strong>
+			is requesting permission to:
+
+			{% for field in form %}
+				{% if field.is_hidden %}
+					{{ field }}
+				{% endif %}
+			{% endfor %}
+
+			<ul>
+				{% for scope in scopes_descriptions %}
+					<li>{{ scope }}</li>
+				{% endfor %}
+			</ul>
+
+			{{ form.errors }}
+			{{ form.non_field_errors }}
+
+			<em>If you accept, you will be returned to {{ application.name }}.</em>
+
+			<div class="control-group">
+				<input type="submit" class="btn btn-large btn-primary" name="allow" value="Authorize"/>
+				<input type="submit" class="btn btn-large" value="Cancel"/>
+			</div>
+		</form>
+	{% endif %}
+</div>
+
+{% endblock %}
