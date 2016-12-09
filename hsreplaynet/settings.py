@@ -196,7 +196,7 @@ LOGIN_REDIRECT_URL = reverse_lazy("my_replays")
 LOGIN_URL = reverse_lazy("account_login")
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
-SOCIALACCOUNT_ADAPTER = "allauth.socialaccount.providers.battlenet.provider.BattleNetSocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "hsreplaynet.accounts.providers.BattleNetAdapter"
 SOCIALACCOUNT_PROVIDERS = {"battlenet": {"SCOPE": []}}
 
 
