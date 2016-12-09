@@ -1,0 +1,16 @@
+{% extends "account/signup.html" %}
+
+{% block title %}Choose a username{% endblock %}
+
+{% block content %}
+	<h2>Sign up</h2>
+	<p>
+		Your Battle.net account does not appear to have a battletag yet.
+		You get to choose your own username!
+	</p>
+	<form action="" method="POST">
+		{% csrf_token %}
+		{{ form.as_p }}
+		<input type="submit" value="Sign up" class="btn btn-primary"/>
+	</form>
+{% endblock %}
