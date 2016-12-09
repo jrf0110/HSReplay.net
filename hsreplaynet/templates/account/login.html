@@ -7,7 +7,14 @@
 {% block content %}
 
 <div class="account-login login-bnet">
-	{% include 'login_button.html' %}<br />
+	{% if oauth2_client %}
+	<div class="account-login-oauth2-client">
+		<h3>Log in to continue to {{ oauth2_client }}</h3>
+	</div>
+	{% endif %}
+
+	{% include 'login_button.html' %}
+
 	<p>
 		We'll send you to the offfical Battle.net site where you can securely log in.<br/>
 		Battle.net will redirect you back here once you're done.
