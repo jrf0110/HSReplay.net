@@ -2,7 +2,7 @@
 {% load web_extras %}
 
 {% setting "ENV_VAGRANT" as vagrant %}
-<p><a
+<p class="login-button"><a
 	{# This is to support login with battle.net on local dev #}
 	{% if vagrant %}
 		href="https://localhost:8443{% provider_login_url 'battlenet' %}"

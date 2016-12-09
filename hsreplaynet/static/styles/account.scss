@@ -7,9 +7,15 @@ h2 {
 	font-size: 2em;
 }
 
-.account-login.login-bnet {
-	margin: 10em auto;
-	text-align: center;
+.account-login {
+	&.login-bnet {
+		margin: 10em auto;
+		text-align: center;
+	}
+
+	.login-button {
+		margin: 2em auto;
+	}
 }
 
 
