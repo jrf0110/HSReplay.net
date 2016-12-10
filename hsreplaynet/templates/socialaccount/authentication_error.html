@@ -13,6 +13,19 @@
 			If this persists, <a href="mailto:help@hsreplay.net>">contact us</a>.
 		</p>
 	</section>
+	{% if debug %}
+	<section class="alert">
+		<h4>Debug information</h4>
+		<dl class="dl-horizontal">
+			<dt>Provider</dt>
+			<dd>{{ auth_error.provider }}</dd>
+			<dt>Error code</dt>
+			<dd>{{ auth_error.code }}</dd>
+			<dt>Exception</dt>
+			<dd>{{ auth_error.exception }}</dd>
+		</dl>
+	</section>
+	{% endif %}
 	<section>
 		<p><a href="/">Back to the office.</a></p>
 	</section>
