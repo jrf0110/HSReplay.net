@@ -1,0 +1,20 @@
+{% extends "account/base.html" %}
+
+{% block title %}Authentication error{% endblock %}
+
+{% block content %}
+
+<div class="content authentication-error">
+	<section>
+		<h1>Authentication error</h1>
+
+		<p class="alert alert-danger">
+			We could not authenticate you with Battle.net.<br/>
+			If this persists, <a href="mailto:help@hsreplay.net>">contact us</a>.
+		</p>
+	</section>
+	<section>
+		<p><a href="/">Back to the office.</a></p>
+	</section>
+</div>
+{% endblock %}

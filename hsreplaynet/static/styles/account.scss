@@ -12,6 +12,15 @@ h2 {
 	text-align: center;
 }
 
+
+.content.authentication-error {
+	margin-top: 3em;
+	p {
+		margin: 2em 0 5em;
+	}
+}
+
+
 #account-connections {
 	td {
 		padding: 0.5em;
