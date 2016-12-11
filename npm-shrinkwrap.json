@@ -1790,6 +1790,26 @@
       "from": "uuid@>=2.0.1 <3.0.0",
       "resolved": "https://registry.npmjs.org/uuid/-/uuid-2.0.3.tgz"
     },
+    "victory": {
+      "version": "0.14.2",
+      "from": "victory@0.14.2",
+      "resolved": "https://registry.npmjs.org/victory/-/victory-0.14.2.tgz"
+    },
+    "victory-chart": {
+      "version": "14.0.4",
+      "from": "victory-chart@>=14.0.3 <15.0.0",
+      "resolved": "https://registry.npmjs.org/victory-chart/-/victory-chart-14.0.4.tgz"
+    },
+    "victory-core": {
+      "version": "10.0.3",
+      "from": "victory-core@>=10.0.2 <11.0.0",
+      "resolved": "https://registry.npmjs.org/victory-core/-/victory-core-10.0.3.tgz"
+    },
+    "victory-pie": {
+      "version": "7.2.0",
+      "from": "victory-pie@>=7.2.0 <8.0.0",
+      "resolved": "https://registry.npmjs.org/victory-pie/-/victory-pie-7.2.0.tgz"
+    },
     "vm-browserify": {
       "version": "0.0.4",
       "from": "vm-browserify@0.0.4",
