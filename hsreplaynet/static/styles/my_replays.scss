@@ -166,6 +166,10 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 	width: 50%;
 }
 
+.hsreplay-type-sm {
+	height: 2em;
+}
+
 #replay-filter {
 	margin: 0 0 10px 0;
 
@@ -191,6 +195,154 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 
 #replay-search > div {
 	margin-bottom: 4px;
+}
+
+
+.match-table {
+	display: table;
+	width: 100%;
+	line-height: 2em;
+	white-space: nowrap;
+	padding: 2px;
+	background: $blue;
+	margin-bottom: 20px;
+
+	a:link {
+		text-decoration: none;
+		color: black;
+	}
+
+	.match-table-header {
+		background-color: $aqua;
+		color: $lighterblue;
+		text-transform: uppercase;
+		font-size: 1.1em;
+		margin: 0;
+		padding: 0.5em 0.5em;
+		display: table-header-group;
+		line-height: 1.75em;
+	}
+
+	.match-table-body {
+		display: table-row-group;
+	}
+
+	.match-table-row {
+		display: table-row;
+
+		&.result-won {
+			background-color: rgb(240, 245, 233);
+		}
+
+		&.result-lost {
+			background-color: rgb(245, 236, 233);
+		}
+
+		.match-table-cell {
+			display: table-cell;
+			padding: 3px 10px;
+			vertical-align: middle;
+			border-bottom-width: 1px;
+			border-bottom-style: solid;
+
+			&.player-icon {
+				padding-right: 0;
+			}
+
+			&.player-name {
+				padding-right: 0;
+				padding-left: 5px;
+			}
+
+			&.opponent-icon {
+				padding-left: 0;
+				padding-right: 0;
+			}
+
+			&.opponent-name {
+				padding-left: 5px;
+			}
+
+			&.auto-size {
+				width: 1%;
+			}
+
+			&.result-won {
+				color: green;
+			}
+
+			&.result-lost {
+				color: red;
+			}
+
+			&.match-header {
+				vertical-align: initial;
+
+				>span {
+					position: absolute;
+				}
+			}
+
+			.match-table-game-type {
+				display: flex;
+			}
+
+			.match-table-class-icon {
+				height: 2em;
+			}
+
+			.match-table-result-won {
+				color: green;
+			}
+
+			.match-table-result-lost {
+				color: red;
+			}
+
+			@media screen and (max-width: 1600px) {
+				&.hide-below-1600 {
+					display: none !important;
+				}
+			}
+
+			@media screen and (max-width: 1100px) {
+				&.hide-below-1100 {
+					display: none !important;
+				}
+			}
+
+			@media screen and (max-width: 768px) {
+				&.hide-below-768 {
+					display: none !important;
+				}
+			}
+
+			@media screen and (max-width: 500px) {
+				&.hide-below-500 {
+					display: none !important;
+				}
+			}
+		}
+	}
+
+	.match-table-row:hover {
+		&.result-won {
+			background-color: rgb(210, 245, 203);
+		}
+
+		&.result-lost {
+			background-color: rgb(245, 206, 203);
+		}
+	}
+}
+
+
+.result-lost .match-table-cell {
+	border-color: #f77a70;
+}
+
+.result-won .match-table-cell {
+	border-color: #8ce62c;
 }
 
 
