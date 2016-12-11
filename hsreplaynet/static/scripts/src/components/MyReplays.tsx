@@ -3,9 +3,12 @@ import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer, ReplayFilter} fr
 import GameHistorySearch from "./GameHistorySearch";
 import GameHistorySelectFilter from "./GameHistorySelectFilter";
 import GameHistoryList from "./GameHistoryList";
+import GameHistoryTable from "./GameHistoryTable";
+import InfoBoxSection from "./InfoBoxSection";
 import Pager from "./Pager";
 import {parseQuery, toQueryString} from "../QueryParser"
 import {formatMatch, modeMatch, nameMatch, resultMatch, heroMatch, opponentMatch} from "../GameFilters"
+import ClassDistributionPieChart from "./charts/ClassDistributionPieChart";
 
 
 interface MyReplaysProps extends ImageProps, CardArtProps, React.ClassAttributes<MyReplays> {
@@ -22,6 +25,7 @@ interface MyReplaysState {
 	currentLocalPage?: number;
 	pageSize?: number;
 	filters?: ReplayFilter[];
+	listView?: boolean;
 }
 
 export default class MyReplays extends React.Component<MyReplaysProps, MyReplaysState> {
@@ -36,7 +40,8 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			next: null,
 			receivedPages: 0,
 			currentLocalPage: 0,
-			pageSize: 1
+			pageSize: 1,
+			listView: true,
 		};
 		this.state.filters = this.getFilters();
 		this.query("/api/v1/games/");
@@ -143,11 +148,17 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 
 		let content = null;
 		if (games.length) {
-			content =  <GameHistoryList
+			content =  (this.state.listView ?
+			<GameHistoryTable
 				image={this.props.image}
 				cardArt={this.props.cardArt}
 				games={games}
-			/>;
+			/> :
+			<GameHistoryList
+				image={this.props.image}
+				cardArt={this.props.cardArt}
+				games={games}
+			/>);
 		}
 		else {
 			let message = null;
@@ -174,42 +185,68 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			this.setState({currentLocalPage: this.state.currentLocalPage - 1});
 		} : null;
 
+		let collapseSection = window.innerWidth < 1092;
+		return (
+			<div>
+				<div className="col-md-3 col-sm-12 col-xs-12" style={{paddingBottom: "10px"}}>
+					<div id="replay-infobox">
+						<InfoBoxSection header="Classes Played" defaultCollapsed={collapseSection} collapsable={collapseSection}>
+							<ClassDistributionPieChart games={games} loadingGames={this.state.working} />
+						</InfoBoxSection>
+						<InfoBoxSection header="Filters" defaultCollapsed={collapseSection} collapsable={collapseSection}>
+							<ul>
+								{this.getFiltersControls()}
+							</ul>
+						</InfoBoxSection>
+						<InfoBoxSection header="Settings" defaultCollapsed={collapseSection} collapsable={collapseSection}>
+							<ul>
+								<li>
+									<div className="checkbox">
+										<label>
+											<input type="checkbox" checked={this.state.listView} onChange={(x) => this.setState({listView: !this.state.listView})} />
+											Show as table
+										</label>
+									</div>
+								</li>
+							</ul>
+						</InfoBoxSection>
+					</div>
+				</div>
+				<div className="col-md-9 col-sm-12 col-xs-12" id="replay-search">
+					<div>
+						{content}
+						<div className="pull-right">
+							<Pager next={next} previous={previous}/>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	private getFiltersControls(): JSX.Element[] {
 		let filters = [];
+		filters.push(
+			<li>
+				<GameHistorySearch
+					query={this.state.queryMap.get("name")}
+					setQuery={(value: string) => this.setState({queryMap: this.state.queryMap.set("name", value), currentLocalPage: 0})}
+				/>
+			</li>
+		)
 		this.state.filters.forEach(filter => {
 			filters.push(
-				<div className="col-md-3 col-sm-4 col-xs-12">
+				<li>
 					<GameHistorySelectFilter
 						default={filter.default}
 						options={filter.options}
 						selected={this.state.queryMap.get(filter.name)}
 						onChanged={(value: string) => this.setState({queryMap: this.state.queryMap.set(filter.name, value), currentLocalPage: 0})}
 					/>
-				</div>
+				</li>
 			)
 		});
-
-		return (
-			<div>
-				<div className="row" id="replay-search">
-					<div className="col-md-12 col-sm-12 col-xs-12 text-right">
-						<br className="visible-xs-inline"/>
-						<Pager next={next} previous={previous}/>
-					</div>
-					<div className="col-md-3 col-sm-4 col-xs-12">
-						<GameHistorySearch
-							query={this.state.queryMap.get("name")}
-							setQuery={(value: string) => this.setState({queryMap: this.state.queryMap.set("name", value), currentLocalPage: 0})}
-						/>
-					</div>
-					{filters}
-				</div>
-				<div className="clearfix"/>
-				{content}
-				<div className="pull-right">
-					<Pager next={next} previous={previous}/>
-				</div>
-			</div>
-		);
+		return filters;
 	}
 
 	getFilters(): ReplayFilter[] {
