@@ -1,8 +1,10 @@
 import * as React from "react";
 import {GlobalGamePlayer, ImageProps, CardArtProps} from "../interfaces";
 import GameHistoryPlayer from "./GameHistoryPlayer";
+import GameModeIcon from "./GameModeIcon";
+import GameModeText from "./GameModeText";
 import {PlayState, BnetGameType} from "../hearthstone";
-
+import {getDuration, getAge} from "../PrettyTime";
 
 interface GameHistoryItemProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryItem> {
 	shortid: string;
@@ -17,118 +19,9 @@ interface GameHistoryItemProps extends ImageProps, CardArtProps, React.ClassAttr
 	opposingPlayer: GlobalGamePlayer;
 }
 
-interface GameHistoryItemState {
-}
-
-function humanTime(seconds) {
-	// TODO: use something better
-	var days = Math.floor((seconds % 31536000) / 86400);
-	var hours = Math.floor(((seconds % 31536000) % 86400) / 3600);
-	var mins = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
-	if (days) {
-		return days + " days";
-	}
-	if (hours) {
-		return hours + " hours";
-	}
-	return mins + " minutes";
-}
-
-export default class GameHistoryItem extends React.Component<GameHistoryItemProps, GameHistoryItemState> {
-	constructor(props: GameHistoryItemProps, context: any) {
-		super(props, context);
-	}
-
-	getDuration(): string {
-		var seconds = this.props.endTime.getTime() - this.props.startTime.getTime();
-		return humanTime(seconds / 1000);
-	}
-
-	getPlayedTime(): string {
-		var seconds = new Date().getTime() - this.props.endTime.getTime();
-		return humanTime(seconds / 1000) + " ago";
-	}
-
-	getIcon(): JSX.Element {
-		if (this.props.disconnected) {
-			return <img src={STATIC_URL + "images/dc.png"} className="hsreplay-type" alt="Disconnected"/>;
-		}
-		switch (this.props.gameType) {
-			case BnetGameType.BGT_ARENA:
-				return this.getArenaIcon();
-			case BnetGameType.BGT_RANKED_STANDARD:
-			case BnetGameType.BGT_RANKED_WILD:
-				return this.getRankedIcon();
-			case BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI:
-			case BnetGameType.BGT_TAVERNBRAWL_2P_COOP:
-			case BnetGameType.BGT_TAVERNBRAWL_PVP:
-				if (this.isHeroicTavernBrawl()) {
-					return <img src={STATIC_URL + "images/brawl_skull.png"} className="hsreplay-type" alt="Heroic Tavern Brawl"/>;
-				}
-				return <img src={STATIC_URL + "images/modeID_Brawl.png"} className="hsreplay-type" alt="Tavern Brawl"/>;
-			case BnetGameType.BGT_CASUAL_STANDARD:
-				return <img src={STATIC_URL + "images/casual.png"} className="hsreplay-type" alt="Casual"/>;
-			case BnetGameType.BGT_CASUAL_WILD:
-				return <img src={STATIC_URL + "images/casual-wild.png"} className="hsreplay-type" alt="Casual (Wild)"/>;
-			default:
-				return null;
-		}
-	}
-
-	getArenaIcon(): JSX.Element {
-		var player = this.props.friendlyPlayer;
-		var wins = player ? player.wins + 1 : 1;
-		return <img src={STATIC_URL + "images/arena-medals/Medal_Key_" + wins + ".png"} className="hsreplay-type" alt="Arena"/>;
-	}
-
-	getRankedIcon(): JSX.Element {
-		var player = this.props.friendlyPlayer;
-		if (player) {
-			if (player.rank) {
-				return <img src={STATIC_URL + "images/ranked-medals/Medal_Ranked_" + player.rank + ".png"} className="hsreplay-type" alt={"Ranked"}/>
-			}
-			if (player.legend_rank) {
-				return <img src={STATIC_URL + "images/ranked-medals/Medal_Ranked_Legend.png"} className="hsreplay-type" alt={"Legend"}/>
-			}
-		}
-		return null;
-	}
-
-	isHeroicTavernBrawl(): boolean {
-		return this.props.scenarioId == 2109;
-	}
-
-	getIconInfo(): string {
-		var player = this.props.friendlyPlayer;
-		if (!player) {
-			return null;
-		}
-		switch (this.props.gameType) {
-			case BnetGameType.BGT_ARENA:
-				return +player.wins + " - " + +player.losses;
-			case BnetGameType.BGT_RANKED_STANDARD:
-			case BnetGameType.BGT_RANKED_WILD:
-				if (player.rank) {
-					return "Rank " + player.rank;
-				}
-				if (player.legend_rank) {
-					return "Rank " + player.legend_rank;
-				}
-				return "Ranked";
-			case BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI:
-			case BnetGameType.BGT_TAVERNBRAWL_2P_COOP:
-			case BnetGameType.BGT_TAVERNBRAWL_PVP:
-				if (this.isHeroicTavernBrawl()) {
-					return "Heroic Tavern Brawl";
-				}
-				return "Tavern Brawl";
-			default:
-				return null;
-		}
-	}
-
+export default class GameHistoryItem extends React.Component<GameHistoryItemProps, any> {
 	render(): JSX.Element {
-		return (<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3 game-history-item">
+		return (<div className="col-xs-12 col-sm-6 col-md-4 col-lg-4 game-history-item">
 			<a href={"/replay/" + this.props.shortid} className={this.props.won ? "won" : "lost"}>
 				<div className="hsreplay-involved">
 					<img src={this.props.image("vs.png")} className="hsreplay-versus" />
@@ -148,18 +41,29 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 				<div className="hsreplay-details">
 					<dl>
 						<dt>Played</dt>
-						<dd>{this.getPlayedTime()}</dd>
+						<dd>{getAge(this.props.endTime)}</dd>
 						<dt>Duration</dt>
-						<dd>{this.getDuration()}</dd>
+						<dd>{getDuration(this.props.startTime, this.props.endTime)}</dd>
 						<dt>Turns</dt>
 						<dd>{Math.floor(this.props.turns / 2)} turns</dd>
 					</dl>
 					<div>
-						{this.getIcon()}
-						<div>{this.getIconInfo()}</div>
+						<GameModeIcon
+						 	className="hsreplay-type"
+							player={this.props.friendlyPlayer}
+							gameType={this.props.gameType}
+							disconnected={this.props.disconnected}
+							scenarioId={this.props.scenarioId}
+						/>
+						<GameModeText
+							player={this.props.friendlyPlayer}
+							gameType={this.props.gameType}
+							scenarioId={this.props.scenarioId}
+						 />
 					</div>
 				</div>
 			</a>
 		</div>);
 	}
 }
+
