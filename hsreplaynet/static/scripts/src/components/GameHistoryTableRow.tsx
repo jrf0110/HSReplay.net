@@ -28,7 +28,7 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 		return (
 			<a href={url} className={"match-table-row " + result}>
 				<div className="match-table-cell auto-size player-icon">
-					<ClassIcon player={this.props.friendlyPlayer} />
+					<ClassIcon player={this.props.friendlyPlayer} small={true}/>
 				</div>
 				<div className="match-table-cell auto-size hide-below-768 player-name">
 					{this.getHeroName(this.props.friendlyPlayer)}
@@ -37,7 +37,7 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 					vs
 				</div>
 				<div className="match-table-cell auto-size opponent-icon">
-					<ClassIcon player={this.props.opposingPlayer} />
+					<ClassIcon player={this.props.opposingPlayer} small={true}/>
 				</div>
 				<div className="match-table-cell hide-below-768 opponent-name">
 					{this.getHeroName(this.props.opposingPlayer)}
@@ -52,6 +52,7 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 							gameType={this.props.gameType}
 							disconnected={this.props.disconnected}
 							scenarioId={this.props.scenarioId}
+							small={true}
 						/>
 						<GameModeText
 							className="hsreplay-type-sm"

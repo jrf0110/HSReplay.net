@@ -8,6 +8,7 @@ export interface GameModeIconProps extends React.ClassAttributes<GameModeIcon>{
 	disconnected: boolean;
 	scenarioId: number;
 	className: string;
+	small?: boolean;
 }
 
 interface IconInfo {
@@ -33,24 +34,25 @@ export default class GameModeIcon extends React.Component<GameModeIconProps, any
 	}
 
 	private getIconInfo(gameType: BnetGameType): IconInfo {
+		const basePath = STATIC_URL + "images/" + (this.props.small ? "64x/" : "");
 		let imgPath = null;
 		let text = null;
 		switch (gameType) {
 			case BnetGameType.BGT_ARENA:
 				let wins = this.props.player ? this.props.player.wins + 1 : 1;
-				imgPath = "images/arena-medals/Medal_Key_" + wins + ".png";
+				imgPath = "arena-medals/Medal_Key_" + wins + ".png";
 				text = "Arena";
 				break;
 			case BnetGameType.BGT_RANKED_STANDARD:
 			case BnetGameType.BGT_RANKED_WILD:
 				if (this.props.player) {
 					if (this.props.player.rank) {
-						imgPath = "images/ranked-medals/Medal_Ranked_" + this.props.player.rank + ".png";
+						imgPath = "ranked-medals/Medal_Ranked_" + this.props.player.rank + ".png";
 						text = "Ranked";
 						break;
 					}
 					if (this.props.player.legend_rank) {
-						imgPath = "images/ranked-medals/Medal_Ranked_Legend.png";
+						imgPath = "ranked-medals/Medal_Ranked_Legend.png";
 						text = "Legend";
 					}
 				}
@@ -59,34 +61,34 @@ export default class GameModeIcon extends React.Component<GameModeIconProps, any
 			case BnetGameType.BGT_TAVERNBRAWL_2P_COOP:
 			case BnetGameType.BGT_TAVERNBRAWL_PVP:
 				if (this.isHeroicTavernBrawl()) {
-					imgPath = "images/brawl_skull.png";
+					imgPath = "brawl_skull.png";
 					text = "Heroic Tavern Brawl";
 					break;
 				}
-				imgPath = "images/modeID_Brawl.png";
+				imgPath = "modeID_Brawl.png";
 				text = "Tavern Brawl";
 				break;
 			case BnetGameType.BGT_CASUAL_STANDARD:
-				imgPath = "images/casual.png";
+				imgPath = "casual.png";
 				text = "Casual";
 				break;
 			case BnetGameType.BGT_CASUAL_WILD:
-				imgPath = "images/casual-wild.png";
+				imgPath = "casual-wild.png";
 				text = "Casual (Wild)";
 				break;
 			case BnetGameType.BGT_VS_AI:
-				imgPath = "images/mode_ai.png";
+				imgPath = "mode_ai.png";
 				text = "Adventure";
 				break;
 			case BnetGameType.BGT_FRIENDS:
-				imgPath = "images/mode_friendly.png";
+				imgPath = "mode_friendly.png";
 				text = "Friendly Challange";
 				break;
 		}
 		if (!imgPath) {
 			return null;
 		}
-		imgPath = STATIC_URL + imgPath;
+		imgPath = basePath + imgPath;
 		return {imgPath, text};
 	}
 }
