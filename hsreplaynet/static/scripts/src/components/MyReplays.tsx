@@ -1,4 +1,5 @@
 import * as React from "react";
+import {cookie} from "cookie_js"
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer, ReplayFilter} from "../interfaces";
 import GameHistorySearch from "./GameHistorySearch";
 import GameHistorySelectFilter from "./GameHistorySelectFilter";
@@ -25,13 +26,16 @@ interface MyReplaysState {
 	currentLocalPage?: number;
 	pageSize?: number;
 	filters?: ReplayFilter[];
-	listView?: boolean;
+	tableView?: boolean;
 }
 
 export default class MyReplays extends React.Component<MyReplaysProps, MyReplaysState> {
 
+	readonly tableViewCookie: string = "myreplays_viewtype";
+
 	constructor(props: MyReplaysProps, context: any) {
 		super(props, context);
+		let tableView = cookie.get(this.tableViewCookie) !== "list";
 		this.state = {
 			working: true,
 			queryMap: parseQuery(document.location.hash.substr(1)),
@@ -41,7 +45,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			receivedPages: 0,
 			currentLocalPage: 0,
 			pageSize: 1,
-			listView: true,
+			tableView: tableView,
 		};
 		this.state.filters = this.getFilters();
 		this.query("/api/v1/games/");
@@ -148,7 +152,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 
 		let content = null;
 		if (games.length) {
-			content =  (this.state.listView ?
+			content =  (this.state.tableView ?
 			<GameHistoryTable
 				image={this.props.image}
 				cardArt={this.props.cardArt}
@@ -203,7 +207,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 								<li>
 									<div className="checkbox">
 										<label>
-											<input type="checkbox" checked={this.state.listView} onChange={(x) => this.setState({listView: !this.state.listView})} />
+											<input type="checkbox" checked={this.state.tableView} onChange={() => this.updateContent()} />
 											Show as table
 										</label>
 									</div>
@@ -222,6 +226,12 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				</div>
 			</div>
 		);
+	}
+
+	private updateContent() {
+		const newView = !this.state.tableView;
+		cookie.set(this.tableViewCookie, newView ? "table" : "list", {expires: 365});
+		this.setState({tableView: newView});
 	}
 
 	private getFiltersControls(): JSX.Element[] {
