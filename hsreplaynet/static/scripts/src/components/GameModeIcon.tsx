@@ -61,27 +61,27 @@ export default class GameModeIcon extends React.Component<GameModeIconProps, any
 			case BnetGameType.BGT_TAVERNBRAWL_2P_COOP:
 			case BnetGameType.BGT_TAVERNBRAWL_PVP:
 				if (this.isHeroicTavernBrawl()) {
-					imgPath = "brawl_skull.png";
+					imgPath = "mode-icons/brawl_skull.png";
 					text = "Heroic Tavern Brawl";
 					break;
 				}
-				imgPath = "modeID_Brawl.png";
+				imgPath = "mode-icons/modeID_Brawl.png";
 				text = "Tavern Brawl";
 				break;
 			case BnetGameType.BGT_CASUAL_STANDARD:
-				imgPath = "casual.png";
+				imgPath = "mode-icons/casual.png";
 				text = "Casual";
 				break;
 			case BnetGameType.BGT_CASUAL_WILD:
-				imgPath = "casual-wild.png";
+				imgPath = "mode-icons/casual-wild.png";
 				text = "Casual (Wild)";
 				break;
 			case BnetGameType.BGT_VS_AI:
-				imgPath = "mode_ai.png";
+				imgPath = "mode-icons/mode_ai.png";
 				text = "Adventure";
 				break;
 			case BnetGameType.BGT_FRIENDS:
-				imgPath = "mode_friendly.png";
+				imgPath = "mode-icons/mode_friendly.png";
 				text = "Friendly Challange";
 				break;
 		}
