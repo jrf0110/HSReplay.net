@@ -18,7 +18,7 @@ HEARTHSTONE_LOCALES = (
 	("koKR", "Korean"),
 	("plPL", "Polish"),
 	("ptBR", "Portuguese (BR)"),
-	("ptPT", "Portuguese (PT)"),
+	# ("ptPT", "Portuguese (PT)"),
 	("ruRU", "Russian"),
 	("esES", "Spanish (ES)"),
 	("esMX", "Spanish (MX)"),
