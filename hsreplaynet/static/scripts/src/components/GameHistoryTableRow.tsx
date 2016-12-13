@@ -39,9 +39,10 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 				<div className="match-table-cell auto-size opponent-icon">
 					<ClassIcon player={this.props.opposingPlayer} small={true}/>
 				</div>
-				<div className="match-table-cell hide-below-768 opponent-name">
+				<div className="match-table-cell auto-size hide-below-768 opponent-name">
 					{this.getHeroName(this.props.opposingPlayer)}
 				</div>
+				<div className="match-table-cell"></div>
 				<div className="match-table-cell hide-below-1100">{this.props.opposingPlayer.name}</div>
 				<div className={"match-table-cell " + result}>{this.props.won ? "Won" : "Lost"}</div>
 				<div className="match-table-cell">

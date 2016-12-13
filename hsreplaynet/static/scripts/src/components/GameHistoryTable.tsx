@@ -48,6 +48,7 @@ export default class GameHistoryTable extends React.Component<GameHistoryTablePr
 						<div className="match-table-cell auto-size hide-below-768"></div>
 						<div className="match-table-cell auto-size"></div>
 						<div className="match-table-cell auto-size hide-below-768"></div>
+						<div className="match-table-cell auto-size"></div>
 						<div className="match-table-cell"></div>
 						<div className="match-table-cell hide-below-1100">Opponent</div>
 						<div className="match-table-cell">Result</div>
