@@ -189,20 +189,19 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			this.setState({currentLocalPage: this.state.currentLocalPage - 1});
 		} : null;
 
-		let collapseSection = window.innerWidth < 1092;
 		return (
 			<div>
 				<div className="col-md-3 col-sm-12 col-xs-12" style={{paddingBottom: "10px"}}>
 					<div id="replay-infobox">
-						<InfoBoxSection header="Classes Played" defaultCollapsed={collapseSection} collapsable={collapseSection}>
+						<InfoBoxSection header="Classes Played" collapsedSizes={["xs", "sm"]}>
 							<ClassDistributionPieChart games={games} loadingGames={this.state.working} />
 						</InfoBoxSection>
-						<InfoBoxSection header="Filters" defaultCollapsed={collapseSection} collapsable={collapseSection}>
+						<InfoBoxSection header="Filters" collapsedSizes={["xs", "sm"]} >
 							<ul>
 								{this.getFiltersControls()}
 							</ul>
 						</InfoBoxSection>
-						<InfoBoxSection header="Settings" defaultCollapsed={collapseSection} collapsable={collapseSection}>
+						<InfoBoxSection header="Settings" collapsedSizes={["xs", "sm"]}>
 							<ul>
 								<li>
 									<div className="checkbox">
