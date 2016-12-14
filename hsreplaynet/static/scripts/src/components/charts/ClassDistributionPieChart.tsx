@@ -27,7 +27,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 		let data = [];
 		let numGames = this.props.games.length;
 		if (numGames == 0) {
-			data.push({x: "", y: 1, name: "Total", color: "lightgrey"});
+			data.push({x: " ", y: 1, name: null, color: "lightgrey"});
 		}
 		else {
 			let distr = new Map<string, number>();
@@ -83,7 +83,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 					}]}
 				/>
 				<h5 style={{textAlign: "center", marginTop: "-20px"}}>
-					{(this.state.name ? this.state.name + ": " + this.state.value : "Total: " + numGames) + " Games" + (this.props.loadingGames ? " [Loading...]" : "")}
+					{(numGames && this.state.name ? this.state.name + ": " + this.state.value : "Total: " + numGames) + " Games" + (this.props.loadingGames ? " [Loading...]" : "")}
 				</h5>
 			</div>
 		);
