@@ -137,11 +137,17 @@ class UploadEventSerializer(serializers.Serializer):
 
 
 class GlobalGamePlayerSerializer(serializers.ModelSerializer):
+	hero_name = serializers.SerializerMethodField()
+
+	def get_hero_name(self, instance):
+		return instance.hero.name
+
 	class Meta:
 		model = GlobalGamePlayer
 		fields = (
 			"name", "player_id", "account_hi", "account_lo", "is_ai", "is_first",
-			"hero_id", "hero_premium", "final_state", "wins", "losses", "rank", "legend_rank"
+			"hero_id", "hero_premium", "final_state", "wins", "losses", "rank", "legend_rank",
+			"hero_name", "hero_class_name"
 		)
 
 
