@@ -41,7 +41,7 @@ class ApplicationBaseView(LoginRequiredMixin, View):
 
 class ApplicationUpdateView(ApplicationBaseView, UpdateView):
 	template_name = "oauth2/application_update.html"
-	fields = ("name", "homepage", "redirect_uris")
+	fields = ("name", "description", "homepage", "redirect_uris")
 
 
 class ApplicationListView(ApplicationBaseView, ListView):

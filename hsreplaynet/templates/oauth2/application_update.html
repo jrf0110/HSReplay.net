@@ -52,6 +52,12 @@
 			</div>
 
 			<div class="form-group">
+				<label for="id_description">App Description</label>
+				<textarea name="description" id="id_description" class="form-control">{{ form.instance.description }}</textarea>
+				<p><em>This will be shown to users during authorization.</em></p>
+			</div>
+
+			<div class="form-group">
 				<label for="id_homepage">Homepage</label>
 				<input
 					type="url" name="homepage" id="id_homepage" size="30" maxlength="200"

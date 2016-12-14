@@ -4,6 +4,7 @@ from oauth2_provider.models import AbstractApplication
 
 
 class Application(AbstractApplication):
+	description = models.TextField(blank=True)
 	homepage = models.URLField()
 
 	def get_absolute_url(self):
