@@ -11,6 +11,7 @@ interface ClassDistributionPieChartState {
 export interface ClassDistributionPieChartProps extends React.ClassAttributes<ClassDistributionPieChart>{
 	games: GameReplay[];
 	loadingGames?: boolean;
+	onPieceClicked?: (name: string) => void;
 }
 
 export default class ClassDistributionPieChart extends React.Component<ClassDistributionPieChartProps, ClassDistributionPieChartState> {
@@ -69,6 +70,14 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 									mutation: () => null
 								}];
 							},
+							onClick: () => {
+								if (this.props.onPieceClicked) {
+									this.props.onPieceClicked(this.state.name.toLowerCase());
+								}
+								return [{
+									mutation: () => null
+								}];
+							}
 						}
 					}]}
 				/>
