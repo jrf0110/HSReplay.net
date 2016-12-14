@@ -93,6 +93,9 @@ class MakePrimaryView(LoginRequiredMixin, View):
 
 		battletag = socacc.extra_data.get("battletag")
 		if battletag:
+			if User.objects.filter(username=battletag).exists():
+				# A user with that username already exists
+				return self.redirect()
 			request.user.battletag = battletag
 			request.user.username = battletag
 			request.user.save()
