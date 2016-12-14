@@ -194,7 +194,11 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				<div className="col-md-3 col-sm-12 col-xs-12" style={{paddingBottom: "10px"}}>
 					<div id="replay-infobox">
 						<InfoBoxSection header="Classes Played" collapsedSizes={["xs", "sm"]}>
-							<ClassDistributionPieChart games={games} loadingGames={this.state.working} />
+							<ClassDistributionPieChart
+								games={games}
+								loadingGames={this.state.working}
+								onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
+							/>
 						</InfoBoxSection>
 						<InfoBoxSection header="Filters" collapsedSizes={["xs", "sm"]} >
 							<ul>
@@ -225,6 +229,13 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				</div>
 			</div>
 		);
+	}
+
+	private onPiePieceClicked(hero: string) {
+		this.setState({
+			queryMap: this.state.queryMap.set("hero", this.state.queryMap.get("hero") === hero ? null : hero),
+			currentLocalPage: 0
+		});
 	}
 
 	private updateContent() {
