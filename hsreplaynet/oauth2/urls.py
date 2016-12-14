@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from oauth2_provider import views as oauth2_views
 from . import views
 
 
@@ -22,4 +23,5 @@ urlpatterns = [
 	),
 	url(r"^authorize/$", authorization_view, name="authorize"),
 	url(r"^login/$", login_view, name="oauth2_login"),
+	url(r"^token/$", oauth2_views.TokenView.as_view(), name="token"),
 ]
