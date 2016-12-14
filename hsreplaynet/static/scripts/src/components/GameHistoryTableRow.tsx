@@ -94,9 +94,13 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 	}
 
 	private getHeroName(player: GlobalGamePlayer): string {
-		if (!player.hero_id.startsWith("HERO")) {
-			return player.name;
+		if (player.hero_class_name == "NEUTRAL") {
+			return player.hero_name;
 		}
-		return ["Warrior", "Shaman", "Rogue", "Paladin", "Hunter", "Druid", "Warlock", "Mage", "Priest"][+player.hero_id.substr(6, 1) - 1];
+		return this.toTitleCase(player.hero_class_name);
+	}
+
+	private toTitleCase(str: string) {
+		return str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1).toLowerCase();
 	}
 }

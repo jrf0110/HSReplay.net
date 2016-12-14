@@ -33,7 +33,8 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 			let distr = new Map<string, number>();
 			this.props.games.forEach((game: GameReplay) => {
 				if (game.friendly_player.hero_id.startsWith("HERO")) {
-					let hero = this.getHeroName(game.friendly_player.hero_id);
+					let hero = game.friendly_player.hero_class_name;
+					hero = hero.substr(0, 1).toUpperCase() + hero.substr(1, hero.length - 1).toLowerCase();
 					distr.set(hero, (distr.get(hero) || 0) + 1);
 				}
 			});
@@ -86,14 +87,6 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 				</h5>
 			</div>
 		);
-	}
-
-	/*TODO: Replace with values from api */
-	private getHeroName(cardId: string): string {
-		if (!cardId.startsWith("HERO")) {
-			return cardId;
-		}
-		return ["Warrior", "Shaman", "Rogue", "Paladin", "Hunter", "Druid", "Warlock", "Mage", "Priest" ][+cardId.substr(6, 1) - 1];
 	}
 
 	private getColor(hero: string): string {
