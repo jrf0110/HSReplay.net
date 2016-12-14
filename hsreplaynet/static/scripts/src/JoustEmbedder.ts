@@ -70,7 +70,9 @@ export default class JoustEmbedder extends EventEmitter {
 
 		// setup metadata
 		launcher.metadataSource((build, locale) => HEARTHSTONEJSON_URL.replace(/%\(build\)s/, "" + build).replace(/%\(locale\)s/, locale));
-		launcher.locale(this.locale);
+		if (typeof launcher.selectedLocale !== "undefined" && !launcher.selectedLocale) {
+			launcher.locale(this.locale);
+		}
 
 		// setup influx
 		let endpoint = INFLUX_DATABASE_JOUST;

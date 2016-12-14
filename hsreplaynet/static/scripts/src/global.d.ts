@@ -59,6 +59,10 @@ declare module "joust" {
 
 		locale(locale?: string): Launcher;
 
+		readonly build: number|null;
+
+		readonly selectedLocale: string|null;
+
 		play(): void;
 
 		pause(): void;
