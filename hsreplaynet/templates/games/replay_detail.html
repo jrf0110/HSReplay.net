@@ -61,7 +61,7 @@
 		</div>
 		<div class="col-lg-2 col-md-3 col-sm-12 col-xs-12">
 			{% with replay.global_game as gg %}
-			<div class="infobox" data-shortid="{{ replay.shortid }}">
+			<div id="replay-infobox" class="infobox" data-shortid="{{ replay.shortid }}">
 				{% if gg.is_ranked %}
 					<h1>
 						Ranked
