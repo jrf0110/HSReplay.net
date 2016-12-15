@@ -253,7 +253,8 @@ OAUTH2_PROVIDER = {
 	"SCOPES": {
 		"webhooks:read": "View your webhooks",
 		"webhooks:write": "Create and delete webhooks on your behalf",
-	}
+	},
+    "ALLOWED_REDIRECT_URI_SCHEMES": ["https"],
 }
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2.Application"
