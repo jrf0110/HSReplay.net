@@ -1,5 +1,5 @@
 import * as React from "react";
-import {cookie} from "cookie_js"
+import {cookie} from "cookie_js";
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer, ReplayFilter} from "../interfaces";
 import GameHistorySearch from "./GameHistorySearch";
 import GameHistorySelectFilter from "./GameHistorySelectFilter";
@@ -11,6 +11,8 @@ import {parseQuery, toQueryString} from "../QueryParser"
 import {formatMatch, modeMatch, nameMatch, resultMatch, heroMatch, opponentMatch} from "../GameFilters"
 import ClassDistributionPieChart from "./charts/ClassDistributionPieChart";
 
+
+type ViewType = "tiles" | "list";
 
 interface MyReplaysProps extends ImageProps, CardArtProps, React.ClassAttributes<MyReplays> {
 	username: string;
@@ -26,16 +28,16 @@ interface MyReplaysState {
 	currentLocalPage?: number;
 	pageSize?: number;
 	filters?: ReplayFilter[];
-	tableView?: boolean;
+	viewType?: ViewType;
 }
 
 export default class MyReplays extends React.Component<MyReplaysProps, MyReplaysState> {
 
-	readonly tableViewCookie: string = "myreplays_viewtype";
+	readonly viewCookie: string = "myreplays_viewtype";
 
 	constructor(props: MyReplaysProps, context: any) {
 		super(props, context);
-		let tableView = cookie.get(this.tableViewCookie) !== "list";
+		let viewType = cookie.get(this.viewCookie, "tiles") as ViewType;
 		this.state = {
 			working: true,
 			queryMap: parseQuery(document.location.hash.substr(1)),
@@ -45,7 +47,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			receivedPages: 0,
 			currentLocalPage: 0,
 			pageSize: 1,
-			tableView: tableView,
+			viewType: viewType,
 		};
 		this.state.filters = this.getFilters();
 		this.query("/api/v1/games/");
@@ -152,7 +154,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 
 		let content = null;
 		if (games.length) {
-			content =  (this.state.tableView ?
+			content =  (this.state.viewType === "list" ?
 			<GameHistoryTable
 				image={this.props.image}
 				cardArt={this.props.cardArt}
@@ -191,39 +193,39 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 
 		return (
 			<div>
-				<div className="col-md-3 col-sm-12 col-xs-12" style={{paddingBottom: "10px"}}>
-					<div id="replay-infobox">
-						<InfoBoxSection header="Classes Played" collapsedSizes={["xs", "sm"]}>
-							<ClassDistributionPieChart
-								games={games}
-								loadingGames={this.state.working}
-								onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
-							/>
-						</InfoBoxSection>
-						<InfoBoxSection header="Filters" collapsedSizes={["xs", "sm"]} >
-							<ul>
-								{this.getFiltersControls()}
-							</ul>
-						</InfoBoxSection>
-						<InfoBoxSection header="Settings" collapsedSizes={["xs", "sm"]}>
-							<ul>
-								<li>
-									<div className="checkbox">
-										<label>
-											<input type="checkbox" checked={this.state.tableView} onChange={() => this.updateContent()} />
-											Show as table
-										</label>
-									</div>
-								</li>
-							</ul>
-						</InfoBoxSection>
+				<div className="header-buttons">
+					<div className="btn-group view-selector">
+						<button type="button" className={"btn btn-" + (this.state.viewType === "list" ? "primary" : "default")} onClick={() => this.setView("list")}>List View</button>
+						<button type="button" className={"btn btn-" + (this.state.viewType === "tiles" ? "primary" : "default")} onClick={() => this.setView("tiles")}>Tile View</button>
 					</div>
+					<div className="pull-right">
+						<Pager next={next} previous={previous}/>
+					</div>
+					<div className="clearfix" />
 				</div>
-				<div className="col-md-9 col-sm-12 col-xs-12" id="replay-search">
-					<div>
-						{content}
-						<div className="pull-right">
-							<Pager next={next} previous={previous}/>
+				<div className="row">
+					<div className="col-md-3 col-sm-12 col-xs-12 infobox-wrapper">
+						<div className="infobox" id="myreplays-infobox">
+							<InfoBoxSection header="Classes Played" collapsedSizes={["xs", "sm"]} headerStyle="h1">
+								<ClassDistributionPieChart
+									games={games}
+									loadingGames={this.state.working}
+									onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
+								/>
+							</InfoBoxSection>
+							<InfoBoxSection header="Filters" collapsedSizes={["xs", "sm"]} headerStyle="h1">
+								<ul>
+									{this.getFiltersControls()}
+								</ul>
+							</InfoBoxSection>
+						</div>
+					</div>
+					<div className="col-md-9 col-sm-12 col-xs-12" id="replay-search">
+						<div>
+							{content}
+							<div className="pull-right">
+								<Pager next={next} previous={previous}/>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -231,17 +233,18 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		);
 	}
 
+	private setView(view: ViewType) {
+		if (this.state.viewType !== view) {
+			cookie.set(this.viewCookie, view, {expires: 365});
+			this.setState({viewType: view});
+		}
+	}
+
 	private onPiePieceClicked(hero: string) {
 		this.setState({
 			queryMap: this.state.queryMap.set("hero", this.state.queryMap.get("hero") === hero ? null : hero),
 			currentLocalPage: 0
 		});
-	}
-
-	private updateContent() {
-		const newView = !this.state.tableView;
-		cookie.set(this.tableViewCookie, newView ? "table" : "list", {expires: 365});
-		this.setState({tableView: newView});
 	}
 
 	private getFiltersControls(): JSX.Element[] {

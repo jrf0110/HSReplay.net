@@ -345,6 +345,26 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 	border-color: #8ce62c;
 }
 
+#myreplays-infobox {
+	margin-bottom: 10px;
+	ul {
+		padding: 0.3em 0;
+	}
+	h1 {
+		padding: 0.65em 0.65em 0.65em 0em;
+
+		.infobox-value {
+			color: white;
+			padding-right: 10px;
+		}
+	}
+}
+
+.header-buttons .view-selector {
+		float: left;
+		margin-bottom: 10px;
+}
+
 
 /* Styling for empty section */
 
