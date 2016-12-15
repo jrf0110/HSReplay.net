@@ -18,14 +18,14 @@ def check_redis(app_configs=None, **kwargs):
 			"Could not connect to redis: %s") % (e),
 			hint="Attempted to connect with the following settings: %s" % (conn_settings)
 		)
+	else:
+		version = queue.connection.info()["redis_version"]
+		version_tuple = tuple(int(x) for x in version.split("."))
 
-	version = queue.connection.info()["redis_version"]
-	version_tuple = tuple(int(x) for x in version.split("."))
-
-	if version_tuple < REDIS_MINIMUM_VERSION:
-		errors.append(checks.Error(
-			"Your version of redis is too old (found %s)" % (version),
-			hint="Minimum version required: %s" % (REDIS_MINIMUM_VERSION)
-		))
+		if version_tuple < REDIS_MINIMUM_VERSION:
+			errors.append(checks.Error(
+				"Your version of redis is too old (found %s)" % (version),
+				hint="Minimum version required: %s" % (REDIS_MINIMUM_VERSION)
+			))
 
 	return errors
