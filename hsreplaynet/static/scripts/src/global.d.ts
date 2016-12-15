@@ -90,3 +90,8 @@ declare module "joust" {
 
 	export function launcher(target: string | HTMLElement): Launcher;
 }
+
+declare module "cookie_js" {
+	import * as cookiejs from "cookiejs";
+	export {cookiejs as cookie};
+}
