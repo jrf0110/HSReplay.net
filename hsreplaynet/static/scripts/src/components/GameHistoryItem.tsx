@@ -45,7 +45,7 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 						<dt>Duration</dt>
 						<dd>{getDuration(this.props.startTime, this.props.endTime)}</dd>
 						<dt>Turns</dt>
-						<dd>{Math.floor(this.props.turns / 2)} turns</dd>
+						<dd>{Math.ceil(this.props.turns / 2)} turns</dd>
 					</dl>
 					<div>
 						<GameModeIcon

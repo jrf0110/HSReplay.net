@@ -64,7 +64,7 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 					</div>
 				</div>
 				<div className="match-table-cell hide-below-1600">{getDuration(this.props.startTime, this.props.endTime)}</div>
-				<div className="match-table-cell hide-below-768">{Math.floor(this.props.turns / 2)}</div>
+				<div className="match-table-cell hide-below-768">{Math.ceil(this.props.turns / 2)}</div>
 				<div className="match-table-cell hide-below-500">{getAge(this.props.endTime)}</div>
 			</a>
 		);
