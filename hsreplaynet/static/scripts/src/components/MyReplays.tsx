@@ -195,8 +195,8 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			<div>
 				<div className="header-buttons">
 					<div className="btn-group view-selector">
-						<button type="button" className={"btn btn-" + (this.state.viewType === "list" ? "primary" : "default")} onClick={() => this.setView("list")}>List View</button>
-						<button type="button" className={"btn btn-" + (this.state.viewType === "tiles" ? "primary" : "default")} onClick={() => this.setView("tiles")}>Tile View</button>
+						<button type="button" className={"btn btn-" + (this.state.viewType === "list" ? "primary" : "default")} onClick={() => this.setView("list")}>List view</button>
+						<button type="button" className={"btn btn-" + (this.state.viewType === "tiles" ? "primary" : "default")} onClick={() => this.setView("tiles")}>Tile view</button>
 					</div>
 					<div className="pull-right">
 						<Pager next={next} previous={previous}/>
