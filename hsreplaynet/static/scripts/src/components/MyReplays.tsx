@@ -216,6 +216,10 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 							<InfoBoxSection header="Filters" collapsedSizes={["xs", "sm"]} headerStyle="h1">
 								<ul>
 									{this.getFiltersControls()}
+									{toQueryString(this.state.queryMap).length ?
+										<li>
+											<a href="#" onClick={(e) => {e.preventDefault(); this.setState({queryMap: new Map<string, string>()})}}>Reset filters</a>
+										</li> : null}
 								</ul>
 							</InfoBoxSection>
 						</div>
