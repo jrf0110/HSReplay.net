@@ -121,6 +121,9 @@ class WebhookTrigger(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	completed_time = models.PositiveIntegerField()
 
+	class Meta:
+		ordering = ("-created", )
+
 	@property
 	def content_type(self):
 		return "application/json"
