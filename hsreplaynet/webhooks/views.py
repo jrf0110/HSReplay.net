@@ -7,7 +7,7 @@ from .models import Webhook
 class WebhookFormView(LoginRequiredMixin):
 	model = Webhook
 	template_name = "webhooks/detail.html"
-	fields = ["url", "is_active"]
+	fields = ["url", "secret", "is_active"]
 	success_url = reverse_lazy("account_api")
 
 

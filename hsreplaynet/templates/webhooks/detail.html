@@ -48,6 +48,23 @@
 				It should always return either HTTP 200 or HTTP 201.
 			</p>
 
+			<div class="form-group">
+				<label for="id_secret">Secret</label>
+				<input
+					type="password" name="secret" id="id_secret" size="30" maxlength="200"
+					class="form-control" value="{{ form.instance.secret }}"
+				/>
+				<p class="note">
+					Webhooks will contain an <code>X-Webhook-Signature</code> HTTP header,
+					that is a SHA256 HMAC of the payload's body.<br/>
+					If you include a secret here, it will serve as the HMAC key.
+				</p>
+				<p>
+					The implementation is similar to Github webhooks.
+					<a href="https://developer.github.com/webhooks/securing/" target="_blank">More information</a>.
+				</p>
+			</div>
+
 			<p>
 				{{ form.is_active }}
 				<label for="id_is_active">Active</label>

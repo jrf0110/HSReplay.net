@@ -25,6 +25,10 @@ class Webhook(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	modified = models.DateTimeField(auto_now=True)
 	timeout = models.PositiveSmallIntegerField(default=10)
+	secret = models.CharField(
+		blank=True, max_length=255,
+		help_text="Salt for the X-Webhook-Signature header sent with the payload",
+	)
 
 	def __str__(self):
 		return str(self.uuid)
@@ -124,7 +128,7 @@ class WebhookTrigger(models.Model):
 		from hmac import HMAC
 		from hashlib import sha256
 
-		key = "".encode("utf-8")
+		key = self.webhook.secret.encode("utf-8")
 		msg = self.payload.encode("utf-8")
 		mac = HMAC(key, msg, digestmod=sha256)
 
