@@ -2,6 +2,7 @@ import json
 import time
 import requests
 from uuid import uuid4
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from hsreplaynet.accounts.models import User
@@ -138,6 +139,7 @@ class WebhookTrigger(models.Model):
 		begin = time.time()
 		headers = {
 			"Content-Type": self.content_type,
+			"User-Agent": settings.WEBHOOKS["USER_AGENT"],
 			"X-Webhook-Signature": self.generate_signature(),
 		}
 
