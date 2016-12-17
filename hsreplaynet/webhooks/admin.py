@@ -13,7 +13,7 @@ send_test_payload.short_description = "Send test payload"
 @admin.register(Webhook)
 class WebhookAdmin(admin.ModelAdmin):
 	list_display = (
-		"__str__", "url", "is_active", "user", "max_triggers", "created"
+		"__str__", "url", "is_active", "user", "max_triggers", "created", "is_deleted",
 	)
 	list_filter = ("is_active", "is_deleted")
 	raw_id_fields = ("user", )
