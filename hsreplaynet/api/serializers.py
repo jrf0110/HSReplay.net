@@ -44,11 +44,11 @@ class UserSerializer(serializers.Serializer):
 	username = serializers.SerializerMethodField()
 
 	def get_battletag(self, instance):
-		if self.context["request"].user == instance:
+		if "request" in self.context and self.context["request"].user == instance:
 			return instance.battletag
 
 	def get_username(self, instance):
-		if self.context["request"].user == instance:
+		if "request" in self.context and self.context["request"].user == instance:
 			return instance.username
 
 	def to_representation(self, instance):
