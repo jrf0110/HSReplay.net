@@ -1,15 +1,6 @@
 from django.contrib import admin
-from hsreplaynet.uploads.models import UploadEvent
 from hsreplaynet.utils.admin import set_user, admin_urlify as urlify
 from .models import APIKey, AuthToken
-
-
-class UploadEventInline(admin.TabularInline):
-	model = UploadEvent
-	fields = ("game", "created", "file", "upload_ip", "status", "api_key")
-	readonly_fields = fields[1:]
-	extra = 0
-	show_change_link = True
 
 
 @admin.register(AuthToken)
@@ -28,3 +19,4 @@ class APIKeyAdmin(admin.ModelAdmin):
 	search_fields = ("full_name", "email", "website")
 	list_filter = ("enabled", )
 	exclude = ("tokens", )
+	readonly_fields = ("api_key", )
