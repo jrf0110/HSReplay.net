@@ -2,11 +2,13 @@ import json
 import pytest
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from oauth2_provider.models import Grant
 from rest_framework.serializers import ValidationError
+from hearthstone.enums import PlayState
 from hsreplaynet.accounts.models import AccountClaim, User
 from hsreplaynet.api.models import AuthToken
 from hsreplaynet.api.serializers import SmartFileField
-from hearthstone.enums import PlayState
+from hsreplaynet.oauth2.models import Application
 
 
 CLAIM_ACCOUNT_API = "/api/v1/claim_account/"
@@ -130,3 +132,61 @@ def test_auth_token_request(client, settings):
 		HTTP_X_API_KEY=api_key,
 	)
 	assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_oauth_api(admin_user, client, settings):
+	redirect_uri = "https://localhost:8443/"
+	client_id = "client-id"
+	client_secret = "secret"
+
+	app = Application.objects.create(
+		name="Test OAuth2 Application",
+		user=admin_user,
+		client_id=client_id,
+		client_secret=client_secret,
+		client_type="confidential",
+		authorization_grant_type="authorization-code",
+		redirect_uris=redirect_uri,
+	)
+
+	response_type = "code"
+	state = "random_state_string"
+	authorize_url = "/oauth2/authorize/"
+	data = {
+		"client_id": client_id,
+		"response_type": response_type,
+		"state": state,
+		"scopes": "webhooks:read webhooks:write",
+	}
+	response = client.get(authorize_url, data=data)
+	assert response.status_code == 302
+	assert response.url.startswith("/oauth2/login/")
+	assert "client_id=%s" % (client_id) in response.url
+
+	client.force_login(admin_user, backend=settings.AUTHENTICATION_BACKENDS[0])
+	response = client.get(authorize_url, data=data)
+	assert response.status_code == 200
+
+	app.skip_authorization = True
+	app.save()
+	response = client.get(authorize_url, data=data)
+	assert response.status_code == 302
+	assert response.url.startswith(redirect_uri)
+
+	code = Grant.objects.first().code
+	token_url = "/oauth2/token/"
+	data = {
+		"grant_type": "authorization_code",
+		"code": code,
+		"client_id": client_id,
+		"client_secret": client_secret,
+		"redirect_uri": redirect_uri,
+	}
+	response = client.post(token_url, data)
+	assert response.status_code == 200
+
+	data = json.loads(response.content.decode("utf-8"))
+	token = data["access_token"]
+
+	assert token
