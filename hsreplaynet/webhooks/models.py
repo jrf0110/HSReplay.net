@@ -120,6 +120,16 @@ class WebhookTrigger(models.Model):
 	def content_type(self):
 		return "application/json"
 
+	def generate_signature(self):
+		from hmac import HMAC
+		from hashlib import sha256
+
+		key = "".encode("utf-8")
+		msg = self.payload.encode("utf-8")
+		mac = HMAC(key, msg, digestmod=sha256)
+
+		return "sha256=" + mac.hexdigest()
+
 	def deliver(self, timeout):
 		begin = time.time()
 		headers = {"Content-Type": self.content_type}
