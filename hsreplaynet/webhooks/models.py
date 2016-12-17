@@ -90,7 +90,7 @@ class Webhook(models.Model):
 		t = WebhookTrigger(
 			webhook=self,
 			url=url,
-			payload=payload,
+			payload=json.dumps(payload),
 		)
 		# Firing the webhook will save it
 		t.deliver(timeout=self.timeout)
@@ -125,7 +125,7 @@ class WebhookTrigger(models.Model):
 		headers = {"Content-Type": self.content_type}
 
 		try:
-			r = requests.post(self.url, json=self.payload, headers=headers, timeout=timeout)
+			r = requests.post(self.url, data=self.payload, headers=headers, timeout=timeout)
 			self.response_status = r.status_code
 			self.response = r.text[:8192]
 			self.success = r.status_code in (200, 201)
