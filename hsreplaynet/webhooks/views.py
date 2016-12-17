@@ -20,10 +20,16 @@ class WebhookCreateView(WebhookFormView, CreateView):
 
 class WebhookUpdateView(WebhookFormView, UpdateView):
 	context_object_name = "webhook"
+	triggers_limit = 25
 
 	def get_queryset(self):
 		qs = super().get_queryset()
 		return qs.filter(user=self.request.user, is_deleted=False)
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context["triggers"] = context["webhook"].triggers.all()[:self.triggers_limit]
+		return context
 
 
 class WebhookDeleteView(WebhookFormView, DeleteView):
