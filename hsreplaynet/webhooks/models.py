@@ -132,7 +132,10 @@ class WebhookTrigger(models.Model):
 
 	def deliver(self, timeout):
 		begin = time.time()
-		headers = {"Content-Type": self.content_type}
+		headers = {
+			"Content-Type": self.content_type,
+			"X-Webhook-Signature": self.generate_signature(),
+		}
 
 		try:
 			r = requests.post(self.url, data=self.payload, headers=headers, timeout=timeout)
