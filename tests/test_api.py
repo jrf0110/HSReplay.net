@@ -64,12 +64,12 @@ def test_auth_token_request(client, settings):
 	assert str(user.auth_tokens.first().key) == token
 
 	# GET (listing tokens) should error
-	response = client.get(url)
-	assert response.status_code == 403
+	response = client.get(url, HTTP_X_API_KEY=api_key)
+	assert response.status_code == 405
 
 	# POST without API key should error
 	response = client.post(url)
-	assert response.status_code == 403
+	assert response.status_code == 401
 
 	# Attempt creating an account claim without an API key
 	response = client.post(

@@ -22,6 +22,7 @@ class WriteOnlyOnceViewSet(
 
 
 class AuthTokenViewSet(WriteOnlyOnceViewSet):
+	authentication_classes = (AuthTokenAuthentication, )
 	permission_classes = (APIKeyPermission, )
 	queryset = AuthToken.objects.all()
 	serializer_class = serializers.AuthTokenSerializer
