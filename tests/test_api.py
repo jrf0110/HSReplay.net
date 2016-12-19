@@ -2,7 +2,7 @@ import json
 import pytest
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from oauth2_provider.models import Grant
+from oauth2_provider.models import AccessToken, Grant
 from rest_framework.serializers import ValidationError
 from hearthstone.enums import PlayState
 from hsreplaynet.accounts.models import AccountClaim, User
@@ -153,40 +153,101 @@ def test_oauth_api(admin_user, client, settings):
 	response_type = "code"
 	state = "random_state_string"
 	authorize_url = "/oauth2/authorize/"
-	data = {
+	get_data = {
 		"client_id": client_id,
 		"response_type": response_type,
 		"state": state,
 		"scopes": "webhooks:read webhooks:write",
 	}
-	response = client.get(authorize_url, data=data)
+	response = client.get(authorize_url, data=get_data)
 	assert response.status_code == 302
 	assert response.url.startswith("/oauth2/login/")
 	assert "client_id=%s" % (client_id) in response.url
 
 	client.force_login(admin_user, backend=settings.AUTHENTICATION_BACKENDS[0])
-	response = client.get(authorize_url, data=data)
+	response = client.get(authorize_url, data=get_data)
 	assert response.status_code == 200
 
 	app.skip_authorization = True
 	app.save()
-	response = client.get(authorize_url, data=data)
+	response = client.get(authorize_url, data=get_data)
 	assert response.status_code == 302
 	assert response.url.startswith(redirect_uri)
 
 	code = Grant.objects.first().code
 	token_url = "/oauth2/token/"
-	data = {
+	post_data = {
 		"grant_type": "authorization_code",
 		"code": code,
 		"client_id": client_id,
 		"client_secret": client_secret,
 		"redirect_uri": redirect_uri,
 	}
-	response = client.post(token_url, data)
+	response = client.post(token_url, post_data)
 	assert response.status_code == 200
 
-	data = json.loads(response.content.decode("utf-8"))
+	data = response.json()
 	token = data["access_token"]
-
+	token_obj = AccessToken.objects.get(token=token)
 	assert token
+	bearer_auth = "Bearer %s" % (token)
+
+	##
+	# Webhook API tests
+
+	webhooks_list_url = "/api/v1/webhooks/"
+	# Call the webhook API without a token is a 401
+	response = client.get(webhooks_list_url)
+	assert response.status_code == 401
+
+	# Call the webhook API with a token but without an API key is a 401
+	response = client.get(webhooks_list_url, HTTP_AUTHORIZATION=bearer_auth)
+	assert response.status_code == 200
+	data = response.json()
+	assert "results" in data
+	assert data["results"] == []
+
+	webhook_callback_url = "https://example.com/webhook/callback/"
+	post_data = {
+		"url": webhook_callback_url,
+		"max_triggers": 1,
+		"user": 123,  # will be ignored
+	}
+	response = client.post(
+		webhooks_list_url,
+		HTTP_AUTHORIZATION=bearer_auth,
+		content_type="application/json",
+		data=json.dumps(post_data),
+	)
+	assert response.status_code == 201
+	data = response.json()
+	assert data["user"]["username"] == "admin"
+	assert data["max_triggers"] == 1
+	assert data["url"] == webhook_callback_url
+
+	# Change scope to read-only, check that we can't create webhooks
+	token_obj.scope = "webhooks:read"
+	token_obj.save()
+	response = client.post(
+		webhooks_list_url,
+		HTTP_AUTHORIZATION=bearer_auth,
+		content_type="application/json",
+		data=json.dumps(post_data),
+	)
+	assert response.status_code == 403
+	# ... but can still read
+	response = client.get(webhooks_list_url, HTTP_AUTHORIZATION=bearer_auth)
+	assert response.status_code == 200
+
+	# Blank scope cannot access token api at all
+	token_obj.scope = ""
+	token_obj.save()
+	response = client.post(
+		webhooks_list_url,
+		HTTP_AUTHORIZATION=bearer_auth,
+		content_type="application/json",
+		data=json.dumps(post_data),
+	)
+	assert response.status_code == 403
+	response = client.get(webhooks_list_url, HTTP_AUTHORIZATION=bearer_auth)
+	assert response.status_code == 403

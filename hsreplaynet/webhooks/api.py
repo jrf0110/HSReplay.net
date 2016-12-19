@@ -1,4 +1,4 @@
-from oauth2_provider.ext.rest_framework import TokenHasReadWriteScope, OAuth2Authentication
+from oauth2_provider.ext.rest_framework import TokenHasResourceScope, OAuth2Authentication
 from rest_framework import serializers
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
@@ -8,7 +8,7 @@ from .models import Webhook
 
 
 class WebhookSerializer(serializers.ModelSerializer):
-	user = UserSerializer()
+	user = UserSerializer(read_only=True)
 
 	class Meta:
 		fields = ("uuid", "user", "url", "is_active", "max_triggers", "created", "modified")
@@ -22,7 +22,7 @@ class WebhookSerializer(serializers.ModelSerializer):
 
 class WebhookViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
 	authentication_classes = (OAuth2Authentication, )
-	permission_classes = (IsOwnerOrStaff, TokenHasReadWriteScope)
+	permission_classes = (IsOwnerOrStaff, TokenHasResourceScope)
 	queryset = Webhook.objects.filter(is_deleted=False)
 	serializer_class = WebhookSerializer
 	required_scopes = ["webhooks"]
