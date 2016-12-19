@@ -11,8 +11,11 @@ class WebhookSerializer(serializers.ModelSerializer):
 	user = UserSerializer(read_only=True)
 
 	class Meta:
-		fields = ("uuid", "user", "url", "is_active", "max_triggers", "created", "modified")
+		fields = (
+			"uuid", "user", "url", "is_active", "max_triggers", "secret", "created", "modified"
+		)
 		read_only_fields = ("user", )
+		extra_kwargs = {"secret": {"write_only": True}}
 		model = Webhook
 
 	def create(self, validated_data):

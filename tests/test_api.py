@@ -9,6 +9,7 @@ from hsreplaynet.accounts.models import AccountClaim, User
 from hsreplaynet.api.models import AuthToken
 from hsreplaynet.api.serializers import SmartFileField
 from hsreplaynet.oauth2.models import Application
+from hsreplaynet.webhooks.models import Webhook
 
 
 CLAIM_ACCOUNT_API = "/api/v1/claim_account/"
@@ -27,7 +28,6 @@ def test_smart_file_field():
 def test_valid_webhook_serialization():
 	# Check that Webhooks can reserialize themselves.
 	# Python 2 issue. Get rid of this in Py3
-	from hsreplaynet.webhooks.models import Webhook
 
 	payload = {"final_state": PlayState.WON}
 	d = Webhook()._serialize_payload(payload)
@@ -212,6 +212,7 @@ def test_oauth_api(admin_user, client, settings):
 		"url": webhook_callback_url,
 		"max_triggers": 1,
 		"user": 123,  # will be ignored
+		"secret": "seekrit",
 	}
 	response = client.post(
 		webhooks_list_url,
@@ -224,6 +225,9 @@ def test_oauth_api(admin_user, client, settings):
 	assert data["user"]["username"] == "admin"
 	assert data["max_triggers"] == 1
 	assert data["url"] == webhook_callback_url
+	assert "secret" not in data
+	obj = Webhook.objects.get(uuid=data["uuid"])
+	assert obj.secret == "seekrit"
 
 	# Change scope to read-only, check that we can't create webhooks
 	token_obj.scope = "webhooks:read"
