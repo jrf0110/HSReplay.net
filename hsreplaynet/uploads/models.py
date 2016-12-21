@@ -264,6 +264,7 @@ class UploadEvent(models.Model):
 	metadata = models.TextField(blank=True)
 	file = models.FileField(upload_to=_generate_upload_path, null=True)
 	descriptor = models.FileField(upload_to=_generate_descriptor_path, blank=True, null=True)
+	descriptor_data = models.TextField(blank=True)
 	user_agent = models.CharField(max_length=100, blank=True)
 	log_stream_name = models.CharField(max_length=64, blank=True)
 	log_group_name = models.CharField(max_length=64, blank=True)
