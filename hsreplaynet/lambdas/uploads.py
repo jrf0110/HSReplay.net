@@ -153,16 +153,11 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	obj.log_stream_name = log_stream_name
 
 	descriptor = raw_upload.descriptor
-
 	new_log_key = _generate_upload_key(raw_upload.timestamp, raw_upload.shortid)
-
-	new_descriptor_key = _generate_upload_key(
-		raw_upload.timestamp, raw_upload.shortid, "descriptor.json"
-	)
 	new_bucket = settings.AWS_STORAGE_BUCKET_NAME
 
 	# Move power.log/descriptor.json to the other bucket if it's needed
-	raw_upload.prepare_upload_event_log_location(new_bucket, new_log_key, new_descriptor_key)
+	raw_upload.prepare_upload_event_log_location(new_bucket, new_log_key)
 
 	upload_metadata = descriptor["upload_metadata"]
 	gateway_headers = descriptor["gateway_headers"]
@@ -173,7 +168,6 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 		logger.debug("User Agent: UNKNOWN")
 
 	obj.file = new_log_key
-	obj.descriptor = new_descriptor_key
 	obj.descriptor_data = json.dumps(descriptor)
 	obj.upload_ip = descriptor["source_ip"]
 	obj.canary = "canary" in upload_metadata and upload_metadata["canary"]

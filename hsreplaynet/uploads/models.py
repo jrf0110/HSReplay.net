@@ -103,22 +103,14 @@ class RawUpload(object):
 	def _create_raw_descriptor_key(self, ts_string, shortid):
 		return "raw/%s/%s.descriptor.json" % (ts_string, shortid)
 
-	def prepare_upload_event_log_location(self, bucket, key, descriptor):
+	def prepare_upload_event_log_location(self, bucket, key):
 		self._upload_event_log_bucket = bucket
 		self._upload_event_log_key = key
-		self._upload_event_descriptor_key = descriptor
 
 		if key != self.log_key:
 			copy_source = "%s/%s" % (self.bucket, self.log_key)
 			log.debug("Copying power.log %r to %r:%r" % (copy_source, bucket, key))
 			aws.S3.copy_object(Bucket=bucket, Key=key, CopySource=copy_source)
-
-		if descriptor != self.descriptor_key:
-			copy_source = "%s/%s" % (self.bucket, self.descriptor_key)
-			log.debug(
-				"Copying descriptor %r to %r:%r" % (copy_source, bucket, descriptor)
-			)
-			aws.S3.copy_object(Bucket=bucket, Key=descriptor, CopySource=copy_source)
 
 		self._upload_event_location_populated = True
 
