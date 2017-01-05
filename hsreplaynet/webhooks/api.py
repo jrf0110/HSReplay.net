@@ -4,6 +4,7 @@ from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveMode
 from rest_framework.viewsets import GenericViewSet
 from hsreplaynet.api.permissions import IsOwnerOrStaff
 from hsreplaynet.api.serializers import UserSerializer
+from hsreplaynet.utils.influx import influx_metric
 from .models import Webhook
 
 
@@ -20,7 +21,13 @@ class WebhookSerializer(serializers.ModelSerializer):
 
 	def create(self, validated_data):
 		validated_data["user"] = self.context["request"].user
-		return Webhook.objects.create(**validated_data)
+		ret = Webhook.objects.create(**validated_data)
+		influx_metric("hsreplaynet_webhook_create", {
+			"source": "api-oauth2",
+			"client_id": self.context["request"].auth.application.client_id,
+			"uuid": str(ret.uuid),
+		})
+		return ret
 
 
 class WebhookViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
