@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, UpdateView, View
 from allauth.socialaccount.models import SocialAccount
 from hsreplaynet.games.models import GameReplay
@@ -37,6 +38,12 @@ class APIAccountView(LoginRequiredMixin, View):
 
 
 class ClaimAccountView(LoginRequiredMixin, View):
+	def get_redirect_url(self, request):
+		url = request.GET.get("next", "")
+		if url and is_safe_url(url):
+			return url
+		return settings.LOGIN_REDIRECT_URL
+
 	def get(self, request, id):
 		claim = get_uuid_object_or_404(AccountClaim, id=id)
 		log.info("Claim %r: Token=%r, User=%r", claim, claim.token, claim.token.user)
@@ -60,7 +67,7 @@ class ClaimAccountView(LoginRequiredMixin, View):
 		# XXX: using WARNING as a hack to ignore login/logout messages for now
 		messages.add_message(request, messages.WARNING, msg)
 		influx_metric("hsreplaynet_account_claim", {"success": 1})
-		return redirect(settings.LOGIN_REDIRECT_URL)
+		return redirect(self.get_redirect_url(request))
 
 
 class DeleteAccountView(LoginRequiredMixin, TemplateView):
