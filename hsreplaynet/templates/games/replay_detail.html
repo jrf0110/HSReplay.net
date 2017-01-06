@@ -62,33 +62,7 @@
 		<div class="col-lg-2 col-md-3 col-sm-12 col-xs-12">
 			{% with replay.global_game as gg %}
 			<div id="replay-infobox" class="infobox" data-shortid="{{ replay.shortid }}">
-				{% if gg.is_ranked %}
-					<h1>
-						Ranked
-						{% if gg.format.name == "FT_STANDARD" %}
-							 - Standard
-						{% elif gg.format.name == "FT_WILD" %}
-							 - Wild
-						{% endif %}
-					</h1>
-				{% elif gg.is_casual %}
-					<h1>
-						Casual
-						{% if gg.format.name == "FT_STANDARD" %}
-							 - Standard
-						{% elif gg.format.name == "FT_WILD" %}
-							 - Wild
-						{% endif %}
-					</h1>
-				{% elif gg.is_tavern_brawl %}
-					<h1>Tavern Brawl</h1>
-				{% elif gg.game_type.name == "BGT_ARENA" %}
-					<h1>Arena</h1>
-				{% elif gg.game_type.name == "BGT_FRIENDS" %}
-					<h1>Friendly Match</h1>
-				{% else %}
-					<h1>Ranked</h1>
-				{% endif %}
+				<h1>{{ gg.format_friendly_name|default:"Ranked" }}</h1>
 
 				<h2>Players</h2>
 				<div id="infobox-players-container" game-id="{{ replay.shortid }}" player-name="{{ replay.friendly_player.name }}"

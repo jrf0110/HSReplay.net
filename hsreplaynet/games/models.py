@@ -134,6 +134,28 @@ class GlobalGame(models.Model):
 	def num_own_turns(self):
 		return ceil(self.num_turns / 2)
 
+	@property
+	def format_friendly_name(self):
+		if self.is_ranked:
+			if self.format == FormatType.FT_STANDARD:
+				return "Ranked - Standard"
+			elif self.format == FormatType.FT_WILD:
+				return "Ranked - Wild"
+			return "Ranked"
+		elif self.is_casual:
+			if self.format == FormatType.FT_STANDARD:
+				return "Casual - Standard"
+			elif self.format == FormatType.FT_WILD:
+				return "Casual - Wild"
+			return "Casual"
+		elif self.is_tavern_brawl:
+			return "Tavern Brawl"
+		elif self.game_type == BnetGameType.BGT_ARENA:
+			return "Arena"
+		elif self.game_type == BnetGameType.BGT_FRIENDS:
+			return "Friendly Match"
+		return ""
+
 
 class GlobalGamePlayer(models.Model):
 	id = models.BigAutoField(primary_key=True)
