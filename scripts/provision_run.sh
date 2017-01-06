@@ -1,7 +1,7 @@
 PROJECT="$HOME/hsreplay.net"
 source "$HOME/env/bin/activate"
 export ENV_VAGRANT=1
-export PATH="$VIRTUAL_ENV/nodeenv/bin:$HOME/node_modules/.bin:$PATH"
+export PATH="$HOME/node_modules/.bin:$PATH"
 
 # Kill remnants
 killall -9 -q python node sassc

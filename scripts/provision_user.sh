@@ -4,7 +4,7 @@ PROJECT="$HOME/hsreplay.net"
 
 mkdir -p "$HOME/.cache" "$HOME/.config/zsh"
 echo 'source $HOME/env/bin/activate' > "$HOME/.config/zsh/profile"
-echo 'export PATH=$VIRTUAL_ENV/nodeenv/bin:$HOME/node_modules/.bin:$PATH' >> "$HOME/.config/zsh/profile"
+echo 'export PATH=$VIRTUAL_ENV/bin:$HOME/node_modules/.bin:$PATH' >> "$HOME/.config/zsh/profile"
 echo "cd $PROJECT" >> "$HOME/.config/zsh/profile"
 cp /etc/skel/.zshrc "$HOME/.zshrc"
 
@@ -13,10 +13,8 @@ source "$HOME/env/bin/activate"
 pip install --upgrade pip setuptools
 pip install -r "$PROJECT/requirements/dev.txt"
 
-if [[ ! -e $VIRTUAL_ENV/nodeenv ]]; then
-	nodeenv "$VIRTUAL_ENV/nodeenv"
-fi
-export PATH="$VIRTUAL_ENV/nodeenv/bin:$HOME/node_modules/.bin:$PATH"
+nodeenv -p
+export PATH="$HOME/node_modules/.bin:$PATH"
 
 # Let's talk about awfulware.
 # There are so many layers at which this idiotic issue could have been prevented:
