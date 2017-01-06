@@ -2,7 +2,7 @@
 {% load static %}
 {% load web_extras %}
 {% load render_bundle from webpack_loader %}
-{% load comments humanize %}
+{% load humanize %}
 
 {% block stylesheets %}
 	{{ block.super }}
@@ -148,29 +148,9 @@
 {% render_bundle "replay_detail" %}
 
 <div id="replay-comments" class="container-fluid">
-		<div class="row">
+	<div class="row">
 		<div class="col-lg-4 col-xs-12">
-			<h2>Comments</h2>
-
-			{% if user.is_authenticated %}
-				{% get_comment_form for replay as form %}
-				<form id="comment-form" action="{% comment_form_target %}" method="post">
-					{% csrf_token %}
-					{# {{ form.comment }} #}
-					<textarea name="comment" rows="10" class="form-control" cols="40" id="id_comment" maxlength="3000" required></textarea>
-					{{ form.honeypot }}
-					{{ form.content_type }}
-					{{ form.object_pk }}
-					{{ form.timestamp }}
-					{{ form.security_hash }}
-					<input type="hidden" name="next" value="{{ replay.get_absolute_url }}"/>
-
-					<em>Note: Your Battletag will be visible to other users.</em>
-					<input type="submit" value="Post" class="btn btn-primary"/>
-				</form>
-			{% endif %}
-
-			{% render_comment_list for replay %} {# comments/list.html #}
+			{% include "comments/comment_section.html" with object=replay %}
 		</div>
 	</div>
 </div>
