@@ -1,0 +1,35 @@
+{% load humanize %}
+{% load comments %}
+{% load markdownify %}
+
+{% get_comment_count for article as comment_count %}
+<article class="article article-excerpt">
+	<header class="article-header">
+		<h1 class="article-title">
+			<a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+		</h1>
+	</header>
+
+	<div class="article-contents markdown">
+		{{ article.get_excerpt|markdownify }}
+		<p class="article-read-more">
+			<a href="{{ article.get_absolute_url }}">Read full article</a>
+		</p>
+	</div>
+
+	<footer class="article-footer">
+		<span class="article-authorship">
+			<time pubdate="pubdate" datetime="{{ article.created|date:'c' }}">{{ article.created|naturaltime }}</time>
+			by <a href="{{ article.author.get_absolute_url }}">{{ article.author }}</a>
+		</span>
+		<a href="{{ article.get_absolute_url }}#comments" class="comment-count">
+			{% if comment_count == 0 %}
+				No comments yet. Be the first!
+			{% elif comment_count == 1 %}
+				{{ comment_count }} comment
+			{% else %}
+				{{ comment_count }} comments
+			{% endif %}
+		</a>
+	</footer>
+</article>

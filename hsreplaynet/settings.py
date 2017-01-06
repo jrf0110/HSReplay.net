@@ -75,8 +75,10 @@ INSTALLED_APPS_WEB = [
 	"django_rq",
 	"django_rq_dashboard",
 	"loginas",
+	"markdownx",
 	"webpack_loader",
 	"hsreplaynet.admin",
+	"hsreplaynet.articles",
 	"hsreplaynet.packs",
 	"hsreplaynet.oauth2",
 ]

@@ -23,11 +23,13 @@ if not settings.ENV_LAMBDA:
 	downloads = TemplateView.as_view(template_name="downloads.html")
 	urlpatterns += [
 		url(r"^admin/", include("hsreplaynet.admin.urls")),
+		url(r"^articles/", include("hsreplaynet.articles.urls")),
 		url(r"^account/", include("hsreplaynet.accounts.urls")),
 		url(r"^comments/", include("hsreplaynet.comments.urls")),
 		url(r"^about/privacy/$", flatpage, {"url": "/about/privacy/"}, name="privacy_policy"),
 		url(r"^about/tos/$", flatpage, {"url": "/about/tos/"}, name="terms_of_service"),
 		url(r"^downloads/", downloads, name="downloads"),
+		# url(r"^markdownx/", include("markdownx.urls")),
 		url(r"^pages/", include("django.contrib.flatpages.urls")),
 		url(r"^oauth2/", include("hsreplaynet.oauth2.urls")),
 	]

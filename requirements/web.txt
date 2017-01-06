@@ -19,3 +19,7 @@ django-rq==0.9.4
 django-rq-dashboard==0.3.0
 redis==2.10.5
 rq==0.7.0
+
+# articles/markdown
+-e git+https://github.com/HearthSim/django-markdownx.git#egg=django_markdownx
+markdown==2.6.7

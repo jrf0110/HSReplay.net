@@ -1,0 +1,10 @@
+{% extends "articles/base.html" %}
+
+{% block title %}{{ article.title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="article-detail">
+	{% include "articles/article.html" with article=article %}
+</div>
+
+{% endblock %}
