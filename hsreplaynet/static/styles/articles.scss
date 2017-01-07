@@ -1,0 +1,69 @@
+@import "variables.scss";
+
+
+article.article {
+	background: white;
+	border: 1px solid $lightgrey;
+	margin-bottom: 1em;
+
+	.article-header {
+		background: $blue;
+		border-bottom: 1px solid white;
+		color: white;
+		padding: 0.5em 0.5em 0.2em;
+
+		a {
+			color: white;
+		}
+
+		.article-title {
+			font-size: 1.6em;
+		}
+
+		.article-metadata {
+			float: right;
+			margin: 0;
+		}
+	}
+
+	.article-read-more {
+		font-weight: bold;
+		padding-top: 1em;
+	}
+
+	.article-contents {
+		padding: 1em;
+		margin: 1em;
+	}
+
+	footer.article-footer {
+		border-top: 1px solid #ddd;
+		color: grey;
+		padding: 1em 0.3em;
+		text-align: right;
+
+		.article-authorship {
+			margin-right: 2em;
+		}
+	}
+}
+
+.article-detail {
+	max-width: 62.8em;
+	margin: 1em auto;
+
+	.article-contents {
+		font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+		font-size: 1.1em;
+		line-height: 1.7em;
+		padding: 0.8em 1.2em;
+	}
+}
+
+/* Article listings */
+
+.article-list {
+	padding: 0.5em;
+	margin: 1em auto;
+	max-width: 1250px;
+}
