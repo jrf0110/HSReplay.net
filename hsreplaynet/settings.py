@@ -262,6 +262,16 @@ OAUTH2_PROVIDER = {
 OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2.Application"
 
 
+# Markdown
+
+MARKDOWNX_MARKDOWN_EXTENSIONS = [
+	"markdown.extensions.attr_list",
+	"markdown.extensions.nl2br",
+	"markdown.extensions.sane_lists",
+	"markdown.extensions.tables",
+]
+
+
 ##
 # Django Debug Toolbar (Only on dev)
 # https://github.com/jazzband/django-debug-toolbar
