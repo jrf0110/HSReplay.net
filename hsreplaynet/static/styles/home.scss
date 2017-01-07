@@ -1,3 +1,6 @@
+@import "variables.scss";
+
+
 #promo {
 	background: $blue;
 	color: white;
@@ -113,7 +116,7 @@ header h2 {
 	width: 50%;
 }
 
-article + article {
+article#features, article.text-center.promo {
 	padding: 2em;
 	margin: 2em 0;
 }
