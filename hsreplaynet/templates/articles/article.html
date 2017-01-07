@@ -4,7 +4,7 @@
 <article class="article article-details">
 	<header class="article-header">
 		<p class="article-metadata">
-			<time pubdate="pubdate" datetime="{{ article.created|date:'c' }}">{{ article.created }}</time> &middot;
+			<time pubdate="pubdate" datetime="{{ article.pubdate|date:'c' }}">{{ article.pubdate }}</time> &middot;
 			<a href="{{ article.author.get_absolute_url }}">{{ article.author }}</a>
 			{% if user.is_staff or user == article.author %}
 				&middot; <a href="{% url 'admin:articles_article_change' article.pk %}">Edit</a>

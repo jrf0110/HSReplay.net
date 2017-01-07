@@ -19,7 +19,7 @@
 
 	<footer class="article-footer">
 		<span class="article-authorship">
-			<time pubdate="pubdate" datetime="{{ article.created|date:'c' }}">{{ article.created|naturaltime }}</time>
+			<time pubdate="pubdate" datetime="{{ article.pubdate|date:'c' }}">{{ article.pubdate|naturaltime }}</time>
 			by <a href="{{ article.author.get_absolute_url }}">{{ article.author }}</a>
 		</span>
 		<a href="{{ article.get_absolute_url }}#comments" class="comment-count">
