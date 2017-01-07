@@ -44,3 +44,10 @@ class Article(models.Model):
 		self.draft = False
 		self.published = now()
 		self.save()
+
+	@property
+	def tweet_intent_url(self, intent_url="https://twitter.com/intent/tweet"):
+		from urllib.parse import urlencode
+		url = "https://hsreplay.net" + self.get_absolute_url()
+		text = "%s - HSReplay.net" % (self.title)
+		return intent_url + "?" + urlencode({"text": text, "url": url})

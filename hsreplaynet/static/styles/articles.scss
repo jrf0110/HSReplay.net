@@ -31,6 +31,17 @@ article.article {
 		padding-top: 1em;
 	}
 
+	.article-buttons {
+		float: right;
+		padding: 1em;
+
+		a {
+			.label {
+				display: none;
+			}
+		}
+	}
+
 	.article-contents {
 		padding: 1em;
 		margin: 1em;

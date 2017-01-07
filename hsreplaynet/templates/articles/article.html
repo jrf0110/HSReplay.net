@@ -15,10 +15,19 @@
 		</h1>
 	</header>
 
+	<section class="article-buttons">
+		<a href="{{ article.tweet_intent_url }}" target="_blank">
+			<span class="label">Share on Twitter</span>
+			{% include "social/twitter_button.svg" %}
+		</a>
+	</section>
+
 	<section class="article-contents markdown">
 		{{ article.contents|markdownify }}
 	</section>
 </article>
+
+<hr/>
 
 {% block comments %}
 {% if article.enable_comments %}
