@@ -1,7 +1,14 @@
 from django.contrib import admin
-from .models import AccountClaim, AccountDeleteRequest, User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from hsreplaynet.api.admin import AuthToken
 from hsreplaynet.utils.admin import admin_urlify as urlify
+from .models import AccountClaim, AccountDeleteRequest, User
+
+
+class AuthTokenInline(admin.TabularInline):
+	model = AuthToken
+	extra = 0
+	show_change_link = True
 
 
 @admin.register(User)
@@ -12,6 +19,7 @@ class UserAdmin(BaseUserAdmin):
 		"username", "date_joined", "last_login", "is_fake", "default_replay_visibility"
 	)
 	list_filter = BaseUserAdmin.list_filter + ("is_fake", "default_replay_visibility")
+	inlines = (AuthTokenInline, )
 
 
 @admin.register(AccountClaim)
