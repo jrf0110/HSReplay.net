@@ -11,23 +11,22 @@
 {% endblock stylesheets %}
 
 {% block meta %}
-	<meta name="format-detection" content="telephone=no"/>
+	{% render_deck_list_meta_for_digest_param %}
+{% endblock %}
+
+{% block opengraph %}
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="HSReplay.net" />
 	<meta property="og:locale" content="en_US" />
-
 	{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 	{% if twitter_handle %}
 		<meta name="twitter:site" content="@{{ twitter_handle }}" />
 		<link rel="me" href="https://twitter.com/{{ twitter_handle }}" />
 	{% endif %}
-
 	{% setting 'HSREPLAY_FACEBOOK_APP_ID' as facebook_app_id %}
 	{% if facebook_app_id %}
 		<meta property="fb:app_id" content="{{ facebook_app_id }}" />
 	{% endif %}
-
-	{% render_deck_list_meta_for_digest_param %}
 {% endblock %}
 
 {% block javascript %}
