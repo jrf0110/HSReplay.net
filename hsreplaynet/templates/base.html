@@ -92,7 +92,7 @@
 
 						{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 						{% if twitter_handle %}
-							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank">@{{ twitter_handle }}</a></li>
+							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me">@{{ twitter_handle }}</a></li>
 						{% endif %}
 					</ul>
 					{% endblock %}
