@@ -224,18 +224,46 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 
 	.match-table-body {
 		display: table-row-group;
+
+		.match-table-row {
+			background-color: #f7f7f7;
+
+			.match-table-cell {
+				border-color: darkgray;
+			}
+
+			&.result-won {
+				background-color: rgb(240, 245, 233);
+
+				.match-table-cell {
+					border-color: #8ce62c;
+				}
+			}
+
+			&.result-lost {
+				background-color: rgb(245, 236, 233);
+
+				.match-table-cell {
+					border-color: #f77a70;
+				}
+			}
+
+			&:hover {
+				background-color: lightgray;
+
+				&.result-won {
+					background-color: rgb(210, 245, 203);
+				}
+
+				&.result-lost {
+					background-color: rgb(245, 206, 203);
+				}
+			}
+		}
 	}
 
 	.match-table-row {
 		display: table-row;
-
-		&.result-won {
-			background-color: rgb(240, 245, 233);
-		}
-
-		&.result-lost {
-			background-color: rgb(245, 236, 233);
-		}
 
 		.match-table-cell {
 			display: table-cell;
@@ -323,25 +351,6 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 			}
 		}
 	}
-
-	.match-table-row:hover {
-		&.result-won {
-			background-color: rgb(210, 245, 203);
-		}
-
-		&.result-lost {
-			background-color: rgb(245, 206, 203);
-		}
-	}
-}
-
-
-.result-lost .match-table-cell {
-	border-color: #f77a70;
-}
-
-.result-won .match-table-cell {
-	border-color: #8ce62c;
 }
 
 #myreplays-infobox {

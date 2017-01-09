@@ -14,7 +14,7 @@ interface GameHistoryItemProps extends ImageProps, CardArtProps, React.ClassAttr
 	disconnected: boolean;
 	scenarioId: number;
 	turns: number;
-	won: boolean;
+	won: boolean|null;
 	friendlyPlayer: GlobalGamePlayer;
 	opposingPlayer: GlobalGamePlayer;
 }
@@ -22,7 +22,7 @@ interface GameHistoryItemProps extends ImageProps, CardArtProps, React.ClassAttr
 export default class GameHistoryItem extends React.Component<GameHistoryItemProps, any> {
 	render(): JSX.Element {
 		return (<div className="col-xs-12 col-sm-6 col-md-4 col-lg-4 game-history-item">
-			<a href={"/replay/" + this.props.shortid} className={this.props.won ? "won" : "lost"}>
+			<a href={"/replay/" + this.props.shortid} className={this.props.won !== null ? (this.props.won ? "won" : "lost") : null}>
 				<div className="hsreplay-involved">
 					<img src={this.props.image("vs.png")} className="hsreplay-versus" />
 					{$.map([this.props.friendlyPlayer, this.props.opposingPlayer], (player: GlobalGamePlayer, i: number) => {

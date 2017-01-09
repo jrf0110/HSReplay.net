@@ -16,7 +16,7 @@ interface GameHistoryTableRowProps extends ImageProps, CardArtProps, React.Class
 	disconnected: boolean;
 	scenarioId: number;
 	turns: number;
-	won: boolean;
+	won: boolean|null;
 	friendlyPlayer: GlobalGamePlayer;
 	opposingPlayer: GlobalGamePlayer;
 }
@@ -24,7 +24,7 @@ interface GameHistoryTableRowProps extends ImageProps, CardArtProps, React.Class
 export default class GameHistoryTableRow extends React.Component<GameHistoryTableRowProps, any> {
 	render(): JSX.Element {
 		let url = "/replay/" + this.props.shortid;
-		let result = this.props.won ? "result-won" : "result-lost";
+		let result = this.props.won !== null ? (this.props.won ? "result-won" : "result-lost") : null;
 		return (
 			<a href={url} className={"match-table-row " + result}>
 				<div className="match-table-cell auto-size player-icon">
@@ -44,7 +44,7 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 				</div>
 				<div className="match-table-cell"></div>
 				<div className="match-table-cell hide-below-1100">{this.props.opposingPlayer.name}</div>
-				<div className={"match-table-cell " + result}>{this.props.won ? "Won" : "Lost"}</div>
+				<div className={"match-table-cell " + result}>{this.props.won !== null ? (this.props.won ? "Won" : "Lost") : "Unknown"}</div>
 				<div className="match-table-cell">
 					<div className="match-table-game-type">
 						<GameModeIcon
