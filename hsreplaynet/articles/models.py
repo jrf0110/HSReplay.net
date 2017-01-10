@@ -26,7 +26,7 @@ class Article(models.Model):
 	published = models.DateTimeField(null=True, blank=True)
 
 	class Meta:
-		ordering = ("-created", )
+		ordering = ("-published", "-created")
 
 	def __str__(self):
 		return self.title
