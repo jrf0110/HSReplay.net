@@ -10,10 +10,14 @@ article.article {
 		background: $blue;
 		border-bottom: 1px solid white;
 		color: white;
-		padding: 0.5em 0.5em 0.2em;
+		padding: 0.8em;
 
 		a {
 			color: white;
+		}
+
+		h1 {
+			margin: 0;
 		}
 
 		.article-title {
@@ -43,8 +47,7 @@ article.article {
 	}
 
 	.article-contents {
-		margin: 1em;
-		padding: 1em;
+		padding: 1.5em;
 		text-align: justify;
 	}
 
