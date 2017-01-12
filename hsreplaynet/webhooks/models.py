@@ -9,6 +9,9 @@ from hsreplaynet.accounts.models import User
 from .validators import WebhookURLValidator
 
 
+SUCCESS_STATUS_CODES = (200, 201, 204)
+
+
 class Webhook(models.Model):
 	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
 
@@ -150,7 +153,7 @@ class WebhookTrigger(models.Model):
 			r = requests.post(self.url, data=self.payload, headers=headers, timeout=timeout)
 			self.response_status = r.status_code
 			self.response = r.text[:8192]
-			self.success = r.status_code in (200, 201)
+			self.success = r.status_code in SUCCESS_STATUS_CODES
 		except Exception as e:
 			self.response_status = 0
 			self.response = str(e)
