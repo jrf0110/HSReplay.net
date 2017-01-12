@@ -1,6 +1,7 @@
 import * as React from "react";
 import GameHistoryTableRow from "./GameHistoryTableRow";
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
+import GameHistoryList from "./GameHistoryList";
 
 interface GameHistoryTableProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryTable> {
 	games: GameReplay[];
@@ -34,7 +35,7 @@ export default class GameHistoryTable extends React.Component<GameHistoryTablePr
 					disconnected={game.disconnected}
 					scenarioId={game.global_game.scenario_id}
 					turns={game.global_game.num_turns}
-					won={game.won}
+					won={GameHistoryList.hasWon(game.friendly_player, game.opposing_player)}
 					friendlyPlayer={game.friendly_player}
 					opposingPlayer={game.opposing_player}
 				/>
