@@ -279,6 +279,7 @@ def trigger_webhook(event, context):
 @instrumentation.lambda_handler(cpu_seconds=120)
 def load_replay_into_redshift(event, context):
 	"""A handler that loads a replay into Redshift"""
+	logger = logging.getLogger("hsreplaynet.lambdas.load_replay_into_redshift")
 	replay_bucket = event["replay_bucket"]
 	replay_key = event["replay_key"]
 	metadata_str = event["metadata"]
@@ -290,16 +291,18 @@ def load_replay_into_redshift(event, context):
 	out.write(log_str)
 	out.seek(0)
 
-	replay = HSReplayDocument.from_xml_file(out)
-	metadata = json.loads(metadata_str)
-
-	global_game_id = metadata["game_id"]
-	from hsreplaynet.games.models import GlobalGame
-
-	global_game = GlobalGame.objects.get(id=global_game_id)
 	try:
+		replay = HSReplayDocument.from_xml_file(out)
+		metadata = json.loads(metadata_str)
+
+		global_game_id = metadata["game_id"]
+		from hsreplaynet.games.models import GlobalGame
+
+		global_game = GlobalGame.objects.get(id=global_game_id)
+
 		load_replay(replay, metadata)
 	except:
+		logger.info(metadata_str)
 		raise
 	else:
 		global_game.loaded_into_redshift = datetime.now()

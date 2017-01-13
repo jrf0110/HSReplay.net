@@ -471,7 +471,7 @@ def do_process_upload_event(upload_event):
 	if not upload_event.test_data:
 		exporter.write_payload(replay.replay_xml.name)
 
-		# load_into_redshift(global_game, replay)
+		load_into_redshift(global_game, replay)
 
 		return replay
 
@@ -484,7 +484,7 @@ def load_into_redshift(global_game, replay):
 		log.debug("Replay's privacy settings do not allow stats - will not load")
 		return
 
-	if global_game.loaded_into_redshfit is not None:
+	if global_game.loaded_into_redshift is not None:
 		log.debug("Game has already been loaded into - will not load duplicate")
 		return
 
@@ -494,7 +494,7 @@ def load_into_redshift(global_game, replay):
 	game_info = {
 		"game_id": global_game.id,
 		"shortid": replay.shortid,
-		"game_type": global_game.game_type,
+		"game_type": int(global_game.game_type),
 		"scenario_id": global_game.scenario_id,
 		"ladder_season": global_game.ladder_season,
 		"brawl_season": global_game.brawl_season,
@@ -524,14 +524,15 @@ def load_into_redshift(global_game, replay):
 		"replay_key": replay_xml_path,
 		"metadata": json.dumps(game_info),
 	}
+	final_payload = json.dumps(payload)
 
-	if settings.ENV_AWS:
+	if settings.ENV_AWS and settings.REDSHIFT_LOADING_ENABLED:
 		log.debug("Sending replay to Redshift loading lambda...")
 		LAMBDA.invoke(
 			FunctionName="load_replay_into_redshift",
 			InvocationType="Event",  # Triggers asynchronous invocation
-			Payload=json.dumps(payload),
+			Payload=final_payload,
 		)
 		log.debug("Async lambda invocation complete")
 	else:
-		log.warn("Environment is not AWS - Will not load replay into Redshift.")
+		log.warn("Loading Requirements Not Met - Will not load replay into Redshift.")
