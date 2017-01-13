@@ -100,7 +100,7 @@ class MockRawUpload(object):
 	def upload_http_method(self):
 		return "put"
 
-	def prepare_upload_event_log_location(self, bucket, key, descriptor):
+	def prepare_upload_event_log_location(self, bucket, key, descriptor=None):
 		self._upload_event_log_bucket = bucket
 		self._upload_event_log_key = key
 		self._upload_event_descriptor = descriptor
