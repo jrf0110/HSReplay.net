@@ -14,7 +14,7 @@ from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.utils import guess_ladder_season, log
-from hsreplaynet.utils.influx import influx_metric
+from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.uploads.models import UploadEventStatus
 from .metrics import InstrumentedExporter
 from .models import (
@@ -321,7 +321,8 @@ def validate_parser(parser, meta):
 	if len(parser.games) != 1:
 		raise ValidationError("Expected exactly 1 game, got %i" % (len(parser.games)))
 	packet_tree = parser.games[0]
-	exporter = InstrumentedExporter(packet_tree, meta).export()
+	with influx_timer("replay_exporter_duration"):
+		exporter = InstrumentedExporter(packet_tree, meta).export()
 	entity_tree = exporter.game
 
 	if len(entity_tree.players) != 2:
@@ -457,15 +458,25 @@ def do_process_upload_event(upload_event):
 	entity_tree, exporter = validate_parser(parser, meta)
 
 	# Create/Update the global game object and its players
-	global_game, created = find_or_create_global_game(entity_tree, meta)
+	global_game, global_game_created = find_or_create_global_game(entity_tree, meta)
 	players = update_global_players(global_game, entity_tree, meta)
 
 	# Create/Update the replay object itself
-	replay, created = find_or_create_replay(
+	replay, global_game_created = find_or_create_replay(
 		parser, entity_tree, meta, upload_event, global_game, players
 	)
 
 	if not upload_event.test_data:
 		exporter.write_payload(replay.replay_xml.name)
 
+	# Here is where we can delegate to a new lambda function.
+	load_into_redshift(global_game_created, players, replay)
+
 	return replay
+
+
+def load_into_redshift(global_game_created, players, replay):
+	# We must check the permissions that we are allowed to
+	# capture stats on this user's replays.
+
+	pass
