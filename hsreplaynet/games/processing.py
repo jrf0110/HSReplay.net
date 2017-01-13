@@ -5,6 +5,7 @@ from dateutil.parser import parse as dateutil_parse
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.conf import settings
 from hearthstone import __version__ as hslog_version
 from hearthstone.enums import CardType, GameTag
 from hearthstone.hslog.exceptions import ParsingError
@@ -16,6 +17,7 @@ from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.uploads.models import UploadEventStatus
+from hsreplaynet.utils.aws import LAMBDA
 from .metrics import InstrumentedExporter
 from .models import (
 	GameReplay, GlobalGame, GlobalGamePlayer,
@@ -469,14 +471,67 @@ def do_process_upload_event(upload_event):
 	if not upload_event.test_data:
 		exporter.write_payload(replay.replay_xml.name)
 
-	# Here is where we can delegate to a new lambda function.
-	load_into_redshift(global_game_created, players, replay)
+		# load_into_redshift(global_game, replay)
 
-	return replay
+		return replay
 
 
-def load_into_redshift(global_game_created, players, replay):
-	# We must check the permissions that we are allowed to
-	# capture stats on this user's replays.
+def load_into_redshift(global_game, replay):
+	log.debug("Evaluating Global Game: %s for Redshift..." % str(global_game.id))
 
-	pass
+	# Check the permissions that we are allowed to capture stats on this user's replays.
+	if global_game.exclude_from_statistics:
+		log.debug("Replay's privacy settings do not allow stats - will not load")
+		return
+
+	if global_game.loaded_into_redshfit is not None:
+		log.debug("Game has already been loaded into - will not load duplicate")
+		return
+
+	player1 = replay.player(1)
+	player2 = replay.player(2)
+
+	game_info = {
+		"game_id": global_game.id,
+		"shortid": replay.shortid,
+		"game_type": global_game.game_type,
+		"scenario_id": global_game.scenario_id,
+		"ladder_season": global_game.ladder_season,
+		"brawl_season": global_game.brawl_season,
+		"players": {
+			"1": {
+				"deck_id": player1.deck_list.id,
+				"archetype_id": player1.deck_list.archetype.id if player1.deck_list.archetype else None,
+				"deck_list": player1.deck_list.as_dbf_json(),
+				"rank": 0 if player1.legend_rank else player1.rank if player1.rank else -1,
+				"legend_rank": player1.legend_rank,
+				"full_deck_known": player1.deck_list.size == 30
+			},
+			"2": {
+				"deck_id": player2.deck_list.id,
+				"archetype_id": player2.deck_list.archetype.id if player2.deck_list.archetype else None,
+				"deck_list": player2.deck_list.as_dbf_json(),
+				"rank": 0 if player2.legend_rank else player2.rank if player2.rank else -1,
+				"legend_rank": player2.legend_rank,
+				"full_deck_known": player2.deck_list.size == 30,
+			},
+		}
+	}
+
+	replay_xml_path = replay.replay_xml.name
+	payload = {
+		"replay_bucket": settings.AWS_STORAGE_BUCKET_NAME,
+		"replay_key": replay_xml_path,
+		"metadata": json.dumps(game_info),
+	}
+
+	if settings.ENV_AWS:
+		log.debug("Sending replay to Redshift loading lambda...")
+		LAMBDA.invoke(
+			FunctionName="load_replay_into_redshift",
+			InvocationType="Event",  # Triggers asynchronous invocation
+			Payload=json.dumps(payload),
+		)
+		log.debug("Async lambda invocation complete")
+	else:
+		log.warn("Environment is not AWS - Will not load replay into Redshift.")

@@ -1,5 +1,9 @@
 import logging
 import json
+from datetime import datetime
+from zlib import decompress
+from io import BytesIO
+from hsreplay.document import HSReplayDocument
 from threading import Thread
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -9,9 +13,10 @@ from hsreplaynet.uploads.models import (
 	UploadEvent, RawUpload, UploadEventStatus, _generate_upload_key
 )
 from hsreplaynet.utils import instrumentation
-from hsreplaynet.utils.aws.clients import LAMBDA
+from hsreplaynet.utils.aws.clients import LAMBDA, S3
 from hsreplaynet.utils.latch import CountDownLatch
 from hsreplaynet.utils.influx import influx_metric
+# from hsredshift.etl.exporters import load_replay
 
 
 @instrumentation.lambda_handler(
@@ -269,3 +274,37 @@ def trigger_webhook(event, context):
 	logger.info("Triggering webhook %r on %r", webhook_uuid, url)
 	webhook = Webhook.objects.get(uuid=webhook_uuid)
 	webhook.immediate_trigger(url, payload)
+
+
+@instrumentation.lambda_handler(cpu_seconds=120)
+def load_replay_into_redshift(event, context):
+	"""A handler that loads a replay into Redshift"""
+	replay_bucket = event["replay_bucket"]
+	replay_key = event["replay_key"]
+	metadata_str = event["metadata"]
+
+	obj = S3.get_object(Bucket=replay_bucket, Key=replay_key)
+	body_data = obj["Body"].read()
+	log_str = decompress(body_data, 15 + 32)
+	out = BytesIO()
+	out.write(log_str)
+	out.seek(0)
+
+	replay = HSReplayDocument.from_xml_file(out)
+	if replay:
+		pass
+
+	metadata = json.loads(metadata_str)
+
+	global_game_id = metadata["game_id"]
+	from hsreplaynet.games.models import GlobalGame
+
+	global_game = GlobalGame.objects.get(id=global_game_id)
+	try:
+		pass
+		# load_replay(replay, metadata)
+	except:
+		raise
+	else:
+		global_game.loaded_into_redshift = datetime.now()
+		global_game.save()

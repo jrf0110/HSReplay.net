@@ -1,5 +1,6 @@
 import hashlib
 import random
+import json
 from django.db import models, connection
 from django.conf import settings
 from django.dispatch.dispatcher import receiver
@@ -245,6 +246,15 @@ class Deck(models.Model):
 				result.append(id)
 
 		return result
+
+	def as_dbf_json(self):
+		"""Serialize the deck list for storage in Redshift"""
+		result = {}
+		for include in self.includes.all():
+			result[include.card.dbf_id] = include.count
+
+		# separators=(',', ':') creates compact JSON encoding
+		return json.dumps(result, separators=(',', ':'))
 
 
 @receiver(models.signals.post_save, sender=Deck)

@@ -93,13 +93,14 @@ class GlobalGame(models.Model):
 		max_length=40, unique=True, null=True,
 		help_text="SHA1 of str(game_handle), str(server_address), str(lo1), str(lo2)"
 	)
-	# has_private_replays = models.BooleanField(
-	# 	default=False,
-	# 	help_text="True if any replay was marked private at the time of upload."
-	# )
+	loaded_into_redshift = models.DateTimeField(null=True)
 
 	class Meta:
 		ordering = ("-match_start", )
+
+	@property
+	def exclude_from_statistics(self):
+		return any(map(lambda r: r.user and r.user.exclude_from_statistics, self.replays.all()))
 
 	def __str__(self):
 		return " vs ".join(str(p) for p in self.players.all())
