@@ -509,16 +509,16 @@ def get_game_info(global_game, replay):
 		"brawl_season": global_game.brawl_season,
 		"players": {
 			"1": {
-				"deck_id": player1.deck_list.id,
-				"archetype_id": player1.deck_list.archetype.id if player1.deck_list.archetype else None,
+				"deck_id": int(player1.deck_list.id),
+				"archetype_id": get_archetype_id(player1),
 				"deck_list": player1.deck_list.as_dbf_json(),
 				"rank": 0 if player1.legend_rank else player1.rank if player1.rank else -1,
 				"legend_rank": player1.legend_rank,
 				"full_deck_known": player1.deck_list.size == 30
 			},
 			"2": {
-				"deck_id": player2.deck_list.id,
-				"archetype_id": player2.deck_list.archetype.id if player2.deck_list.archetype else None,
+				"deck_id": int(player2.deck_list.id),
+				"archetype_id": get_archetype_id(player2),
 				"deck_list": player2.deck_list.as_dbf_json(),
 				"rank": 0 if player2.legend_rank else player2.rank if player2.rank else -1,
 				"legend_rank": player2.legend_rank,
@@ -528,3 +528,7 @@ def get_game_info(global_game, replay):
 	}
 
 	return game_info
+
+
+def get_archetype_id(p):
+	return int(p.deck_list.archetype.id) if p.deck_list.archetype else None
