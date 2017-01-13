@@ -16,7 +16,7 @@ from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import LAMBDA, S3
 from hsreplaynet.utils.latch import CountDownLatch
 from hsreplaynet.utils.influx import influx_metric
-# from hsredshift.etl.exporters import load_replay
+from hsredshift.etl.exporters import load_replay
 
 
 @instrumentation.lambda_handler(
@@ -291,9 +291,6 @@ def load_replay_into_redshift(event, context):
 	out.seek(0)
 
 	replay = HSReplayDocument.from_xml_file(out)
-	if replay:
-		pass
-
 	metadata = json.loads(metadata_str)
 
 	global_game_id = metadata["game_id"]
@@ -301,8 +298,7 @@ def load_replay_into_redshift(event, context):
 
 	global_game = GlobalGame.objects.get(id=global_game_id)
 	try:
-		pass
-		# load_replay(replay, metadata)
+		load_replay(replay, metadata)
 	except:
 		raise
 	else:
