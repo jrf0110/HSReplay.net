@@ -278,7 +278,7 @@ def process_upload_event(upload_event):
 		upload_event.save()
 
 	try:
-		replay = do_process_upload_event(upload_event)
+		replay, do_flush_exporter = do_process_upload_event(upload_event)
 	except Exception as e:
 		from traceback import format_exc
 		upload_event.error = str(e)
@@ -293,6 +293,12 @@ def process_upload_event(upload_event):
 		upload_event.game = replay
 		upload_event.status = UploadEventStatus.SUCCESS
 		upload_event.save()
+
+	try:
+		with influx_timer("redshift_exporter_flush_duration"):
+			do_flush_exporter()
+	except:
+		influx_metric("flush_redshift_exporter_error", {"count": 1})
 
 	return replay
 
@@ -469,19 +475,22 @@ def do_process_upload_event(upload_event):
 		parser, entity_tree, meta, upload_event, global_game, players
 	)
 
-	if should_load_into_redshift(upload_event, global_game):
-		game_info = get_game_info(global_game, replay)
-		exporter.set_game_info(game_info)
+	# Defer flushing the exporter until after the UploadEvent is set to SUCCESS
+	# So that the player can start watching their replay sooner
+	def do_flush_exporter():
+		if should_load_into_redshift(upload_event, global_game):
+			game_info = get_game_info(global_game, replay)
+			exporter.set_game_info(game_info)
 
-		try:
-			flush_exporter_to_firehose(exporter)
-		except:
-			raise
-		else:
-			global_game.loaded_into_redshift = datetime.now()
-			global_game.save()
+			try:
+				flush_exporter_to_firehose(exporter)
+			except:
+				raise
+			else:
+				global_game.loaded_into_redshift = datetime.now()
+				global_game.save()
 
-	return replay
+	return replay, do_flush_exporter
 
 
 def should_load_into_redshift(upload_event, global_game):
