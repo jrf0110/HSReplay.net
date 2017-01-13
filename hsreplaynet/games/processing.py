@@ -1,5 +1,6 @@
 import json
 from hashlib import sha1
+from datetime import datetime
 from io import StringIO
 from dateutil.parser import parse as dateutil_parse
 from django.core.exceptions import ValidationError
@@ -17,12 +18,12 @@ from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.uploads.models import UploadEventStatus
-from hsreplaynet.utils.aws import LAMBDA
-from .metrics import InstrumentedExporter
 from .models import (
 	GameReplay, GlobalGame, GlobalGamePlayer,
 	_generate_upload_path, ReplayAlias
 )
+from hsredshift.etl.exporters import RedshiftPublishingExporter
+from hsredshift.etl.firehose import flush_exporter_to_firehose
 
 
 class ProcessingError(Exception):
@@ -324,7 +325,7 @@ def validate_parser(parser, meta):
 		raise ValidationError("Expected exactly 1 game, got %i" % (len(parser.games)))
 	packet_tree = parser.games[0]
 	with influx_timer("replay_exporter_duration"):
-		exporter = InstrumentedExporter(packet_tree, meta).export()
+		exporter = RedshiftPublishingExporter(packet_tree).export()
 	entity_tree = exporter.game
 
 	if len(entity_tree.players) != 2:
@@ -468,31 +469,39 @@ def do_process_upload_event(upload_event):
 		parser, entity_tree, meta, upload_event, global_game, players
 	)
 
-	if not upload_event.test_data:
-		exporter.write_payload(replay.replay_xml.name)
+	if should_load_into_redshift(upload_event, global_game):
+		game_info = get_game_info(global_game, replay)
+		exporter.set_game_info(game_info)
 
-		load_into_redshift(global_game, replay)
+		try:
+			flush_exporter_to_firehose(exporter)
+		except:
+			raise
+		else:
+			global_game.loaded_into_redshift = datetime.now()
+			global_game.save()
 
-		return replay
+	return replay
 
 
-def load_into_redshift(global_game, replay):
-	log.debug("Evaluating Global Game: %s for Redshift..." % str(global_game.id))
+def should_load_into_redshift(upload_event, global_game):
+	is_not_test_data = (not upload_event.test_data)
+	is_not_exclude_from_stats = (not global_game.exclude_from_statistics)
+	is_not_already_loaded = global_game.loaded_into_redshift is None
 
-	# Check the permissions that we are allowed to capture stats on this user's replays.
-	if global_game.exclude_from_statistics:
-		log.debug("Replay's privacy settings do not allow stats - will not load")
-		return
+	if settings.ENV_AWS and settings.REDSHIFT_LOADING_ENABLED:
+		if is_not_test_data and is_not_exclude_from_stats and is_not_already_loaded:
+			return True
 
-	if global_game.loaded_into_redshift is not None:
-		log.debug("Game has already been loaded into - will not load duplicate")
-		return
+	return False
 
+
+def get_game_info(global_game, replay):
 	player1 = replay.player(1)
 	player2 = replay.player(2)
 
 	game_info = {
-		"game_id": global_game.id,
+		"game_id": int(global_game.id),
 		"shortid": replay.shortid,
 		"game_type": int(global_game.game_type),
 		"scenario_id": global_game.scenario_id,
@@ -518,21 +527,4 @@ def load_into_redshift(global_game, replay):
 		}
 	}
 
-	replay_xml_path = replay.replay_xml.name
-	payload = {
-		"replay_bucket": settings.AWS_STORAGE_BUCKET_NAME,
-		"replay_key": replay_xml_path,
-		"metadata": json.dumps(game_info),
-	}
-	final_payload = json.dumps(payload)
-
-	if settings.ENV_AWS and settings.REDSHIFT_LOADING_ENABLED:
-		log.debug("Sending replay to Redshift loading lambda...")
-		LAMBDA.invoke(
-			FunctionName="load_replay_into_redshift",
-			InvocationType="Event",  # Triggers asynchronous invocation
-			Payload=final_payload,
-		)
-		log.debug("Async lambda invocation complete")
-	else:
-		log.warn("Loading Requirements Not Met - Will not load replay into Redshift.")
+	return game_info
