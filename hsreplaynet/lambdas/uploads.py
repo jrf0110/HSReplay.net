@@ -276,7 +276,10 @@ def trigger_webhook(event, context):
 	webhook.immediate_trigger(url, payload)
 
 
-@instrumentation.lambda_handler(cpu_seconds=120)
+@instrumentation.lambda_handler(
+	cpu_seconds=120,
+	memory=settings.LAMBDA_PROCESSING_MEMORY_MB
+)
 def load_replay_into_redshift(event, context):
 	"""A handler that loads a replay into Redshift"""
 	logger = logging.getLogger("hsreplaynet.lambdas.load_replay_into_redshift")
