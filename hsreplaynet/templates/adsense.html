@@ -1,0 +1,16 @@
+{% load web_extras %}
+
+{% setting "GOOGLE_ADSENSE" as adsense %}
+{% if adsense %}
+	{% if request.dnt %}
+		<!-- You are sending DNT. We won't serve you with Adsense code. -->
+	{% else %}
+		<script type="text/javascript" async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+		<script type="text/javascript">
+			(adsbygoogle = window.adsbygoogle || []).push({
+				google_ad_client: "{{ adsense }}",
+				enable_page_level_ads: true
+			});
+		</script>
+	{% endif %}
+{% endif %}
