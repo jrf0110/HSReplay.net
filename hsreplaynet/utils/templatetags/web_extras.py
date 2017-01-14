@@ -1,5 +1,6 @@
 from django import template
 from django.conf import settings
+from django.utils.safestring import mark_safe
 from humanize import naturaldelta, naturaltime
 from datetime import datetime
 from hearthstone.enums import CardType
@@ -51,6 +52,16 @@ def hearthstonejson(build=None, locale="enUS"):
 @register.simple_tag
 def setting(name):
 	return getattr(settings, name, "")
+
+
+@register.simple_tag
+def adunit(slot):
+	client = getattr(settings, "GOOGLE_ADSENSE", "")
+	if not client:
+		return ""
+	css = "adsbygoogle"
+	html = '<ins class="%s" data-ad-client="%s" data-ad-slot="%s"></ins>' % (css, client, slot)
+	return mark_safe(html)
 
 
 @register.simple_tag(takes_context=True)
