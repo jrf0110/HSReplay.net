@@ -1,10 +1,8 @@
 import re
-from datetime import datetime
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.utils.safestring import mark_safe
-from humanize import naturaldelta, naturaltime
 from hearthstone.enums import CardType
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.cards.archetypes import guess_class
@@ -12,16 +10,6 @@ from hsreplaynet.games.models import GameReplay
 
 
 register = template.Library()
-
-
-@register.filter
-def human_duration(value):
-	return naturaldelta(value)
-
-
-@register.filter
-def human_time(value):
-	return naturaltime(datetime.now(value.tzinfo) - value)
 
 
 @register.simple_tag
