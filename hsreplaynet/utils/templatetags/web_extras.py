@@ -1,14 +1,14 @@
+import re
+from datetime import datetime
 from django import template
 from django.conf import settings
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.utils.safestring import mark_safe
 from humanize import naturaldelta, naturaltime
-from datetime import datetime
 from hearthstone.enums import CardType
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.games.models import GameReplay
-from re import match, IGNORECASE
-from django.contrib.staticfiles.templatetags.staticfiles import static
 
 
 register = template.Library()
@@ -69,7 +69,7 @@ def static_absolute(context, value):
 	request = context.request
 	value = static(value)
 	# check whether scheme is present according to RFC 3986
-	if not match("[a-z]([a-z0-9+-.])*:", value, IGNORECASE):
+	if not re.match("[a-z]([a-z0-9+-.])*:", value, re.IGNORECASE):
 		value = "%s://%s%s" % (request.scheme, request.get_host(), value)
 	return value
 
