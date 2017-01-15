@@ -43,12 +43,19 @@ def setting(name):
 
 
 @register.simple_tag
-def adunit(slot):
+def adunit(slot, responsive=True):
 	client = getattr(settings, "GOOGLE_ADSENSE", "")
 	if not client:
 		return ""
-	css = "adsbygoogle"
-	html = '<ins class="%s" data-ad-client="%s" data-ad-slot="%s"></ins>' % (css, client, slot)
+	attributes = {
+		"class": "adsbygoogle",
+		"data-ad-client": client,
+		"data-ad-slot": str(slot),
+	}
+	if responsive:
+		attributes["data-ad-format"] = "auto"
+	attrlist = " ".join('%s="%s"' % (k, v) for k, v in attributes.items())
+	html = '<ins %s></ins>' % (attrlist)
 	return mark_safe(html)
 
 
