@@ -76,3 +76,16 @@ class RevokeAllTokensView(ApplicationBaseView):
 		app = get_object_or_404(self.get_queryset(), pk=kwargs["pk"])
 		app.accesstoken_set.all().delete()
 		return redirect(app)
+
+
+class UserRevocationView(LoginRequiredMixin, View):
+	model = Application
+	next = reverse_lazy("oauth2_app_list")
+
+	def post(self, request):
+		client_id = request.POST.get("client_id")
+		if client_id:
+			app = get_object_or_404(self.model, client_id=client_id)
+			tokens = app.accesstoken_set.filter(user=request.user)
+			tokens.delete()
+		return redirect(self.next)

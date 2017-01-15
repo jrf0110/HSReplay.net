@@ -10,6 +10,14 @@
 
 				{% for token in authorized_apps %}
 					<div class="authorized-app">
+						<form
+							method="POST" action="{% url 'oauth2_revoke_access' %}" class="revoke-form"
+							onsubmit="return confirm('Are you sure? There is no undo!')"
+						>
+							{% csrf_token %}
+							<input type="hidden" name="client_id" value="{{ token.application.client_id }}"/>
+							<button type="submit" class="btn btn-danger">Revoke access</button>
+						</form>
 						<h5 class="name"><a href="{{ token.application.homepage }}" target="_blank">{{ token.application }}</a></h5>
 						<span class="subtitle">{{ token.application.description }}</span>
 					</div>

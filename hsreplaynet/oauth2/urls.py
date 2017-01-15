@@ -7,6 +7,7 @@ app_list_view = views.ApplicationListView.as_view()
 app_update_view = views.ApplicationUpdateView.as_view()
 authorization_view = views.AuthorizationView.as_view()
 login_view = views.OAuth2LoginView.as_view()
+user_revoke_view = views.UserRevocationView.as_view()
 
 
 urlpatterns = [
@@ -24,4 +25,5 @@ urlpatterns = [
 	url(r"^authorize/$", authorization_view, name="authorize"),
 	url(r"^login/$", login_view, name="oauth2_login"),
 	url(r"^token/$", oauth2_views.TokenView.as_view(), name="token"),
+	url(r"^revoke/$", user_revoke_view, name="oauth2_revoke_access"),
 ]
