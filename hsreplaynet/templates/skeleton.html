@@ -20,8 +20,8 @@
 	{% block body %}
 	{% endblock %}
 
-	{% block analytics %}
-		{% include "analytics.html" %}
+	{% block footerjs %}
+		<script type="text/javascript">{% spaceless %}{% include "footerjs.js" %}{% endspaceless %}</script>
 	{% endblock %}
 </body>
 </html>
