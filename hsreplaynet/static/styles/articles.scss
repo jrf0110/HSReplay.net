@@ -96,6 +96,16 @@ article.article {
 	}
 }
 
+
+@media (max-width: 62.8em) {
+	.article-detail {
+		.article-comments {
+			/* Extra padding around comments section on small screens */
+			padding: 0 1em;
+		}
+	}
+}
+
 /* Article listings */
 
 .article-list {
