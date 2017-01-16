@@ -50,6 +50,7 @@ INSTALLED_APPS_CORE = [
 	"raven.contrib.django.raven_compat",
 	"rest_framework",
 	"hsreplaynet.accounts",
+	"hsreplaynet.analytics",
 	"hsreplaynet.api",
 	"hsreplaynet.cards",
 	"hsreplaynet.features",
