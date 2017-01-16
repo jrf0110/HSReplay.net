@@ -2,6 +2,7 @@ import json
 from django.urls import reverse
 from hsredshift.analytics import queries
 from hsreplaynet.cards.models import Card
+from django.http import HttpResponse
 
 
 # Create your views here.
@@ -18,4 +19,6 @@ def card_inventory(request, card_id):
 			"params": list(query.params())
 		}
 		result.append(query)
-	return json.dumps(result)
+
+	payload_str = json.dumps(result, indent=4, sort_keys=True)
+	return HttpResponse(payload_str, content_type="application/json")
