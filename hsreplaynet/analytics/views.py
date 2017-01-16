@@ -23,8 +23,8 @@ def run_query(request, name):
 
 	result = {
 		"render_as": query.display_visual.name.lower(),
-		"labelX": query.label_x,
-		"labelY": query.label_y,
+		"label_x": query.label_x,
+		"label_y": query.label_y,
 		"title": query.title,
 		"series": chart_series_data
 	}
