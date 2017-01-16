@@ -1,6 +1,7 @@
 import json
 from django.urls import reverse
 from django.conf import settings
+from datetime import date, datetime
 from hsredshift.analytics import queries
 from hsreplaynet.cards.models import Card
 from django.http import HttpResponse
@@ -13,13 +14,16 @@ def run_query(request, name):
 	engine = create_engine(conn_info)
 	query = queries.get_query(name)
 	params = {}
-	for param_name, converter in query.params():
+	for param_name, converter in query.params().items():
 		if param_name in request.GET:
-			params[param_name] = converter(request.GET[param_name])
+			if converter == date:
+				params[param_name] = datetime.strptime(request.GET[param_name], '%Y-%m-%d').date()
+			else:
+				params[param_name] = converter(request.GET[param_name])
 
-	results = query.as_result_set().execute(engine, params)
+	results = query().as_result_set().execute(engine, params)
 
-	chart_series_data = query.to_chart_series(params, results)
+	chart_series_data = query().to_chart_series(params, results)
 
 	result = {
 		"render_as": query.display_visual.name.lower(),
