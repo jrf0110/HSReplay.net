@@ -118,14 +118,15 @@ def run_query(request, name):
 			else:
 				params[param_name] = converter(request.GET[param_name])
 
-	results = query().as_result_set().execute(engine, params)
+	results = query.as_result_set().execute(engine, params)
 
-	chart_series_data = query().to_chart_series(params, results)
+	chart_series_data = query.to_chart_series(params, results)
 
 	result = {
 		"render_as": query.display_visual.name.lower(),
 		"label_x": query.label_x,
 		"label_y": query.label_y,
+		"domain_y": query.get_y_domain(params, results),
 		"title": query.title,
 		"series": chart_series_data
 	}
