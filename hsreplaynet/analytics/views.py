@@ -1,14 +1,111 @@
 import json
+import hashlib
+from django.core.cache import cache
 from django.urls import reverse
 from django.conf import settings
+from django.http import Http404
+from django.http import HttpResponseForbidden
 from datetime import date, datetime
 from hsredshift.analytics import queries
 from hsreplaynet.cards.models import Card
 from django.http import HttpResponse
 from sqlalchemy import create_engine
+from hsredshift.analytics import filters
 
 
-# Create your views here.
+class CachedRedshiftResult(object):
+
+	def __init__(self, response_payload, params):
+		self.response_payload = response_payload
+		self.cached_params = params
+
+
+def fetch_query_results(request, name):
+	query = queries.get_query(name)
+	if not query:
+		raise Http404("No query named: %s" % name)
+
+	params = query.build_full_params(request.GET)
+	if not user_is_eligable_for_query(request.user, query, params):
+		return HttpResponseForbidden()
+
+	cache_key = params.cache_key()
+	cached_data = get_redshift_cache().get(cache_key)
+	if cached_data:
+		if cached_data.cached_params.are_stale(params):
+			from hsreplaynet.utils.redis import job_queue
+			# The cache will be updated with the new results within execute_query
+			job_queue.enqueue(execute_query, query, params)
+	else:
+		# Nothing to return so user will have to wait while we generate it
+		cached_data = execute_query(query, params)
+
+	return HttpResponse(cached_data.response_payload, content_type="application/json")
+
+
+def execute_query(query, params):
+	engine = get_redshift_engine()
+
+	results = query.as_result_set().execute(engine, params)
+	response_payload = query.to_response_payload(results, params)
+	cached_data = CachedRedshiftResult(response_payload, params)
+
+	get_redshift_cache().set(params.cache_key(), cached_data, timeout=None)
+	return cached_data
+
+
+def user_is_eligable_for_query(user, query, params):
+	pass
+
+
+def get_redshift_cache():
+	return cache
+
+
+def get_redshift_engine():
+		return create_engine(settings.REDSHIFT_CONNECTION)
+
+
+def card_inventory(request, card_id):
+	result = []
+	card = Card.objects.get(id=card_id)
+	for query in queries.card_inventory(card):
+		query = {
+			"endpoint": reverse("analytics_run_query", kwargs={"name": query.name}),
+			"params": list(query.params().keys())
+		}
+		result.append(query)
+
+	payload_str = json.dumps(result, indent=4, sort_keys=True)
+	return HttpResponse(payload_str, content_type="application/json")
+
+
+def get_filters(request):
+	result = {}
+
+	result["server_date"] = str(date.today())
+	result["TimeRange"] = filters.TimeRange.to_json_serializable()
+	result["RankRange"] = filters.RankRange.to_json_serializable()
+	result["PlayerClass"] = filters.PlayerClass.to_json_serializable()
+	result["Region"] = filters.Region.to_json_serializable()
+	result["GameType"] = filters.GameType.to_json_serializable()
+
+	payload_str = json.dumps(result, indent=4, sort_keys=True)
+	return HttpResponse(payload_str, content_type="application/json")
+
+
+# ****** Legacy Code ****** #
+
+def to_cache_key(query_name, params):
+	m = hashlib.md5()
+	m.update(query_name.encode("utf8"))
+	for k, v in params.items():
+		cache_key_component = "%s:%s" % (k, v)
+		m.update(cache_key_component.encode("utf8"))
+
+	return m.hexdigest()
+
+
 def run_query(request, name):
 	conn_info = settings.REDSHIFT_CONNECTION
 	engine = create_engine(conn_info)
@@ -32,20 +129,6 @@ def run_query(request, name):
 		"title": query.title,
 		"series": chart_series_data
 	}
-
-	payload_str = json.dumps(result, indent=4, sort_keys=True)
-	return HttpResponse(payload_str, content_type="application/json")
-
-
-def card_inventory(request, card_id):
-	result = []
-	card = Card.objects.get(id=card_id)
-	for query in queries.card_inventory(card):
-		query = {
-			"endpoint": reverse("analytics_run_query", kwargs={"name": query.name}),
-			"params": list(query.params().keys())
-		}
-		result.append(query)
 
 	payload_str = json.dumps(result, indent=4, sort_keys=True)
 	return HttpResponse(payload_str, content_type="application/json")
