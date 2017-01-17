@@ -26,11 +26,10 @@ def fetch_query_results(request, name):
 		raise Http404("No query named: %s" % name)
 
 	params = query.build_full_params(request.GET)
-	if not user_is_eligable_for_query(request.user, query, params):
+	if not user_is_eligible_for_query(request.user, params):
 		return HttpResponseForbidden()
 
-	cache_key = params.cache_key()
-	cached_data = get_redshift_cache().get(cache_key)
+	cached_data = get_redshift_cache().get(params.cache_key)
 	if cached_data:
 		if cached_data.cached_params.are_stale(params):
 			from hsreplaynet.utils.redis import job_queue
@@ -40,7 +39,8 @@ def fetch_query_results(request, name):
 		# Nothing to return so user will have to wait while we generate it
 		cached_data = execute_query(query, params)
 
-	return HttpResponse(cached_data.response_payload, content_type="application/json")
+	payload_str = json.dumps(cached_data.response_payload, indent=4, sort_keys=True)
+	return HttpResponse(payload_str, content_type="application/json")
 
 
 def execute_query(query, params):
@@ -50,12 +50,15 @@ def execute_query(query, params):
 	response_payload = query.to_response_payload(results, params)
 	cached_data = CachedRedshiftResult(response_payload, params)
 
-	get_redshift_cache().set(params.cache_key(), cached_data, timeout=None)
+	get_redshift_cache().set(params.cache_key, cached_data, timeout=None)
 	return cached_data
 
 
-def user_is_eligable_for_query(user, query, params):
-	pass
+def user_is_eligible_for_query(user, params):
+	if params.has_premium_values:
+		return user.is_premium
+	else:
+		return True
 
 
 def get_redshift_cache():
@@ -71,8 +74,8 @@ def card_inventory(request, card_id):
 	card = Card.objects.get(id=card_id)
 	for query in queries.card_inventory(card):
 		query = {
-			"endpoint": reverse("analytics_run_query", kwargs={"name": query.name}),
-			"params": list(query.params().keys())
+			"endpoint": reverse("analytics_fetch_query_results", kwargs={"name": query.name}),
+			"params": query.params()
 		}
 		result.append(query)
 
