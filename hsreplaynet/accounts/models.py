@@ -87,6 +87,11 @@ class User(AbstractUser):
 			for webhook in webhooks:
 				webhook.trigger(data)
 
+	@property
+	def is_premium(self):
+		# Everyone is premium until we implement it :)
+		return True
+
 
 class AccountDeleteRequest(models.Model):
 	user = models.OneToOneField(User)
