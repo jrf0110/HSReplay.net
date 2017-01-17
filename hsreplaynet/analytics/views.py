@@ -81,14 +81,31 @@ def card_inventory(request, card_id):
 
 
 def get_filters(request):
-	result = {}
-
-	result["server_date"] = str(date.today())
-	result["TimeRange"] = filters.TimeRange.to_json_serializable()
-	result["RankRange"] = filters.RankRange.to_json_serializable()
-	result["PlayerClass"] = filters.PlayerClass.to_json_serializable()
-	result["Region"] = filters.Region.to_json_serializable()
-	result["GameType"] = filters.GameType.to_json_serializable()
+	result = {
+		"server_date": str(date.today()),
+		"filters": [
+			{
+				"name": "TimeRange",
+				"elements": filters.TimeRange.to_json_serializable()
+			},
+			{
+				"name": "RankRange",
+				"elements": filters.RankRange.to_json_serializable()
+			},
+			{
+				"name": "PlayerClass",
+				"elements": filters.PlayerClass.to_json_serializable()
+			},
+			{
+				"name": "Region",
+				"elements": filters.Region.to_json_serializable()
+			},
+			{
+				"name": "GameType",
+				"elements": filters.GameType.to_json_serializable()
+			}
+		]
+	}
 
 	payload_str = json.dumps(result, indent=4, sort_keys=True)
 	return HttpResponse(payload_str, content_type="application/json")
