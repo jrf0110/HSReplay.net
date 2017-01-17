@@ -11,6 +11,8 @@ from hsreplaynet.cards.models import Card
 from django.http import HttpResponse
 from sqlalchemy import create_engine
 from hsredshift.analytics import filters
+from hsreplaynet.utils.influx import influx_metric, influx_timer
+from hsreplaynet.utils.influx import get_redshift_query_average_duration_seconds
 
 
 class CachedRedshiftResult(object):
@@ -30,7 +32,9 @@ def fetch_query_results(request, name):
 		return HttpResponseForbidden()
 
 	cached_data = get_redshift_cache().get(params.cache_key)
+	was_cache_hit = False
 	if cached_data:
+		was_cache_hit = True
 		if cached_data.cached_params.are_stale(params):
 			from hsreplaynet.utils.redis import job_queue
 			# The cache will be updated with the new results within execute_query
@@ -39,6 +43,7 @@ def fetch_query_results(request, name):
 		# Nothing to return so user will have to wait while we generate it
 		cached_data = execute_query(query, params)
 
+	influx_metric("redshift_query_fetch_%s" % name, {"count": 1}, cache_hit=was_cache_hit)
 	payload_str = json.dumps(cached_data.response_payload, indent=4, sort_keys=True)
 	return HttpResponse(payload_str, content_type="application/json")
 
@@ -46,7 +51,9 @@ def fetch_query_results(request, name):
 def execute_query(query, params):
 	engine = get_redshift_engine()
 
-	results = query.as_result_set().execute(engine, params)
+	with influx_timer("redshift_query_duration_%s" % query.name):
+		results = query.as_result_set().execute(engine, params)
+
 	response_payload = query.to_response_payload(results, params)
 	cached_data = CachedRedshiftResult(response_payload, params)
 
@@ -56,7 +63,7 @@ def execute_query(query, params):
 
 def user_is_eligible_for_query(user, params):
 	if params.has_premium_values:
-		return user.is_premium
+		return (not user.is_anonymous) and (user.is_premium)
 	else:
 		return True
 
@@ -73,11 +80,15 @@ def card_inventory(request, card_id):
 	result = []
 	card = Card.objects.get(id=card_id)
 	for query in queries.card_inventory(card):
-		query = {
+		inventory_entry = {
 			"endpoint": reverse("analytics_fetch_query_results", kwargs={"name": query.name}),
 			"params": query.params()
 		}
-		result.append(query)
+		query_duration_millis = get_redshift_query_average_duration_seconds(query.name)
+		if query_duration_millis:
+			inventory_entry["avg_query_duration_seconds"] = query_duration_millis
+
+		result.append(inventory_entry)
 
 	payload_str = json.dumps(result, indent=4, sort_keys=True)
 	return HttpResponse(payload_str, content_type="application/json")
