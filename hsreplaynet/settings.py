@@ -210,8 +210,11 @@ SOCIALACCOUNT_PROVIDERS = {"battlenet": {"SCOPE": []}}
 # https://django-redis-cache.readthedocs.io/en/latest/intro_quick_start.html
 CACHES = {
 	"default": {
-		"BACKEND": "redis_cache.RedisCache",
+		"BACKEND": "redis_lock.django_cache.RedisCache",
 		"LOCATION": "localhost:6379",
+		'OPTIONS': {
+			'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+		}
 	}
 }
 

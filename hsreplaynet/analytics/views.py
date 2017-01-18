@@ -59,14 +59,25 @@ def fetch_query_results(request, name):
 def execute_query(query, params):
 	engine = get_redshift_engine()
 
-	with influx_timer("redshift_query_duration", query=query.name):
-		results = query.as_result_set().execute(engine, params)
+	# Distributed dog pile lock pattern
+	# From: https://pypi.python.org/pypi/python-redis-lock
+	with get_redshift_cache().lock(params.cache_key):
+		# When we enter this block it's either because we were blocking
+		# and now the value is available,
+		# or it's because we're going to do the work
+		cached_data = get_redshift_cache().get(params.cache_key)
+		if cached_data:
+			return cached_data
+		else:
+			# DO EXPENSIVE WORK
+			with influx_timer("redshift_query_duration", query=query.name):
+				results = query.as_result_set().execute(engine, params)
 
-	response_payload = query.to_response_payload(results, params)
-	cached_data = CachedRedshiftResult(response_payload, params)
+			response_payload = query.to_response_payload(results, params)
+			cached_data = CachedRedshiftResult(response_payload, params)
 
-	get_redshift_cache().set(params.cache_key, cached_data, timeout=None)
-	return cached_data
+			get_redshift_cache().set(params.cache_key, cached_data, timeout=None)
+			return cached_data
 
 
 def user_is_eligible_for_query(user, params):
