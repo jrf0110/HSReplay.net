@@ -130,13 +130,13 @@ def get_current_lambda_average_duration_millis(lambda_name, lookback_hours=1):
 
 def get_redshift_query_average_duration_seconds(query_name, lookback_hours=1):
 	try:
-		metric_name = "redshift_query_duration_%s" % query_name
 		raw_query = """
-			select mean(value) from %s
+			select mean(value) from redshift_query_duration
 			where exception_thrown = 'False'
+			and query = '%s'
 			and time > now() - %sh
 		"""
-		full_query = raw_query % (metric_name, lookback_hours)
+		full_query = raw_query % (query_name, lookback_hours)
 
 		result = influx.query(full_query).raw
 		if "series" in result:

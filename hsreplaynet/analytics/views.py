@@ -33,9 +33,11 @@ def fetch_query_results(request, name):
 
 	cached_data = get_redshift_cache().get(params.cache_key)
 	was_cache_hit = False
+	triggered_refresh = False
 	if cached_data:
 		was_cache_hit = True
 		if cached_data.cached_params.are_stale(params):
+			triggered_refresh = True
 			from hsreplaynet.utils.redis import job_queue
 			# The cache will be updated with the new results within execute_query
 			job_queue.enqueue(execute_query, query, params)
@@ -43,7 +45,14 @@ def fetch_query_results(request, name):
 		# Nothing to return so user will have to wait while we generate it
 		cached_data = execute_query(query, params)
 
-	influx_metric("redshift_query_fetch_%s" % name, {"count": 1}, cache_hit=was_cache_hit)
+	influx_metric(
+		"redshift_query_fetch",
+		{"count": 1},
+		cache_hit=was_cache_hit,
+		query=name,
+		triggered_refresh=triggered_refresh
+	)
+
 	payload_str = json.dumps(cached_data.response_payload, indent=4, sort_keys=True)
 	return HttpResponse(payload_str, content_type="application/json")
 
@@ -51,7 +60,7 @@ def fetch_query_results(request, name):
 def execute_query(query, params):
 	engine = get_redshift_engine()
 
-	with influx_timer("redshift_query_duration_%s" % query.name):
+	with influx_timer("redshift_query_duration", query=query.name):
 		results = query.as_result_set().execute(engine, params)
 
 	response_payload = query.to_response_payload(results, params)
