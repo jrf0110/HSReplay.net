@@ -43,6 +43,9 @@ class Command(BaseCommand):
 
 		for descriptor in descriptors:
 			self.stdout.write("About to deploy: %s" % (descriptor["name"]))
+			self.stdout.write(
+				"Descriptor requires VPC access: %s" % (descriptor["requires_vpc_access"])
+			)
 
 			existing_lambda = None
 			for func in all_lambdas["Functions"]:
@@ -75,6 +78,7 @@ class Command(BaseCommand):
 						Handler=descriptor["handler"],
 						Timeout=descriptor["cpu_seconds"],
 						MemorySize=descriptor["memory"],
+						VpcConfig={}
 					)
 
 				LAMBDA.update_function_code(

@@ -6,6 +6,7 @@ from hsreplaynet.analytics.processing import _do_execute_query
 
 @instrumentation.lambda_handler(
 	cpu_seconds=240,
+	requires_vpc_access=True
 )
 def execute_redshift_query(event, context):
 	"""A handler that executes Redshift queries for the webserver"""
