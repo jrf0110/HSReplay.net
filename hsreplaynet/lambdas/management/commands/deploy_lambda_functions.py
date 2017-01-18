@@ -58,6 +58,14 @@ class Command(BaseCommand):
 					Handler=descriptor["handler"],
 					Timeout=descriptor["cpu_seconds"],
 					MemorySize=descriptor["memory"],
+					VpcConfig={
+						'SubnetIds': [
+							settings.AWS_PROD_SUBNET,
+						],
+						'SecurityGroupIds': [
+							settings.AWS_PROD_SECURITY_GROUP_ID,
+						]
+					},
 				)
 
 				LAMBDA.update_function_code(
@@ -77,6 +85,14 @@ class Command(BaseCommand):
 					Code={
 						"S3Bucket": artifact_bucket,
 						"S3Key": artifact_obj,
+					},
+					VpcConfig={
+						'SubnetIds': [
+							settings.AWS_PROD_SUBNET,
+						],
+						'SecurityGroupIds': [
+							settings.AWS_PROD_SECURITY_GROUP_ID,
+						]
 					},
 					Timeout=descriptor["cpu_seconds"],
 					MemorySize=descriptor["memory"],
