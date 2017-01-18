@@ -69,8 +69,8 @@ def build_admin_url(shortid):
 
 
 def lambda_handler(
-	cpu_seconds=60, memory=128, name=None, handler=None,
-	stream_name=None, stream_batch_size=1, trap_exceptions=True, tracing=True
+	cpu_seconds=60, memory=128, name=None, handler=None, stream_name=None,
+	stream_batch_size=1, trap_exceptions=True, tracing=True, requires_vpc_access=False
 ):
 	"""Indicates the decorated function is a AWS Lambda handler.
 
@@ -99,7 +99,8 @@ def lambda_handler(
 			"name": name if name else func.__name__,
 			"handler": handler if handler else "handlers.%s" % func.__name__,
 			"stream_name": stream_name if stream_name else None,
-			"stream_batch_size": stream_batch_size
+			"stream_batch_size": stream_batch_size,
+			"requires_vpc_access": requires_vpc_access
 		})
 
 		@wraps(func)
