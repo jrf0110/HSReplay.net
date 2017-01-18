@@ -133,7 +133,7 @@ def get_redshift_query_average_duration_seconds(query_name, lookback_hours=1):
 		raw_query = """
 			select mean(value) from redshift_query_duration
 			where exception_thrown = 'False'
-			and query = '%s'
+			and "query" = '%s'
 			and time > now() - %sh
 		"""
 		full_query = raw_query % (query_name, lookback_hours)
