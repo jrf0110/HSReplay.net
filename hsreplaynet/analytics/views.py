@@ -1,5 +1,5 @@
 import json
-from django.core.cache import cache
+from django.core.cache import caches
 from django.urls import reverse
 from django.conf import settings
 from django.http import Http404
@@ -77,7 +77,7 @@ def user_is_eligible_for_query(user, params):
 
 
 def get_redshift_cache():
-	return cache
+	return caches['redshift']
 
 
 def get_redshift_engine():
