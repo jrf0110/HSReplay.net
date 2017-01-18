@@ -1,24 +1,15 @@
 import json
-from django.core.cache import caches
 from django.urls import reverse
-from django.conf import settings
 from django.http import Http404
 from django.http import HttpResponseForbidden
 from datetime import date
 from hsredshift.analytics import queries
 from hsreplaynet.cards.models import Card
 from django.http import HttpResponse
-from sqlalchemy import create_engine
 from hsredshift.analytics import filters
-from hsreplaynet.utils.influx import influx_metric, influx_timer
+from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.influx import get_redshift_query_average_duration_seconds
-
-
-class CachedRedshiftResult(object):
-
-	def __init__(self, response_payload, params):
-		self.response_payload = response_payload
-		self.cached_params = params
+from .processing import execute_query, get_from_redshift_cache
 
 
 def fetch_query_results(request, name):
@@ -30,19 +21,19 @@ def fetch_query_results(request, name):
 	if not user_is_eligible_for_query(request.user, params):
 		return HttpResponseForbidden()
 
-	cached_data = get_redshift_cache().get(params.cache_key)
+	cached_data = get_from_redshift_cache(params.cache_key)
 	was_cache_hit = False
 	triggered_refresh = False
 	if cached_data:
 		was_cache_hit = True
 		if cached_data.cached_params.are_stale(params):
 			triggered_refresh = True
-			from hsreplaynet.utils.redis import job_queue
-			# The cache will be updated with the new results within execute_query
-			job_queue.enqueue(execute_query, query, params)
+			# Execute the query to refresh the stale data asynchronously
+			# And then return the data we have available immediately
+			execute_query(query, params, async=True)
 	else:
 		# Nothing to return so user will have to wait while we generate it
-		cached_data = execute_query(query, params)
+		cached_data = execute_query(query, params, async=False)
 
 	influx_metric(
 		"redshift_query_fetch",
@@ -56,43 +47,11 @@ def fetch_query_results(request, name):
 	return HttpResponse(payload_str, content_type="application/json")
 
 
-def execute_query(query, params):
-	engine = get_redshift_engine()
-
-	# Distributed dog pile lock pattern
-	# From: https://pypi.python.org/pypi/python-redis-lock
-	with get_redshift_cache().lock(params.cache_key):
-		# When we enter this block it's either because we were blocking
-		# and now the value is available,
-		# or it's because we're going to do the work
-		cached_data = get_redshift_cache().get(params.cache_key)
-		if cached_data:
-			return cached_data
-		else:
-			# DO EXPENSIVE WORK
-			with influx_timer("redshift_query_duration", query=query.name):
-				results = query.as_result_set().execute(engine, params)
-
-			response_payload = query.to_response_payload(results, params)
-			cached_data = CachedRedshiftResult(response_payload, params)
-
-			get_redshift_cache().set(params.cache_key, cached_data, timeout=None)
-			return cached_data
-
-
 def user_is_eligible_for_query(user, params):
 	if params.has_premium_values:
 		return (not user.is_anonymous) and (user.is_premium)
 	else:
 		return True
-
-
-def get_redshift_cache():
-	return caches['redshift']
-
-
-def get_redshift_engine():
-		return create_engine(settings.REDSHIFT_CONNECTION)
 
 
 def card_inventory(request, card_id):
@@ -101,7 +60,7 @@ def card_inventory(request, card_id):
 	for query in queries.card_inventory(card):
 		inventory_entry = {
 			"endpoint": reverse("analytics_fetch_query_results", kwargs={"name": query.name}),
-			"params": query.params()
+			"params": query.required_parameters
 		}
 		query_duration_millis = get_redshift_query_average_duration_seconds(query.name)
 		if query_duration_millis:
