@@ -218,6 +218,8 @@ CACHES = {
 	}
 }
 
+# If False, then we will use RQ for async processing
+PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA=False
 
 ##
 # RQ

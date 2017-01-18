@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from hsreplaynet.utils.influx import influx_timer
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils import log
+from hsreplaynet.utils.redis import job_queue
 
 
 class CachedRedshiftResult(object):
@@ -22,7 +23,7 @@ def execute_query(query, params, async=False):
 
 
 def _execute_query_async(query, params):
-	if settings.ENV_AWS:
+	if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
 		# In PROD use Lambdas so the web-servers don't get overloaded
 		LAMBDA.invoke(
 			FunctionName="execute_redshift_query",
@@ -30,8 +31,7 @@ def _execute_query_async(query, params):
 			Payload=_to_lamda_payload(query, params),
 		)
 	else:
-		from hsreplaynet.utils.redis import job_queue
-		job_queue.enqueue(_execute_query_sync, query, params)
+		job_queue.enqueue(_do_execute_query, query, params)
 
 
 def _to_lamda_payload(query, params):
@@ -44,7 +44,7 @@ def _to_lamda_payload(query, params):
 
 
 def _execute_query_sync(query, params):
-	if settings.ENV_AWS:
+	if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
 		# In PROD use Lambdas so the web-servers don't get overloaded
 		LAMBDA.invoke(
 			FunctionName="execute_redshift_query",
