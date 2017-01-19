@@ -4,7 +4,6 @@ from django.http import Http404
 from django.http import HttpResponseForbidden
 from datetime import date
 from hsredshift.analytics import queries
-from hsreplaynet.cards.models import Card
 from django.http import HttpResponse
 from hsredshift.analytics import filters
 from hsreplaynet.utils.influx import influx_metric
@@ -56,8 +55,7 @@ def user_is_eligible_for_query(user, params):
 
 def card_inventory(request, card_id):
 	result = []
-	card = Card.objects.get(id=card_id)
-	for query in queries.card_inventory(card):
+	for query in queries.card_inventory(card_id):
 		inventory_entry = {
 			"endpoint": reverse("analytics_fetch_query_results", kwargs={"name": query.name}),
 			"params": query.required_parameters
