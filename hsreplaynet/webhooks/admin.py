@@ -23,6 +23,8 @@ class WebhookAdmin(admin.ModelAdmin):
 
 @admin.register(WebhookTrigger)
 class WebhookTriggerAdmin(admin.ModelAdmin):
-	list_display = ("id", "url", "webhook", "response_status", "success", "completed_time")
+	list_display = (
+		"id", "url", "webhook", "created", "response_status", "success", "completed_time"
+	)
 	list_filter = ("response_status", "success")
 	raw_id_fields = ("webhook", )
