@@ -135,7 +135,7 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 		const legends = [];
 		this.keys.forEach(key => {
 			const selected = this.isLegendSelected(key);
-			const labelStyle = selected ? {backgroundColor: this.getColor(key)} : null;
+			const labelStyle = selected ? {backgroundColor: this.getColor(key), color: this.getTextColor(key)} : null;
 			legends.push(
 				<span className="label" style={labelStyle}
 					onClick={() => this.setState({legends: this.state.legends.set(key, !selected)})}>
@@ -197,5 +197,13 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 			case "WARLOCK": return "#9482C9";
 			case "WARRIOR": return "#C79C6E";
 		}
+	}
+
+	private getTextColor(hero: string): string {
+		switch(hero.toUpperCase()) {
+			case "SHAMAN":
+				return "white";
+		}
+		return "black";
 	}
 }
