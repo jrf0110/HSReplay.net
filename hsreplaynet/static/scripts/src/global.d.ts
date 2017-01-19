@@ -95,3 +95,23 @@ declare module "cookie_js" {
 	import * as cookiejs from "cookiejs";
 	export {cookiejs as cookie};
 }
+
+declare module "victory" {
+	import * as React from "react";
+
+	export class VictoryPortal extends React.Component<any, any> {
+		render(): JSX.Element;
+	}
+
+	export class VictoryTooltip extends React.Component<any, any> {
+		render(): JSX.Element;
+	}
+
+	export class VictoryVoronoiTooltip extends React.Component<any, any> {
+		render(): JSX.Element;
+	}
+
+	export class VictoryZoom extends React.Component<any, any> {
+		render(): JSX.Element;
+	}
+}

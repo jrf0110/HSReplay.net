@@ -1,0 +1,29 @@
+.chart {
+
+	&.stacked-bar-chart {
+
+		.legend-wrapper {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+
+			>span {
+				margin: 5px 0 0 5px;
+				color: black;
+				cursor: pointer;
+				user-select: none;
+
+				&.unselected {
+					background-color: "lightgray";
+					color: gray;
+				}
+			}
+		}
+
+		.controls-wrapper {
+			text-align: center;
+			padding-top: 5px;
+		}
+
+	}
+}
