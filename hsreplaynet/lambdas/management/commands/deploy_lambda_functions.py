@@ -43,9 +43,6 @@ class Command(BaseCommand):
 
 		for descriptor in descriptors:
 			self.stdout.write("About to deploy: %s" % (descriptor["name"]))
-			self.stdout.write(
-				"Descriptor requires VPC access: %s" % (descriptor["requires_vpc_access"])
-			)
 
 			existing_lambda = None
 			for func in all_lambdas["Functions"]:
@@ -55,31 +52,13 @@ class Command(BaseCommand):
 			if existing_lambda:
 				self.stdout.write("Lambda exists - will update.")
 
-				if descriptor["requires_vpc_access"]:
-					LAMBDA.update_function_configuration(
-						FunctionName=descriptor["name"],
-						Role=execution_role_arn,
-						Handler=descriptor["handler"],
-						Timeout=descriptor["cpu_seconds"],
-						MemorySize=descriptor["memory"],
-						VpcConfig={
-							'SubnetIds': [
-								settings.AWS_PROD_SUBNET,
-							],
-							'SecurityGroupIds': [
-								settings.AWS_PROD_SECURITY_GROUP_ID,
-							]
-						},
-					)
-				else:
-					LAMBDA.update_function_configuration(
-						FunctionName=descriptor["name"],
-						Role=execution_role_arn,
-						Handler=descriptor["handler"],
-						Timeout=descriptor["cpu_seconds"],
-						MemorySize=descriptor["memory"],
-						VpcConfig={}
-					)
+				LAMBDA.update_function_configuration(
+					FunctionName=descriptor["name"],
+					Role=execution_role_arn,
+					Handler=descriptor["handler"],
+					Timeout=descriptor["cpu_seconds"],
+					MemorySize=descriptor["memory"],
+				)
 
 				LAMBDA.update_function_code(
 					FunctionName=descriptor["name"],
@@ -90,40 +69,18 @@ class Command(BaseCommand):
 			else:
 				self.stdout.write("New Lambda - will create.")
 
-				if descriptor["requires_vpc_access"]:
-					LAMBDA.create_function(
-						FunctionName=descriptor["name"],
-						Runtime="python2.7",
-						Role=execution_role_arn,
-						Handler=descriptor["handler"],
-						Code={
-							"S3Bucket": artifact_bucket,
-							"S3Key": artifact_obj,
-						},
-						VpcConfig={
-							'SubnetIds': [
-								settings.AWS_PROD_SUBNET,
-							],
-							'SecurityGroupIds': [
-								settings.AWS_PROD_SECURITY_GROUP_ID,
-							]
-						},
-						Timeout=descriptor["cpu_seconds"],
-						MemorySize=descriptor["memory"],
-					)
-				else:
-					LAMBDA.create_function(
-						FunctionName=descriptor["name"],
-						Runtime="python2.7",
-						Role=execution_role_arn,
-						Handler=descriptor["handler"],
-						Code={
-							"S3Bucket": artifact_bucket,
-							"S3Key": artifact_obj,
-						},
-						Timeout=descriptor["cpu_seconds"],
-						MemorySize=descriptor["memory"],
-					)
+				LAMBDA.create_function(
+					FunctionName=descriptor["name"],
+					Runtime="python2.7",
+					Role=execution_role_arn,
+					Handler=descriptor["handler"],
+					Code={
+						"S3Bucket": artifact_bucket,
+						"S3Key": artifact_obj,
+					},
+					Timeout=descriptor["cpu_seconds"],
+					MemorySize=descriptor["memory"],
+				)
 
 			if descriptor["stream_name"]:
 				# This lambda would like to be registered as a listener on a kinesis stream

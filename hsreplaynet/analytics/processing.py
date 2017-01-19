@@ -25,6 +25,8 @@ def execute_query(query, params, async=False):
 def _execute_query_async(query, params):
 	if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
 		# In PROD use Lambdas so the web-servers don't get overloaded
+		# NOTE: Lambdas cannot reach the cache until the VPCAccess
+		# configuration issues are resolved.
 		LAMBDA.invoke(
 			FunctionName="execute_redshift_query",
 			InvocationType="Event",  # Triggers asynchronous invocation
@@ -46,6 +48,8 @@ def _to_lamda_payload(query, params):
 def _execute_query_sync(query, params):
 	if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
 		# In PROD use Lambdas so the web-servers don't get overloaded
+		# NOTE: Lambdas cannot reach the cache until the VPCAccess
+		# configuration issues are resolved.
 		LAMBDA.invoke(
 			FunctionName="execute_redshift_query",
 			InvocationType="RequestResponse",  # Triggers synchronous invocation
