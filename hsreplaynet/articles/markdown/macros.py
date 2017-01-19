@@ -82,7 +82,10 @@ class MacroPattern(markdown.inlinepatterns.Pattern):
 
 def makeExtension(config=None):
 	# XXX
+	from webpack_loader.templatetags.webpack_loader import render_bundle
+
 	config = {
 		"sum": lambda *args, **kwargs: sum(args),
+		"render_bundle": render_bundle,
 	}
 	return MacroExtension(config)
