@@ -422,6 +422,8 @@ class GameReplay(models.Model):
 	def generate_description(self):
 		tpl = "Watch a game of Hearthstone between %s (%s) and %s (%s) in your browser."
 		players = self.global_game.players.all()
+		if len(players) != 2:
+			return ""
 		player1, player2 = players[0], players[1]
 		return tpl % (
 			player1, player1.hero.card_class.name.capitalize(),
