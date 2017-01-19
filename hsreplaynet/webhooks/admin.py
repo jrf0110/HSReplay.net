@@ -10,6 +10,14 @@ def send_test_payload(admin, request, queryset):
 send_test_payload.short_description = "Send test payload"
 
 
+def redeliver(admin, request, queryset):
+	for obj in queryset:
+		obj.deliver(timeout=10)
+
+
+send_test_payload.short_description = "Redeliver payload"
+
+
 @admin.register(Webhook)
 class WebhookAdmin(admin.ModelAdmin):
 	list_display = (
