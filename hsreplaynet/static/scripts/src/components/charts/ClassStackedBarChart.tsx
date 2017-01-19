@@ -93,6 +93,12 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 			}
 		});
 
+		const controls = this.props.hideControls ? null :
+			<div className="controls-wrapper">
+				{this.props.hideControls ? null :  this.buildControls(numBars)}
+				{"Items " + (this.state.offset + 1) + "-" + (this.state.offset + numBars) + " out of " + this.state.data.length}
+			</div>;
+
 		return <div className="chart stacked-bar-chart">
 			<VictoryChart
 				height={200}
@@ -117,9 +123,7 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 			<div className="legend-wrapper">
 				{this.props.hideLegend ? null : this.buildLegend()}
 			</div>
-			<div className="controls-wrapper">
-				{this.props.hideControls ? null :  this.buildControls(numBars)}
-			</div>
+			{controls}
 		</div>
 	}
 
