@@ -36,27 +36,24 @@ class UploadEventsRouter(object):
 	"""A Django DB Router for interacting with the hsreplay.net uploads-db"""
 	def db_for_read(self, model, **hints):
 		uploads_db = getattr(settings, "UPLOADS_DB", None)
-		model_name = model._meta.model_name
-		if model_name == 'uploadevent' and uploads_db and uploads_db in settings.DATABASES:
+
+		if model._meta.app_label == 'uploads' and uploads_db and uploads_db in settings.DATABASES:
 			return uploads_db
 		else:
 			return "default"
 
 	def db_for_write(self, model, **hints):
 		uploads_db = getattr(settings, "UPLOADS_DB", None)
-		model_name = model._meta.model_name
-		if model_name == 'uploadevent' and uploads_db and uploads_db in settings.DATABASES:
+
+		if model._meta.app_label == 'uploads' and uploads_db and uploads_db in settings.DATABASES:
 			return uploads_db
 		else:
 			return "default"
 
 	def allow_relation(self, obj1, obj2, **hints):
-		# Prevent foreign keys to or from the UploadEvent table
-		obj1_name = obj1._meta.model_name
-		obj2_name = obj2._meta.model_name
-
-		if obj1_name == 'uploadevent' or obj2_name == 'uploadevent':
-			return False
+		if obj1._meta.app_label == 'uploads' and obj2._meta.app_label == 'uploads':
+				# Models within the uploads-db can have relationships with each other
+				return True
 
 		# None indicates the router has no opinion
 		return None
@@ -64,14 +61,7 @@ class UploadEventsRouter(object):
 	def allow_migrate(self, db, app_label, model_name=None, **hints):
 		uploads_db = getattr(settings, "UPLOADS_DB", None)
 
-		# This router restricts UploadEvents to the uploads-db
-		if model_name == 'uploadevent':
+		if app_label == 'uploads':
 			return db == uploads_db
-		else:
-			# This router also makes sure nothing else gets created in uploads-db
-			if db == uploads_db:
-				return False
-			else:
-				# We have no opinions about what should happen to other DBs
-				# None indicates the router has no opinion
-				return None
+
+		return None

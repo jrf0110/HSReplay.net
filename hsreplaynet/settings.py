@@ -344,6 +344,23 @@ CONNECT_TO_AWS = ENV_AWS
 
 ARCHETYPE_CLASSIFICATION_ENABLED = True
 REDSHIFT_LOADING_ENABLED = False
+REDSHIFT_STAGING_BUCKET = "hsreplaynet-redshift-staging"
+
+# Range is from 60 - 900
+REDSHIFT_STAGING_BUFFER_INTERVAL_SECONDS = 120
+# Range is from 1 - 128
+REDSHIFT_STAGING_BUFFER_SIZE_MB = 10
+
+# This controls how often we transfer records from the staging tables
+# Into the production tables
+REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES = 30
+
+# This controls how long we must wait after closing a Firehose stream for new data
+# Before we transfer the records from the staging track into the prod tables
+# This must be longer than REDSHIFT_STAGING_BUFFER_INTERVAL_SECONDS
+# So that we can be sure that all straggling records sent to the stream have been flushed
+REDSHIFT_ETL_CLOSED_TRACK_MINIMUM_QUIESCENCE_SECONDS = 2 * REDSHIFT_STAGING_BUFFER_INTERVAL_SECONDS
+
 
 WEBHOOKS = {
 	"SCHEME_WHITELIST": ["http", "https"],

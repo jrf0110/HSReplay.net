@@ -7,6 +7,7 @@ if settings.CONNECT_TO_AWS:
 	LAMBDA = boto3.client("lambda")
 	KINESIS = boto3.client("kinesis")
 	S3 = boto3.client("s3")
+	FIREHOSE = boto3.client("firehose")
 else:
 	# Stubbed to prevent ImportErrors
-	IAM, LAMBDA, KINESIS, S3 = None, None, None, None
+	IAM, LAMBDA, KINESIS, S3, FIREHOSE = None, None, None, None, None

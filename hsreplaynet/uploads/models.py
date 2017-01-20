@@ -3,6 +3,7 @@ import json
 import os
 import re
 import time
+from uuid import uuid4
 from botocore.vendored.requests.packages.urllib3.exceptions import ReadTimeoutError
 from datetime import datetime, timedelta
 from enum import IntEnum
@@ -13,6 +14,15 @@ from django.urls import reverse
 from django_intenum import IntEnumField
 from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
+from hsreplaynet.utils.aws import streams
+from sqlalchemy import text, bindparam, String, Date, create_engine
+from hsredshift.etl.models import (
+	list_staging_eligible_tables, create_staging_table, drop_staging_table
+)
+
+
+def get_redshift_engine():
+		return create_engine(settings.REDSHIFT_CONNECTION)
 
 
 class UploadEventStatus(IntEnum):
@@ -364,3 +374,453 @@ def cleanup_uploaded_log_file(sender, instance, **kwargs):
 	descriptor = instance.descriptor
 	if descriptor.name:
 		delete_file_async(descriptor.name)
+
+
+class RedshiftStagingTrackManager(models.Manager):
+
+	def get_active_track_prefix(self):
+		# This will be called by each lambda
+		# And provided when initializing the RedshiftExporter
+		active_track = self.get_active_track()
+		if active_track:
+			return active_track.track_prefix
+		else:
+			return ""
+
+	def get_active_track(self):
+		return RedshiftStagingTrack.objects.filter(
+			closed_at__isnull=True
+		).order_by("-active_at").first()
+
+	def initialize_first_active_track(self):
+		# This should only get called when we are bootstrapping
+		# And setting up our first active track.
+		# At all other times, there should always be an active track
+		track = RedshiftStagingTrack.objects.create(
+			track_prefix=self.generate_track_prefix(),
+			# This is ONLY immediately set on record create for the initial root track
+			active_at=datetime.now()
+		)
+		track.initialize_tables()
+		return track
+
+	def create_successor_for(self, existing_track):
+		successor = RedshiftStagingTrack.objects.create(
+			predecessor=existing_track,
+			track_prefix=self.generate_track_prefix()
+		)
+		existing_track.successor = successor
+		existing_track.save()
+
+		successor.initialize_tables()
+
+		return successor
+
+	def generate_track_prefix(self):
+		staging_prefix = "stage"
+		track_uuid = str(uuid4())[:4]
+		ts = datetime.now().strftime("%Y%m%d%h%m")
+		# prefix = 5 chars
+		# ts = 12 chars
+		# uuid = 4 chars
+		# 3 underscores
+		# total_length = 5 + 12 + 4 + 3 = 24 chars
+		return "%s_%s_%s" % (staging_prefix, ts, track_uuid)
+
+	def get_insert_ready_track(self):
+		# If a track has been recently closed but the records have not been
+		# Transferred to the production tables yet AND it is outside
+		# The minimum quiescence period, then it is considered insert_ready
+
+		# There should only ever bet at most 1 of these, or something has
+		# broken down with the system.
+		candidates = RedshiftStagingTrack.objects.filter(
+			closed_at__isnull=False,
+			insert_started_at__isnull=True
+		).all()
+
+		if len(candidates) > 1:
+			raise RuntimeError("More than one fully staged track exists.")
+		elif len(candidates) == 1:
+			candidate = candidates[0]
+			# The candidate could still be in it's quiescence period
+			if candidate.is_able_to_insert:
+				return candidate
+			else:
+				return None
+		else:
+			return None
+
+	def get_analyze_ready_track(self):
+		candidates = RedshiftStagingTrack.objects.filter(
+			insert_ended_at__isnull=False,
+			analyze_started_at__isnull=True
+		).all()
+
+		if len(candidates) > 1:
+			raise RuntimeError("More than one analyze ready track exists.")
+		elif len(candidates) == 1:
+			return candidates[0]
+		else:
+			return None
+
+	def get_vacuum_ready_track(self):
+		candidates = RedshiftStagingTrack.objects.filter(
+			analyze_ended_at__isnull=False,
+			vacuum_ended_at__isnull=True
+		).all()
+
+		if len(candidates) > 1:
+			raise RuntimeError("More than one vacuum ready track exists.")
+		elif len(candidates) == 1:
+			return candidates[0]
+		else:
+			return None
+
+	def get_cleanup_ready_track(self):
+		candidates = RedshiftStagingTrack.objects.filter(
+			vacuum_ended_at__isnull=False,
+			track_cleanup_at__isnull=True
+		).all()
+
+		if len(candidates) > 1:
+			raise RuntimeError("More than one cleanup ready track exists.")
+		elif len(candidates) == 1:
+			return candidates[0]
+		else:
+			return None
+
+
+class RedshiftStagingTrack(models.Model):
+	"""
+	Represents a collection of staging tables intended for micro-batch loading into Redshift.
+	"""
+	id = models.BigAutoField(primary_key=True)
+	objects = RedshiftStagingTrackManager()
+	predecessor = models.ForeignKey(
+		"self",
+		null=True,
+		on_delete=models.SET_NULL,
+		related_name="+"
+	)
+	successor = models.ForeignKey(
+		"self",
+		null=True,
+		on_delete=models.SET_NULL,
+		related_name="+"
+	)
+	track_prefix = models.CharField("Track Prefix", max_length=100)
+	created = models.DateTimeField(auto_now_add=True)
+	# firehose_streams_are_ready = models.BooleanField(default=False)
+	active_at = models.DateTimeField(null=True, db_index=True)
+	closed_at = models.DateTimeField(null=True, db_index=True)
+	insert_started_at = models.DateTimeField(null=True)
+	insert_ended_at = models.DateTimeField(null=True)
+	analyze_started_at = models.DateTimeField(null=True)
+	analyze_ended_at = models.DateTimeField(null=True)
+	vacuum_started_at = models.DateTimeField(null=True)
+	vacuum_ended_at = models.DateTimeField(null=True)
+	track_cleanup_at = models.DateTimeField(null=True)
+
+	@property
+	def activate_duration_minutes(self):
+		current_timestamp = datetime.now()
+		duration = current_timestamp - self.active_at
+		return duration.minutes
+
+	@property
+	def track_should_close(self):
+		target_active_duration = settings.REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES
+		return self.activate_duration_minutes >= target_active_duration
+
+	@property
+	def successor_is_ready(self):
+		if self.successor and self.successor.firehose_streams_are_active:
+			return True
+
+		return False
+
+	@property
+	def is_ready_to_become_active(self):
+		has_child_tables = self.tables.count() > 0
+		child_streams_are_active = self.firehose_streams_are_active
+		predecessor_can_close = self.predecessor.is_able_to_close
+		return has_child_tables and child_streams_are_active and predecessor_can_close
+
+	@property
+	def is_active(self):
+		return self.closed_at is None
+
+	@property
+	def firehose_streams_are_active(self):
+		return all(map(lambda t: t.firehose_stream_is_active, self.tables.all()))
+
+	@property
+	def is_able_to_close(self):
+		# We cannot close an active track
+		# If that track's predecessor's records have still not been transfered
+		# We must finish transfering a previously closed track's records
+		# Before we attempt to close another track.
+
+		if not self.predecessor:
+			# The initial active_track will not have a predecessor
+			return True
+
+		return self.predecessor.is_complete
+
+	@property
+	def is_able_to_insert(self):
+		is_closed = self.closed_at is not None
+		is_not_inserted = self.inserted_at is None
+		is_not_in_quiescence = not self.is_in_quiescence
+
+		return is_closed and is_not_inserted and is_not_in_quiescence
+
+	@property
+	def is_in_quiescence(self):
+		# We require that a track wait a minimum amount of time before inserting the records
+		# To insure that any straggling records in Firehose have been flushed to the table
+		time_since_close = datetime.now() - self.closed_at
+		min_wait = settings.REDSHIFT_ETL_CLOSED_TRACK_MINIMUM_QUIESCENCE_SECONDS
+		return time_since_close.seconds <= min_wait
+
+	@property
+	def is_able_to_analyze(self):
+		return self.insert_ended_at is not None
+
+	@property
+	def is_able_to_vacuum(self):
+		return self.analyze_ended_at is not None
+
+	@property
+	def is_able_to_cleanup(self):
+		return self.vacuum_ended_at is not None
+
+	@property
+	def is_complete(self):
+		# This should return True once all records have been transfered
+		# To the production tables, and the firehose streams have been destroyed
+		return self.track_cleanup_at is not None
+
+	def initialize_successor(self):
+		if self.successor:
+			raise RuntimeError("Successor already exists")
+
+		return RedshiftStagingTrack.objects.create_successor_for(self)
+
+	def initialize_tables(self):
+		if self.tables.count() > 0:
+			raise RuntimeError("Tables already initialized.")
+
+		for table in list_staging_eligible_tables():
+			RedshiftStagingTrackTable.objects.create_table_for_track(
+				table,
+				self
+			)
+
+	def make_active(self):
+		if self.active_at is not None:
+			raise RuntimeError("This track is already active")
+
+		if not self.firehose_streams_are_active:
+			raise RuntimeError("Firehose streams are not active")
+
+		current_timestamp = datetime.now()
+		self.active_at = current_timestamp
+		self.save()
+
+		self.predecessor.closed_at = current_timestamp
+		self.predecessor.save()
+
+		return current_timestamp
+
+	def do_insert_staged_records(self):
+		if not self.is_able_to_insert:
+			raise RuntimeError(
+				"Cannot insert records for a track that is not ready"
+			)
+
+		self.insert_started_at = datetime.now()
+		self.save()
+
+		for table in self.tables.all():
+			table.do_insert_staged_records()
+
+		self.insert_ended_at = datetime.now()
+		self.save()
+
+	def do_analyze(self):
+		self.analyze_started_at = datetime.now()
+		self.save()
+
+		text("ANALYZE;").compile(bind=get_redshift_engine()).execute()
+
+		self.analyze_ended_at = datetime.now()
+		self.save()
+
+	def do_vacuum(self):
+		self.vacuum_started_at = datetime.now()
+		self.save()
+
+		text("VACUUM FULL;").compile(bind=get_redshift_engine()).execute()
+
+		self.vacuum_ended_at = datetime.now()
+		self.save()
+
+	def do_cleanup(self):
+
+		for table in self.tables.all():
+			table.do_cleanup()
+
+		self.track_cleanup_at = datetime.now()
+		self.save()
+
+
+class RedshiftStagingTrackTableManager(models.Manager):
+
+	def create_table_for_track(self, table, track):
+
+		# Create the staging table in redshift
+		staging_table = create_staging_table(
+			table,
+			track.track_prefix,
+			get_redshift_engine()
+		)
+
+		# Create the firehose stream
+		streams.create_firehose_stream(
+			staging_table.name,
+			staging_table.name
+		)
+
+		# Create the record once we know the table and stream creation didn't error
+		track_table = RedshiftStagingTrackTable.objects.create(
+			track=track,
+			target_table=table.name,
+			staging_table=staging_table.name,
+			firehose_stream=staging_table.name,
+		)
+
+		return track_table
+
+
+class RedshiftStagingTrackTable(models.Model):
+	"""
+	Represents a single staging table that is part of a micro-batch loading track.
+	"""
+	id = models.BigAutoField(primary_key=True)
+	objects = RedshiftStagingTrackTableManager()
+	track = models.ForeignKey(
+		RedshiftStagingTrack,
+		on_delete=models.CASCADE,
+		related_name="tables"
+	)
+	staging_table = models.CharField("Staging Table", max_length=100)
+	target_table = models.CharField("Target Table", max_length=100)
+	firehose_stream = models.CharField("Firehose Stream", max_length=100)
+	final_staging_table_size = models.IntegerField(null=True)
+	insert_count = models.IntegerField(null=True)
+	insert_duration_seconds = models.IntegerField(null=True)
+
+	class Meta:
+		unique_together = ("track", "target_table")
+
+	@property
+	def firehose_stream_is_active(self):
+		description = streams.get_delivery_stream_description(self.firehose_stream)
+		return description['DeliveryStreamStatus'] == 'ACTIVE'
+
+	def do_insert_staged_records(self):
+		"""
+		The basic de-duplicating insert pattern is as follows:
+
+		SELECT
+			MIN(game_date) AS min_game_date,
+			MAX(game_date) AS max_game_date
+		FROM stagingTableForLoad;
+
+		INSERT INTO productionTable
+		SELECT * FROM stagingTableForLoad
+		WHERE id NOT IN (
+			SELECT id
+			FROM productionTable
+			WHERE game_date BETWEEN min_game_date AND max_game_date
+		)
+
+		For additional details, please see:
+		http://engineering.curalate.com/2016/08/04/tips-for-starting-with-redshift.html
+		"""
+		self.record_final_staging_table_size()
+
+		min_game_date, max_game_date = self.get_min_max_game_dates_from_staging_table()
+
+		insert_stmt_template = text("""
+		INSERT INTO :target_table
+		SELECT * FROM :staging_table
+		WHERE id NOT IN (
+			SELECT id
+			FROM :target_table
+			WHERE game_date BETWEEN :min_game_date AND :max_game_date
+		);
+		""").bindparams(
+			bindparam("target_table", type_=String),
+			bindparam("staging_table", type_=String),
+			bindparam("min_game_date", type_=Date),
+			bindparam("max_game_date", type_=Date),
+		)
+
+		compiled_statement = insert_stmt_template.params({
+			"target_table": self.target_table,
+			"staging_table": self.staging_table,
+			"min_game_date": min_game_date,
+			"max_game_date": max_game_date
+		}).compile(bind=get_redshift_engine())
+
+		start_time = time.time()
+		result = compiled_statement.execute()
+		end_time = time.time()
+
+		self.insert_count = result.rowcount
+		self.insert_duration_seconds = round(end_time - start_time)
+		self.save()
+
+	def record_final_staging_table_size(self):
+		query_template = text("""
+		SELECT count(*) FROM :staging_table;
+		""").bindparams(
+			bindparam("staging_table", type_=String),
+		)
+
+		compiled_statement = query_template.params({
+			"staging_table": self.staging_table,
+		}).compile(bind=get_redshift_engine())
+
+		rp = compiled_statement.execute()
+		first_row = rp.first()
+		self.final_staging_table_size = first_row[0]
+		self.save()
+
+	def get_min_max_game_dates_from_staging_table(self):
+		query_template = text("""
+		SELECT
+			MIN(game_date) AS min_game_date,
+			MAX(game_date) AS max_game_date
+		FROM :staging_table;
+		""").bindparams(
+			bindparam("staging_table", type_=String),
+		)
+
+		compiled_statement = query_template.params({
+			"staging_table": self.staging_table,
+		}).compile(bind=get_redshift_engine())
+
+		rp = compiled_statement.execute()
+		first_row = rp.first()
+		if first_row:
+			return first_row[0], first_row[1]
+		else:
+			raise RuntimeError("Could not get min and max game_date from staging table")
+
+	def do_cleanup(self):
+		streams.delete_firehose_stream(self.firehose_stream)
+		drop_staging_table(self.staging_table, get_redshift_engine())

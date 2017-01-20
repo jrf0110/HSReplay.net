@@ -3,8 +3,7 @@ import logging
 from math import ceil, log, pow
 from django.conf import settings
 from hsreplaynet.utils.influx import get_avg_upload_processing_seconds
-from hsreplaynet.uploads.processing import current_raw_upload_bucket_size
-from .clients import KINESIS
+from .clients import KINESIS, FIREHOSE, IAM
 
 
 logger = logging.getLogger("hsreplaynet")
@@ -101,6 +100,7 @@ def resize_upload_processing_stream(num_shards=None):
 		resize_stream_to_size(stream_name, new_shards_number)
 	else:
 		sla_seconds = settings.KINESIS_STREAM_PROCESSING_THROUGHPUT_SLA_SECONDS
+		from hsreplaynet.uploads.processing import current_raw_upload_bucket_size
 		num_records = current_raw_upload_bucket_size()
 		processing_duration = get_avg_upload_processing_seconds()
 
@@ -325,3 +325,59 @@ def prepare_shards_for_merging(shards):
 		result.append((first_shard, second_shard))
 
 	return result
+
+
+def get_firehose_role_arn():
+	role = IAM.get_role(
+		RoleName='redshift_firehose_role'
+	)
+	return role['Role']['Arn']
+
+
+def get_redshift_cluster_jdbc_url():
+	template = "jdbc:redshift://%s:%s/%s"
+	return template % (settings.REDSHIFT_HOST, settings.REDSHIFT_PORT, settings.REDSHIFT_DB)
+
+
+def create_firehose_stream(stream_name, table_name):
+	return FIREHOSE.create_delivery_stream(
+		DeliveryStreamName=stream_name,
+		RedshiftDestinationConfiguration={
+			'RoleARN': get_firehose_role_arn(),
+			'ClusterJDBCURL': get_redshift_cluster_jdbc_url(),
+			'CopyCommand': {
+				'DataTableName': table_name,
+				'CopyOptions': 'GZIP COMPUPDATE OFF STATUPDATE OFF'
+			},
+			'Username': settings.REDSHIFT_USER,
+			'Password': settings.REDSHIFT_PASSWORD,
+			'RetryOptions': {
+				'DurationInSeconds': 0
+			},
+			'S3Configuration': {
+				'RoleARN': get_firehose_role_arn(),
+				'BucketARN': 'arn:aws:s3:::%s' % settings.REDSHIFT_STAGING_BUCKET,
+				'BufferingHints': {
+					'SizeInMBs': settings.REDSHIFT_STAGING_BUFFER_SIZE_MB,
+					'IntervalInSeconds': settings.REDSHIFT_STAGING_BUFFER_INTERVAL_SECONDS
+				},
+				'CompressionFormat': 'GZIP'
+			}
+		}
+	)
+
+
+def delete_firehose_stream(stream_name):
+	FIREHOSE.delete_delivery_stream(
+		DeliveryStreamName=stream_name
+	)
+
+
+def get_delivery_stream_description(stream_name):
+	stream_info = FIREHOSE.describe_delivery_stream(
+		DeliveryStreamName=stream_name,
+	)
+	if not stream_info:
+		raise ValueError("%s is not an existing stream name" % stream_name)
+
+	return stream_info['DeliveryStreamDescription']

@@ -325,13 +325,24 @@ def parse_upload_event(upload_event, meta):
 	return parser
 
 
+def fetch_active_stream_prefix():
+	# from hsreplaynet.uploads.models import RedshiftStagingTrackTable
+	# prefix = RedshiftStagingTrackTable.objects.get_active_track_prefix()
+	# return prefix
+	return ''
+
+
 def validate_parser(parser, meta):
 	# Validate upload
 	if len(parser.games) != 1:
 		raise ValidationError("Expected exactly 1 game, got %i" % (len(parser.games)))
 	packet_tree = parser.games[0]
 	with influx_timer("replay_exporter_duration"):
-		exporter = RedshiftPublishingExporter(packet_tree).export()
+		exporter = RedshiftPublishingExporter(
+			packet_tree,
+			stream_prefix=fetch_active_stream_prefix()
+		).export()
+
 	entity_tree = exporter.game
 
 	if len(entity_tree.players) != 2:
