@@ -16,6 +16,7 @@ from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.utils import guess_ladder_season, log
+from hsreplaynet.utils.instrumentation import error_handler
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.uploads.models import UploadEventStatus
 from .models import (
@@ -297,8 +298,16 @@ def process_upload_event(upload_event):
 	try:
 		with influx_timer("redshift_exporter_flush_duration"):
 			do_flush_exporter()
-	except:
-		influx_metric("flush_redshift_exporter_error", {"count": 1})
+	except Exception as e:
+		# Don't fail on this
+		error_handler(e)
+		influx_metric(
+			"flush_redshift_exporter_error",
+			{
+				"count": 1,
+				"error": str(e)
+			}
+		)
 
 	return replay
 
