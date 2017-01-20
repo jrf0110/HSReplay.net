@@ -5,6 +5,7 @@ import re
 import time
 from uuid import uuid4
 from botocore.vendored.requests.packages.urllib3.exceptions import ReadTimeoutError
+from django.utils import timezone
 from datetime import datetime, timedelta
 from enum import IntEnum
 from django.conf import settings
@@ -399,7 +400,7 @@ class RedshiftStagingTrackManager(models.Manager):
 		track = RedshiftStagingTrack.objects.create(
 			track_prefix=self.generate_track_prefix(),
 			# This is ONLY immediately set on record create for the initial root track
-			active_at=datetime.now()
+			active_at=timezone.now()
 		)
 		track.initialize_tables()
 		return track
@@ -419,7 +420,7 @@ class RedshiftStagingTrackManager(models.Manager):
 	def generate_track_prefix(self):
 		staging_prefix = "stage"
 		track_uuid = str(uuid4())[:4]
-		ts = datetime.now().strftime("%Y%m%d%h%m")
+		ts = timezone.now().strftime("%Y%m%d%h%m")
 		# prefix = 5 chars
 		# ts = 12 chars
 		# uuid = 4 chars
@@ -524,9 +525,9 @@ class RedshiftStagingTrack(models.Model):
 
 	@property
 	def activate_duration_minutes(self):
-		current_timestamp = datetime.now()
+		current_timestamp = timezone.now()
 		duration = current_timestamp - self.active_at
-		return duration.minutes
+		return duration.seconds / 60
 
 	@property
 	def track_should_close(self):
@@ -580,7 +581,7 @@ class RedshiftStagingTrack(models.Model):
 	def is_in_quiescence(self):
 		# We require that a track wait a minimum amount of time before inserting the records
 		# To insure that any straggling records in Firehose have been flushed to the table
-		time_since_close = datetime.now() - self.closed_at
+		time_since_close = timezone.now() - self.closed_at
 		min_wait = settings.REDSHIFT_ETL_CLOSED_TRACK_MINIMUM_QUIESCENCE_SECONDS
 		return time_since_close.seconds <= min_wait
 
@@ -625,7 +626,7 @@ class RedshiftStagingTrack(models.Model):
 		if not self.firehose_streams_are_active:
 			raise RuntimeError("Firehose streams are not active")
 
-		current_timestamp = datetime.now()
+		current_timestamp = timezone.now()
 		self.active_at = current_timestamp
 		self.save()
 
@@ -640,31 +641,31 @@ class RedshiftStagingTrack(models.Model):
 				"Cannot insert records for a track that is not ready"
 			)
 
-		self.insert_started_at = datetime.now()
+		self.insert_started_at = timezone.now()
 		self.save()
 
 		for table in self.tables.all():
 			table.do_insert_staged_records()
 
-		self.insert_ended_at = datetime.now()
+		self.insert_ended_at = timezone.now()
 		self.save()
 
 	def do_analyze(self):
-		self.analyze_started_at = datetime.now()
+		self.analyze_started_at = timezone.now()
 		self.save()
 
 		text("ANALYZE;").compile(bind=get_redshift_engine()).execute()
 
-		self.analyze_ended_at = datetime.now()
+		self.analyze_ended_at = timezone.now()
 		self.save()
 
 	def do_vacuum(self):
-		self.vacuum_started_at = datetime.now()
+		self.vacuum_started_at = timezone.now()
 		self.save()
 
 		text("VACUUM FULL;").compile(bind=get_redshift_engine()).execute()
 
-		self.vacuum_ended_at = datetime.now()
+		self.vacuum_ended_at = timezone.now()
 		self.save()
 
 	def do_cleanup(self):
@@ -672,7 +673,7 @@ class RedshiftStagingTrack(models.Model):
 		for table in self.tables.all():
 			table.do_cleanup()
 
-		self.track_cleanup_at = datetime.now()
+		self.track_cleanup_at = timezone.now()
 		self.save()
 
 
