@@ -326,10 +326,10 @@ def parse_upload_event(upload_event, meta):
 
 
 def fetch_active_stream_prefix():
-	# from hsreplaynet.uploads.models import RedshiftStagingTrackTable
-	# prefix = RedshiftStagingTrackTable.objects.get_active_track_prefix()
-	# return prefix
-	return ''
+	from hsreplaynet.uploads.models import RedshiftStagingTrack
+	prefix = RedshiftStagingTrack.objects.get_active_track_prefix()
+	return prefix
+	# return ''
 
 
 def validate_parser(parser, meta):
