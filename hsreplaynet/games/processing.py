@@ -533,9 +533,10 @@ def replay_meets_recency_requirements(upload_event, global_game):
 	# The purpose of this filtering is to do reduce variability and thrash in our vacuuming
 	# If we determine that vacuuming is not a bottleneck than we can consider
 	# relaxing this requirement.
-	diff = global_game.match_start - upload_event.log_upload_date
-	diff_hours = diff.seconds / 3600
-	return diff_hours <= 36
+	# diff = global_game.match_start - upload_event.log_upload_date
+	# diff_hours = diff.seconds / 3600
+	# return diff_hours <= 36
+	return True
 
 
 def get_game_info(global_game, replay):
