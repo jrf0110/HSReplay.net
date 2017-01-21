@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
 
 	config.vm.provision "shell",
 		path: "scripts/provision_user.sh",
-		env: {"ENV_VAGRANT": "1"},
+		env: {"ENV_VAGRANT": "1", "HSREPLAYNET_DEBUG": "1"},
 		privileged: false,
 		keep_color: true
 end

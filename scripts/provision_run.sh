@@ -1,6 +1,7 @@
 PROJECT="$HOME/hsreplay.net"
 source "$HOME/env/bin/activate"
 export ENV_VAGRANT=1
+export HSREPLAYNET_DEBUG=1
 export PATH="$HOME/node_modules/.bin:$PATH"
 
 # Kill remnants

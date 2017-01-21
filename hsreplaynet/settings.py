@@ -19,8 +19,8 @@ HOSTNAME = platform.node()
 ENV_LIVE = HOSTNAME.endswith("hsreplay.net")
 ENV_LAMBDA = bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
 ENV_AWS = ENV_LIVE or ENV_LAMBDA
-ENV_DEV = not ENV_AWS or HOSTNAME == "dev.hsreplay.net"
-ENV_VAGRANT = ENV_DEV and bool(os.environ.get("ENV_VAGRANT"))
+ENV_DEV = bool(os.environ.get("HSREPLAYNET_DEBUG"))
+ENV_VAGRANT = bool(os.environ.get("ENV_VAGRANT"))
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
