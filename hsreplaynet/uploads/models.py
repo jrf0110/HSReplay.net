@@ -768,7 +768,7 @@ class RedshiftStagingTrackTable(models.Model):
 		)
 
 		record_select = staging_table_obj.select().where(
-			not_(staging_table_obj.c.id._in(pre_existing_records))
+			not_(staging_table_obj.c.id.in_(pre_existing_records))
 		)
 
 		stmt = target_table_obj.insert().from_select(
