@@ -520,9 +520,22 @@ def should_load_into_redshift(upload_event, global_game):
 
 	if settings.ENV_AWS and settings.REDSHIFT_LOADING_ENABLED:
 		if is_not_test_data and is_not_exclude_from_stats and is_not_already_loaded:
-			return True
+			if replay_meets_recency_requirements(upload_event, global_game):
+				return True
 
 	return False
+
+
+def replay_meets_recency_requirements(upload_event, global_game):
+	# We only load games in where the match_start date is within +/ 36 hours from
+	# The upload_date. This filters out really old replays people might upload
+	# Or replays from users with crazy system clocks.
+	# The purpose of this filtering is to do reduce variability and thrash in our vacuuming
+	# If we determine that vacuuming is not a bottleneck than we can consider
+	# relaxing this requirement.
+	diff = global_game.match_start - upload_event.log_upload_date
+	diff_hours = diff.seconds / 3600
+	return diff_hours <= 36
 
 
 def get_game_info(global_game, replay):

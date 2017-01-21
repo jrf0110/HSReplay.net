@@ -250,6 +250,8 @@ def _generate_descriptor_path(instance, filename):
 
 
 def _generate_upload_key(ts, shortid, suffix="power.log"):
+	# This timestamp in the key path is where we are capturing when
+	# the log was uploaded to S3
 	timestamp = ts.strftime("%Y/%m/%d/%H/%M")
 	return "uploads/%s/%s.%s" % (timestamp, shortid, suffix)
 
@@ -283,6 +285,11 @@ class UploadEvent(models.Model):
 	log_stream_name = models.CharField(max_length=64, blank=True)
 	log_group_name = models.CharField(max_length=64, blank=True)
 	updated = models.DateTimeField(auto_now=True)
+
+	@property
+	def log_upload_date(self):
+		raw_upload = RawUpload.from_upload_event(self)
+		return raw_upload.timestamp
 
 	@property
 	def token(self):
