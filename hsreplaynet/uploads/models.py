@@ -16,14 +16,25 @@ from django_intenum import IntEnumField
 from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import streams
-from sqlalchemy import text, bindparam, String, Date, create_engine
-from hsredshift.etl.models import (
-	list_staging_eligible_tables, create_staging_table, drop_staging_table
-)
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.sql import func, select
+from sqlalchemy.orm import sessionmaker
+from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
 
 
 def get_redshift_engine():
-		return create_engine(settings.REDSHIFT_CONNECTION)
+	return create_engine(settings.REDSHIFT_CONNECTION)
+
+
+_md_cache = {}
+
+
+def get_redshift_metadata():
+	if "md" not in _md_cache:
+		md = MetaData()
+		md.reflect(get_redshift_engine())
+		_md_cache["md"] = md
+	return _md_cache["md"]
 
 
 class UploadEventStatus(IntEnum):
@@ -654,7 +665,8 @@ class RedshiftStagingTrack(models.Model):
 		self.analyze_started_at = timezone.now()
 		self.save()
 
-		text("ANALYZE;").compile(bind=get_redshift_engine()).execute()
+		for table in self.tables.all():
+			table.do_vacuum()
 
 		self.analyze_ended_at = timezone.now()
 		self.save()
@@ -663,7 +675,8 @@ class RedshiftStagingTrack(models.Model):
 		self.vacuum_started_at = timezone.now()
 		self.save()
 
-		text("VACUUM FULL;").compile(bind=get_redshift_engine()).execute()
+		for table in self.tables.all():
+			table.do_vacuum()
 
 		self.vacuum_ended_at = timezone.now()
 		self.save()
@@ -731,6 +744,41 @@ class RedshiftStagingTrackTable(models.Model):
 		description = streams.get_delivery_stream_description(self.firehose_stream)
 		return description['DeliveryStreamStatus'] == 'ACTIVE'
 
+	def _get_table_obj(self):
+		return get_redshift_metadata().tables[self.staging_table]
+
+	def _get_target_table_obj(self):
+		return get_redshift_metadata().tables[self.target_table]
+
+	def _get_insert_stmt(self, min_date, max_date):
+		target_table_obj = self._get_target_table_obj()
+		staging_table_obj = self._get_table_obj()
+
+		record_select = staging_table_obj.select().where(
+			staging_table_obj.c.game_date.between(min_date, max_date)
+		)
+
+		stmt = target_table_obj.insert().from_select(
+			target_table_obj.columns,
+			record_select
+		)
+
+		return stmt
+
+	def do_analyze(self):
+		session = sessionmaker(bind=get_redshift_engine())()
+		# We cannot be within a transaction when we ANALYZE
+		session.connection().connection.set_isolation_level(0)
+		sql = "ANALYZE %s;" % self.target_table
+		session.execute(sql)
+
+	def do_vacuum(self):
+		session = sessionmaker(bind=get_redshift_engine())()
+		# We cannot be within a transaction when we VACUUUM
+		session.connection().connection.set_isolation_level(0)
+		sql = "VACUUM FULL %s TO 100 PERCENT;" % self.target_table
+		session.execute(sql)
+
 	def do_insert_staged_records(self):
 		"""
 		The basic de-duplicating insert pattern is as follows:
@@ -754,66 +802,40 @@ class RedshiftStagingTrackTable(models.Model):
 		self.record_final_staging_table_size()
 
 		min_game_date, max_game_date = self.get_min_max_game_dates_from_staging_table()
-
-		insert_stmt_template = text("""
-		INSERT INTO :target_table
-		SELECT * FROM :staging_table
-		WHERE id NOT IN (
-			SELECT id
-			FROM :target_table
-			WHERE game_date BETWEEN :min_game_date AND :max_game_date
-		);
-		""").bindparams(
-			bindparam("target_table", type_=String),
-			bindparam("staging_table", type_=String),
-			bindparam("min_game_date", type_=Date),
-			bindparam("max_game_date", type_=Date),
-		)
-
-		compiled_statement = insert_stmt_template.params({
-			"target_table": self.target_table,
-			"staging_table": self.staging_table,
-			"min_game_date": min_game_date,
-			"max_game_date": max_game_date
-		}).compile(bind=get_redshift_engine())
+		insert_stmt = self._get_insert_stmt(min_game_date, max_game_date)
 
 		start_time = time.time()
-		result = compiled_statement.execute()
+		result = get_redshift_engine().execute(insert_stmt)
 		end_time = time.time()
 
 		self.insert_count = result.rowcount
 		self.insert_duration_seconds = round(end_time - start_time)
 		self.save()
 
-	def record_final_staging_table_size(self):
-		query_template = text("""
-		SELECT count(*) FROM :staging_table;
-		""").bindparams(
-			bindparam("staging_table", type_=String),
-		)
+	def _get_staging_table_size_stmt(self):
+		return select([func.count()]).select_from(self._get_table_obj())
 
-		compiled_statement = query_template.params({
-			"staging_table": self.staging_table,
-		}).compile(bind=get_redshift_engine())
+	def _get_final_staging_table_size(self):
+		stmt = self._get_staging_table_size_stmt()
+		compiled_statement = stmt.compile(bind=get_redshift_engine())
 
 		rp = compiled_statement.execute()
 		first_row = rp.first()
-		self.final_staging_table_size = first_row[0]
+		return first_row[0]
+
+	def record_final_staging_table_size(self):
+		self.final_staging_table_size = self._get_final_staging_table_size()
 		self.save()
+		return self.final_staging_table_size
+
+	def _get_min_max_game_dates_stmt(self):
+		tbl = self._get_table_obj()
+		cols = [func.min(tbl.c.game_date), func.max(tbl.c.game_date)]
+		return select(cols).select_from(tbl)
 
 	def get_min_max_game_dates_from_staging_table(self):
-		query_template = text("""
-		SELECT
-			MIN(game_date) AS min_game_date,
-			MAX(game_date) AS max_game_date
-		FROM :staging_table;
-		""").bindparams(
-			bindparam("staging_table", type_=String),
-		)
-
-		compiled_statement = query_template.params({
-			"staging_table": self.staging_table,
-		}).compile(bind=get_redshift_engine())
+		stmt = self._get_min_max_game_dates_stmt()
+		compiled_statement = stmt.compile(bind=get_redshift_engine())
 
 		rp = compiled_statement.execute()
 		first_row = rp.first()
@@ -823,5 +845,13 @@ class RedshiftStagingTrackTable(models.Model):
 			raise RuntimeError("Could not get min and max game_date from staging table")
 
 	def do_cleanup(self):
-		streams.delete_firehose_stream(self.firehose_stream)
-		drop_staging_table(self.staging_table, get_redshift_engine())
+		from hsreplaynet.utils.instrumentation import error_handler
+		try:
+			streams.delete_firehose_stream(self.firehose_stream)
+		except Exception as e:
+			error_handler(e)
+
+		try:
+			self._get_table_obj().drop(bind=get_redshift_engine())
+		except Exception as e:
+			error_handler(e)
