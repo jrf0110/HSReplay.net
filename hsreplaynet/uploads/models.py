@@ -17,7 +17,7 @@ from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import streams
 from sqlalchemy import create_engine, MetaData
-from sqlalchemy.sql import func, select
+from sqlalchemy.sql import func, select, not_
 from sqlalchemy.orm import sessionmaker
 from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
 
@@ -761,8 +761,14 @@ class RedshiftStagingTrackTable(models.Model):
 		target_table_obj = self._get_target_table_obj()
 		staging_table_obj = self._get_table_obj()
 
+		pre_existing_records = select(
+			[target_table_obj.c.id]
+		).select_from(target_table_obj).where(
+			target_table_obj.c.game_date.between(min_date, max_date)
+		)
+
 		record_select = staging_table_obj.select().where(
-			staging_table_obj.c.game_date.between(min_date, max_date)
+			not_(staging_table_obj.c.id._in(pre_existing_records))
 		)
 
 		stmt = target_table_obj.insert().from_select(
