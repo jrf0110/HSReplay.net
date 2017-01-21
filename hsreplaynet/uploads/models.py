@@ -779,10 +779,13 @@ class RedshiftStagingTrackTable(models.Model):
 		return stmt
 
 	def do_analyze(self):
+		self._do_analyze_on_target(self.target_table)
+
+	def _do_analyze_on_target(self, target):
 		session = sessionmaker(bind=get_redshift_engine())()
 		# We cannot be within a transaction when we ANALYZE
 		session.connection().connection.set_isolation_level(0)
-		sql = "ANALYZE %s;" % self.target_table
+		sql = "ANALYZE %s;" % target
 		session.execute(sql)
 
 	def do_vacuum(self):
@@ -816,6 +819,8 @@ class RedshiftStagingTrackTable(models.Model):
 
 		min_game_date, max_game_date = self.get_min_max_game_dates_from_staging_table()
 		insert_stmt = self._get_insert_stmt(min_game_date, max_game_date)
+
+		self._do_analyze_on_target(self.staging_table)
 
 		start_time = time.time()
 		result = get_redshift_engine().execute(insert_stmt)
