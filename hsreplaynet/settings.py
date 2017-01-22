@@ -364,6 +364,12 @@ REDSHIFT_ETL_CLOSED_TRACK_MINIMUM_QUIESCENCE_SECONDS = 2 * REDSHIFT_STAGING_BUFF
 # This is floor(ACCOUNT_FIREHOSE_STREAM_LIMIT / NUM_STREAMS_PER_TRACK)
 REDSHIFT_ETL_CONCURRENT_TRACK_LIMIT = 2
 
+# We exclude from redshift all replays whose upload date deviates from it's
+# match_start date by +/- more than this many hours
+# This is intended to protect the cluster from vacuum thrash from one off
+# Old replays or players with messed up system clocks
+REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS = 36
+
 WEBHOOKS = {
 	"SCHEME_WHITELIST": ["http", "https"],
 	"NETLOC_BLACKLIST": ["localhost"],

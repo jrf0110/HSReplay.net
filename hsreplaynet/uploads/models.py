@@ -289,7 +289,7 @@ class UploadEvent(models.Model):
 	@property
 	def log_upload_date(self):
 		raw_upload = RawUpload.from_upload_event(self)
-		return raw_upload.timestamp
+		return timezone.make_aware(raw_upload.timestamp)
 
 	@property
 	def token(self):

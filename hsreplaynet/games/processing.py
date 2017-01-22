@@ -533,10 +533,13 @@ def replay_meets_recency_requirements(upload_event, global_game):
 	# The purpose of this filtering is to do reduce variability and thrash in our vacuuming
 	# If we determine that vacuuming is not a bottleneck than we can consider
 	# relaxing this requirement.
-	# diff = global_game.match_start - upload_event.log_upload_date
-	# diff_hours = diff.seconds / 3600
-	# return diff_hours <= 36
-	return True
+	max_delay = settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
+	diff = global_game.match_start - upload_event.log_upload_date
+	diff_hours = diff.seconds / 3600
+	meets_requirements = diff_hours <= max_delay
+	if not meets_requirements:
+		influx_metric("replay_failed_recency_requirement", {"count": 1, "diff": diff_hours})
+	return meets_requirements
 
 
 def get_game_info(global_game, replay):
