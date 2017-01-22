@@ -447,7 +447,7 @@ class RedshiftStagingTrackManager(models.Manager):
 		# total_length = 5 + 12 + 4 + 3 = 24 chars
 		return "%s_%s_%s_" % (staging_prefix, ts, track_uuid)
 
-	def get_insert_ready_track(self):
+	def get_insert_candidate_track(self):
 		# If a track has been recently closed but the records have not been
 		# Transferred to the production tables yet AND it is outside
 		# The minimum quiescence period, then it is considered insert_ready
@@ -462,12 +462,7 @@ class RedshiftStagingTrackManager(models.Manager):
 		if len(candidates) > 1:
 			raise RuntimeError("More than one fully staged track exists.")
 		elif len(candidates) == 1:
-			candidate = candidates[0]
-			# The candidate could still be in it's quiescence period
-			if candidate.is_able_to_insert:
-				return candidate
-			else:
-				return None
+			return candidates[0]
 		else:
 			return None
 
@@ -549,6 +544,22 @@ class RedshiftStagingTrack(models.Model):
 		return duration.seconds / 60
 
 	@property
+	def is_in_quiescence(self):
+		# We require that a track wait a minimum amount of time before inserting the records
+		# To insure that any straggling records in Firehose have been flushed to the table
+		min_wait = self.quiescence_duration_minimum
+		return self.quiescence_duration_seconds <= min_wait
+
+	@property
+	def quiescence_duration_minimum(self):
+		return settings.REDSHIFT_ETL_CLOSED_TRACK_MINIMUM_QUIESCENCE_SECONDS
+
+	@property
+	def quiescence_duration_seconds(self):
+		time_since_close = timezone.now() - self.closed_at
+		return time_since_close.seconds
+
+	@property
 	def track_should_close(self):
 		target_active_duration = settings.REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES
 		return self.activate_duration_minutes >= target_active_duration
@@ -595,14 +606,6 @@ class RedshiftStagingTrack(models.Model):
 		is_not_in_quiescence = not self.is_in_quiescence
 
 		return is_closed and is_not_inserted and is_not_in_quiescence
-
-	@property
-	def is_in_quiescence(self):
-		# We require that a track wait a minimum amount of time before inserting the records
-		# To insure that any straggling records in Firehose have been flushed to the table
-		time_since_close = timezone.now() - self.closed_at
-		min_wait = settings.REDSHIFT_ETL_CLOSED_TRACK_MINIMUM_QUIESCENCE_SECONDS
-		return time_since_close.seconds <= min_wait
 
 	@property
 	def is_able_to_analyze(self):
