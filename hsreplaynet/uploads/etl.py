@@ -9,6 +9,7 @@ def do_all_redshift_etl_maintenance():
 	log.info("Beginning Full Maintenance Cycle")
 	count = 0
 	while did_work:
+		count += 1
 		log.info("Starting Maintence Run: %s" % (str(count),))
 		did_work = do_redshift_etl_maintenance()
 	log.info("Full Maintenance Complete. Exiting.")
@@ -31,6 +32,17 @@ def do_redshift_etl_maintenance():
 		RedshiftStagingTrack.objects.initialize_first_active_track()
 		return True
 
+	log.info("Checking for tracks waiting for cleanup.")
+	cleanup_ready_track = RedshiftStagingTrack.objects.get_cleanup_ready_track()
+	if cleanup_ready_track:
+		log.info("Found track waiting for cleanup. Will cleanup now.")
+		cleanup_ready_track.do_cleanup()
+		log.info("Cleanup complete.")
+		log.info("Current maintenance run complete")
+		return True
+	else:
+		log.info("No tracks found waiting for cleanup.")
+
 	current_duration = active_track.activate_duration_minutes
 	log.info("The active track has been open for %s minutes" % current_duration)
 	target_duration = settings.REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES
@@ -50,7 +62,6 @@ def do_redshift_etl_maintenance():
 			log.info("Current maintenance run complete")
 			return True
 		else:
-			log.info("A successor is in the process of initializing...")
 			# We have previously kicked off initializing the successor
 			# So now we will spin wait for 30 seconds to allow it to finish setting up
 			wait_for_condition(lambda: active_track.successor.is_ready_to_become_active, 30)
@@ -59,8 +70,6 @@ def do_redshift_etl_maintenance():
 			# If we've reached here than the successor is ready to become active
 			active_track.successor.make_active()
 			log.info("The successor is now active.")
-			# Just a sanity check to make sure that this always gets set
-			assert active_track.closed_at is not None
 			log.info("Current maintenance run complete")
 			return True
 

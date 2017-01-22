@@ -408,7 +408,8 @@ class RedshiftStagingTrackManager(models.Manager):
 
 	def get_active_track(self):
 		return RedshiftStagingTrack.objects.filter(
-			closed_at__isnull=True
+			closed_at__isnull=True,
+			active_at__isnull=False
 		).order_by("-active_at").first()
 
 	def initialize_first_active_track(self):
@@ -590,7 +591,7 @@ class RedshiftStagingTrack(models.Model):
 	@property
 	def is_able_to_insert(self):
 		is_closed = self.closed_at is not None
-		is_not_inserted = self.inserted_at is None
+		is_not_inserted = self.insert_started_at is None
 		is_not_in_quiescence = not self.is_in_quiescence
 
 		return is_closed and is_not_inserted and is_not_in_quiescence
@@ -621,7 +622,20 @@ class RedshiftStagingTrack(models.Model):
 		# To the production tables, and the firehose streams have been destroyed
 		return self.track_cleanup_at is not None
 
+	@property
+	def is_able_to_initialize_successor(self):
+		# We can only have so many tracks at the same time do to
+		# Firehose limits so check to make sure we aren't exceeding that.
+		initialized_tracks = RedshiftStagingTrack.objects.filter(
+			track_cleanup_at__isnull=True
+		).count()
+		concurrent_limit = settings.REDSHIFT_ETL_CONCURRENT_TRACK_LIMIT
+		return initialized_tracks < concurrent_limit
+
 	def initialize_successor(self):
+		if not self.is_able_to_initialize_successor:
+			raise RuntimeError("At Concurrent Track Limit. Cannot initialize another track.")
+
 		if self.successor:
 			raise RuntimeError("Successor already exists")
 
@@ -673,7 +687,7 @@ class RedshiftStagingTrack(models.Model):
 		self.save()
 
 		for table in self.tables.all():
-			table.do_vacuum()
+			table.do_analyze()
 
 		self.analyze_ended_at = timezone.now()
 		self.save()
