@@ -17,7 +17,7 @@ from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import streams
 from sqlalchemy import create_engine, MetaData
-from sqlalchemy.sql import func, select, not_
+from sqlalchemy.sql import func, select
 from sqlalchemy.orm import sessionmaker
 from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
 
@@ -529,7 +529,8 @@ class RedshiftStagingTrack(models.Model):
 	analyze_ended_at = models.DateTimeField(null=True)
 	vacuum_started_at = models.DateTimeField(null=True)
 	vacuum_ended_at = models.DateTimeField(null=True)
-	track_cleanup_at = models.DateTimeField(null=True)
+	track_cleanup_start_at = models.DateTimeField(null=True)
+	track_cleanup_end_at = models.DateTimeField(null=True)
 
 	@property
 	def activate_duration_minutes(self):
@@ -617,7 +618,7 @@ class RedshiftStagingTrack(models.Model):
 	def is_complete(self):
 		# This should return True once all records have been transfered
 		# To the production tables, and the firehose streams have been destroyed
-		return self.track_cleanup_at is not None
+		return self.track_cleanup_start_at is not None
 
 	@property
 	def is_able_to_initialize_successor(self):
@@ -701,10 +702,13 @@ class RedshiftStagingTrack(models.Model):
 
 	def do_cleanup(self):
 
+		self.track_cleanup_start_at = timezone.now()
+		self.save()
+
 		for table in self.tables.all():
 			table.do_cleanup()
 
-		self.track_cleanup_at = timezone.now()
+		self.track_cleanup_end_at = timezone.now()
 		self.save()
 
 
@@ -750,9 +754,23 @@ class RedshiftStagingTrackTable(models.Model):
 	staging_table = models.CharField("Staging Table", max_length=100)
 	target_table = models.CharField("Target Table", max_length=100)
 	firehose_stream = models.CharField("Firehose Stream", max_length=100)
+	min_game_date = models.DateField(null=True)
+	max_game_date = models.DateField(null=True)
+
+	deduplication_complete = models.BooleanField(default=False)
+	duplicates_removed = models.IntegerField(null=True)
+
 	final_staging_table_size = models.IntegerField(null=True)
 	insert_count = models.IntegerField(null=True)
 	insert_duration_seconds = models.IntegerField(null=True)
+	insert_started_at = models.DateTimeField(null=True)
+	insert_ended_at = models.DateTimeField(null=True)
+	analyze_started_at = models.DateTimeField(null=True)
+	analyze_ended_at = models.DateTimeField(null=True)
+	vacuum_started_at = models.DateTimeField(null=True)
+	vacuum_ended_at = models.DateTimeField(null=True)
+	track_cleanup_start_at = models.DateTimeField(null=True)
+	track_cleanup_end_at = models.DateTimeField(null=True)
 
 	class Meta:
 		unique_together = ("track", "target_table")
@@ -768,29 +786,25 @@ class RedshiftStagingTrackTable(models.Model):
 	def _get_target_table_obj(self):
 		return get_redshift_metadata().tables[self.target_table]
 
-	def _get_insert_stmt(self, min_date, max_date):
+	def _get_insert_stmt(self):
 		target_table_obj = self._get_target_table_obj()
 		staging_table_obj = self._get_table_obj()
 
-		pre_existing_records = select(
-			[target_table_obj.c.id]
-		).select_from(target_table_obj).where(
-			target_table_obj.c.game_date.between(min_date, max_date)
-		)
-
-		record_select = staging_table_obj.select().where(
-			not_(staging_table_obj.c.id.in_(pre_existing_records))
-		)
-
 		stmt = target_table_obj.insert().from_select(
 			target_table_obj.columns,
-			record_select
+			staging_table_obj.select()
 		)
 
 		return stmt
 
 	def do_analyze(self):
+		self.analyze_started_at = timezone.now()
+		self.save()
+
 		self._do_analyze_on_target(self.target_table)
+
+		self.analyze_ended_at = timezone.now()
+		self.save()
 
 	def _do_analyze_on_target(self, target):
 		session = sessionmaker(bind=get_redshift_engine())()
@@ -800,11 +814,51 @@ class RedshiftStagingTrackTable(models.Model):
 		session.execute(sql)
 
 	def do_vacuum(self):
+		self.vacuum_started_at = timezone.now()
+		self.save()
+
 		session = sessionmaker(bind=get_redshift_engine())()
 		# We cannot be within a transaction when we VACUUUM
 		session.connection().connection.set_isolation_level(0)
 		sql = "VACUUM FULL %s TO 100 PERCENT;" % self.target_table
 		session.execute(sql)
+
+		self.vacuum_ended_at = timezone.now()
+		self.save()
+
+	def deduplicate_staging_table(self, min_date, max_date):
+		"""
+
+		DELETE FROM stagingTableForLoad
+		USING productionTable
+		WHERE productionTable.game_id = stagingTableForLoad.game_id
+		AND productionTable.id = stagingTableForLoad.id
+		AND productionTable.game_date BETWEEN min_game_date AND max_game_date;
+
+		:return:
+		"""
+		template = """
+		DELETE FROM {staging_table}
+		USING {target_table}
+		WHERE {target_table}.game_id = {staging_table}.game_id
+		AND {target_table}.id = {staging_table}.id
+		AND {target_table}.game_date BETWEEN '{min_date}' AND '{max_date}';
+		"""
+
+		sql = template.format(
+			staging_table=self.staging_table,
+			target_table=self.target_table,
+			min_date=min_date.isoformat(),
+			max_date=max_date.isoformat()
+		)
+
+		get_redshift_engine()
+
+		session = sessionmaker(bind=get_redshift_engine())()
+		rp = session.execute(sql)
+		self.duplicates_removed = rp.rowcount
+		self.deduplication_complete = True
+		self.save()
 
 	def do_insert_staged_records(self):
 		"""
@@ -815,21 +869,31 @@ class RedshiftStagingTrackTable(models.Model):
 			MAX(game_date) AS max_game_date
 		FROM stagingTableForLoad;
 
+		DELETE FROM stagingTableForLoad
+		USING productionTable
+		WHERE productionTable.game_id = stagingTableForLoad.game_id
+		AND productionTable.id = stagingTableForLoad.id
+		AND productionTable.game_date BETWEEN min_game_date AND max_game_date;
+
 		INSERT INTO productionTable
-		SELECT * FROM stagingTableForLoad
-		WHERE id NOT IN (
-			SELECT id
-			FROM productionTable
-			WHERE game_date BETWEEN min_game_date AND max_game_date
-		)
+		SELECT * FROM stagingTableForLoad;
 
 		For additional details, please see:
 		http://engineering.curalate.com/2016/08/04/tips-for-starting-with-redshift.html
+		AND
+		http://docs.aws.amazon.com/redshift/latest/dg/merge-replacing-existing-rows.html
 		"""
-		self.record_final_staging_table_size()
+		self.insert_started_at = timezone.now()
+		self.save()
 
 		min_game_date, max_game_date = self.get_min_max_game_dates_from_staging_table()
-		insert_stmt = self._get_insert_stmt(min_game_date, max_game_date)
+
+		if not self.deduplication_complete:
+			self.deduplicate_staging_table(min_game_date, max_game_date)
+
+		self.record_final_staging_table_size()
+
+		insert_stmt = self._get_insert_stmt()
 
 		self._do_analyze_on_target(self.staging_table)
 
@@ -839,6 +903,8 @@ class RedshiftStagingTrackTable(models.Model):
 
 		self.insert_count = result.rowcount
 		self.insert_duration_seconds = round(end_time - start_time)
+		self.insert_ended_at = timezone.now()
+
 		self.save()
 
 	def _get_staging_table_size_stmt(self):
@@ -869,12 +935,19 @@ class RedshiftStagingTrackTable(models.Model):
 		rp = compiled_statement.execute()
 		first_row = rp.first()
 		if first_row:
-			return first_row[0], first_row[1]
+			self.min_game_date = first_row[0]
+			self.max_game_date = first_row[1]
+			self.save()
+			return self.min_game_date, self.max_game_date
 		else:
 			raise RuntimeError("Could not get min and max game_date from staging table")
 
 	def do_cleanup(self):
 		from hsreplaynet.utils.instrumentation import error_handler
+
+		self.track_cleanup_start_at = timezone.now()
+		self.save()
+
 		try:
 			streams.delete_firehose_stream(self.firehose_stream)
 		except Exception as e:
@@ -884,3 +957,6 @@ class RedshiftStagingTrackTable(models.Model):
 			self._get_table_obj().drop(bind=get_redshift_engine())
 		except Exception as e:
 			error_handler(e)
+
+		self.track_cleanup_end_at = timezone.now()
+		self.save()
