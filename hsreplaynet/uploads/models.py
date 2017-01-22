@@ -438,14 +438,8 @@ class RedshiftStagingTrackManager(models.Manager):
 
 	def generate_track_prefix(self):
 		staging_prefix = "stage"
-		track_uuid = str(uuid4())[:2]
-		ts = timezone.now().strftime("%d%H%M")
-		# prefix = 5 chars
-		# ts = 6 chars
-		# uuid = 2 chars
-		# 3 underscores
-		# total_length = 5 + 12 + 4 + 3 = 24 chars
-		return "%s_%s_%s_" % (staging_prefix, ts, track_uuid)
+		track_uuid = str(uuid4())[:4]
+		return "%s_%s_" % (staging_prefix, track_uuid)
 
 	def get_insert_candidate_track(self):
 		# If a track has been recently closed but the records have not been
