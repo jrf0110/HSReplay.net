@@ -489,7 +489,7 @@ class RedshiftStagingTrackManager(models.Manager):
 	def get_cleanup_ready_track(self):
 		candidates = RedshiftStagingTrack.objects.filter(
 			vacuum_ended_at__isnull=False,
-			track_cleanup_at__isnull=True
+			track_cleanup_start_at__isnull=True
 		).all()
 
 		if len(candidates) > 1:
@@ -795,6 +795,7 @@ class RedshiftStagingTrackTable(models.Model):
 			staging_table_obj.select()
 		)
 
+		log.info("Insert Statement: %s" % str(stmt))
 		return stmt
 
 	def do_analyze(self):

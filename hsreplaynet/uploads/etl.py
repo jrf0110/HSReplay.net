@@ -62,6 +62,14 @@ def do_redshift_etl_maintenance():
 			remaining_wait = min_wait - current_wait
 			log.info("A closed track is in the quiescence period.")
 			log.info("Must wait an additional %s seconds" % str(remaining_wait))
+			wait_for_condition(lambda: insert_candidate_track.is_able_to_insert, remaining_wait + 10)
+			if insert_candidate_track.is_able_to_insert:
+				log.info("Insert ready track discovered. Will insert records now.")
+				insert_candidate_track.do_insert_staged_records()
+				log.info("Insert complete.")
+				log.info("Current maintenance run complete")
+				return True
+
 			log.info("Current maintenance run complete")
 			return False
 	else:
@@ -88,6 +96,17 @@ def do_redshift_etl_maintenance():
 		return True
 	else:
 		log.info("No tracks found waiting for vacuum.")
+
+	log.info("Checking for tracks waiting for cleanup.")
+	cleanup_ready_track = RedshiftStagingTrack.objects.get_cleanup_ready_track()
+	if cleanup_ready_track:
+		log.info("Found track waiting for cleanup. Will cleanup now.")
+		cleanup_ready_track.do_cleanup()
+		log.info("Cleanup complete.")
+		log.info("Current maintenance run complete")
+		return True
+	else:
+		log.info("No tracks found waiting for cleanup.")
 
 	current_duration = active_track.activate_duration_minutes
 	log.info("The active track has been open for %s minutes" % current_duration)
