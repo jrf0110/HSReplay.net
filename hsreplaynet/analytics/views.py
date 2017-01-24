@@ -11,6 +11,17 @@ from hsreplaynet.utils.influx import get_redshift_query_average_duration_seconds
 from .processing import execute_query, get_from_redshift_cache
 
 
+def fetch_report_results(request, name):
+	query = queries.get_query(name)
+	if not query:
+		raise Http404("No query named: %s" % name)
+
+	# Unlike queries, reports don't accept filter parameters
+	params = query.get_report_params()
+
+	return _fetch_query_results(query, params)
+
+
 def fetch_query_results(request, name):
 	query = queries.get_query(name)
 	if not query:
@@ -19,6 +30,11 @@ def fetch_query_results(request, name):
 	params = query.build_full_params(request.GET)
 	if not user_is_eligible_for_query(request.user, params):
 		return HttpResponseForbidden()
+
+	return _fetch_query_results(query, params)
+
+
+def _fetch_query_results(query, params):
 
 	cached_data = get_from_redshift_cache(params.cache_key)
 	was_cache_hit = False
@@ -38,7 +54,7 @@ def fetch_query_results(request, name):
 		"redshift_query_fetch",
 		{"count": 1},
 		cache_hit=was_cache_hit,
-		query=name,
+		query=query.name,
 		triggered_refresh=triggered_refresh
 	)
 
