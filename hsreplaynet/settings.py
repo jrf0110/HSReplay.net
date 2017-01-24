@@ -343,7 +343,7 @@ HSREPLAY_FACEBOOK_APP_ID="1278788528798942"
 CONNECT_TO_AWS = ENV_AWS
 
 ARCHETYPE_CLASSIFICATION_ENABLED = True
-REDSHIFT_LOADING_ENABLED = True
+REDSHIFT_LOADING_ENABLED = False
 REDSHIFT_STAGING_BUCKET = "hsreplaynet-redshift-staging"
 
 # Range is from 60 - 900
@@ -353,7 +353,7 @@ REDSHIFT_STAGING_BUFFER_SIZE_MB = 10
 
 # This controls how often we transfer records from the staging tables
 # Into the production tables
-REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES = 30
+REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES = 20
 
 # This controls how long we must wait after closing a Firehose stream for new data
 # Before we transfer the records from the staging track into the prod tables
