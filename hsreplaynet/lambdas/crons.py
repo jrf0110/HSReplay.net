@@ -8,9 +8,15 @@ from datetime import datetime, date, timedelta
 from django.conf import settings
 from django.db import connections
 from django.utils.timezone import now
-from hsreplaynet.uploads.models import RawUpload, UploadEvent
+from hsreplaynet.uploads.models import RawUpload, UploadEvent, RedshiftStagingTrack
 from hsreplaynet.utils import instrumentation, log, aws
 from hsreplaynet.utils.influx import influx_metric
+
+
+@instrumentation.lambda_handler(cpu_seconds=300, tracing=False)
+def do_redshift_etl_maintenance(event, context):
+	"""A periodic job to orchestrate Redshift ETL Maintenance"""
+	RedshiftStagingTrack.objects.do_maintenance()
 
 
 @instrumentation.lambda_handler(cpu_seconds=300, tracing=False)
