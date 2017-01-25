@@ -12,7 +12,7 @@ from .processing import execute_query, get_from_redshift_cache
 
 
 def fetch_report_results(request, name):
-	query = queries.get_query(name)
+	query = queries.get_report(name)
 	if not query:
 		raise Http404("No query named: %s" % name)
 
