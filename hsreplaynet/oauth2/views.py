@@ -1,7 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.utils.timezone import now
 from django.views.generic import UpdateView, ListView, View
 from oauth2_provider.generators import generate_client_secret
 from oauth2_provider.models import AccessToken
@@ -57,7 +56,6 @@ class ApplicationListView(ApplicationBaseView, ListView):
 		context = super().get_context_data(**kwargs)
 		authorized_apps = AccessToken.objects.filter(
 			user=self.request.user,
-			expires__gt=now(),
 		).distinct("application")
 		context["authorized_apps"] = authorized_apps
 		return context
