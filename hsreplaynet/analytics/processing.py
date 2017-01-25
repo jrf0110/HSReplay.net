@@ -85,6 +85,10 @@ def _do_execute_query(query, params):
 			return cached_data
 
 
+def evict_from_cache(cache_key):
+	get_redshift_cache().delete(cache_key)
+
+
 def get_redshift_cache():
 	return caches['redshift']
 

@@ -1,5 +1,6 @@
 import json
 from django.urls import reverse
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
 from django.http import HttpResponseForbidden
 from datetime import date
@@ -8,7 +9,19 @@ from django.http import HttpResponse
 from hsredshift.analytics import filters
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.influx import get_redshift_query_average_duration_seconds
-from .processing import execute_query, get_from_redshift_cache
+from .processing import execute_query, get_from_redshift_cache, evict_from_cache
+
+
+@staff_member_required
+def evict_report(request, name):
+	query = queries.get_report(name)
+	if not query:
+		raise Http404("No query named: %s" % name)
+
+	# Unlike queries, reports don't accept filter parameters
+	params = query.get_report_params()
+	evict_from_cache(params.cache_key)
+	return HttpResponse()
 
 
 def fetch_report_results(request, name):
