@@ -633,6 +633,12 @@ class RedshiftStagingTrackManager(models.Manager):
 			active_at=timezone.now()
 		)
 		track.initialize_tables()
+
+		for table in track.tables.all():
+			table.stage = RedshiftETLStage.ACTIVE
+		track.stage = RedshiftETLStage.ACTIVE
+		track.save()
+
 		return track
 
 	def create_successor_for(self, existing_track):
@@ -1259,14 +1265,18 @@ class RedshiftStagingTrackTable(models.Model):
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.GATHERING_STATS_COMPLETE,
 				"gathering_stats_ended_at",
-				self.gathering_stats_handle
+				self.gathering_stats_handle,
+				expected_count=3
 			)
 
-	def _attempt_update_status_to_stage(self, stage, field, handle):
+	def _attempt_update_status_to_stage(self, stage, field, handle, expected_count=1):
 		# Use the handle to check the status of the query
 		# If the query completed then return the endtime
 		# If it's still in flight, then don't do anything.
-		finished, ending_timestamp = self._get_query_status_for_handle(handle)
+		finished, ending_timestamp = self._get_query_status_for_handle(
+			handle,
+			expected_count
+		)
 
 		if finished:
 			tz_aware_ending_timestamp = timezone.make_aware(ending_timestamp)
@@ -1274,7 +1284,7 @@ class RedshiftStagingTrackTable(models.Model):
 			setattr(self, field, tz_aware_ending_timestamp)
 			self.save()
 
-	def _get_query_status_for_handle(self, handle):
+	def _get_query_status_for_handle(self, handle, expected_count):
 		template = """
 			SELECT
 				endtime
@@ -1291,12 +1301,12 @@ class RedshiftStagingTrackTable(models.Model):
 		rp1 = conn.execute(sql)
 
 		rows = list(rp1)
-		if len(rows) > 1:
-			raise RuntimeError(
-				"Got more than one result for unique handle: %s" % handle
-			)
-		elif len(rows) == 1:
-			return True, rows[0][0]
+		if len(rows) > expected_count:
+			msg = "Got more than the %s expected results for handle: %s"
+			raise RuntimeError(msg % (expected_count, handle))
+		elif len(rows) == expected_count:
+			latest_end_date = max(r[0] for r in rows)
+			return True, latest_end_date
 		else:
 			return False, None
 
