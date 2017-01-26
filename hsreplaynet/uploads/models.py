@@ -1260,7 +1260,8 @@ class RedshiftStagingTrackTable(models.Model):
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.ANALYZE_COMPLETE,
 				"analyze_ended_at",
-				self.analyze_query_handle
+				self.analyze_query_handle,
+				2
 			)
 
 		if self.stage == RedshiftETLStage.VACUUMING:
