@@ -1353,6 +1353,8 @@ class RedshiftStagingTrackTable(models.Model):
 		self.analyze_query_handle = self._make_async_query_handle()
 		self.save()
 
+		# If analyze finishes immediately
+		# We can update the stage table immediately as well
 		def mark_complete():
 			self.analyze_ended_at = timezone.now()
 			self.stage = RedshiftETLStage.ANALYZE_COMPLETE
@@ -1364,9 +1366,10 @@ class RedshiftStagingTrackTable(models.Model):
 				self.target_table,
 				self.analyze_query_handle,
 				mark_complete
-			),
-			daemon=True
+			)
 		)
+		background_execute.daemon = True
+
 		background_execute.start()
 
 		time.sleep(5)
@@ -1390,9 +1393,9 @@ class RedshiftStagingTrackTable(models.Model):
 			args=(
 				self.target_table,
 				self.vacuum_query_handle
-			),
-			daemon=True
+			)
 		)
+		background_execute.daemon = True
 		background_execute.start()
 
 		time.sleep(5)
@@ -1415,9 +1418,9 @@ class RedshiftStagingTrackTable(models.Model):
 		self.save()
 
 		background_execute = Thread(
-			target=self._deduplicate_staging_table,
-			daemon=True
+			target=self._deduplicate_staging_table
 		)
+		background_execute.daemon = True
 		background_execute.start()
 
 		time.sleep(5)
@@ -1442,10 +1445,9 @@ class RedshiftStagingTrackTable(models.Model):
 				self.staging_table,
 				self.gathering_stats_handle,
 				mark_complete
-			),
-			daemon=True
+			)
 		)
-
+		background_execute.daemon = True
 		background_execute.start()
 
 		time.sleep(5)
@@ -1480,8 +1482,8 @@ class RedshiftStagingTrackTable(models.Model):
 
 		background_execute = Thread(
 			target=self._do_insert_on_target,
-			daemon=True
 		)
+		background_execute.daemon = True
 		background_execute.start()
 
 		time.sleep(10)
