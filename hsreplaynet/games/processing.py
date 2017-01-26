@@ -503,7 +503,7 @@ def do_process_upload_event(upload_event):
 			exporter.set_game_info(game_info)
 
 			try:
-				flush_exporter_to_firehose(exporter)
+				flush_exporter_to_firehose(exporter, use_async=True)
 			except:
 				raise
 			else:
