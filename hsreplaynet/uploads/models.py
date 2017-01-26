@@ -450,9 +450,13 @@ class RedshiftStagingTrackManager(models.Manager):
 		operation_in_progress, operation_name, prefix = self.refresh_track_states()
 
 		if operation_in_progress:
-			log.info("%s is still %s" % (prefix, operation_name))
-			log.info("Will wait until it has completed to initiate new tasks")
-			return []
+			log.info("%s is still %s" % (prefix, str(operation_name)))
+			if operation_name == RedshiftETLStage.VACUUMING:
+				log.info("Will check for next Vacuum task")
+				return self.attempt_continue_vacuum_tasks()
+			else:
+				log.info("Will wait until it has completed to initiate new tasks")
+				return []
 
 		# If we reach here then we know that we don't have any long running
 		# operations in flight on the cluster.
@@ -543,6 +547,14 @@ class RedshiftStagingTrackManager(models.Manager):
 			track_for_vacuum.vacuum_started_at = timezone.now()
 			track_for_vacuum.save()
 			return track_for_vacuum.get_vacuum_tasks()
+
+	def attempt_continue_vacuum_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.VACUUMING,
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.attempt_get_next_vacuum_task()
 
 	def get_insert_tasks(self):
 		track = RedshiftStagingTrack.objects.filter(
@@ -925,7 +937,7 @@ class RedshiftStagingTrack(models.Model):
 			self.save()
 
 		if self.stage == RedshiftETLStage.ANALYZING:
-			return True, "Analyzing"
+			return True, RedshiftETLStage.ANALYZING
 
 		if self._all_tables_are_in_stage(RedshiftETLStage.VACUUM_COMPLETE):
 			self.stage = RedshiftETLStage.VACUUM_COMPLETE
@@ -933,7 +945,7 @@ class RedshiftStagingTrack(models.Model):
 			self.save()
 
 		if self.stage == RedshiftETLStage.VACUUMING:
-			return True, "Vacuuming"
+			return True, RedshiftETLStage.VACUUMING
 
 		if self._all_tables_are_in_stage(RedshiftETLStage.INSERT_COMPLETE):
 			self.stage = RedshiftETLStage.INSERT_COMPLETE
@@ -941,7 +953,7 @@ class RedshiftStagingTrack(models.Model):
 			self.save()
 
 		if self.stage == RedshiftETLStage.INSERTING:
-			return True, "Inserting"
+			return True, RedshiftETLStage.INSERTING
 
 		if self._all_tables_are_in_stage(RedshiftETLStage.DEDUPLICATION_COMPLETE):
 			self.stage = RedshiftETLStage.DEDUPLICATION_COMPLETE
@@ -949,7 +961,7 @@ class RedshiftStagingTrack(models.Model):
 			self.save()
 
 		if self.stage == RedshiftETLStage.DEDUPLICATING:
-			return True, "Deduplicating"
+			return True, RedshiftETLStage.DEDUPLICATING
 
 		if self._all_tables_are_in_stage(RedshiftETLStage.GATHERING_STATS_COMPLETE):
 			self.stage = RedshiftETLStage.GATHERING_STATS_COMPLETE
@@ -957,14 +969,14 @@ class RedshiftStagingTrack(models.Model):
 			self.save()
 
 		if self.stage == RedshiftETLStage.GATHERING_STATS:
-			return True, "Gathering Stats"
+			return True, RedshiftETLStage.GATHERING_STATS
 
 		if self.stage == RedshiftETLStage.IN_QUIESCENCE and not self.is_in_quiescence:
 			self.stage = RedshiftETLStage.READY_TO_LOAD
 			self.save()
 
 		if self.stage == RedshiftETLStage.IN_QUIESCENCE:
-			return True, "In Quiescence"
+			return True, RedshiftETLStage.IN_QUIESCENCE
 
 		return False, None
 
@@ -1065,6 +1077,13 @@ class RedshiftStagingTrack(models.Model):
 		self.vacuum_ended_at = timezone.now()
 		self.save()
 
+	def attempt_get_next_vacuum_task(self):
+		if self._any_tables_are_in_stage(RedshiftETLStage.VACUUMING):
+			# Don't start any additional vacuums while one is still in flight
+			return []
+		# If none are in flight then get the next task
+		return self.get_vacuum_tasks()
+
 	def do_cleanup(self):
 
 		self.track_cleanup_start_at = timezone.now()
@@ -1083,7 +1102,11 @@ class RedshiftStagingTrack(models.Model):
 		return [t.get_analyze_task() for t in self.tables.all()]
 
 	def get_vacuum_tasks(self):
-		return [t.get_vacuum_task() for t in self.tables.all()]
+		# Vacuuming can only proceed one table at a time.
+		for table in self.tables.all():
+			if table.stage == RedshiftETLStage.INSERT_COMPLETE:
+				return [table.get_vacuum_task()]
+		return []
 
 	def get_insert_tasks(self):
 		return [t.get_insert_task() for t in self.tables.all()]
@@ -1241,11 +1264,8 @@ class RedshiftStagingTrackTable(models.Model):
 			)
 
 		if self.stage == RedshiftETLStage.VACUUMING:
-			self._attempt_update_status_to_stage(
-				RedshiftETLStage.VACUUM_COMPLETE,
-				"vacuum_ended_at",
-				self.vacuum_query_handle
-			)
+			# Requires special handling
+			self._attempt_update_vacuum_state()
 
 		if self.stage == RedshiftETLStage.INSERTING:
 			self._attempt_update_status_to_stage(
@@ -1282,6 +1302,33 @@ class RedshiftStagingTrackTable(models.Model):
 			tz_aware_ending_timestamp = timezone.make_aware(ending_timestamp)
 			self.stage = stage
 			setattr(self, field, tz_aware_ending_timestamp)
+			self.save()
+
+	def _attempt_update_vacuum_state(self):
+		template = """
+			SELECT endtime
+			FROM SVL_QLOG q
+			JOIN stl_Vacuum v ON v.xid = q.xid
+			WHERE q.label = '{handle}'
+			AND status = 'Finished'
+			ORDER BY endtime DESC
+			LIMIT 1;
+		"""
+
+		sql = template.format(
+			handle=self.vacuum_query_handle,
+		)
+
+		engine = get_redshift_engine()
+		conn = engine.connect()
+		rp1 = conn.execute(sql)
+
+		rows = list(rp1)
+		if len(rows) == 1:
+			latest_end_date = rows[0][0]
+			tz_aware_ending_timestamp = timezone.make_aware(latest_end_date)
+			self.stage = RedshiftETLStage.VACUUM_COMPLETE
+			self.vacuum_ended_at = tz_aware_ending_timestamp
 			self.save()
 
 	def _get_query_status_for_handle(self, handle, expected_count):
