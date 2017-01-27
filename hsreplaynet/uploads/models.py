@@ -451,8 +451,10 @@ class RedshiftStagingTrackManager(models.Manager):
 
 		if operation_in_progress:
 			log.info("%s is still %s" % (prefix, str(operation_name)))
-			if operation_name == RedshiftETLStage.VACUUMING:
-				log.info("Will check for next Vacuum task")
+			log.info("Will check for additional unstarted tasks")
+			if operation_name == RedshiftETLStage.GATHERING_STATS:
+				return self.attempt_continue_gathering_stats_tasks()
+			elif operation_name == RedshiftETLStage.VACUUMING:
 				return self.attempt_continue_vacuum_tasks()
 			else:
 				log.info("Will wait until it has completed to initiate new tasks")
@@ -547,6 +549,14 @@ class RedshiftStagingTrackManager(models.Manager):
 			track_for_vacuum.vacuum_started_at = timezone.now()
 			track_for_vacuum.save()
 			return track_for_vacuum.get_vacuum_tasks()
+
+	def attempt_continue_gathering_stats_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.GATHERING_STATS,
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_gathering_stats_tasks()
 
 	def attempt_continue_vacuum_tasks(self):
 		track_for_continue = RedshiftStagingTrack.objects.filter(
@@ -973,6 +983,9 @@ class RedshiftStagingTrack(models.Model):
 
 		if self.stage == RedshiftETLStage.IN_QUIESCENCE and not self.is_in_quiescence:
 			self.stage = RedshiftETLStage.READY_TO_LOAD
+			for t in self.tables.all():
+				t.stage = RedshiftETLStage.READY_TO_LOAD
+				t.save()
 			self.save()
 
 		if self.stage == RedshiftETLStage.IN_QUIESCENCE:
@@ -1115,7 +1128,11 @@ class RedshiftStagingTrack(models.Model):
 		return [t.get_deduplication_task() for t in self.tables.all()]
 
 	def get_gathering_stats_tasks(self):
-		return [t.get_gathering_stats_task() for t in self.tables.all()]
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.READY_TO_LOAD:
+				results.append(t.get_gathering_stats_task())
+		return results
 
 	def get_initialize_successor_tasks(self):
 		tmpl = "Initializing successor for track_prefix: %s"
