@@ -457,6 +457,12 @@ class RedshiftStagingTrackManager(models.Manager):
 				return self.attempt_continue_gathering_stats_tasks()
 			elif operation_name == RedshiftETLStage.VACUUMING:
 				return self.attempt_continue_vacuum_tasks()
+			elif operation_name == RedshiftETLStage.ANALYZING:
+				return self.attempt_continue_analyzing_tasks()
+			elif operation_name == RedshiftETLStage.INSERTING:
+				return self.attempt_continue_inserting_tasks()
+			elif operation_name == RedshiftETLStage.DEDUPLICATING:
+				return self.attempt_continue_deduplicating_tasks()
 			else:
 				log.info("Will wait until it has completed to initiate new tasks")
 				return []
@@ -550,6 +556,30 @@ class RedshiftStagingTrackManager(models.Manager):
 			track_for_vacuum.vacuum_started_at = timezone.now()
 			track_for_vacuum.save()
 			return track_for_vacuum.get_vacuum_tasks()
+
+	def attempt_continue_deduplicating_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.DEDUPLICATING
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_deduplication_tasks()
+
+	def attempt_continue_inserting_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.INSERTING
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_insert_tasks()
+
+	def attempt_continue_analyzing_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.ANALYZING
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_analyze_tasks()
 
 	def attempt_continue_gathering_stats_tasks(self):
 		track_for_continue = RedshiftStagingTrack.objects.filter(
@@ -1110,10 +1140,18 @@ class RedshiftStagingTrack(models.Model):
 		self.save()
 
 	def get_cleanup_tasks(self):
-		return [t.get_cleanup_task() for t in self.tables.all()]
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.ANALYZE_COMPLETE:
+				results.append(t.get_cleanup_task())
+		return results
 
 	def get_analyze_tasks(self):
-		return [t.get_analyze_task() for t in self.tables.all()]
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.VACUUM_COMPLETE:
+				results.append(t.get_analyze_task())
+		return results
 
 	def get_vacuum_tasks(self):
 		# Vacuuming can only proceed one table at a time.
@@ -1123,10 +1161,18 @@ class RedshiftStagingTrack(models.Model):
 		return []
 
 	def get_insert_tasks(self):
-		return [t.get_insert_task() for t in self.tables.all()]
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.DEDUPLICATION_COMPLETE:
+				results.append(t.get_insert_task())
+		return results
 
 	def get_deduplication_tasks(self):
-		return [t.get_deduplication_task() for t in self.tables.all()]
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.GATHERING_STATS_COMPLETE:
+				results.append(t.get_deduplication_task())
+		return results
 
 	def get_gathering_stats_tasks(self):
 		results = []
