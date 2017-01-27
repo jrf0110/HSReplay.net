@@ -1635,7 +1635,7 @@ class RedshiftStagingTrackTable(models.Model):
 		try:
 			template = """
 				INSERT INTO {target_table}
-				SELECT *
+				SELECT s.*
 				FROM {staging_table} s
 				LEFT JOIN {target_table} t ON t.{game_id} = s.{game_id}
 					AND t.id = s.id
