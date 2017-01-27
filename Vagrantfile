@@ -4,6 +4,7 @@
 
 Vagrant.configure("2") do |config|
 	config.vm.box = "debian/contrib-jessie64"
+	config.vm.post_up_message = ""
 
 	config.vm.hostname = "hsreplaynet.local"
 	config.vm.network "forwarded_port", guest: 8000, host: 8000
