@@ -1773,9 +1773,8 @@ class RedshiftStagingTrackTable(models.Model):
 				SELECT s.*
 				FROM {staging_table} s
 				LEFT JOIN {target_table} t ON t.{game_id} = s.{game_id}
-					AND t.id = s.id
-				WHERE t.game_date BETWEEN '{min_date}' AND '{max_date}'
-				AND t.id IS NULL;
+					AND t.id = s.id AND t.game_date BETWEEN '{min_date}' AND '{max_date}'
+				WHERE t.id IS NULL;
 			"""
 
 			if self.final_staging_table_size:
