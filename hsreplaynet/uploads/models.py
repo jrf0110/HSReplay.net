@@ -1562,18 +1562,6 @@ class RedshiftStagingTrackTable(models.Model):
 	def _get_target_table_obj(self):
 		return get_redshift_metadata().tables[self.target_table]
 
-	def _get_insert_stmt(self):
-		target_table_obj = self._get_target_table_obj()
-		staging_table_obj = self._get_table_obj()
-
-		stmt = target_table_obj.insert().from_select(
-			target_table_obj.columns,
-			staging_table_obj.select()
-		)
-
-		log.info("Insert Statement: %s" % str(stmt))
-		return stmt
-
 	def do_refresh_view(self):
 		self.refreshing_view_start_at = timezone.now()
 		self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
@@ -1802,6 +1790,7 @@ class RedshiftStagingTrackTable(models.Model):
 					game_id=game_id_val
 				)
 
+				log.info("STATEMENT: %s" % sql)
 				engine = get_redshift_engine()
 				conn = engine.connect()
 				conn.execution_options(isolation_level="AUTOCOMMIT")
