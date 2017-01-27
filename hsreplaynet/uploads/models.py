@@ -1587,13 +1587,33 @@ class RedshiftStagingTrackTable(models.Model):
 
 	def _do_insert_on_target(self):
 		try:
-			insert_stmt = self._get_insert_stmt()
+			template = """
+				INSERT INTO {target_table}
+				SELECT *
+				FROM {staging_table} s
+				LEFT JOIN {target_table} t ON t.{game_id} = s.{game_id}
+					AND t.id = s.id
+				WHERE t.game_date BETWEEN '{min_date}' AND '{max_date}'
+				AND t.id IS NULL;
+			"""
 
-			engine = get_redshift_engine()
-			conn = engine.connect()
-			conn.execution_options(isolation_level="AUTOCOMMIT")
-			conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
-			conn.execute(insert_stmt)
+			if self.final_staging_table_size:
+				# Don't attempt to insert if there is nothing in the staging table
+				game_id_val = "id" if self.target_table == 'game' else "game_id"
+
+				sql = template.format(
+					staging_table=self.staging_table,
+					target_table=self.target_table,
+					min_date=self.min_game_date.isoformat(),
+					max_date=self.max_game_date.isoformat(),
+					game_id=game_id_val
+				)
+
+				engine = get_redshift_engine()
+				conn = engine.connect()
+				conn.execution_options(isolation_level="AUTOCOMMIT")
+				conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
+				conn.execute(sql)
 
 			self.insert_ended_at = timezone.now()
 			self.stage = RedshiftETLStage.INSERT_COMPLETE
