@@ -30,7 +30,7 @@ S3 = boto3.client("s3")
 S3_RAW_LOG_UPLOAD_BUCKET = "hsreplaynet-uploads"
 
 
-PERCENT_CANARY_UPLOADS = 20
+PERCENT_CANARY_UPLOADS = 25
 
 
 def is_canary_upload(event):
