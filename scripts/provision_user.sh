@@ -5,6 +5,7 @@ PROJECT="$HOME/hsreplay.net"
 mkdir -p "$HOME/.cache" "$HOME/.config/zsh"
 echo 'source $HOME/env/bin/activate' > "$HOME/.config/zsh/profile"
 echo 'export PATH=$VIRTUAL_ENV/bin:$HOME/node_modules/.bin:$PATH' >> "$HOME/.config/zsh/profile"
+echo 'export HSREPLAYNET_DEBUG=1' >> "$HOME/.config/zsh/profile"
 echo "cd $PROJECT" >> "$HOME/.config/zsh/profile"
 cp /etc/skel/.zshrc "$HOME/.zshrc"
 
