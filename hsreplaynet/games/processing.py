@@ -1,12 +1,12 @@
 import json
 from hashlib import sha1
-from datetime import datetime
 from io import StringIO
 from dateutil.parser import parse as dateutil_parse
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.conf import settings
+from django.utils import timezone
 from hearthstone import __version__ as hslog_version
 from hearthstone.enums import CardType, GameTag
 from hearthstone.hslog.exceptions import ParsingError
@@ -498,6 +498,7 @@ def do_process_upload_event(upload_event):
 	# Defer flushing the exporter until after the UploadEvent is set to SUCCESS
 	# So that the player can start watching their replay sooner
 	def do_flush_exporter():
+
 		if should_load_into_redshift(upload_event, global_game):
 			with influx_timer("generate_redshift_game_info_duration"):
 				game_info = get_game_info(global_game, replay)
@@ -509,7 +510,7 @@ def do_process_upload_event(upload_event):
 			except:
 				raise
 			else:
-				global_game.loaded_into_redshift = datetime.now()
+				global_game.loaded_into_redshift = timezone.now()
 				global_game.save()
 
 	return replay, do_flush_exporter
