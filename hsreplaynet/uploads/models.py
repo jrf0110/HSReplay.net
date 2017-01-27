@@ -21,6 +21,7 @@ from hsreplaynet.utils.influx import influx_timer
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.sql import func, select
 from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
+from psycopg2 import DatabaseError
 
 
 def get_redshift_engine():
@@ -1444,18 +1445,26 @@ class RedshiftStagingTrackTable(models.Model):
 			)
 		)
 		background_execute.daemon = True
-
 		background_execute.start()
 
 		time.sleep(5)
 
 	def _do_analyze_on_target(self, target, query_handle, mark_complete):
-		engine = get_redshift_engine()
-		conn = engine.connect()
-		conn.execution_options(isolation_level="AUTOCOMMIT")
-		conn.execute("SET QUERY_GROUP TO '%s'" % query_handle)
-		conn.execute("ANALYZE %s;" % target)
-		mark_complete()
+		try:
+			engine = get_redshift_engine()
+			conn = engine.connect()
+			conn.execution_options(isolation_level="AUTOCOMMIT")
+			conn.execute("SET QUERY_GROUP TO '%s'" % query_handle)
+			conn.execute("ANALYZE %s;" % target)
+			mark_complete()
+		except DatabaseError as e:
+			if "select() failed" in str(e):
+				# This exception is thrown when a background thread
+				# that was frozen when the lambda shutdown
+				# is restarted and no longer has a connection to the Redshift
+				pass
+			else:
+				raise
 
 	def do_vacuum(self):
 		self.vacuum_started_at = timezone.now()
@@ -1471,20 +1480,30 @@ class RedshiftStagingTrackTable(models.Model):
 			)
 		)
 		background_execute.daemon = True
+
 		background_execute.start()
 
 		time.sleep(5)
 
 	def _do_vacuum_on_target(self, target, query_handle):
-		engine = get_redshift_engine()
-		conn = engine.connect()
-		conn.execution_options(isolation_level="AUTOCOMMIT")
-		conn.execute("SET QUERY_GROUP TO '%s';" % query_handle)
-		conn.execute("VACUUM FULL %s TO 100 PERCENT;" % target)
+		try:
+			engine = get_redshift_engine()
+			conn = engine.connect()
+			conn.execution_options(isolation_level="AUTOCOMMIT")
+			conn.execute("SET QUERY_GROUP TO '%s';" % query_handle)
+			conn.execute("VACUUM FULL %s TO 100 PERCENT;" % target)
 
-		self.vacuum_ended_at = timezone.now()
-		self.stage = RedshiftETLStage.VACUUM_COMPLETE
-		self.save()
+			self.vacuum_ended_at = timezone.now()
+			self.stage = RedshiftETLStage.VACUUM_COMPLETE
+			self.save()
+		except DatabaseError as e:
+			if "select() failed" in str(e):
+				# This exception is thrown when a background thread
+				# that was frozen when the lambda shutdown
+				# is restarted and no longer has a connection to the Redshift
+				pass
+			else:
+				raise
 
 	def do_deduplicate_records(self):
 		self.deduplication_started_at = timezone.now()
@@ -1496,6 +1515,7 @@ class RedshiftStagingTrackTable(models.Model):
 			target=self._deduplicate_staging_table
 		)
 		background_execute.daemon = True
+
 		background_execute.start()
 
 		time.sleep(5)
@@ -1523,6 +1543,7 @@ class RedshiftStagingTrackTable(models.Model):
 			)
 		)
 		background_execute.daemon = True
+
 		background_execute.start()
 
 		time.sleep(5)
@@ -1559,22 +1580,32 @@ class RedshiftStagingTrackTable(models.Model):
 			target=self._do_insert_on_target,
 		)
 		background_execute.daemon = True
+
 		background_execute.start()
 
 		time.sleep(10)
 
 	def _do_insert_on_target(self):
-		insert_stmt = self._get_insert_stmt()
+		try:
+			insert_stmt = self._get_insert_stmt()
 
-		engine = get_redshift_engine()
-		conn = engine.connect()
-		conn.execution_options(isolation_level="AUTOCOMMIT")
-		conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
-		conn.execute(insert_stmt)
+			engine = get_redshift_engine()
+			conn = engine.connect()
+			conn.execution_options(isolation_level="AUTOCOMMIT")
+			conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
+			conn.execute(insert_stmt)
 
-		self.insert_ended_at = timezone.now()
-		self.stage = RedshiftETLStage.INSERT_COMPLETE
-		self.save()
+			self.insert_ended_at = timezone.now()
+			self.stage = RedshiftETLStage.INSERT_COMPLETE
+			self.save()
+		except DatabaseError as e:
+			if "select() failed" in str(e):
+				# This exception is thrown when a background thread
+				# that was frozen when the lambda shutdown
+				# is restarted and no longer has a connection to the Redshift
+				pass
+			else:
+				raise
 
 	def _deduplicate_staging_table(self):
 		"""
@@ -1587,35 +1618,44 @@ class RedshiftStagingTrackTable(models.Model):
 
 		:return:
 		"""
-		template = """
-		DELETE FROM {staging_table}
-		USING {target_table}
-		WHERE {target_table}.{game_id} = {staging_table}.{game_id}
-		AND {target_table}.id = {staging_table}.id
-		AND {target_table}.game_date BETWEEN '{min_date}' AND '{max_date}';
-		"""
+		try:
+			template = """
+			DELETE FROM {staging_table}
+			USING {target_table}
+			WHERE {target_table}.{game_id} = {staging_table}.{game_id}
+			AND {target_table}.id = {staging_table}.id
+			AND {target_table}.game_date BETWEEN '{min_date}' AND '{max_date}';
+			"""
 
-		if self.final_staging_table_size:
-			# Don't attempt deduplication if there is nothing in the staging table
-			game_id_val = "id" if self.target_table == 'game' else "game_id"
+			if self.final_staging_table_size:
+				# Don't attempt deduplication if there is nothing in the staging table
+				game_id_val = "id" if self.target_table == 'game' else "game_id"
 
-			sql = template.format(
-				staging_table=self.staging_table,
-				target_table=self.target_table,
-				min_date=self.min_game_date.isoformat(),
-				max_date=self.max_game_date.isoformat(),
-				game_id=game_id_val
-			)
+				sql = template.format(
+					staging_table=self.staging_table,
+					target_table=self.target_table,
+					min_date=self.min_game_date.isoformat(),
+					max_date=self.max_game_date.isoformat(),
+					game_id=game_id_val
+				)
 
-			engine = get_redshift_engine()
-			conn = engine.connect()
-			conn.execution_options(isolation_level="AUTOCOMMIT")
-			conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
-			conn.execute(sql)
+				engine = get_redshift_engine()
+				conn = engine.connect()
+				conn.execution_options(isolation_level="AUTOCOMMIT")
+				conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
+				conn.execute(sql)
 
-		self.deduplication_ended_at = timezone.now()
-		self.stage = RedshiftETLStage.DEDUPLICATION_COMPLETE
-		self.save()
+			self.deduplication_ended_at = timezone.now()
+			self.stage = RedshiftETLStage.DEDUPLICATION_COMPLETE
+			self.save()
+		except DatabaseError as e:
+			if "select() failed" in str(e):
+				# This exception is thrown when a background thread
+				# that was frozen when the lambda shutdown
+				# is restarted and no longer has a connection to the Redshift
+				pass
+			else:
+				raise
 
 	def _get_staging_table_size_stmt(self):
 		return select([func.count()]).select_from(self._get_table_obj())
