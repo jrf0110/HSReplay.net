@@ -15,6 +15,9 @@ from django.conf import settings  # noqa
 lambdas_logger = logging.getLogger("hsreplaynet")
 lambdas_logger.setLevel(logging.INFO)
 
+hsredshift_logger = logging.getLogger("hsredshift")
+hsredshift_logger.setLevel(logging.INFO)
+
 # Make sure django.setup() has already been invoked to import handlers
 from hsreplaynet.lambdas.uploads import *  # noqa
 from hsreplaynet.lambdas.crons import * # noqa
