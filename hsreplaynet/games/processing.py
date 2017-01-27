@@ -499,11 +499,13 @@ def do_process_upload_event(upload_event):
 	# So that the player can start watching their replay sooner
 	def do_flush_exporter():
 		if should_load_into_redshift(upload_event, global_game):
-			game_info = get_game_info(global_game, replay)
+			with influx_timer("generate_redshift_game_info_duration"):
+				game_info = get_game_info(global_game, replay)
 			exporter.set_game_info(game_info)
 
 			try:
-				flush_exporter_to_firehose(exporter)
+				with influx_timer("flush_exporter_to_firehose_duration"):
+					flush_exporter_to_firehose(exporter)
 			except:
 				raise
 			else:
@@ -546,6 +548,10 @@ def get_game_info(global_game, replay):
 	player1 = replay.player(1)
 	player2 = replay.player(2)
 
+	with influx_timer("generate_redshift_player_decklists_duration"):
+		player1_decklist = player1.deck_list.as_dbf_json()
+		player2_decklist = player2.deck_list.as_dbf_json()
+
 	game_info = {
 		"game_id": int(global_game.id),
 		"shortid": replay.shortid,
@@ -557,7 +563,7 @@ def get_game_info(global_game, replay):
 			"1": {
 				"deck_id": int(player1.deck_list.id),
 				"archetype_id": get_archetype_id(player1),
-				"deck_list": player1.deck_list.as_dbf_json(),
+				"deck_list": player1_decklist,
 				"rank": 0 if player1.legend_rank else player1.rank if player1.rank else -1,
 				"legend_rank": player1.legend_rank,
 				"full_deck_known": player1.deck_list.size == 30
@@ -565,7 +571,7 @@ def get_game_info(global_game, replay):
 			"2": {
 				"deck_id": int(player2.deck_list.id),
 				"archetype_id": get_archetype_id(player2),
-				"deck_list": player2.deck_list.as_dbf_json(),
+				"deck_list": player2_decklist,
 				"rank": 0 if player2.legend_rank else player2.rank if player2.rank else -1,
 				"legend_rank": player2.legend_rank,
 				"full_deck_known": player2.deck_list.size == 30,
