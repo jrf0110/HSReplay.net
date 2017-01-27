@@ -21,6 +21,9 @@ from hsreplaynet.utils.influx import influx_timer
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.sql import func, select
 from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
+from hsredshift.etl.views import (
+	get_materialized_view_list, get_materialized_view_update_statement
+)
 from psycopg2 import DatabaseError
 
 
@@ -412,12 +415,14 @@ class RedshiftETLStage(IntEnum):
 	DEDUPLICATION_COMPLETE = 10
 	INSERTING = 11
 	INSERT_COMPLETE = 12
-	VACUUMING = 13
-	VACUUM_COMPLETE = 14
-	ANALYZING = 15
-	ANALYZE_COMPLETE = 16
-	CLEANING_UP = 17
-	FINISHED = 18
+	REFRESHING_MATERIALIZED_VIEWS = 13
+	REFRESHING_MATERIALIZED_VIEWS_COMPLETE = 14
+	VACUUMING = 15
+	VACUUM_COMPLETE = 16
+	ANALYZING = 17
+	ANALYZE_COMPLETE = 18
+	CLEANING_UP = 19
+	FINISHED = 20
 
 
 class RedshiftStagingTrackManager(models.Manager):
@@ -463,6 +468,8 @@ class RedshiftStagingTrackManager(models.Manager):
 				return self.attempt_continue_inserting_tasks()
 			elif operation_name == RedshiftETLStage.DEDUPLICATING:
 				return self.attempt_continue_deduplicating_tasks()
+			elif operation_name == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS:
+				return self.attempt_continue_refreshing_views_tasks()
 			else:
 				log.info("Will wait until it has completed to initiate new tasks")
 				return []
@@ -484,6 +491,11 @@ class RedshiftStagingTrackManager(models.Manager):
 		if vacuum_tasks:
 			log.info("Found %s vacuum tasks" % str(len(vacuum_tasks)))
 			return vacuum_tasks
+
+		refresh_view_tasks = self.get_refresh_view_tasks()
+		if refresh_view_tasks:
+			log.info("Found %s refresh view tasks" % str(len(refresh_view_tasks)))
+			return refresh_view_tasks
 
 		insert_tasks = self.get_insert_tasks()
 		if insert_tasks:
@@ -546,9 +558,20 @@ class RedshiftStagingTrackManager(models.Manager):
 			track_for_analyze.save()
 			return track_for_analyze.get_analyze_tasks()
 
+	def get_refresh_view_tasks(self):
+		track_for_refresh = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.INSERT_COMPLETE,
+		).first()
+
+		if track_for_refresh:
+			track_for_refresh.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
+			track_for_refresh.refreshing_view_start_at = timezone.now()
+			track_for_refresh.save()
+			return track_for_refresh.get_refresh_view_tasks()
+
 	def get_vacuum_tasks(self):
 		track_for_vacuum = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.INSERT_COMPLETE,
+			stage=RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE,
 		).first()
 
 		if track_for_vacuum:
@@ -556,6 +579,14 @@ class RedshiftStagingTrackManager(models.Manager):
 			track_for_vacuum.vacuum_started_at = timezone.now()
 			track_for_vacuum.save()
 			return track_for_vacuum.get_vacuum_tasks()
+
+	def attempt_continue_refreshing_views_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_refresh_view_tasks()
 
 	def attempt_continue_deduplicating_tasks(self):
 		track_for_continue = RedshiftStagingTrack.objects.filter(
@@ -806,6 +837,8 @@ class RedshiftStagingTrack(models.Model):
 	deduplicating_ended_at = models.DateTimeField(null=True)
 	insert_started_at = models.DateTimeField(null=True)
 	insert_ended_at = models.DateTimeField(null=True)
+	refreshing_view_start_at = models.DateTimeField(null=True)
+	refreshing_view_end_at = models.DateTimeField(null=True)
 	vacuum_started_at = models.DateTimeField(null=True)
 	vacuum_ended_at = models.DateTimeField(null=True)
 	analyze_started_at = models.DateTimeField(null=True)
@@ -818,6 +851,26 @@ class RedshiftStagingTrack(models.Model):
 		current_timestamp = timezone.now()
 		duration = current_timestamp - self.active_at
 		return duration.seconds / 60
+
+	@property
+	def min_game_date(self):
+		min_date = None
+		for t in self.tables.all():
+			if t.min_game_date and not min_date:
+				min_date = t.min_game_date
+			if t.min_game_date < min_date:
+				min_date = t.min_game_date
+		return min_date
+
+	@property
+	def max_game_date(self):
+		max_date = None
+		for t in self.tables.all():
+			if t.max_game_date and not max_date:
+				max_date = t.max_game_date
+			if t.max_game_date > max_date:
+				max_date = t.max_game_date
+		return max_date
 
 	@property
 	def is_in_quiescence(self):
@@ -861,7 +914,12 @@ class RedshiftStagingTrack(models.Model):
 
 	@property
 	def firehose_streams_are_active(self):
-		return all(map(lambda t: t.firehose_stream_is_active, self.tables.all()))
+		return all(
+			map(
+				lambda t: t.firehose_stream_is_active,
+				self.tables.filter(is_materialized_view=False).all()
+			)
+		)
 
 	@property
 	def is_able_to_close(self):
@@ -930,6 +988,10 @@ class RedshiftStagingTrack(models.Model):
 			self.vacuum_started_at = None
 			self.vacuum_ended_at = None
 
+		if int(stage) < int(RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE):
+			self.refreshing_view_start_at = None
+			self.refreshing_view_end_at = None
+
 		if int(stage) < int(RedshiftETLStage.INSERT_COMPLETE):
 			self.insert_started_at = None
 			self.insert_ended_at = None
@@ -987,6 +1049,15 @@ class RedshiftStagingTrack(models.Model):
 
 		if self.stage == RedshiftETLStage.VACUUMING:
 			return True, RedshiftETLStage.VACUUMING
+
+		views_complete = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE
+		if self._all_tables_are_in_stage(views_complete):
+			self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE
+			self.refreshing_view_end_at = timezone.now()
+			self.save()
+
+		if self.stage == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS:
+			return True, RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
 
 		if self._all_tables_are_in_stage(RedshiftETLStage.INSERT_COMPLETE):
 			self.stage = RedshiftETLStage.INSERT_COMPLETE
@@ -1052,6 +1123,12 @@ class RedshiftStagingTrack(models.Model):
 				self
 			)
 
+		for view in get_materialized_view_list():
+			RedshiftStagingTrackTable.objects.create_view_table_for_track(
+				view,
+				self
+			)
+
 		self.stage = RedshiftETLStage.INITIALIZED
 		self.save()
 
@@ -1082,44 +1159,12 @@ class RedshiftStagingTrack(models.Model):
 
 	def get_tables_for_insert(self, num=None):
 		# num is none, all tables will be returned
-		uninserted_tables = list(self.tables.filter(insert_started_at__isnull=True).all())
+		uninserted_tables = list(self.tables.filter(
+			insert_started_at__isnull=True,
+			is_materialized_view=False
+		).all())
 		target_result_count = max(len(uninserted_tables), num)
 		return uninserted_tables[:target_result_count]
-
-	def do_insert_staged_records(self):
-		if not self.is_able_to_insert:
-			raise RuntimeError(
-				"Cannot insert records for a track that is not ready"
-			)
-
-		self.insert_started_at = timezone.now()
-		self.save()
-
-		for table in self.tables.all():
-			table.do_insert_staged_records()
-
-		self.insert_ended_at = timezone.now()
-		self.save()
-
-	def do_analyze(self):
-		self.analyze_started_at = timezone.now()
-		self.save()
-
-		for table in self.tables.all():
-			table.do_analyze()
-
-		self.analyze_ended_at = timezone.now()
-		self.save()
-
-	def do_vacuum(self):
-		self.vacuum_started_at = timezone.now()
-		self.save()
-
-		for table in self.tables.all():
-			table.do_vacuum()
-
-		self.vacuum_ended_at = timezone.now()
-		self.save()
 
 	def attempt_get_next_vacuum_task(self):
 		if self._any_tables_are_in_stage(RedshiftETLStage.VACUUMING):
@@ -1128,22 +1173,17 @@ class RedshiftStagingTrack(models.Model):
 		# If none are in flight then get the next task
 		return self.get_vacuum_tasks()
 
-	def do_cleanup(self):
-
-		self.track_cleanup_start_at = timezone.now()
-		self.save()
-
-		for table in self.tables.all():
-			table.do_cleanup()
-
-		self.track_cleanup_end_at = timezone.now()
-		self.save()
-
 	def get_cleanup_tasks(self):
 		results = []
-		for t in self.tables.all():
+		for t in self.tables.filter(is_materialized_view=False).all():
 			if t.stage == RedshiftETLStage.ANALYZE_COMPLETE:
-				results.append(t.get_cleanup_task())
+				if t.is_materialized_view:
+					t.stage = RedshiftETLStage.FINISHED
+					t.track_cleanup_start_at = timezone.now()
+					t.track_cleanup_end_at = t.track_cleanup_start_at
+					t.save()
+				else:
+					results.append(t.get_cleanup_task())
 		return results
 
 	def get_analyze_tasks(self):
@@ -1156,29 +1196,60 @@ class RedshiftStagingTrack(models.Model):
 	def get_vacuum_tasks(self):
 		# Vacuuming can only proceed one table at a time.
 		for table in self.tables.all():
-			if table.stage == RedshiftETLStage.INSERT_COMPLETE:
+			if table.stage == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE:
 				return [table.get_vacuum_task()]
 		return []
+
+	def get_refresh_view_tasks(self):
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.INSERT_COMPLETE:
+				if t.is_materialized_view:
+					results.append(t.get_refresh_view_task())
+				else:
+					t.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE
+					t.refreshing_view_start_at = timezone.now()
+					t.refreshing_view_end_at = t.refreshing_view_start_at
+					t.save()
+		return results
 
 	def get_insert_tasks(self):
 		results = []
 		for t in self.tables.all():
 			if t.stage == RedshiftETLStage.DEDUPLICATION_COMPLETE:
-				results.append(t.get_insert_task())
+				if t.is_materialized_view:
+					t.stage = RedshiftETLStage.INSERT_COMPLETE
+					t.insert_started_at = timezone.now()
+					t.insert_ended_at = t.insert_started_at
+					t.save()
+				else:
+					results.append(t.get_insert_task())
 		return results
 
 	def get_deduplication_tasks(self):
 		results = []
 		for t in self.tables.all():
 			if t.stage == RedshiftETLStage.GATHERING_STATS_COMPLETE:
-				results.append(t.get_deduplication_task())
+				if t.is_materialized_view:
+					t.stage = RedshiftETLStage.DEDUPLICATION_COMPLETE
+					t.deduplication_started_at = timezone.now()
+					t.deduplication_ended_at = t.deduplication_started_at
+					t.save()
+				else:
+					results.append(t.get_deduplication_task())
 		return results
 
 	def get_gathering_stats_tasks(self):
 		results = []
 		for t in self.tables.all():
 			if t.stage == RedshiftETLStage.READY_TO_LOAD:
-				results.append(t.get_gathering_stats_task())
+				if t.is_materialized_view:
+					t.stage = RedshiftETLStage.GATHERING_STATS_COMPLETE
+					t.gathering_stats_started_at = timezone.now()
+					t.gathering_stats_ended_at = t.gathering_stats_started_at
+					t.save()
+				else:
+					results.append(t.get_gathering_stats_task())
 		return results
 
 	def get_initialize_successor_tasks(self):
@@ -1193,6 +1264,18 @@ class RedshiftStagingTrack(models.Model):
 
 
 class RedshiftStagingTrackTableManager(models.Manager):
+
+	def create_view_table_for_track(self, view, track):
+
+		# Create the record once we know the table and stream creation didn't error
+		track_table = RedshiftStagingTrackTable.objects.create(
+			track=track,
+			target_table=view,
+			is_materialized_view=True,
+			stage=RedshiftETLStage.INITIALIZED,
+		)
+
+		return track_table
 
 	def create_table_for_track(self, table, track):
 
@@ -1248,11 +1331,15 @@ class RedshiftStagingTrackTable(models.Model):
 	stage = IntEnumField(enum=RedshiftETLStage, default=RedshiftETLStage.CREATED)
 	staging_table = models.CharField("Staging Table", max_length=100)
 	target_table = models.CharField("Target Table", max_length=100)
+	# Materialized Views don't have staging tables, they just have an update task
+	# that gets run after the stage tables are all inserted
+	is_materialized_view = models.BooleanField(default=False)
 	analyze_query_handle = models.CharField(max_length=15, blank=True)
 	vacuum_query_handle = models.CharField(max_length=15, blank=True)
 	insert_query_handle = models.CharField(max_length=15, blank=True)
 	dedupe_query_handle = models.CharField(max_length=15, blank=True)
 	gathering_stats_handle = models.CharField(max_length=15, blank=True)
+	refreshing_view_handle = models.CharField(max_length=15, blank=True)
 	firehose_stream = models.CharField("Firehose Stream", max_length=100)
 
 	gathering_stats_started_at = models.DateTimeField(null=True)
@@ -1274,6 +1361,9 @@ class RedshiftStagingTrackTable(models.Model):
 	analyze_started_at = models.DateTimeField(null=True)
 	analyze_ended_at = models.DateTimeField(null=True)
 
+	refreshing_view_start_at = models.DateTimeField(null=True)
+	refreshing_view_end_at = models.DateTimeField(null=True)
+
 	track_cleanup_start_at = models.DateTimeField(null=True)
 	track_cleanup_end_at = models.DateTimeField(null=True)
 
@@ -1294,6 +1384,10 @@ class RedshiftStagingTrackTable(models.Model):
 		if int(stage) < int(RedshiftETLStage.VACUUM_COMPLETE):
 			self.vacuum_started_at = None
 			self.vacuum_ended_at = None
+
+		if int(stage) < int(RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE):
+			self.refreshing_view_start_at = None
+			self.refreshing_view_end_at = None
 
 		if int(stage) < int(RedshiftETLStage.INSERT_COMPLETE):
 			self.insert_started_at = None
@@ -1331,6 +1425,13 @@ class RedshiftStagingTrackTable(models.Model):
 		if self.stage == RedshiftETLStage.VACUUMING:
 			# Requires special handling
 			self._attempt_update_vacuum_state()
+
+		if self.stage == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS:
+			self._attempt_update_status_to_stage(
+				RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE,
+				"refreshing_view_end_at",
+				self.refreshing_view_handle
+			)
 
 		if self.stage == RedshiftETLStage.INSERTING:
 			self._attempt_update_status_to_stage(
@@ -1422,6 +1523,10 @@ class RedshiftStagingTrackTable(models.Model):
 		else:
 			return False, None
 
+	def get_refresh_view_task(self):
+		task_name = "Refreshing View %s" % self.target_table
+		return RedshiftETLTask(task_name, self.do_refresh_view)
+
 	def get_cleanup_task(self):
 		task_name = "Cleanup %s" % self.staging_table
 		return RedshiftETLTask(task_name, self.do_cleanup)
@@ -1469,6 +1574,24 @@ class RedshiftStagingTrackTable(models.Model):
 		log.info("Insert Statement: %s" % str(stmt))
 		return stmt
 
+	def do_refresh_view(self):
+		self.refreshing_view_start_at = timezone.now()
+		self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
+		self.refreshing_view_handle = self._make_async_query_handle()
+		self.save()
+
+		background_execute = Thread(
+			target=self._do_refresh_view_query,
+			args=(
+				self.target_table,
+				self.refreshing_view_handle
+			)
+		)
+		background_execute.daemon = True
+		background_execute.start()
+
+		time.sleep(5)
+
 	def do_analyze(self):
 		self.analyze_started_at = timezone.now()
 		self.stage = RedshiftETLStage.ANALYZING
@@ -1494,6 +1617,30 @@ class RedshiftStagingTrackTable(models.Model):
 		background_execute.start()
 
 		time.sleep(5)
+
+	def _do_refresh_view_query(self, target, handle):
+		try:
+			min_date = self.track.min_game_date
+			max_date = self.track.max_game_date
+			if min_date and max_date:
+				sql = get_materialized_view_update_statement(
+					target,
+					min_date,
+					max_date
+				)
+				engine = get_redshift_engine()
+				conn = engine.connect()
+				conn.execution_options(isolation_level="AUTOCOMMIT")
+				conn.execute("SET QUERY_GROUP TO '%s'" % handle)
+				conn.execute(sql)
+		except DatabaseError as e:
+			if "select() failed" in str(e):
+				# This exception is thrown when a background thread
+				# that was frozen when the lambda shutdown
+				# is restarted and no longer has a connection to the Redshift
+				pass
+			else:
+				raise
 
 	def _do_analyze_on_target(self, target, query_handle, mark_complete):
 		try:
