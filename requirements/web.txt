@@ -20,3 +20,7 @@ rq==0.7.1
 # articles/markdown
 -e git+https://github.com/HearthSim/django-markdownx.git#egg=django_markdownx
 markdown==2.6.7
+
+# stripe
+
+-e git+https://github.com/jleclanche/dj-stripe.git#egg=djstripe_dev

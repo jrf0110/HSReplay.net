@@ -2,7 +2,9 @@ from uuid import uuid4
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django_intenum import IntEnumField
+from djstripe.utils import subscriber_has_active_subscription
 from hsreplaynet.games.models import Visibility
 
 
@@ -64,6 +66,10 @@ class User(AbstractUser):
 	exclude_from_statistics = models.BooleanField(default=False)
 	joust_autoplay = models.BooleanField(default=True)
 
+	@cached_property
+	def is_premium(self):
+		return subscriber_has_active_subscription(self)
+
 	def delete_replays(self):
 		self.replays.update(is_deleted=True)
 
@@ -86,11 +92,6 @@ class User(AbstractUser):
 			data = replay.serialize()
 			for webhook in webhooks:
 				webhook.trigger(data)
-
-	@property
-	def is_premium(self):
-		# Everyone is premium until we implement it :)
-		return True
 
 
 class AccountDeleteRequest(models.Model):

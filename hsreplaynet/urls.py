@@ -26,6 +26,7 @@ if not settings.ENV_LAMBDA:
 		url(r"^admin/", include("hsreplaynet.admin.urls")),
 		url(r"^articles/", include("hsreplaynet.articles.urls")),
 		url(r"^account/", include("hsreplaynet.accounts.urls")),
+		url(r"^account/billing/", include("hsreplaynet.billing.urls")),
 		url(r"^comments/", include("hsreplaynet.comments.urls")),
 		url(r"^decks/", include("hsreplaynet.decks.urls")),
 		url(r"^about/privacy/$", flatpage, {"url": "/about/privacy/"}, name="privacy_policy"),

@@ -19,6 +19,10 @@ DATABASES = {
 }
 
 
+STRIPE_PUBLIC_KEY = ""
+STRIPE_SECRET_KEY = ""
+
+
 INFLUX_DATABASES = {
 	"hsreplaynet": {
 		"NAME": "hsreplaynet",
