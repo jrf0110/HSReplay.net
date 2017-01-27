@@ -249,9 +249,9 @@ class Deck(models.Model):
 
 	def as_dbf_json(self):
 		"""Serialize the deck list for storage in Redshift"""
-		result = {}
+		result = []
 		for include in self.includes.all():
-			result[include.card.dbf_id] = include.count
+			result.append([include.card.dbf_id, include.count])
 
 		# separators=(',', ':') creates compact JSON encoding
 		return json.dumps(result, separators=(',', ':'))
