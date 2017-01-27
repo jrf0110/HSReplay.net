@@ -858,7 +858,7 @@ class RedshiftStagingTrack(models.Model):
 		for t in self.tables.all():
 			if t.min_game_date and not min_date:
 				min_date = t.min_game_date
-			if t.min_game_date < min_date:
+			if t.min_game_date and min_date and t.min_game_date < min_date:
 				min_date = t.min_game_date
 		return min_date
 
@@ -868,7 +868,7 @@ class RedshiftStagingTrack(models.Model):
 		for t in self.tables.all():
 			if t.max_game_date and not max_date:
 				max_date = t.max_game_date
-			if t.max_game_date > max_date:
+			if t.max_game_date and max_date and t.max_game_date > max_date:
 				max_date = t.max_game_date
 		return max_date
 
