@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Details for {{card.name}}{% endblock %}
+
+{% block fullcontent %}
+<div id="card-info" card-id="{{card.id}}"></div>
+<div id="card-container">
+</div>
+{% if user.is_authenticated and user.is_staff %}
+	{% render_bundle "card_detail" %}
+{% endif %}
+{% endblock %}

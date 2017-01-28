@@ -84,8 +84,65 @@ export interface SelectableProps {
 	onSelect?: (key: string) => void;
 }
 
+type RenderTypes = "line_chart" | "bar_chart" | "list" | "class_pie_chart" | "single_value" | "gauge" | "list_table";
 
-type RenderTypes = "line_chart" | "bar_chart" | "list" | "class_pie_chart" | "single_value" | "gauge";
+export interface FilterData {
+	filters: Filter[];
+	server_date: Date;
+}
+
+export interface Filter {
+	name: string;
+	elements: FilterElement[];
+}
+
+export interface FilterElement {
+	index: number;
+	is_default: boolean;
+	is_implemented: boolean;
+	is_premium: boolean;
+	name: string;
+}
+
+export interface FilterDefinition {
+	name: string;
+	elementNames: Map<string, string>;
+	visible: string[];
+}
+
+export interface KeyValuePair {
+	key: string;
+	value: string;
+}
+
+export interface Query {
+	endpoint: string;
+	params: string[];
+	avg_query_duration_seconds?: number;
+}
+
+export interface TableData {
+	title?: string;
+	series: TableSeries;
+
+}
+
+export interface TableSeries {
+	metadata?: TableSeriesMetaData;
+	data: TableSeriesData;
+}
+
+export interface TableSeriesMetaData {
+	total_games: number;
+}
+
+export interface TableSeriesData {
+	[table: string]: TableRow[];
+}
+
+export interface TableRow {
+	[header: string]: string;
+}
 
 export interface RenderData {
 	render_as: RenderTypes;
