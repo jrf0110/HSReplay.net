@@ -1,3 +1,5 @@
+import {ChartScheme, ChartSchemeType} from "./interfaces";
+
 export function staticFile(file: string) {
 	return STATIC_URL + file;
 }
@@ -40,3 +42,223 @@ export function getHeroColor(hero: string): string {
 		case "NEUTRAL": return "#808080";
 	}
 }
+
+export function getChartScheme(theme: ChartSchemeType): ChartScheme {
+	switch (theme) {
+		case "rarity":
+			return rarityScheme;
+		case "cardtype":
+			return cardtypeScheme;
+		case "cardset":
+			return cardsetScheme;
+		case "cost":
+			return costScheme;
+	}
+	return null;
+}
+
+const costScheme: ChartScheme = {
+	"0": {
+		fill: "rgba(204, 204, 255, 0.5)",
+		stroke: "rgba(204, 204, 255, 0.9)",
+	},
+	"1": {
+		fill: "rgba(153, 153, 255, 0.5)",
+		stroke: "rgba(153, 153, 255, 0.9)",
+	},
+	"2": {
+		fill: "rgba(102, 102, 255, 0.5)",
+		stroke: "rgba(102, 102, 255, 0.9)",
+	},
+	"3": {
+		fill: "rgba(51, 51, 255, 0.5)",
+		stroke: "rgba(51, 51, 255, 0.9)",
+	},
+	"4": {
+		fill: "rgba(0, 0, 255, 0.5)",
+		stroke: "rgba(0, 0, 255, 0.9)",
+	},
+	"5": {
+		fill: "rgba(0, 0, 204, 0.5)",
+		stroke: "rgba(0, 0, 204, 0.9)",
+	},
+	"6": {
+		fill: "rgba(0, 0, 153, 0.5)",
+		stroke: "rgba(0, 0, 153, 0.9)",
+	},
+	"7": {
+		fill: "rgba(0, 0, 102, 0.5)",
+		stroke: "rgba(0, 0, 102, 0.9)",
+		name: "7+",
+	},
+};
+
+const rarityScheme: ChartScheme = {
+	"free": {
+		fill: "rgba(211, 211, 211, 0.5)",
+		stroke: "rgba(211, 211, 211, 0.9)",
+		name: "Free",
+	},
+	"common": {
+		fill: "rgba(169, 169, 169, 0.5)",
+		stroke: "rgba(169, 169, 169, 0.9)",
+		name: "Common",
+	},
+	"rare": {
+		fill: "rgba(0, 112, 221, 0.5)",
+		stroke: "rgba(0, 112, 221, 0.9)",
+		name: "Rare",
+	},
+	"epic": {
+		fill: "rgba(163, 53, 238, 0.5)",
+		stroke: "rgba(163, 53, 238, 0.9)",
+		name: "Epic",
+	},
+	"legendary": {
+		fill: "rgba(255, 128, 0, 0.5)",
+		stroke: "rgba(255, 128, 0, 0.9)",
+		name: "Legendary",
+	}
+};
+
+const cardtypeScheme: ChartScheme = {
+	"minion": {
+		fill: "rgba(171, 212, 115, 0.5)",
+		stroke: "rgba(171, 212, 115, 0.9)",
+		name: "Minion",
+	},
+	"spell": {
+		fill: "rgba(0, 112, 222, 0.5)",
+		stroke: "rgba(0, 112, 222, 0.9)",
+		name: "Spell",
+	},
+	"weapon": {
+		fill: "rgba(196, 30, 59, 0.5)",
+		stroke: "rgba(196, 30, 59, 0.9)",
+		name: "Weapon",
+	},
+};
+
+const cardsetScheme: ChartScheme = {
+	"core": {
+		fill: "rgba(211, 211, 211, 0.5)",
+		stroke: "rgba(211, 211, 211, 0.9)",
+		name: "Basic",
+	},
+	"expert1": {
+		fill: "rgba(230, 204, 128, 0.5)",
+		stroke: "rgba(230, 204, 128, 0.9)",
+		name: "Classic",
+	},
+	"naxx": {
+		fill: "rgba(55, 219, 0, 0.5)",
+		stroke: "rgba(55, 219, 0, 0.9)",
+		name: "Curse of Naxxramas",
+	},
+	"gvg": {
+		fill: "rgba(255, 212, 0, 0.5)",
+		stroke: "rgba(255, 212, 0, 0.9)",
+		name: "Goblins vs Gnomes",
+	},
+	"brm": {
+		fill: "rgba(255, 116, 0, 0.5)",
+		stroke: "rgba(255, 116, 0, 0.9)",
+		name: "Blackrock Mountain",
+	},
+	"tgt": {
+		fill: "rgba(153, 0, 0, 0.5)",
+		stroke: "rgba(153, 0, 0, 0.9)",
+		name: "The Grand Tournament",
+	},
+	"loe": {
+		fill: "rgba(0, 200, 200, 0.5)",
+		stroke: "rgba(0, 200, 200, 0.9)",
+		name: "League of Explorers",
+	},
+	"og": {
+		fill: "rgba(170, 0, 255, 0.5)",
+		stroke: "rgba(180, 0, 255, 0.9)",
+		name: "Whispers of the Old Gods",
+	},
+	"kara": {
+		fill: "rgba(255, 128, 229, 0.5)",
+		stroke: "rgba(255, 128, 229, 0.9)",
+		name: "One Night in Karazhan",
+	},
+	"gangs": {
+		fill: "rgba(65, 27, 136, 0.5)",
+		stroke: "rgba(65, 27, 136, 0.9)",
+		name: "Mean Streets of Gadgetzan",
+	},
+};
+
+export const setNames = {
+	"core": "Basic",
+	"expert1": "Classic",
+	"reward": "Reward",
+	"promo": "Promotion",
+	"naxx": "Curse of Naxxramas",
+	"gvg": "Goblins vs Gnomes",
+	"brm": "Blackrock Mountain",
+	"tgt": "The Grand Tournament",
+	"tb": "Tavern Brawl",
+	"loe": "League of Explorers",
+	"og": "Whispers of the Old Gods",
+	"kara": "One Night in Karazhan",
+	"gangs": "Mean Streets of Gadgetzan"
+};
+
+		// &.all {
+		// 	border-color: rgba(169, 169, 169, 1);
+		// 	background: rgba(169, 169, 169, 0.3);
+		// }
+
+		// &.neutral {
+		// 	border-color: rgba(169, 169, 169, 1);
+		// 	background: rgba(169, 169, 169, 0.3);
+		// }
+
+		// &.druid {
+		// 	border-color: rgba(255, 125, 10, 1);
+		// 	background: rgba(255, 125, 10, 0.3);
+		// }
+
+		// &.hunter {
+		// 	border-color: rgba(171, 212, 114, 1);
+		// 	background: rgba(171, 212, 114, 0.3);
+		// }
+
+		// &.mage {
+		// 	border-color: rgba(105, 204, 240, 1);
+		// 	background: rgba(105, 204, 240, 0.3);
+		// }
+
+		// &.paladin {
+		// 	border-color: rgba(245, 140, 186, 1);
+		// 	background: rgba(245, 140, 186, 0.3);
+		// }
+
+		// &.priest {
+		// 	border-color: rgba(210, 210, 210, 1);
+		// 	background: rgba(210, 210, 210, 0.3);
+		// }
+
+		// &.rogue {
+		// 	border-color: rgba(255, 240, 26, 1);
+		// 	background: rgba(255, 240, 26, 0.3);
+		// }
+
+		// &.shaman {
+		// 	border-color: rgba(0, 122, 222, 1);
+		// 	background: rgba(0, 122, 222, 0.3);
+		// }
+
+		// &.warlock {
+		// 	border-color: rgba(148, 130, 201, 1);
+		// 	background: rgba(148, 130, 201, 0.3);
+		// }
+
+		// &.warrior {
+		// 	border-color: rgba(199, 156, 110, 1);
+		// 	background: rgba(199, 156, 110, 0.3);
+		// }
