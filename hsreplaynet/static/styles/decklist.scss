@@ -101,3 +101,23 @@
 		}
 	}
 }
+
+.hdt-copy-wrapper {
+	margin-top: 5px;
+	height: 34px;
+
+	>img {
+		float: right;
+		height: 34px;
+	}
+
+	>span {
+		height: 34px;
+		line-height: 34px;
+		padding-right: 5px;
+
+		&.highlight {
+			color: White;
+		}
+	}
+}
