@@ -1,0 +1,35 @@
+@keyframes animation1 {
+	0% {
+		r: 20;
+	}
+
+	25% {
+		r: 40;
+	}
+
+	50% {
+		r: 20;
+	}
+
+	100% {
+		r: 20;
+	}
+}
+
+.loading-indicator {
+	.dot {
+		animation-duration: 4s;
+		animation-iteration-count: infinite;
+		animation-timing-function: ease;
+		animation-name: animation1;
+		&.dot-one {
+			animation-delay: 0s;
+		}
+		&.dot-two {
+			animation-delay: 1s;
+		}
+		&.dot-three {
+			animation-delay: 2s;
+		}
+	}
+}
