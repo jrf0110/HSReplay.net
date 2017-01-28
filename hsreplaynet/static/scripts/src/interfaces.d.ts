@@ -83,3 +83,32 @@ export interface SelectableProps {
 	select?: string;
 	onSelect?: (key: string) => void;
 }
+
+
+type RenderTypes = "line_chart" | "bar_chart" | "list" | "class_pie_chart" | "single_value" | "gauge";
+
+export interface RenderData {
+	render_as: RenderTypes;
+	domain_x?: [number, number];
+	domain_y?: [number, number];
+	label_x?: string;
+	label_y?: string;
+	title?: string;
+	series: ChartSeries[];
+}
+
+export interface ChartSeries {
+	data: DataPoint[];
+	metadata?: ChartSeriesMetaData;
+	name: string;
+}
+
+export interface ChartSeriesMetaData {
+	is_winrate_data?: boolean;
+	num_data_points?: number;
+}
+
+export interface DataPoint {
+	x: string | number;
+	y: number;
+}
