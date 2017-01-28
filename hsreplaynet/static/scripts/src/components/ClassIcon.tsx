@@ -3,20 +3,23 @@ import {GlobalGamePlayer} from "../interfaces";
 import {BnetGameType} from "../hearthstone";
 
 export interface ClassIconProps {
-	player: GlobalGamePlayer;
+	heroClassName: string;
 	tooltip?: string;
 	small?: boolean;
 }
 
 export default class ClassIcon extends React.Component<ClassIconProps, any> {
+	private readonly classes = ["druid", "hunter", "mage", "paladin", "priest", "rogue", "shaman", "warlock", "warrior"];
+
 	render(): JSX.Element {
 		const basePath = STATIC_URL + "images/" + (this.props.small ? "64x/" : "");
-		if (!this.props.player.hero_id.startsWith("HERO")) {
-			return <img src={basePath + "mode-icons/mode_ai.png"} className="match-table-class-icon" />;
+		const heroClassName = this.props.heroClassName.toLowerCase();
+		if (this.classes.indexOf(heroClassName) === -1) {
+			return <img src={basePath + "mode-icons/mode_ai.png"} className="hsrtable-class-icon" />;
 		}
 		return <img
-			src={basePath + "class-icons/" + this.props.player.hero_id.substr(0, 7) + ".png"}
 			className="match-table-class-icon"
+			src={basePath + "class-icons/" + heroClassName + ".png"}
 			title={this.props.tooltip}
 		/>;
 	}
