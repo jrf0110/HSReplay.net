@@ -1,6 +1,6 @@
 import * as React from "react";
 import { GameReplay } from "../../interfaces";
-import { VictoryPie } from "victory";
+import { VictoryPie, VictoryContainer} from "victory";
 
 interface ClassDistributionPieChartState {
 	name?: string;
@@ -44,6 +44,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 		return (
 			<div>
 				<VictoryPie
+					containerComponent={<VictoryContainer title={""}/>}
 					data={data}
 					style={{
 						data: {fill: (d) => d.color, strokeWidth: 2, transition: "transform .2s ease-in-out"},
