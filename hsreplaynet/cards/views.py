@@ -14,6 +14,9 @@ from .queries import CardCountersQueryBuilder
 def archetypes(request):
 	return render(request, "cards/deck_archetypes.html", {})
 
+def popularity_report(request):
+	return render(request, "cards/popularity_report.html", {})
+
 def carddetail(request, card_id):
 	card = Card.objects.get(id=card_id)
 	return render(request, "cards/card_detail.html", {"card": card})

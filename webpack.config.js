@@ -52,6 +52,7 @@ module.exports = {
 		archetypes: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/archetypes"),
 		victory_widgets: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/victory_widgets"),
 		card_detail: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/card_detail"),
+		popularity_report: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/popularity_report"),
 	},
 	output: {
 		path: path.resolve(__dirname, "./build/generated/webpack"),
