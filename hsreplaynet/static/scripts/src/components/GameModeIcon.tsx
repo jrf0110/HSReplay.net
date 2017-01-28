@@ -30,7 +30,8 @@ export default class GameModeIcon extends React.Component<GameModeIconProps, any
 		if (!info) {
 			return null;
 		}
-		return <img src={info.imgPath} alt={info.text} title={info.text} className={this.props.className} />;
+		const style = this.props.small && this.props.gameType == BnetGameType.BGT_VS_AI ? {height: "1.5em", margin: "0.25em"} : null;
+		return <img src={info.imgPath} alt={info.text} title={info.text} className={this.props.className} style={style} />;
 	}
 
 	private getIconInfo(gameType: BnetGameType): IconInfo {
