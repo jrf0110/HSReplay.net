@@ -9,10 +9,15 @@ interface ClassDistributionPieChartState {
 }
 
 export interface ClassDistributionPieChartProps extends React.ClassAttributes<ClassDistributionPieChart>{
-	games: GameReplay[];
-	loadingGames?: boolean;
+	data: any[];
+	loading?: boolean;
 	onPieceClicked?: (name: string) => void;
+	stroke?: string;
+	hoverStroke?: string;
+	fontColor?: string;
+	strokeWidth?: number;
 }
+
 
 export default class ClassDistributionPieChart extends React.Component<ClassDistributionPieChartProps, ClassDistributionPieChartState> {
 	constructor() {
@@ -24,30 +29,14 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 		}
 	}
 	render(): JSX.Element {
-		let data = [];
-		let numGames = this.props.games.length;
-		if (numGames == 0) {
-			data.push({x: " ", y: 1, name: null, color: "lightgrey"});
-		}
-		else {
-			let distr = new Map<string, number>();
-			this.props.games.forEach((game: GameReplay) => {
-				if (game.friendly_player.hero_id.startsWith("HERO")) {
-					let hero = game.friendly_player.hero_class_name;
-					hero = hero.substr(0, 1).toUpperCase() + hero.substr(1, hero.length - 1).toLowerCase();
-					distr.set(hero, (distr.get(hero) || 0) + 1);
-				}
-			});
-			distr.forEach((value, key) => data.push({x: Math.round(100.0 * value/numGames) + "%", y: value, name: key, color: this.getColor(key)}));
-			data = data.sort((a, b) => a.y > b.y ? 1 : -1);
-		}
+		const numGames = this.props.data.map(x => x.y).reduce((a, b) => a + b, 0);
 		return (
 			<div>
 				<VictoryPie
-					data={data}
+					data={this.props.data}
 					style={{
-						data: {fill: (d) => d.color, strokeWidth: 2, transition: "transform .2s ease-in-out"},
-						labels: {fill: "#FFFFFF", fontSize: 20},
+						data: {fill: d => d.color, strokeWidth: this.props.strokeWidth || 2, stroke: this.props.stroke, transition: "transform .2s ease-in-out"},
+						labels: {fill: this.props.fontColor, fontSize: 20},
 					}}
 					padding={{top: 70, bottom: 10, left: 80, right: 80}}
 					padAngle={2}
@@ -60,7 +49,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 									mutation: (props) => {
 										this.setState({name: props.style.name, value: props.slice.value, pct: props.style.xName});
 										return {
-											style: Object.assign({}, props.style, {stroke: "white", transform: "scale(1.05)"})
+											style: Object.assign({}, props.style, {stroke: this.props.hoverStroke || this.props.stroke, transform: "scale(1.05)"})
 										};
 									}
 								}]
@@ -83,23 +72,9 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 					}]}
 				/>
 				<h5 style={{textAlign: "center", marginTop: "-20px"}}>
-					{(numGames && this.state.name ? this.state.name + ": " + this.state.value : "Total: " + numGames) + " Games" + (this.props.loadingGames ? " [Loading...]" : "")}
+					{(numGames && this.state.name ? this.state.name + ": " + this.state.value : "Total: " + numGames) + " Games" + (this.props.loading ? " [Loading...]" : "")}
 				</h5>
 			</div>
 		);
-	}
-
-	private getColor(hero: string): string {
-		switch(hero) {
-			case "Druid": return "#FF7D0A";
-			case "Hunter": return "#ABD473";
-			case "Mage": return "#69CCF0";
-			case "Paladin": return "#F58CBA";
-			case "Priest": return "#D2D2D2";
-			case "Rogue": return "#FFF569";
-			case "Shaman": return "#0070DE";
-			case "Warlock": return "#9482C9";
-			case "Warrior": return "#C79C6E";
-		}
 	}
 }

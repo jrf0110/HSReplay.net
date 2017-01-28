@@ -84,6 +84,18 @@ export interface SelectableProps {
 	onSelect?: (key: string) => void;
 }
 
+export interface ArchetypeData {
+	popularities?: EvaluatedArchetype;
+	winrates?: any;
+	expected_winrates?: EvaluatedArchetype;
+	max_games_per_archetype?: EvaluatedArchetype;
+	games_per_archetype?: EvaluatedArchetype;
+	archetypes?: any[];
+}
+
+export interface EvaluatedArchetype {
+	[archetype: string]: number;
+}
 type RenderTypes = "line_chart" | "bar_chart" | "list" | "class_pie_chart" | "single_value" | "gauge" | "list_table";
 
 export interface FilterData {

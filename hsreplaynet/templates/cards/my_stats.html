@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% load web_extras %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}My Stats{% endblock %}
+
+{% block fullcontent %}
+	<div class="content replay-listing" style="padding-top:20px">
+		<div class="container-fluid">
+			<div id="stats-container"></div>
+		</div>
+	</div>
+
+	{% render_bundle "my_stats" %}
+{% endblock %}

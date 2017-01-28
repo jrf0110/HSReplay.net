@@ -11,6 +11,10 @@ from .models import Card
 from .queries import CardCountersQueryBuilder
 
 
+def my_stats(request):
+	return render(request, "cards/my_stats.html", {})
+
+
 def archetypes(request):
 	return render(request, "cards/deck_archetypes.html", {})
 

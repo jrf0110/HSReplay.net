@@ -42,24 +42,24 @@ export default class GameHistoryTable extends React.Component<GameHistoryTablePr
 			);
 		});
 		return (
-			<div className="match-table">
-				<div className="match-table-header">
-					<div className="match-table-row">
-						<div className="match-table-cell auto-size match-header"><span>Match</span></div>
-						<div className="match-table-cell auto-size hide-below-768"></div>
-						<div className="match-table-cell auto-size"></div>
-						<div className="match-table-cell auto-size hide-below-768"></div>
-						<div className="match-table-cell auto-size"></div>
-						<div className="match-table-cell"></div>
-						<div className="match-table-cell hide-below-1100">Opponent</div>
-						<div className="match-table-cell">Result</div>
-						<div className="match-table-cell">Mode</div>
-						<div className="match-table-cell hide-below-1600">Duration</div>
-						<div className="match-table-cell hide-below-768">Turns</div>
-						<div className="match-table-cell hide-below-500">Played</div>
+			<div className="hsrtable" id="match-hsrtable">
+				<div className="hsrtable-header">
+					<div className="hsrtable-row">
+						<div className="hsrtable-cell auto-size header"><span>Match</span></div>
+						<div className="hsrtable-cell auto-size hide-below-768"></div>
+						<div className="hsrtable-cell auto-size"></div>
+						<div className="hsrtable-cell auto-size hide-below-768"></div>
+						<div className="hsrtable-cell auto-size"></div>
+						<div className="hsrtable-cell"></div>
+						<div className="hsrtable-cell hide-below-1100">Opponent</div>
+						<div className="hsrtable-cell">Result</div>
+						<div className="hsrtable-cell">Mode</div>
+						<div className="hsrtable-cell hide-below-1600">Duration</div>
+						<div className="hsrtable-cell hide-below-768">Turns</div>
+						<div className="hsrtable-cell hide-below-500">Played</div>
 					</div>
 				</div>
-				<div className="match-table-body">
+				<div className="hsrtable-body">
 					{columns}
 				</div>
 			</div>

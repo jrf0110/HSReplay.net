@@ -197,21 +197,28 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 }
 
 
-.match-table {
+.hsrtable {
 	display: table;
 	width: 100%;
 	line-height: 2em;
 	white-space: nowrap;
 	padding: 2px;
-	background: $blue;
 	margin-bottom: 20px;
+	background: $blue;
 
 	a {
 		text-decoration: none;
 		color: black;
 	}
 
-	.match-table-header {
+	:not(.hsrtable-header) .hsrtable-row {
+		background-color: $offwhite;
+	}
+
+	:not(.hsrtable-header) .hsrtable-row:hover {
+		background-color: rgb(210, 210, 210);
+	}
+	.hsrtable-header {
 		background-color: $aqua;
 		color: $lighterblue;
 		text-transform: uppercase;
@@ -219,31 +226,30 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 		margin: 0;
 		padding: 0.5em 0.5em;
 		display: table-header-group;
-		line-height: 1.75em;
+
 	}
 
-	.match-table-body {
+	.hsrtable-body {
 		display: table-row-group;
 
-		.match-table-row {
+		.hsrtable-row {
 			background-color: #f7f7f7;
 
-			.match-table-cell {
+			.hsrtable-cell {
 				border-color: darkgray;
 			}
 
 			&.result-won {
 				background-color: rgb(240, 245, 233);
 
-				.match-table-cell {
+				.hsrtable-cell {
 					border-color: #8ce62c;
 				}
 			}
-
 			&.result-lost {
 				background-color: rgb(245, 236, 233);
 
-				.match-table-cell {
+				.hsrtable-cell {
 					border-color: #f77a70;
 				}
 			}
@@ -261,17 +267,93 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 			}
 		}
 	}
-
-	.match-table-row {
+	.hsrtable-row {
 		display: table-row;
 
-		.match-table-cell {
+		.hsrtable-cell{
 			display: table-cell;
 			padding: 3px 10px;
 			vertical-align: middle;
 			border-bottom-width: 1px;
 			border-bottom-style: solid;
 
+			&.sortable {
+				cursor: pointer;
+				user-select: none;
+			}
+		}
+	}
+	line-height: 1.75em;
+
+}
+
+#archetype-hsrtable {
+
+}
+
+#match-hsrtable {
+	a {
+		color: black;
+	}
+	.result-lost .hsrtable-cell {
+		border-color: #f77a70;
+	}
+	.result-won .hsrtable-cell {
+		border-color: #8ce62c;
+	}
+	.hsrtable-row:hover {
+		&.result-won {
+			background-color: rgb(210, 245, 203);
+		}
+
+		&.result-lost {
+			background-color: rgb(245, 206, 203);
+		}
+	}
+	.hsrtable-row {
+		&.result-won {
+			background-color: rgb(240, 245, 233);
+		}
+
+		&.result-lost {
+			background-color: rgb(245, 236, 233);
+		}
+		.hsrtable-cell {
+			&.auto-size {
+				width: 1%;
+			}
+
+			&.result-won {
+				color: green;
+			}
+
+			&.result-lost {
+				color: red;
+			}
+
+			&.header {
+				vertical-align: initial;
+
+				>span {
+					position: absolute;
+				}
+			}
+
+			.hsrtable-game-type {
+				display: flex;
+			}
+
+			.class-icon {
+				height: 2em;
+			}
+
+			.hsrtable-result-won {
+				color: green;
+			}
+
+			.hsrtable-result-lost {
+				color: red;
+			}
 			&.player-icon {
 				padding-right: 0;
 			}
@@ -289,43 +371,6 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 			&.opponent-name {
 				padding-left: 5px;
 			}
-
-			&.auto-size {
-				width: 1%;
-			}
-
-			&.result-won {
-				color: green;
-			}
-
-			&.result-lost {
-				color: red;
-			}
-
-			&.match-header {
-				vertical-align: initial;
-
-				>span {
-					position: absolute;
-				}
-			}
-
-			.match-table-game-type {
-				display: flex;
-			}
-
-			.class-icon {
-				height: 2em;
-			}
-
-			.match-table-result-won {
-				color: green;
-			}
-
-			.match-table-result-lost {
-				color: red;
-			}
-
 			@media screen and (max-width: 1600px) {
 				&.hide-below-1600 {
 					display: none !important;
@@ -402,3 +447,4 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 		}
 	}
 }
+

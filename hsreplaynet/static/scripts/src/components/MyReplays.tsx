@@ -10,7 +10,7 @@ import Pager from "./Pager";
 import {parseQuery, toQueryString} from "../QueryParser"
 import {formatMatch, modeMatch, nameMatch, resultMatch, heroMatch, opponentMatch} from "../GameFilters"
 import ClassDistributionPieChart from "./charts/ClassDistributionPieChart";
-
+import ClassPieChartConverter from "../ClassPieChartConverter";
 
 type ViewType = "tiles" | "list";
 
@@ -34,6 +34,7 @@ interface MyReplaysState {
 export default class MyReplays extends React.Component<MyReplaysProps, MyReplaysState> {
 
 	readonly viewCookie: string = "myreplays_viewtype";
+	private readonly converter = new ClassPieChartConverter();
 
 	constructor(props: MyReplaysProps, context: any) {
 		super(props, context);
@@ -57,7 +58,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		this.setState({
 			working: true
 		});
-		$.getJSON(url, {username: this.props.username}, (data) => {
+		$.getJSON("https://hsreplay.net/api/v1/games/", {username:"Epix#2966"}, (data) => {
 			let games = [];
 			if (data.count) {
 				if(!!this.state.count && this.state.count !== data.count) {
@@ -191,6 +192,8 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			this.setState({currentLocalPage: this.state.currentLocalPage - 1});
 		} : null;
 
+		const pieChartData = this.converter.fromGameReplays(games);
+
 		return (
 			<div>
 				<div className="header-buttons">
@@ -208,9 +211,11 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						<div className="infobox" id="myreplays-infobox">
 							<InfoBoxSection header="Classes Played" collapsedSizes={["xs", "sm"]} headerStyle="h1">
 								<ClassDistributionPieChart
-									games={games}
-									loadingGames={this.state.working}
+									data={pieChartData}
+									loading={this.state.working}
 									onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
+									hoverStroke="white"
+									fontColor="white"
 								/>
 							</InfoBoxSection>
 							<InfoBoxSection header="Filters" collapsedSizes={["xs", "sm"]} headerStyle="h1">

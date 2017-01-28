@@ -26,27 +26,27 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 		let url = "/replay/" + this.props.shortid;
 		let result = this.props.won !== null ? (this.props.won ? "result-won" : "result-lost") : null;
 		return (
-			<a href={url} className={"match-table-row " + result}>
-				<div className="match-table-cell auto-size player-icon">
+			<a href={url} className={"hsrtable-row " + result}>
+				<div className="hsrtable-cell auto-size player-icon">
 					<ClassIcon heroClassName={this.props.friendlyPlayer.hero_class_name} small={true}/>
 				</div>
-				<div className="match-table-cell auto-size hide-below-768 player-name">
+				<div className="hsrtable-cell auto-size hide-below-768 player-name">
 					{this.getHeroName(this.props.friendlyPlayer)}
 				</div>
-				<div className="match-table-cell auto-size">
+				<div className="hsrtable-cell auto-size">
 					vs.
 				</div>
-				<div className="match-table-cell auto-size opponent-icon">
+				<div className="hsrtable-cell auto-size opponent-icon">
 					<ClassIcon heroClassName={this.props.opposingPlayer.hero_class_name} small={true}/>
 				</div>
-				<div className="match-table-cell auto-size hide-below-768 opponent-name">
+				<div className="hsrtable-cell auto-size hide-below-768 opponent-name">
 					{this.getHeroName(this.props.opposingPlayer)}
 				</div>
-				<div className="match-table-cell"></div>
-				<div className="match-table-cell hide-below-1100">{this.props.opposingPlayer.name}</div>
-				<div className={"match-table-cell " + result}>{this.props.won !== null ? (this.props.won ? "Won" : "Lost") : "Unknown"}</div>
-				<div className="match-table-cell">
-					<div className="match-table-game-type">
+				<div className="hsrtable-cell"></div>
+				<div className="hsrtable-cell hide-below-1100">{this.props.opposingPlayer.name}</div>
+				<div className={"hsrtable-cell " + result}>{this.props.won !== null ? (this.props.won ? "Won" : "Lost") : "Unknown"}</div>
+				<div className="hsrtable-cell">
+					<div className="hsrtable-game-type">
 						<GameModeIcon
 							className="hsreplay-type-sm"
 							player={this.props.friendlyPlayer}
@@ -63,9 +63,9 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 							/>
 					</div>
 				</div>
-				<div className="match-table-cell hide-below-1600">{getDuration(this.props.startTime, this.props.endTime)}</div>
-				<div className="match-table-cell hide-below-768">{Math.ceil(this.props.turns / 2)}</div>
-				<div className="match-table-cell hide-below-500">{getAge(this.props.endTime)}</div>
+				<div className="hsrtable-cell hide-below-1600">{getDuration(this.props.startTime, this.props.endTime)}</div>
+				<div className="hsrtable-cell hide-below-768">{Math.ceil(this.props.turns / 2)}</div>
+				<div className="hsrtable-cell hide-below-500">{getAge(this.props.endTime)}</div>
 			</a>
 		);
 	}
