@@ -3,3 +3,11 @@ node_modules/
 build/
 __pycache__/
 .vagrant/
+
+hsreplaynet/static/fonts/
+hsreplaynet/static/bundles/
+hsreplaynet/static/scripts/typings/
+hsreplaynet/static/vendor/bootstrap/
+hsreplaynet/static/vendor/
+hsreplaynet/static/scripts/src/hearthstone.d.ts
+hsreplaynet/static/styles/main.css*
