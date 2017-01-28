@@ -1673,7 +1673,7 @@ class RedshiftStagingTrackTable(models.Model):
 			conn = engine.connect()
 			conn.execution_options(isolation_level="AUTOCOMMIT")
 			conn.execute("SET QUERY_GROUP TO '%s';" % query_handle)
-			conn.execute("VACUUM FULL %s TO 100 PERCENT;" % target)
+			conn.execute("VACUUM FULL %s;" % target)
 
 			self.vacuum_ended_at = timezone.now()
 			self.stage = RedshiftETLStage.VACUUM_COMPLETE
