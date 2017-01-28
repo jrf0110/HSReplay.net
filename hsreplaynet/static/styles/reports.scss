@@ -81,3 +81,15 @@
 		filter: grayscale(100%)
 	}
 }
+
+@media (min-width: 1400px) {
+	.report-container {
+		max-width: 80%;
+	}
+}
+
+#card-popularity-report {
+	h2 {
+		text-align: center;
+	}
+}

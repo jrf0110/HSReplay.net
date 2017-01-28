@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Card Popularity Report{% endblock %}
+
+{% block fullcontent %}
+<div id="content-container" class="container-fluid" style="display: flex;justify-content: center;">
+</div>
+{% if user.is_authenticated and user.is_staff %}
+	{% render_bundle "popularity_report" %}
+{% endif %}
+{% endblock %}
