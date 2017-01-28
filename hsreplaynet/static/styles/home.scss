@@ -222,3 +222,20 @@ ul.home-steps .promo-button {
 #promo + article {
 	margin-top: 40px;
 }
+
+.navbar-home {
+	li {
+		a {
+			color: #d9d9d9;
+			font-weight: bold;
+
+			&:hover {
+				color: #fff;
+			}
+		}
+	}
+	.navbar-inner {
+		margin: 0 auto;
+		max-width: 1600px;
+	}
+}
