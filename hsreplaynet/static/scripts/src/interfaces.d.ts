@@ -163,9 +163,22 @@ export interface ChartSeries {
 export interface ChartSeriesMetaData {
 	is_winrate_data?: boolean;
 	num_data_points?: number;
+	chart_scheme?: ChartSchemeType;
 }
 
 export interface DataPoint {
 	x: string | number;
 	y: number;
+}
+
+export type ChartSchemeType = "rarity" | "cardtype" | "cardset" | "cost" | "class";
+
+export interface ChartScheme {
+	[key: string]: ChartSchemeData;
+}
+
+export interface ChartSchemeData {
+	fill: string;
+	stroke: string;
+	name?: string;
 }

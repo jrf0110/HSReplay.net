@@ -1,6 +1,7 @@
 import * as React from "react";
 import {VictoryAxis, VictoryArea, VictoryBar, VictoryChart, VictoryContainer, VictoryGroup, VictoryLabel, VictoryLine, VictoryScatter, VictoryStack, VictoryVoronoiTooltip} from "victory";
 import {ChartSeries} from "../../interfaces";
+import {getChartScheme} from "../../helpers";
 
 interface CardDetailBarChartProps {
 	data: ChartSeries[];
@@ -48,15 +49,28 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 				);
 			}
 			else {
+				let fill: any;
+				let stroke: any;
+				if (series.metadata && series.metadata.chart_scheme) {
+					const scheme = getChartScheme(series.metadata.chart_scheme);
+					if (scheme) {
+						fill = (prop) => scheme[prop.xName.toLowerCase()].fill;
+						stroke = (prop) => scheme[prop.xName.toLowerCase()].stroke;
+					}
+				}
+				else {
+					fill = "rgba(0, 0, 255, 0.3)";
+					stroke = "blue";
+				}
 				lines.push(
 					<VictoryBar
 						data={series.data}
 						animate={{duration: 300}}
 						style={{
 							data: {
-								width: ''+(200/series.data.length),
-								fill: "rgba(0, 0, 255, 0.3)",
-								stroke: "blue",
+								width: ''+(180/series.data.length),
+								fill: fill,
+								stroke: stroke,
 								strokeWidth: 0.5
 							}
 						}}
@@ -65,7 +79,7 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 		});
 		return <VictoryChart
 			containerComponent={<VictoryContainer title={this.props.title}/>}
-			domainPadding={{x: 20, y: 0}}
+			domainPadding={{x: Math.max(20, 150/this.props.data[0].data.length), y: 0}}
 			height={150}
 			padding={{left: 50, top: 30, right: 30, bottom: 40}}
 			theme="material">
