@@ -1175,7 +1175,7 @@ class RedshiftStagingTrack(models.Model):
 
 	def get_cleanup_tasks(self):
 		results = []
-		for t in self.tables.filter(is_materialized_view=False).all():
+		for t in self.tables.all():
 			if t.stage == RedshiftETLStage.ANALYZE_COMPLETE:
 				if t.is_materialized_view:
 					t.stage = RedshiftETLStage.FINISHED
