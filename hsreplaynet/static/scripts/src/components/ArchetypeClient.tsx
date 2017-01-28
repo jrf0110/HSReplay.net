@@ -176,19 +176,6 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			return <div className="alert alert-error" role="alert">Missing Archetype data</div>;
 		}
 
-		const cardList = archetype.representative_deck.card_ids;
-		const cards = new Map<string, number>();
-
-		for (let i = 0; i < cardList.length; i++) {
-			const card = cardList[i];
-			if (cards.has(card)) {
-				cards.set(card, cards.get(card) + 1);
-			}
-			else {
-				cards.set(card, 1);
-			}
-		}
-
 		let winrate = this.state.expected_winrates && this.state.expected_winrates[key] ? (this.state.expected_winrates[key] * 100).toFixed(2) : null;
 		let popularity = this.state.popularities && this.state.popularities[key] ? (this.state.popularities[key] * 100).toFixed(1) : null;
 
@@ -215,7 +202,9 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 			<h3 className="text-center">Decklist</h3>
 			<DeckList
 				cardDb={this.props.cardData}
-				cards={cards}
+				cards={archetype.representative_deck.card_ids}
+				name={archetype.name}
+				class=""
 			/>
 		</div>;
 	}

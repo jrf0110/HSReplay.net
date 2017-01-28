@@ -1,6 +1,6 @@
 import * as React from "react";
 import DeckList from "./DeckList"
-import {Deck, GameReplay, GlobalGamePlayer} from "../interfaces"
+import {GameReplay, GlobalGamePlayer} from "../interfaces"
 import HearthstoneJSON from "hearthstonejson";
 
 interface PlayerInfoProps extends React.ClassAttributes<PlayerInfo> {
@@ -76,36 +76,50 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	}
 
 	render(): JSX.Element {
-		let playerCards = null;
-		let opponentCards = null;
 		let opponentClass = null;;
 		let playerClass = null;
 		let playerDeck = [];
 		let opponentDeck = [];
 
 		if (this.state.game) {
-			playerCards = this.groupCardsById(this.state.game.friendly_deck);
 			playerClass = this.buildPlayerClass(this.state.game.friendly_player);
-			opponentCards = this.groupCardsById(this.state.game.opposing_deck);
 			opponentClass = this.buildPlayerClass(this.state.game.opposing_player)
-			if (opponentCards.size) {
+			if (this.state.game.opposing_deck.cards) {
 				opponentDeck.push(
 					<a className={opponentClass.join(" ")} onClick={() => this.setState({showOpponentDeck: !this.state.showOpponentDeck})}>
 						{this.state.showOpponentDeck ? "Hide" : "Show"} deck
 					</a>
 				);
 				if(this.state.showOpponentDeck) {
-					opponentDeck.push(<DeckList cardDb={this.state.db} cards={opponentCards}/>);
+					const className = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
+					opponentDeck.push(
+						<DeckList
+							cardDb={this.state.db}
+							cards={this.state.game.opposing_deck.cards}
+							class={className}
+							name={this.state.game.opposing_player.name + "'s " + className}
+							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
+							/>
+					);
 				}
 			}
-			if (playerCards.size) {
+			if (this.state.game.friendly_deck.cards) {
 				playerDeck.push(
 					<a className={playerClass.join(" ")} onClick={() => this.setState({showPlayerDeck: !this.state.showPlayerDeck})}>
 						{this.state.showPlayerDeck ? "Hide" : "Show"} deck
 					</a>
 				);
 				if(this.state.showPlayerDeck) {
-					playerDeck.push(<DeckList cardDb={this.state.db} cards={playerCards}/>);
+					const className = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
+					playerDeck.push(
+						<DeckList
+							cardDb={this.state.db}
+							cards={this.state.game.friendly_deck.cards}
+							class={className}
+							name={this.state.game.friendly_player.name + "'s " + className}
+							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
+						/>
+					);
 				}
 			}
 		}
@@ -127,14 +141,6 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 		);
 	}
 
-	groupCardsById(deck: Deck): Map<string, number> {
-		let map = new Map<string, number>();
-		if (deck && deck.cards){
-			deck.cards.forEach(c => map = map.set(c, (map.get(c) || 0) + 1));
-		}
-		return map;
-	}
-
 	buildPlayerClass(player: GlobalGamePlayer): string[] {
 		let playerClass = ["infobox-value"];
 		if (!player) {
@@ -149,4 +155,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 		return playerClass;
 	}
 
+	toTitleCase(str: string) {
+		return str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1).toLowerCase();
+	}
 }
