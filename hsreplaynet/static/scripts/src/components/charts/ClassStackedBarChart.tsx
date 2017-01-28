@@ -3,6 +3,8 @@ import {
 	VictoryAxis, VictoryBar, VictoryChart, VictoryContainer,
 	VictoryLabel, VictoryStack, VictoryTooltip
 } from "victory";
+import {getHeroColor} from "../../helpers";
+import ClassFilter from "../ClassFilter";
 
 interface ClassData {
 	key: string;
@@ -17,7 +19,7 @@ interface ClassData {
 }
 
 interface ClassStackedBarChartState {
-	legends?: Map<string, boolean>;
+	selectedClasses?: Map<string, boolean>;
 	offset?: number;
 	data?: ClassData[];
 }
@@ -30,16 +32,10 @@ interface ClassStackedBarChartProps extends React.ClassAttributes<ClassStackedBa
 }
 
 export default class ClassStackedBarChart extends React.Component<ClassStackedBarChartProps, ClassStackedBarChartState> {
-	private readonly keys = [
-		"Druid", "Hunter", "Mage",
-		"Paladin", "Priest", "Rogue",
-		"Shaman", "Warlock", "Warrior"
-	];
-
 	constructor(props: ClassStackedBarChartProps, state: ClassStackedBarChartState) {
 		super(props, state);
 		this.state = {
-			legends: new Map<string, boolean>(),
+			selectedClasses: new Map<string, boolean>(),
 			offset: 0,
 			data: null,
 		}
@@ -63,9 +59,12 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 		const data = this.state.data.slice(this.state.offset, numBars + this.state.offset);
 		const bars = [];
 
-		this.keys.forEach(key => {
-			if (this.isLegendSelected(key)) {
-				const color = this.getColor(key);
+		if (this.state.selectedClasses) {
+			this.state.selectedClasses.forEach((selected, key) => {
+				if (!selected) {
+					return;
+				}
+				const color = getHeroColor(key);
 				const tooltip = <VictoryTooltip
 					dy={-4}
 					cornerRadius={0}
@@ -90,14 +89,22 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 						labels={x => x.key + "\n" + key + ": " + x[key.toLowerCase()]}
 					/>
 				);
-			}
-		});
+			});
+		}
 
 		const controls = this.props.hideControls ? null :
 			<div className="controls-wrapper">
 				{this.props.hideControls ? null :  this.buildControls(numBars)}
 				{"Items " + (this.state.offset + 1) + "-" + (this.state.offset + numBars) + " out of " + this.state.data.length}
 			</div>;
+
+		const classFilter = this.props.hideLegend ? null :
+			<ClassFilter
+				filters="ClassesOnly"
+				selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+				multiSelect={true}
+				filterStyle="label"
+				/>
 
 		return <div className="chart stacked-bar-chart">
 			<VictoryChart
@@ -120,31 +127,9 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 					{bars}
 				</VictoryStack>
 			</VictoryChart>
-			<div className="legend-wrapper">
-				{this.props.hideLegend ? null : this.buildLegend()}
-			</div>
+			{classFilter}
 			{controls}
 		</div>
-	}
-
-	isLegendSelected(key: string): boolean {
-		return !this.state.legends.has(key) || this.state.legends.get(key);
-	}
-
-	buildLegend(): JSX.Element[] {
-		const legends = [];
-		this.keys.forEach(key => {
-			const selected = this.isLegendSelected(key);
-			const labelStyle = selected ? {backgroundColor: this.getColor(key), color: this.getTextColor(key)} : null;
-			legends.push(
-				<span className="label" style={labelStyle}
-					onClick={() => this.setState({legends: this.state.legends.set(key, !selected)})}>
-					{key}
-				</span>
-			);
-
-		})
-		return legends;
 	}
 
 	buildControls(numBars: number): JSX.Element {
@@ -182,28 +167,4 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 		</div>;
 	}
 
-	private getColor(hero: string): string {
-		if (!hero) {
-			return;
-		}
-		switch (hero.toUpperCase()) {
-			case "DRUID": return "#FF7D0A";
-			case "HUNTER": return "#ABD473";
-			case "MAGE": return "#69CCF0";
-			case "PALADIN": return "#F58CBA";
-			case "PRIEST": return "#D2D2D2";
-			case "ROGUE": return "#FFF01a";
-			case "SHAMAN": return "#0070DE";
-			case "WARLOCK": return "#9482C9";
-			case "WARRIOR": return "#C79C6E";
-		}
-	}
-
-	private getTextColor(hero: string): string {
-		switch(hero.toUpperCase()) {
-			case "SHAMAN":
-				return "white";
-		}
-		return "black";
-	}
 }
