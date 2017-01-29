@@ -13,26 +13,14 @@ from .processing import execute_query, get_from_redshift_cache, evict_from_cache
 
 
 @staff_member_required
-def evict_report(request, name):
-	query = queries.get_report(name)
+def evict_query_from_cache(request, name):
+	query = queries.get_query(name)
 	if not query:
 		raise Http404("No query named: %s" % name)
 
-	# Unlike queries, reports don't accept filter parameters
-	params = query.get_report_params()
+	params = query.build_full_params(request.GET)
 	evict_from_cache(params.cache_key)
 	return HttpResponse()
-
-
-def fetch_report_results(request, name):
-	query = queries.get_report(name)
-	if not query:
-		raise Http404("No query named: %s" % name)
-
-	# Unlike queries, reports don't accept filter parameters
-	params = query.get_report_params()
-
-	return _fetch_query_results(query, params)
 
 
 def fetch_query_results(request, name):
