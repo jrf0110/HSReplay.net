@@ -18,10 +18,15 @@ class UploadEventAdmin(admin.ModelAdmin):
 		"__str__", "status", "tainted", urlify("token"),
 		urlify("game"), "upload_ip", "created", "file", "user_agent"
 	)
-	readonly_fields = ("created", "cloudwatch_url")
+	readonly_fields = ("created", "processing_logs")
 	search_fields = ("shortid", )
 	show_full_result_count = False
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
 		return qs.prefetch_related("game__global_game__players")
+
+	def processing_logs(self, obj):
+		return '<a href="%s">Cloudwatch Logs</a>' % (obj.cloudwatch_url,)
+	processing_logs.allow_tags = True
+	processing_logs.short_description = "Logs"
