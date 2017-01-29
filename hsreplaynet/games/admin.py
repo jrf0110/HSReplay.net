@@ -40,21 +40,26 @@ class GameReplayAdmin(admin.ModelAdmin):
 	actions = (set_user, queue_for_reprocessing)
 	list_display = (
 		"__str__", urlify("user"), urlify("global_game"), "visibility",
-		"build", "client_handle", "views", "replay_xml",
+		"build", "client_handle", "views", "replay_xml", "upload_event"
 	)
 	list_filter = (
 		"global_game__game_type", "hsreplay_version", "visibility",
 		"won", "spectator_mode", "disconnected", "reconnecting", "is_deleted"
 	)
 	raw_id_fields = (
-		"upload_token", "user", "global_game", "opponent_revealed_deck",
+		"upload_token", "user", "global_game", "opponent_revealed_deck"
 	)
-	readonly_fields = ("shortid", )
+	readonly_fields = ("shortid", "upload_event")
 	search_fields = ("shortid", "global_game__players__name", "user__username")
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
 		return qs.prefetch_related("global_game__players")
+
+	def upload_event(self, obj):
+		return '<a href="%s">%s</a>' % (obj.upload_event_admin_url, obj.shortid)
+	upload_event.allow_tags = True
+	upload_event.short_description = "Upload Event"
 
 
 @admin.register(GlobalGame)

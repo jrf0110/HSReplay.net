@@ -371,6 +371,12 @@ class UploadEvent(models.Model):
 	def get_absolute_url(self):
 		return reverse("upload_detail", kwargs={"shortid": self.shortid})
 
+	def get_admin_url(self):
+		return reverse(
+			'admin:%s_%s_change' % (self._meta.app_label, self._meta.model_name),
+			args=[self.id]
+		)
+
 	def log_bytes(self):
 		try:
 			self.file.open(mode="rb")

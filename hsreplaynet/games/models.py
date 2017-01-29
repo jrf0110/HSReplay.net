@@ -396,6 +396,17 @@ class GameReplay(models.Model):
 	def pretty_name_spoilerfree(self):
 		return self.build_pretty_name(spoilers=False)
 
+	@property
+	def upload_event_admin_url(self):
+		from hsreplaynet.uploads.models import UploadEvent
+		# These get garbage collected periodically
+		# So this will not exist for old games
+		upload_event = UploadEvent.objects.filter(shortid=self.shortid)
+		if upload_event.count() > 0:
+			return upload_event.first().get_admin_url()
+		else:
+			return None
+
 	def build_pretty_name(self, spoilers=True):
 		players = self.global_game.players.values_list("player_id", "final_state", "name")
 		if len(players) != 2:
