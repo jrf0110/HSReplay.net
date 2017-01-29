@@ -17,7 +17,8 @@ queue_for_reprocessing.short_description = "Queue original upload for reprocessi
 
 class GlobalGamePlayerInline(admin.StackedInline):
 	model = GlobalGamePlayer
-	raw_id_fields = ("user", "hero", "deck_list")
+	raw_id_fields = ("user", "hero", )
+	readonly_fields = ("deck_list",)
 	max_num = 2
 	show_change_link = True
 
@@ -31,7 +32,8 @@ class UploadEventInline(admin.StackedInline):
 class GameReplayInline(admin.StackedInline):
 	model = GameReplay
 	extra = 0
-	raw_id_fields = ("upload_token", "user", "opponent_revealed_deck")
+	raw_id_fields = ("upload_token", "user", )
+	readonly_fields = ("opponent_revealed_deck",)
 	show_change_link = True
 
 
@@ -47,9 +49,9 @@ class GameReplayAdmin(admin.ModelAdmin):
 		"won", "spectator_mode", "disconnected", "reconnecting", "is_deleted"
 	)
 	raw_id_fields = (
-		"upload_token", "user", "global_game", "opponent_revealed_deck"
+		"upload_token", "user", "global_game"
 	)
-	readonly_fields = ("shortid", "upload_event")
+	readonly_fields = ("shortid", "upload_event", "opponent_revealed_deck")
 	search_fields = ("shortid", "global_game__players__name", "user__username")
 
 	def get_queryset(self, request):
