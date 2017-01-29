@@ -20,4 +20,4 @@ wheel==0.29.0
 redis==2.10.5
 django-redis==4.7.0
 python-redis-lock==3.2.0
-git+https://github.com/HearthSim/hsredshift.git#egg=hsredshift
+-e git+https://github.com/HearthSim/hsredshift.git#egg=hsredshift
