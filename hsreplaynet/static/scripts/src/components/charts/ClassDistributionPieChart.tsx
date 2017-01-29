@@ -32,7 +32,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 		else {
 			let distr = new Map<string, number>();
 			this.props.games.forEach((game: GameReplay) => {
-				if (game.friendly_player.hero_id.startsWith("HERO")) {
+				if (game.friendly_player && game.friendly_player.hero_id.startsWith("HERO")) {
 					let hero = game.friendly_player.hero_class_name;
 					hero = hero.substr(0, 1).toUpperCase() + hero.substr(1, hero.length - 1).toLowerCase();
 					distr.set(hero, (distr.get(hero) || 0) + 1);

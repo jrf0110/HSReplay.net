@@ -57,6 +57,9 @@ export default class GameHistoryList extends React.Component<GameHistoryListProp
 	}
 
 	public static hasWon(friendly_player: GlobalGamePlayer, opposing_player: GlobalGamePlayer): boolean|null {
+		if (!friendly_player) {
+			return null;
+		}
 		if ([PlayState.WINNING, PlayState.WON].indexOf(friendly_player.final_state) !== -1) {
 			return true;
 		}
