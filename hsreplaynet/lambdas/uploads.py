@@ -16,7 +16,8 @@ from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import LAMBDA, S3
 from hsreplaynet.utils.latch import CountDownLatch
 from hsreplaynet.utils.influx import influx_metric
-from hsredshift.etl.exporters import load_replay
+from hsredshift.etl.exporters import RedshiftPublishingExporter
+from hsredshift.etl.firehose import flush_exporter_to_firehose
 
 
 @instrumentation.lambda_handler(
@@ -303,7 +304,10 @@ def load_replay_into_redshift(event, context):
 
 		global_game = GlobalGame.objects.get(id=global_game_id)
 
-		load_replay(replay, metadata)
+		packet_tree = replay.to_packet_tree()[0]
+		exporter = RedshiftPublishingExporter(packet_tree).export()
+		exporter.set_game_info(metadata)
+		flush_exporter_to_firehose(exporter)
 	except:
 		logger.info(metadata_str)
 		raise
