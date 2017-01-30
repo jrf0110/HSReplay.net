@@ -1415,7 +1415,7 @@ class RedshiftStagingTrackTable(models.Model):
 		return description['DeliveryStreamStatus'] == 'ACTIVE'
 
 	def _make_async_query_handle(self):
-		return str(uuid4())[:15]
+		return "handle-%s" % str(uuid4())[:7]
 
 	def refresh_table_state(self):
 		# If the table previously launched a long running operation
@@ -1575,6 +1575,13 @@ class RedshiftStagingTrackTable(models.Model):
 		self.refreshing_view_handle = self._make_async_query_handle()
 		self.save()
 
+		msg = "Refreshing view %s for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.refreshing_view_handle
+		))
+
 		background_execute = Thread(
 			target=self._do_refresh_view_query,
 			args=(
@@ -1599,6 +1606,13 @@ class RedshiftStagingTrackTable(models.Model):
 			self.analyze_ended_at = timezone.now()
 			self.stage = RedshiftETLStage.ANALYZE_COMPLETE
 			self.save()
+
+		msg = "Analyzing %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.analyze_query_handle
+		))
 
 		background_execute = Thread(
 			target=self._do_analyze_on_target,
@@ -1660,6 +1674,13 @@ class RedshiftStagingTrackTable(models.Model):
 		self.vacuum_query_handle = self._make_async_query_handle()
 		self.save()
 
+		msg = "Vacuuming %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.vacuum_query_handle
+		))
+
 		background_execute = Thread(
 			target=self._do_vacuum_on_target,
 			args=(
@@ -1699,6 +1720,13 @@ class RedshiftStagingTrackTable(models.Model):
 		self.dedupe_query_handle = self._make_async_query_handle()
 		self.save()
 
+		msg = "Deduplicating %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.dedupe_query_handle
+		))
+
 		table_obj = self._get_table_obj()
 
 		background_execute = Thread(
@@ -1716,6 +1744,13 @@ class RedshiftStagingTrackTable(models.Model):
 		self.stage = RedshiftETLStage.GATHERING_STATS
 		self.gathering_stats_handle = self._make_async_query_handle()
 		self.save()
+
+		msg = "Gathering stats for %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.gathering_stats_handle
+		))
 
 		self.get_min_max_game_dates_from_staging_table()
 		self.record_final_staging_table_size()
@@ -1766,6 +1801,13 @@ class RedshiftStagingTrackTable(models.Model):
 		self.stage = RedshiftETLStage.INSERTING
 		self.insert_query_handle = self._make_async_query_handle()
 		self.save()
+
+		msg = "Inserting into %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.insert_query_handle
+		))
 
 		background_execute = Thread(
 			target=self._do_insert_on_target,
