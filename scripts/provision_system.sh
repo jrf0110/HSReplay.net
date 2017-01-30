@@ -21,11 +21,11 @@ apt-get install -qy \
 	gcc g++ libxml2 libxml2-dev libxslt1-dev \
 	supervisor influxdb \
 	python-dev libffi-dev
-apt-get install -qy -t jessie-backports postgresql-9.5 libpq-dev
+apt-get install -qy -t jessie-backports postgresql-9.6 libpq-dev
 apt-get install -qy -t jessie-backports redis-server
 
 # Enable trust authentication for postgresql
-sed -i 's/all *postgres *peer/all postgres trust/' /etc/postgresql/9.5/main/pg_hba.conf
+sed -i 's/all *postgres *peer/all postgres trust/' /etc/postgresql/9.6/main/pg_hba.conf
 systemctl restart postgresql.service
 
 systemctl start influxdb
