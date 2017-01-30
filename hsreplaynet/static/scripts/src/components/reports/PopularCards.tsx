@@ -38,7 +38,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			availableDates: [],
 			index: 0,
 		}
-		this.fetchAvailableDates();
+		// this.fetchAvailableDates();
 	}
 
 	fetchAvailableDates() {
