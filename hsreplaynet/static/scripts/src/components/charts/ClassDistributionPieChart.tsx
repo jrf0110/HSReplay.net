@@ -26,6 +26,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 	render(): JSX.Element {
 		let data = [];
 		let numGames = this.props.games.length;
+		let wins = 0;
 		if (numGames == 0) {
 			data.push({x: " ", y: 1, name: null, color: "lightgrey"});
 		}
@@ -36,10 +37,28 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 					let hero = game.friendly_player.hero_class_name;
 					hero = hero.substr(0, 1).toUpperCase() + hero.substr(1, hero.length - 1).toLowerCase();
 					distr.set(hero, (distr.get(hero) || 0) + 1);
+					if (game.won && (!this.state.name || this.state.name == hero)) {
+						wins++;
+					}
 				}
 			});
 			distr.forEach((value, key) => data.push({x: Math.round(100.0 * value/numGames) + "%", y: value, name: key, color: this.getColor(key)}));
 			data = data.sort((a, b) => a.y > b.y ? 1 : -1);
+		}
+		let text = "";
+		if (numGames && this.state.name) {
+			text = this.state.name + ": " + this.state.value
+		}
+		else {
+			text = "Total: " + numGames
+		}
+		const total = this.state.name ? this.state.value : numGames;
+		text += " game" + (total == 1 ? "" : "s");
+		if (this.props.loadingGames) {
+			text += " [Loading...]"
+		}
+		else if (numGames) {
+			text += " - " + Math.round(100.0 * wins/total) + "% winrate"
 		}
 		return (
 			<div>
@@ -84,7 +103,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 					}]}
 				/>
 				<h5 style={{textAlign: "center", marginTop: "-20px"}}>
-					{(numGames && this.state.name ? this.state.name + ": " + this.state.value : "Total: " + numGames) + " Games" + (this.props.loadingGames ? " [Loading...]" : "")}
+					{text}
 				</h5>
 			</div>
 		);
