@@ -1832,7 +1832,7 @@ class RedshiftStagingTrackTable(models.Model):
 			if self.final_staging_table_size:
 				# Don't attempt to insert if there is nothing in the staging table
 				game_id_val = "id" if self.target_table == 'game' else "game_id"
-				pre_staging_table_name = "pre_%s" % self.staging_table
+				pre_staging_table_name = self.pre_insert_table_name
 
 				sql = template.format(
 					pre_staging_table=pre_staging_table_name,
@@ -1861,6 +1861,10 @@ class RedshiftStagingTrackTable(models.Model):
 			else:
 				raise
 
+	@property
+	def pre_insert_table_name(self):
+		return "pre_%s" % self.staging_table
+
 	def _deduplicate_staging_table(self, table_obj):
 		"""
 
@@ -1876,7 +1880,7 @@ class RedshiftStagingTrackTable(models.Model):
 			if self.final_staging_table_size:
 				# Don't attempt deduplication if there is nothing in the staging table
 
-				pre_table_name = "pre_%s" % self.staging_table
+				pre_table_name = self.pre_insert_table_name
 				game_id_val = "id" if self.target_table == 'game' else "game_id"
 				column_names = ", ".join([c.name for c in table_obj.columns])
 
@@ -1970,11 +1974,14 @@ class RedshiftStagingTrackTable(models.Model):
 		except Exception as e:
 			error_handler(e)
 
-		# Temporarily keep all staged data while finalizing ETL pipeline
-		# try:
-		# 	self._get_table_obj().drop(bind=get_redshift_engine())
-		# except Exception as e:
-		# 	error_handler(e)
+		try:
+			engine = get_redshift_engine()
+			conn = engine.connect()
+			conn.execution_options(isolation_level="AUTOCOMMIT")
+			conn.execute("DROP TABLE %s;" % self.pre_insert_table_name)
+			conn.execute("DROP TABLE %s;" % self.staging_table)
+		except Exception as e:
+			error_handler(e)
 
 		self.track_cleanup_end_at = timezone.now()
 		self.stage = RedshiftETLStage.FINISHED
