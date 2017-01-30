@@ -233,12 +233,12 @@ const classColorScheme: ChartScheme = {
 
 	"priest": {
 		stroke: "rgba(210, 210, 210, 1)",
-		fill: "rgba(210, 210, 210, 0.3)",
+		fill: "rgba(255, 255, 255, 0.3)",
 		name: "Priest",
 	},
 
 	"rogue": {
-		stroke: "rgba(255, 240, 26, 1)",
+		stroke: "rgba(255, 217, 26, 1)",
 		fill: "rgba(255, 240, 26, 0.3)",
 		name: "Rogue",
 	},
