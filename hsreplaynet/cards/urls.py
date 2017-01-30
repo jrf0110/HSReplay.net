@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from .views import archetypes, winrates, counters, canonicals, carddetail, popularity_report
+from .views import archetypes, winrates, counters, canonicals, carddetail, popular_cards
 
 
 urlpatterns = [
@@ -7,6 +7,6 @@ urlpatterns = [
 	url(r"^counters/$", counters, name="deck_counters"),
 	url(r"^archetypes/$", archetypes, name="deck_archetypes"),
 	url(r"^canonicals/$", canonicals, name="canonical_decks"),
-	url(r"^popularity/$", popularity_report, name="popularity_report"),
+	url(r"^popular/$", popular_cards, name="popular_cards"),
 	url(r"^(?P<card_id>\w+)$", carddetail, name="card_detail"),
 ]

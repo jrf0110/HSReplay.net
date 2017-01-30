@@ -8,7 +8,7 @@ import CardDetailBarChart from "../charts/CardDetailBarChart";
 import LoadingIndicator from "../LoadingIndicator";
 import {setNames, toTitleCase} from "../../helpers";
 
-interface PopularityReportState {
+interface PopularCardsState {
 	topCardsIncluded?: Map<string, TableData>;
 	topCardsPlayed?: Map<string, TableData>;
 	selectedClasses?: Map<string, boolean>;
@@ -20,12 +20,12 @@ interface PopularityReportState {
 	index?: number;
 }
 
-interface PopularityReportProps extends React.ClassAttributes<PopularityReport> {
+interface PopularCardsProps extends React.ClassAttributes<PopularCards> {
 	cardData: Map<string, any>;
 }
 
-export default class PopularityReport extends React.Component<PopularityReportProps, PopularityReportState> {
-	constructor(props: PopularityReportProps, state: PopularityReportState) {
+export default class PopularCards extends React.Component<PopularCardsProps, PopularCardsState> {
+	constructor(props: PopularCardsProps, state: PopularCardsState) {
 		super(props, state);
 		this.state = {
 			topCardsIncluded: new Map<string, TableData>(),
@@ -106,7 +106,6 @@ export default class PopularityReport extends React.Component<PopularityReportPr
 		}).then((json: any) => {
 			this.setState({topCardsIncluded: this.state.topCardsIncluded.set(date, json)})
 		}).catch((reason: any) => this.fetchingError());
-
 	}
 
 	fetchingError() {
@@ -250,7 +249,6 @@ export default class PopularityReport extends React.Component<PopularityReportPr
 						</div>
 					</div>
 					<div className="ad-wrapper">
-						<img src={STATIC_URL + "images/title-cards/ad.png"}/>
 					</div>
 				</div>
 				<div className="content-wrapper col-lg-8">

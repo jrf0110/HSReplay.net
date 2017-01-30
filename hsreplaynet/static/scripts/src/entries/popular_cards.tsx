@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import PopularityReport from "../components/reports/PopularityReport";
+import PopularCards from "../components/reports/PopularCards";
 import HearthstoneJSON from "hearthstonejson";
 
 const render = (cardData) => {
 	ReactDOM.render(
-		<PopularityReport cardData={cardData} />,
+		<PopularCards cardData={cardData} />,
 		document.getElementById("content-container")
 	);
 };

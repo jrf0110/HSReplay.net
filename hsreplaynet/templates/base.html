@@ -79,7 +79,7 @@
 						{% endif %}
 
 						{% if user.is_authenticated and user.is_staff %}
-							<li><a href="{% url 'popularity_report' %}">Popular Cards</a></li>
+							<li><a href="{% url 'popular_cards' %}">Popular Cards</a></li>
 						{% endif %}
 
 						{% feature "archetypes" %}
