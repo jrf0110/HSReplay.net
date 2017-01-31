@@ -2,7 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest
 import json
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+from django.core.exceptions import ObjectDoesNotExist
 from hearthstone.enums import CardClass
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
 from hsreplaynet.cards.models import Archetype
@@ -20,7 +21,12 @@ def popular_cards(request):
 
 
 def carddetail(request, card_id):
-	card = Card.objects.get(id=card_id)
+	try:
+		card = Card.objects.get(id=card_id)
+	except ObjectDoesNotExist:
+		card = None
+	if not card:
+		raise Http404("Card not found")
 	return render(request, "cards/card_detail.html", {"card": card})
 
 
