@@ -66,23 +66,24 @@ def _do_execute_query(query, params):
 
 	# Distributed dog pile lock pattern
 	# From: https://pypi.python.org/pypi/python-redis-lock
-	with get_redshift_cache().lock(params.cache_key):
-		# When we enter this block it's either because we were blocking
-		# and now the value is available,
-		# or it's because we're going to do the work
-		cached_data = get_from_redshift_cache(params.cache_key)
-		if cached_data:
-			return cached_data
-		else:
-			# DO EXPENSIVE WORK
-			with influx_timer("redshift_query_duration", query=query.name):
-				results = query.as_result_set().execute(engine, params)
+	# with get_redshift_cache().lock(params.cache_key):
 
-			response_payload = query.to_response_payload(results, params)
-			cached_data = CachedRedshiftResult(response_payload, params)
+	# When we enter this block it's either because we were blocking
+	# and now the value is available,
+	# or it's because we're going to do the work
+	cached_data = get_from_redshift_cache(params.cache_key)
+	if cached_data:
+		return cached_data
+	else:
+		# DO EXPENSIVE WORK
+		with influx_timer("redshift_query_duration", query=query.name):
+			results = query.as_result_set().execute(engine, params)
 
-			get_redshift_cache().set(params.cache_key, cached_data, timeout=None)
-			return cached_data
+		response_payload = query.to_response_payload(results, params)
+		cached_data = CachedRedshiftResult(response_payload, params)
+
+		get_redshift_cache().set(params.cache_key, cached_data, timeout=None)
+		return cached_data
 
 
 def evict_from_cache(cache_key):
