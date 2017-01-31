@@ -401,15 +401,35 @@ def get_player_names(player):
 		return player.name, ""
 
 
+def _is_decklist_superset(superset_decklist, subset_decklist):
+	s1 = set(superset_decklist) if superset_decklist else set()
+	s2 = set(subset_decklist) if subset_decklist else set()
+	return s1.issuperset(s2)
+
+
 def update_global_players(global_game, entity_tree, meta):
 	# Fill the player metadata and objects
 	players = {}
 
 	for player in entity_tree.players:
 		player_meta = meta.get("player%i" % (player.player_id), {})
-		decklist = player_meta.get("deck")
-		if not decklist:
-			decklist = [c.card_id for c in player.initial_deck if c.card_id]
+
+		is_spectated_replay = meta.get("spectator_mode", False)
+		decklist_from_meta = player_meta.get("deck")
+		decklist_from_replay = [c.card_id for c in player.initial_deck if c.card_id]
+
+		meta_decklist_is_superset = _is_decklist_superset(
+			decklist_from_meta,
+			decklist_from_replay
+		)
+
+		if not decklist_from_meta or is_spectated_replay or not meta_decklist_is_superset:
+			# Spectated replays never know more than is in the replay data
+			# But may have erroneous data from the spectator's client's memory
+			# Read from before they entered the spectated game
+			decklist = decklist_from_replay
+		else:
+			decklist = decklist_from_meta
 
 		name, real_name = get_player_names(player)
 		player_hero_id = player._hero.card_id
