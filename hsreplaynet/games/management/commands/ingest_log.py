@@ -16,7 +16,12 @@ class Command(BaseCommand):
 			help=" ".join((
 				"User to attach the resulting replays to.",
 				"Will only attach after processing, so webhooks will not fire.",
+				"Use --pick-token instead.",
 			))
+		)
+		group.add_argument(
+			"--pick-token", type=str, metavar="USERNAME",
+			help="User to pick an auth token from. Will attach token like --token."
 		)
 		group.add_argument(
 			"--token", type=str, metavar="AUTH_TOKEN",
@@ -28,15 +33,29 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		username = options["username"]
+		username_to_pick_from = options["pick_token"]
 		raw_token = options["token"]
 		if username:
 			user = User.objects.get(username=username)
 			if not user:
 				raise Exception("User not found")
-			self.stdout.write(
-				"Warning: Will only attach to user after processing and not fire webhooks."
-			)
+			self.stdout.write(" ".join((
+				"Warning: Will only attach to user after processing and not fire webhooks.",
+				"Use --pick-token instead.",
+			)))
 			token = None
+		elif username_to_pick_from:
+			user = User.objects.get(username=username_to_pick_from)
+			# pick the user's first token
+			token = user.auth_tokens.first()
+			if token:
+				self.stdout.write(
+					"Picked auth token %s (owned by %s)" % (token, token.user)
+				)
+			else:
+				raise Exception("No auth token found")
+			# should already be attached by token
+			user = None
 		elif raw_token:
 			user = None
 			token = AuthToken.objects.get(key=raw_token)
