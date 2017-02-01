@@ -62,6 +62,9 @@
 
 				<ul class="nav navbar-nav navbar-right">
 					{% if user.is_authenticated %}
+						{% if user.is_staff %}
+							<li><a href="{% url 'admin:index' %}">Admin</a></li>
+						{% endif %}
 						<li>
 							<a href="{% url 'account_edit' %}">
 								<img src="{% static 'images/bnet.png' %}"/>
