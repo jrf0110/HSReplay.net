@@ -20,13 +20,17 @@ class Command(BaseCommand):
 			help="Wait up to 30 seconds for all Uploads to finish processing"
 		)
 
+	def output(self, msg):
+		self.stdout.write(msg)
+		self.stdout.flush()
+
 	def handle(self, *args, **options):
 		for module_name in options["module"].split(","):
 			importlib.import_module(module_name)
 
 		descriptors = get_lambda_descriptors()
 		if not descriptors:
-			self.stdout.write("No descriptors found. Exiting.")
+			self.output("No descriptors found. Exiting.")
 			return
 
 		all_lambdas = LAMBDA.list_functions()
@@ -40,18 +44,18 @@ class Command(BaseCommand):
 			RoleName=settings.LAMBDA_PRIVATE_EXECUTION_ROLE_NAME
 		)
 		private_execution_role_arn = iam_private_role_response["Role"]["Arn"]
-		self.stdout.write("Execution Role Arn: %r" % (execution_role_arn))
-		self.stdout.write("Private Execution Role Arn: %r" % (private_execution_role_arn))
+		self.output("Execution Role Arn: %r" % (execution_role_arn))
+		self.output("Private Execution Role Arn: %r" % (private_execution_role_arn))
 
 		artifact_obj = options["artifact"]
 		artifact_bucket = settings.AWS_LAMBDA_ARTIFACTS_BUCKET
-		self.stdout.write(
+		self.output(
 			"Using code at S3 path: %r/%r" % (artifact_bucket, artifact_obj)
 		)
 
 		for descriptor in descriptors:
-			self.stdout.write("About to deploy: %s" % (descriptor["name"]))
-			self.stdout.write(
+			self.output("About to deploy: %s" % (descriptor["name"]))
+			self.output(
 				"Descriptor requires VPC access: %s" % (descriptor["requires_vpc_access"])
 			)
 
@@ -61,10 +65,10 @@ class Command(BaseCommand):
 					existing_lambda = func
 
 			if existing_lambda:
-				self.stdout.write("Lambda exists - will update.")
+				self.output("Lambda exists - will update.")
 
 				if existing_lambda:
-					self.stdout.write("Lambda exists - will update.")
+					self.output("Lambda exists - will update.")
 
 					if descriptor["requires_vpc_access"]:
 						LAMBDA.update_function_configuration(
@@ -98,7 +102,7 @@ class Command(BaseCommand):
 				)
 
 			else:
-				self.stdout.write("New Lambda - will create.")
+				self.output("New Lambda - will create.")
 
 				if descriptor["requires_vpc_access"]:
 					LAMBDA.create_function(
@@ -139,7 +143,7 @@ class Command(BaseCommand):
 				# This lambda would like to be registered as a listener on a kinesis stream
 				stream_name = descriptor["stream_name"]
 				batch_size = descriptor["stream_batch_size"]
-				self.stdout.write("Applying event source mapping for stream: %s" % (stream_name))
+				self.output("Applying event source mapping for stream: %s" % (stream_name))
 				target_event_source = get_kinesis_stream_arn_from_name(stream_name)
 
 				event_source_list = LAMBDA.list_event_source_mappings(
@@ -163,14 +167,14 @@ class Command(BaseCommand):
 
 						if mapping_event_source != target_event_source:
 							# Delete this event source, it's stale.
-							self.stdout.write("Deleting stale mapping: %r" % (mapping_event_source))
+							self.output("Deleting stale mapping: %r" % (mapping_event_source))
 							LAMBDA.delete_event_source_mapping(UUID=mapping_uuid)
 						else:
 							update_existing_mapping_success = True
 
 							if mapping_batch_size != batch_size:
 								# The batch size is the only thing that might have changed
-								self.stdout.write("Updating existing stream batch size from %s to %s" % (
+								self.output("Updating existing stream batch size from %s to %s" % (
 									mapping_batch_size,
 									batch_size
 								))
@@ -180,11 +184,11 @@ class Command(BaseCommand):
 								)
 							else:
 								# Nothing has changed.
-								self.stdout.write("No changes required.")
+								self.output("No changes required.")
 
 					if not update_existing_mapping_success:
 						# We didn't find an existing mapping to update, so we still must create one
-						self.stdout.write("Creating new mapping for event source: %s" % target_event_source)
+						self.output("Creating new mapping for event source: %s" % target_event_source)
 						LAMBDA.create_event_source_mapping(
 							EventSourceArn=target_event_source,
 							FunctionName=descriptor["name"],
@@ -193,7 +197,7 @@ class Command(BaseCommand):
 						)
 				else:
 					# No mappings currently exist, so we need to create a new mapping
-					self.stdout.write("Creating new mapping for event source: %s" % target_event_source)
+					self.output("Creating new mapping for event source: %s" % target_event_source)
 					LAMBDA.create_event_source_mapping(
 						EventSourceArn=target_event_source,
 						FunctionName=descriptor["name"],
@@ -213,7 +217,7 @@ class Command(BaseCommand):
 		a certain status.
 		"""
 		max_time = datetime.now() + timedelta(seconds=30)
-		self.stdout.write("Waiting up to %i seconds" % (timeout))
+		self.output("Waiting up to %i seconds" % (timeout))
 
 		statuses = UploadEventStatus.processing_statuses()
 
@@ -223,7 +227,7 @@ class Command(BaseCommand):
 			if not count:
 				return
 			if datetime.now() > max_time:
-				self.stderr.write("Waited too long. Exiting.")
+				self.output("Waited too long. Exiting.")
 				return
-			self.stdout.write("Found %i uploads... sleeping 3 seconds." % (count))
+			self.output("Found %i uploads... sleeping 3 seconds." % (count))
 			time.sleep(3)
