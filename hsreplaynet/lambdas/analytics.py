@@ -22,3 +22,4 @@ def execute_redshift_query(event, context):
 	params = query.build_full_params(supplied_params)
 
 	_do_execute_query(query, params)
+	logger.info("Query Execution Complete")
