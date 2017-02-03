@@ -22,4 +22,4 @@ hsredshift_logger.setLevel(logging.INFO)
 from hsreplaynet.lambdas.uploads import *  # noqa
 from hsreplaynet.lambdas.crons import * # noqa
 # TODO: Need to resolve getting redis dependencies packaged into Lambdas
-# from hsreplaynet.lambdas.analytics import * # noqa
+from hsreplaynet.lambdas.analytics import * # noqa
