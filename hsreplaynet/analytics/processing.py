@@ -5,7 +5,6 @@ from sqlalchemy import create_engine
 from hsreplaynet.utils.influx import influx_timer
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils import log
-from hsreplaynet.utils.redis import job_queue
 
 
 class CachedRedshiftResult(object):
@@ -30,13 +29,14 @@ def _execute_query_async(query, params):
 		LAMBDA.invoke(
 			FunctionName="execute_redshift_query",
 			InvocationType="Event",  # Triggers asynchronous invocation
-			Payload=_to_lamda_payload(query, params),
+			Payload=_to_lambda_payload(query, params),
 		)
 	else:
+		from hsreplaynet.utils.redis import job_queue
 		job_queue.enqueue(_do_execute_query, query, params)
 
 
-def _to_lamda_payload(query, params):
+def _to_lambda_payload(query, params):
 	payload = {
 		"query_name": query.name,
 		"supplied_parameters": params.supplied_parameters
@@ -53,7 +53,7 @@ def _execute_query_sync(query, params):
 		LAMBDA.invoke(
 			FunctionName="execute_redshift_query",
 			InvocationType="RequestResponse",  # Triggers synchronous invocation
-			Payload=_to_lamda_payload(query, params),
+			Payload=_to_lambda_payload(query, params),
 		)
 		# Once this returns we can expect the result to be in the cache
 		return get_from_redshift_cache(params.cache_key)

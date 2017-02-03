@@ -64,9 +64,13 @@ def _fetch_query_results(query, params):
 			# Execute the query to refresh the stale data asynchronously
 			# And then return the data we have available immediately
 			execute_query(query, params, async=True)
+		response_payload = cached_data.response_payload
 	else:
-		# Nothing to return so user will have to wait while we generate it
-		cached_data = execute_query(query, params, async=False)
+		execute_query(query, params, async=True)
+		# Nothing to return so tell the client to check back later
+		response_payload = {
+			"checkback_later": True
+		}
 
 	influx_metric(
 		"redshift_query_fetch",
@@ -76,7 +80,7 @@ def _fetch_query_results(query, params):
 		triggered_refresh=triggered_refresh
 	)
 
-	payload_str = json.dumps(cached_data.response_payload, indent=4, sort_keys=True)
+	payload_str = json.dumps(response_payload, indent=4, sort_keys=True)
 	return HttpResponse(payload_str, content_type="application/json")
 
 
