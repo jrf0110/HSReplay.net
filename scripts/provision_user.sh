@@ -17,7 +17,7 @@ pip install -r "$PROJECT/requirements/dev.txt"
 export PATH="$HOME/node_modules/.bin:$PATH"
 
 cd "$PROJECT"
-yarn install --modules-folder "$HOME" --pure-lockfile --no-progress
+yarn install --modules-folder "$HOME/node_modules" --pure-lockfile --no-progress
 
 if [[ ! -e $PROJECT/hsreplaynet/local_settings.py ]]; then
 	cp "$PROJECT/local_settings.example.py" "$PROJECT/hsreplaynet/local_settings.py"
