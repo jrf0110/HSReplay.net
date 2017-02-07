@@ -31,11 +31,16 @@ def deckdetail(request, deck_id):
 		raise Http404("Deck not found")
 	decklist = ",".join(cards)
 	deck_class = guess_class(deck)
-	return render(request, "cards/deck_detail.html", {"deck": deck, "cards": decklist, "deck_class": deck_class.name})
+	return render(
+		request,
+		"cards/deck_detail.html",
+		{"deck": deck, "cards": decklist, "deck_class": deck_class.name}
+	)
 
 
 def discover(request):
 	return render(request, "cards/card_discover.html", {})
+
 
 def carddetail(request, card_id):
 	try:
