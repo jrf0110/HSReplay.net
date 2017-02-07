@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from hsreplaynet.utils.influx import influx_timer
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils import log
+from hsredshift.analytics.library.base import RedshiftQueryParams
 
 
 class CachedRedshiftResult(object):
@@ -12,6 +13,19 @@ class CachedRedshiftResult(object):
 	def __init__(self, response_payload, params):
 		self.response_payload = response_payload
 		self.cached_params = params
+
+	def to_json_cacheable_repr(self):
+		return {
+			"response_payload": self.response_payload,
+			"cached_params": self.cached_params.to_json_cacheable_repr()
+		}
+
+	@classmethod
+	def from_json_cacheable_repr(cls, repr):
+		return CachedRedshiftResult(
+			repr["response_payload"],
+			RedshiftQueryParams.from_json_cacheable_repr(repr["cached_params"])
+		)
 
 
 def execute_query(query, params, async=False):
@@ -82,7 +96,12 @@ def _do_execute_query(query, params):
 		response_payload = query.to_response_payload(results, params)
 		cached_data = CachedRedshiftResult(response_payload, params)
 
-		get_redshift_cache().set(params.cache_key, cached_data, timeout=None)
+		get_redshift_cache().set(
+			params.cache_key,
+			cached_data.to_json_cacheable_repr(),
+			timeout=None
+		)
+
 		return cached_data
 
 
@@ -100,7 +119,11 @@ def get_redshift_engine():
 
 def get_from_redshift_cache(cache_key):
 	try:
-		return get_redshift_cache().get(cache_key)
+		cached_repr = get_redshift_cache().get(cache_key)
+		if cached_repr:
+			return CachedRedshiftResult.from_json_cacheable_repr(cached_repr)
+		else:
+			return None
 	except AttributeError as e:
 		# If the cache was invalidated or corrupted just return None
 		# It will be handled like a Cache Miss
