@@ -68,10 +68,9 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 				lines.push(
 					<VictoryBar
 						data={series.data}
-						animate={{duration: 300}}
 						style={{
 							data: {
-								width: ''+(0.5 * width / series.data.length),
+								width: ''+(0.7 * width / series.data.length),
 								fill: fill,
 								stroke: stroke,
 								strokeWidth: 0.5
@@ -93,10 +92,10 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 
 		return <VictoryChart
 				containerComponent={<VictoryContainer title={this.props.title}/>}
-				domainPadding={{x: Math.max(20, 150/this.props.data[0].data.length), y: 0}}
+				domainPadding={{x: Math.max(20, 180/this.props.data[0].data.length), y: 0}}
 				height={150}
 				width={width}
-				padding={{left: 50, top: 30, right: 30, bottom: 40}}
+				padding={{left: 10, top: 30, right: 10, bottom: 40}}
 				theme="material">
 				<VictoryAxis
 					label={this.props.labelX}

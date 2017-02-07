@@ -34,6 +34,9 @@ def deckdetail(request, deck_id):
 	return render(request, "cards/deck_detail.html", {"deck": deck, "cards": decklist, "deck_class": deck_class.name})
 
 
+def discover(request):
+	return render(request, "cards/card_discover.html", {})
+
 def carddetail(request, card_id):
 	try:
 		card = Card.objects.get(id=card_id)

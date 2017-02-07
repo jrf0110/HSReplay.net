@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Card Database{% endblock %}
+
+{% block fullcontent %}
+<div id="card-container" class="container-fluid">
+</div>
+{% render_bundle "card_discover" %}
+{% endblock %}
