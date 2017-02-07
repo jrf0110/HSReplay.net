@@ -12,5 +12,7 @@
 </div>
 <div id="deck-container" style="display: flex;justify-content: center;">
 </div>
+{% if user.is_authenticated and user.is_staff %}
 	{% render_bundle "deck_detail" %}
+{% endif %}
 {% endblock %}

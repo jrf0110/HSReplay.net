@@ -7,5 +7,7 @@
 {% block fullcontent %}
 <div id="card-container" class="container-fluid">
 </div>
-{% render_bundle "card_discover" %}
+{% if user.is_authenticated and user.is_staff %}
+	{% render_bundle "card_discover" %}
+{% endif %}
 {% endblock %}
