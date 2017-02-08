@@ -1,6 +1,7 @@
 import * as React from "react";
 import { GameReplay } from "../../interfaces";
 import { VictoryPie, VictoryContainer} from "victory";
+import { getHeroColor } from "../../helpers";
 
 interface ClassDistributionPieChartState {
 	name?: string;
@@ -42,7 +43,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 					}
 				}
 			});
-			distr.forEach((value, key) => data.push({x: Math.round(100.0 * value/numGames) + "%", y: value, name: key, color: this.getColor(key)}));
+			distr.forEach((value, key) => data.push({x: Math.round(100.0 * value/numGames) + "%", y: value, name: key, color: getHeroColor(key)}));
 			data = data.sort((a, b) => a.y > b.y ? 1 : -1);
 		}
 		let text = "";
@@ -107,19 +108,5 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 				</h5>
 			</div>
 		);
-	}
-
-	private getColor(hero: string): string {
-		switch(hero) {
-			case "Druid": return "#FF7D0A";
-			case "Hunter": return "#ABD473";
-			case "Mage": return "#69CCF0";
-			case "Paladin": return "#F58CBA";
-			case "Priest": return "#D2D2D2";
-			case "Rogue": return "#FFF569";
-			case "Shaman": return "#0070DE";
-			case "Warlock": return "#9482C9";
-			case "Warrior": return "#C79C6E";
-		}
 	}
 }

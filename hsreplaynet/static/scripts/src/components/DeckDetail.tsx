@@ -6,13 +6,11 @@ import CardTile from "./CardTile";
 import ClassFilter from "./ClassFilter";
 import CardDetailPieChart from "./charts/CardDetailPieChart";
 import CardDetailGauge from "./charts/CardDetailGauge";
-import CardDetailValue from "./charts/CardDetailValue";
 import CardDetailLineChart from "./charts/CardDetailLineChart";
 import CardDetailBarChart from "./charts/CardDetailBarChart";
 import WinrateLineChart from "./charts/WinrateLineChart";
 import PopularityLineChart from "./charts/PopularityLineChart";
 import {getChartScheme} from "../helpers";
-import moment from "moment";
 
 interface Card {
 	cardObj: any;
@@ -61,24 +59,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 
 	render(): JSX.Element {
-		let winrateLineChart = null;
-		if (this.state.winrateOverTime) {
-			winrateLineChart = (
-				<WinrateLineChart
-					data={this.state.winrateOverTime.series[0]}
-					widthRatio={2}
-				/>
-			)
-		}
 
-		let popularityChart = null;
-		if (this.state.winrateOverTime) {
-			popularityChart = (
-				<PopularityLineChart
-					widthRatio={2}
-				/>
-			)
-		}
 
 		const selectedClass = this.getSelectedClass();
 
@@ -101,7 +82,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<div className="chart-column col-lg-6 col-md-6 col-sm-6 col-xs-6">
 							<div className="chart-wrapper">
 								<CardDetailGauge
-									series={this.state.winrateSeries && this.state.winrateSeries.series}
+									series={this.state.winrateSeries && this.state.winrateSeries.series[0]}
 									title="Winrate"
 									speedometer={true}
 									scheme={getChartScheme("class")[this.props.deckClass.toLowerCase()]}
@@ -111,7 +92,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<div className="chart-column col-lg-6 col-md-6 col-sm-6 col-xs-6">
 							<div className="chart-wrapper">
 								<CardDetailGauge
-									series={[{data: [{x: "duration", y: duration}], name: ""}]}
+									series={this.state.averageDuration && {data: [{x: "duration", y: duration}], name: ""}}
 									title="Avg. game (min)"
 									speedometer={true}
 									scheme={getChartScheme("class")[this.props.deckClass.toLowerCase()]}
@@ -140,10 +121,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<div className="col-lg-8">
 					<div className="row">
 						<div className="col-lg-6">
-							{popularityChart}
+							<PopularityLineChart
+								series={undefined}
+								widthRatio={2}
+							/>
 						</div>
 						<div className="col-lg-6">
-							{winrateLineChart}
+							<WinrateLineChart
+								series={this.state.winrateOverTime && this.state.winrateOverTime.series[0]}
+								widthRatio={2}
+							/>
 						</div>
 					</div>
 				</div>
@@ -185,10 +172,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	buildDeckCharts(): JSX.Element[] {
 			const chartSeries = this.buildChartSeries();
-			const rarityChart = chartSeries[0] && <CardDetailPieChart title="Rarity" data={[chartSeries[0]]}/>
-			const typeChart = chartSeries[1] && <CardDetailPieChart title="Type" data={[chartSeries[1]]}/>
-			const setChart = chartSeries[2] && <CardDetailPieChart title="Set" data={[chartSeries[2]]}/>
-			const costChart = chartSeries[3] && <CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" data={[chartSeries[3]]}/>
+			const rarityChart = chartSeries[0] && <CardDetailPieChart title="Rarity" series={chartSeries[0]}/>
+			const typeChart = chartSeries[1] && <CardDetailPieChart title="Type" series={chartSeries[1]}/>
+			const setChart = chartSeries[2] && <CardDetailPieChart title="Set" series={chartSeries[2]}/>
+			const costChart = chartSeries[3] && <CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" series={chartSeries[3]}/>
 			return [
 				<div className ="row">
 					<div className="chart-column col-lg-6 col-md-6 col-sm-6 col-xs-6">

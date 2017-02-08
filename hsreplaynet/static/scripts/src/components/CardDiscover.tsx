@@ -60,11 +60,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			this.state.cards = cards;
 		}
 
-		let costChart = null;
-		let classChart = null;
-		let rarityChart = null;
-		let setChart = null;
-		let typeChart = null;
+		let chartSeries = null;
 
 		const tiles = [];
 		const filteredCards = {
@@ -100,24 +96,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				}
 			});
 
-			const chartSeries = this.buildChartSeries(allFilteredCards);
-
-			if (chartSeries[0].data.length > 0) {
-				rarityChart = <CardDetailPieChart data={[chartSeries[0]]} title="Rarity"/>;
-			}
-			if (chartSeries[1].data.length > 0) {
-				typeChart = <CardDetailPieChart data={[chartSeries[1]]} title="Type"/>;
-			}
-			if (chartSeries[2].data.length > 0) {
-				setChart = <CardDetailPieChart data={[chartSeries[2]]} title="Set"/>;
-			}
-			if (chartSeries[3].data.length > 0) {
-				costChart = <CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" data={[chartSeries[3]]}/>
-			}
-			if (chartSeries[4].data.length > 0) {
-				classChart = <CardDetailPieChart data={[chartSeries[4]]} title="Classes"/>;
-			}
-
+			chartSeries = this.buildChartSeries(allFilteredCards);
 		}
 
 		const availableFilters = this.buildAvailableFilters(filteredCards);
@@ -186,18 +165,18 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					{showMoreButton}
 				</div>
 				<div className="col-lg-2 col-md-2 chart-col">
-					{costChart}
+					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" series={chartSeries && chartSeries[3]}/>
 					<div className="chart-wrapper">
-						{classChart}
+						<CardDetailPieChart series={chartSeries && chartSeries[4]} title="Classes"/>
 					</div>
 					<div className="chart-wrapper">
-						{rarityChart}
+						<CardDetailPieChart series={chartSeries && chartSeries[0]} title="Rarity"/>
 					</div>
 					<div className="chart-wrapper">
-						{setChart}
+						<CardDetailPieChart series={chartSeries && chartSeries[2]} title="Set"/>
 					</div>
 					<div className="chart-wrapper">
-						{typeChart}
+						<CardDetailPieChart series={chartSeries && chartSeries[1]} title="Type"/>
 					</div>
 				</div>
 			</div>

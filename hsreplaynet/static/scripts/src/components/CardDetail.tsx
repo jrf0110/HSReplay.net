@@ -2,14 +2,12 @@ import * as React from "react";
 import WinrateByTurnLineChart from "./charts/WinrateByTurnLineChart";
 import CardDetailBarChart from "./charts/CardDetailBarChart";
 import CardDetailGauge from "./charts/CardDetailGauge";
-import CardDetailValue from "./charts/CardDetailValue";
 import CardDetailPieChart from "./charts/CardDetailPieChart";
 import CardDetailFilter from "./CardDetailFilter";
 import CardDetailDecksList from "./charts/CardDetailDecksList";
 import CardRankingTable from "./CardRankingTable";
 import PopularityLineChart from "./charts/PopularityLineChart";
 import WinrateLineChart from "./charts/WinrateLineChart";
-import LoadingIndicator from "./LoadingIndicator";
 import TurnPlayedBarChart from "./charts/TurnPlayedBarChart";
 import TopCardsList from "./TopCardsList";
 import ClassFilter from "./ClassFilter";
@@ -67,65 +65,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		});
 	}
 
-	componentDidUpdate() {
-		if (this.state.fetching) {
-			window.setTimeout(() => this.forceUpdate(), 1000);
-		}
-	}
-
 	render(): JSX.Element {
-		let classChart = null;
-		if (this.state.classDistribution) {
-			classChart = (
-				<CardDetailPieChart
-					percent
-					data={this.state.classDistribution.series}
-					title={"Class Popularity"}
-					scheme={getChartScheme("class")}
-					textPrecision={2}
-					sortByValue
-					removeEmpty
-				/>
-			);
-		}
-
-		let turnWinrateChart = null;
-		if (this.state.winrateByTurn) {
-			turnWinrateChart = (
-				<WinrateByTurnLineChart
-					data={this.state.winrateByTurn.series}
-					widthRatio={2}
-				/>
-			)
-		}
-
-		let popularityChart = null;
-		if (this.state.winrateByTurn) {
-			popularityChart = (
-				<PopularityLineChart
-					widthRatio={2}
-				/>
-			)
-		}
-
-		let winrateChart = null;
-		if (this.state.winrateByTurn) {
-			winrateChart = (
-				<WinrateLineChart
-					widthRatio={2}
-				/>
-			)
-		}
-
-		let turnPlayedChart = null;
-		if (this.state.winrateByTurn) {
-			turnPlayedChart = (
-				<TurnPlayedBarChart
-					widthRatio={2}
-				/>
-			)
-		}
-
 		let topCardsPlayed = (
 			<CardRankingTable
 				cardData={this.state.cardData}
@@ -152,7 +92,15 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<button type="button" className="btn btn-default disabled">Arena</button>
 					</div>
 					<div style={{maxWidth: "250px", margin: "0 auto"}}>
-						{classChart}
+						<CardDetailPieChart
+							percent
+							series={this.state.classDistribution && this.state.classDistribution.series[0]}
+							title={"Class Popularity"}
+							scheme={getChartScheme("class")}
+							textPrecision={2}
+							sortByValue
+							removeEmpty
+						/>
 					</div>
 				</div>
 				<div className="col-lg-8">
@@ -160,18 +108,30 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<h5>{this.state.card && (toTitleCase(this.state.card.playerClass) + " " + toTitleCase(this.state.card.type))}</h5>
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
-							{popularityChart}
+							<PopularityLineChart
+								series={undefined}
+								widthRatio={2}
+							/>
 						</div>
 						<div className="col-lg-6 col-md-6">
-							{winrateChart}
+							<WinrateLineChart
+								series={undefined}
+								widthRatio={2}
+							/>
 						</div>
 					</div>
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
-							{turnPlayedChart}
+							<TurnPlayedBarChart
+								series={undefined}
+								widthRatio={2}
+							/>
 						</div>
 						<div className="col-lg-6 col-md-6">
-							{turnWinrateChart}
+							<WinrateByTurnLineChart
+								series={this.state.winrateByTurn && this.state.winrateByTurn.series[0]}
+								widthRatio={2}
+							/>
 						</div>
 					</div>
 					<div className="row">
@@ -183,9 +143,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							<h4>Most popular targets</h4>	
 							{topCardsPlayed}
 						</div>
-					</div>
-					<div style={{display: "flex", justifyContent: "center", paddingTop: "30px"}}>
-						<LoadingIndicator height={20}/>
 					</div>
 				</div>
 			</div>

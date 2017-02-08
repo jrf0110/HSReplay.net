@@ -1,4 +1,4 @@
-import {ChartScheme, ChartSchemeType, DataPoint, ChartMetaData} from "./interfaces";
+import {ChartScheme, ChartSchemeType, DataPoint, ChartMetaData, ChartSeries} from "./interfaces";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -321,4 +321,14 @@ export function toPrettyNumber(n: number): string {
 	const divisor = 10 ** (Math.floor(Math.log10(n)) - 1);
 	n = Math.floor(n / divisor) * divisor;
 	return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+export function toTimeSeries(series: ChartSeries) : ChartSeries {
+	return {
+		data: series.data.map(d => {
+			return {x: new Date(d.x).getTime(), y: d.y}
+		}),
+		name: series.name,
+		metadata: series.metadata
+	};
 }
