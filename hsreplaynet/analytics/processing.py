@@ -6,6 +6,7 @@ from hsreplaynet.utils.influx import influx_timer
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils import log
 from hsredshift.analytics.library.base import RedshiftQueryParams
+import redis_lock
 
 
 class CachedRedshiftResult(object):
@@ -96,7 +97,9 @@ def _do_execute_query(query, params):
 	# Distributed dog pile lock pattern
 	# From: https://pypi.python.org/pypi/python-redis-lock
 	log.info("About to attempt acquiring lock...")
-	with get_redshift_cache().lock(params.cache_key, expire=60, auto_renewal=True):
+	redis_client = get_redshift_cache().client.get_client()
+
+	with redis_lock.Lock(redis_client, params.cache_key, expire=60, auto_renewal=True):
 		# Get a lock with a 60-second lifetime but keep renewing it automatically
 		# to ensure the lock is held for as long as the Python process / Lambda is running.
 		log.info("Lock acquired.")
