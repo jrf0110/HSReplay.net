@@ -66,12 +66,9 @@ def _fetch_query_results(query, params):
 			execute_query(query, params, async=True)
 		response_payload = cached_data.response_payload
 	else:
-		cached_data = execute_query(query, params, async=False)
-		response_payload = cached_data.response_payload
+		execute_query(query, params, async=True)
 		# Nothing to return so tell the client to check back later
-		# response_payload = {
-		# 	"checkback_later": True
-		# }
+		return HttpResponse("Query is processing. Check back later.", status=202)
 
 	influx_metric(
 		"redshift_query_fetch",
