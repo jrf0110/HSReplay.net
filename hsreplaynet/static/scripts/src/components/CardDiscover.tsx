@@ -126,7 +126,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		let showMoreButton = null;
 		if (this.state.cards && allFilteredCards.length > this.state.numCards) {
 			showMoreButton = (
-				<div style={{textAlign: "center"}}>
+				<div className="more-button">
 					<button type="button" className="btn btn-default" onClick={() => this.setState({numCards: this.state.numCards + 10})}>
 						Show more...
 					</button>
@@ -147,16 +147,23 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 
 		return (
-			<div className="row">
-				<div className="col-lg-2 col-md-2" style={{paddingTop: 150}}>
+			<div className="row card-discover">
+				<div className="col-lg-2 col-md-2 filter-col">
 					{this.buildFilters(availableFilters)}
-					<div style={{textAlign: "center"}}>
+					<div className="reset-wrapper">
 						{resetButton}
 					</div>
 				</div>
-				<div className="col-lg-8 col-md-8">
+				<div className="col-lg-8 col-md-8 content-col">
 					<div className="form-group">
-						<input autoFocus placeholder="Search..." type="text" className="form-control" style={{width: 300, margin: "20px auto"}} value={this.state.filter} onChange={(x) => this.setState({filter: x.target["value"]})} />
+						<input 
+							autoFocus
+							placeholder="Search..."
+							type="text"
+							className="form-control search-bar"
+							value={this.state.filter}
+							onChange={(x) => this.setState({filter: x.target["value"]})}
+						/>
 					</div>
 					<div>
 						<ClassFilter 
@@ -178,8 +185,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					{tiles}
 					{showMoreButton}
 				</div>
-				<div className="col-lg-2 col-md-2">
-					<div style={{paddingTop: 150}} />
+				<div className="col-lg-2 col-md-2 chart-col">
 					{costChart}
 					<div className="chart-wrapper">
 						{classChart}
@@ -271,36 +277,34 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			return Object.keys(obj).sort((a, b) => obj[a] < obj[b] ? 1 : -1);
 		}
 		return (
-			<div>
-				<div className="panel panel-default">
-					<div className="panel-heading">Cost</div>
-					<div className="panel-body" style={{display: "flex", justifyContent: "space-between"}}>
-						{[0, 1, 2, 3, 4, 5, 6, 7].filter(x => Object.keys(filters.cost).indexOf(''+x) !== -1).map(x => this.buildCheckBox("cost", ''+x))}
-					</div>
-					<div className="panel-heading">Rarity</div>
-					<div className="panel-body">
-						{["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"].filter(x => Object.keys(filters.rarity).indexOf(x) !== -1).map(x => this.buildCheckBox("rarity", x, filters.rarity[x], true))}
-					</div>
-					<div className="panel-heading">Format</div>
-					<div className="panel-body">
-						{sort(filters.format).map(x => this.buildCheckBox("format", x, undefined, true))}
-					</div>
-					<div className="panel-heading">Set</div>
-					<div className="panel-body">
-						{sort(filters.set).map(x => this.buildCheckBox("set", x, filters.set[x], true))}
-					</div>
-					<div className="panel-heading">Type</div>
-					<div className="panel-body">
-						{sort(filters.type).map(x => this.buildCheckBox("type", x, filters.type[x], true))}
-					</div>
-					<div className="panel-heading">Race</div>
-					<div className="panel-body">
-						{sort(filters.race).map(x => this.buildCheckBox("race", x, filters.race[x], true))}
-					</div>
-					<div className="panel-heading">Mechanics</div>
-					<div className="panel-body">
-						{sort(filters.mechanics).filter(x => mechanics.indexOf(x) !== -1).map(x => this.buildCheckBox("mechanics", x, filters.mechanics[x], true))}
-					</div>
+			<div className="panel panel-default filter-panel">
+				<div className="panel-heading">Cost</div>
+				<div className="panel-body cost-filter">
+					{[0, 1, 2, 3, 4, 5, 6, 7].filter(x => Object.keys(filters.cost).indexOf(''+x) !== -1).map(x => this.buildCheckBox("cost", ''+x))}
+				</div>
+				<div className="panel-heading">Rarity</div>
+				<div className="panel-body">
+					{["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"].filter(x => Object.keys(filters.rarity).indexOf(x) !== -1).map(x => this.buildCheckBox("rarity", x, filters.rarity[x], true))}
+				</div>
+				<div className="panel-heading">Format</div>
+				<div className="panel-body">
+					{sort(filters.format).map(x => this.buildCheckBox("format", x, undefined, true))}
+				</div>
+				<div className="panel-heading">Set</div>
+				<div className="panel-body">
+					{sort(filters.set).map(x => this.buildCheckBox("set", x, filters.set[x], true))}
+				</div>
+				<div className="panel-heading">Type</div>
+				<div className="panel-body">
+					{sort(filters.type).map(x => this.buildCheckBox("type", x, filters.type[x], true))}
+				</div>
+				<div className="panel-heading">Race</div>
+				<div className="panel-body">
+					{sort(filters.race).map(x => this.buildCheckBox("race", x, filters.race[x], true))}
+				</div>
+				<div className="panel-heading">Mechanics</div>
+				<div className="panel-body">
+					{sort(filters.mechanics).filter(x => mechanics.indexOf(x) !== -1).map(x => this.buildCheckBox("mechanics", x, filters.mechanics[x], true))}
 				</div>
 			</div>
 		);
@@ -323,39 +327,35 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				break;
 		}
 		const selected = this.state.filters.get(prop) && this.state.filters.get(prop).indexOf(value) !== -1;
-		const textStyle = {};
-		const badgeStyle = {};
-		if (selected) {
-			textStyle["fontWeight"] = "bold";
-			badgeStyle["background"] = "#154b69";
-		}
-
-		const checkbox = (
-			<span style={textStyle}>
-				{text}
-			</span>
-		);
 
 		const onClick = () => {
+			const newFilter = selected ? this.state.filters.get(prop).filter(x => x !== value) : (this.state.filters.get(prop) || []).concat(value);
 			this.setState({
-				filters: this.state.filters.set(prop, this.state.filters.get(prop) === undefined || this.state.filters.get(prop).indexOf(value) === -1 ? (this.state.filters.get(prop) || []).concat(value) : this.state.filters.get(prop).filter(x => x !== value))
+				filters: this.state.filters.set(prop, newFilter)
 			})
 		};
 
+		const classNames = ["filter-item"];
+		if (selected) {
+			classNames.push("selected");
+		}
 		
 		if (div) {
-			badgeStyle["float"] = "right";
 			const countBadge = (
-				<span className="badge" style={badgeStyle}>
+				<span className="badge pull-right">
 					{count}
 				</span>
 			);
-			return <div style={{cursor: "pointer"}} onClick={onClick}>{checkbox}{countBadge}</div>;
+			return <div className={classNames.join(" ")} onClick={onClick}>
+				<span>{text}</span>
+				{countBadge}
+			</div>;
 		}
 
-		badgeStyle["cursor"] = "pointer";
-		return <span className="badge" style={badgeStyle} onClick={onClick}>
-			{text}
+		return <span className={classNames.join(" ")} onClick={onClick}>
+			<span className="badge">
+				{text}
+			</span>
 		</span>
 
 	}

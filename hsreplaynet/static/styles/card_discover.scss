@@ -1,0 +1,46 @@
+.card-discover {
+
+	.filter-col {
+		padding-top: 150px;
+
+		.reset-wrapper {
+			text-align: center;
+		}
+
+		.filter-panel {
+
+			.cost-filter {
+				display: flex;
+				justify-content: space-between;
+			}
+			
+			.filter-item {
+				cursor: pointer;
+
+				&.selected {
+					font-weight: bold;
+
+					.badge {
+						background: #154b69;
+					}
+				}
+			}
+		}
+	}
+
+	.content-col {
+		
+		.search-bar {
+			width: 300px;
+			margin: 20px auto;
+		}
+
+		.more-button {
+			text-align: center;
+		}
+	}
+
+	.chart-col {
+		padding-top: 150px;
+	}
+}
