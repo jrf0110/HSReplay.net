@@ -8,6 +8,7 @@ import CardDetailBarChart from "../charts/CardDetailBarChart";
 import CardRankingTable from "../CardRankingTable";
 import LoadingIndicator from "../LoadingIndicator";
 import {setNames, toTitleCase, toPrettyNumber} from "../../helpers";
+import QueryManager from "../../QueryManager";
 
 interface PopularCardsState {
 	topCardsIncluded?: Map<string, TableData>;
@@ -26,6 +27,8 @@ interface PopularCardsProps extends React.ClassAttributes<PopularCards> {
 }
 
 export default class PopularCards extends React.Component<PopularCardsProps, PopularCardsState> {
+	private readonly queryManager: QueryManager = new QueryManager();
+
 	constructor(props: PopularCardsProps, state: PopularCardsState) {
 		super(props, state);
 		this.state = {
@@ -39,26 +42,31 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			availableDates: [],
 			index: 0,
 		}
-		this.fetchAvailableDates();
-	}
 
-	fetchAvailableDates() {
-		fetch(
-			"https://dev.hsreplay.net/analytics/available-data/card_played_popularity_report"
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			this.state.availablePlayedDates = json;
-			this.buildAvailableDates();
-		}).catch((reason: any) => this.fetchingError());
-		fetch(
-			"https://dev.hsreplay.net/analytics/available-data/card_included_popularity_report"
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			this.state.availableIncludedDates = json;
-			this.buildAvailableDates();
-		}).catch((reason: any) => this.fetchingError());
+		this.queryManager.fetch(
+			"/analytics/available-data/card_played_popularity_report",
+			(success: boolean, json: any) => {
+				if (success) {
+					this.state.availablePlayedDates = json;
+					this.buildAvailableDates();
+				}
+				else {
+					this.fetchingError();
+				}
+			}
+		);
+		this.queryManager.fetch(
+			"/analytics/available-data/card_included_popularity_report",
+			(success: boolean, json: any) => {
+				if (success) {
+					this.state.availableIncludedDates = json;
+					this.buildAvailableDates();
+				}
+				else {
+					this.fetchingError();
+				}
+			}
+		);
 	}
 
 	buildAvailableDates() {
@@ -93,20 +101,22 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		}
 		const date = this.state.availableDates[index];
 
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/card_played_popularity_report?query_date=" + date
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			this.setState({topCardsPlayed: this.state.topCardsPlayed.set(date, json)})
-		}).catch((reason: any) => this.fetchingError());
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/card_included_popularity_report?query_date=" + date
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			this.setState({topCardsIncluded: this.state.topCardsIncluded.set(date, json)})
-		}).catch((reason: any) => this.fetchingError());
+		this.queryManager.fetch(
+			"/analytics/query/card_played_popularity_report?query_date=" + date,
+			(success: boolean, json: any) => {
+				if (success) {
+					this.setState({topCardsPlayed: this.state.topCardsPlayed.set(date, json)})
+				}
+			}
+		)
+		this.queryManager.fetch(
+			"/analytics/query/card_included_popularity_report?query_date=" + date,
+			(success: boolean, json: any) => {
+				if (success) {
+					this.setState({topCardsIncluded: this.state.topCardsIncluded.set(date, json)})
+				}
+			}
+		)
 	}
 
 	fetchingError() {

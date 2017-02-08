@@ -16,6 +16,7 @@ import {
 	Query, RenderData, ChartSeries, ChartSeriesMetaData, DataPoint} from "../interfaces";
 import HearthstoneJSON from "hearthstonejson";
 import {toTitleCase, getChartScheme} from "../helpers";
+import QueryManager from "../QueryManager";
 
 interface CardDetailState {
 	queries?: Query[];
@@ -36,6 +37,8 @@ interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 }
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
+	private readonly queryManager: QueryManager = new QueryManager();
+
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
 		this.state = {
@@ -49,7 +52,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			card: null,
 		}
 
-		// this.fetchFilters();
 		this.fetch();
 
 		new HearthstoneJSON().getLatest((data) => {
@@ -208,24 +210,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	// }
 
 	fetch() {
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/single_card_winrate_by_turn?card_id=" + this.props.cardId + "&TimeRange=CURRENT_SEASON&RankRange=ALL&GameType=RANKED_STANDARD",
-			{credentials: "include"}
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			console.log(json)
-			this.setState({winrateByTurn: json})
-		})
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/single_card_class_distribution_by_play_count?card_id=" + this.props.cardId + "&TimeRange=CURRENT_SEASON&RankRange=ALL&GameType=RANKED_STANDARD",
-			{credentials: "include"}
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			console.log(json)
-			this.setState({classDistribution: json})
-		})
+		this.queryManager.fetch(
+			"/analytics/query/single_card_winrate_by_turn?card_id=" + this.props.cardId + "&TimeRange=CURRENT_SEASON&RankRange=ALL&GameType=RANKED_STANDARD",
+			(success, json) => this.setState({winrateByTurn: json})
+		);
+		this.queryManager.fetch(
+			"/analytics/query/single_card_class_distribution_by_play_count?card_id=" + this.props.cardId + "&TimeRange=CURRENT_SEASON&RankRange=ALL&GameType=RANKED_STANDARD",
+			(success, json) => this.setState({classDistribution: json})
+		);
 	}
 
 	resolveParam(param: string): string {

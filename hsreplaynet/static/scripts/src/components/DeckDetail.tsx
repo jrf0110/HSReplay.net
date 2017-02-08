@@ -11,6 +11,7 @@ import CardDetailBarChart from "./charts/CardDetailBarChart";
 import WinrateLineChart from "./charts/WinrateLineChart";
 import PopularityLineChart from "./charts/PopularityLineChart";
 import {getChartScheme} from "../helpers";
+import QueryManager from "../QueryManager";
 
 interface Card {
 	cardObj: any;
@@ -36,6 +37,8 @@ interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
 }
 
 export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
+	private readonly queryManager: QueryManager = new QueryManager();
+
 	constructor(props: DeckDetailProps, state: DeckDetailState) {
 		super(props, state);
 		this.state = {
@@ -47,7 +50,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			winrateSeries: null,
 		}
 
-		this.fetchWinrate();
 		this.fetch();
 
 		new HearthstoneJSON().getLatest((data) => {
@@ -59,8 +61,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 
 	render(): JSX.Element {
-
-
 		const selectedClass = this.getSelectedClass();
 
 		const duration = this.state.averageDuration && Math.round(+this.state.averageDuration.series[0].data[0].x/60);
@@ -288,54 +288,31 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return this.state.winrateSeries && this.state.winrateSeries.series[0].data[0].y;
 	}
 
-	fetchWinrate() {
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/single_deck_base_winrate?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			{credentials: "include"}
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			this.setState({winrateSeries: json})
-		})
-	}
-
 	fetch() {
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			{credentials: "include"}
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			console.log(json)
-			this.setState({tableDataClasses: json})
-		})
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/single_deck_mulligan_guide?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			{credentials: "include"}
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			console.log(json)
-			this.setState({tableDataAll: json})
-		})
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/single_deck_average_game_duration?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			{credentials: "include"}
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			console.log(json)
-			this.setState({averageDuration: json})
-		})
-		fetch(
-			"https://dev.hsreplay.net/analytics/query/single_deck_winrate_over_time?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			{credentials: "include"}
-		).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			console.log(json)
-			this.setState({winrateOverTime: json})
-		})
+		this.queryManager.fetch(
+			"/analytics/query/single_deck_base_winrate?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			(success, json) => this.setState({winrateSeries: json})
+		);
+
+		this.queryManager.fetch(
+			"/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			(success, json) => this.setState({tableDataClasses: json})
+		);
+
+		this.queryManager.fetch(
+			"/analytics/query/single_deck_mulligan_guide?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			(success, json) => this.setState({tableDataAll: json})
+		);
+
+		this.queryManager.fetch(
+			"/analytics/query/single_deck_average_game_duration?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			(success, json) => this.setState({averageDuration: json})
+		);
+
+		this.queryManager.fetch(
+			"/analytics/query/single_deck_winrate_over_time?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			(success, json) => this.setState({winrateOverTime: json})
+		);
 	}
 
 }
