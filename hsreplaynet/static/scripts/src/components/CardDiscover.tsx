@@ -15,6 +15,7 @@ interface CardFilters {
 	type: any;
 	race: any;
 	mechanics: any;
+	format: any;
 }
 
 interface CardDiscoverState {
@@ -33,6 +34,8 @@ interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
 	private searchBox: any;
+	readonly wildSets = ["NAXX", "GVG", "PROMO", "REWARD"];
+
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
 		super(props, state);
 		this.state = {
@@ -57,7 +60,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			this.state.cards = cards;
 		}
 
-		let manacurveChart = null;
+		let costChart = null;
 		let classChart = null;
 		let rarityChart = null;
 		let setChart = null;
@@ -72,6 +75,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			type: [],
 			race: [],
 			mechanics: [],
+			format: [],
 		}
 		const allFilteredCards = [];
 		const filterKeys = Object.keys(filteredCards);
@@ -108,7 +112,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				setChart = <CardDetailPieChart data={[chartSeries[2]]} title="Set"/>;
 			}
 			if (chartSeries[3].data.length > 0) {
-				manacurveChart = <CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" data={[chartSeries[3]]}/>
+				costChart = <CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" data={[chartSeries[3]]}/>
 			}
 			if (chartSeries[4].data.length > 0) {
 				classChart = <CardDetailPieChart data={[chartSeries[4]]} title="Classes"/>;
@@ -130,13 +134,25 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			)
 		}
 
+		let showReset = false;
+		this.state.filters.forEach((val, key) => {
+			if (val && val.length) {
+				showReset = true;
+			}
+		});
+
+		let resetButton = null;
+		if (showReset) {
+			resetButton = <a href="#" onClick={() => this.setState({filters: new Map<string, string[]>()})}>Reset all filters</a>
+		}
+
 		return (
 			<div className="row">
-				<div className="col-lg-2 col-md-2">
-					<div style={{textAlign: "center", paddingTop: 150}}>
-						<a href="#" onClick={() => this.setState({filters: new Map<string, string[]>()})}>Reset all filters</a>
-					</div>
+				<div className="col-lg-2 col-md-2" style={{paddingTop: 150}}>
 					{this.buildFilters(availableFilters)}
+					<div style={{textAlign: "center"}}>
+						{resetButton}
+					</div>
 				</div>
 				<div className="col-lg-8 col-md-8">
 					<div className="form-group">
@@ -154,7 +170,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 											selected = key;
 										}
 									});
-									this.setState({filters: this.state.filters.set("playerClass", [selected])});
+									this.setState({filters: this.state.filters.set("playerClass", selected && [selected])});
 								}
 							}
 						/>
@@ -164,7 +180,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</div>
 				<div className="col-lg-2 col-md-2">
 					<div style={{paddingTop: 150}} />
-					{manacurveChart}
+					{costChart}
 					<div className="chart-wrapper">
 						{classChart}
 					</div>
@@ -219,6 +235,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			type: {},
 			race: {},
 			mechanics: {},
+			format: {}
 		};
 
 		Object.keys(filters).forEach(key => {
@@ -227,6 +244,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					card.mechanics && card.mechanics.forEach(m => {
 						filters.mechanics[m] = (filters.mechanics[m] || 0) + 1;
 					})
+				}
+				else if (key === "format") {
+					if (!filters.format["Standard only"] && this.wildSets.indexOf(card.set) === -1){
+						filters.format["Standard only"] = 1;
+					}
 				}
 				else {
 					const prop = card[key];
@@ -252,37 +274,40 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			<div>
 				<div className="panel panel-default">
 					<div className="panel-heading">Cost</div>
-					<div className="panel-body">
-						{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter(x => Object.keys(filters.cost).indexOf(''+x) !== -1).map(x => this.buildCheckBox("cost", ''+x))}
+					<div className="panel-body" style={{display: "flex", justifyContent: "space-between"}}>
+						{[0, 1, 2, 3, 4, 5, 6, 7].filter(x => Object.keys(filters.cost).indexOf(''+x) !== -1).map(x => this.buildCheckBox("cost", ''+x))}
 					</div>
 					<div className="panel-heading">Rarity</div>
 					<div className="panel-body">
-						{["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"].filter(x => Object.keys(filters.rarity).indexOf(x) !== -1).map(x => this.buildCheckBox("rarity", x, true))}
+						{["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"].filter(x => Object.keys(filters.rarity).indexOf(x) !== -1).map(x => this.buildCheckBox("rarity", x, filters.rarity[x], true))}
+					</div>
+					<div className="panel-heading">Format</div>
+					<div className="panel-body">
+						{sort(filters.format).map(x => this.buildCheckBox("format", x, undefined, true))}
 					</div>
 					<div className="panel-heading">Set</div>
 					<div className="panel-body">
-						{sort(filters.set).map(x => this.buildCheckBox("set", x, true))}
+						{sort(filters.set).map(x => this.buildCheckBox("set", x, filters.set[x], true))}
 					</div>
 					<div className="panel-heading">Type</div>
 					<div className="panel-body">
-						{sort(filters.type).map(x => this.buildCheckBox("type", x, true))}
+						{sort(filters.type).map(x => this.buildCheckBox("type", x, filters.type[x], true))}
 					</div>
 					<div className="panel-heading">Race</div>
 					<div className="panel-body">
-						{sort(filters.race).map(x => this.buildCheckBox("race", x, true))}
+						{sort(filters.race).map(x => this.buildCheckBox("race", x, filters.race[x], true))}
 					</div>
 					<div className="panel-heading">Mechanics</div>
 					<div className="panel-body">
-						{sort(filters.mechanics).filter(x => mechanics.indexOf(x) !== -1).map(x => this.buildCheckBox("mechanics", x, true))}
+						{sort(filters.mechanics).filter(x => mechanics.indexOf(x) !== -1).map(x => this.buildCheckBox("mechanics", x, filters.mechanics[x], true))}
 					</div>
 				</div>
 			</div>
 		);
 	}
 
-	buildCheckBox(prop: string, value: string, div?: boolean) {
+	buildCheckBox(prop: string, value: string, count?: number, div?: boolean) {
 		let text = null;
-		console.log(prop, value)
 		switch(prop) {
 			case "set":
 				text = setNames[value.toLowerCase()];
@@ -290,23 +315,49 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			case "mechanics":
 				text = value.split("_").map(x => toTitleCase(x)).join(" ");
 				break;
+			case "cost":
+				text = +value < 7 ? ''+value : "7+";
+				break;
 			default:
-				text = toTitleCase(''+value);
+				text = toTitleCase(value);
 				break;
 		}
+		const selected = this.state.filters.get(prop) && this.state.filters.get(prop).indexOf(value) !== -1;
+		const textStyle = {};
+		const badgeStyle = {};
+		if (selected) {
+			textStyle["fontWeight"] = "bold";
+			badgeStyle["background"] = "#154b69";
+		}
+
 		const checkbox = (
-			<label>
-				<input
-					type="checkbox"
-					checked={this.state.filters.get(prop) && this.state.filters.get(prop).indexOf(value) !== -1}
-					onChange={() => this.setState({
-						filters: this.state.filters.set(prop, this.state.filters.get(prop) === undefined || this.state.filters.get(prop).indexOf(value) === -1 ? (this.state.filters.get(prop) || []).concat(value) : this.state.filters.get(prop).filter(x => x !== value))
-					})}
-				/>
+			<span style={textStyle}>
 				{text}
-			</label>
+			</span>
 		);
-		return div ? <div>{checkbox}</div> : checkbox;
+
+		const onClick = () => {
+			this.setState({
+				filters: this.state.filters.set(prop, this.state.filters.get(prop) === undefined || this.state.filters.get(prop).indexOf(value) === -1 ? (this.state.filters.get(prop) || []).concat(value) : this.state.filters.get(prop).filter(x => x !== value))
+			})
+		};
+
+		
+		if (div) {
+			badgeStyle["float"] = "right";
+			const countBadge = (
+				<span className="badge" style={badgeStyle}>
+					{count}
+				</span>
+			);
+			return <div style={{cursor: "pointer"}} onClick={onClick}>{checkbox}{countBadge}</div>;
+		}
+
+		badgeStyle["cursor"] = "pointer";
+		return <span className="badge" style={badgeStyle} onClick={onClick}>
+			{text}
+		</span>
+
 	}
 
 	filter(card: any, exlcudeFilter?: string): boolean {
@@ -321,14 +372,19 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 			if (!filter && available.length) {
 				const cardValue = card[key];
-				if (cardValue === undefined) {
+				if (key === "format") {
+					if (available.indexOf("Standard only") !== -1) {
+						filter = this.wildSets.indexOf(card.set) !== -1;
+					}
+				}
+				else if (cardValue === undefined) {
 					filter = true;
 				}
 				else if (key === "mechanics") {
 					filter = available.every(val => cardValue.indexOf(val) === -1);
 				}
 				else if (key === "cost") {
-					filter = available.indexOf(""+Math.min(cardValue, 9)) === -1;
+					filter = available.indexOf(""+Math.min(cardValue, 7)) === -1;
 				}
 				else {
 					filter = available.indexOf(cardValue) === -1;
