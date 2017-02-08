@@ -6,6 +6,7 @@ import CardDetailPieChart from "./charts/CardDetailPieChart";
 import ClassFilter from "./ClassFilter";
 import {ChartSeries} from "../interfaces";
 import {setNames, toTitleCase} from "../helpers";
+import CardImage from "./CardImage";
 
 interface CardFilters {
 	playerClass: any;
@@ -33,8 +34,8 @@ interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 }
 
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
-	private searchBox: any;
 	readonly wildSets = ["NAXX", "GVG", "PROMO", "REWARD"];
+	readonly placeholderUrl = STATIC_URL + "images/cardback_placeholder_kabal.png";
 
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
 		super(props, state);
@@ -47,6 +48,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			availableFilters: null,
 			numCards: 20,
 		}
+		this.fetchPlaceholderImage();
+	}
+
+	fetchPlaceholderImage() {
+		const image = new Image();
+		image.src = this.placeholderUrl;
 	}
 
 	render(): JSX.Element {
@@ -85,11 +92,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					})
 					if (!this.filter(card)) {
 						if (tiles.length < this.state.numCards) {
-							tiles.push(
-								<a href={"/cards/" + card.id} key={card.id}>
-									<img height="350" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + card.id + ".png"} />
-								</a>
-							);
+							tiles.push(<CardImage cardId={card.id} placeholder={this.placeholderUrl} key={card.id}/>);
 						}
 						allFilteredCards.push(card);
 					}
