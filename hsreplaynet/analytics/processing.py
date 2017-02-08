@@ -35,19 +35,33 @@ def execute_query(query, params, async=False):
 		return _execute_query_sync(query, params)
 
 
+def _lock_exists(cache_key):
+	lock_signal_key = "lock:%s" % cache_key
+	lock_signal = get_redshift_cache().get(lock_signal_key)
+	return lock_signal is not None
+
+
 def _execute_query_async(query, params):
-	if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
-		# In PROD use Lambdas so the web-servers don't get overloaded
-		# NOTE: Lambdas cannot reach the cache until the VPCAccess
-		# configuration issues are resolved.
-		LAMBDA.invoke(
-			FunctionName="execute_redshift_query",
-			InvocationType="Event",  # Triggers asynchronous invocation
-			Payload=_to_lambda_payload(query, params),
-		)
+	# It's safe to launch multiple attempts to execute for the same query
+	# Because the dogpile lock will only allow one to execute
+	# But we can save resources by not even launching the attempt
+	# If we see that the lock already exists
+	if not _lock_exists(params.cache_key):
+		log.info("No lock already exists for query. Will attempt to execute async.")
+
+		if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
+			# In PROD use Lambdas so the web-servers don't get overloaded
+			LAMBDA.invoke(
+				FunctionName="execute_redshift_query",
+				InvocationType="Event",  # Triggers asynchronous invocation
+				Payload=_to_lambda_payload(query, params),
+			)
+		else:
+			from hsreplaynet.utils.redis import job_queue
+			job_queue.enqueue(_do_execute_query, query, params)
 	else:
-		from hsreplaynet.utils.redis import job_queue
-		job_queue.enqueue(_do_execute_query, query, params)
+		msg = "An async attempt to run this query is in-flight. Will not launch another."
+		log.info(msg)
 
 
 def _to_lambda_payload(query, params):
@@ -76,33 +90,41 @@ def _execute_query_sync(query, params):
 
 
 def _do_execute_query(query, params):
+	# This method should always be getting executed within a Lambda context
 	engine = get_redshift_engine()
 
 	# Distributed dog pile lock pattern
 	# From: https://pypi.python.org/pypi/python-redis-lock
-	# with get_redshift_cache().lock(params.cache_key):
+	log.info("About to attempt acquiring lock...")
+	with get_redshift_cache().lock(params.cache_key, expire=60, auto_renewal=True):
+		# Get a lock with a 60-second lifetime but keep renewing it automatically
+		# to ensure the lock is held for as long as the Python process / Lambda is running.
+		log.info("Lock acquired.")
 
-	# When we enter this block it's either because we were blocking
-	# and now the value is available,
-	# or it's because we're going to do the work
-	cached_data = get_from_redshift_cache(params.cache_key)
-	if cached_data:
-		return cached_data
-	else:
-		# DO EXPENSIVE WORK
-		with influx_timer("redshift_query_duration", query=query.name):
-			results = query.as_result_set().execute(engine, params)
+		# When we enter this block it's either because we were blocking
+		# and now the value is available,
+		# or it's because we're going to do the work
+		cached_data = get_from_redshift_cache(params.cache_key)
+		if cached_data and not cached_data.cached_params.are_stale(params):
+			log.info("Up-to-date cached data exists. Exiting without running query.")
+			return cached_data
+		else:
+			log.info("Cached data missing or stale. Executing query now.")
+			# DO EXPENSIVE WORK
+			with influx_timer("redshift_query_duration", query=query.name):
+				results = query.as_result_set().execute(engine, params)
 
-		response_payload = query.to_response_payload(results, params)
-		cached_data = CachedRedshiftResult(response_payload, params)
+			response_payload = query.to_response_payload(results, params)
+			cached_data = CachedRedshiftResult(response_payload, params)
 
-		get_redshift_cache().set(
-			params.cache_key,
-			cached_data.to_json_cacheable_repr(),
-			timeout=None
-		)
+			get_redshift_cache().set(
+				params.cache_key,
+				cached_data.to_json_cacheable_repr(),
+				timeout=None
+			)
 
-		return cached_data
+			log.info("Query finished and results have been stored in the cache.")
+			return cached_data
 
 
 def evict_from_cache(cache_key):
