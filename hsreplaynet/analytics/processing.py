@@ -36,12 +36,6 @@ def execute_query(query, params, async=False):
 		return _execute_query_sync(query, params)
 
 
-def _lock_exists(cache_key):
-	lock_signal_key = "lock:%s" % cache_key
-	lock_signal = get_redshift_cache().get(lock_signal_key)
-	return lock_signal is not None
-
-
 def _execute_query_async(query, params):
 	# It's safe to launch multiple attempts to execute for the same query
 	# Because the dogpile lock will only allow one to execute
@@ -97,10 +91,10 @@ def _do_execute_query(query, params):
 	# Distributed dog pile lock pattern
 	# From: https://pypi.python.org/pypi/python-redis-lock
 	log.info("About to attempt acquiring lock...")
-	redis_client = get_redshift_cache().client.get_client()
+	redis_client = get_redshift_cache_redis_client()
 
-	with redis_lock.Lock(redis_client, params.cache_key, expire=60, auto_renewal=True):
-		# Get a lock with a 60-second lifetime but keep renewing it automatically
+	with redis_lock.Lock(redis_client, params.cache_key, expire=300):
+		# Get a lock with a 5-minute lifetime since that's the maximum duration of a Lambda
 		# to ensure the lock is held for as long as the Python process / Lambda is running.
 		log.info("Lock acquired.")
 
@@ -132,10 +126,29 @@ def _do_execute_query(query, params):
 
 def evict_from_cache(cache_key):
 	get_redshift_cache().delete(cache_key)
+	# Also attempt to evict any lingering locks
+	redis_client = get_redshift_cache_redis_client()
+	lock_signal_key = _get_lock_signal_key(cache_key)
+	redis_client.delete(lock_signal_key)
+
+
+def _get_lock_signal_key(cache_key):
+	return "lock:%s" % cache_key
+
+
+def _lock_exists(cache_key):
+	lock_signal_key = _get_lock_signal_key(cache_key)
+	redis_client = get_redshift_cache_redis_client()
+	lock_signal = redis_client.get(lock_signal_key)
+	return lock_signal is not None
 
 
 def get_redshift_cache():
 	return caches['redshift']
+
+
+def get_redshift_cache_redis_client():
+	return get_redshift_cache().client.get_client()
 
 
 def get_redshift_engine():
