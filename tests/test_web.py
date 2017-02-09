@@ -7,6 +7,8 @@ def test_battlenet_auth_loaded():
 	assert provider.id == "battlenet"
 
 
-def test_load_homepage(client):
+def test_load_homepage(client, settings):
+	# Disable (Manifest)StaticFilesStorage, since tests will not run collectstatic
+	settings.STATICFILES_STORAGE = settings.DEFAULT_FILE_STORAGE
 	response = client.get("/")
 	assert response.status_code == 200
