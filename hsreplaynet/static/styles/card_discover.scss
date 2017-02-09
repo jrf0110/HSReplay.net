@@ -3,25 +3,101 @@
 	.filter-col {
 		padding-top: 150px;
 
-		.reset-wrapper {
-			text-align: center;
-		}
-
 		.filter-panel {
 
 			.cost-filter {
 				display: flex;
-				justify-content: space-between;
+				justify-content: center;
+				flex-wrap: wrap;
 			}
 			
+			.filter-item:hover {
+				color: $red;
+
+				&.mana-crystal {
+					filter: brightness(1.2);
+				}
+
+				&.selected {
+
+					.filter-item-text {
+						text-decoration: line-through;
+					}
+				}
+			}
+
 			.filter-item {
 				cursor: pointer;
+				user-select: none;
+
+				&.mana-crystal {
+					margin: 3px 0;
+					filter: saturate(0) opacity(0.9);
+					width: 28px;
+					height: 28px;
+
+					&.selected {
+						filter: saturate(1) opacity(1);
+					}
+
+					> div {
+						color: white;
+						font-weight: bold;
+						text-align: center;
+						margin-top: -24px;
+						text-shadow: -1px -1px 0 #000,
+							1px -1px 0 #000,
+							-1px 1px 0 #000,
+							1px 1px 0 #000;
+						white-space: pre;
+					}
+				}
+
+				&.format {
+					>span {
+						margin-top: 7px;
+					}
+				}
+
+				.filter-item-text {
+					width: 75%;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					overflow: hidden;
+				}
 
 				&.selected {
 					font-weight: bold;
 
 					.badge {
-						background: #154b69;
+						background: $aqua;
+					}
+				}
+
+				&.disabled {
+					cursor: not-allowed;
+
+					.filter-item-text {
+						color: lightgray;
+					}
+
+					.badge {
+						background: lightgray;
+					}
+
+					&.mana-crystal {
+						filter: saturate(0) opacity(0.5);
+					}
+					
+					&.selected {
+
+						.badge {
+							background: #afc4cf;
+						}
+
+						&.mana-crystal {
+							filter: saturate(1) opacity(0.5);
+						}
 					}
 				}
 			}
@@ -37,6 +113,24 @@
 
 		.more-button {
 			text-align: center;
+		}
+
+		.card-list-wrapper {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+
+			.card-image:hover {
+				img {
+					transition: all .1s ease-in-out;
+					transform: scale(1.05);
+				}
+			}
+		}
+
+		.no-search-result {
+			text-align: center;
+			padding: 50px 0;
 		}
 	}
 

@@ -19,14 +19,19 @@ interface CardFilters {
 	format: any;
 }
 
+// "classFilterKey" is a bit of a hack to reset the ClassFilter component.
+// Changing the key attribute on an element causes it to be re-created.
+// TODO: remove ClassFilter internal state
+
 interface CardDiscoverState {
 	filter?: string;
 	cards?: any[];
-	sortProp?: string;
+	sortProps?: string[];
 	sortDirection?: number;
 	filters?: Map<string, string[]>;
 	availableFilters?: CardFilters;
 	numCards?: number;
+	classFilterKey?: number;
 }
 
 interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
@@ -34,6 +39,15 @@ interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 }
 
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
+	readonly costs = [0, 1, 2, 3, 4, 5, 6, 7];
+	readonly mechanics = [
+		"ENRAGED", "DEATHRATTLE", "TAUNT", "BATTLECRY", "CHARGE", "DIVINE_SHIELD", "WINDFURY",
+		"CHOOSE_ONE", "INSPIRE", "JADE_GOLEM", "COMBO", "FREEZE", "STEALTH"
+	];
+	readonly races = ["BEAST", "DEMON", "DRAGON", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"];
+	readonly rarities = ["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"];
+	readonly sets = ["CORE", "EXPERT1", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "PROMO", "REWARD"];
+	readonly types = ["MINION", "SPELL", "WEAPON"];
 	readonly wildSets = ["NAXX", "GVG", "PROMO", "REWARD"];
 	readonly placeholderUrl = STATIC_URL + "images/cardback_placeholder_kabal.png";
 
@@ -42,11 +56,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		this.state = {
 			filter: null,
 			cards: null,
-			sortProp: "name",
+			sortProps: ["name", "cost"],
 			sortDirection: 1,
 			filters: new Map<string, string[]>(),
 			availableFilters: null,
 			numCards: 20,
+			classFilterKey: 0,
 		}
 		this.fetchPlaceholderImage();
 	}
@@ -60,7 +75,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (this.props.cardData && !this.state.cards) {
 			const cards = [];
 			this.props.cardData.forEach((card, id) => {
-				if (card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1) {
+				if (card.collectible && this.types.indexOf(card.type) !== -1) {
 					cards.push(card);
 				}
 			});
@@ -83,7 +98,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const allFilteredCards = [];
 		const filterKeys = Object.keys(filteredCards);
 		if (this.state.cards) {
-			this.state.cards.sort((a, b) => a[this.state.sortProp] > b[this.state.sortProp] ? this.state.sortDirection : -this.state.sortDirection).forEach(card => {
+			this.state.sortProps.forEach(x => {
+				this.state.cards.sort((a, b) => a[x] > b[x] ? this.state.sortDirection : -this.state.sortDirection);
+			})
+			this.state.cards.forEach(card => {
 				if (card.name && (!this.state.filter || card.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) !== -1)) {
 					filterKeys.forEach(x => {
 						if (!this.filter(card, x)) {
@@ -99,7 +117,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				}
 			});
 
-			chartSeries = this.buildChartSeries(allFilteredCards);
+			chartSeries = allFilteredCards.length && this.buildChartSeries(allFilteredCards);
 		}
 
 		const availableFilters = this.buildAvailableFilters(filteredCards);
@@ -116,25 +134,28 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			)
 		}
 
-		let showReset = false;
-		this.state.filters.forEach((val, key) => {
-			if (val && val.length) {
-				showReset = true;
-			}
-		});
-
-		let resetButton = null;
-		if (showReset) {
-			resetButton = <a href="#" onClick={() => this.setState({filters: new Map<string, string[]>()})}>Reset all filters</a>
+		let content = null;
+		if(this.state.cards && !allFilteredCards.length) {
+			content = (
+				<div className="no-search-result">
+					<h2>No cards found</h2>
+					<a href="#" onClick={() => this.resetFilters()}>Reset filters</a>
+				</div>
+			);
+		}
+		else {
+			content = [
+				<div className="card-list-wrapper">
+					{tiles}
+				</div>,
+				showMoreButton
+			];
 		}
 
 		return (
 			<div className="row card-discover">
 				<div className="col-lg-2 col-md-2 filter-col">
 					{this.buildFilters(availableFilters)}
-					<div className="reset-wrapper">
-						{resetButton}
-					</div>
 				</div>
 				<div className="col-lg-8 col-md-8 content-col">
 					<div className="form-group">
@@ -149,6 +170,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</div>
 					<div>
 						<ClassFilter 
+							key={this.state.classFilterKey}
 							multiSelect={false}
 							filters="AllNeutral"
 							filterStyle="icon"
@@ -164,8 +186,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 							}
 						/>
 					</div>
-					{tiles}
-					{showMoreButton}
+					{content}
 				</div>
 				<div className="col-lg-2 col-md-2 chart-col">
 					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" series={chartSeries && chartSeries[3]}/>
@@ -184,6 +205,14 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</div>
 			</div>
 		);
+	}
+
+	resetFilters() {
+		this.setState({
+			filters: new Map<string, string[]>(),
+			filter: "",
+			classFilterKey: this.state.classFilterKey + 1,
+		});
 	}
 
 	buildChartSeries(cards: any[]): ChartSeries[] {
@@ -234,8 +263,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					})
 				}
 				else if (key === "format") {
-					if (!filters.format["Standard only"] && this.wildSets.indexOf(card.set) === -1){
-						filters.format["Standard only"] = 1;
+					if (this.wildSets.indexOf(card.set) === -1){
+						filters.format["Standard only"] = (filters.format["Standard only"] || 0) + 1;
 					}
 				}
 				else {
@@ -251,58 +280,67 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	buildFilters(filters: CardFilters): JSX.Element {
-		const mechanics = [
-			"ENRAGED", "DEATHRATTLE", "TAUNT", "BATTLECRY", "CHARGE", "DIVINE_SHIELD", "WINDFURY",
-			"CHOOSE_ONE", "INSPIRE", "JADE_GOLEM", "COMBO", "FREEZE", "STEALTH", "DISCOVER"
-		]
-		const sort = (obj: any): any => {
-			return Object.keys(obj).sort((a, b) => obj[a] < obj[b] ? 1 : -1);
+		let showReset = false;
+		this.state.filters.forEach((val, key) => {
+			if (val && val.length) {
+				showReset = true;
+			}
+		});
+
+		let resetButton = null;
+		if (showReset) {
+			resetButton = <a href="#" onClick={() => this.resetFilters()}>Reset all filters</a>
 		}
 		return (
 			<div className="panel panel-default filter-panel">
-				<div className="panel-heading">Cost</div>
+				<div className="panel-heading">
+					Cost
+					<div className="pull-right">
+						{resetButton}
+					</div>
+				</div>
 				<div className="panel-body cost-filter">
-					{[0, 1, 2, 3, 4, 5, 6, 7].filter(x => Object.keys(filters.cost).indexOf(''+x) !== -1).map(x => this.buildCheckBox("cost", ''+x))}
+					{this.costs.map(x => this.buildCheckBox("cost", ''+x, filters.cost[''+x] || 0))}
 				</div>
 				<div className="panel-heading">Rarity</div>
 				<div className="panel-body">
-					{["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"].filter(x => Object.keys(filters.rarity).indexOf(x) !== -1).map(x => this.buildCheckBox("rarity", x, filters.rarity[x], true))}
-				</div>
-				<div className="panel-heading">Format</div>
-				<div className="panel-body">
-					{sort(filters.format).map(x => this.buildCheckBox("format", x, undefined, true))}
+					{this.rarities.map(x => this.buildCheckBox("rarity", x, filters.rarity[x] || 0, true))}
 				</div>
 				<div className="panel-heading">Set</div>
 				<div className="panel-body">
-					{sort(filters.set).map(x => this.buildCheckBox("set", x, filters.set[x], true))}
+					{this.sets.map(x => this.buildCheckBox("set", x, filters.set[x] || 0, true))}
+					{this.buildCheckBox("format", "Standard only", filters.format["Standard only"] || 0, true)}
 				</div>
 				<div className="panel-heading">Type</div>
 				<div className="panel-body">
-					{sort(filters.type).map(x => this.buildCheckBox("type", x, filters.type[x], true))}
+					{this.types.map(x => this.buildCheckBox("type", x, filters.type[x] || 0, true))}
 				</div>
 				<div className="panel-heading">Race</div>
 				<div className="panel-body">
-					{sort(filters.race).map(x => this.buildCheckBox("race", x, filters.race[x], true))}
+					{this.races.map(x => this.buildCheckBox("race", x, filters.race[x] || 0, true))}
 				</div>
 				<div className="panel-heading">Mechanics</div>
 				<div className="panel-body">
-					{sort(filters.mechanics).filter(x => mechanics.indexOf(x) !== -1).map(x => this.buildCheckBox("mechanics", x, filters.mechanics[x], true))}
+					{this.mechanics.map(x => this.buildCheckBox("mechanics", x, filters.mechanics[x] || 0, true))}
 				</div>
 			</div>
 		);
 	}
 
 	buildCheckBox(prop: string, value: string, count?: number, div?: boolean) {
-		let text = null;
+		let text = ''+value;
 		switch(prop) {
 			case "set":
-				text = setNames[value.toLowerCase()];
+				text = setNames[text.toLowerCase()];
 				break;
 			case "mechanics":
-				text = value.split("_").map(x => toTitleCase(x)).join(" ");
+				if (text === "ENRAGED") {
+					text = "ENRAGE";
+				}
+				text = text.split("_").map(x => toTitleCase(x)).join(" ");
 				break;
 			case "cost":
-				text = +value < 7 ? ''+value : "7+";
+				text = +value < 7 ? text : " 7+";
 				break;
 			default:
 				text = toTitleCase(value);
@@ -311,13 +349,21 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const selected = this.state.filters.get(prop) && this.state.filters.get(prop).indexOf(value) !== -1;
 
 		const onClick = () => {
-			const newFilter = selected ? this.state.filters.get(prop).filter(x => x !== value) : (this.state.filters.get(prop) || []).concat(value);
-			this.setState({
-				filters: this.state.filters.set(prop, newFilter)
-			})
+			if (count !== 0) {
+				const newFilter = selected ? this.state.filters.get(prop).filter(x => x !== value) : (this.state.filters.get(prop) || []).concat(value);
+				this.setState({
+					filters: this.state.filters.set(prop, newFilter)
+				})
+			}
 		};
 
 		const classNames = ["filter-item"];
+		if (prop === "format") {
+			classNames.push("format");
+		}
+		if (count === 0) {
+			classNames.push("disabled");
+		}
 		if (selected) {
 			classNames.push("selected");
 		}
@@ -329,16 +375,17 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</span>
 			);
 			return <div className={classNames.join(" ")} onClick={onClick}>
-				<span>{text}</span>
+				<span className="filter-item-text pull-left">{text}</span>
 				{countBadge}
 			</div>;
 		}
 
-		return <span className={classNames.join(" ")} onClick={onClick}>
-			<span className="badge">
-				{text}
-			</span>
-		</span>
+		classNames.push("mana-crystal");
+
+		return <div className={classNames.join(" ")} onClick={onClick}>
+			<img src={STATIC_URL + "images/mana_crystal.png"} height={28}/>
+			<div>{text}</div>
+		</div>
 
 	}
 
