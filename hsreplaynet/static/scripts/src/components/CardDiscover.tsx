@@ -29,7 +29,6 @@ interface CardDiscoverState {
 	sortProps?: string[];
 	sortDirection?: number;
 	filters?: Map<string, string[]>;
-	availableFilters?: CardFilters;
 	numCards?: number;
 	classFilterKey?: number;
 }
@@ -39,15 +38,19 @@ interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 }
 
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
-	readonly costs = [0, 1, 2, 3, 4, 5, 6, 7];
-	readonly mechanics = [
-		"ENRAGED", "DEATHRATTLE", "TAUNT", "BATTLECRY", "CHARGE", "DIVINE_SHIELD", "WINDFURY",
-		"CHOOSE_ONE", "INSPIRE", "JADE_GOLEM", "COMBO", "FREEZE", "STEALTH"
-	];
-	readonly races = ["BEAST", "DEMON", "DRAGON", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"];
-	readonly rarities = ["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"];
-	readonly sets = ["CORE", "EXPERT1", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "PROMO", "REWARD"];
-	readonly types = ["MINION", "SPELL", "WEAPON"];
+	readonly filters = {
+		cost: [0, 1, 2, 3, 4, 5, 6, 7],
+		format: ["Standard only"],
+		mechanics: [
+			"ENRAGED", "DEATHRATTLE", "TAUNT", "BATTLECRY", "CHARGE", "DIVINE_SHIELD", "WINDFURY",
+			"CHOOSE_ONE", "INSPIRE", "JADE_GOLEM", "COMBO", "FREEZE", "STEALTH"
+		],
+		type: ["MINION", "SPELL", "WEAPON"],
+		set: ["CORE", "EXPERT1", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "PROMO", "REWARD"],
+		rarity: ["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"],
+		race: ["BEAST", "DEMON", "DRAGON", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
+		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
+	};
 	readonly wildSets = ["NAXX", "GVG", "PROMO", "REWARD"];
 	readonly placeholderUrl = STATIC_URL + "images/cardback_placeholder_kabal.png";
 
@@ -59,7 +62,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			sortProps: ["name", "cost"],
 			sortDirection: 1,
 			filters: new Map<string, string[]>(),
-			availableFilters: null,
 			numCards: 20,
 			classFilterKey: 0,
 		}
@@ -75,7 +77,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (this.props.cardData && !this.state.cards) {
 			const cards = [];
 			this.props.cardData.forEach((card, id) => {
-				if (card.collectible && this.types.indexOf(card.type) !== -1) {
+				if (card.collectible && this.filters.type.indexOf(card.type) !== -1) {
 					cards.push(card);
 				}
 			});
@@ -107,7 +109,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						if (!this.filter(card, x)) {
 							filteredCards[x].push(card);
 						}
-					})
+					});
 					if (!this.filter(card)) {
 						if (tiles.length < this.state.numCards) {
 							tiles.push(<CardImage cardId={card.id} placeholder={this.placeholderUrl} key={card.id}/>);
@@ -120,8 +122,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			chartSeries = allFilteredCards.length && this.buildChartSeries(allFilteredCards);
 		}
 
-		const availableFilters = this.buildAvailableFilters(filteredCards);
-		this.state.availableFilters = availableFilters;
 
 		let showMoreButton = null;
 		if (this.state.cards && allFilteredCards.length > this.state.numCards) {
@@ -152,10 +152,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			];
 		}
 
+		const filterCounts = this.filterCounts(filteredCards);
+
 		return (
 			<div className="row card-discover">
 				<div className="col-lg-2 col-md-2 filter-col">
-					{this.buildFilters(availableFilters)}
+					{this.buildFilters(filterCounts)}
 				</div>
 				<div className="col-lg-8 col-md-8 content-col">
 					<div className="form-group">
@@ -243,7 +245,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		return chartSeries;
 	}
 
-	buildAvailableFilters(cardFilters: CardFilters) : CardFilters {
+	filterCounts(cardFilters: CardFilters) : CardFilters {
 		const filters = {
 			playerClass: {},
 			cost: {},
@@ -285,7 +287,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		return filters;
 	}
 
-	buildFilters(filters: CardFilters): JSX.Element {
+	buildFilters(filterCounts: CardFilters): JSX.Element {
 		let showReset = false;
 		this.state.filters.forEach((val, key) => {
 			if (val && val.length) {
@@ -306,34 +308,34 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</div>
 				</div>
 				<div className="panel-body cost-filter">
-					{this.costs.map(x => this.buildCheckBox("cost", ''+x, filters.cost[''+x] || 0))}
+					{this.filters.cost.map(x => this.buildFilterItem("cost", ''+x, filterCounts.cost[x]))}
 				</div>
 				<div className="panel-heading">Rarity</div>
 				<div className="panel-body">
-					{this.rarities.map(x => this.buildCheckBox("rarity", x, filters.rarity[x] || 0, true))}
+					{this.filters.rarity.map(x => this.buildFilterItem("rarity", x, filterCounts.rarity[x], true))}
 				</div>
 				<div className="panel-heading">Set</div>
 				<div className="panel-body">
-					{this.sets.map(x => this.buildCheckBox("set", x, filters.set[x] || 0, true))}
-					{this.buildCheckBox("format", "Standard only", filters.format["Standard only"] || 0, true)}
+					{this.filters.set.map(x => this.buildFilterItem("set", x, filterCounts.set[x], true))}
+					{this.buildFilterItem("format", "Standard only", filterCounts.format["Standard only"], true)}
 				</div>
 				<div className="panel-heading">Type</div>
 				<div className="panel-body">
-					{this.types.map(x => this.buildCheckBox("type", x, filters.type[x] || 0, true))}
+					{this.filters.type.map(x => this.buildFilterItem("type", x, filterCounts.type[x], true))}
 				</div>
 				<div className="panel-heading">Race</div>
 				<div className="panel-body">
-					{this.races.map(x => this.buildCheckBox("race", x, filters.race[x] || 0, true))}
+					{this.filters.race.map(x => this.buildFilterItem("race", x, filterCounts.race[x], true))}
 				</div>
 				<div className="panel-heading">Mechanics</div>
 				<div className="panel-body">
-					{this.mechanics.map(x => this.buildCheckBox("mechanics", x, filters.mechanics[x] || 0, true))}
+					{this.filters.mechanics.map(x => this.buildFilterItem("mechanics", x, filterCounts.mechanics[x], true))}
 				</div>
 			</div>
 		);
 	}
 
-	buildCheckBox(prop: string, value: string, count?: number, div?: boolean) {
+	buildFilterItem(prop: string, value: string, count: number, div?: boolean) {
 		let text = ''+value;
 		switch(prop) {
 			case "set":
@@ -355,7 +357,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const selected = this.state.filters.get(prop) && this.state.filters.get(prop).indexOf(value) !== -1;
 
 		const onClick = () => {
-			if (count !== 0) {
+			if (count) {
 				const newFilter = selected ? this.state.filters.get(prop).filter(x => x !== value) : (this.state.filters.get(prop) || []).concat(value);
 				this.setState({
 					filters: this.state.filters.set(prop, newFilter)
@@ -367,7 +369,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (prop === "format") {
 			classNames.push("format");
 		}
-		if (count === 0) {
+		if (!count) {
 			classNames.push("disabled");
 		}
 		if (selected) {
@@ -377,7 +379,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (div) {
 			const countBadge = (
 				<span className="badge pull-right">
-					{count}
+					{count || 0}
 				</span>
 			);
 			return <div className={classNames.join(" ")} onClick={onClick}>
@@ -398,17 +400,15 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	filter(card: any, exlcudeFilter?: string): boolean {
 		let filter = false;
 		this.state.filters.forEach((values, key) => {
-			if (key === exlcudeFilter) {
+			if (key === exlcudeFilter || !values || !values.length) {
 				return;
 			}
-			let available= [];
-			if (values && this.state.availableFilters) {
-				available = values.filter(x => Object.keys(this.state.availableFilters[key]).indexOf(x) !== -1).slice();
-			}
+
+			const available = this.filters[key].filter(x => values.indexOf(''+x) !== -1);
 			if (!filter && available.length) {
 				const cardValue = card[key];
 				if (key === "format") {
-					if (available.indexOf("Standard only") !== -1) {
+					if (values.indexOf("Standard only") !== -1) {
 						filter = this.wildSets.indexOf(card.set) !== -1;
 					}
 				}
@@ -419,7 +419,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					filter = available.every(val => cardValue.indexOf(val) === -1);
 				}
 				else if (key === "cost") {
-					filter = available.indexOf(""+Math.min(cardValue, 7)) === -1;
+					filter = available.indexOf(Math.min(cardValue, 7)) === -1;
 				}
 				else {
 					filter = available.indexOf(cardValue) === -1;
