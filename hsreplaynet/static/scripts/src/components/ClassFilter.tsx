@@ -91,9 +91,33 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 	}
 
 	onLabelClick(className: string, selected: boolean) {
-		const newState = this.props.multiSelect ?
-			this.state.selectedClasses.set(className, !selected)
-			: new Map<string, boolean>([[className, true]])
+		let newState = this.state.selectedClasses;
+
+		const currentSelection = [];
+		this.state.selectedClasses.forEach((value, key) => {
+			if (value) {
+				currentSelection.push(key);
+			}
+		});
+		const clickedLastSelected = currentSelection.length == 1 && currentSelection[0] === className;
+
+		if(this.props.multiSelect) {
+			if (clickedLastSelected) {
+				this.getAvailableFilters().forEach(key => newState.set(key, true));
+			}
+			else {
+				newState.set(className, !selected)
+			}
+		}
+		else {
+			if (clickedLastSelected && this.getAvailableFilters().indexOf("ALL") !== -1) {
+				newState = new Map<string, boolean>([["ALL", true]])
+			}
+			else {
+				newState = new Map<string, boolean>([[className, true]])
+			}
+		}
+
 		this.setState({selectedClasses: newState});
 		this.props.selectionChanged(newState);
 	}
