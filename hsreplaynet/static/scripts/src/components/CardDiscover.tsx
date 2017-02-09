@@ -24,7 +24,8 @@ interface CardFilters {
 // TODO: remove ClassFilter internal state
 
 interface CardDiscoverState {
-	filter?: string;
+	textFilter?: string;
+	searchDescription?: boolean;
 	cards?: any[];
 	sortProps?: string[];
 	sortDirection?: number;
@@ -57,7 +58,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
 		super(props, state);
 		this.state = {
-			filter: null,
+			textFilter: null,
+			searchDescription: false,
 			cards: null,
 			sortProps: ["name", "cost"],
 			sortDirection: 1,
@@ -77,7 +79,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (this.props.cardData && !this.state.cards) {
 			const cards = [];
 			this.props.cardData.forEach((card, id) => {
-				if (card.collectible && this.filters.type.indexOf(card.type) !== -1) {
+				if (card.name && card.collectible && this.filters.type.indexOf(card.type) !== -1) {
 					cards.push(card);
 				}
 			});
@@ -104,18 +106,16 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				this.state.cards.sort((a, b) => a[x] > b[x] ? this.state.sortDirection : -this.state.sortDirection);
 			})
 			this.state.cards.forEach(card => {
-				if (card.name && (!this.state.filter || card.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) !== -1)) {
-					filterKeys.forEach(x => {
-						if (!this.filter(card, x)) {
-							filteredCards[x].push(card);
-						}
-					});
-					if (!this.filter(card)) {
-						if (tiles.length < this.state.numCards) {
-							tiles.push(<CardImage cardId={card.id} placeholder={this.placeholderUrl} key={card.id}/>);
-						}
-						allFilteredCards.push(card);
+				filterKeys.forEach(x => {
+					if (!this.filter(card, x)) {
+						filteredCards[x].push(card);
 					}
+				});
+				if (!this.filter(card)) {
+					if (tiles.length < this.state.numCards) {
+						tiles.push(<CardImage cardId={card.id} placeholder={this.placeholderUrl} key={card.id}/>);
+					}
+					allFilteredCards.push(card);
 				}
 			});
 
@@ -155,20 +155,29 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const filterCounts = this.filterCounts(filteredCards);
 
 		return (
-			<div className="row card-discover">
-				<div className="col-lg-2 col-md-2 filter-col">
+			<div className="card-discover">
+				<div className="filter-col">
 					{this.buildFilters(filterCounts)}
 				</div>
-				<div className="col-lg-8 col-md-8 content-col">
-					<div className="form-group">
+				<div className="content-col">
+					<div className="input-group">
 						<input 
 							autoFocus
 							placeholder="Search..."
 							type="text"
-							className="form-control search-bar"
-							value={this.state.filter}
-							onChange={(x) => this.setState({filter: x.target["value"]})}
+							className="form-control"
+							value={this.state.textFilter}
+							onChange={(x) => this.setState({textFilter: x.target["value"]})}
 						/>
+						<span className="input-group-btn">
+							<button
+								className={"btn btn-" + (this.state.searchDescription ? "primary" : "default")}
+								type="button"
+								onClick={() => this.setState({searchDescription: !this.state.searchDescription})}
+							>
+								Include description
+							</button>
+						</span>
 					</div>
 					<div>
 						<ClassFilter 
@@ -190,7 +199,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</div>
 					{content}
 				</div>
-				<div className="col-lg-2 col-md-2 chart-col">
+				<div className="chart-col">
 					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" series={chartSeries && chartSeries[3]}/>
 					<div className="chart-wrapper">
 						<CardDetailPieChart series={chartSeries && chartSeries[4]} title="Classes"/>
@@ -212,7 +221,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	resetFilters() {
 		this.setState({
 			filters: new Map<string, string[]>(),
-			filter: "",
+			textFilter: "",
 			classFilterKey: this.state.classFilterKey + 1,
 		});
 	}
@@ -304,28 +313,28 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				<div className="pull-right">
 					{resetButton}
 				</div>
-				<h3>Cost</h3>
+				<h4>Cost</h4>
 				<ul className="filter-list-cost">
 					{this.getFilterItems("cost", filterCounts.cost)}
 				</ul>
-				<h3>Rarity</h3>
+				<h4>Rarity</h4>
 				<ul>
 					{this.getFilterItems("rarity", filterCounts.rarity)}
 				</ul>
-				<h3>Set</h3>
+				<h4>Set</h4>
 				<ul>
 					{this.getFilterItems("set", filterCounts.set)}
 					{this.buildFilterItem("format", "Standard only", filterCounts.format["Standard only"])}
 				</ul>
-				<h3>Type</h3>
+				<h4>Type</h4>
 				<ul>
 					{this.getFilterItems("type", filterCounts.type)}
 				</ul>
-				<h3>Race</h3>
+				<h4>Race</h4>
 				<ul>
 					{this.getFilterItems("race", filterCounts.race)}
 				</ul>
-				<h3>Mechanics</h3>
+				<h4>Mechanics</h4>
 				<ul>
 					{this.getFilterItems("mechanics", filterCounts.mechanics)}
 				</ul>
@@ -399,6 +408,20 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	filter(card: any, exlcudeFilter?: string): boolean {
+		if (this.state.textFilter) {
+			const text = this.state.textFilter.toLowerCase();
+			if (card.name.toLowerCase().indexOf(text) === -1) {
+				if (this.state.searchDescription && card.text) {
+					if (card.text.toLowerCase().indexOf(text) === -1) {
+						return true;
+					}
+				}
+				else {
+					return true;
+				}
+			}
+		}
+
 		let filter = false;
 		this.state.filters.forEach((values, key) => {
 			if (key === exlcudeFilter || !values || !values.length) {

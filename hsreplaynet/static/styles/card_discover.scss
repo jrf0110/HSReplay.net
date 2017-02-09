@@ -1,7 +1,9 @@
 .card-discover {
+	display: flex;
 
 	.filter-col {
 		padding-top: 150px;
+		width: 250px;
 
 		.filter-panel {
 
@@ -9,6 +11,10 @@
 				display: flex;
 				justify-content: center;
 				flex-wrap: wrap;
+			}
+
+			>h4 {
+				border-bottom: 1px solid $darkgrey;
 			}
 			
 
@@ -106,10 +112,18 @@
 	}
 
 	.content-col {
-		
-		.search-bar {
-			width: 300px;
+		width: calc(100% - 500px);
+
+		.input-group {
+			max-width: 500px;
 			margin: 20px auto;
+			label {
+				font-weight: normal;
+
+				>input {
+					margin: auto 5px;
+				}
+			}
 		}
 
 		.more-button {
@@ -136,6 +150,7 @@
 	}
 
 	.chart-col {
+		width: 250px;
 		padding-top: 150px;
 	}
 }
