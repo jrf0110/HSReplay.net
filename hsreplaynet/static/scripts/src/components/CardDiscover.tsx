@@ -267,6 +267,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						filters.format["Standard only"] = (filters.format["Standard only"] || 0) + 1;
 					}
 				}
+				else if (key === "cost") {
+					if (card.cost != undefined) {
+						const cost = ''+Math.min(card.cost, 7);
+						filters.cost[cost] = (filters.cost[cost] || 0) + 1;
+					}
+				}
 				else {
 					const prop = card[key];
 					if (prop != undefined) {
