@@ -11,92 +11,93 @@
 				flex-wrap: wrap;
 			}
 			
-			.filter-item:hover {
-				color: $red;
 
-				&.mana-crystal {
-					filter: brightness(1.2);
+			> ul {
+				padding-left: 10px;
+				&.filter-list-cost {
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: center;
 				}
 
-				&.selected {
-
-					.filter-item-text {
-						text-decoration: line-through;
-					}
-				}
-			}
-
-			.filter-item {
-				cursor: pointer;
-				user-select: none;
-
-				&.mana-crystal {
-					margin: 3px 0;
-					filter: saturate(0) opacity(0.9);
-					width: 28px;
-					height: 28px;
+				>li:hover {
+					color: $red;
 
 					&.selected {
-						filter: saturate(1) opacity(1);
-					}
-
-					> div {
-						color: white;
-						font-weight: bold;
-						text-align: center;
-						margin-top: -24px;
-						text-shadow: -1px -1px 0 #000,
-							1px -1px 0 #000,
-							-1px 1px 0 #000,
-							1px 1px 0 #000;
-						white-space: pre;
-					}
-				}
-
-				&.format {
-					>span {
-						margin-top: 7px;
-					}
-				}
-
-				.filter-item-text {
-					width: 75%;
-					white-space: nowrap;
-					text-overflow: ellipsis;
-					overflow: hidden;
-				}
-
-				&.selected {
-					font-weight: bold;
-
-					.badge {
-						background: $aqua;
-					}
-				}
-
-				&.disabled {
-					cursor: not-allowed;
-
-					.filter-item-text {
-						color: lightgray;
-					}
-
-					.badge {
-						background: lightgray;
+						text-decoration: line-through;
 					}
 
 					&.mana-crystal {
-						filter: saturate(0) opacity(0.5);
+						filter: brightness(1.2);
+						text-decoration: none;
 					}
-					
+				}
+
+				>li {
+					cursor: pointer;
+					user-select: none;
+					list-style-type: none;
+
+					&.mana-crystal {
+						filter: saturate(0) opacity(0.9);
+						height: 28px;
+						margin: 3px 0;
+						width: 28px;
+
+						&.selected {
+							filter: saturate(1) opacity(1);
+						}
+
+						> div {
+							color: white;
+							font-weight: bold;
+							margin-top: -24px;
+							text-align: center;
+							text-shadow: -1px -1px 0 #000,
+								1px -1px 0 #000,
+								-1px 1px 0 #000,
+								1px 1px 0 #000;
+							white-space: pre;
+						}
+					}
+
+					&.format {
+						margin-top: 7px;
+					}
+
+					.badge {
+						float: right;
+					}
+
 					&.selected {
+						font-weight: bold;
 
 						.badge {
-							background: #afc4cf;
+							background: $aqua;
+						}
+					}
+
+					&.disabled {
+						cursor: not-allowed;
+						color: lightgray;
+
+						.badge {
+							background: lightgray;
 						}
 
 						&.mana-crystal {
-							filter: saturate(1) opacity(0.5);
+							filter: saturate(0) opacity(0.5);
+						}
+						
+						&.selected {
+
+							.badge {
+								background: #afc4cf;
+							}
+
+							&.mana-crystal {
+								filter: saturate(1) opacity(0.5);
+							}
 						}
 					}
 				}

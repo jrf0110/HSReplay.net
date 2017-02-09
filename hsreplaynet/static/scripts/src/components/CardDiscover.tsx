@@ -300,42 +300,46 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			resetButton = <a href="#" onClick={() => this.resetFilters()}>Reset all filters</a>
 		}
 		return (
-			<div className="panel panel-default filter-panel">
-				<div className="panel-heading">
-					Cost
-					<div className="pull-right">
-						{resetButton}
-					</div>
+			<div className="filter-panel">
+				<div className="pull-right">
+					{resetButton}
 				</div>
-				<div className="panel-body cost-filter">
-					{this.filters.cost.map(x => this.buildFilterItem("cost", ''+x, filterCounts.cost[x]))}
-				</div>
-				<div className="panel-heading">Rarity</div>
-				<div className="panel-body">
-					{this.filters.rarity.map(x => this.buildFilterItem("rarity", x, filterCounts.rarity[x], true))}
-				</div>
-				<div className="panel-heading">Set</div>
-				<div className="panel-body">
-					{this.filters.set.map(x => this.buildFilterItem("set", x, filterCounts.set[x], true))}
-					{this.buildFilterItem("format", "Standard only", filterCounts.format["Standard only"], true)}
-				</div>
-				<div className="panel-heading">Type</div>
-				<div className="panel-body">
-					{this.filters.type.map(x => this.buildFilterItem("type", x, filterCounts.type[x], true))}
-				</div>
-				<div className="panel-heading">Race</div>
-				<div className="panel-body">
-					{this.filters.race.map(x => this.buildFilterItem("race", x, filterCounts.race[x], true))}
-				</div>
-				<div className="panel-heading">Mechanics</div>
-				<div className="panel-body">
-					{this.filters.mechanics.map(x => this.buildFilterItem("mechanics", x, filterCounts.mechanics[x], true))}
-				</div>
+				<h3>Cost</h3>
+				<ul className="filter-list-cost">
+					{this.getFilterItems("cost", filterCounts.cost)}
+				</ul>
+				<h3>Rarity</h3>
+				<ul>
+					{this.getFilterItems("rarity", filterCounts.rarity)}
+				</ul>
+				<h3>Set</h3>
+				<ul>
+					{this.getFilterItems("set", filterCounts.set)}
+					{this.buildFilterItem("format", "Standard only", filterCounts.format["Standard only"])}
+				</ul>
+				<h3>Type</h3>
+				<ul>
+					{this.getFilterItems("type", filterCounts.type)}
+				</ul>
+				<h3>Race</h3>
+				<ul>
+					{this.getFilterItems("race", filterCounts.race)}
+				</ul>
+				<h3>Mechanics</h3>
+				<ul>
+					{this.getFilterItems("mechanics", filterCounts.mechanics)}
+				</ul>
 			</div>
 		);
 	}
 
-	buildFilterItem(prop: string, value: string, count: number, div?: boolean) {
+	getFilterItems(key: string, counts: any): JSX.Element[] {
+		return this.filters[key].map(item => {
+			return this.buildFilterItem(key, ''+item, counts[item])
+		});
+	}
+
+	buildFilterItem(prop: string, value: string, count: number) {
 		let text = ''+value;
 		switch(prop) {
 			case "set":
@@ -376,24 +380,21 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			classNames.push("selected");
 		}
 		
-		if (div) {
-			const countBadge = (
-				<span className="badge pull-right">
+		if (prop !== "cost") {
+			return <li className={classNames.join(" ")} onClick={onClick}>
+				{text}
+				<span className="badge">
 					{count || 0}
 				</span>
-			);
-			return <div className={classNames.join(" ")} onClick={onClick}>
-				<span className="filter-item-text pull-left">{text}</span>
-				{countBadge}
-			</div>;
+			</li>;
 		}
 
 		classNames.push("mana-crystal");
 
-		return <div className={classNames.join(" ")} onClick={onClick}>
+		return <li className={classNames.join(" ")} onClick={onClick}>
 			<img src={STATIC_URL + "images/mana_crystal.png"} height={28}/>
 			<div>{text}</div>
-		</div>
+		</li>
 
 	}
 
