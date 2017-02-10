@@ -18,13 +18,14 @@ from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import streams
 from hsreplaynet.utils.influx import influx_timer, influx_metric
-from sqlalchemy import create_engine, MetaData, exc
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.sql import func, select
 from sqlalchemy.pool import NullPool
 from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
 from hsredshift.etl.views import (
 	get_materialized_view_list, get_materialized_view_update_statement
 )
+from psycopg2 import DatabaseError
 
 
 def get_redshift_engine():
@@ -504,12 +505,12 @@ class BackgroundETLTaskThread(Thread):
 	def run(self):
 		try:
 			self._do_etl_task_func()
-		except exc.DBAPIError as e:
+		except DatabaseError as e:
 			# If the lambda that launched this thread completes while
 			# Redshift is still processing the query, then when this daemon thread
 			# Is unfrozen and resumed in the next ETL cycle it will discover that
 			# It's connection has been invalidated
-			if e.connection_invalidated:
+			if "select() failed" in str(e):
 				log.debug(str(e))
 				pass
 			else:
