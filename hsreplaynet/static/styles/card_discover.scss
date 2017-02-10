@@ -132,15 +132,12 @@
 			width: 100%;
 		}
 
-		.input-group {
+		.search-wrapper {
 			max-width: 500px;
 			margin: 20px auto;
-			label {
-				font-weight: normal;
-
-				>input {
-					margin: auto 5px;
-				}
+			display: flex;
+			>input {
+				border-radius: 0px;
 			}
 		}
 

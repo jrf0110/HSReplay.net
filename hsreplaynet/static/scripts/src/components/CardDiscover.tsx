@@ -179,38 +179,23 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					{this.buildFilters(filterCounts)}
 				</div>
 				<div className={contentClassNames.join(" ")}>
-					<div className="input-group">
-						<span className="input-group-btn">
-							<button
-								className="btn btn-default visible-xs"
-								type="button"
-								onClick={() => this.setState({showFilters: !this.state.showFilters})}
-							>
-								Filters
-							</button>
-						</span>
+					<div className="search-wrapper">
+						<button
+							className="btn btn-default visible-xs"
+							type="button"
+							onClick={() => this.setState({showFilters: !this.state.showFilters})}
+						>
+							<span className="glyphicon glyphicon-filter"/>
+							Filters
+						</button>
 						<input 
 							autoFocus
 							placeholder="Search..."
-							type="text"
+							type="search"
 							className="form-control"
 							value={this.state.textFilter}
 							onChange={(x) => this.setState({textFilter: x.target["value"]})}
 						/>
-						<span className="input-group-btn">
-							<button
-								className={"btn btn-" + (this.state.searchDescription ? "primary" : "default")}
-								type="button"
-								onClick={() => this.setState({searchDescription: !this.state.searchDescription})}
-							>
-								<span className="hidden-xs">
-									Include description
-								</span>
-								<span className="visible-xs">
-									Description
-								</span>
-							</button>
-						</span>
 					</div>
 					<div>
 						<ClassFilter 
