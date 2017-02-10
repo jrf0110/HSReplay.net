@@ -1808,6 +1808,10 @@ class RedshiftStagingTrackTable(models.Model):
 
 	def _attempt_update_status_to_stage(self, stage, field, handle, min_expected_count=1):
 		# Use the handle to check the status of the query
+		if has_inflight_queries(handle):
+			# If we see there is still something actively in flight then we can exit early.
+			return
+
 		# The min_expected_count is the minimum number of statements that must exist
 		# in the QLOG table to be complete.
 		# It's possible that there could be more.
