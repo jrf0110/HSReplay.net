@@ -25,7 +25,9 @@ export default class JoustEmbedder extends EventEmitter {
 			target.innerHTML = '<p class="alert alert-danger">' +
 				'<strong>Loading failed:</strong> ' +
 				'Replay applet (Joust) could not be loaded. Please ensure you can access ' +
-				'<a href="' + JOUST_STATIC_URL + '">' + JOUST_STATIC_URL + '</a>.</p>';
+				'<a href="' + JOUST_STATIC_URL + 'joust.js">' + JOUST_STATIC_URL + 'joust.js</a>.</p>' +
+				'<p>Otherwise try clearing your cache and refreshing this page.</p>';
+			// could also offer document.location.reload(true)
 			return;
 		}
 
