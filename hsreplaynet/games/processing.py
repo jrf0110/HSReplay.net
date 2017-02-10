@@ -557,8 +557,8 @@ def replay_meets_recency_requirements(upload_event, global_game):
 	# If we determine that vacuuming is not a bottleneck than we can consider
 	# relaxing this requirement.
 	max_delay = settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
-	diff = abs(global_game.match_start - upload_event.log_upload_date)
-	diff_hours = diff.seconds / 3600
+	diff = global_game.match_start - upload_event.log_upload_date
+	diff_hours = abs(diff.total_seconds()) / 3600.0
 	meets_requirements = diff_hours <= max_delay
 	if not meets_requirements:
 		influx_metric("replay_failed_recency_requirement", {"count": 1, "diff": diff_hours})

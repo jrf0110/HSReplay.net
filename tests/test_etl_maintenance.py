@@ -1,4 +1,9 @@
+from datetime import timedelta
+from unittest.mock import MagicMock
+from django.utils import timezone
+from django.conf import settings
 from hsreplaynet.uploads.models import RedshiftETLTask
+from hsreplaynet.games.processing import replay_meets_recency_requirements
 
 
 def test_etl_task():
@@ -17,38 +22,48 @@ def test_etl_task():
 	assert callable_invoked, "task did not invoke callable"
 
 
-# @pytest.mark.django_db
-# def test_active_track_initializes_successor(monkeypatch):
-# 	def mock_get_redshift_engine():
-# 		return True
-# 	monkeypatch.setattr(models, "get_redshift_engine", mock_get_redshift_engine)
-#
-# 	# Need to mock create_staging_table on etl.models
-# 	def mock_create_staging_table(table, prefix, *args, **kwargs):
-# 		t = Table()
-# 		t.name = MagicMock(return_value=prefix + table.name)
-# 		return t
-#
-# 	monkeypatch.setattr(models, "create_staging_table", mock_create_staging_table)
-#
-# 	# Need to mock create_firehose_stream on aws.streams
-# 	def mock_create_firehose_stream(*args, **kwargs):
-# 		return True
-# 	monkeypatch.setattr(streams, "create_firehose_stream", mock_create_firehose_stream)
-#
-# 	def mock_list_staging_eligible_tables(*args, **kwargs):
-# 		result = []
-# 		for n in ["game", "player", "block"]:
-# 			mock = Table()
-# 			mock.name = MagicMock(return_value=n)
-# 			result.append(mock)
-# 		return result
-#
-# 	monkeypatch.setattr(
-# 		models,
-# 		"list_staging_eligible_tables",
-# 		mock_list_staging_eligible_tables
-# 	)
-#
-# 	initial_track = RedshiftStagingTrack.objects.initialize_first_active_track()
-# 	assert initial_track.tables().count() == 3, "Not all child tables created"
+def assert_recency_requirements_for(log_upload_date, match_start):
+	mock_upload_event = MagicMock()
+	mock_upload_event.log_upload_date = log_upload_date
+
+	mock_global_game = MagicMock()
+	mock_global_game.match_start = match_start
+
+	return replay_meets_recency_requirements(mock_upload_event, mock_global_game)
+
+
+def test_replay_meets_recency_requirements():
+	threshold_hours = settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
+
+	log_upload_date = timezone.now()
+	earlier_match_start_within_threshold = log_upload_date - timedelta(
+		hours=(threshold_hours - 2)
+	)
+	assert assert_recency_requirements_for(
+		log_upload_date,
+		earlier_match_start_within_threshold
+	), "A match start within the threshold incorrectly failed the recency test"
+
+	earlier_match_start_outside_threshold = log_upload_date - timedelta(
+		hours=(threshold_hours + 10)
+	)
+	assert not assert_recency_requirements_for(
+		log_upload_date,
+		earlier_match_start_outside_threshold
+	), "A match start outside the threshold was not rejected"
+
+	later_match_start_within_threshold = log_upload_date + timedelta(
+		hours=(threshold_hours - 2)
+	)
+	assert assert_recency_requirements_for(
+		log_upload_date,
+		later_match_start_within_threshold
+	), "A match start within the threshold incorrectly failed the recency test"
+
+	later_match_start_outside_threshold = log_upload_date + timedelta(
+		hours=(threshold_hours + 10)
+	)
+	assert not assert_recency_requirements_for(
+		log_upload_date,
+		later_match_start_outside_threshold
+	), "A match start outside the threshold was not rejected"
