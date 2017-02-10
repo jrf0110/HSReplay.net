@@ -1076,6 +1076,9 @@ class RedshiftStagingTrack(models.Model):
 			}
 		)
 
+		for table in self.tables.all():
+			table.capture_track_finished_metrics()
+
 	def refresh_track_state(self):
 		if self.stage == RedshiftETLStage.ERROR:
 			# We never automatically move a track out of error once it has
@@ -1900,3 +1903,66 @@ class RedshiftStagingTrackTable(models.Model):
 			return self.min_game_date, self.max_game_date
 		else:
 			raise RuntimeError("Could not get min and max game_date from staging table")
+
+	def capture_track_finished_metrics(self):
+		if self.stage != RedshiftETLStage.FINISHED:
+			raise RuntimeError("Cannot call on unfinished tracks.")
+
+		self.capture_stage_duration(
+			RedshiftETLStage.GATHERING_STATS,
+			self.gathering_stats_started_at,
+			self.gathering_stats_ended_at
+		)
+
+		self.capture_stage_duration(
+			RedshiftETLStage.DEDUPLICATING,
+			self.deduplicating_started_at,
+			self.deduplicating_ended_at
+		)
+
+		self.capture_stage_duration(
+			RedshiftETLStage.INSERTING,
+			self.insert_started_at,
+			self.insert_ended_at
+		)
+
+		self.capture_stage_duration(
+			RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS,
+			self.refreshing_view_start_at,
+			self.refreshing_view_end_at
+		)
+
+		self.capture_stage_duration(
+			RedshiftETLStage.VACUUMING,
+			self.vacuum_started_at,
+			self.vacuum_ended_at,
+		)
+
+		self.capture_stage_duration(
+			RedshiftETLStage.ANALYZING,
+			self.analyze_started_at,
+			self.analyze_ended_at
+		)
+
+		self.capture_stage_duration(
+			RedshiftETLStage.CLEANING_UP,
+			self.track_cleanup_start_at,
+			self.track_cleanup_end_at
+		)
+
+	def capture_stage_duration(self, stage, start, end, extra_fields=None):
+		if start and end:
+			duration = (end - start).seconds
+			fields = {
+				"seconds": duration,
+				"track_id": self.track_id,
+				"id": self.id
+			}
+			if extra_fields:
+				fields.update(extra_fields)
+			influx_metric(
+				"redshift_etl_track_table_stage_duration_seconds",
+				fields,
+				target_table=self.target_table,
+				stage=stage.name.lower(),
+			)
