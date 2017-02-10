@@ -518,11 +518,11 @@ def do_process_upload_event(upload_event):
 	can_attempt_redshift_load = False
 
 	if global_game.loaded_into_redshift is None:
-		log.info("Global game has not been loaded into redshift.")
+		log.debug("Global game has not been loaded into redshift.")
 		# Attempt to claim the advisory_lock, if successful:
 		can_attempt_redshift_load = global_game.acquire_redshift_lock()
 	else:
-		log.info("Global game has already been loaded into Redshift")
+		log.debug("Global game has already been loaded into Redshift")
 
 	# Defer flushing the exporter until after the UploadEvent is set to SUCCESS
 	# So that the player can start watching their replay sooner
@@ -530,7 +530,7 @@ def do_process_upload_event(upload_event):
 
 		# Only if we were able to claim the advisory lock do we proceed here.
 		if can_attempt_redshift_load:
-			log.info("Redshift lock acquired. Will attempt to flush to redshift")
+			log.debug("Redshift lock acquired. Will attempt to flush to redshift")
 
 			if should_load_into_redshift(upload_event, global_game):
 				with influx_timer("generate_redshift_game_info_duration"):
@@ -549,7 +549,7 @@ def do_process_upload_event(upload_event):
 					# It will also be released automatically when the lambda exits.
 					global_game.release_redshift_lock()
 		else:
-			log.info("Did not acquire redshift lock. Will not flush to redshift")
+			log.debug("Did not acquire redshift lock. Will not flush to redshift")
 
 	return replay, do_flush_exporter
 
