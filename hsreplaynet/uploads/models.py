@@ -17,7 +17,7 @@ from django_intenum import IntEnumField
 from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import streams
-from hsreplaynet.utils.influx import influx_timer
+from hsreplaynet.utils.influx import influx_timer, influx_metric
 from sqlalchemy import create_engine, MetaData, exc
 from sqlalchemy.sql import func, select
 from sqlalchemy.pool import NullPool
@@ -1049,6 +1049,33 @@ class RedshiftStagingTrack(models.Model):
 
 		self.save()
 
+	def capture_track_finished_metrics(self):
+		if self.stage != RedshiftETLStage.FINISHED:
+			raise RuntimeError("Cannot call on unfinished tracks.")
+
+		processing_start = self.gathering_stats_started_at
+		processing_end = self.track_cleanup_end_at
+
+		processing_duration = (processing_end - processing_start).seconds
+		active_duration = (self.closed_at - self.active_at).seconds
+
+		active_seconds_per_processing_second = (1.0 * active_duration) / processing_duration
+
+		influx_metric(
+			"redshift_etl_track_total_processing_seconds",
+			{
+				"seconds": processing_duration,
+				"track_id": self.id
+			}
+		)
+		influx_metric(
+			"redshift_etl_active_seconds_to_processing_seconds_ratio",
+			{
+				"seconds": active_seconds_per_processing_second,
+				"track_id": self.id
+			}
+		)
+
 	def refresh_track_state(self):
 		if self.stage == RedshiftETLStage.ERROR:
 			# We never automatically move a track out of error once it has
@@ -1065,6 +1092,7 @@ class RedshiftStagingTrack(models.Model):
 			self.stage = RedshiftETLStage.FINISHED
 			self.track_cleanup_end_at = timezone.now()
 			self.save()
+			self.capture_track_finished_metrics()
 			return False, None
 
 		if self._any_tables_are_in_stage(RedshiftETLStage.CLEANING_UP):
