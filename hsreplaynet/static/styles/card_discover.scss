@@ -5,6 +5,16 @@
 		padding-top: 150px;
 		width: 250px;
 
+		@media(max-width: 768px) {
+			padding-top: 20px;
+			width: 100%;
+		}
+
+		>span>button {
+			display: block;
+			width: 100%;
+		}
+
 		.filter-panel {
 
 			.cost-filter {
@@ -114,6 +124,14 @@
 	.content-col {
 		width: calc(100% - 500px);
 
+		@media(max-width: 1200px) {
+			width: calc(100% - 250px);
+		}
+
+		@media(max-width: 768px) {
+			width: 100%;
+		}
+
 		.input-group {
 			max-width: 500px;
 			margin: 20px auto;
@@ -134,6 +152,20 @@
 			display: flex;
 			flex-wrap: wrap;
 			justify-content: center;
+
+			.card-image {
+				>img {
+					height: 350px;
+
+					@media(max-width: 992px) {
+						height: 300px;
+					}
+					
+					@media(max-width: 450px) {
+						height: 230px;
+					}
+				}
+			}
 
 			.card-image:hover {
 				img {

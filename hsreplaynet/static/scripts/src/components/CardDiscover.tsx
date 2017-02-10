@@ -32,6 +32,7 @@ interface CardDiscoverState {
 	filters?: Map<string, string[]>;
 	numCards?: number;
 	classFilterKey?: number;
+	showFilters?: boolean;
 }
 
 interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
@@ -66,6 +67,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			filters: new Map<string, string[]>(),
 			numCards: 20,
 			classFilterKey: 0,
+			showFilters: false,
 		}
 		this.fetchPlaceholderImage();
 	}
@@ -153,14 +155,40 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 
 		const filterCounts = this.filterCounts(filteredCards);
+		const filterClassNames = ["filter-col"];
+		const contentClassNames = ["content-col"]
+		if (!this.state.showFilters) {
+			filterClassNames.push("hidden-xs");
+		}
+		else {
+			contentClassNames.push("hidden-xs");
+		}
 
 		return (
 			<div className="card-discover">
-				<div className="filter-col">
+				<div className={filterClassNames.join(" ")}>
+					<span className="visible-xs">
+						<button
+							className="btn btn-primary"
+							type="button"
+							onClick={() => this.setState({showFilters: false})}
+						>
+							Back
+						</button>
+					</span>
 					{this.buildFilters(filterCounts)}
 				</div>
-				<div className="content-col">
+				<div className={contentClassNames.join(" ")}>
 					<div className="input-group">
+						<span className="input-group-btn">
+							<button
+								className="btn btn-default visible-xs"
+								type="button"
+								onClick={() => this.setState({showFilters: !this.state.showFilters})}
+							>
+								Filters
+							</button>
+						</span>
 						<input 
 							autoFocus
 							placeholder="Search..."
@@ -175,7 +203,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 								type="button"
 								onClick={() => this.setState({searchDescription: !this.state.searchDescription})}
 							>
-								Include description
+								<span className="hidden-xs">
+									Include description
+								</span>
+								<span className="visible-xs">
+									Description
+								</span>
 							</button>
 						</span>
 					</div>
@@ -199,7 +232,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</div>
 					{content}
 				</div>
-				<div className="chart-col">
+				<div className="chart-col visible-lg">
 					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" series={chartSeries && chartSeries[3]}/>
 					<div className="chart-wrapper">
 						<CardDetailPieChart series={chartSeries && chartSeries[4]} title="Classes"/>
