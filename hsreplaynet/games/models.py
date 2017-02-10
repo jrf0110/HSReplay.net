@@ -157,6 +157,51 @@ class GlobalGame(models.Model):
 			return "Friendly Match"
 		return ""
 
+	def acquire_redshift_lock(self):
+		"""
+		Attempt to claim an exclusive session level advisory lock in postgres.
+
+		The attempt is non-blocking and will use the games ID as the lock-ID.
+		The lock will automatically be released when the session is closed at the end of
+		the Lambda.
+
+		NOTE: This is only safe to use within lambdas wrapped in the lambda_handler
+		decorator. Otherwise the session will remain open after the lambda exits
+		and the lock will persist in the DB
+
+		To inspect what locks have been acquired directly in Postgres use:
+		`SELECT * FROM pg_locks;`
+
+		For additional details see:
+		https://www.postgresql.org/docs/9.5/static/explicit-locking.html#ADVISORY-LOCKS
+		https://www.postgresql.org/docs/9.5/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
+		"""
+		if not self.id:
+			raise RuntimeError("Cannot claim lock on unsaved instances.")
+
+		from django.db import connection
+		cursor = connection.cursor()
+		command = 'SELECT pg_try_advisory_lock(%i);' % self.id
+		cursor.execute(command)
+		acquired = cursor.fetchone()[0]
+		return acquired
+
+	def release_redshift_lock(self):
+		"""
+		Attempt to release any locks claimed by acquire_redshift_lock()
+
+		Return True if the lock was released, and False if the lock was not held.
+		"""
+		if not self.id:
+			raise RuntimeError("Cannot release lock on unsaved instances.")
+
+		from django.db import connection
+		cursor = connection.cursor()
+		command = 'SELECT pg_advisory_unlock(%i);' % self.id
+		cursor.execute(command)
+		released = cursor.fetchone()[0]
+		return released
+
 
 class GlobalGamePlayer(models.Model):
 	id = models.BigAutoField(primary_key=True)

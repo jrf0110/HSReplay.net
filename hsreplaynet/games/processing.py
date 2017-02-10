@@ -511,27 +511,45 @@ def do_process_upload_event(upload_event):
 	players = update_global_players(global_game, entity_tree, meta)
 
 	# Create/Update the replay object itself
-	replay, global_game_created = find_or_create_replay(
+	replay, game_replay_created = find_or_create_replay(
 		parser, entity_tree, meta, upload_event, global_game, players
 	)
+
+	can_attempt_redshift_load = False
+
+	if global_game.loaded_into_redshift is None:
+		log.info("Global game has not been loaded into redshift.")
+		# Attempt to claim the advisory_lock, if successful:
+		can_attempt_redshift_load = global_game.acquire_redshift_lock()
+	else:
+		log.info("Global game has already been loaded into Redshift")
 
 	# Defer flushing the exporter until after the UploadEvent is set to SUCCESS
 	# So that the player can start watching their replay sooner
 	def do_flush_exporter():
 
-		if should_load_into_redshift(upload_event, global_game):
-			with influx_timer("generate_redshift_game_info_duration"):
-				game_info = get_game_info(global_game, replay)
-			exporter.set_game_info(game_info)
+		# Only if we were able to claim the advisory lock do we proceed here.
+		if can_attempt_redshift_load:
+			log.info("Redshift lock acquired. Will attempt to flush to redshift")
 
-			try:
-				with influx_timer("flush_exporter_to_firehose_duration"):
-					flush_exporter_to_firehose(exporter)
-			except:
-				raise
-			else:
-				global_game.loaded_into_redshift = timezone.now()
-				global_game.save()
+			if should_load_into_redshift(upload_event, global_game):
+				with influx_timer("generate_redshift_game_info_duration"):
+					game_info = get_game_info(global_game, replay)
+				exporter.set_game_info(game_info)
+
+				try:
+					with influx_timer("flush_exporter_to_firehose_duration"):
+						flush_exporter_to_firehose(exporter)
+				except:
+					raise
+				else:
+					global_game.loaded_into_redshift = timezone.now()
+					global_game.save()
+					# Okay to release the advisory lock once loaded_into_redshift is set
+					# It will also be released automatically when the lambda exits.
+					global_game.release_redshift_lock()
+		else:
+			log.info("Did not acquire redshift lock. Will not flush to redshift")
 
 	return replay, do_flush_exporter
 
