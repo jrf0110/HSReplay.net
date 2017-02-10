@@ -1750,8 +1750,8 @@ class RedshiftStagingTrackTable(models.Model):
 			self.insert_ended_at = None
 
 		if int(stage) < int(RedshiftETLStage.DEDUPLICATION_COMPLETE):
-			self.deduplicating_started_at = None
-			self.deduplicating_ended_at = None
+			self.deduplication_started_at = None
+			self.deduplication_ended_at = None
 
 		if int(stage) < int(RedshiftETLStage.GATHERING_STATS_COMPLETE):
 			self.gathering_stats_started_at = None
@@ -1769,8 +1769,7 @@ class RedshiftStagingTrackTable(models.Model):
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.ANALYZE_COMPLETE,
 				"analyze_ended_at",
-				self.analyze_query_handle,
-				2
+				self.analyze_query_handle
 			)
 
 		if self.stage == RedshiftETLStage.VACUUMING:
@@ -1916,8 +1915,8 @@ class RedshiftStagingTrackTable(models.Model):
 
 		self.capture_stage_duration(
 			RedshiftETLStage.DEDUPLICATING,
-			self.deduplicating_started_at,
-			self.deduplicating_ended_at
+			self.deduplication_started_at,
+			self.deduplication_ended_at
 		)
 
 		self.capture_stage_duration(
