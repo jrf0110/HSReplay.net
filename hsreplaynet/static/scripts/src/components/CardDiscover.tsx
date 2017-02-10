@@ -25,10 +25,11 @@ interface CardFilters {
 
 interface CardDiscoverState {
 	textFilter?: string;
-	searchDescription?: boolean;
 	cards?: any[];
 	sortProps?: string[];
 	sortDirection?: number;
+	currentSortProps?: string[];
+	currentSortDirection?: number;
 	filters?: Map<string, string[]>;
 	numCards?: number;
 	classFilterKey?: number;
@@ -60,10 +61,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		super(props, state);
 		this.state = {
 			textFilter: null,
-			searchDescription: false,
 			cards: null,
 			sortProps: ["name", "cost"],
 			sortDirection: 1,
+			currentSortProps: null,
+			currentSortDirection: null,
 			filters: new Map<string, string[]>(),
 			numCards: 20,
 			classFilterKey: 0,
@@ -104,9 +106,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const allFilteredCards = [];
 		const filterKeys = Object.keys(filteredCards);
 		if (this.state.cards) {
-			this.state.sortProps.forEach(x => {
-				this.state.cards.sort((a, b) => a[x] > b[x] ? this.state.sortDirection : -this.state.sortDirection);
-			})
+			if(this.state.currentSortProps !== this.state.sortProps || this.state.currentSortDirection !== this.state.sortDirection) {
+				this.state.sortProps.forEach(x => {
+					this.state.cards.sort((a, b) => a[x] > b[x] ? this.state.sortDirection : -this.state.sortDirection);
+				});
+				this.state.currentSortProps = this.state.sortProps;
+				this.state.currentSortDirection = this.state.sortDirection;
+			}
 			this.state.cards.forEach(card => {
 				filterKeys.forEach(x => {
 					if (!this.filter(card, x)) {
@@ -429,12 +435,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (this.state.textFilter) {
 			const text = this.state.textFilter.toLowerCase();
 			if (card.name.toLowerCase().indexOf(text) === -1) {
-				if (this.state.searchDescription && card.text) {
-					if (card.text.toLowerCase().indexOf(text) === -1) {
-						return true;
-					}
-				}
-				else {
+				if (!card.text || card.text.toLowerCase().indexOf(text) === -1) {
 					return true;
 				}
 			}
