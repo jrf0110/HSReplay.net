@@ -14,9 +14,11 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 		const cardRows = [];
 		if (this.props.cardData && this.props.tableRows) {
 			this.props.tableRows.slice(0, this.props.numRows).forEach(row => {
+				const cardid = row["card_id"] || row["dbf_id"] || row["entity_dbf_id"] || row["target_entity_dbf_id"];
+				const card = this.props.cardData.get(''+cardid);
 				cardRows.push(
 					<CardRankingTableRow
-						card={this.props.cardData.get(row["card_id"])}
+						card={card}
 						popularity={+row["popularity"]}
 						rank={+row["rank"]}
 						delta={this.getDelta(row)}

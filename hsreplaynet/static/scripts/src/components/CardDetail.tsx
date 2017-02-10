@@ -6,6 +6,7 @@ import CardDetailPieChart from "./charts/CardDetailPieChart";
 import CardDetailFilter from "./CardDetailFilter";
 import CardDetailDecksList from "./charts/CardDetailDecksList";
 import CardRankingTable from "./CardRankingTable";
+import DeckTable from "./DeckTable";
 import PopularityLineChart from "./charts/PopularityLineChart";
 import WinrateLineChart from "./charts/WinrateLineChart";
 import TurnPlayedBarChart from "./charts/TurnPlayedBarChart";
@@ -13,7 +14,9 @@ import TopCardsList from "./TopCardsList";
 import ClassFilter from "./ClassFilter";
 import {
 	FilterData, Filter, FilterElement, FilterDefinition, KeyValuePair,
-	Query, RenderData, ChartSeries, ChartSeriesMetaData, DataPoint} from "../interfaces";
+	Query, RenderData, ChartSeries, ChartSeriesMetaData, DataPoint,
+	TableData
+} from "../interfaces";
 import HearthstoneJSON from "hearthstonejson";
 import {toTitleCase, getChartScheme} from "../helpers";
 import QueryManager from "../QueryManager";
@@ -29,10 +32,17 @@ interface CardDetailState {
 	card?: any;
 	classDistribution?: RenderData;
 	winrateByTurn?: RenderData;
+	popularityOverTime?: RenderData;
+	winrateOverTime?: RenderData;
+	popularityByTurn?: RenderData;
+	cardsOnSameTurn?: TableData;
+	popularTargets?: TableData;
+	popularDecks?: TableData;
 }
 
 interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 	cardId: string;
+	dbfId: number;
 	isPremium: boolean;
 }
 
@@ -48,39 +58,68 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			selectedFilters: new Map<string, string>(),
 			queryTime: null,
 			fetching: true,
-			cardData: new Map<string, any>(),
+			cardData: null,
 			card: null,
 		}
 
-		this.fetch();
+		this.fetchGeneric();
 
 		new HearthstoneJSON().getLatest((data) => {
 			const map = new Map<string, any>();
 			let thisCard = null;
 			data.forEach(card => {
-				map.set(card.id, card);
+				map.set(''+card.dbfId, card);
 				if (card.id == this.props.cardId) {
 					thisCard = card;
 				}
 			});
 			this.setState({cardData: map, card: thisCard});
+			this.fetchSpecific(thisCard);
 		});
 	}
 
+	cardHasTargetReqs(card?: any): boolean {
+		card = card || this.state.card;
+		if (card && card.playRequirements) {
+			return Object.keys(card.playRequirements).some(req => req.toLowerCase().indexOf("target") !== -1);
+		}
+		return false;
+	}
+
+	cardIsNeutral(card?: any): boolean {
+		card = card || this.state.card;
+		return card && card.playerClass === "NEUTRAL";
+	}
+
 	render(): JSX.Element {
-		let topCardsPlayed = (
-			<CardRankingTable
-				cardData={this.state.cardData}
-				numRows={5}
-				tableRows={[
-					{card_id: "KAR_077", rank: "1", popularity: "7.4"},
-					{card_id: "KAR_075", rank: "2", popularity: "6.5"},
-					{card_id: "EX1_166", rank: "3", popularity: "3.8"},
-					{card_id: "GAME_005", rank: "4", popularity: "2.3"},
-					{card_id: "NEW1_003", rank: "5", popularity: "1.9"},
-				]}
-			/>
-		);
+		let mostPopularTargets = null;
+		if (this.cardHasTargetReqs()) {
+			mostPopularTargets = [
+				<h4>Most popular targets</h4>,
+				<CardRankingTable
+					cardData={this.state.cardData}
+					numRows={10}
+					tableRows={this.state.popularTargets && this.state.popularTargets.series.data["ALL"]}
+				/>
+			];
+		}
+
+		let classDistribution = null;
+		if (this.cardIsNeutral()) {
+			classDistribution = (
+				<div style={{maxWidth: "250px", margin: "0 auto"}}>
+					<CardDetailPieChart
+						percent
+						series={this.state.classDistribution && this.state.classDistribution.series[0]}
+						title={"Class Popularity"}
+						scheme={getChartScheme("class")}
+						textPrecision={2}
+						sortByValue
+						removeEmpty
+					/>
+				</div>
+			);
+		}
 
 		return <div className="card-detail-container">
 			<div className="row">
@@ -93,17 +132,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<button type="button" className="btn btn-default disabled">Wild</button>
 						<button type="button" className="btn btn-default disabled">Arena</button>
 					</div>
-					<div style={{maxWidth: "250px", margin: "0 auto"}}>
-						<CardDetailPieChart
-							percent
-							series={this.state.classDistribution && this.state.classDistribution.series[0]}
-							title={"Class Popularity"}
-							scheme={getChartScheme("class")}
-							textPrecision={2}
-							sortByValue
-							removeEmpty
-						/>
-					</div>
+					{classDistribution}
 				</div>
 				<div className="col-lg-8">
 					<h1 style={{paddingTop: "40px"}}>{this.state.card && this.state.card.name}</h1>
@@ -111,13 +140,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
 							<PopularityLineChart
-								series={undefined}
+								series={this.state.popularityOverTime && this.state.popularityOverTime.series[0]}
 								widthRatio={2}
 							/>
 						</div>
 						<div className="col-lg-6 col-md-6">
 							<WinrateLineChart
-								series={undefined}
+								series={this.state.winrateOverTime && this.state.winrateOverTime.series[0]}
 								widthRatio={2}
 							/>
 						</div>
@@ -125,7 +154,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
 							<TurnPlayedBarChart
-								series={undefined}
+								series={this.state.popularityByTurn && this.state.popularityByTurn.series[0]}
 								widthRatio={2}
 							/>
 						</div>
@@ -138,12 +167,21 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</div>
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
-							<h4>Top cards played on same turn</h4>	
-							{topCardsPlayed}
+							<h4>Top Decks</h4>	
+							<DeckTable
+								cardData={this.state.cardData}
+								numRows={10}
+								tableSeries={this.state.popularDecks && this.state.popularDecks.series.data}
+							/>
 						</div>
 						<div className="col-lg-6 col-md-6">
-							<h4>Most popular targets</h4>	
-							{topCardsPlayed}
+							<h4>Top cards played on same turn</h4>	
+							<CardRankingTable
+								cardData={this.state.cardData}
+								numRows={10}
+								tableRows={this.state.cardsOnSameTurn && this.state.cardsOnSameTurn.series.data["ALL"]}
+							/>
+							{mostPopularTargets}
 						</div>
 					</div>
 				</div>
@@ -209,21 +247,58 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	// 	});
 	// }
 
-	fetch() {
+	fetchGeneric() {
 		this.queryManager.fetch(
-			"/analytics/query/single_card_winrate_by_turn?card_id=" + this.props.cardId + "&TimeRange=CURRENT_SEASON&RankRange=ALL&GameType=RANKED_STANDARD",
+			"/analytics/query/single_card_winrate_by_turn?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
 			(success, json) => this.setState({winrateByTurn: json})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_class_distribution_by_play_count?card_id=" + this.props.cardId + "&TimeRange=CURRENT_SEASON&RankRange=ALL&GameType=RANKED_STANDARD",
-			(success, json) => this.setState({classDistribution: json})
+			"/analytics/query/single_card_include_popularity_over_time?card_id=" + this.props.dbfId + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
+			(success, json) => this.setState({popularityOverTime: json})
+		);
+		this.queryManager.fetch(
+			"/analytics/query/single_card_winrate_over_time?card_id=" + this.props.dbfId + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
+			(success, json) => this.setState({winrateOverTime: json})
+		);
+		this.queryManager.fetch(
+			"/analytics/query/single_card_popularity_by_turn?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+			(success, json) => this.setState({popularityByTurn: json})
+		);
+		this.queryManager.fetch(
+			"/analytics/query/single_card_popular_together?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+			(success, json) => this.setState({cardsOnSameTurn: json})
 		);
 	}
-
-	resolveParam(param: string): string {
-		if (param === "card_id") {
-			return this.props.cardId;
+	
+	fetchSpecific(card: any) {
+		if (this.cardIsNeutral(card)) {
+			this.queryManager.fetch(
+				"/analytics/query/single_card_class_distribution_by_include_count?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+				(success, json) => this.setState({classDistribution: json})
+			);
+			this.queryManager.fetch(
+				"/analytics/query/neutral_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+				(success, json) => this.setState({popularDecks: json})
+			);
 		}
-		return this.state.selectedFilters.get(param);
+		else {
+			this.queryManager.fetch(
+				"/analytics/query/class_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+				(success, json) => this.setState({popularDecks: json})
+			);
+		}
+		if (this.cardHasTargetReqs(card)) {
+			this.queryManager.fetch(
+				"/analytics/query/single_card_popular_targets?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+				(success, json) => this.setState({popularTargets: json})
+			);
+		}
 	}
+
+	// resolveParam(param: string): string {
+	// 	if (param === "card_id") {
+	// 		return this.props.cardId;
+	// 	}
+	// 	return this.state.selectedFilters.get(param);
+	// }
 }

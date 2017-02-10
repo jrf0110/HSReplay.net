@@ -18,9 +18,8 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		const width = 150 * (this.props.widthRatio || 3);
 		let content = null;
 
-		//TODO: use this.props.series instead of this.mockSeries
-		if (this.mockSeries) {
-			const series = toTimeSeries(this.mockSeries);
+		if (this.props.series) {
+			const series = toTimeSeries(this.props.series);
 			const metaData = getChartMetaData(series.data, 50, true);
 
 			const tooltip = (
@@ -93,31 +92,5 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 				<VictoryLabel text={"Winrate - last 2 months"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
-	}
-
-	readonly mockSeries = {
-		data: [
-			{x: "2016-12-25", y: 50},
-			{x: "2017-01-20", y: 50},
-			{x: "2017-01-21", y: 51},
-			{x: "2017-01-22", y: 51},
-			{x: "2017-01-23", y: 52},
-			{x: "2017-01-24", y: 53},
-			{x: "2017-01-25", y: 50},
-			{x: "2017-01-26", y: 48},
-			{x: "2017-01-27", y: 47},
-			{x: "2017-01-28", y: 48},
-			{x: "2017-01-29", y: 45},
-			{x: "2017-01-30", y: 44},
-			{x: "2017-01-31", y: 47},
-			{x: "2017-02-01", y: 46},
-			{x: "2017-02-02", y: 41},
-			{x: "2017-02-03", y: 42},
-			{x: "2017-02-04", y: 45},
-			{x: "2017-02-05", y: 46},
-			{x: "2017-02-06", y: 45},
-		],
-		name: "foo",
-		metadata: {}
 	}
 }

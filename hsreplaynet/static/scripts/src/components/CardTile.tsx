@@ -5,6 +5,8 @@ interface CardTileProps extends React.ClassAttributes<CardTile> {
 	count: number;
 	height?: number;
 	rarityColored?: boolean;
+	hideGem?: boolean;
+	customText?: string;
 }
 
 export default class CardTile extends React.Component<CardTileProps, any> {
@@ -39,21 +41,29 @@ export default class CardTile extends React.Component<CardTileProps, any> {
 			);
 		}
 
-		let gemClassNames = ["card-gem"];
-		if (this.props.rarityColored) {
-			gemClassNames.push("rarity-" + (this.props.card.rarity || "free").toLowerCase());
+		let gem = null;
+		if (!this.props.hideGem) {
+			const gemClassNames = ["card-gem"];
+
+			if (this.props.rarityColored) {
+				gemClassNames.push("rarity-" + (this.props.card.rarity || "free").toLowerCase());
+			}
+
+			gem = (
+				<div className={gemClassNames.join(" ")} style={gemStyle}>
+					<span className="card-cost" style={costStyle}>{this.props.card.cost}</span>
+				</div>
+			);
 		}
 
 		return (
 			<div className="card-tile" style={tileStyle}>
-				<div className={gemClassNames.join(" ")} style={gemStyle}>
-					<span className="card-cost" style={costStyle}>{this.props.card.cost}</span>
-				</div>
+				{gem}
 				<div className="card-frame">
 					<img className="card-image" src={"https://art.hearthstonejson.com/v1/tiles/" + this.props.card.id + ".png"} style={imageStyle}/>
 					{countBox}
 					<span className={"card-fade-" + (showCountBox ? "countbox" : "no-countbox")} />
-					<span className="card-name" style={nameStyle}>{this.props.card.name}</span>
+					<span className="card-name" style={nameStyle}>{this.props.customText || this.props.card.name}</span>
 				</div>
 			</div>
 		);

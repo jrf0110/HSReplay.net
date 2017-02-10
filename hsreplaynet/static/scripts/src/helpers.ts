@@ -302,7 +302,7 @@ export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTick
 		const midLinePosition = (maxDelta/(minDelta+maxDelta))
 
 		const domainDelta = Math.ceil(Math.max(maxDelta, minDelta) / 5) * 5;
-		const domainMin = midLine - domainDelta;
+		const domainMin = Math.max(0, midLine - domainDelta);
 		const domainMax = midLine + domainDelta;
 
 		return {

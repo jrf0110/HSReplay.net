@@ -28,10 +28,10 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 
 		let content = null;
 
-		//TODO: use this.props.series instead of this.mockSeries
-		if (this.mockSeries) {
-			const series = toTimeSeries(this.mockSeries);
+		if (this.props.series) {
+			const series = toTimeSeries(this.props.series);
 			const metadata = getChartMetaData(series.data, undefined, true);
+			console.log(metadata)
 
 			const tooltip = <VictoryTooltip
 				cornerRadius={0}
@@ -54,7 +54,8 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 					width={width}
 					containerComponent={<VictoryContainer title={""}/>}
 					domainPadding={{x: 10, y: 10}}
-					padding={{left: 50, top: 30, right: 20, bottom: 30}}
+					domain={{x: metadata.xDomain, y: metadata.yDomain}}
+					padding={{left: 55, top: 30, right: 20, bottom: 30}}
 					>
 					<VictoryAxis
 						scale="time"
@@ -98,35 +99,5 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 				<VictoryLabel text={"Popularity - last 2 months"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
-	}
-
-	readonly mockSeries = {
-		data: [
-			{x: "2016-12-25", y: 217},
-			{x: "2016-12-28", y: 217},
-			{x: "2016-12-29", y: 225},
-			{x: "2016-12-30", y: 211},
-			{x: "2016-12-31", y: 217},
-			{x: "2017-01-20", y: 225},
-			{x: "2017-01-21", y: 217},
-			{x: "2017-01-22", y: 217},
-			{x: "2017-01-23", y: 217},
-			{x: "2017-01-24", y: 217},
-			{x: "2017-01-25", y: 217},
-			{x: "2017-01-26", y: 211},
-			{x: "2017-01-27", y: 199},
-			{x: "2017-01-28", y: 211},
-			{x: "2017-01-29", y: 225},
-			{x: "2017-01-30", y: 231},
-			{x: "2017-01-31", y: 225},
-			{x: "2017-02-01", y: 217},
-			{x: "2017-02-02", y: 225},
-			{x: "2017-02-03", y: 231},
-			{x: "2017-02-04", y: 241},
-			{x: "2017-02-05", y: 249},
-			{x: "2017-02-06", y: 241},
-		],
-		name: "foo",
-		metadata: {}
 	}
 }

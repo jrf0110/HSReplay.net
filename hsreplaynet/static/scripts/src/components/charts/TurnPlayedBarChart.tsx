@@ -16,9 +16,8 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		const width = 150 * (this.props.widthRatio || 3);
 		let content = null;
 
-		//TODO: use this.props.series instead of this.mockSeries
-		if (this.mockSeries) {
-			const metaData = getChartMetaData(this.mockSeries.data);
+		if (this.props.series) {
+			const metaData = getChartMetaData(this.props.series.data);
 
 			const tooltip = <VictoryTooltip
 				cornerRadius={0}
@@ -55,21 +54,21 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
 						tickValues={[metaData.yCenter]}
-						tickFormat={tick => tick + " %"}
+						tickFormat={tick => Math.round(+tick) + " %"}
 						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metaData.yCenter ? "gray" : "transparent"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryArea
-						data={this.mockSeries.data.map(p => {return {x: p.x, y: p.y, y0: 0}})}
+						data={this.props.series.data.map(p => {return {x: p.x, y: p.y, y0: 0}})}
 						style={{data: {fill: "url(#turn-played-gradient)"}}}
 						interpolation="step"
 					/>
 					<VictoryLine
-						data={this.mockSeries.data}
+						data={this.props.series.data}
 						interpolation="step"
 						style={{data: {strokeWidth: 1}}}
 					/>
 					<VictoryVoronoiTooltip
-						data={this.mockSeries.data.map(d => {return {x: d.x, y: metaData.yCenter, yValue: d.y}})}
+						data={this.props.series.data.map(d => {return {x: d.x, y: metaData.yCenter, yValue: d.y}})}
 						labels={d => "Turn " + d.x + "\n" + d.yValue + "%"}
 						labelComponent={tooltip}
 						style={{
@@ -89,23 +88,5 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 				<VictoryLabel text={"Turn played %"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
-	}
-
-	readonly mockSeries = {
-		data: [
-			{x: 5, y: 50},
-			{x: 6, y: 6},
-			{x: 7, y: 24},
-			{x: 8, y: 13},
-			{x: 9, y: 22},
-			{x: 10, y: 10},
-			{x: 11, y: 8},
-			{x: 12, y: 7},
-			{x: 13, y: 2},
-			{x: 14, y: 5},
-			{x: 15, y: 5},
-			{x: 16, y: 5},
-		],
-		name: ""
 	}
 }

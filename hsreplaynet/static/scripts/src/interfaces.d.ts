@@ -124,7 +124,6 @@ export interface Query {
 export interface TableData {
 	title?: string;
 	series: TableSeries;
-
 }
 
 export interface TableSeries {
