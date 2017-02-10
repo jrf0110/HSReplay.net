@@ -3,7 +3,7 @@ import json
 import os
 import re
 import time
-from threading import Thread
+from threading import Thread, Lock
 from uuid import uuid4
 from botocore.vendored.requests.packages.urllib3.exceptions import ReadTimeoutError
 from django.utils import timezone
@@ -18,24 +18,82 @@ from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import streams
 from hsreplaynet.utils.influx import influx_timer
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, MetaData, exc
 from sqlalchemy.sql import func, select
+from sqlalchemy.pool import NullPool
 from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
 from hsredshift.etl.views import (
 	get_materialized_view_list, get_materialized_view_update_statement
 )
-from psycopg2 import DatabaseError
 
 
 def get_redshift_engine():
-	return create_engine(settings.REDSHIFT_CONNECTION)
+	# We do not cache the engine across lambdas
+	# To ensure that background ETL tasks are never able to reconnect
+	# From subsequent invocations of the ETL maintenance Lambda
+	return create_engine(settings.REDSHIFT_CONNECTION, poolclass=NullPool)
+
+
+def get_new_redshift_connection(autocommit=True):
+	conn = get_redshift_engine().connect()
+	if autocommit:
+		conn.execution_options(isolation_level="AUTOCOMMIT")
+	return conn
+
+
+def inflight_query_count(handle):
+	query = "SELECT count(*) FROM STV_INFLIGHT WHERE label = '%s';" % handle
+	return get_new_redshift_connection().execute(query).scalar()
+
+
+def has_inflight_queries(handle):
+	return inflight_query_count(handle) > 0
+
+
+def get_handle_status(handle, min_statements=1):
+	"""
+	The handle can have:
+		- No records
+		- Below the min records with errors
+		- Below the min records without errors
+		- Above the min records with errors
+		- Above the min records without errors
+	"""
+	query = """
+	SELECT
+		sum(aborted) > 0 AS had_errors,
+		count(*) AS num_statements,
+		max(endtime) AS finished_at
+	FROM SVL_QLOG WHERE label = '%s'
+	GROUP BY label;
+	""" % handle
+	log.info("Fetching handle status for: %s" % handle)
+
+	rp = get_new_redshift_connection().execute(query)
+	first_row = rp.first()
+	if first_row:
+		had_errors = first_row[0]
+		num_statements = first_row[1]
+		finished_at = first_row[2]
+
+		# Even if we have fewer than the min_statements
+		# We assume that no further statements will execute
+		# Due to the earlier aborted query
+		is_complete = had_errors or (num_statements >= min_statements)
+		msg = "is_complete = %s, had_errors = %s, num_statements = %s, finished_at = %s"
+		log.info(msg % (is_complete, had_errors, num_statements, finished_at))
+		return is_complete, had_errors, num_statements, finished_at
+
+	else:
+		log.info("No records in SVL_QLOG yet for handle.")
+		return False, None, None, None
 
 
 _md_cache = {}
 
 
-def get_redshift_metadata():
-	if "md" not in _md_cache:
+def get_redshift_metadata(refresh=False):
+	if "md" not in _md_cache or refresh:
 		md = MetaData()
 		md.reflect(get_redshift_engine())
 		_md_cache["md"] = md
@@ -431,6 +489,48 @@ class RedshiftETLStage(IntEnum):
 	FINISHED = 20
 
 
+class BackgroundETLTaskThread(Thread):
+	def __init__(
+		self,
+		do_etl_task_func,
+		background_thread_can_complete,
+		do_task_completion_func=None,
+	):
+		Thread.__init__(self)
+		self._do_etl_task_func = do_etl_task_func
+		self._do_task_completion_func = do_task_completion_func
+		self._background_thread_can_complete = background_thread_can_complete
+
+	def run(self):
+		try:
+			self._do_etl_task_func()
+		except exc.DBAPIError as e:
+			# If the lambda that launched this thread completes while
+			# Redshift is still processing the query, then when this daemon thread
+			# Is unfrozen and resumed in the next ETL cycle it will discover that
+			# It's connection has been invalidated
+			if e.connection_invalidated:
+				log.debug(str(e))
+				pass
+			else:
+				raise
+		else:
+			# If the parent process has already moved past the sleep window it provided for
+			# this task, then it will have acquired this lock, which will cause completion to be
+			# skipped. Likewise, if this line is reached when the thread is unfrozen in a subsequent
+			# lambda, the lock should still be acquired
+			do_task_completion = self._background_thread_can_complete.acquire(False)
+			log.info("do_task_completion = %s" % str(do_task_completion))
+
+			if do_task_completion:
+				# Providing a task completion func is optional
+				if self._do_task_completion_func:
+					self._do_task_completion_func()
+				# However, once we have acquired the lock, we must ALWAYS release it
+				# Otherwise the parent thread will block forever on the task
+				self._background_thread_can_complete.release()
+
+
 class RedshiftStagingTrackManager(models.Manager):
 
 	def do_maintenance(self):
@@ -451,14 +551,14 @@ class RedshiftStagingTrackManager(models.Manager):
 	def get_ready_maintenance_tasks(self):
 		"""
 		Return a list of callables that will each be invoked in sequence by the lambda.
-		Each one must return within several several seconds
-		to ensure the lambda finishes within 5 min.
+		Each one must return within seconds to ensure the lambda finishes within 5 min.
 
-		We attempt to generate tasks in reverse of the tracks normal lifecycle in order
+		We attempt to generate tasks in reverse of the track's normal lifecycle in order
 		to advance any in flight tracks to completion before initializing new tracks
 		"""
 		# The state of tracks in the uploads-db might be stale
 		# Since long running queries kicked off against the cluster may have completed.
+		# So first we refresh the state of the track
 		operation_in_progress, operation_name, prefix = self.refresh_track_states()
 
 		if operation_in_progress:
@@ -541,82 +641,16 @@ class RedshiftStagingTrackManager(models.Manager):
 
 		return False, None, None
 
-	def get_cleanup_tasks(self):
-
-		track_for_cleanup = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.ANALYZE_COMPLETE,
+	def get_gathering_stats_tasks(self):
+		track = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.READY_TO_LOAD,
 		).first()
 
-		if track_for_cleanup:
-			track_for_cleanup.stage = RedshiftETLStage.CLEANING_UP
-			track_for_cleanup.track_cleanup_start_at = timezone.now()
-			track_for_cleanup.save()
-			return track_for_cleanup.get_cleanup_tasks()
-
-	def get_analyze_tasks(self):
-		track_for_analyze = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.VACUUM_COMPLETE,
-		).first()
-
-		if track_for_analyze:
-			track_for_analyze.stage = RedshiftETLStage.ANALYZING
-			track_for_analyze.analyze_started_at = timezone.now()
-			track_for_analyze.save()
-			return track_for_analyze.get_analyze_tasks()
-
-	def get_refresh_view_tasks(self):
-		track_for_refresh = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.INSERT_COMPLETE,
-		).first()
-
-		if track_for_refresh:
-			track_for_refresh.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
-			track_for_refresh.refreshing_view_start_at = timezone.now()
-			track_for_refresh.save()
-			return track_for_refresh.get_refresh_view_tasks()
-
-	def get_vacuum_tasks(self):
-		track_for_vacuum = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE,
-		).first()
-
-		if track_for_vacuum:
-			track_for_vacuum.stage = RedshiftETLStage.VACUUMING
-			track_for_vacuum.vacuum_started_at = timezone.now()
-			track_for_vacuum.save()
-			return track_for_vacuum.get_vacuum_tasks()
-
-	def attempt_continue_refreshing_views_tasks(self):
-		track_for_continue = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
-		).first()
-
-		if track_for_continue:
-			return track_for_continue.get_refresh_view_tasks()
-
-	def attempt_continue_deduplicating_tasks(self):
-		track_for_continue = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.DEDUPLICATING
-		).first()
-
-		if track_for_continue:
-			return track_for_continue.get_deduplication_tasks()
-
-	def attempt_continue_inserting_tasks(self):
-		track_for_continue = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.INSERTING
-		).first()
-
-		if track_for_continue:
-			return track_for_continue.get_insert_tasks()
-
-	def attempt_continue_analyzing_tasks(self):
-		track_for_continue = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.ANALYZING
-		).first()
-
-		if track_for_continue:
-			return track_for_continue.get_analyze_tasks()
+		if track:
+			track.stage = RedshiftETLStage.GATHERING_STATS
+			track.gathering_stats_started_at = timezone.now()
+			track.save()
+			return track.get_gathering_stats_tasks()
 
 	def attempt_continue_gathering_stats_tasks(self):
 		track_for_continue = RedshiftStagingTrack.objects.filter(
@@ -625,25 +659,6 @@ class RedshiftStagingTrackManager(models.Manager):
 
 		if track_for_continue:
 			return track_for_continue.get_gathering_stats_tasks()
-
-	def attempt_continue_vacuum_tasks(self):
-		track_for_continue = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.VACUUMING,
-		).first()
-
-		if track_for_continue:
-			return track_for_continue.attempt_get_next_vacuum_task()
-
-	def get_insert_tasks(self):
-		track = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.DEDUPLICATION_COMPLETE,
-		).first()
-
-		if track:
-			track.stage = RedshiftETLStage.INSERTING
-			track.insert_started_at = timezone.now()
-			track.save()
-			return track.get_insert_tasks()
 
 	def get_deduplication_tasks(self):
 		track = RedshiftStagingTrack.objects.filter(
@@ -656,16 +671,101 @@ class RedshiftStagingTrackManager(models.Manager):
 			track.save()
 			return track.get_deduplication_tasks()
 
-	def get_gathering_stats_tasks(self):
+	def attempt_continue_deduplicating_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.DEDUPLICATING
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_deduplication_tasks()
+
+	def get_insert_tasks(self):
 		track = RedshiftStagingTrack.objects.filter(
-			stage=RedshiftETLStage.READY_TO_LOAD,
+			stage=RedshiftETLStage.DEDUPLICATION_COMPLETE,
 		).first()
 
 		if track:
-			track.stage = RedshiftETLStage.GATHERING_STATS
-			track.gathering_stats_started_at = timezone.now()
+			track.stage = RedshiftETLStage.INSERTING
+			track.insert_started_at = timezone.now()
 			track.save()
-			return track.get_gathering_stats_tasks()
+			return track.get_insert_tasks()
+
+	def attempt_continue_inserting_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.INSERTING
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_insert_tasks()
+
+	def get_refresh_view_tasks(self):
+		track_for_refresh = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.INSERT_COMPLETE,
+		).first()
+
+		if track_for_refresh:
+			track_for_refresh.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
+			track_for_refresh.refreshing_view_start_at = timezone.now()
+			track_for_refresh.save()
+			return track_for_refresh.get_refresh_view_tasks()
+
+	def attempt_continue_refreshing_views_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_refresh_view_tasks()
+
+	def get_vacuum_tasks(self):
+		track_for_vacuum = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE,
+		).first()
+
+		if track_for_vacuum:
+			track_for_vacuum.stage = RedshiftETLStage.VACUUMING
+			track_for_vacuum.vacuum_started_at = timezone.now()
+			track_for_vacuum.save()
+			return track_for_vacuum.get_vacuum_tasks()
+
+	def attempt_continue_vacuum_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.VACUUMING,
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.attempt_get_next_vacuum_task()
+
+	def get_analyze_tasks(self):
+		track_for_analyze = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.VACUUM_COMPLETE,
+		).first()
+
+		if track_for_analyze:
+			track_for_analyze.stage = RedshiftETLStage.ANALYZING
+			track_for_analyze.analyze_started_at = timezone.now()
+			track_for_analyze.save()
+			return track_for_analyze.get_analyze_tasks()
+
+	def attempt_continue_analyzing_tasks(self):
+		track_for_continue = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.ANALYZING
+		).first()
+
+		if track_for_continue:
+			return track_for_continue.get_analyze_tasks()
+
+	def get_cleanup_tasks(self):
+
+		track_for_cleanup = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.ANALYZE_COMPLETE,
+		).first()
+
+		if track_for_cleanup:
+			track_for_cleanup.stage = RedshiftETLStage.CLEANING_UP
+			track_for_cleanup.track_cleanup_start_at = timezone.now()
+			track_for_cleanup.save()
+			return track_for_cleanup.get_cleanup_tasks()
 
 	def get_track_lifecycle_tasks(self):
 		track = RedshiftStagingTrack.objects.filter(
@@ -747,69 +847,6 @@ class RedshiftStagingTrackManager(models.Manager):
 		staging_prefix = "stage"
 		track_uuid = str(uuid4())[:4]
 		return "%s_%s_" % (staging_prefix, track_uuid)
-
-	def get_insert_candidate_track(self):
-		# If a track has been recently closed but the records have not been
-		# Transferred to the production tables yet AND it is outside
-		# The minimum quiescence period, then it is considered insert_ready
-
-		# There should only ever bet at most 1 of these, or something has
-		# broken down with the system.
-		candidates = RedshiftStagingTrack.objects.filter(
-			closed_at__isnull=False,
-			insert_started_at__isnull=True
-		).all()
-
-		if len(candidates) > 1:
-			raise RuntimeError("More than one fully staged track exists.")
-		elif len(candidates) == 1:
-			return candidates[0]
-		else:
-			return None
-
-	def get_analyze_ready_track(self):
-		candidates = RedshiftStagingTrack.objects.filter(
-			insert_ended_at__isnull=False,
-			analyze_started_at__isnull=True
-		).all()
-
-		if len(candidates) > 1:
-			raise RuntimeError("More than one analyze ready track exists.")
-		elif len(candidates) == 1:
-			return candidates[0]
-		else:
-			return None
-
-	def get_vacuum_ready_track(self):
-		candidates = RedshiftStagingTrack.objects.filter(
-			analyze_ended_at__isnull=False,
-			vacuum_ended_at__isnull=True
-		).all()
-
-		if len(candidates) > 1:
-			raise RuntimeError("More than one vacuum ready track exists.")
-		elif len(candidates) == 1:
-			return candidates[0]
-		else:
-			return None
-
-	def get_cleanup_ready_track(self):
-
-		RedshiftStagingTrackTable.objects.filter(
-
-		)
-
-		candidates = RedshiftStagingTrack.objects.filter(
-			vacuum_ended_at__isnull=False,
-			track_cleanup_start_at__isnull=True
-		).all()
-
-		if len(candidates) > 1:
-			raise RuntimeError("More than one cleanup ready track exists.")
-		elif len(candidates) == 1:
-			return candidates[0]
-		else:
-			return None
 
 
 class RedshiftStagingTrack(models.Model):
@@ -1163,73 +1200,17 @@ class RedshiftStagingTrack(models.Model):
 
 		return current_timestamp
 
-	def get_tables_for_insert(self, num=None):
-		# num is none, all tables will be returned
-		uninserted_tables = list(self.tables.filter(
-			insert_started_at__isnull=True,
-			is_materialized_view=False
-		).all())
-		target_result_count = max(len(uninserted_tables), num)
-		return uninserted_tables[:target_result_count]
-
-	def attempt_get_next_vacuum_task(self):
-		if self._any_tables_are_in_stage(RedshiftETLStage.VACUUMING):
-			# Don't start any additional vacuums while one is still in flight
-			return []
-		# If none are in flight then get the next task
-		return self.get_vacuum_tasks()
-
-	def get_cleanup_tasks(self):
+	def get_gathering_stats_tasks(self):
 		results = []
 		for t in self.tables.all():
-			if t.stage == RedshiftETLStage.ANALYZE_COMPLETE:
+			if t.stage == RedshiftETLStage.READY_TO_LOAD:
 				if t.is_materialized_view:
-					t.stage = RedshiftETLStage.FINISHED
-					t.track_cleanup_start_at = timezone.now()
-					t.track_cleanup_end_at = t.track_cleanup_start_at
+					t.stage = RedshiftETLStage.GATHERING_STATS_COMPLETE
+					t.gathering_stats_started_at = timezone.now()
+					t.gathering_stats_ended_at = t.gathering_stats_started_at
 					t.save()
 				else:
-					results.append(t.get_cleanup_task())
-		return results
-
-	def get_analyze_tasks(self):
-		results = []
-		for t in self.tables.all():
-			if t.stage == RedshiftETLStage.VACUUM_COMPLETE:
-				results.append(t.get_analyze_task())
-		return results
-
-	def get_vacuum_tasks(self):
-		# Vacuuming can only proceed one table at a time.
-		for table in self.tables.all():
-			if table.stage == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE:
-				return [table.get_vacuum_task()]
-		return []
-
-	def get_refresh_view_tasks(self):
-		results = []
-		for t in self.tables.all():
-			if t.stage == RedshiftETLStage.INSERT_COMPLETE:
-				if t.is_materialized_view:
-					results.append(t.get_refresh_view_task())
-				else:
-					t.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE
-					t.refreshing_view_start_at = timezone.now()
-					t.refreshing_view_end_at = t.refreshing_view_start_at
-					t.save()
-		return results
-
-	def get_insert_tasks(self):
-		results = []
-		for t in self.tables.all():
-			if t.stage == RedshiftETLStage.DEDUPLICATION_COMPLETE:
-				if t.is_materialized_view:
-					t.stage = RedshiftETLStage.INSERT_COMPLETE
-					t.insert_started_at = timezone.now()
-					t.insert_ended_at = t.insert_started_at
-					t.save()
-				else:
-					results.append(t.get_insert_task())
+					results.append(t.get_gathering_stats_task())
 		return results
 
 	def get_deduplication_tasks(self):
@@ -1245,17 +1226,64 @@ class RedshiftStagingTrack(models.Model):
 					results.append(t.get_deduplication_task())
 		return results
 
-	def get_gathering_stats_tasks(self):
+	def get_insert_tasks(self):
 		results = []
 		for t in self.tables.all():
-			if t.stage == RedshiftETLStage.READY_TO_LOAD:
+			if t.stage == RedshiftETLStage.DEDUPLICATION_COMPLETE:
 				if t.is_materialized_view:
-					t.stage = RedshiftETLStage.GATHERING_STATS_COMPLETE
-					t.gathering_stats_started_at = timezone.now()
-					t.gathering_stats_ended_at = t.gathering_stats_started_at
+					t.stage = RedshiftETLStage.INSERT_COMPLETE
+					t.insert_started_at = timezone.now()
+					t.insert_ended_at = t.insert_started_at
 					t.save()
 				else:
-					results.append(t.get_gathering_stats_task())
+					results.append(t.get_insert_task())
+		return results
+
+	def get_refresh_view_tasks(self):
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.INSERT_COMPLETE:
+				if t.is_materialized_view:
+					results.append(t.get_refresh_view_task())
+				else:
+					t.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE
+					t.refreshing_view_start_at = timezone.now()
+					t.refreshing_view_end_at = t.refreshing_view_start_at
+					t.save()
+		return results
+
+	def get_vacuum_tasks(self):
+		# Vacuuming can only proceed one table at a time.
+		for table in self.tables.all():
+			if table.stage == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE:
+				return [table.get_vacuum_task()]
+		return []
+
+	def attempt_get_next_vacuum_task(self):
+		if self._any_tables_are_in_stage(RedshiftETLStage.VACUUMING):
+			# Don't start any additional vacuums while one is still in flight
+			return []
+		# If none are in flight then get the next task
+		return self.get_vacuum_tasks()
+
+	def get_analyze_tasks(self):
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.VACUUM_COMPLETE:
+				results.append(t.get_analyze_task())
+		return results
+
+	def get_cleanup_tasks(self):
+		results = []
+		for t in self.tables.all():
+			if t.stage == RedshiftETLStage.ANALYZE_COMPLETE:
+				if t.is_materialized_view:
+					t.stage = RedshiftETLStage.FINISHED
+					t.track_cleanup_start_at = timezone.now()
+					t.track_cleanup_end_at = t.track_cleanup_start_at
+					t.save()
+				else:
+					results.append(t.get_cleanup_task())
 		return results
 
 	def get_initialize_successor_tasks(self):
@@ -1335,46 +1363,337 @@ class RedshiftStagingTrackTable(models.Model):
 		related_name="tables"
 	)
 	stage = IntEnumField(enum=RedshiftETLStage, default=RedshiftETLStage.CREATED)
+	firehose_stream = models.CharField("Firehose Stream", max_length=100)
 	staging_table = models.CharField("Staging Table", max_length=100)
 	target_table = models.CharField("Target Table", max_length=100)
 	# Materialized Views don't have staging tables, they just have an update task
 	# that gets run after the stage tables are all inserted
 	is_materialized_view = models.BooleanField(default=False)
-	analyze_query_handle = models.CharField(max_length=15, blank=True)
-	vacuum_query_handle = models.CharField(max_length=15, blank=True)
-	insert_query_handle = models.CharField(max_length=15, blank=True)
-	dedupe_query_handle = models.CharField(max_length=15, blank=True)
-	gathering_stats_handle = models.CharField(max_length=15, blank=True)
-	refreshing_view_handle = models.CharField(max_length=15, blank=True)
-	firehose_stream = models.CharField("Firehose Stream", max_length=100)
-
-	gathering_stats_started_at = models.DateTimeField(null=True)
-	gathering_stats_ended_at = models.DateTimeField(null=True)
-
 	final_staging_table_size = models.IntegerField(null=True)
 	min_game_date = models.DateField(null=True)
 	max_game_date = models.DateField(null=True)
 
+	gathering_stats_handle = models.CharField(max_length=15, blank=True)
+	gathering_stats_started_at = models.DateTimeField(null=True)
+	gathering_stats_ended_at = models.DateTimeField(null=True)
+
+	dedupe_query_handle = models.CharField(max_length=15, blank=True)
 	deduplication_started_at = models.DateTimeField(null=True)
 	deduplication_ended_at = models.DateTimeField(null=True)
 
+	insert_query_handle = models.CharField(max_length=15, blank=True)
 	insert_started_at = models.DateTimeField(null=True)
 	insert_ended_at = models.DateTimeField(null=True)
 
+	refreshing_view_handle = models.CharField(max_length=15, blank=True)
+	refreshing_view_start_at = models.DateTimeField(null=True)
+	refreshing_view_end_at = models.DateTimeField(null=True)
+
+	vacuum_query_handle = models.CharField(max_length=15, blank=True)
 	vacuum_started_at = models.DateTimeField(null=True)
 	vacuum_ended_at = models.DateTimeField(null=True)
 
+	analyze_query_handle = models.CharField(max_length=15, blank=True)
 	analyze_started_at = models.DateTimeField(null=True)
 	analyze_ended_at = models.DateTimeField(null=True)
-
-	refreshing_view_start_at = models.DateTimeField(null=True)
-	refreshing_view_end_at = models.DateTimeField(null=True)
 
 	track_cleanup_start_at = models.DateTimeField(null=True)
 	track_cleanup_end_at = models.DateTimeField(null=True)
 
 	class Meta:
 		unique_together = ("track", "target_table")
+
+	@property
+	def firehose_stream_is_active(self):
+		description = streams.get_delivery_stream_description(self.firehose_stream)
+		return description['DeliveryStreamStatus'] == 'ACTIVE'
+
+	@property
+	def pre_insert_table_name(self):
+		return "pre_%s" % self.staging_table
+
+	def get_gathering_stats_task(self):
+		tmpl = "Gathering stats for %s for track_prefix: %s"
+		task_name = tmpl % (self.target_table, self.track.track_prefix)
+		return RedshiftETLTask(task_name, self.do_gathering_stats)
+
+	def do_gathering_stats(self):
+		self.gathering_stats_started_at = timezone.now()
+		self.stage = RedshiftETLStage.GATHERING_STATS
+		self.gathering_stats_handle = self._make_async_query_handle()
+		self.save()
+
+		msg = "Gathering stats for %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.gathering_stats_handle
+		))
+
+		self.get_min_max_game_dates_from_staging_table()
+		self.record_final_staging_table_size()
+
+		def etl_task_func():
+			conn = get_new_redshift_connection()
+			# For consistency we always make analyze run
+			conn.execute("SET analyze_threshold_percent TO 0;")
+			conn.execute("SET QUERY_GROUP TO '%s'" % self.gathering_stats_handle)
+			conn.execute("ANALYZE %s;" % self.staging_table)
+
+		self.launch_background_thread(self.gathering_stats_handle, etl_task_func)
+
+	def get_deduplication_task(self):
+		tmpl = "Deduplicating %s for track_prefix: %s"
+		task_name = tmpl % (self.target_table, self.track.track_prefix)
+		return RedshiftETLTask(task_name, self.do_deduplicate_records)
+
+	def do_deduplicate_records(self):
+		self.deduplication_started_at = timezone.now()
+		self.stage = RedshiftETLStage.DEDUPLICATING
+		self.dedupe_query_handle = self._make_async_query_handle()
+		self.save()
+
+		msg = "Deduplicating %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.dedupe_query_handle
+		))
+
+		table_obj = self._get_table_obj()
+
+		def etl_task_func():
+			# Don't attempt deduplication if there is nothing in the staging table
+			if self.final_staging_table_size:
+				pre_table_name = self.pre_insert_table_name
+				game_id_val = "id" if self.target_table == 'game' else "game_id"
+				column_names = ", ".join([c.name for c in table_obj.columns])
+
+				template1 = """
+				DROP TABLE IF EXISTS {pre_table};
+				"""
+
+				template2 = """
+				CREATE TABLE {pre_table} AS
+				SELECT {column_names} FROM (
+				SELECT
+				ROW_NUMBER() OVER (PARTITION BY s.{game_id}, s.id ORDER BY s.id) AS rn,
+				s.*
+				FROM {staging_table} s
+				) t WHERE rn = 1;
+				"""
+
+				sql1 = template1.format(
+					pre_table=pre_table_name
+				)
+
+				sql2 = template2.format(
+					pre_table=pre_table_name,
+					column_names=column_names,
+					game_id=game_id_val,
+					staging_table=self.staging_table
+				)
+
+				conn = get_new_redshift_connection()
+				conn.execute(sql1)
+				conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
+				conn.execute(sql2)
+
+		self.launch_background_thread(self.dedupe_query_handle, etl_task_func)
+
+	def get_insert_task(self):
+		tmpl = "Inserting %s for track_prefix: %s"
+		task_name = tmpl % (self.target_table, self.track.track_prefix)
+		return RedshiftETLTask(task_name, self.do_insert_staged_records)
+
+	def do_insert_staged_records(self):
+		self.insert_started_at = timezone.now()
+		self.stage = RedshiftETLStage.INSERTING
+		self.insert_query_handle = self._make_async_query_handle()
+		self.save()
+
+		msg = "Inserting into %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.insert_query_handle
+		))
+
+		def etl_task_func():
+			template = """
+				INSERT INTO {target_table}
+				SELECT s.*
+				FROM {pre_staging_table} s
+				LEFT JOIN {target_table} t ON t.{game_id} = s.{game_id}
+					AND t.id = s.id AND t.game_date BETWEEN '{min_date}' AND '{max_date}'
+				WHERE t.id IS NULL;
+			"""
+
+			if self.final_staging_table_size:
+				# Don't attempt to insert if there is nothing in the staging table
+				game_id_val = "id" if self.target_table == 'game' else "game_id"
+				pre_staging_table_name = self.pre_insert_table_name
+
+				sql = template.format(
+					pre_staging_table=pre_staging_table_name,
+					target_table=self.target_table,
+					min_date=self.min_game_date.isoformat(),
+					max_date=self.max_game_date.isoformat(),
+					game_id=game_id_val
+				)
+
+				log.info("STATEMENT: %s" % sql)
+				conn = get_new_redshift_connection()
+				conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
+				conn.execute(sql)
+
+		self.launch_background_thread(self.insert_query_handle, etl_task_func)
+
+	def get_refresh_view_task(self):
+		task_name = "Refreshing View %s" % self.target_table
+		return RedshiftETLTask(task_name, self.do_refresh_view)
+
+	def do_refresh_view(self):
+		self.refreshing_view_start_at = timezone.now()
+		self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
+		self.refreshing_view_handle = self._make_async_query_handle()
+		self.save()
+
+		msg = "Refreshing view %s for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.refreshing_view_handle
+		))
+
+		def etl_task_func():
+			min_date = self.track.min_game_date
+			max_date = self.track.max_game_date
+			if min_date and max_date:
+				sql = get_materialized_view_update_statement(
+					self.target_table,
+					min_date,
+					max_date
+				)
+				conn = get_new_redshift_connection()
+				conn.execute("SET QUERY_GROUP TO '%s'" % self.refreshing_view_handle)
+				conn.execute(sql)
+
+		self.launch_background_thread(self.refreshing_view_handle, etl_task_func)
+
+	def get_vacuum_task(self):
+		tmpl = "Vacuuming %s for track_prefix: %s"
+		task_name = tmpl % (self.target_table, self.track.track_prefix)
+		return RedshiftETLTask(task_name, self.do_vacuum)
+
+	def do_vacuum(self):
+		self.vacuum_started_at = timezone.now()
+		self.stage = RedshiftETLStage.VACUUMING
+		self.vacuum_query_handle = self._make_async_query_handle()
+		self.save()
+
+		if self.vacuum_is_needed():
+			msg = "Vacuuming %s table for track %s with handle %s"
+			log.info(msg % (
+				self.target_table,
+				self.track.track_prefix,
+				self.vacuum_query_handle
+			))
+
+			def etl_task_func():
+				conn = get_new_redshift_connection()
+				conn.execute("SET QUERY_GROUP TO '%s';" % self.vacuum_query_handle)
+				conn.execute("VACUUM FULL %s;" % self.target_table)
+
+			self.launch_background_thread(self.vacuum_query_handle, etl_task_func)
+
+		else:
+			log.info("Unsorted row count is not large enough. Skipping vacuum.")
+			self.vacuum_ended_at = timezone.now()
+			self.stage = RedshiftETLStage.VACUUM_COMPLETE
+			self.save()
+
+	def get_analyze_task(self):
+		tmpl = "Analyzing %s for track_prefix: %s"
+		task_name = tmpl % (self.target_table, self.track.track_prefix)
+		return RedshiftETLTask(task_name, self.do_analyze)
+
+	def do_analyze(self):
+		self.analyze_started_at = timezone.now()
+		self.stage = RedshiftETLStage.ANALYZING
+		self.analyze_query_handle = self._make_async_query_handle()
+		self.save()
+
+		msg = "Analyzing %s table for track %s with handle %s"
+		log.info(msg % (
+			self.target_table,
+			self.track.track_prefix,
+			self.analyze_query_handle
+		))
+
+		def etl_task_func():
+			conn = get_new_redshift_connection()
+			# For consistency we always make analyze run
+			conn.execute("SET analyze_threshold_percent TO 0;")
+			conn.execute("SET QUERY_GROUP TO '%s'" % self.analyze_query_handle)
+			conn.execute("ANALYZE %s;" % self.target_table)
+
+		self.launch_background_thread(self.analyze_query_handle, etl_task_func)
+
+	def get_cleanup_task(self):
+		task_name = "Cleanup %s" % self.staging_table
+		return RedshiftETLTask(task_name, self.do_cleanup)
+
+	def do_cleanup(self):
+		from hsreplaynet.utils.instrumentation import error_handler
+		self.stage = RedshiftETLStage.CLEANING_UP
+		self.track_cleanup_start_at = timezone.now()
+		self.save()
+
+		try:
+			streams.delete_firehose_stream(self.firehose_stream)
+		except Exception as e:
+			error_handler(e)
+
+		try:
+			engine = get_redshift_engine()
+			conn = engine.connect()
+			conn.execution_options(isolation_level="AUTOCOMMIT")
+			conn.execute("DROP TABLE %s;" % self.pre_insert_table_name)
+			conn.execute("DROP TABLE %s;" % self.staging_table)
+		except Exception as e:
+			error_handler(e)
+
+		self.track_cleanup_end_at = timezone.now()
+		self.stage = RedshiftETLStage.FINISHED
+		self.save()
+
+	def launch_background_thread(self, handle, etl_task_func, task_complete_func=None):
+		background_thread_can_complete = Lock()
+
+		background_thread = BackgroundETLTaskThread(
+			etl_task_func,
+			background_thread_can_complete,
+			task_complete_func
+		)
+		background_thread.daemon = True
+		background_thread.start()
+
+		start_complete = False
+		while not start_complete:
+			time.sleep(1)
+			is_complete, had_errors, num_stmts, finished_at = get_handle_status(
+				handle,
+				1
+			)
+			start_complete = is_complete or has_inflight_queries(handle)
+
+		# Either we acquire it immediately, in which case we have signaled to the thread
+		# That it is no longer safe to perform the task_completion_func
+		# Or the background thread has already acquired it and is doing the task completion
+		# In that case we block until the lock is released signaling the task_completion
+		# is finished
+		background_thread_can_complete.acquire(True)
 
 	def reset_to_stage(self, stage):
 		self.stage = stage
@@ -1408,11 +1727,6 @@ class RedshiftStagingTrackTable(models.Model):
 			self.gathering_stats_ended_at = None
 
 		self.save()
-
-	@property
-	def firehose_stream_is_active(self):
-		description = streams.get_delivery_stream_description(self.firehose_stream)
-		return description['DeliveryStreamStatus'] == 'ACTIVE'
 
 	def _make_async_query_handle(self):
 		return "handle-%s" % str(uuid4())[:7]
@@ -1451,7 +1765,7 @@ class RedshiftStagingTrackTable(models.Model):
 				RedshiftETLStage.DEDUPLICATION_COMPLETE,
 				"deduplication_ended_at",
 				self.dedupe_query_handle,
-				expected_count=3
+				min_expected_count=3
 			)
 
 		if self.stage == RedshiftETLStage.GATHERING_STATS:
@@ -1459,21 +1773,25 @@ class RedshiftStagingTrackTable(models.Model):
 				RedshiftETLStage.GATHERING_STATS_COMPLETE,
 				"gathering_stats_ended_at",
 				self.gathering_stats_handle,
-				expected_count=3
+				min_expected_count=3
 			)
 
-	def _attempt_update_status_to_stage(self, stage, field, handle, expected_count=1):
+	def _attempt_update_status_to_stage(self, stage, field, handle, min_expected_count=1):
 		# Use the handle to check the status of the query
-		# If the query completed then return the endtime
-		# If it's still in flight, then don't do anything.
-		finished, ending_timestamp = self._get_query_status_for_handle(
+		# The min_expected_count is the minimum number of statements that must exist
+		# in the QLOG table to be complete.
+		# It's possible that there could be more.
+		is_complete, had_errors, num_stmts, finished_at = get_handle_status(
 			handle,
-			expected_count
+			min_expected_count
 		)
 
-		if finished:
-			tz_aware_ending_timestamp = timezone.make_aware(ending_timestamp)
-			self.stage = stage
+		if is_complete:
+			tz_aware_ending_timestamp = timezone.make_aware(finished_at)
+			if had_errors:
+				self.stage = RedshiftETLStage.ERROR
+			else:
+				self.stage = stage
 			setattr(self, field, tz_aware_ending_timestamp)
 			self.save()
 
@@ -1492,8 +1810,7 @@ class RedshiftStagingTrackTable(models.Model):
 			handle=self.vacuum_query_handle,
 		)
 
-		engine = get_redshift_engine()
-		conn = engine.connect()
+		conn = get_new_redshift_connection()
 		rp1 = conn.execute(sql)
 
 		rows = list(rp1)
@@ -1504,429 +1821,22 @@ class RedshiftStagingTrackTable(models.Model):
 			self.vacuum_ended_at = tz_aware_ending_timestamp
 			self.save()
 
-	def _get_query_status_for_handle(self, handle, expected_count):
-		template = """
-			SELECT
-				endtime
-			FROM SVL_QLOG
-			WHERE label = '{handle}';
-		"""
+	def get_pct_unsorted(self):
+		query = """
+			SELECT pct_unsorted FROM pct_unsorted_rows WHERE table_name = '%s';
+		""" % self.target_table
+		return get_new_redshift_connection().execute(query).scalar()
 
-		sql = template.format(
-			handle=handle,
-		)
-
-		engine = get_redshift_engine()
-		conn = engine.connect()
-		rp1 = conn.execute(sql)
-
-		rows = list(rp1)
-		if len(rows) > expected_count:
-			msg = "Got more than the %s expected results for handle: %s"
-			raise RuntimeError(msg % (expected_count, handle))
-		elif len(rows) == expected_count:
-			latest_end_date = max(r[0] for r in rows)
-			return True, latest_end_date
-		else:
-			return False, None
-
-	def get_refresh_view_task(self):
-		task_name = "Refreshing View %s" % self.target_table
-		return RedshiftETLTask(task_name, self.do_refresh_view)
-
-	def get_cleanup_task(self):
-		task_name = "Cleanup %s" % self.staging_table
-		return RedshiftETLTask(task_name, self.do_cleanup)
-
-	def get_analyze_task(self):
-		tmpl = "Analyzing %s for track_prefix: %s"
-		task_name = tmpl % (self.target_table, self.track.track_prefix)
-		return RedshiftETLTask(task_name, self.do_analyze)
-
-	def get_vacuum_task(self):
-		tmpl = "Vacuuming %s for track_prefix: %s"
-		task_name = tmpl % (self.target_table, self.track.track_prefix)
-		return RedshiftETLTask(task_name, self.do_vacuum)
-
-	def get_insert_task(self):
-		tmpl = "Inserting %s for track_prefix: %s"
-		task_name = tmpl % (self.target_table, self.track.track_prefix)
-		return RedshiftETLTask(task_name, self.do_insert_staged_records)
-
-	def get_deduplication_task(self):
-		tmpl = "Deduplicating %s for track_prefix: %s"
-		task_name = tmpl % (self.target_table, self.track.track_prefix)
-		return RedshiftETLTask(task_name, self.do_deduplicate_records)
-
-	def get_gathering_stats_task(self):
-		tmpl = "Gathering stats for %s for track_prefix: %s"
-		task_name = tmpl % (self.target_table, self.track.track_prefix)
-		return RedshiftETLTask(task_name, self.do_gathering_stats)
+	def vacuum_is_needed(self):
+		VACUUM_THRESHOLD = 5
+		pct_unsorted = self.get_pct_unsorted()
+		return pct_unsorted >= VACUUM_THRESHOLD
 
 	def _get_table_obj(self):
 		return get_redshift_metadata().tables[self.staging_table]
 
 	def _get_target_table_obj(self):
 		return get_redshift_metadata().tables[self.target_table]
-
-	def do_refresh_view(self):
-		self.refreshing_view_start_at = timezone.now()
-		self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
-		self.refreshing_view_handle = self._make_async_query_handle()
-		self.save()
-
-		msg = "Refreshing view %s for track %s with handle %s"
-		log.info(msg % (
-			self.target_table,
-			self.track.track_prefix,
-			self.refreshing_view_handle
-		))
-
-		background_execute = Thread(
-			target=self._do_refresh_view_query,
-			args=(
-				self.target_table,
-				self.refreshing_view_handle
-			)
-		)
-		background_execute.daemon = True
-		background_execute.start()
-
-		time.sleep(5)
-
-	def do_analyze(self):
-		self.analyze_started_at = timezone.now()
-		self.stage = RedshiftETLStage.ANALYZING
-		self.analyze_query_handle = self._make_async_query_handle()
-		self.save()
-
-		# If analyze finishes immediately
-		# We can update the stage table immediately as well
-		def mark_complete():
-			self.analyze_ended_at = timezone.now()
-			self.stage = RedshiftETLStage.ANALYZE_COMPLETE
-			self.save()
-
-		msg = "Analyzing %s table for track %s with handle %s"
-		log.info(msg % (
-			self.target_table,
-			self.track.track_prefix,
-			self.analyze_query_handle
-		))
-
-		background_execute = Thread(
-			target=self._do_analyze_on_target,
-			args=(
-				self.target_table,
-				self.analyze_query_handle,
-				mark_complete
-			)
-		)
-		background_execute.daemon = True
-		background_execute.start()
-
-		time.sleep(5)
-
-	def _do_refresh_view_query(self, target, handle):
-		try:
-			min_date = self.track.min_game_date
-			max_date = self.track.max_game_date
-			if min_date and max_date:
-				sql = get_materialized_view_update_statement(
-					target,
-					min_date,
-					max_date
-				)
-				engine = get_redshift_engine()
-				conn = engine.connect()
-				conn.execution_options(isolation_level="AUTOCOMMIT")
-				conn.execute("SET QUERY_GROUP TO '%s'" % handle)
-				conn.execute(sql)
-		except DatabaseError as e:
-			if "select() failed" in str(e):
-				# This exception is thrown when a background thread
-				# that was frozen when the lambda shutdown
-				# is restarted and no longer has a connection to the Redshift
-				pass
-			else:
-				raise
-
-	def _do_analyze_on_target(self, target, query_handle, mark_complete):
-		try:
-			engine = get_redshift_engine()
-			conn = engine.connect()
-			conn.execution_options(isolation_level="AUTOCOMMIT")
-			conn.execute("SET QUERY_GROUP TO '%s'" % query_handle)
-			conn.execute("ANALYZE %s;" % target)
-			mark_complete()
-		except DatabaseError as e:
-			if "select() failed" in str(e):
-				# This exception is thrown when a background thread
-				# that was frozen when the lambda shutdown
-				# is restarted and no longer has a connection to the Redshift
-				pass
-			else:
-				raise
-
-	def do_vacuum(self):
-		self.vacuum_started_at = timezone.now()
-		self.stage = RedshiftETLStage.VACUUMING
-		self.vacuum_query_handle = self._make_async_query_handle()
-		self.save()
-
-		msg = "Vacuuming %s table for track %s with handle %s"
-		log.info(msg % (
-			self.target_table,
-			self.track.track_prefix,
-			self.vacuum_query_handle
-		))
-
-		background_execute = Thread(
-			target=self._do_vacuum_on_target,
-			args=(
-				self.target_table,
-				self.vacuum_query_handle
-			)
-		)
-		background_execute.daemon = True
-
-		background_execute.start()
-
-		time.sleep(5)
-
-	def _do_vacuum_on_target(self, target, query_handle):
-		try:
-			engine = get_redshift_engine()
-			conn = engine.connect()
-			conn.execution_options(isolation_level="AUTOCOMMIT")
-			conn.execute("SET QUERY_GROUP TO '%s';" % query_handle)
-			conn.execute("VACUUM FULL %s;" % target)
-
-			self.vacuum_ended_at = timezone.now()
-			self.stage = RedshiftETLStage.VACUUM_COMPLETE
-			self.save()
-		except DatabaseError as e:
-			if "select() failed" in str(e):
-				# This exception is thrown when a background thread
-				# that was frozen when the lambda shutdown
-				# is restarted and no longer has a connection to the Redshift
-				pass
-			else:
-				raise
-
-	def do_deduplicate_records(self):
-		self.deduplication_started_at = timezone.now()
-		self.stage = RedshiftETLStage.DEDUPLICATING
-		self.dedupe_query_handle = self._make_async_query_handle()
-		self.save()
-
-		msg = "Deduplicating %s table for track %s with handle %s"
-		log.info(msg % (
-			self.target_table,
-			self.track.track_prefix,
-			self.dedupe_query_handle
-		))
-
-		table_obj = self._get_table_obj()
-
-		background_execute = Thread(
-			target=self._deduplicate_staging_table,
-			args=(table_obj,)
-		)
-		background_execute.daemon = True
-
-		background_execute.start()
-
-		time.sleep(5)
-
-	def do_gathering_stats(self):
-		self.gathering_stats_started_at = timezone.now()
-		self.stage = RedshiftETLStage.GATHERING_STATS
-		self.gathering_stats_handle = self._make_async_query_handle()
-		self.save()
-
-		msg = "Gathering stats for %s table for track %s with handle %s"
-		log.info(msg % (
-			self.target_table,
-			self.track.track_prefix,
-			self.gathering_stats_handle
-		))
-
-		self.get_min_max_game_dates_from_staging_table()
-		self.record_final_staging_table_size()
-
-		def mark_complete():
-			self.gathering_stats_ended_at = timezone.now()
-			self.stage = RedshiftETLStage.GATHERING_STATS_COMPLETE
-			self.save()
-
-		background_execute = Thread(
-			target=self._do_analyze_on_target,
-			args=(
-				self.staging_table,
-				self.gathering_stats_handle,
-				mark_complete
-			)
-		)
-		background_execute.daemon = True
-
-		background_execute.start()
-
-		time.sleep(5)
-
-	def do_insert_staged_records(self):
-		"""
-		The basic de-duplicating insert pattern is as follows:
-
-		SELECT
-			MIN(game_date) AS min_game_date,
-			MAX(game_date) AS max_game_date
-		FROM stagingTableForLoad;
-
-		DELETE FROM stagingTableForLoad
-		USING productionTable
-		WHERE productionTable.game_id = stagingTableForLoad.game_id
-		AND productionTable.id = stagingTableForLoad.id
-		AND productionTable.game_date BETWEEN min_game_date AND max_game_date;
-
-		INSERT INTO productionTable
-		SELECT * FROM stagingTableForLoad;
-
-		For additional details, please see:
-		http://engineering.curalate.com/2016/08/04/tips-for-starting-with-redshift.html
-		AND
-		http://docs.aws.amazon.com/redshift/latest/dg/merge-replacing-existing-rows.html
-		"""
-		self.insert_started_at = timezone.now()
-		self.stage = RedshiftETLStage.INSERTING
-		self.insert_query_handle = self._make_async_query_handle()
-		self.save()
-
-		msg = "Inserting into %s table for track %s with handle %s"
-		log.info(msg % (
-			self.target_table,
-			self.track.track_prefix,
-			self.insert_query_handle
-		))
-
-		background_execute = Thread(
-			target=self._do_insert_on_target,
-		)
-		background_execute.daemon = True
-
-		background_execute.start()
-
-		time.sleep(10)
-
-	def _do_insert_on_target(self):
-		try:
-			template = """
-				INSERT INTO {target_table}
-				SELECT s.*
-				FROM {pre_staging_table} s
-				LEFT JOIN {target_table} t ON t.{game_id} = s.{game_id}
-					AND t.id = s.id AND t.game_date BETWEEN '{min_date}' AND '{max_date}'
-				WHERE t.id IS NULL;
-			"""
-
-			if self.final_staging_table_size:
-				# Don't attempt to insert if there is nothing in the staging table
-				game_id_val = "id" if self.target_table == 'game' else "game_id"
-				pre_staging_table_name = self.pre_insert_table_name
-
-				sql = template.format(
-					pre_staging_table=pre_staging_table_name,
-					target_table=self.target_table,
-					min_date=self.min_game_date.isoformat(),
-					max_date=self.max_game_date.isoformat(),
-					game_id=game_id_val
-				)
-
-				log.info("STATEMENT: %s" % sql)
-				engine = get_redshift_engine()
-				conn = engine.connect()
-				conn.execution_options(isolation_level="AUTOCOMMIT")
-				conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
-				conn.execute(sql)
-
-			self.insert_ended_at = timezone.now()
-			self.stage = RedshiftETLStage.INSERT_COMPLETE
-			self.save()
-		except DatabaseError as e:
-			if "select() failed" in str(e):
-				# This exception is thrown when a background thread
-				# that was frozen when the lambda shutdown
-				# is restarted and no longer has a connection to the Redshift
-				pass
-			else:
-				raise
-
-	@property
-	def pre_insert_table_name(self):
-		return "pre_%s" % self.staging_table
-
-	def _deduplicate_staging_table(self, table_obj):
-		"""
-
-		DELETE FROM stagingTableForLoad
-		USING productionTable
-		WHERE productionTable.game_id = stagingTableForLoad.game_id
-		AND productionTable.id = stagingTableForLoad.id
-		AND productionTable.game_date BETWEEN min_game_date AND max_game_date;
-
-		:return:
-		"""
-		try:
-			if self.final_staging_table_size:
-				# Don't attempt deduplication if there is nothing in the staging table
-
-				pre_table_name = self.pre_insert_table_name
-				game_id_val = "id" if self.target_table == 'game' else "game_id"
-				column_names = ", ".join([c.name for c in table_obj.columns])
-
-				template1 = """
-				DROP TABLE IF EXISTS {pre_table};
-				"""
-
-				template2 = """
-				CREATE TABLE {pre_table} AS
-				SELECT {column_names} FROM (
-				SELECT
-				ROW_NUMBER() OVER (PARTITION BY s.{game_id}, s.id ORDER BY s.id) AS rn,
-				s.*
-				FROM {staging_table} s
-				) t WHERE rn = 1;
-				"""
-
-				sql1 = template1.format(
-					pre_table=pre_table_name
-				)
-
-				sql2 = template2.format(
-					pre_table=pre_table_name,
-					column_names=column_names,
-					game_id=game_id_val,
-					staging_table=self.staging_table
-				)
-
-				engine = get_redshift_engine()
-				conn = engine.connect()
-				conn.execution_options(isolation_level="AUTOCOMMIT")
-				conn.execute(sql1)
-				conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
-				conn.execute(sql2)
-
-			self.deduplication_ended_at = timezone.now()
-			self.stage = RedshiftETLStage.DEDUPLICATION_COMPLETE
-			self.save()
-		except DatabaseError as e:
-			if "select() failed" in str(e):
-				# This exception is thrown when a background thread
-				# that was frozen when the lambda shutdown
-				# is restarted and no longer has a connection to the Redshift
-				pass
-			else:
-				raise
 
 	def _get_staging_table_size_stmt(self):
 		return select([func.count()]).select_from(self._get_table_obj())
@@ -1962,27 +1872,3 @@ class RedshiftStagingTrackTable(models.Model):
 			return self.min_game_date, self.max_game_date
 		else:
 			raise RuntimeError("Could not get min and max game_date from staging table")
-
-	def do_cleanup(self):
-		from hsreplaynet.utils.instrumentation import error_handler
-		self.stage = RedshiftETLStage.CLEANING_UP
-		self.track_cleanup_start_at = timezone.now()
-		self.save()
-
-		try:
-			streams.delete_firehose_stream(self.firehose_stream)
-		except Exception as e:
-			error_handler(e)
-
-		try:
-			engine = get_redshift_engine()
-			conn = engine.connect()
-			conn.execution_options(isolation_level="AUTOCOMMIT")
-			conn.execute("DROP TABLE %s;" % self.pre_insert_table_name)
-			conn.execute("DROP TABLE %s;" % self.staging_table)
-		except Exception as e:
-			error_handler(e)
-
-		self.track_cleanup_end_at = timezone.now()
-		self.stage = RedshiftETLStage.FINISHED
-		self.save()

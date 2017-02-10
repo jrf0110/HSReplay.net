@@ -4,6 +4,7 @@ import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hsreplaynet.settings")
 os.environ.setdefault("PROD", "1")
+os.environ.setdefault("HSREPLAYNET_DEBUG", "1")
 
 django.setup()
 
