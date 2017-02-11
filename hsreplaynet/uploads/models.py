@@ -51,6 +51,20 @@ def has_inflight_queries(handle):
 	return inflight_query_count(handle) > 0
 
 
+def is_analyze_skipped(handle):
+	query_template = """
+		SELECT count(*)
+		FROM STL_UTILITYTEXT u
+		JOIN stl_analyze a ON a.xid = u.xid
+		WHERE label = '{handle}'
+		AND text like 'Analyze%%'
+		AND status = 'Skipped';
+	"""
+	query = query_template.format(handle=handle)
+	count = get_new_redshift_connection().execute(query).scalar()
+	return count >= 1
+
+
 def get_handle_status(handle, min_statements=1):
 	"""
 	The handle can have:
@@ -512,7 +526,6 @@ class BackgroundETLTaskThread(Thread):
 			# It's connection has been invalidated
 			if "select() failed" in str(e):
 				log.debug(str(e))
-				pass
 			else:
 				raise
 		else:
@@ -1665,8 +1678,6 @@ class RedshiftStagingTrackTable(models.Model):
 
 		def etl_task_func():
 			conn = get_new_redshift_connection()
-			# For consistency we always make analyze run
-			conn.execute("SET analyze_threshold_percent TO 0;")
 			conn.execute("SET QUERY_GROUP TO '%s'" % self.analyze_query_handle)
 			conn.execute("ANALYZE %s;" % self.target_table)
 
@@ -1718,7 +1729,8 @@ class RedshiftStagingTrackTable(models.Model):
 				handle,
 				1
 			)
-			start_complete = is_complete or has_inflight_queries(handle)
+			analyze_skipped = is_analyze_skipped(handle)
+			start_complete = is_complete or analyze_skipped or has_inflight_queries(handle)
 
 		# Either we acquire it immediately, in which case we have signaled to the thread
 		# That it is no longer safe to perform the task_completion_func
@@ -1820,6 +1832,10 @@ class RedshiftStagingTrackTable(models.Model):
 			handle,
 			min_expected_count
 		)
+
+		if is_analyze_skipped(handle):
+			finished_at = datetime.now()
+			is_complete = True
 
 		if is_complete:
 			tz_aware_ending_timestamp = timezone.make_aware(finished_at)
