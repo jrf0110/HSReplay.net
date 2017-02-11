@@ -3,10 +3,8 @@ import WinrateByTurnLineChart from "./charts/WinrateByTurnLineChart";
 import CardDetailBarChart from "./charts/CardDetailBarChart";
 import CardDetailGauge from "./charts/CardDetailGauge";
 import CardDetailPieChart from "./charts/CardDetailPieChart";
-import CardDetailFilter from "./CardDetailFilter";
 import CardDetailDecksList from "./charts/CardDetailDecksList";
 import CardRankingTable from "./CardRankingTable";
-import DeckTable from "./DeckTable";
 import PopularityLineChart from "./charts/PopularityLineChart";
 import WinrateLineChart from "./charts/WinrateLineChart";
 import TurnPlayedBarChart from "./charts/TurnPlayedBarChart";
@@ -18,7 +16,7 @@ import {
 	TableData
 } from "../interfaces";
 import HearthstoneJSON from "hearthstonejson";
-import {toTitleCase, getChartScheme} from "../helpers";
+import {toTitleCase, getChartScheme, setNames, toPrettyNumber} from "../helpers";
 import QueryManager from "../QueryManager";
 
 interface CardDetailState {
@@ -48,6 +46,7 @@ interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
 	private readonly queryManager: QueryManager = new QueryManager();
+	private readonly maxDecks = 20;
 
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
@@ -95,11 +94,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		let mostPopularTargets = null;
 		if (this.cardHasTargetReqs()) {
 			mostPopularTargets = [
-				<h4>Most popular targets</h4>,
+				<h3>Most popular targets</h3>,
 				<CardRankingTable
 					cardData={this.state.cardData}
 					numRows={10}
 					tableRows={this.state.popularTargets && this.state.popularTargets.series.data["ALL"]}
+					clickable
 				/>
 			];
 		}
@@ -107,7 +107,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		let classDistribution = null;
 		if (this.cardIsNeutral()) {
 			classDistribution = (
-				<div style={{maxWidth: "250px", margin: "0 auto"}}>
+				<div className="class-chart">
 					<CardDetailPieChart
 						percent
 						series={this.state.classDistribution && this.state.classDistribution.series[0]}
@@ -121,22 +121,41 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			);
 		}
 
+		let title = null;
+		if (this.state.card) {
+			const set = this.state.card.set.toLowerCase();
+			let replayCount = null;
+
+			if (this.state.winrateOverTime) {
+				replayCount = (
+					<p className="pull-right">
+						{"based on " + toPrettyNumber(this.state.winrateOverTime.series[0].metadata["num_data_points"]) + " replays"}
+					</p>
+				);
+			}
+
+			title = [
+					<img src={STATIC_URL + "images/set-icons/" + set + ".png"} title={setNames[set]}/>,
+					<div>
+						<h1>{this.state.card.name}</h1>
+						{toTitleCase(this.state.card.playerClass) + " " + toTitleCase(this.state.card.type)}
+						{replayCount}
+					</div>
+			];
+		}
+
+
 		return <div className="card-detail-container">
 			<div className="row">
-				<div className="col-lg-4" style={{textAlign: "center"}}>
-					<img src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} height="400px" />
-					<div className="row">
-					</div>
-					<div className="btn-group" role="group">
-						<button type="button" className="btn btn-primary">Standard</button>
-						<button type="button" className="btn btn-default disabled">Wild</button>
-						<button type="button" className="btn btn-default disabled">Arena</button>
-					</div>
+				<div className="col-lg-3 col-md-4 col-sm-5 col-left">
+					<img className="card-image" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} />
 					{classDistribution}
+					{this.buildDecksList()}
 				</div>
-				<div className="col-lg-8">
-					<h1 style={{paddingTop: "40px"}}>{this.state.card && this.state.card.name}</h1>
-					<h5>{this.state.card && (toTitleCase(this.state.card.playerClass) + " " + toTitleCase(this.state.card.type))}</h5>
+				<div className="col-lg-9 col-md-8 col-sm-7 col-right">
+					<div className="page-title">
+						{title}
+					</div>
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
 							<PopularityLineChart
@@ -167,21 +186,15 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</div>
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
-							<h4>Top Decks</h4>	
-							<DeckTable
-								cardData={this.state.cardData}
-								numRows={10}
-								tableSeries={this.state.popularDecks && this.state.popularDecks.series.data}
-							/>
-						</div>
-						<div className="col-lg-6 col-md-6">
-							<h4>Top cards played on same turn</h4>	
+							<h3>Most combined with</h3>	
 							<CardRankingTable
 								cardData={this.state.cardData}
 								numRows={10}
 								tableRows={this.state.cardsOnSameTurn && this.state.cardsOnSameTurn.series.data["ALL"]}
 								clickable
 							/>
+						</div>
+						<div className="col-lg-6 col-md-6">
 							{mostPopularTargets}
 						</div>
 					</div>
@@ -190,8 +203,64 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		</div>;
 	}
 
+	buildDecksList(): JSX.Element {
+		if (!this.state.popularDecks) {
+			return null;
+		}
 
+		const rows = [];
+		const playerClasses = [];
+		let foundAny = false;
+		let index = 0;
+		do {
+			foundAny = false;
+			Object.keys(this.state.popularDecks.series.data).forEach(key => {
+				const data = this.state.popularDecks.series.data[key][index];
+				if (data) {
+					foundAny = true;
+					rows.push(data);
+					if (playerClasses.indexOf(data["player_class"]) === -1) {
+						playerClasses.push(data["player_class"]);
+					}
+				}
+			});
+			index++;
+		}
+		while (foundAny && rows.length < this.maxDecks);
 
+		rows.sort((a, b) => +a["win_rate"] < +b["win_rate"] ? 1 : -1);
+		playerClasses.sort();
+
+		const decksList = [];
+		playerClasses.forEach(pClass => {
+			const decks = [];
+
+			decksList.push(
+				<span className="pull-right">Winrate</span>,
+				<h4>{toTitleCase(pClass)}</h4>
+			);
+
+			rows.filter(row => row["player_class"] === pClass).forEach(row => {
+				decks.push(
+					<li>
+						<a href={"/cards/decks/" + row["deck_id"]}>
+							{pClass}
+							<span className="badge">{row["win_rate"] + "%"}</span>
+						</a>
+					</li>
+				);
+			});
+
+			decksList.push(<ul>{decks}</ul>);
+		});
+
+		return (
+			<div className="deck-list">
+				<h3>Hottest decks</h3>
+				{decksList}
+			</div>
+		);
+	}
 
 	fetchGeneric() {
 		this.queryManager.fetch(

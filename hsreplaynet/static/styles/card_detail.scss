@@ -1,5 +1,60 @@
 .card-detail-container {
-	width: 100%;
+	width: 98%;
+	margin-top: 20px;
+
+	.col-left {
+
+		.card-image, .class-chart {
+			display: block;
+			max-width: 250px;
+			margin: 0px auto;
+		}
+		
+		.deck-list {
+			margin: 0px auto;
+			width: 90%;
+
+			>h4 {
+				border-bottom: 1px solid $darkgrey;
+			}
+
+			> ul {
+				padding-left: 10px;
+
+				>li {
+					user-select: none;
+					list-style-type: none;
+
+					.badge {
+						float: right;
+					}
+				}
+			}
+		}
+	}
+	
+	.col-right {
+
+		.page-title {
+			display: flex;
+			height: 75px;
+
+			>img {
+				height: 50px;
+				width: 50px;
+				opacity: 0.3;
+			}
+
+			>div {
+				width: 100%;
+
+				>p {
+					color: gray;
+					font-style: italic;
+				}
+			}
+		}
+	}
 }
 @media (min-width: 1400px) {
 	.card-detail-container {
@@ -12,10 +67,11 @@
 	padding-right: 0;
 
 }
-	.chart-wrapper {
-		max-width: 250px;
-		margin: 0 auto;
-		&.wide {
-			max-width: 500px;
-		}
+
+.chart-wrapper {
+	max-width: 250px;
+	margin: 0 auto;
+	&.wide {
+		max-width: 500px;
 	}
+}
