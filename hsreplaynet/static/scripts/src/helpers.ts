@@ -268,6 +268,16 @@ export const setNames = {
 	"gangs": "Mean Streets of Gadgetzan"
 };
 
+export const wildSets = ["NAXX", "GVG", "PROMO", "REWARD"];
+
+export function isWildCard(card: any) {
+	return wildSets.indexOf(card.set) !== -1;
+}
+
+export function isCollectibleCard(card: any) {
+	return card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1;
+}
+
 export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTicks?: boolean): ChartMetaData {
 		const ticks = [];
 		const xMin = data[0];

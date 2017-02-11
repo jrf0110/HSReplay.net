@@ -5,7 +5,7 @@ import CardDetailBarChart from "./charts/CardDetailBarChart";
 import CardDetailPieChart from "./charts/CardDetailPieChart";
 import ClassFilter from "./ClassFilter";
 import {ChartSeries} from "../interfaces";
-import {setNames, toTitleCase} from "../helpers";
+import {setNames, toTitleCase, wildSets} from "../helpers";
 import CardImage from "./CardImage";
 
 interface CardFilters {
@@ -54,7 +54,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		race: ["BEAST", "DEMON", "DRAGON", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
 		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
 	};
-	readonly wildSets = ["NAXX", "GVG", "PROMO", "REWARD"];
 	readonly placeholderUrl = STATIC_URL + "images/cardback_placeholder_kabal.png";
 
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
@@ -121,7 +120,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				});
 				if (!this.filter(card)) {
 					if (tiles.length < this.state.numCards) {
-						tiles.push(<CardImage cardId={card.id} placeholder={this.placeholderUrl} key={card.id}/>);
+						tiles.push(
+							<CardImage
+								cardId={card.id}
+								placeholder={this.placeholderUrl}
+								key={card.id}
+							/>
+						);
 					}
 					allFilteredCards.push(card);
 				}
@@ -298,7 +303,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					})
 				}
 				else if (key === "format") {
-					if (this.wildSets.indexOf(card.set) === -1){
+					if (wildSets.indexOf(card.set) === -1){
 						filters.format["Standard only"] = (filters.format["Standard only"] || 0) + 1;
 					}
 				}
@@ -452,7 +457,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				const cardValue = card[key];
 				if (key === "format") {
 					if (values.indexOf("Standard only") !== -1) {
-						filter = this.wildSets.indexOf(card.set) !== -1;
+						filter = wildSets.indexOf(card.set) !== -1;
 					}
 				}
 				else if (cardValue === undefined) {
