@@ -180,6 +180,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								cardData={this.state.cardData}
 								numRows={10}
 								tableRows={this.state.cardsOnSameTurn && this.state.cardsOnSameTurn.series.data["ALL"]}
+								clickable
 							/>
 							{mostPopularTargets}
 						</div>

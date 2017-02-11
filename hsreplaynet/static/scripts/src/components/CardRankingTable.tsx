@@ -7,6 +7,7 @@ interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> 
 	tableRows: TableRow[];
 	numRows: number;
 	previousTableRows?: TableRow[];
+	clickable?: boolean;
 }
 
 export default class CardRankingTable extends React.Component<CardRankingTableProps, any> {
@@ -22,6 +23,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 						popularity={+row["popularity"]}
 						rank={+row["rank"]}
 						delta={this.getDelta(row)}
+						clickable={this.props.clickable}
 					/>
 				);
 			})
