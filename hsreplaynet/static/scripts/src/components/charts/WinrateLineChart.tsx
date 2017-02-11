@@ -17,17 +17,20 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
 		let content = null;
+		let timespan = null;
 
 		if (this.props.series) {
 			const series = toTimeSeries(this.props.series);
-			const metaData = getChartMetaData(series.data, 50, true);
+			const metadata = getChartMetaData(series.data, 50, true);
+
+			timespan = "last " + moment.duration((+metadata.xMinMax[1].x - +metadata.xMinMax[0].x)/1000, "seconds").humanize();
 
 			const tooltip = (
 				<VictoryTooltip
 					cornerRadius={0}
 					pointerLength={0}
 					padding={1}
-					dx={d => d.x > metaData.xCenter ? -40 : 40}
+					dx={d => d.x > metadata.xCenter ? -40 : 40}
 					dy={-12}
 					flyoutStyle={{
 						stroke: "gray",
@@ -38,26 +41,26 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 
 			content = [
 				<defs>
-					<WinLossGradient id="winrate-by-time-gradient" metadata={metaData} />
+					<WinLossGradient id="winrate-by-time-gradient" metadata={metadata} />
 				</defs>,
 				<VictoryChart
 					height={150}
 					width={width}
 					containerComponent={<VictoryContainer title={""}/>}
 					padding={{left: 40, top: 30, right: 20, bottom: 30}}
-					domain={{x: metaData.xDomain, y: metaData.yDomain}}
+					domain={{x: metadata.xDomain, y: metadata.yDomain}}
 					domainPadding={{x: 0, y: 15}}
 					>
 					<VictoryAxis
 						scale="time"
-						tickValues={metaData.seasonTicks}
-						tickFormat={tick => tick === metaData.seasonTicks[0] ? "Last season" : "This season"}
+						tickValues={metadata.seasonTicks}
+						tickFormat={tick => tick === metadata.seasonTicks[0] ? "Last season" : "This season"}
 						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryAxis
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
-						tickValues={[50].concat(metaData.yDomain)}
+						tickValues={[50].concat(metadata.yDomain)}
 						tickFormat={tick => tick + "%"}
 						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === 50 ? "gray" : "transparent"}, axis: {visibility: "hidden"}}}
 					/>
@@ -89,7 +92,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
 				{content}
-				<VictoryLabel text={"Winrate - last 2 months"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
+				<VictoryLabel text={"Winrate" + (timespan ? " - " + timespan : "")} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
 	}
