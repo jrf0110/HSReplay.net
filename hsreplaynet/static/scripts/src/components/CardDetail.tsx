@@ -190,63 +190,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		</div>;
 	}
 
-	// fetchFilters(): void {
-	// 	fetch("https://dev.hsreplay.net/analytics/filters", {
-	// 		credentials: "include",
-	// 	}).then((response) => {
-	// 		return response.json();
-	// 	}).then((json: any) => {
-	// 		const defaultFilters = new Map<string, string>();
-	// 		const data = json as FilterData;
-	// 		data.filters.forEach(filter => {
-	// 			defaultFilters.set(filter.name, filter.elements.find(x => x.is_default).name);
-	// 		})
-	// 		defaultFilters.set("TimeRange", "CURRENT_SEASON");
-	// 		this.setState({filterData: json, selectedFilters: defaultFilters})
-	// 		this.fetchQueries();
-	// 	});
-	// }
 
-	// fetchQueries(): void {
-	// 	fetch("https://dev.hsreplay.net/analytics/inventory/card/" + this.props.cardId, {
-	// 		credentials: "include",
-	// 	}).then((response) => {
-	// 		return response.json();
-	// 	}).then((json: any) => {
-	// 		console.log("received queries for", this.props.cardId, ":", json.map(x => x.endpoint));
-	// 		this.state.queries = json;
-	// 		this.setState({fetching: true, queryTime: new Date()})
-	// 		this.state.queries.filter(x => x.avg_query_duration_seconds).forEach(query => {
-	// 			this.fetchQuery(query);
-	// 		})
-	// 		this.state.queries.filter(x => !x.avg_query_duration_seconds).forEach(query => {
-	// 			this.fetchQuery(query);
-	// 		})
-	// 	});
-	// }
 
-	// fetchQuery(query: Query): void {
-	// 	if (query.endpoint === "/analytics/query/single_card_winrate_when_drawn_by_turn") {
-	// 		console.warn("SKIPPING", query.endpoint)
-	// 		return;
-	// 	}
-	// 	let url = "https://dev.hsreplay.net" + query.endpoint + "?"
-	// 		+ query.params.map(param => param+ "=" + this.resolveParam(param))
-	// 			.reduce((prev, curr) => prev + "&" + curr);
-	// 	console.log("Fetching", query.endpoint);
-	// 	fetch(url, {
-	// 		credentials: "include"
-	// 	}).then((response) => {
-	// 		return response.json();
-	// 	}).then((json: any) => {
-	// 		this.setState({
-	// 			renders: this.state.renders.set(query.endpoint, json),
-	// 			fetching: false
-	// 		});
-	// 	}).catch(() => {
-	// 		this.setState({fetching: false})
-	// 	});
-	// }
 
 	fetchGeneric() {
 		this.queryManager.fetch(
@@ -295,11 +240,4 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			);
 		}
 	}
-
-	// resolveParam(param: string): string {
-	// 	if (param === "card_id") {
-	// 		return this.props.cardId;
-	// 	}
-	// 	return this.state.selectedFilters.get(param);
-	// }
 }
