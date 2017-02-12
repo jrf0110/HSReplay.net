@@ -60,7 +60,7 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 					<VictoryAxis
 						label={this.props.labelX}
 						offsetY={38}
-						tickLabelComponent={<VictoryLabel dy={0.2}/>}
+						tickLabelComponent={<VictoryLabel dy={-0.4}/>}
 						style={{axisLabel: {fontSize: 12}, tickLabels: {fontSize: 12}, grid: {strokeWidth: 0}}}
 					/>
 					{yAxis}
