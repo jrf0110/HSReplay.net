@@ -2036,8 +2036,8 @@ class RedshiftStagingTrackTable(models.Model):
 		stage_start = self.get_stage_started_at(stage)
 		stage_end = self.get_stage_ended_at(stage)
 
-		stage_start_val = stage_start.isoformat() if stage_start else " "
-		stage_end_val = stage_end.isoformat() if stage_end else " "
+		stage_start_val = stage_start.isoformat()[:19] if stage_start else " "
+		stage_end_val = stage_end.isoformat()[:19] if stage_end else " "
 
 		if stage_start and stage_end:
 			duration = (stage_end - stage_start).total_seconds()
