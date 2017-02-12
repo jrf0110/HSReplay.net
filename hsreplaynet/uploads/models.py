@@ -659,8 +659,6 @@ class RedshiftStagingTrackManager(models.Manager):
 		if unfinished_tracks:
 			for unfinished_track in unfinished_tracks:
 				in_progress, name = unfinished_track.refresh_track_state()
-				if unfinished_track.is_currently_processing():
-					unfinished_track.heartbeat_track_status_metrics()
 				if in_progress:
 					return in_progress, name, unfinished_track.track_prefix
 
@@ -1080,9 +1078,6 @@ class RedshiftStagingTrack(models.Model):
 		return no_longer_active and not_finished
 
 	def heartbeat_track_status_metrics(self):
-		"""
-		Powers the current dashboard state in Grafana Dashboard
-		"""
 		for table in self.tables.all():
 			table.heartbeat_track_status_metrics()
 
@@ -1489,6 +1484,7 @@ class RedshiftStagingTrackTable(models.Model):
 		self.gathering_stats_started_at = timezone.now()
 		self.stage = RedshiftETLStage.GATHERING_STATS
 		self.gathering_stats_handle = self._make_async_query_handle()
+		self.heartbeat_track_status_metrics()
 		self.save()
 
 		msg = "Gathering stats for %s table for track %s with handle %s"
@@ -1519,6 +1515,7 @@ class RedshiftStagingTrackTable(models.Model):
 		self.deduplicating_started_at = timezone.now()
 		self.stage = RedshiftETLStage.DEDUPLICATING
 		self.dedupe_query_handle = self._make_async_query_handle()
+		self.heartbeat_track_status_metrics()
 		self.save()
 
 		msg = "Deduplicating %s table for track %s with handle %s"
@@ -1578,6 +1575,7 @@ class RedshiftStagingTrackTable(models.Model):
 		self.inserting_started_at = timezone.now()
 		self.stage = RedshiftETLStage.INSERTING
 		self.insert_query_handle = self._make_async_query_handle()
+		self.heartbeat_track_status_metrics()
 		self.save()
 
 		msg = "Inserting into %s table for track %s with handle %s"
@@ -1625,6 +1623,7 @@ class RedshiftStagingTrackTable(models.Model):
 		self.refreshing_materialized_views_started_at = timezone.now()
 		self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
 		self.refreshing_view_handle = self._make_async_query_handle()
+		self.heartbeat_track_status_metrics()
 		self.save()
 
 		msg = "Refreshing view %s for track %s with handle %s"
@@ -1658,6 +1657,7 @@ class RedshiftStagingTrackTable(models.Model):
 		self.vacuuming_started_at = timezone.now()
 		self.stage = RedshiftETLStage.VACUUMING
 		self.vacuum_query_handle = self._make_async_query_handle()
+		self.heartbeat_track_status_metrics()
 		self.save()
 
 		if self.vacuum_is_needed():
@@ -1690,6 +1690,7 @@ class RedshiftStagingTrackTable(models.Model):
 		self.analyzing_started_at = timezone.now()
 		self.stage = RedshiftETLStage.ANALYZING
 		self.analyze_query_handle = self._make_async_query_handle()
+		self.heartbeat_track_status_metrics()
 		self.save()
 
 		msg = "Analyzing %s table for track %s with handle %s"
@@ -1714,6 +1715,7 @@ class RedshiftStagingTrackTable(models.Model):
 		from hsreplaynet.utils.instrumentation import error_handler
 		self.stage = RedshiftETLStage.CLEANING_UP
 		self.cleaning_up_started_at = timezone.now()
+		self.heartbeat_track_status_metrics()
 		self.save()
 
 		try:
@@ -1732,6 +1734,7 @@ class RedshiftStagingTrackTable(models.Model):
 
 		self.cleaning_up_ended_at = timezone.now()
 		self.stage = RedshiftETLStage.FINISHED
+		self.heartbeat_track_status_metrics()
 		self.save()
 
 	def launch_background_thread(self, handle, etl_task_func, task_complete_func=None):
@@ -1868,6 +1871,7 @@ class RedshiftStagingTrackTable(models.Model):
 				self.stage = stage
 			setattr(self, field, tz_aware_ending_timestamp)
 			self.save()
+			self.heartbeat_track_status_metrics()
 
 	def _attempt_update_vacuum_state(self):
 		template = """
@@ -1894,6 +1898,7 @@ class RedshiftStagingTrackTable(models.Model):
 			self.stage = RedshiftETLStage.VACUUM_COMPLETE
 			self.vacuuming_ended_at = tz_aware_ending_timestamp
 			self.save()
+			self.heartbeat_track_status_metrics()
 
 	def get_pct_unsorted(self):
 		query = """
@@ -2015,6 +2020,7 @@ class RedshiftStagingTrackTable(models.Model):
 			raise RuntimeError("Status metrics should only be for the processing track")
 
 		heartbeat_stages = [
+			RedshiftETLStage.GATHERING_STATS,
 			RedshiftETLStage.DEDUPLICATING,
 			RedshiftETLStage.INSERTING,
 			RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS,
@@ -2023,14 +2029,8 @@ class RedshiftStagingTrackTable(models.Model):
 			RedshiftETLStage.CLEANING_UP
 		]
 
-		if self.stage == RedshiftETLStage.GATHERING_STATS:
-			self.heartbeat_track_status_metrics_for_stage(self.stage)
-			# We are starting a new track run so reset metrics for future stages.
-			for s in heartbeat_stages:
-				self.heartbeat_track_status_metrics_for_stage(s)
-
-		if self.stage in heartbeat_stages:
-			self.heartbeat_track_status_metrics_for_stage(self.stage)
+		for s in heartbeat_stages:
+			self.heartbeat_track_status_metrics_for_stage(s)
 
 	def heartbeat_track_status_metrics_for_stage(self, stage):
 		stage_start = self.get_stage_started_at(stage)
