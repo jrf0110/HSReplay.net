@@ -2014,21 +2014,30 @@ class RedshiftStagingTrackTable(models.Model):
 		if self.stage <= RedshiftETLStage.ACTIVE or self.stage == RedshiftETLStage.FINISHED:
 			raise RuntimeError("Status metrics should only be for the processing track")
 
+		heartbeat_stages = [
+			RedshiftETLStage.DEDUPLICATING,
+			RedshiftETLStage.INSERTING,
+			RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS,
+			RedshiftETLStage.VACUUMING,
+			RedshiftETLStage.ANALYZING,
+			RedshiftETLStage.CLEANING_UP
+		]
+
 		if self.stage == RedshiftETLStage.GATHERING_STATS:
-			start_val = RedshiftETLStage.GATHERING_STATS.value
-			end_val = RedshiftETLStage.CLEANING_UP.value
-			for i in range(start_val, end_val):
-				cur_stage = RedshiftETLStage(i)
-				self.heartbeat_track_status_metrics_for_stage(cur_stage)
-		else:
+			self.heartbeat_track_status_metrics_for_stage(self.stage)
+			# We are starting a new track run so reset metrics for future stages.
+			for s in heartbeat_stages:
+				self.heartbeat_track_status_metrics_for_stage(s)
+
+		if self.stage in heartbeat_stages:
 			self.heartbeat_track_status_metrics_for_stage(self.stage)
 
 	def heartbeat_track_status_metrics_for_stage(self, stage):
 		stage_start = self.get_stage_started_at(stage)
 		stage_end = self.get_stage_ended_at(stage)
 
-		stage_start_val = stage_start.isoformat() if stage_start else ""
-		stage_end_val = stage_end.isoformat() if stage_end else ""
+		stage_start_val = stage_start.isoformat() if stage_start else " "
+		stage_end_val = stage_end.isoformat() if stage_end else " "
 
 		if stage_start and stage_end:
 			duration = (stage_end - stage_start).total_seconds()
