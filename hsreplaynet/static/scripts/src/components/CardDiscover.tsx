@@ -210,6 +210,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</div>
 					<div>
 						<ClassFilter 
+							hideAll
 							key={this.state.classFilterKey}
 							multiSelect={false}
 							filters="AllNeutral"

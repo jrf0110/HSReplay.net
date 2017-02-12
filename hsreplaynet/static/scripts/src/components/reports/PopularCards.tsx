@@ -260,7 +260,8 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 								filters="AllNeutral"
 								selectionChanged={(selected) => this.setState({selectedClasses: selected})}
 								multiSelect={false}
-								/>
+								hideAll
+							/>
 						</div>
 					</div>
 					<div className="ad-wrapper">

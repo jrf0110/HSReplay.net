@@ -16,6 +16,7 @@ interface ClassFilterProps extends React.ClassAttributes<ClassFilter> {
 	filters: FilterOption[] | FilterPreset;
 	selectionChanged: (selected: Map<string, boolean>) => void;
 	multiSelect: boolean;
+	hideAll?: boolean;
 }
 
 export default class ClassFilter extends React.Component<ClassFilterProps, ClassFilterState> {
@@ -55,10 +56,12 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 	render(): JSX.Element {
 		const filters = [];
 		this.getAvailableFilters().forEach(key => {
+			if (this.props.hideAll && key === "ALL") {
+				return;
+			}
 			const selected = this.state.selectedClasses.get(key);
 			filters.push(this.buildIcon(key, selected));
-
-		})
+		});
 		return <div className="class-filter-wrapper">
 			{filters}
 		</div>;
