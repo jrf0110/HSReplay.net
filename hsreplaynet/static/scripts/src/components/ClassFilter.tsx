@@ -67,7 +67,8 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 	buildIcon(className: string, selected: boolean): JSX.Element {
 		const isSelected = selected || this.allSelected();
 		const wrapperClassName = "class-icon-label-wrapper" + (isSelected ? "" : " deselected");
-		const labelClassName = "class-label " + (isSelected ? className.toLowerCase() : "deselected");
+		const labelClassName = "class-label hidden-xs " + (isSelected ? className.toLowerCase() : "deselected");
+
 		return <span className={wrapperClassName} onClick={() => this.onLabelClick(className, selected)}>
 			<ClassIcon heroClassName={className} small />
 			<div className={labelClassName}>{toTitleCase(className)}</div>
