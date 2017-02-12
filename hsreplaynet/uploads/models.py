@@ -666,18 +666,6 @@ class RedshiftStagingTrackManager(models.Manager):
 
 		return False, None, None
 
-	def is_currently_processing(self):
-		no_longer_active = self.stage >= RedshiftETLStage.IN_QUIESCENCE
-		not_finished = self.stage < RedshiftETLStage.FINISHED
-		return no_longer_active and not_finished
-
-	def heartbeat_track_status_metrics(self):
-		"""
-		Powers the current dashboard state in Grafana Dashboard
-		"""
-		for table in self.tables.all():
-			table.heartbeat_track_status_metrics()
-
 	def get_gathering_stats_tasks(self):
 		track = RedshiftStagingTrack.objects.filter(
 			stage=RedshiftETLStage.READY_TO_LOAD,
@@ -1085,6 +1073,18 @@ class RedshiftStagingTrack(models.Model):
 			self.gathering_stats_ended_at = None
 
 		self.save()
+
+	def is_currently_processing(self):
+		no_longer_active = self.stage >= RedshiftETLStage.IN_QUIESCENCE
+		not_finished = self.stage < RedshiftETLStage.FINISHED
+		return no_longer_active and not_finished
+
+	def heartbeat_track_status_metrics(self):
+		"""
+		Powers the current dashboard state in Grafana Dashboard
+		"""
+		for table in self.tables.all():
+			table.heartbeat_track_status_metrics()
 
 	def capture_track_finished_metrics(self):
 		if self.stage != RedshiftETLStage.FINISHED:
