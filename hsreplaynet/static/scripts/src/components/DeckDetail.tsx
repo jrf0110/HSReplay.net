@@ -114,7 +114,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						filters="All"
 						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
 						multiSelect={false}
-						filterStyle="icon"
 						/>
 					{this.buildTable(selectedClass === "ALL" ? this.state.tableDataAll : this.state.tableDataClasses, selectedClass)}
 				</div>

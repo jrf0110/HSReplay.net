@@ -103,7 +103,6 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 				filters="ClassesOnly"
 				selectionChanged={(selected) => this.setState({selectedClasses: selected})}
 				multiSelect={true}
-				filterStyle="icon"
 				/>;
 
 		return <div className="chart stacked-bar-chart">

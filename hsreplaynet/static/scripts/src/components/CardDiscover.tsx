@@ -213,7 +213,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 							key={this.state.classFilterKey}
 							multiSelect={false}
 							filters="AllNeutral"
-							filterStyle="icon"
 							selectionChanged={(selection) => {
 									let selected = null;
 									selection.forEach((val, key) => {

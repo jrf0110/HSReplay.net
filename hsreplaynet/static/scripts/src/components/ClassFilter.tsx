@@ -8,8 +8,6 @@ type FilterOption = "ALL" | "DRUID" | "HUNTER" | "MAGE"
 
 type FilterPreset = "All" | "AllNeutral" | "Neutral" | "ClassesOnly";
 
-type FilterStyle = "label" | "icon";
-
 interface ClassFilterState {
 	selectedClasses?: Map<string, boolean>;
 }
@@ -18,7 +16,6 @@ interface ClassFilterProps extends React.ClassAttributes<ClassFilter> {
 	filters: FilterOption[] | FilterPreset;
 	selectionChanged: (selected: Map<string, boolean>) => void;
 	multiSelect: boolean;
-	filterStyle: FilterStyle;
 }
 
 export default class ClassFilter extends React.Component<ClassFilterProps, ClassFilterState> {
@@ -56,28 +53,15 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 	}
 
 	render(): JSX.Element {
-		const keys = this.getAvailableFilters();
 		const filters = [];
-		keys.forEach(key => {
+		this.getAvailableFilters().forEach(key => {
 			const selected = this.state.selectedClasses.get(key);
-			const filter = this.props.filterStyle == "label" ?
-				this.buildLabel(key, selected) : this.buildIcon(key, selected);
-			filters.push(filter);
+			filters.push(this.buildIcon(key, selected));
 
 		})
 		return <div className="class-filter-wrapper">
 			{filters}
 		</div>;
-	}
-
-	buildLabel(className: string, selected: boolean): JSX.Element {
-		const labelStyle = selected || this.allSelected() ? {backgroundColor: getHeroColor(className), color: this.getTextColor(className)} : null;
-		const labelClassName = "label" + (selected ? "" : " unselected");
-		return <span className={labelClassName} style={labelStyle}
-			onClick={() => this.onLabelClick(className, selected)}
-		>
-			{toTitleCase(className)}
-		</span>
 	}
 
 	buildIcon(className: string, selected: boolean): JSX.Element {
@@ -124,13 +108,5 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 
 	allSelected(): boolean {
 		return this.state.selectedClasses.get("ALL");
-	}
-
-	private getTextColor(hero: string): string {
-		switch(hero.toUpperCase()) {
-			case "SHAMAN":
-				return "white";
-		}
-		return "black";
 	}
 }
