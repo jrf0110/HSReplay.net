@@ -24,12 +24,12 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 	}
 
 	render() {
-		const textClassNames = ["infobox-value"];
+		const textClassNames = [];
 		if (this.state.copied) {
 			textClassNames.push("highlight");
 		}
 		return (
-			<div className="hdt-copy-wrapper">
+			<div className="hdt-button-wrapper">
 				<img src={STATIC_URL + "images/hdt_icon.png"} />
 				<span className={textClassNames.join(" ")} id="copy-deck">
 					{this.state.copied ? "Press Ctrl-V in HDT" : "Copy deck to HDT"}

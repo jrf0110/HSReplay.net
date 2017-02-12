@@ -9,6 +9,7 @@ import CardDetailGauge from "./charts/CardDetailGauge";
 import CardDetailLineChart from "./charts/CardDetailLineChart";
 import CardDetailBarChart from "./charts/CardDetailBarChart";
 import WinrateLineChart from "./charts/WinrateLineChart";
+import HDTButton from "./HDTButton";
 import PopularityLineChart from "./charts/PopularityLineChart";
 import {getChartScheme, toPrettyNumber, toTitleCase} from "../helpers";
 import QueryManager from "../QueryManager";
@@ -107,6 +108,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="chart-wrapper">
 						{costChart}
 					</div>
+					<HDTButton
+						card_ids={this.props.deckCards.split(",")}
+						class={this.props.deckClass}
+						name={this.getDeckName()}
+						sourceUrl={window.location.toString()}
+					/>
 					<div className="deck-list">
 						<span className="pull-right">Winrate</span>
 						<h4>Similar decks</h4>

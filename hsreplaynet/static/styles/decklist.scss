@@ -102,13 +102,17 @@
 	}
 }
 
-.hdt-copy-wrapper {
-	margin-top: 5px;
+.hdt-button-wrapper {
+	cursor: pointer;
+	display: flex;
+	flex-direction: row-reverse;
+	font-weight: bold;
 	height: 34px;
+	margin-top: 5px;
 
 	>img {
-		float: right;
 		height: 34px;
+		width: 34px;
 	}
 
 	>span {
@@ -117,7 +121,15 @@
 		padding-right: 5px;
 
 		&.highlight {
-			color: White;
+			color: $lighterblue;
 		}
+	}
+}
+
+.infobox .hdt-button-wrapper {
+	color: $lighterblue;
+
+	>span.highlight {
+		color: White;
 	}
 }
