@@ -10,7 +10,7 @@ import CardDetailLineChart from "./charts/CardDetailLineChart";
 import CardDetailBarChart from "./charts/CardDetailBarChart";
 import WinrateLineChart from "./charts/WinrateLineChart";
 import PopularityLineChart from "./charts/PopularityLineChart";
-import {getChartScheme} from "../helpers";
+import {getChartScheme, toPrettyNumber, toTitleCase} from "../helpers";
 import QueryManager from "../QueryManager";
 
 interface Card {
@@ -24,9 +24,10 @@ interface DeckDetailState {
 	selectedClasses?: Map<string, boolean>;
 	tableDataAll?: TableData;
 	tableDataClasses?: TableData;
-	winrateSeries?: RenderData;
 	averageDuration?: RenderData;
 	winrateOverTime?: RenderData;
+	popularityOverTime?: RenderData;
+	similarDecks?: TableData;
 }
 
 interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
@@ -47,7 +48,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			selectedClasses: null,
 			tableDataAll: null,
 			tableDataClasses: null,
-			winrateSeries: null,
+			popularityOverTime: null,
+			similarDecks: null,
 		}
 
 		this.fetch();
@@ -63,75 +65,82 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	render(): JSX.Element {
 		const selectedClass = this.getSelectedClass();
 
+		let replayCount = null;
+		if (this.state.winrateOverTime) {
+			replayCount = (
+				<p className="pull-right">
+					{"based on " + toPrettyNumber(this.state.winrateOverTime.series[0].metadata["num_data_points"]) + " replays"}
+				</p>
+			);
+		}
+
+		const title = [
+				<img src={STATIC_URL + "images/class-icons/alt/" + this.props.deckClass.toLocaleLowerCase() + ".png"}/>,
+				<div>
+					<h1>{this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}</h1>
+					Some info here
+					{replayCount}
+				</div>
+		];
+
+		const decks = [];
+		if (this.state.similarDecks) {
+			this.state.similarDecks.series.data[this.props.deckClass].forEach(row => {
+				decks.push(
+					<li>
+						<a href={"/cards/decks/" + row["deck_id"]}>
+							{row["player_class"]}
+							<span className="badge">{row["win_rate"] + "%"}</span>
+						</a>
+					</li>
+				);
+			})
+		}
+		const chartSeries = this.buildChartSeries();
+		const costChart = chartSeries[3] && <CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" series={chartSeries[3]}/>
+
 		const duration = this.state.averageDuration && Math.round(+this.state.averageDuration.series[0].data[0].x/60);
 		return <div className="deck-detail-container">
 			<div className="row">
-				<div className="col-lg-3" style={{textAlign: "center", display: "flex"}}>
-					<img src={STATIC_URL + "images/class-portraits/" + this.props.deckClass.toLowerCase() + ".png"} height={200}/>
-					<div style={{width: "200px", margin: "5px"}}>
-						<span style={{fontWeight: "bold"}}>Author</span>
-						<br/>
-						<span style={{fontWeight: "bold"}}>Data based on: </span>
-						<span>{this.state.winrateSeries && this.state.winrateSeries.series[0].metadata["num_games"] + " replays"}</span>
-						<br/>
-						<span style={{fontWeight: "bold"}}>More...</span>
+				<div className="col-lg-3 col-left">
+					<img className="hero-image" src={STATIC_URL + "images/class-portraits/" + this.props.deckClass.toLowerCase() + ".png"} height={300}/>
+					<div className="chart-wrapper">
+						{costChart}
+					</div>
+					<div className="deck-list">
+						<span className="pull-right">Winrate</span>
+						<h4>Similar decks</h4>
+						<ul>
+							{decks}
+						</ul>
 					</div>
 				</div>
-				<div className="col-lg-3">
-					<div className ="row">
-						<div className="chart-column col-lg-6 col-md-6 col-sm-6 col-xs-6">
-							<div className="chart-wrapper">
-								<CardDetailGauge
-									series={this.state.winrateSeries && this.state.winrateSeries.series[0]}
-									title="Winrate"
-									speedometer={true}
-									scheme={getChartScheme("class")[this.props.deckClass.toLowerCase()]}
-									/>
-							</div>
-						</div>
-						<div className="chart-column col-lg-6 col-md-6 col-sm-6 col-xs-6">
-							<div className="chart-wrapper">
-								<CardDetailGauge
-									series={this.state.averageDuration && {data: [{x: "duration", y: duration}], name: ""}}
-									title="Avg. game (min)"
-									speedometer={true}
-									scheme={getChartScheme("class")[this.props.deckClass.toLowerCase()]}
-									maxValue={15}
-									reverse
-									/>
-							</div>
-						</div>
+				<div className="col-lg-9 col-right">
+					<div className="page-title">
+						{title}
 					</div>
-				</div>
-				<div className="col-lg-6">
-					{this.buildDeckCharts()}
-				</div>
-			</div>
-			<div className="row">
-				<div className="col-lg-4">
-					<h3>Mulligan Guide</h3>
-					<ClassFilter
-						filters="All"
-						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-						multiSelect={false}
-						/>
-					{this.buildTable(selectedClass === "ALL" ? this.state.tableDataAll : this.state.tableDataClasses, selectedClass)}
-				</div>
-				<div className="col-lg-8">
 					<div className="row">
-						<div className="col-lg-6">
+						<div className="col-lg-6 col-md-6">
 							<PopularityLineChart
-								series={undefined}
+								series={this.state.popularityOverTime && this.state.popularityOverTime.series[0]}
 								widthRatio={2}
 							/>
 						</div>
-						<div className="col-lg-6">
+						<div className="col-lg-6 col-md-6">
 							<WinrateLineChart
 								series={this.state.winrateOverTime && this.state.winrateOverTime.series[0]}
 								widthRatio={2}
 							/>
 						</div>
 					</div>
+					<h3>Mulligan guide</h3>
+					<ClassFilter
+						filters="All"
+						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+						multiSelect={false}
+						hideAll
+					/>
+					{this.buildTable(selectedClass === "ALL" ? this.state.tableDataAll : this.state.tableDataClasses, selectedClass)}
 				</div>
 			</div>
 		</div>;
@@ -231,6 +240,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			<th>Decklist</th>,
 			<th>{"Winrate impact"}</th>,
 			<th>% Kept</th>,
+			<th>Avg. turns in hand</th>,
+			<th>Winrate when drawn</th>,
+			<th>Winrate when played</th>,
 		)
 
 		return <table className="table table-striped">
@@ -262,8 +274,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
 			const multiplier = Math.min(5, Math.abs(winrateDelta));
 			const color = winrateDelta > 0 ? "rgb(0, " + Math.round(150 * multiplier / 5) + ", 0)" : "rgb(" + Math.round(255 * multiplier / 5) + ", 0, 0)";
-			cols.push(<td className="winrate-cell" style={{color: color}}>{tendencyStr + winrateDelta.toFixed(2) + "%"}</td>);
-			cols.push(<td>{ (row["keep_percentage"]) + "%"}</td>);
+			cols.push(
+				<td className="winrate-cell" style={{color: color}}>{tendencyStr + winrateDelta.toFixed(2) + "%"}</td>,
+				<td>{ (row["keep_percentage"]) + "%"}</td>,
+				<td>0</td>,
+				<td>0</td>,
+				<td>0</td>,
+			);
 		}
 		return <tr className="card-table-row">
 			{cols}
@@ -284,15 +301,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	getBaseWinrate(): number {
-		return this.state.winrateSeries && this.state.winrateSeries.series[0].data[0].y;
+		if (!this.state.winrateOverTime) {
+			return 50;
+		}
+		const data = this.state.winrateOverTime.series[0].data;
+		return data[data.length - 1].y;
 	}
 
 	fetch() {
-		this.queryManager.fetch(
-			"/analytics/query/single_deck_base_winrate?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			(success, json) => this.setState({winrateSeries: json})
-		);
-
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
 			(success, json) => this.setState({tableDataClasses: json})
@@ -304,13 +320,18 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_average_game_duration?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			(success, json) => this.setState({averageDuration: json})
-		);
-
-		this.queryManager.fetch(
 			"/analytics/query/single_deck_winrate_over_time?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
 			(success, json) => this.setState({winrateOverTime: json})
+		);
+
+		//mock data
+		this.queryManager.fetch(
+			"/analytics/query/single_card_include_popularity_over_time?card_id=" + 374 + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
+			(success, json) => this.setState({popularityOverTime: json})
+		);
+		this.queryManager.fetch(
+			"/analytics/query/class_card_top_decks_when_played?card_id=" + 846 + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+			(success, json) => this.setState({similarDecks: json})
 		);
 	}
 

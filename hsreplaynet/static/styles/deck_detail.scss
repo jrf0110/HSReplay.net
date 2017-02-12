@@ -1,5 +1,81 @@
 .deck-detail-container {
-	width: 100%;
+	width: 98%;
+	margin-top: 20px;
+
+	.chart-column {
+		padding-left: 0;
+		padding-right: 0;
+
+		.chart-wrapper {
+			max-width: 150px;
+			margin: 0 auto;
+			&.wide {
+				max-width: 500px;
+			}
+		}
+	}
+	.col-left {
+
+		.hero-image {
+			display: block;
+			max-width: 250px;
+			margin: 40px auto 0px auto;
+		}
+		
+		.chart-wrapper {
+			width: 100%;
+			margin: 0 auto;
+		}
+
+		.deck-list {
+			margin: 0px auto;
+			width: 90%;
+
+			>h4 {
+				border-bottom: 1px solid $darkgrey;
+			}
+
+			> ul {
+				padding-left: 10px;
+
+				>li {
+					user-select: none;
+					list-style-type: none;
+
+					.badge {
+						float: right;
+					}
+				}
+			}
+		}
+	}
+
+	.col-right {
+
+		.page-title {
+			display: flex;
+			height: 75px;
+
+			>img {
+				height: 50px;
+				width: 50px;
+				opacity: 0.3;
+			}
+
+			>div {
+				width: 100%;
+
+				>p {
+					color: gray;
+					font-style: italic;
+				}
+			}
+		}
+
+		.message-wrapper {
+			 margin-top: 70px
+		}
+	}
 }
 @media (min-width: 1400px) {
 	.deck-detail-container {
@@ -21,19 +97,6 @@
 			max-width: 217px;
 			margin-top: -9px;
 			margin-bottom: -9px;
-		}
-	}
-}
-
-.chart-column {
-	padding-left: 0;
-	padding-right: 0;
-
-	.chart-wrapper {
-		max-width: 250px;
-		margin: 0 auto;
-		&.wide {
-			max-width: 500px;
 		}
 	}
 }
