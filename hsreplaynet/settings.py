@@ -218,6 +218,13 @@ CACHES = {
 	}
 }
 
+# Any subsystem wishing to use the advisory lock synchronization tools
+# found in `hsreplaynet.utils.synchronization` should register the namespace
+# they are using here, to prevent collisions.
+ADVISORY_LOCK_NAMESPACES = {
+	"REDSHIFT_ETL_MAINTENANCE_LOCK": 1,
+}
+
 # If False, then we will use RQ for async processing
 PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA=True
 

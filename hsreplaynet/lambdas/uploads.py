@@ -14,7 +14,7 @@ from hsreplaynet.uploads.models import (
 )
 from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import LAMBDA, S3
-from hsreplaynet.utils.latch import CountDownLatch
+from hsreplaynet.utils.synchronization import CountDownLatch
 from hsreplaynet.utils.influx import influx_metric
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose

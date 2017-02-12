@@ -18,6 +18,7 @@ from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import streams
 from hsreplaynet.utils.influx import influx_timer, influx_metric
+from hsreplaynet.utils.synchronization import advisory_lock
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.sql import func, select
 from sqlalchemy.pool import NullPool
@@ -550,15 +551,23 @@ class RedshiftStagingTrackManager(models.Manager):
 	def do_maintenance(self):
 		log.info("Starting Redshift ETL Maintenance Cycle")
 
-		with influx_timer("redshift_etl_task_generation_duration"):
-			tasks = RedshiftStagingTrack.objects.get_ready_maintenance_tasks()
+		# We use this as a shared value so 2 ETL Lambdas never start concurrently
+		NAMESPACE = settings.ADVISORY_LOCK_NAMESPACES["REDSHIFT_ETL_MAINTENANCE_LOCK"]
+		ADVISORY_LOCK_ID = 1
+		with advisory_lock([NAMESPACE, ADVISORY_LOCK_ID]) as acquired:
+			if acquired:
+				log.info("Lock acquired. Generating tasks...")
+				with influx_timer("redshift_etl_task_generation_duration"):
+					tasks = RedshiftStagingTrack.objects.get_ready_maintenance_tasks()
 
-		if tasks:
-			for task in tasks:
-				log.info("Next Task: %s" % str(task))
-				with influx_timer("redshift_etl_task_invocation", task=str(task)):
-					task()
-				log.info("Complete.")
+				if tasks:
+					for task in tasks:
+						log.info("Next Task: %s" % str(task))
+						with influx_timer("redshift_etl_task_invocation", task=str(task)):
+							task()
+						log.info("Complete.")
+			else:
+				log.info("Could not acquire lock. Will skip maintenance run.")
 
 		log.info("Maintenance Cycle Complete")
 
