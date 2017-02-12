@@ -31,6 +31,7 @@ interface DeckDetailState {
 	winrateOverTime?: RenderData;
 	popularityOverTime?: RenderData;
 	similarDecks?: TableData;
+	baseWinrates?: TableData;
 	sortCol?: string;
 	sortDirection?: number;
 }
@@ -98,6 +99,21 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</div>
 		];
 
+		const winrates = [];
+		if (this.state.baseWinrates) {
+			const data = this.state.baseWinrates.series.data;
+			Object.keys(data).forEach(key => {
+				const winrate = +data[key][0]["win_rate"];
+				winrates.push(
+					<li>
+						<ClassIcon heroClassName={key} small/>
+						{toTitleCase(data[key][0]["player_class"])}
+						<div className="badge" style={{background: this.getBadgeColor(winrate)}}>{winrate + "%"}</div>
+					</li>
+				);
+			});
+		}
+
 		const decks = [];
 		if (this.state.similarDecks) {
 			this.state.similarDecks.series.data[this.props.deckClass].forEach(row => {
@@ -129,6 +145,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						name={this.getDeckName()}
 						sourceUrl={window.location.toString()}
 					/>
+					<div className="winrate-list">
+						<h4>Winrate against</h4>
+						<ul>
+							{winrates}
+						</ul>
+					</div>
 					<div className="deck-list">
 						<span className="pull-right">Winrate</span>
 						<h4>Similar decks</h4>
@@ -368,6 +390,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_winrate_over_time?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
 			(success, json) => this.setState({winrateOverTime: json})
+		);
+
+		this.queryManager.fetch(
+			"/analytics/query/single_deck_base_winrate_by_opponent_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			(success, json) => this.setState({baseWinrates: json})
 		);
 
 		//mock data

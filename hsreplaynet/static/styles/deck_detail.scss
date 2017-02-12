@@ -31,7 +31,7 @@
 			justify-content: center;
 		}
 
-		.deck-list {
+		.deck-list, .winrate-list {
 			margin: 0px auto;
 			width: 90%;
 
@@ -45,10 +45,22 @@
 				>li {
 					user-select: none;
 					list-style-type: none;
+					border-bottom: 1px solid $lightgrey;
 
 					.badge {
 						float: right;
+						margin-top: 3px;
 					}
+
+					.class-icon {
+						height: 24px;
+						width: 24px;
+						margin-right: 5px;
+					}
+				}
+
+				>li:hover {
+					font-weight: bold;
 				}
 			}
 		}
