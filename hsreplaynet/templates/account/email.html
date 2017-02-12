@@ -1,0 +1,67 @@
+{% extends "account/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<section class="box-section">
+	<h3>{% trans "E-mail Addresses" %}</h3>
+
+	<div class="inner">
+		{% if user.emailaddress_set.all %}
+			<p>{% trans "The following e-mail addresses are associated with your account:" %}</p>
+
+			<table id="account-settings-emails">
+				{% for email in user.emailaddress_set.all %}
+				<tr>
+					<th>{{ email.email }}</th>
+
+					<td>{% if email.verified %}
+						<span class="label label-success">✔ Verified</span>
+					{% else %}
+						<form method="POST" action="{% url 'account_email' %}">
+							{% csrf_token %}
+							<input type="hidden" name="email" value="{{ email.email }}"/>
+							<button type="submit" name="action_send" class="btn btn-xs btn-primary">{% trans 'Re-send Verification' %}</button>
+						</form>
+					{% endif %}</td>
+
+					<td>{% if email.primary %}
+							<span class="label label-info">✔ Primary</span>
+						{% else %}
+							<form method="POST" action="{% url 'account_email' %}">
+								{% csrf_token %}
+								<input type="hidden" name="email" value="{{ email.email }}"/>
+								<button type="submit" name="action_primary" class="btn btn-xs btn-primary">{% trans 'Make Primary' %}</button>
+							</form>
+						{% endif %}</td>
+
+					<td>
+						<form method="POST" action="{% url 'account_email' %}">
+							{% csrf_token %}
+							<input type="hidden" name="email" value="{{ email.email }}"/>
+							<button type="submit" name="action_remove" class="btn btn-xs btn-danger">{% trans 'Remove' %}</button>
+						</form>
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+
+		{% endif %}
+
+		<hr/>
+
+		<h4>{% trans "Add E-mail Address" %}</h4>
+
+		<form method="post" action="{% url 'account_email' %}" class="add_email">
+			{% csrf_token %}
+
+			<p>
+				Add an email so we can contact you for billing and account purposes.
+				We will never sell it or share it with anybody.
+			</p>
+
+			<input type="email" name="email" id="id_email" size="30" placeholder="E-mail address" required="required"/>
+			<button type="submit" name="action_add" class="btn btn-primary">{% trans "Add E-mail" %}</button>
+		</form>
+	</div>
+</section>
+{% endblock %}
