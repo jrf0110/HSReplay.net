@@ -650,10 +650,24 @@ class RedshiftStagingTrackManager(models.Manager):
 		if unfinished_tracks:
 			for unfinished_track in unfinished_tracks:
 				in_progress, name = unfinished_track.refresh_track_state()
+				if unfinished_track.is_currently_processing():
+					unfinished_track.heartbeat_track_status_metrics()
 				if in_progress:
 					return in_progress, name, unfinished_track.track_prefix
 
 		return False, None, None
+
+	def is_currently_processing(self):
+		no_longer_active = self.stage >= RedshiftETLStage.IN_QUIESCENCE
+		not_finished = self.stage < RedshiftETLStage.FINISHED
+		return no_longer_active and not_finished
+
+	def heartbeat_track_status_metrics(self):
+		"""
+		Powers the current dashboard state in Grafana Dashboard
+		"""
+		for table in self.tables.all():
+			table.heartbeat_track_status_metrics()
 
 	def get_gathering_stats_tasks(self):
 		track = RedshiftStagingTrack.objects.filter(
@@ -1423,27 +1437,27 @@ class RedshiftStagingTrackTable(models.Model):
 	gathering_stats_ended_at = models.DateTimeField(null=True)
 
 	dedupe_query_handle = models.CharField(max_length=15, blank=True)
-	deduplication_started_at = models.DateTimeField(null=True)
-	deduplication_ended_at = models.DateTimeField(null=True)
+	deduplicating_started_at = models.DateTimeField(null=True)
+	deduplicating_ended_at = models.DateTimeField(null=True)
 
 	insert_query_handle = models.CharField(max_length=15, blank=True)
-	insert_started_at = models.DateTimeField(null=True)
-	insert_ended_at = models.DateTimeField(null=True)
+	inserting_started_at = models.DateTimeField(null=True)
+	inserting_ended_at = models.DateTimeField(null=True)
 
 	refreshing_view_handle = models.CharField(max_length=15, blank=True)
-	refreshing_view_start_at = models.DateTimeField(null=True)
-	refreshing_view_end_at = models.DateTimeField(null=True)
+	refreshing_materialized_views_started_at = models.DateTimeField(null=True)
+	refreshing_materialized_views_ended_at = models.DateTimeField(null=True)
 
 	vacuum_query_handle = models.CharField(max_length=15, blank=True)
-	vacuum_started_at = models.DateTimeField(null=True)
-	vacuum_ended_at = models.DateTimeField(null=True)
+	vacuuming_started_at = models.DateTimeField(null=True)
+	vacuuming_ended_at = models.DateTimeField(null=True)
 
 	analyze_query_handle = models.CharField(max_length=15, blank=True)
-	analyze_started_at = models.DateTimeField(null=True)
-	analyze_ended_at = models.DateTimeField(null=True)
+	analyzing_started_at = models.DateTimeField(null=True)
+	analyzing_ended_at = models.DateTimeField(null=True)
 
-	track_cleanup_start_at = models.DateTimeField(null=True)
-	track_cleanup_end_at = models.DateTimeField(null=True)
+	cleaning_up_started_at = models.DateTimeField(null=True)
+	cleaning_up_ended_at = models.DateTimeField(null=True)
 
 	class Meta:
 		unique_together = ("track", "target_table")
@@ -1493,7 +1507,7 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_deduplicate_records)
 
 	def do_deduplicate_records(self):
-		self.deduplication_started_at = timezone.now()
+		self.deduplicating_started_at = timezone.now()
 		self.stage = RedshiftETLStage.DEDUPLICATING
 		self.dedupe_query_handle = self._make_async_query_handle()
 		self.save()
@@ -1552,7 +1566,7 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_insert_staged_records)
 
 	def do_insert_staged_records(self):
-		self.insert_started_at = timezone.now()
+		self.inserting_started_at = timezone.now()
 		self.stage = RedshiftETLStage.INSERTING
 		self.insert_query_handle = self._make_async_query_handle()
 		self.save()
@@ -1599,7 +1613,7 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_refresh_view)
 
 	def do_refresh_view(self):
-		self.refreshing_view_start_at = timezone.now()
+		self.refreshing_materialized_views_started_at = timezone.now()
 		self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
 		self.refreshing_view_handle = self._make_async_query_handle()
 		self.save()
@@ -1632,7 +1646,7 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_vacuum)
 
 	def do_vacuum(self):
-		self.vacuum_started_at = timezone.now()
+		self.vacuuming_started_at = timezone.now()
 		self.stage = RedshiftETLStage.VACUUMING
 		self.vacuum_query_handle = self._make_async_query_handle()
 		self.save()
@@ -1654,7 +1668,7 @@ class RedshiftStagingTrackTable(models.Model):
 
 		else:
 			log.info("Unsorted row count is not large enough. Skipping vacuum.")
-			self.vacuum_ended_at = timezone.now()
+			self.vacuuming_ended_at = timezone.now()
 			self.stage = RedshiftETLStage.VACUUM_COMPLETE
 			self.save()
 
@@ -1664,7 +1678,7 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_analyze)
 
 	def do_analyze(self):
-		self.analyze_started_at = timezone.now()
+		self.analyzing_started_at = timezone.now()
 		self.stage = RedshiftETLStage.ANALYZING
 		self.analyze_query_handle = self._make_async_query_handle()
 		self.save()
@@ -1690,7 +1704,7 @@ class RedshiftStagingTrackTable(models.Model):
 	def do_cleanup(self):
 		from hsreplaynet.utils.instrumentation import error_handler
 		self.stage = RedshiftETLStage.CLEANING_UP
-		self.track_cleanup_start_at = timezone.now()
+		self.cleaning_up_started_at = timezone.now()
 		self.save()
 
 		try:
@@ -1707,7 +1721,7 @@ class RedshiftStagingTrackTable(models.Model):
 		except Exception as e:
 			error_handler(e)
 
-		self.track_cleanup_end_at = timezone.now()
+		self.cleaning_up_ended_at = timezone.now()
 		self.stage = RedshiftETLStage.FINISHED
 		self.save()
 
@@ -1743,28 +1757,28 @@ class RedshiftStagingTrackTable(models.Model):
 		self.stage = stage
 
 		if int(stage) < int(RedshiftETLStage.CLEANING_UP):
-			self.track_cleanup_end_at = None
-			self.track_cleanup_start_at = None
+			self.cleaning_up_ended_at = None
+			self.cleaning_up_started_at = None
 
 		if int(stage) < int(RedshiftETLStage.ANALYZE_COMPLETE):
-			self.analyze_started_at = None
-			self.analyze_ended_at = None
+			self.analyzing_started_at = None
+			self.analyzing_ended_at = None
 
 		if int(stage) < int(RedshiftETLStage.VACUUM_COMPLETE):
-			self.vacuum_started_at = None
-			self.vacuum_ended_at = None
+			self.vacuuming_started_at = None
+			self.vacuuming_ended_at = None
 
 		if int(stage) < int(RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE):
-			self.refreshing_view_start_at = None
-			self.refreshing_view_end_at = None
+			self.refreshing_materialized_views_started_at = None
+			self.refreshing_materialized_views_ended_at = None
 
 		if int(stage) < int(RedshiftETLStage.INSERT_COMPLETE):
-			self.insert_started_at = None
-			self.insert_ended_at = None
+			self.inserting_started_at = None
+			self.inserting_ended_at = None
 
 		if int(stage) < int(RedshiftETLStage.DEDUPLICATION_COMPLETE):
-			self.deduplication_started_at = None
-			self.deduplication_ended_at = None
+			self.deduplicating_started_at = None
+			self.deduplicating_ended_at = None
 
 		if int(stage) < int(RedshiftETLStage.GATHERING_STATS_COMPLETE):
 			self.gathering_stats_started_at = None
@@ -1781,7 +1795,7 @@ class RedshiftStagingTrackTable(models.Model):
 		if self.stage == RedshiftETLStage.ANALYZING:
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.ANALYZE_COMPLETE,
-				"analyze_ended_at",
+				"analyzing_ended_at",
 				self.analyze_query_handle
 			)
 
@@ -1792,21 +1806,21 @@ class RedshiftStagingTrackTable(models.Model):
 		if self.stage == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS:
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE,
-				"refreshing_view_end_at",
+				"refreshing_materialized_views_end_at",
 				self.refreshing_view_handle
 			)
 
 		if self.stage == RedshiftETLStage.INSERTING:
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.INSERT_COMPLETE,
-				"insert_ended_at",
+				"inserting_ended_at",
 				self.insert_query_handle
 			)
 
 		if self.stage == RedshiftETLStage.DEDUPLICATING:
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.DEDUPLICATION_COMPLETE,
-				"deduplication_ended_at",
+				"deduplicating_ended_at",
 				self.dedupe_query_handle,
 				min_expected_count=3
 			)
@@ -1869,7 +1883,7 @@ class RedshiftStagingTrackTable(models.Model):
 			latest_end_date = rows[0][0]
 			tz_aware_ending_timestamp = timezone.make_aware(latest_end_date)
 			self.stage = RedshiftETLStage.VACUUM_COMPLETE
-			self.vacuum_ended_at = tz_aware_ending_timestamp
+			self.vacuuming_ended_at = tz_aware_ending_timestamp
 			self.save()
 
 	def get_pct_unsorted(self):
@@ -1936,38 +1950,38 @@ class RedshiftStagingTrackTable(models.Model):
 
 		self.capture_stage_duration(
 			RedshiftETLStage.DEDUPLICATING,
-			self.deduplication_started_at,
-			self.deduplication_ended_at
+			self.deduplicating_started_at,
+			self.deduplicating_ended_at
 		)
 
 		self.capture_stage_duration(
 			RedshiftETLStage.INSERTING,
-			self.insert_started_at,
-			self.insert_ended_at
+			self.inserting_started_at,
+			self.inserting_ended_at
 		)
 
 		self.capture_stage_duration(
 			RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS,
-			self.refreshing_view_start_at,
-			self.refreshing_view_end_at
+			self.refreshing_materialized_views_started_at,
+			self.refreshing_materialized_views_ended_at
 		)
 
 		self.capture_stage_duration(
 			RedshiftETLStage.VACUUMING,
-			self.vacuum_started_at,
-			self.vacuum_ended_at,
+			self.vacuuming_started_at,
+			self.vacuuming_ended_at,
 		)
 
 		self.capture_stage_duration(
 			RedshiftETLStage.ANALYZING,
-			self.analyze_started_at,
-			self.analyze_ended_at
+			self.analyzing_started_at,
+			self.analyzing_ended_at
 		)
 
 		self.capture_stage_duration(
 			RedshiftETLStage.CLEANING_UP,
-			self.track_cleanup_start_at,
-			self.track_cleanup_end_at
+			self.cleaning_up_started_at,
+			self.cleaning_up_ended_at
 		)
 
 	def capture_stage_duration(self, stage, start, end, extra_fields=None):
@@ -1986,3 +2000,72 @@ class RedshiftStagingTrackTable(models.Model):
 				target_table=self.target_table,
 				stage=stage.name.lower(),
 			)
+
+	def heartbeat_track_status_metrics(self):
+		if self.stage <= RedshiftETLStage.ACTIVE or self.stage == RedshiftETLStage.FINISHED:
+			raise RuntimeError("Status metrics should only be for the processing track")
+
+		if self.stage == RedshiftETLStage.GATHERING_STATS:
+			start_val = RedshiftETLStage.GATHERING_STATS.value
+			end_val = RedshiftETLStage.CLEANING_UP.value
+			for i in range(start_val, end_val):
+				cur_stage = RedshiftETLStage(i)
+				self.heartbeat_track_status_metrics_for_stage(cur_stage)
+		else:
+			self.heartbeat_track_status_metrics_for_stage(self.stage)
+
+	def heartbeat_track_status_metrics_for_stage(self, stage):
+		stage_start = self.get_stage_started_at(stage)
+		stage_end = self.get_stage_ended_at(stage)
+
+		stage_start_val = stage_start.isoformat() if stage_start else ""
+		stage_end_val = stage_end.isoformat() if stage_end else ""
+
+		if stage_start and stage_end:
+			duration = (stage_end - stage_start).total_seconds()
+		elif stage_start:
+			duration = (timezone.now() - stage_start).total_seconds()
+		else:
+			duration = 0
+
+		fields = {
+			"stage_start": stage_start_val,
+			"stage_end": stage_end_val,
+			"duration": duration,
+			"track_id": self.track_id,
+			"id": self.id
+		}
+		influx_metric(
+			"redshift_etl_track_table_status",
+			fields,
+			target_table=self.target_table,
+			stage=self.stage.name.lower(),
+		)
+
+	def set_stage_started_at(self, stage, val):
+		if self.stage <= RedshiftETLStage.ACTIVE or self.stage == RedshiftETLStage.FINISHED:
+			raise RuntimeError("Method not eligible for stage: %s" % (stage.name.lower(),))
+
+		field_name = "%s_started_at" % stage.name.lower()
+		setattr(self, field_name, val)
+
+	def get_stage_started_at(self, stage):
+		if self.stage <= RedshiftETLStage.ACTIVE or self.stage == RedshiftETLStage.FINISHED:
+			raise RuntimeError("Method not eligible for stage: %s" % (stage.name.lower(),))
+
+		field_name = "%s_started_at" % stage.name.lower()
+		return getattr(self, field_name, None)
+
+	def set_stage_ended_at(self, stage, val):
+		if self.stage <= RedshiftETLStage.ACTIVE or self.stage == RedshiftETLStage.FINISHED:
+			raise RuntimeError("Method not eligible for stage: %s" % (stage.name.lower(),))
+
+		field_name = "%s_ended_at" % stage.name.lower()
+		setattr(self, field_name, val)
+
+	def get_stage_ended_at(self, stage):
+		if self.stage <= RedshiftETLStage.ACTIVE or self.stage == RedshiftETLStage.FINISHED:
+			raise RuntimeError("Method not eligible for stage: %s" % (stage.name.lower(),))
+
+		field_name = "%s_ended_at" % stage.name.lower()
+		return getattr(self, field_name, None)
