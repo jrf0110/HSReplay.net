@@ -27,22 +27,22 @@
 					{{ account }}
 				</th>
 				<td>
-					<form action="{% url 'socialaccount_connections' %}" method="POST">
-						{% csrf_token %}
-						<input type="hidden" name="account" value="{{ base_account.id }}"/>
-						<input type="submit" value="Remove"/>
-					</form>
-				</td>
-				<td>
 					{% if base_account.extra_data.battletag != request.user.username %}
-					<form action="{% url 'account_make_primary' %}" method="POST">
+					<form method="POST" action="{% url 'account_make_primary' %}">
 						{% csrf_token %}
 						<input type="hidden" name="account" value="{{ base_account.id }}"/>
-						<input type="submit" value="Make primary"/>
+						<button type="submit" class="btn btn-xs btn-primary">Make primary</button>
 					</form>
 					{% else %}
-						&#10004; Primary account
+						<span class="label label-primary">✔ Primary account</span>
 					{% endif %}
+				</td>
+				<td>
+					<form method="POST" action="{% url 'socialaccount_connections' %}">
+						{% csrf_token %}
+						<input type="hidden" name="account" value="{{ base_account.id }}"/>
+						<button type="submit" class="btn btn-xs btn-danger">Remove</button>
+					</form>
 				</td>
 			</tr>
 			{% endwith %}
