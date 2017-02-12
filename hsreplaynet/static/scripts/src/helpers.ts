@@ -368,6 +368,16 @@ export function getColorString(colors: Colors, intensity: number, winrate: numbe
 			neutral = [null, 100, 100];
 			negative = [0, 100, 65.7];
 			break;
+		case Colors.REDGREEN3:
+			positive = [120, 70, 40];
+			neutral = [90, 100, 15];
+			negative = [0, 100, 65.7];
+			break;
+		case Colors.REDGREEN4:
+			positive = [120, 70, 40];
+			neutral = [50, 20, 50];
+			negative = [0, 100, 65.7];
+			break;
 		case Colors.ORANGEBLUE:
 			positive = [202, 100, 50];
 			neutral = [null, 100, 100];

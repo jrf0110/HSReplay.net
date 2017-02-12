@@ -5,6 +5,7 @@ import CardDetailLineChart from "./charts/CardDetailLineChart";
 import CardDetailPieChart from "./charts/CardDetailPieChart";
 import CardTile from "./CardTile";
 import ClassFilter from "./ClassFilter";
+import ClassIcon from "./ClassIcon";
 import DeckList from "./DeckList";
 import HearthstoneJSON from "hearthstonejson";
 import HDTButton from "./HDTButton";
@@ -12,7 +13,8 @@ import PopularityLineChart from "./charts/PopularityLineChart";
 import QueryManager from "../QueryManager";
 import WinrateLineChart from "./charts/WinrateLineChart";
 import {TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
-import {getChartScheme, toPrettyNumber, toTitleCase} from "../helpers";
+import {getChartScheme, toPrettyNumber, toTitleCase, getColorString} from "../helpers";
+import {Colors} from "../Colors";
 
 interface Card {
 	cardObj: any;
@@ -70,6 +72,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return this.props.deckName || toTitleCase(this.props.deckClass) + " Deck";
 	}
 
+	getBadgeColor(winrate: number) {
+		const factor = winrate > 50 ? 4 : 3;
+		const colorWinrate = 50 + Math.max(-50, Math.min(50, (factor * (winrate - 50))));
+		return getColorString(Colors.REDGREEN4, 50, colorWinrate/100);
+	}
+
 	render(): JSX.Element {
 		const selectedClass = this.getSelectedClass();
 
@@ -85,9 +93,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const title = [
 				<img src={STATIC_URL + "images/class-icons/alt/" + this.props.deckClass.toLocaleLowerCase() + ".png"}/>,
 				<div>
-					<h1>{this.getDeckName()}</h1>
-					Some info here
 					{replayCount}
+					<h1>{this.getDeckName()}</h1>
 				</div>
 		];
 
@@ -97,8 +104,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				decks.push(
 					<li>
 						<a href={"/cards/decks/" + row["deck_id"]}>
-							{row["player_class"]}
-							<span className="badge">{row["win_rate"] + "%"}</span>
+							<ClassIcon heroClassName={row["player_class"]} small/>
+							{toTitleCase(row["player_class"])}
+							<span className="badge" style={{background: this.getBadgeColor(+row["win_rate"])}}>{row["win_rate"] + "%"}</span>
 						</a>
 					</li>
 				);
@@ -308,12 +316,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</div>
 		</td>);
 		if (row){
-			const winrateDelta = +row["win_rate"] - baseWinrate;
+			const winrate = +row["win_rate"];
+			const winrateDelta = winrate - baseWinrate;
+			const colorWinrate = 50 + Math.max(-50, Math.min(50, (5 * winrateDelta)));
 			const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
-			const multiplier = Math.min(5, Math.abs(winrateDelta));
-			const color = winrateDelta > 0 ? "rgb(0, " + Math.round(150 * multiplier / 5) + ", 0)" : "rgb(" + Math.round(255 * multiplier / 5) + ", 0, 0)";
 			cols.push(
-				<td className="winrate-cell" style={{color: color}}>{tendencyStr + winrateDelta.toFixed(2) + "%"}</td>,
+				<td className="winrate-cell" style={{color: getColorString(Colors.REDGREEN3, 75, colorWinrate/100)}}>{tendencyStr + winrateDelta.toFixed(2) + "%"}</td>,
 				<td>{ (row["keep_percentage"]) + "%"}</td>,
 				<td>0</td>,
 				<td>0</td>,
