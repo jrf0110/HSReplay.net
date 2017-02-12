@@ -1,18 +1,18 @@
 import * as React from "react";
-import DeckList from "./DeckList";
-import HearthstoneJSON from "hearthstonejson";
-import {TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
-import CardTile from "./CardTile";
-import ClassFilter from "./ClassFilter";
-import CardDetailPieChart from "./charts/CardDetailPieChart";
+import CardDetailBarChart from "./charts/CardDetailBarChart";
 import CardDetailGauge from "./charts/CardDetailGauge";
 import CardDetailLineChart from "./charts/CardDetailLineChart";
-import CardDetailBarChart from "./charts/CardDetailBarChart";
-import WinrateLineChart from "./charts/WinrateLineChart";
+import CardDetailPieChart from "./charts/CardDetailPieChart";
+import CardTile from "./CardTile";
+import ClassFilter from "./ClassFilter";
+import DeckList from "./DeckList";
+import HearthstoneJSON from "hearthstonejson";
 import HDTButton from "./HDTButton";
 import PopularityLineChart from "./charts/PopularityLineChart";
-import {getChartScheme, toPrettyNumber, toTitleCase} from "../helpers";
 import QueryManager from "../QueryManager";
+import WinrateLineChart from "./charts/WinrateLineChart";
+import {TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
+import {getChartScheme, toPrettyNumber, toTitleCase} from "../helpers";
 
 interface Card {
 	cardObj: any;
@@ -29,6 +29,8 @@ interface DeckDetailState {
 	winrateOverTime?: RenderData;
 	popularityOverTime?: RenderData;
 	similarDecks?: TableData;
+	sortCol?: string;
+	sortDirection?: number;
 }
 
 interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
@@ -51,6 +53,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			tableDataClasses: null,
 			popularityOverTime: null,
 			similarDecks: null,
+			sortCol: "decklist",
+			sortDirection: 1,
 		}
 
 		this.fetch();
@@ -62,6 +66,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		});
 	}
 
+	getDeckName(): string {
+		return this.props.deckName || toTitleCase(this.props.deckClass) + " Deck";
+	}
 
 	render(): JSX.Element {
 		const selectedClass = this.getSelectedClass();
@@ -78,7 +85,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const title = [
 				<img src={STATIC_URL + "images/class-icons/alt/" + this.props.deckClass.toLocaleLowerCase() + ".png"}/>,
 				<div>
-					<h1>{this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}</h1>
+					<h1>{this.getDeckName()}</h1>
 					Some info here
 					{replayCount}
 				</div>
@@ -218,12 +225,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return map;
 	}
 
-	sortBy(prop: string): any {
-		return (a, b) => a.cardObj[prop] > b.cardObj[prop] ? 1 : -1;
-	}
-
-
 	buildTable(tableData: TableData, key: string): JSX.Element {
+		const sortByCardProp = (prop: string) =>  {
+			return (a, b) => a.card.cardObj[prop] > b.card.cardObj[prop] ? this.state.sortDirection : -this.state.sortDirection;
+		}
 		const cardRows = [];
 		if (this.state.cardData) {
 			if (tableData) {
@@ -233,27 +238,53 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					const cardList = []
 					const groupedCards = this.getGroupedCards(this.props.deckCards.split(","));
 					groupedCards.forEach((count, cardId) => cardList.push({cardObj: this.state.cardData.get(cardId), count: count}));
-					cardList.sort(this.sortBy("name")).sort(this.sortBy("cost"));
+
+					const rowList = [];
 					cardList.forEach(card => {
 						const row = rows.find(r => r["card_id"] == card.cardObj.id);
-						cardRows.push(this.buildCardRow(card, row, key !== "ALL", baseWinrate));
+						rowList.push({row: row, card: card})
+					})
+
+					if (this.state.sortCol === "decklist") {
+						rowList.sort(sortByCardProp("name")).sort(sortByCardProp("cost"));
+					}
+					else {
+						rowList.sort((a, b) => +a.row[this.state.sortCol] > +b.row[this.state.sortCol] ? this.state.sortDirection : -this.state.sortDirection);
+					}
+					
+					rowList.forEach(item => {
+						cardRows.push(this.buildCardRow(item.card, item.row, key !== "ALL", baseWinrate));
 					})
 				}
 			}
 		}
 
+		const onHeaderClick = (name: string, defaultDir: number = -1) => {
+			this.setState({
+				sortCol: name,
+				sortDirection: this.state.sortCol !== name ? defaultDir : -this.state.sortDirection
+			})
+		};
+
+		const sortIndicator = (name: string): string => {
+			if (name !== this.state.sortCol) {
+				return "";
+			}
+			return this.state.sortDirection > 0 ? " ▴" : " ▾";
+		}
+
 		const headers = [];
 		headers.push(
-			<th>Decklist</th>,
-			<th>{"Winrate impact"}</th>,
-			<th>% Kept</th>,
-			<th>Avg. turns in hand</th>,
-			<th>Winrate when drawn</th>,
-			<th>Winrate when played</th>,
+			<th onClick={() => onHeaderClick("decklist", 1)}>{"Decklist" + sortIndicator("decklist")}</th>,
+			<th onClick={() => onHeaderClick("win_rate")}>{"Winrate impact" + sortIndicator("win_rate")}</th>,
+			<th onClick={() => onHeaderClick("keep_percentage")}>{"% Kept" + sortIndicator("keep_percentage")}</th>,
+			<th onClick={() => onHeaderClick("turns_in_hand")}>{"Avg. turns in hand" + sortIndicator("turns_in_hand")}</th>,
+			<th onClick={() => onHeaderClick("winrate_drawn")}>{"Winrate when drawn" + sortIndicator("winrate_drawn")}</th>,
+			<th onClick={() => onHeaderClick("winrate_played")}>{"Winrate when played" + sortIndicator("winrate_played")}</th>,
 		)
 
 		return <table className="table table-striped">
-			<thead>
+			<thead className="table-header-sortable">
 				<tr>
 					{headers}
 				</tr>
@@ -272,7 +303,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		cols.push(<td>
 			<div className="card-wrapper">
 				<a href={"/cards/" + card.cardObj.id}>
-					<CardTile height={34} card={card.cardObj} count={card.count} />
+					<CardTile height={34} card={card.cardObj} count={card.count} rarityColored/>
 				</a>
 			</div>
 		</td>);

@@ -79,8 +79,14 @@
 		.message-wrapper {
 			 margin-top: 70px
 		}
+
+		.table-header-sortable {
+			cursor: pointer;
+			user-select: none;
+		}
 	}
 }
+
 @media (min-width: 1400px) {
 	.deck-detail-container {
 		width: 80%;
