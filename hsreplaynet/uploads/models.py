@@ -1967,6 +1967,8 @@ class RedshiftStagingTrackTable(models.Model):
 	def target_eligible_for_prod_table_size_metric(self):
 		eligible_tables = (
 			"game",
+			"player",
+			"block"
 		)
 		return self.target_table in eligible_tables
 
