@@ -2030,10 +2030,11 @@ class RedshiftStagingTrackTable(models.Model):
 			RedshiftETLStage.CLEANING_UP
 		]
 
+		ts = timezone.now()
 		for s in heartbeat_stages:
-			self.heartbeat_track_status_metrics_for_stage(s)
+			self.heartbeat_track_status_metrics_for_stage(s, ts=ts)
 
-	def heartbeat_track_status_metrics_for_stage(self, stage):
+	def heartbeat_track_status_metrics_for_stage(self, stage, ts=None):
 		stage_start = self.get_stage_started_at(stage)
 		stage_end = self.get_stage_ended_at(stage)
 
@@ -2047,18 +2048,27 @@ class RedshiftStagingTrackTable(models.Model):
 		else:
 			duration = float(0)
 
+		timestamp = ts if ts else timezone.now()
+		stage_id = int(stage.value)
+		shift_seconds = int(RedshiftETLStage.FINISHED.value) - stage_id
+
+		# This shift makes it easy for grafana to sort the table in stage order
+		shifted_timestamp = timestamp + timedelta(seconds=shift_seconds)
+
 		fields = {
 			"stage_start": stage_start_val,
 			"stage_end": stage_end_val,
 			"duration": duration,
 			"track_id": self.track_id,
-			"id": self.id
+			"id": self.id,
+			"stage_id": stage_id
 		}
 		influx_metric(
 			"redshift_etl_track_table_status",
 			fields,
+			timestamp=shifted_timestamp,
 			target_table=self.target_table,
-			stage=self.stage.name.lower(),
+			stage=stage.name.lower(),
 		)
 
 	def set_stage_started_at(self, stage, val):
