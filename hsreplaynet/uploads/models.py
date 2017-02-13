@@ -1433,6 +1433,10 @@ class RedshiftStagingTrackTable(models.Model):
 	# that gets run after the stage tables are all inserted
 	is_materialized_view = models.BooleanField(default=False)
 	final_staging_table_size = models.IntegerField(null=True)
+	deduped_table_size = models.IntegerField(null=True)
+	pre_insert_table_size = models.IntegerField(null=True)
+	post_insert_table_size = models.IntegerField(null=True)
+
 	min_game_date = models.DateField(null=True)
 	max_game_date = models.DateField(null=True)
 
@@ -1577,6 +1581,8 @@ class RedshiftStagingTrackTable(models.Model):
 		self.insert_query_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
+		self.record_deduped_table_size()
+		self.record_pre_insert_prod_table_size()
 
 		msg = "Inserting into %s table for track %s with handle %s"
 		log.info(msg % (
@@ -1626,6 +1632,7 @@ class RedshiftStagingTrackTable(models.Model):
 		self.save()
 		self.heartbeat_track_status_metrics()
 
+
 		msg = "Refreshing view %s for track %s with handle %s"
 		log.info(msg % (
 			self.target_table,
@@ -1659,6 +1666,7 @@ class RedshiftStagingTrackTable(models.Model):
 		self.vacuum_query_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
+		self.record_post_insert_prod_table_size()
 
 		if self.vacuum_is_needed():
 			msg = "Vacuuming %s table for track %s with handle %s"
@@ -1934,6 +1942,21 @@ class RedshiftStagingTrackTable(models.Model):
 		self.save()
 		return self.final_staging_table_size
 
+	def record_deduped_table_size(self):
+		query = "select count(*) from %s;" % self.pre_insert_table_name
+		self.deduped_table_size = get_new_redshift_connection().execute(query).scalar()
+		self.save()
+
+	def record_pre_insert_prod_table_size(self):
+		query = "select count(*) from %s;" % self.target_table
+		self.pre_insert_table_size = get_new_redshift_connection().execute(query).scalar()
+		self.save()
+
+	def record_post_insert_prod_table_size(self):
+		query = "select count(*) from %s;" % self.target_table
+		self.post_insert_table_size = get_new_redshift_connection().execute(query).scalar()
+		self.save()
+
 	def _get_min_max_game_dates_stmt(self):
 		tbl = self._get_table_obj()
 		cols = [func.min(tbl.c.game_date), func.max(tbl.c.game_date)]
@@ -1999,6 +2022,8 @@ class RedshiftStagingTrackTable(models.Model):
 			self.cleaning_up_ended_at
 		)
 
+		self.capture_record_count_metrics()
+
 	def capture_stage_duration(self, stage, start, end, extra_fields=None):
 		if start and end:
 			duration = int((end - start).total_seconds())
@@ -2030,9 +2055,8 @@ class RedshiftStagingTrackTable(models.Model):
 			RedshiftETLStage.CLEANING_UP
 		]
 
-		ts = timezone.now()
 		for s in heartbeat_stages:
-			self.heartbeat_track_status_metrics_for_stage(s, ts=ts)
+			self.heartbeat_track_status_metrics_for_stage(s)
 
 	def heartbeat_track_status_metrics_for_stage(self, stage, ts=None):
 		stage_start = self.get_stage_started_at(stage)
@@ -2048,13 +2072,7 @@ class RedshiftStagingTrackTable(models.Model):
 		else:
 			duration = float(0)
 
-		timestamp = ts if ts else timezone.now()
 		stage_id = int(stage.value)
-		shift_seconds = int(RedshiftETLStage.FINISHED.value) - stage_id
-
-		# This shift makes it easy for grafana to sort the table in stage order
-		shifted_timestamp = timestamp + timedelta(seconds=shift_seconds)
-
 		fields = {
 			"stage_start": stage_start_val,
 			"stage_end": stage_end_val,
@@ -2066,10 +2084,33 @@ class RedshiftStagingTrackTable(models.Model):
 		influx_metric(
 			"redshift_etl_track_table_status",
 			fields,
-			timestamp=shifted_timestamp,
 			target_table=self.target_table,
 			stage=stage.name.lower(),
 		)
+
+	def capture_record_count_metrics(self):
+		if not self.is_materialized_view:
+			new_record_count = self.post_insert_table_size - self.pre_insert_table_size
+
+			fields = {
+				"staged_record_count": self.final_staging_table_size,
+				"deduped_record_count": self.deduped_table_size,
+				"pre_insert_record_count": self.pre_insert_table_size,
+				"post_insert_record_count": self.post_insert_table_size,
+				"new_record_count": new_record_count,
+				"track_id": self.track_id,
+				"id": self.id
+			}
+			influx_metric(
+				"redshift_etl_track_table_record_counts",
+				fields,
+				target_table=self.target_table,
+				dropped_records=(new_record_count != self.deduped_table_size)
+			)
+
+			if new_record_count != self.deduped_table_size:
+				msg = "new_record_count %i did not match deduped_record_count %i"
+				raise RuntimeError(msg % (new_record_count, self.deduped_table_size))
 
 	def set_stage_started_at(self, stage, val):
 		if stage <= RedshiftETLStage.ACTIVE or stage == RedshiftETLStage.FINISHED:
