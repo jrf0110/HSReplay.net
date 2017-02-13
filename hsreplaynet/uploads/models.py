@@ -1575,13 +1575,16 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_insert_staged_records)
 
 	def do_insert_staged_records(self):
+		# If either of these time out the lambda, we want to attempt them again
+		# At the start of the next lambda
+		self.record_deduped_table_size()
+		self.record_pre_insert_prod_table_size()
+
 		self.inserting_started_at = timezone.now()
 		self.stage = RedshiftETLStage.INSERTING
 		self.insert_query_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
-		self.record_deduped_table_size()
-		self.record_pre_insert_prod_table_size()
 
 		msg = "Inserting into %s table for track %s with handle %s"
 		log.info(msg % (
@@ -1659,12 +1662,15 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_vacuum)
 
 	def do_vacuum(self):
+		# If this times out e.g. entity_state we want to be able to try again
+		# at the start of the next lambda
+		self.record_post_insert_prod_table_size()
+
 		self.vacuuming_started_at = timezone.now()
 		self.stage = RedshiftETLStage.VACUUMING
 		self.vacuum_query_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
-		self.record_post_insert_prod_table_size()
 
 		if self.vacuum_is_needed():
 			msg = "Vacuuming %s table for track %s with handle %s"
@@ -2088,6 +2094,8 @@ class RedshiftStagingTrackTable(models.Model):
 	def capture_record_count_metrics(self):
 		if not self.is_materialized_view:
 			new_record_count = self.post_insert_table_size - self.pre_insert_table_size
+			previous_track_dupes = self.final_staging_table_size - self.deduped_table_size
+			inter_track_dupes = self.deduped_table_size - new_record_count
 
 			fields = {
 				"staged_record_count": self.final_staging_table_size,
@@ -2095,6 +2103,8 @@ class RedshiftStagingTrackTable(models.Model):
 				"pre_insert_record_count": self.pre_insert_table_size,
 				"post_insert_record_count": self.post_insert_table_size,
 				"new_record_count": new_record_count,
+				"previous_track_dupes_removed": previous_track_dupes,
+				"inter_track_dupes_removed": inter_track_dupes,
 				"track_id": self.track_id,
 				"id": self.id
 			}
@@ -2102,12 +2112,7 @@ class RedshiftStagingTrackTable(models.Model):
 				"redshift_etl_track_table_record_counts",
 				fields,
 				target_table=self.target_table,
-				dropped_records=(new_record_count != self.deduped_table_size)
 			)
-
-			if new_record_count != self.deduped_table_size:
-				msg = "new_record_count %i did not match deduped_record_count %i"
-				raise RuntimeError(msg % (new_record_count, self.deduped_table_size))
 
 	def set_stage_started_at(self, stage, val):
 		if stage <= RedshiftETLStage.ACTIVE or stage == RedshiftETLStage.FINISHED:
