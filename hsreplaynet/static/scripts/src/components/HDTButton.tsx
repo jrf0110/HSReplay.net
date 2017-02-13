@@ -10,6 +10,7 @@ interface HDTButtonProps extends React.ClassAttributes<HDTButton> {
 	class: string;
 	card_ids: string[];
 	sourceUrl: string;
+	id?: number;
 }
 
 export default class HDTButton extends React.Component<HDTButtonProps, HDTButtonState> {
@@ -31,7 +32,7 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 		return (
 			<div className="hdt-button-wrapper">
 				<img src={STATIC_URL + "images/hdt_icon.png"} />
-				<span className={textClassNames.join(" ")} id="copy-deck">
+				<span className={textClassNames.join(" ")} id={"copy-deck-" + (this.props.id || 1)}>
 					{this.state.copied ? "Press Ctrl-V in HDT" : "Copy deck to HDT"}
 				</span>
 			</div>
@@ -39,7 +40,7 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 	}
 
 	componentDidMount(): void {
-		this.clipboard = new Clipboard("#copy-deck", {
+		this.clipboard = new Clipboard("#copy-deck-" + (this.props.id || 1), {
 			text: (elem): string => this.getDeckJson()
 		});
 		this.clipboard.on("success", () => {

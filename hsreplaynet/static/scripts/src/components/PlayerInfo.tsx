@@ -99,6 +99,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							class={className}
 							name={this.state.game.opposing_player.name + "'s " + className}
 							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
+							id={1}
 							/>
 					);
 				}
@@ -118,6 +119,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							class={className}
 							name={this.state.game.friendly_player.name + "'s " + className}
 							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
+							id={2}
 						/>
 					);
 				}

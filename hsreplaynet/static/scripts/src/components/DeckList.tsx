@@ -10,6 +10,7 @@ interface DeckListProps extends React.ClassAttributes<DeckList> {
 	name: string;
 	class: string;
 	showButton?: boolean;
+	id?: number;
 }
 
 export default class DeckList extends React.Component<DeckListProps, any> {
@@ -35,6 +36,7 @@ export default class DeckList extends React.Component<DeckListProps, any> {
 						name={this.props.name}
 						class={this.props.class}
 						sourceUrl={window.location.toString()}
+						id={this.props.id}
 				/> : null}
 			</ul>
 		);
