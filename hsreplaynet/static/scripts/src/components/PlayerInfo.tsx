@@ -91,7 +91,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					</a>
 				);
 				if(this.state.showOpponentDeck) {
-					const className = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
+					const className = this.toTitleCase(this.state.game.opposing_player.hero_class_name);
 					opponentDeck.push(
 						<DeckList
 							cardDb={this.state.db}
