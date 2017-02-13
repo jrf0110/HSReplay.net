@@ -45,13 +45,13 @@
 	<div class="row full_height">
 		<div class="col-lg-10 col-md-9 col-sm-12 col-xs-12 full_height">
 			<div class="full_height">
-				{% include 'noscript.html' %}
+				{% include "snippets/noscript.html" %}
 				<div id="joust-container" class="full_height"
 					data-replayurl="{{ replay.replay_xml.url }}"
 					{% if user.is_authenticated %}data-locale="{{ user.locale }}"{% endif %}
 					{% if user.joust_autoplay is False %}data-autoplay="false"{% endif %}
 					{% for player in players %}
-				 		data-player{{ forloop.counter }}="{{ player }}"
+						data-player{{ forloop.counter }}="{{ player }}"
 					{% endfor %}
 				></div>
 			</div>
