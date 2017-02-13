@@ -1504,8 +1504,6 @@ class RedshiftStagingTrackTable(models.Model):
 
 		def etl_task_func():
 			conn = get_new_redshift_connection()
-			# For consistency we always make analyze run
-			conn.execute("SET analyze_threshold_percent TO 0;")
 			conn.execute("SET QUERY_GROUP TO '%s'" % self.gathering_stats_handle)
 			conn.execute("ANALYZE %s;" % self.staging_table)
 
@@ -1850,8 +1848,7 @@ class RedshiftStagingTrackTable(models.Model):
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.GATHERING_STATS_COMPLETE,
 				"gathering_stats_ended_at",
-				self.gathering_stats_handle,
-				min_expected_count=3
+				self.gathering_stats_handle
 			)
 
 	def _attempt_update_status_to_stage(self, stage, field, handle, min_expected_count=1):
