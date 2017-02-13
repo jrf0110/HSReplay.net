@@ -1,0 +1,105 @@
+{% extends "account/base.html" %}
+{% load setting from web_extras %}
+{% load static from static %}
+
+{% block content %}
+<section id="account-billing-payment-methods" class="box-section">
+	<h3>Payment Methods</h3>
+	<div class="inner">
+		{% include "snippets/noscript.html" %}
+
+		{% if not customer.default_source %}
+			<p class="alert alert-info">You do not have a default payment method set up.</p>
+		{% endif %}
+
+		<p>
+			All credit card information is stored and handled by <a href="https://stripe.com/" target="_blank">Stripe</a>, our payment processor.
+			HSReplay.net does not ever see your credit card number.
+		</p>
+
+		{% if payment_methods %}
+			<ul id="account-billing-creditcard-list">
+			{% for source in payment_methods %}
+				<li
+					class="creditcard {% if source == customer.default_source %}card-default{% endif %}"
+					aria-label="{{ source.brand }} ending in {{ source.last4 }}"
+					data-brand="{{ source.brand }}"
+				>
+					{% if source == customer.default_source %}<span class="label label-success">Default</span>{% endif %}
+					<h4 class="card-title">
+						{{ source.brand }} &bull;&bull;&bull;&bull; {{ source.last4 }}
+					</h4>
+
+					<span class="card-expiry">Expires <time>{{ source.exp_month }}/{{ source.exp_year }}</time></span>
+
+					<form method="POST" action="{% url 'billing_update_card' %}" class="card-remove-form">
+						{% csrf_token %}
+						<input type="hidden" name="stripe_id" value="{{ source.stripe_id }}"/>
+						<button type="submit" name="delete" class="btn btn-danger">Remove card</button>
+						{% if source != customer.default_source %}
+							<button type="submit" name="set_default" class="btn btn-primary">Set as default</button>
+						{% endif %}
+					</form>
+				</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+
+		<p>
+			<form method="POST" action="{% url 'billing_methods' %}">
+				{% csrf_token %}
+				<script
+					type="text/javascript" src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+					data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
+					data-image="{% static 'images/hsreplay-thumbnail.png' %}"
+					data-name="HSReplay.net"
+					{% if user.email %}data-email="{{ user.email }}"{% endif %}
+					data-locale="auto"
+					data-description="Add a credit card"
+					data-label="Add a credit card"
+					data-panel-label="Add card"
+				></script>
+			</form>
+		</p>
+	</div>
+</section>
+
+<section id="account-payment-history" class="box-section">
+	<h3>Payment History</h3>
+
+	<div class="inner">
+		{% if customer.invoices.count %}
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Transaction ID</th>
+					<th>Date</th>
+					<th>Amount</th>
+				</tr>
+			</thead>
+			{% for invoice in customer.invoices.all %}
+				<tr>
+					<td class="fixed">#{{ invoice.id }}</td>
+					<td>{{ invoice.date|date:"M d" }}</td>
+					<td colspan=2>
+						{% if invoice.paid and invoice.total > 0 %}
+							<p>
+								<span class="label label-success">Paid</span> ${{ invoice.total|floatformat:"2" }}
+							</p>
+						{% endif %}
+
+						{% if invoice.paid and invoice.total < 0 %}
+							<p>
+								<span class="label label-success">Credit</span> ${{ invoice.total|floatformat:"2" }}
+							</p>
+						{% endif %}
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+		{% else %}
+			<p>You have no recorded payments.</p>
+		{% endif %}
+	</div>
+</section>
+{% endblock %}

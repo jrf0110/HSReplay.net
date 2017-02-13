@@ -10,6 +10,7 @@
 				<ul class="nav navbar-nav">
 					<li><a href="{% url 'account_edit' %}">Settings</a></li>
 					<li><a href="{% url 'account_email' %}">E-Mail</a></li>
+					<li><a href="{% url 'billing_methods' %}">Billing</a></li>
 					<li><a href="{% url 'account_api' %}">API access</a></li>
 					<li><a href="{% url 'oauth2_app_list' %}">OAuth apps</a></li>
 					{% if user.is_staff %}
