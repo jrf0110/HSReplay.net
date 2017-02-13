@@ -1272,6 +1272,7 @@ class RedshiftStagingTrack(models.Model):
 					t.gathering_stats_started_at = timezone.now()
 					t.gathering_stats_ended_at = t.gathering_stats_started_at
 					t.save()
+					t.heartbeat_track_status_metrics()
 				else:
 					results.append(t.get_gathering_stats_task())
 		return results
