@@ -1951,14 +1951,24 @@ class RedshiftStagingTrackTable(models.Model):
 		self.save()
 
 	def record_pre_insert_prod_table_size(self):
-		query = "select count(*) from %s;" % self.target_table
-		self.pre_insert_table_size = get_new_redshift_connection().execute(query).scalar()
-		self.save()
+		if self.target_eligible_for_prod_table_size_metric():
+			query = "select count(*) from %s;" % self.target_table
+			rp = get_new_redshift_connection().execute(query)
+			self.pre_insert_table_size = rp.scalar()
+			self.save()
 
 	def record_post_insert_prod_table_size(self):
-		query = "select count(*) from %s;" % self.target_table
-		self.post_insert_table_size = get_new_redshift_connection().execute(query).scalar()
-		self.save()
+		if self.target_eligible_for_prod_table_size_metric():
+			query = "select count(*) from %s;" % self.target_table
+			rp = get_new_redshift_connection().execute(query)
+			self.post_insert_table_size = rp.scalar()
+			self.save()
+
+	def target_eligible_for_prod_table_size_metric(self):
+		eligible_tables = (
+			"game",
+		)
+		return self.target_table in eligible_tables
 
 	def _get_min_max_game_dates_stmt(self):
 		tbl = self._get_table_obj()
@@ -2093,9 +2103,20 @@ class RedshiftStagingTrackTable(models.Model):
 
 	def capture_record_count_metrics(self):
 		if not self.is_materialized_view:
-			new_record_count = self.post_insert_table_size - self.pre_insert_table_size
+
+			have_pre_insert_size = self.pre_insert_table_size is not None
+			have_post_insert_size = self.post_insert_table_size is not None
+			if have_post_insert_size and have_pre_insert_size:
+				new_record_count = self.post_insert_table_size - self.pre_insert_table_size
+			else:
+				new_record_count = None
+
 			previous_track_dupes = self.final_staging_table_size - self.deduped_table_size
-			inter_track_dupes = self.deduped_table_size - new_record_count
+
+			if new_record_count is not None:
+				inter_track_dupes = self.deduped_table_size - new_record_count
+			else:
+				inter_track_dupes = None
 
 			fields = {
 				"staged_record_count": self.final_staging_table_size,
