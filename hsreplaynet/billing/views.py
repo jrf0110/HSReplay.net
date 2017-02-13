@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
@@ -17,6 +18,9 @@ class BillingSettingsView(LoginRequiredMixin, TemplateView):
 		context["customer"], _ = Customer.get_or_create(self.request.user)
 		# `payment_methods` is a queryset of the customer's payment sources
 		context["payment_methods"] = context["customer"].sources.all()
+		# `stripe_debug` is set if DEBUG is on *and* we are using a test mode pubkey
+		test_mode = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_")
+		context["stripe_debug"] = settings.DEBUG and test_mode
 		return context
 
 	def post(self, request):
