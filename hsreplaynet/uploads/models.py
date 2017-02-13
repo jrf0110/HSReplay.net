@@ -2001,7 +2001,7 @@ class RedshiftStagingTrackTable(models.Model):
 
 	def capture_stage_duration(self, stage, start, end, extra_fields=None):
 		if start and end:
-			duration = (end - start).seconds
+			duration = int((end - start).total_seconds())
 			fields = {
 				"seconds": duration,
 				"track_id": self.track_id,
@@ -2041,11 +2041,11 @@ class RedshiftStagingTrackTable(models.Model):
 		stage_end_val = stage_end.isoformat()[:19] if stage_end else " "
 
 		if stage_start and stage_end:
-			duration = (stage_end - stage_start).total_seconds()
+			duration = float((stage_end - stage_start).total_seconds())
 		elif stage_start:
-			duration = (timezone.now() - stage_start).total_seconds()
+			duration = float((timezone.now() - stage_start).total_seconds())
 		else:
-			duration = 0
+			duration = float(0)
 
 		fields = {
 			"stage_start": stage_start_val,
@@ -2057,9 +2057,6 @@ class RedshiftStagingTrackTable(models.Model):
 		influx_metric(
 			"redshift_etl_track_table_status",
 			fields,
-			# We can set timestamps to be millis apart to
-			# achieve whatever ordering we want on the grafana chart
-			# timestamp = None
 			target_table=self.target_table,
 			stage=self.stage.name.lower(),
 		)
