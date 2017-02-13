@@ -1432,10 +1432,10 @@ class RedshiftStagingTrackTable(models.Model):
 	# Materialized Views don't have staging tables, they just have an update task
 	# that gets run after the stage tables are all inserted
 	is_materialized_view = models.BooleanField(default=False)
-	final_staging_table_size = models.IntegerField(null=True)
-	deduped_table_size = models.IntegerField(null=True)
-	pre_insert_table_size = models.IntegerField(null=True)
-	post_insert_table_size = models.IntegerField(null=True)
+	final_staging_table_size = models.BigIntegerField(null=True)
+	deduped_table_size = models.BigIntegerField(null=True)
+	pre_insert_table_size = models.BigIntegerField(null=True)
+	post_insert_table_size = models.BigIntegerField(null=True)
 
 	min_game_date = models.DateField(null=True)
 	max_game_date = models.DateField(null=True)
