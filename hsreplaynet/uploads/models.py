@@ -1282,8 +1282,8 @@ class RedshiftStagingTrack(models.Model):
 			if t.stage == RedshiftETLStage.GATHERING_STATS_COMPLETE:
 				if t.is_materialized_view:
 					t.stage = RedshiftETLStage.DEDUPLICATION_COMPLETE
-					t.deduplication_started_at = timezone.now()
-					t.deduplication_ended_at = t.deduplication_started_at
+					t.deduplicating_started_at = timezone.now()
+					t.deduplicating_ended_at = t.deduplicating_started_at
 					t.save()
 				else:
 					results.append(t.get_deduplication_task())
@@ -1295,8 +1295,8 @@ class RedshiftStagingTrack(models.Model):
 			if t.stage == RedshiftETLStage.DEDUPLICATION_COMPLETE:
 				if t.is_materialized_view:
 					t.stage = RedshiftETLStage.INSERT_COMPLETE
-					t.insert_started_at = timezone.now()
-					t.insert_ended_at = t.insert_started_at
+					t.inserting_started_at = timezone.now()
+					t.inserting_ended_at = t.inserting_started_at
 					t.save()
 				else:
 					results.append(t.get_insert_task())
@@ -1310,8 +1310,8 @@ class RedshiftStagingTrack(models.Model):
 					results.append(t.get_refresh_view_task())
 				else:
 					t.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE
-					t.refreshing_view_start_at = timezone.now()
-					t.refreshing_view_end_at = t.refreshing_view_start_at
+					t.refreshing_materialized_views_started_at = timezone.now()
+					t.refreshing_materialized_views_ended_at = t.refreshing_materialized_views_started_at
 					t.save()
 		return results
 
@@ -1342,8 +1342,8 @@ class RedshiftStagingTrack(models.Model):
 			if t.stage == RedshiftETLStage.ANALYZE_COMPLETE:
 				if t.is_materialized_view:
 					t.stage = RedshiftETLStage.FINISHED
-					t.track_cleanup_start_at = timezone.now()
-					t.track_cleanup_end_at = t.track_cleanup_start_at
+					t.cleaning_up_started_at = timezone.now()
+					t.cleaning_up_ended_at = t.cleaning_up_started_at
 					t.save()
 				else:
 					results.append(t.get_cleanup_task())
@@ -1632,7 +1632,6 @@ class RedshiftStagingTrackTable(models.Model):
 		self.save()
 		self.heartbeat_track_status_metrics()
 
-
 		msg = "Refreshing view %s for track %s with handle %s"
 		log.info(msg % (
 			self.target_table,
@@ -1827,7 +1826,7 @@ class RedshiftStagingTrackTable(models.Model):
 		if self.stage == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS:
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE,
-				"refreshing_materialized_views_end_at",
+				"refreshing_materialized_views_ended_at",
 				self.refreshing_view_handle
 			)
 
