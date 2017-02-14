@@ -10,13 +10,17 @@ import WinrateLineChart from "./charts/WinrateLineChart";
 import TurnPlayedBarChart from "./charts/TurnPlayedBarChart";
 import TopCardsList from "./TopCardsList";
 import ClassFilter from "./ClassFilter";
+import {Colors} from "../Colors";
 import {
 	FilterData, Filter, FilterElement, FilterDefinition, KeyValuePair,
 	Query, RenderData, ChartSeries, ChartSeriesMetaData, DataPoint,
 	TableData
 } from "../interfaces";
 import HearthstoneJSON from "hearthstonejson";
-import {toTitleCase, getChartScheme, setNames, toPrettyNumber, isWildCard, isCollectibleCard} from "../helpers";
+import {
+	toTitleCase, getChartScheme, setNames, toPrettyNumber, isWildCard, 
+	isCollectibleCard, getColorString
+} from "../helpers";
 import QueryManager from "../QueryManager";
 
 interface CardDetailState {
@@ -263,11 +267,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			);
 
 			rows.filter(row => row["player_class"] === pClass).forEach(row => {
+				const winrate = +row["win_rate"];
 				decks.push(
 					<li>
 						<a href={"/cards/decks/" + row["deck_id"]}>
 							{pClass}
-							<span className="badge">{row["win_rate"] + "%"}</span>
+							<span className="badge" style={{background: this.getBadgeColor(winrate)}}>{winrate + "%"}</span>
 						</a>
 					</li>
 				);
@@ -282,6 +287,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				{decksList}
 			</div>
 		);
+	}
+	
+	getBadgeColor(winrate: number) {
+		const factor = winrate > 50 ? 4 : 3;
+		const colorWinrate = 50 + Math.max(-50, Math.min(50, (factor * (winrate - 50))));
+		return getColorString(Colors.REDGREEN4, 50, colorWinrate/100);
 	}
 
 	fetch(card: any) {
