@@ -2,6 +2,16 @@
 	padding-left: 0;
 }
 
+.card-icon {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	border: 1px solid black;
+	background-position-x: -75px;
+	background-repeat: no-repeat;
+	background-size: 134px 34px;
+}
+
 .card-tile {
 	color: white;
 	text-align: left;
