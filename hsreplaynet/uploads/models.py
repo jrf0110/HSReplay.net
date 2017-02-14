@@ -1307,6 +1307,18 @@ class RedshiftStagingTrack(models.Model):
 		results = []
 		for t in self.tables.all():
 			if t.stage == RedshiftETLStage.INSERT_COMPLETE:
+				# TODO: How do we control the sequence that views get refreshed in?
+				# TODO: How do we emit multiple tasks per stage.
+				# How do we allow the materialized views to provide task work for each stage
+				# Gathering stats or creating the stage table should drop the previous stage table
+				# Deduplicating should regenerate the stage table
+				# Inserting needs to be a multi statement command that within a transaction
+				# deletes the rows from the target table that exist within the stage table.
+				# And then inserts everything from the stage table into the target table.
+				# http://docs.aws.amazon.com/redshift/latest/dg/merge-replacing-existing-rows.html
+				# an alternative option
+				# http://docs.aws.amazon.com/redshift/latest/dg/merge-specify-a-column-list.html
+
 				if t.is_materialized_view:
 					results.append(t.get_refresh_view_task())
 				else:
@@ -1378,7 +1390,7 @@ class RedshiftStagingTrackTableManager(models.Manager):
 	def create_table_for_track(self, table, track):
 
 		# Create the staging table in redshift
-		staging_table = create_staging_table(
+		staging_table_name = create_staging_table(
 			table,
 			track.track_prefix,
 			get_redshift_engine()
@@ -1386,16 +1398,16 @@ class RedshiftStagingTrackTableManager(models.Manager):
 
 		# Create the firehose stream
 		streams.create_firehose_stream(
-			staging_table.name,
-			staging_table.name
+			staging_table_name,
+			staging_table_name
 		)
 
 		# Create the record once we know the table and stream creation didn't error
 		track_table = RedshiftStagingTrackTable.objects.create(
 			track=track,
 			target_table=table.name,
-			staging_table=staging_table.name,
-			firehose_stream=staging_table.name,
+			staging_table=staging_table_name,
+			firehose_stream=staging_table_name,
 			stage=RedshiftETLStage.INITIALIZED,
 		)
 
@@ -1542,13 +1554,17 @@ class RedshiftStagingTrackTable(models.Model):
 				"""
 
 				template2 = """
-				CREATE TABLE {pre_table} AS
+				CREATE TABLE {pre_table_name} (LIKE {target_table_name});
+				"""
+
+				template3 = """
+				INSERT INTO {pre_table}
 				SELECT {column_names} FROM (
-				SELECT
-				ROW_NUMBER() OVER (PARTITION BY s.{game_id}, s.id ORDER BY s.id) AS rn,
-				s.*
-				FROM {staging_table} s
-				) t WHERE rn = 1;
+					SELECT
+					ROW_NUMBER() OVER (PARTITION BY s.{game_id}, s.id ORDER BY s.id) AS rn,
+					s.*
+					FROM {staging_table} s
+				) t WHERE rn = 1; ANALYZE {pre_table};
 				"""
 
 				sql1 = template1.format(
@@ -1556,6 +1572,11 @@ class RedshiftStagingTrackTable(models.Model):
 				)
 
 				sql2 = template2.format(
+					pre_table_name=pre_table_name,
+					target_table_name=self.target_table
+				)
+
+				sql3 = template3.format(
 					pre_table=pre_table_name,
 					column_names=column_names,
 					game_id=game_id_val,
@@ -1564,8 +1585,9 @@ class RedshiftStagingTrackTable(models.Model):
 
 				conn = get_new_redshift_connection()
 				conn.execute(sql1)
-				conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
 				conn.execute(sql2)
+				conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
+				conn.execute(sql3)
 
 		self.launch_background_thread(self.dedupe_query_handle, etl_task_func)
 
@@ -1846,8 +1868,7 @@ class RedshiftStagingTrackTable(models.Model):
 			self._attempt_update_status_to_stage(
 				RedshiftETLStage.DEDUPLICATION_COMPLETE,
 				"deduplicating_ended_at",
-				self.dedupe_query_handle,
-				min_expected_count=3
+				self.dedupe_query_handle
 			)
 
 		if self.stage == RedshiftETLStage.GATHERING_STATS:
@@ -1967,8 +1988,6 @@ class RedshiftStagingTrackTable(models.Model):
 	def target_eligible_for_prod_table_size_metric(self):
 		eligible_tables = (
 			"game",
-			"player",
-			"block"
 		)
 		return self.target_table in eligible_tables
 
