@@ -1,5 +1,6 @@
 import * as React from "react";
 import Clipboard from "clipboard";
+import {toTitleCase} from "../helpers";
 
 interface HDTButtonState {
 	copied?: boolean;
@@ -61,7 +62,7 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 	getDeckJson(): string {
 		return JSON.stringify({
 			name: this.props.name,
-			class: this.props.class,
+			class: toTitleCase(this.props.class),
 			card_ids: this.props.card_ids,
 			sourceUrl: this.props.sourceUrl
 		});
