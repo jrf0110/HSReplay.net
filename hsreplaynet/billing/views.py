@@ -1,10 +1,12 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, View
 from djstripe.models import Customer, StripeCard
+from stripe.error import InvalidRequestError
 
 
 class BillingSettingsView(LoginRequiredMixin, TemplateView):
@@ -30,13 +32,18 @@ class BillingSettingsView(LoginRequiredMixin, TemplateView):
 
 		customer, _ = Customer.get_or_create(request.user)
 
+		# The token represents the customer's payment method
 		token = request.POST.get("stripeToken", "")
 		if not token.startswith("tok_"):
 			# We either didn't get a token, or it was malformed. Discard outright.
 			raise SuspiciousOperation("Invalid Stripe token")
 
-		# TODO: catch bad token
-		customer.add_card(token)
+		try:
+			# Saving the token as a payment method will create the payment source for us.
+			customer.add_card(token)
+		except InvalidRequestError:
+			# Most likely, we got a bad token (eg. bad request)
+			messages.add(request, messages.ERROR, "Error adding payment card")
 
 		# Stripe Checkout supports capturing email.
 		# We ask for it if we don't have one yet.
