@@ -244,7 +244,8 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 		ReplayAlias.objects.get_or_create(replay=replay, shortid=upload_event.shortid)
 
 	if user:
-		user.trigger_webhooks(replay)
+		# Re-query the replay object for the webhook trigger
+		user.trigger_webhooks(GameReplay.objects.get(id=replay.id))
 
 	return replay, created
 
