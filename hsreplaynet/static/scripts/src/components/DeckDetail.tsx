@@ -177,7 +177,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							/>
 						</div>
 					</div>
-					<h3>Mulligan guide</h3>
+					<h3>Deck breakdown</h3>
 					<ClassFilter
 						filters="All"
 						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
@@ -264,14 +264,30 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			if (tableData) {
 				const rows = tableData.series.data[key];
 				if (rows) {
-					const baseWinrate = key === "ALL" ? this.getBaseWinrate() : tableData.series.metadata[key]["base_win_rate"]
+					let mulliganAvg = 0;
+					let drawnAvg = 0;
+					let playedAvg = 0;
+					let deadAvg = 0;
+					rows.forEach(row => {
+						mulliganAvg += +row["opening_hand_win_rate"];
+						drawnAvg += +row["win_rate_when_drawn"];
+						playedAvg += +row["win_rate_when_played"];
+						const deadPercent = (1 - (+row["times_card_played"] / (+row["times_card_drawn"] + +row["times_kept"]))) * 100;
+						row["dead_percent"] = ''+deadPercent;
+						deadAvg += deadPercent;
+					});
+					mulliganAvg /= rows.length;
+					drawnAvg /= rows.length;
+					playedAvg /= rows.length;
+					deadAvg /= rows.length;
+
 					const cardList = []
 					const groupedCards = this.getGroupedCards(this.props.deckCards.split(","));
 					groupedCards.forEach((count, cardId) => cardList.push({cardObj: this.state.cardData.get(cardId), count: count}));
 
 					const rowList = [];
 					cardList.forEach(card => {
-						const row = rows.find(r => r["card_id"] == card.cardObj.id);
+						const row = rows.find(r => r["card_id"] === card.cardObj.dbfId);
 						rowList.push({row: row, card: card})
 					})
 
@@ -283,7 +299,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					}
 					
 					rowList.forEach(item => {
-						cardRows.push(this.buildCardRow(item.card, item.row, key !== "ALL", baseWinrate));
+						cardRows.push(this.buildCardRow(item.card, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg, deadAvg));
 					})
 				}
 			}
@@ -305,12 +321,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const headers = [];
 		headers.push(
-			<th onClick={() => onHeaderClick("decklist", 1)}>{"Decklist" + sortIndicator("decklist")}</th>,
-			<th onClick={() => onHeaderClick("win_rate")}>{"Winrate impact" + sortIndicator("win_rate")}</th>,
-			<th onClick={() => onHeaderClick("keep_percentage")}>{"% Kept" + sortIndicator("keep_percentage")}</th>,
-			<th onClick={() => onHeaderClick("turns_in_hand")}>{"Avg. turns in hand" + sortIndicator("turns_in_hand")}</th>,
-			<th onClick={() => onHeaderClick("winrate_drawn")}>{"Winrate when drawn" + sortIndicator("winrate_drawn")}</th>,
-			<th onClick={() => onHeaderClick("winrate_played")}>{"Winrate when played" + sortIndicator("winrate_played")}</th>,
+			<th onClick={() => onHeaderClick("decklist", 1)}>{"Cards" + sortIndicator("decklist")}</th>,
+			<th onClick={() => onHeaderClick("opening_hand_win_rate")}>{"WR mulligan" + sortIndicator("opening_hand_win_rate")}</th>,
+			<th onClick={() => onHeaderClick("keep_percentage")}>{"Kept" + sortIndicator("keep_percentage")}</th>,
+			<th onClick={() => onHeaderClick("win_rate_when_drawn")}>{"WR drawn" + sortIndicator("win_rate_when_drawn")}</th>,
+			<th onClick={() => onHeaderClick("win_rate_when_played")}>{"WR played" + sortIndicator("win_rate_when_played")}</th>,
+			<th onClick={() => onHeaderClick("dead_percent")}>{"Dead" + sortIndicator("dead_percent")}</th>,
+			<th onClick={() => onHeaderClick("avg_turns_in_hand")}>{"Turns held" + sortIndicator("avg_turns_in_hand")}</th>,
+			<th onClick={() => onHeaderClick("avg_turn_played_on")}>{"Turn played" + sortIndicator("avg_turn_played_on")}</th>,
 		)
 
 		return <table className="table table-striped">
@@ -325,7 +343,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		</table>;
 	}
 
-	buildCardRow(card: any, row: TableRow, full: boolean, baseWinrate: number): JSX.Element {
+	buildCardRow(card: any, row: TableRow, full: boolean, mulliganWinrate: number, drawnWinrate: number, playedWinrate: number, deadAverage: number): JSX.Element {
 		if (!card) {
 			return null;
 		}
@@ -338,21 +356,31 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</div>
 		</td>);
 		if (row){
-			const winrate = +row["win_rate"];
-			const winrateDelta = winrate - baseWinrate;
-			const colorWinrate = 50 + Math.max(-50, Math.min(50, (5 * winrateDelta)));
-			const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
+			const mulligan = this.getWinrateData(mulliganWinrate, +row["opening_hand_win_rate"]);
+			const drawn = this.getWinrateData(drawnWinrate, +row["win_rate_when_drawn"]);
+			const played = this.getWinrateData(playedWinrate, +row["win_rate_when_played"]);
+			const dead = this.getWinrateData(+row["dead_percent"], deadAverage);
 			cols.push(
-				<td className="winrate-cell" style={{color: getColorString(Colors.REDGREEN3, 75, colorWinrate/100)}}>{tendencyStr + winrateDelta.toFixed(2) + "%"}</td>,
-				<td>{ (row["keep_percentage"]) + "%"}</td>,
-				<td>0</td>,
-				<td>0</td>,
-				<td>0</td>,
+				<td className="winrate-cell" style={{color: mulligan.color}}>{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(2) + "%"}</td>,
+				<td>{(+row["keep_percentage"]).toFixed(2) + "%"}</td>,
+				<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(2) + "%"}</td>,
+				<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(2) + "%"}</td>,
+				<td className="winrate-cell" style={{color: dead.color}}>{dead.tendencyStr + (+row["dead_percent"]).toFixed(2) + "%"}</td>,
+				<td>{(+row["avg_turns_in_hand"]).toFixed(2)}</td>,
+				<td>{(+row["avg_turn_played_on"]).toFixed(2)}</td>,
 			);
 		}
 		return <tr className="card-table-row">
 			{cols}
 		</tr>;
+	}
+
+	getWinrateData(baseWinrate: number, winrate: number) {
+		const winrateDelta = winrate - baseWinrate;
+		const colorWinrate = 50 + Math.max(-50, Math.min(50, (5 * winrateDelta)));
+		const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
+		const color = getColorString(Colors.REDGREEN3, 75, colorWinrate/100)
+		return {delta: winrateDelta.toFixed(2), color, tendencyStr}
 	}
 
 	getSelectedClass(): string {
@@ -378,12 +406,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	fetch() {
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
 			(success, json) => this.setState({tableDataClasses: json})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_mulligan_guide?TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_mulligan_guide?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
 			(success, json) => this.setState({tableDataAll: json})
 		);
 
