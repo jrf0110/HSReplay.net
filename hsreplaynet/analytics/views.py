@@ -68,7 +68,11 @@ def _fetch_query_results(query, params):
 	else:
 		execute_query(query, params, async=True)
 		# Nothing to return so tell the client to check back later
-		return HttpResponse("Query is processing. Check back later.", status=202)
+		return HttpResponse(
+			"Query is processing. Check back later.",
+			content_type="text/plain",
+			status=202,
+		)
 
 	influx_metric(
 		"redshift_query_fetch",
