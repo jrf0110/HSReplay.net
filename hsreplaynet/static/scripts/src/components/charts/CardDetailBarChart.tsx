@@ -25,11 +25,22 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 			let fill = null;
 			let stroke = null;
 
-			if (this.props.series.metadata && this.props.series.metadata["chart_scheme"]) {
-				const scheme = getChartScheme(this.props.series.metadata["chart_scheme"]);
-				if (scheme) {
-					fill = (prop) => scheme[prop.xName.toLowerCase()].fill;
-					stroke = (prop) => scheme[prop.xName.toLowerCase()].stroke;
+			let scheme = null;
+			let tickFormat = null;
+			if (this.props.series.metadata) {
+				const schemeName = this.props.series.metadata["chart_scheme"];
+				if (schemeName) {
+					scheme = getChartScheme(schemeName);
+					if (scheme) {
+						fill = (prop) => scheme[prop.xName.toLowerCase()].fill;
+						stroke = (prop) => scheme[prop.xName.toLowerCase()].stroke;
+						if (schemeName === "cost") {
+							tickFormat = (tick) => {
+								const val = this.props.series.data[+tick-1].x
+								return scheme[val].name || val;
+							}
+						}
+					}
 				}
 			}
 			else {
@@ -49,6 +60,7 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 				);
 			}
 
+
 			content = (
 				<VictoryChart
 						containerComponent={<VictoryContainer title={this.props.title}/>}
@@ -61,6 +73,7 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 						label={this.props.labelX}
 						offsetY={38}
 						tickLabelComponent={<VictoryLabel dy={-0.4}/>}
+						tickFormat={tickFormat}
 						style={{axisLabel: {fontSize: 12}, tickLabels: {fontSize: 12}, grid: {strokeWidth: 0}}}
 					/>
 					{yAxis}
