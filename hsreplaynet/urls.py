@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.views.generic import TemplateView
 from .games.views import ReplayDetailView, ReplayEmbedView
+from .billing.views import PremiumDetailView
 
 
 urlpatterns = [
@@ -28,9 +29,10 @@ if not settings.ENV_LAMBDA:
 		url(r"^account/", include("hsreplaynet.accounts.urls")),
 		url(r"^account/billing/", include("hsreplaynet.billing.urls")),
 		url(r"^comments/", include("hsreplaynet.comments.urls")),
-		url(r"^decks/", include("hsreplaynet.decks.urls")),
+		url(r"^about/premium/$", PremiumDetailView.as_view(), name="premium"),
 		url(r"^about/privacy/$", flatpage, {"url": "/about/privacy/"}, name="privacy_policy"),
 		url(r"^about/tos/$", flatpage, {"url": "/about/tos/"}, name="terms_of_service"),
+		url(r"^decks/", include("hsreplaynet.decks.urls")),
 		url(r"^downloads/", downloads, name="downloads"),
 		# url(r"^markdownx/", include("markdownx.urls")),
 		url(r"^pages/", include("django.contrib.flatpages.urls")),

@@ -5,11 +5,53 @@ from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, View
-from djstripe.models import Customer, StripeCard
+from djstripe.models import Customer, Plan, StripeCard
 from stripe.error import InvalidRequestError
 
 
-class BillingSettingsView(LoginRequiredMixin, TemplateView):
+class StripeCheckoutMixin:
+	def get_customer(self, request):
+		customer, _ = Customer.get_or_create(request.user)
+		return customer
+
+	def process_checkout_form(self, request):
+		if request.POST.get("stripeTokenType") != "card":
+			# We always expect a card as token.
+			raise SuspiciousOperation("Invalid Stripe token type")
+
+		# The token represents the customer's payment method
+		token = request.POST.get("stripeToken", "")
+		if not token.startswith("tok_"):
+			# We either didn't get a token, or it was malformed. Discard outright.
+			raise SuspiciousOperation("Invalid Stripe token")
+
+		customer = self.get_customer(request)
+
+		try:
+			# Saving the token as a payment method will create the payment source for us.
+			customer.add_card(token)
+		except InvalidRequestError:
+			# Most likely, we got a bad token (eg. bad request)
+			messages.add(request, messages.ERROR, "Error adding payment card")
+			return False
+
+		# Stripe Checkout supports capturing email.
+		# We ask for it if we don't have one yet.
+		email = request.POST.get("stripeEmail")
+		if email and not request.user.email:
+			# So if the user doesn't have an email, we set it to the stripe email.
+			request.user.email = email
+			request.user.save()
+			# TODO: update emailaddress_set and send email confirmation (allauth)
+
+		return True
+
+	def post(self, request):
+		self.process_checkout_form(request)
+		return redirect(self.success_url)
+
+
+class BillingSettingsView(LoginRequiredMixin, StripeCheckoutMixin, TemplateView):
 	template_name = "billing/settings.html"
 	success_url = reverse_lazy("billing_methods")
 
@@ -24,37 +66,6 @@ class BillingSettingsView(LoginRequiredMixin, TemplateView):
 		test_mode = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_")
 		context["stripe_debug"] = settings.DEBUG and test_mode
 		return context
-
-	def post(self, request):
-		if request.POST.get("stripeTokenType") != "card":
-			# We always expect a card as token.
-			raise SuspiciousOperation("Invalid Stripe token type")
-
-		customer, _ = Customer.get_or_create(request.user)
-
-		# The token represents the customer's payment method
-		token = request.POST.get("stripeToken", "")
-		if not token.startswith("tok_"):
-			# We either didn't get a token, or it was malformed. Discard outright.
-			raise SuspiciousOperation("Invalid Stripe token")
-
-		try:
-			# Saving the token as a payment method will create the payment source for us.
-			customer.add_card(token)
-		except InvalidRequestError:
-			# Most likely, we got a bad token (eg. bad request)
-			messages.add(request, messages.ERROR, "Error adding payment card")
-
-		# Stripe Checkout supports capturing email.
-		# We ask for it if we don't have one yet.
-		email = request.POST.get("stripeEmail")
-		if email and not request.user.email:
-			# So if the user doesn't have an email, we set it to the stripe email.
-			request.user.email = email
-			request.user.save()
-			# TODO: update emailaddress_set and send email confirmation (allauth)
-
-		return redirect(self.success_url)
 
 
 class UpdateCardView(LoginRequiredMixin, View):
@@ -99,3 +110,23 @@ class UpdateCardView(LoginRequiredMixin, View):
 	def post(self, request):
 		self.handle_form(request)
 		return redirect(self.success_url)
+
+
+class PremiumDetailView(StripeCheckoutMixin, TemplateView):
+	template_name = "premium.html"
+	success_url = reverse_lazy("premium")
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+
+		plans = Plan.objects.all()
+		# Hardcoding assumptions: exactly 1 monthly and 1 semiannual plan
+		context["monthly_plan"] = plans.filter(interval_count=1).get()
+		context["semiannual_plan"] = plans.filter(interval_count=6).get()
+
+		return context
+
+	def post(self, request):
+		success = self.process_checkout_form(request)
+		if success:
+			return redirect(self.success_url)
