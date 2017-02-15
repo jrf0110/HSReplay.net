@@ -109,6 +109,14 @@
 		.table-header-sortable {
 			cursor: pointer;
 			user-select: none;
+
+			.no-sort {
+				opacity: 0;
+			}
+		}
+
+		.table-header-card {
+			width: 217px;
 		}
 
 		>h3 {
