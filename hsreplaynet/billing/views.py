@@ -32,7 +32,8 @@ class StripeCheckoutMixin:
 			customer.add_card(token)
 		except InvalidRequestError:
 			# Most likely, we got a bad token (eg. bad request)
-			messages.add(request, messages.ERROR, "Error adding payment card")
+			# This is logged by Stripe.
+			messages.add_message(request, messages.ERROR, "Error adding payment card")
 			return False
 
 		# Stripe Checkout supports capturing email.
@@ -66,6 +67,76 @@ class BillingSettingsView(LoginRequiredMixin, StripeCheckoutMixin, TemplateView)
 		test_mode = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_")
 		context["stripe_debug"] = settings.DEBUG and test_mode
 		return context
+
+
+class SubscribeView(LoginRequiredMixin, View):
+	success_url = reverse_lazy("billing_methods")
+
+	def handle_form(self, request):
+		customer, _ = Customer.get_or_create(request.user)
+
+		if customer.subscription:
+			# The customer is already subscribed
+
+			if customer.subscription.cancel_at_period_end:
+				# The customer's subscription was canceled and is now being re-activated
+				customer.subscription.reactivate()
+				return True
+
+			messages.add_message(request, messages.ERROR, "You are already subscribed!")
+			return False
+
+		# The Stripe ID of the plan should be included in the POST
+		plan_id = request.POST.get("plan")
+		if not plan_id:
+			messages.add_message(request, messages.ERROR, "No plan specified. What happened?")
+			return False
+
+		try:
+			# Attempt to subscribe the customer to the plan
+			customer.subscribe(plan_id)
+		except InvalidRequestError:
+			# Most likely, bad form data. This will be logged by Stripe.
+			messages.add_message(request, messages.ERROR, "Could not process subscription.")
+			return False
+
+	def post(self, request):
+		self.handle_form(request)
+		return redirect(self.success_url)
+
+
+class CancelSubscriptionView(LoginRequiredMixin, View):
+	success_url = reverse_lazy("billing_methods")
+
+	def handle_form(self, request):
+		customer, _ = Customer.get_or_create(request.user)
+
+		# Force-update the customer immediately
+		customer._sync_subscriptions()
+
+		if not customer.subscription:
+			# The customer is not subscribed
+			messages.add_message(request, messages.ERROR, "You are not subscribed.")
+			return False
+
+		try:
+			customer.subscription.cancel()
+		except InvalidRequestError as e:
+			if "No such subscription: " in str(e):
+				# The subscription doesn't exist (or was already cancelled)
+				# This check should happen in dj-stripe's cancel() method really
+				return False
+			else:
+				raise
+
+		# Force-update the customer immediately
+		customer._sync_subscriptions()
+
+		return True
+
+	def post(self, request):
+		self.handle_form(request)
+		return redirect(self.success_url)
 
 
 class UpdateCardView(LoginRequiredMixin, View):

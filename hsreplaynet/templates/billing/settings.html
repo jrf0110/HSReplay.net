@@ -3,6 +3,61 @@
 {% load static from static %}
 
 {% block content %}
+<section id="account-billing-plan" class="box-section">
+	<h3>Premium plan</h3>
+	<div class="inner">
+		{% if customer.subscription %}
+
+			<p>
+				{% if customer.subscription.cancel_at_period_end %}
+				<p>
+					Your subscription ends on {{ customer.subscription.current_period_end }}
+				</p>
+				<form method="POST" action="{% url 'premium_subscribe' %}">
+					{% csrf_token %}
+					<input type="hidden" name="plan" value="{{ customer.subscription.plan.stripe_id }}"/>
+					<button type="submit" name="cancel" class="btn btn-primary">Reactivate</button>
+				</form>
+				{% else %}
+				<p>
+					You're premium! Cool!
+				</p>
+				<form method="POST" action="{% url 'premium_cancel' %}">
+					{% csrf_token %}
+					<button type="submit" name="cancel" class="btn btn-danger">Cancel subscription</button>
+				</form>
+				{% endif %}
+			</p>
+
+		{% else %}
+			You're not premium :(
+
+			{% if payment_methods %}
+				<form method="POST" action="{% url 'premium_subscribe' %}">
+					{% csrf_token %}
+					<input type="hidden" name="plan" value="pro-monthly"/>
+					<button type="submit" name="subscribe">Subscribe</button>
+				</form>
+			{% else %}
+				<a href="{% url 'premium' %}">Check out premium</a>
+			{% endif %}
+
+		{% endif %}
+
+		{% if stripe_debug %}
+		<hr/>
+		<ul>
+			<li><strong>Customer ID:</strong> <code>{{ customer.stripe_id }}</code></li>
+			{% if customer.subscription %}
+				<li><strong>Subscription ID:</strong> <code>{{ customer.subscription.stripe_id }}</code></li>
+				<li><strong>Plan ID:</strong> <code>{{ customer.subscription.plan.stripe_id }}</code></li>
+			{% endif %}
+		</ul>
+		{% endif %}
+
+	</div>
+</section>
+
 <section id="account-billing-payment-methods" class="box-section">
 	<h3>Payment Methods</h3>
 	<div class="inner">
@@ -16,12 +71,6 @@
 			All credit card information is stored and handled by <a href="https://stripe.com/" target="_blank">Stripe</a>, our payment processor.
 			HSReplay.net does not ever see your credit card number.
 		</p>
-
-		{% if stripe_debug %}
-			<p>
-				<strong>Customer ID</strong> <code>{{ customer.stripe_id }}</code>.
-			</p>
-		{% endif %}
 
 		{% if payment_methods %}
 			<ul id="account-billing-creditcard-list">
