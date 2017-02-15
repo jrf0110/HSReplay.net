@@ -35,6 +35,7 @@ interface DeckDetailState {
 	baseWinrates?: TableData;
 	sortCol?: string;
 	sortDirection?: number;
+	free?: boolean;
 }
 
 interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
@@ -59,6 +60,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			similarDecks: null,
 			sortCol: "decklist",
 			sortDirection: 1,
+			free: window.location.href.split("?")[1] === "free",
 		}
 
 		this.fetch();
@@ -186,6 +188,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							multiSelect={false}
 							hideAll
 							minimal
+							disabled={this.state.free}
 						/>
 					</div>
 					<h3>
@@ -393,12 +396,25 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			cols.push(
 				<td className="winrate-cell" style={{color: mulligan.color}}>{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(2) + "%"}</td>,
 				<td>{(+row["keep_percentage"]).toFixed(2) + "%"}</td>,
-				<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(2) + "%"}</td>,
-				<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(2) + "%"}</td>,
-				<td className="winrate-cell" style={{color: dead.color}}>{dead.tendencyStr + (+row["dead_percent"]).toFixed(2) + "%"}</td>,
-				<td>{(+row["avg_turns_in_hand"]).toFixed(2)}</td>,
-				<td>{(+row["avg_turn_played_on"]).toFixed(2)}</td>,
 			);
+			if (this.state.free) {
+				cols.push(
+					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
+					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
+					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
+					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
+					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
+				);
+			}
+			else {
+				cols.push(
+					<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(2) + "%"}</td>,
+					<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(2) + "%"}</td>,
+					<td className="winrate-cell" style={{color: dead.color}}>{dead.tendencyStr + (+row["dead_percent"]).toFixed(2) + "%"}</td>,
+					<td>{(+row["avg_turns_in_hand"]).toFixed(2)}</td>,
+					<td>{(+row["avg_turn_played_on"]).toFixed(2)}</td>,
+				);
+			}
 		}
 		return <tr className="card-table-row">
 			{cols}
