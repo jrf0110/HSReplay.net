@@ -234,7 +234,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			}
 		}
 
-		const replayCount = topCardsPlayed && toPrettyNumber(topCardsPlayed.series.metadata.total_games);
+		const replayCount = topCardsPlayed && toPrettyNumber(+topCardsPlayed.series.metadata["total_games"]);
 
 		return <div className="report-container" id="card-popularity-report">
 			<div className="row">

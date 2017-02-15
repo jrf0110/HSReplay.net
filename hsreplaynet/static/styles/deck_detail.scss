@@ -80,11 +80,6 @@
 
 			>div {
 				width: 100%;
-
-				>p {
-					color: gray;
-					font-style: italic;
-				}
 			}
 		}
 
@@ -109,6 +104,12 @@
 				line-height: 28px;
 				margin-top: 5px;
 			}
+		}
+
+		.replay-count {
+			color: gray;
+			font-style: italic;
+			margin: -10px 0 0 5px;
 		}
 	}
 }

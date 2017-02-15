@@ -132,7 +132,7 @@ export interface TableSeries {
 }
 
 export interface TableSeriesMetaData {
-	total_games: number;
+	[obj: string]: number | TableRow[];
 }
 
 export interface TableSeriesData {

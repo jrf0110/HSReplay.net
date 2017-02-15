@@ -84,22 +84,21 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	render(): JSX.Element {
 		const selectedClass = this.getSelectedClass();
+		const allSelected = selectedClass === "ALL";
 
 		let replayCount = null;
-		if (this.state.winrateOverTime) {
+		const selectedTable = allSelected ? this.state.tableDataAll : this.state.tableDataClasses;
+		if (selectedTable) {
+			const metadata = selectedTable.series.metadata;
+			const numGames = allSelected ? metadata["total_games"] : metadata[selectedClass]["total_games"];
 			replayCount = (
-				<p className="pull-right">
-					{"based on " + toPrettyNumber(this.state.winrateOverTime.series[0].metadata["num_data_points"]) + " replays"}
-				</p>
+				<span className="replay-count pull-left">{"based on " + toPrettyNumber(numGames) + " replays"}</span>
 			);
 		}
 
 		const title = [
-				<img src={STATIC_URL + "images/class-icons/alt/" + this.props.deckClass.toLocaleLowerCase() + ".png"}/>,
-				<div>
-					{replayCount}
-					<h1>{this.getDeckName()}</h1>
-				</div>
+			<img src={STATIC_URL + "images/class-icons/alt/" + this.props.deckClass.toLocaleLowerCase() + ".png"}/>,
+			<h1>{this.getDeckName()}</h1>
 		];
 
 		const winrates = [];
@@ -194,7 +193,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<h3>
 						{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
 					</h3>
-					{this.buildTable(selectedClass === "ALL" ? this.state.tableDataAll : this.state.tableDataClasses, selectedClass)}
+					{replayCount}
+					{this.buildTable(selectedTable, selectedClass)}
 				</div>
 			</div>
 		</div>;
