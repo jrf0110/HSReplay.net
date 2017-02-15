@@ -17,6 +17,8 @@ interface ClassFilterProps extends React.ClassAttributes<ClassFilter> {
 	selectionChanged: (selected: Map<string, boolean>) => void;
 	multiSelect: boolean;
 	hideAll?: boolean;
+	disabled?: boolean;
+	minimal?: boolean;
 }
 
 export default class ClassFilter extends React.Component<ClassFilterProps, ClassFilterState> {
@@ -69,16 +71,23 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 
 	buildIcon(className: string, selected: boolean): JSX.Element {
 		const isSelected = selected || this.allSelected();
-		const wrapperClassName = "class-icon-label-wrapper" + (isSelected ? "" : " deselected");
-		const labelClassName = "class-label hidden-xs " + (isSelected ? className.toLowerCase() : "deselected");
+		const wrapperClassName = "class-icon-label-wrapper" + (!this.props.disabled && isSelected ? "" : " deselected");
+		let label = null;
+		if (!this.props.minimal) {
+			const labelClassName = "class-label hidden-xs " + (!this.props.disabled && isSelected ? className.toLowerCase() : "deselected");
+			label = <div className={labelClassName}>{toTitleCase(className)}</div>;
+		}
 
 		return <span className={wrapperClassName} onClick={() => this.onLabelClick(className, selected)}>
 			<ClassIcon heroClassName={className} small />
-			<div className={labelClassName}>{toTitleCase(className)}</div>
+			{label}
 		</span>;
 	}
 
 	onLabelClick(className: string, selected: boolean) {
+		if (this.props.disabled) {
+			return;
+		}
 		let newState = this.state.selectedClasses;
 
 		const currentSelection = [];
