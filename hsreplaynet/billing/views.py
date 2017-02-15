@@ -11,8 +11,28 @@ from stripe.error import InvalidRequestError
 
 class StripeCheckoutMixin:
 	def get_customer(self, request):
+		# The Stripe customer model corresponding to the user
 		customer, _ = Customer.get_or_create(request.user)
 		return customer
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+
+		context["customer"] = self.get_customer(self.request)
+
+		# `payment_methods` is a queryset of the customer's payment sources
+		context["payment_methods"] = context["customer"].sources.all()
+
+		# `stripe_debug` is set if DEBUG is on *and* we are using a test mode pubkey
+		test_mode = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_")
+		context["stripe_debug"] = settings.DEBUG and test_mode
+
+		plans = Plan.objects.all()
+		# Hardcoding assumptions: exactly 1 monthly and 1 semiannual plan
+		context["monthly_plan"] = plans.filter(interval_count=1).get()
+		context["semiannual_plan"] = plans.filter(interval_count=6).get()
+
+		return context
 
 	def process_checkout_form(self, request):
 		if request.POST.get("stripeTokenType") != "card":
@@ -55,18 +75,6 @@ class StripeCheckoutMixin:
 class BillingSettingsView(LoginRequiredMixin, StripeCheckoutMixin, TemplateView):
 	template_name = "billing/settings.html"
 	success_url = reverse_lazy("billing_methods")
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-
-		# `customer` is the Stripe customer model corresponding to the user
-		context["customer"], _ = Customer.get_or_create(self.request.user)
-		# `payment_methods` is a queryset of the customer's payment sources
-		context["payment_methods"] = context["customer"].sources.all()
-		# `stripe_debug` is set if DEBUG is on *and* we are using a test mode pubkey
-		test_mode = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_")
-		context["stripe_debug"] = settings.DEBUG and test_mode
-		return context
 
 
 class SubscribeView(LoginRequiredMixin, View):
@@ -111,9 +119,6 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 	def handle_form(self, request):
 		customer, _ = Customer.get_or_create(request.user)
 
-		# Force-update the customer immediately
-		customer._sync_subscriptions()
-
 		if not customer.subscription:
 			# The customer is not subscribed
 			messages.add_message(request, messages.ERROR, "You are not subscribed.")
@@ -125,12 +130,10 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 			if "No such subscription: " in str(e):
 				# The subscription doesn't exist (or was already cancelled)
 				# This check should happen in dj-stripe's cancel() method really
+				customer._sync_subscriptions()
 				return False
 			else:
 				raise
-
-		# Force-update the customer immediately
-		customer._sync_subscriptions()
 
 		return True
 
@@ -186,16 +189,6 @@ class UpdateCardView(LoginRequiredMixin, View):
 class PremiumDetailView(StripeCheckoutMixin, TemplateView):
 	template_name = "premium.html"
 	success_url = reverse_lazy("premium")
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-
-		plans = Plan.objects.all()
-		# Hardcoding assumptions: exactly 1 monthly and 1 semiannual plan
-		context["monthly_plan"] = plans.filter(interval_count=1).get()
-		context["semiannual_plan"] = plans.filter(interval_count=6).get()
-
-		return context
 
 	def post(self, request):
 		success = self.process_checkout_form(request)

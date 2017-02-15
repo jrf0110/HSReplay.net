@@ -160,6 +160,19 @@ h2 {
 
 /* Billing */
 
+#account-billing-plan {
+	&>.inner {
+		position: relative;
+	}
+
+	.premium-plan-form {
+		position: absolute;
+		padding: 1em;
+		top: 0;
+		right: 0;
+	}
+}
+
 #account-billing-creditcard-list {
 	padding: 0;
 	margin: 0;
