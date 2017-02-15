@@ -21,3 +21,30 @@
 		}
 	}
 }
+
+.card-icon {
+	background-repeat: no-repeat;
+	border-radius: 50%;
+	border: 1px solid black;
+	position: relative;
+	user-select: none;
+	
+	>span {
+		cursor: default;
+		font-size: 1.3em;
+		font-weight: bold;
+		position: absolute;
+		right: -1px;
+		text-shadow: -1px -1px 0 #000,
+			1px -1px 0 #000,
+			-1px 1px 0 #000,
+			1px 1px 0 #000;
+		top: -9px;
+	}
+
+	.card-image {
+		position: absolute;
+		z-index: 1000;
+	}
+}
+
