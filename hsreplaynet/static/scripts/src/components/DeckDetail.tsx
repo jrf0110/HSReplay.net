@@ -3,6 +3,7 @@ import CardDetailBarChart from "./charts/CardDetailBarChart";
 import CardDetailGauge from "./charts/CardDetailGauge";
 import CardDetailLineChart from "./charts/CardDetailLineChart";
 import CardDetailPieChart from "./charts/CardDetailPieChart";
+import CardIcon from "./CardIcon";
 import CardTile from "./CardTile";
 import ClassFilter from "./ClassFilter";
 import ClassIcon from "./ClassIcon";
@@ -119,13 +120,31 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const decks = [];
 		if (this.state.similarDecks) {
 			this.state.similarDecks.series.data[this.props.deckClass].forEach(row => {
+				const cards = this.props.deckCards.split(",");
+				const add = [];
+				const sub = [];
+				const addRndCards = () => {
+					add.push(<CardIcon size={28} cardId={cards[Math.floor(Math.random() * cards.length)]} mark="+" markStyle={{color: "limegreen"}}/>);
+					sub.push(<CardIcon size={28} cardId={cards[Math.floor(Math.random() * cards.length)]} mark="-" markStyle={{color: "red"}}/>);
+				}
+				addRndCards();
+				if (Math.random() > 0.5) {
+					addRndCards();
+				}
+				if (Math.random() > 0.3) {
+					addRndCards();
+				}
+
 				decks.push(
 					<li>
 						<a href={"/cards/decks/" + row["deck_id"]}>
-							<ClassIcon heroClassName={row["player_class"]} small/>
+							<ClassIcon heroClassName={this.props.deckClass} />
 							{toTitleCase(row["player_class"])}
-							<span className="badge" style={{background: this.getBadgeColor(+row["win_rate"])}}>{row["win_rate"] + "%"}</span>
 						</a>
+						<div className="card-icons">
+							{sub}
+							{add}
+						</div>
 					</li>
 				);
 			})
@@ -154,9 +173,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						</ul>
 					</div>
 					<div className="deck-list">
-						<span className="pull-right">Winrate</span>
+						<span className="pull-right">Changes</span>
 						<h4>Similar decks</h4>
-						<ul>
+						<ul id="similar-decks-list">
 							{decks}
 						</ul>
 					</div>

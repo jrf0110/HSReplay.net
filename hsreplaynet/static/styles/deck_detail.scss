@@ -57,10 +57,29 @@
 						width: 24px;
 						margin-right: 5px;
 					}
+
+					.card-icons {
+						display: flex;
+						float: right;
+						
+						.card-icon {
+							margin-left: 2px;
+						}
+					}
+					
 				}
 
-				>li:hover {
-					font-weight: bold;
+				>li:nth-child(even) {
+					background: rgb(249, 249, 249);
+				}
+
+				&#similar-decks-list >li {
+					height: 34px;
+					padding: 3px 0;
+
+					>a {
+						line-height: 28px;
+					}
 				}
 			}
 		}
