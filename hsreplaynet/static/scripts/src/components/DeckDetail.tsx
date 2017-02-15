@@ -9,6 +9,7 @@ import ClassIcon from "./ClassIcon";
 import DeckList from "./DeckList";
 import HearthstoneJSON from "hearthstonejson";
 import HDTButton from "./HDTButton";
+import InfoIcon from "./InfoIcon";
 import PopularityLineChart from "./charts/PopularityLineChart";
 import QueryManager from "../QueryManager";
 import WinrateLineChart from "./charts/WinrateLineChart";
@@ -321,14 +322,37 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const headers = [];
 		headers.push(
-			<th onClick={() => onHeaderClick("decklist", 1)}>{"Cards" + sortIndicator("decklist")}</th>,
-			<th onClick={() => onHeaderClick("opening_hand_win_rate")}>{"WR mulligan" + sortIndicator("opening_hand_win_rate")}</th>,
-			<th onClick={() => onHeaderClick("keep_percentage")}>{"Kept" + sortIndicator("keep_percentage")}</th>,
-			<th onClick={() => onHeaderClick("win_rate_when_drawn")}>{"WR drawn" + sortIndicator("win_rate_when_drawn")}</th>,
-			<th onClick={() => onHeaderClick("win_rate_when_played")}>{"WR played" + sortIndicator("win_rate_when_played")}</th>,
-			<th onClick={() => onHeaderClick("dead_percent")}>{"Dead" + sortIndicator("dead_percent")}</th>,
-			<th onClick={() => onHeaderClick("avg_turns_in_hand")}>{"Turns held" + sortIndicator("avg_turns_in_hand")}</th>,
-			<th onClick={() => onHeaderClick("avg_turn_played_on")}>{"Turn played" + sortIndicator("avg_turn_played_on")}</th>,
+			<th onClick={() => onHeaderClick("decklist", 1)}>
+				{"Cards" + sortIndicator("decklist")}
+			</th>,
+			<th onClick={() => onHeaderClick("opening_hand_win_rate")}>
+				{"Mulligan WR" + sortIndicator("opening_hand_win_rate")}
+				<InfoIcon header="Mulligan Winrate" content="Winrate when the card ends up in the opening hand." />
+			</th>,
+			<th onClick={() => onHeaderClick("keep_percentage")}>
+				{"Kept" + sortIndicator("keep_percentage")}
+				<InfoIcon header="Kept" content="Percentage card was kept when presented during mulligan." />
+			</th>,
+			<th onClick={() => onHeaderClick("win_rate_when_drawn")}>
+				{"Drawn WR" + sortIndicator("win_rate_when_drawn")}
+				<InfoIcon header="Drawn Winrate" content="Average winrate of games where the card was drawn at any point." />
+			</th>,
+			<th onClick={() => onHeaderClick("win_rate_when_played")}>
+				{"Played WR" + sortIndicator("win_rate_when_played")}
+				<InfoIcon header="Played Winrate" content="Average winrate of games where the card was played at any point." />
+			</th>,
+			<th onClick={() => onHeaderClick("dead_percent")}>
+				{"Dead" + sortIndicator("dead_percent")}
+				<InfoIcon header="Dead Card" content="Percentage of time the card is drawn but never played (still in the hand at the end of the game)." />
+			</th>,
+			<th onClick={() => onHeaderClick("avg_turns_in_hand")}>
+				{"Turns held" + sortIndicator("avg_turns_in_hand")}
+				<InfoIcon header="Turns held" content="Average number of turn the card is held in hand." />
+			</th>,
+			<th onClick={() => onHeaderClick("avg_turn_played_on")}>
+				{"Turn played" + sortIndicator("avg_turn_played_on")}
+				<InfoIcon header="Turn played" content="Average turn the card is played on." />
+			</th>,
 		)
 
 		return <table className="table table-striped">
