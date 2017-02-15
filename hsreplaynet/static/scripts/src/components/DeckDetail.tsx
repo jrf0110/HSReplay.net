@@ -24,25 +24,23 @@ interface Card {
 }
 
 interface DeckDetailState {
-	deck?: any;
-	cardData?: Map<string, any>;
-	selectedClasses?: Map<string, boolean>;
-	tableDataAll?: TableData;
-	tableDataClasses?: TableData;
 	averageDuration?: RenderData;
-	winrateOverTime?: RenderData;
-	popularityOverTime?: RenderData;
-	similarDecks?: TableData;
 	baseWinrates?: TableData;
+	cardData?: Map<string, any>;
+	popularityOverTime?: RenderData;
+	selectedClasses?: Map<string, boolean>;
+	similarDecks?: TableData;
 	sortCol?: string;
 	sortDirection?: number;
-	free?: boolean;
+	tableDataAll?: TableData;
+	tableDataClasses?: TableData;
+	winrateOverTime?: RenderData;
 }
 
 interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
-	deckId: number;
 	deckCards: string;
 	deckClass: string;
+	deckId: number;
 	deckName?: string;
 }
 
@@ -52,16 +50,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	constructor(props: DeckDetailProps, state: DeckDetailState) {
 		super(props, state);
 		this.state = {
-			deck: null,
+			averageDuration: null,
+			baseWinrates: null,
 			cardData: null,
-			selectedClasses: null,
-			tableDataAll: null,
-			tableDataClasses: null,
 			popularityOverTime: null,
+			selectedClasses: null,
 			similarDecks: null,
 			sortCol: "decklist",
 			sortDirection: 1,
-			free: window.location.href.split("?")[1] === "free",
+			tableDataAll: null,
+			tableDataClasses: null,
+			winrateOverTime: null,
 		}
 
 		this.fetch();
@@ -71,6 +70,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			data.forEach(card => map.set(card.id, card));
 			this.setState({cardData: map});
 		});
+	}
+
+	mockFree(): boolean {
+		return window.location.href.split("?")[1] === "free";
 	}
 
 	getDeckName(): string {
@@ -150,7 +153,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			})
 		}
 		const chartSeries = this.buildChartSeries();
-		const costChart = chartSeries[3] && <CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" series={chartSeries[3]}/>
+		const costChart = chartSeries && <CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" series={chartSeries}/>
 
 		const duration = this.state.averageDuration && Math.round(+this.state.averageDuration.series[0].data[0].x/60);
 		return <div className="deck-detail-container">
@@ -206,7 +209,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							multiSelect={false}
 							hideAll
 							minimal
-							disabled={this.state.free}
+							disabled={this.mockFree()}
 						/>
 					</div>
 					<h3>
@@ -219,63 +222,28 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		</div>;
 	}
 
-	buildChartSeries(): ChartSeries[] {
-		const chartSeries = [];
-
+	buildChartSeries(): ChartSeries {
 		if (this.state.cardData && this.props.deckCards) {
-			const data = {rarity: {}, cardtype: {}, cardset: {}, cost: {}};
-			[0, 1, 2, 3, 4, 5, 6, 7].forEach(x => data.cost[x] = 0);
-			const cards = this.props.deckCards.split(',').map(x => this.state.cardData.get(x));
+			const costs = {};
+			const costValues = [0, 1, 2, 3, 4, 5, 6, 7];
+			costValues.forEach(value => costs[value] = 0);
 
-			cards.forEach(card => {
-				data["rarity"][card.rarity] = (data["rarity"][card.rarity] || 0) + 1;
-				data["cardtype"][card.type] = (data["cardtype"][card.type] || 0) + 1;
-				data["cardset"][card.set] = (data["cardset"][card.set] || 0) + 1;
-				const cost = ""+Math.min(7, card.cost);
-				data["cost"][cost] = (data["cost"][cost] || 0) + 1;
-			});
-			Object.keys(data).forEach(name => {
-				const series = {
-					name: name,
-					data: [],
-					metadata: {
-						chart_scheme: name
-					}
+			this.props.deckCards.split(',')
+				.map(id => this.state.cardData.get(id))
+				.forEach(card => costs[Math.min(7, card.cost)] += 1);
+
+			const series = {
+				name: "Manacurve",
+				data: [],
+				metadata: {
+					chart_scheme: "cost"
 				}
-				Object.keys(data[name]).forEach(value => {
-					series.data.push({x: value.toLowerCase(), y: data[name][value]});
-				})
-				chartSeries.push(series);
+			}
+			costValues.forEach(value => {
+				series.data.push({x: ''+value, y: costs[value]});
 			})
+			return series;
 		}
-		return chartSeries;
-	}
-
-	buildDeckCharts(): JSX.Element[] {
-			const chartSeries = this.buildChartSeries();
-			const rarityChart = chartSeries[0] && <CardDetailPieChart title="Rarity" series={chartSeries[0]}/>
-			const typeChart = chartSeries[1] && <CardDetailPieChart title="Type" series={chartSeries[1]}/>
-			const setChart = chartSeries[2] && <CardDetailPieChart title="Set" series={chartSeries[2]}/>
-			const costChart = chartSeries[3] && <CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" series={chartSeries[3]}/>
-			return [
-				<div className ="row">
-					<div className="chart-column col-lg-6 col-md-6 col-sm-6 col-xs-6">
-						<div className="chart-wrapper wide">
-							{costChart}
-						</div>
-					</div>
-					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
-						<div className="chart-wrapper">
-							{rarityChart}
-						</div>
-					</div>
-					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
-						<div className="chart-wrapper">
-							{typeChart}
-						</div>
-					</div>
-				</div>
-			];
 	}
 
 	getGroupedCards(cards: string[]): Map<string, number> {
@@ -425,7 +393,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<td className="winrate-cell" style={{color: mulligan.color}}>{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(2) + "%"}</td>,
 				<td>{(+row["keep_percentage"]).toFixed(2) + "%"}</td>,
 			);
-			if (this.state.free) {
+			if (this.mockFree()) {
 				cols.push(
 					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
 					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
@@ -468,14 +436,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 		});
 		return selectedClass;
-	}
-
-	getBaseWinrate(): number {
-		if (!this.state.winrateOverTime) {
-			return 50;
-		}
-		const data = this.state.winrateOverTime.series[0].data;
-		return data[data.length - 1].y;
 	}
 
 	fetch() {
