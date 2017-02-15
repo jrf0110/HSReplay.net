@@ -2,6 +2,7 @@ import * as React from "react";
 
 interface InfoIconState {
 	hovering?: boolean;
+	isLeft?: boolean;
 }
 
 interface InfoIconProps extends React.ClassAttributes<InfoIcon> {
@@ -20,17 +21,23 @@ export default class InfoIcon extends React.Component<InfoIconProps, InfoIconSta
 	render(): JSX.Element {
 		let tooltip = null;
 		if (this.state.hovering) {
+			let style = {};
+			if (this.state.isLeft) {
+				style["margin-left"] = 0;
+			}
+
 			tooltip = (
-				<div className="info-icon-text">
+				<div className="info-icon-text" style={style} >
 					<h4>{this.props.header}</h4>
 					{this.props.content}
 				</div>
 			);
 		}
+
 		return (
 			<div 
 				className="info-icon glyphicon glyphicon-question-sign"
-				onMouseEnter={() => this.setState({hovering: true})}
+				onMouseEnter={(e) => this.setState({hovering: true, isLeft: e.clientX < 275})}
 				onMouseLeave={() => this.setState({hovering: false})}
 			>
 				{tooltip}
