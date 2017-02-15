@@ -178,13 +178,19 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							/>
 						</div>
 					</div>
-					<h3>Deck breakdown</h3>
-					<ClassFilter
-						filters="All"
-						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-						multiSelect={false}
-						hideAll
-					/>
+					<div id="opponent-class-filter">
+						<span>Opponent:</span>
+						<ClassFilter
+							filters="All"
+							selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+							multiSelect={false}
+							hideAll
+							minimal
+						/>
+					</div>
+					<h3>
+						{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
+					</h3>
 					{this.buildTable(selectedClass === "ALL" ? this.state.tableDataAll : this.state.tableDataClasses, selectedClass)}
 				</div>
 			</div>
