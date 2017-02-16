@@ -1,6 +1,8 @@
+type CallbackData = any | "error";
+
 interface Query {
 	url: string;
-	callback: (success: boolean, json: any) => void;
+	callback: (data: CallbackData) => void;
 }
 
 export default class QueryManager {
@@ -14,7 +16,7 @@ export default class QueryManager {
 		this.poll = poll;
 	}
 
-	public fetch(url: string, callback: (success: boolean, json: any) => void) {
+	public fetch(url: string, callback: (data: CallbackData) => void) {
 		if (this.queue.every(q => q.url !== url) && this.running.every(q => q.url !== url)) {
 			this.queue.push({url: url, callback: callback});
 			this.tryFetchNext();
@@ -47,11 +49,11 @@ export default class QueryManager {
 			return response.json();
 		}).then((json) => {
 			if (json !== undefined) {
-				query.callback(true, json);
+				query.callback(json);
 			}
 			return json;
 		}).catch((reason) => {
-			query.callback(false, null);
+			query.callback("error");
 			return null;
 		}).then((json) => {
 			if (json !== undefined) {
@@ -59,7 +61,7 @@ export default class QueryManager {
 				this.duplicates.slice().forEach(dup => {
 					if (dup.url == query.url) {
 						this.duplicates.splice(this.duplicates.indexOf(dup), 1);
-						dup.callback(json !== null, json);
+						dup.callback(json || "error");
 					}
 				});
 				this.tryFetchNext();

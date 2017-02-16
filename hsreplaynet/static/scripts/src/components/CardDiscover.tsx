@@ -229,18 +229,18 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					{content}
 				</div>
 				<div className="chart-col visible-lg">
-					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" series={chartSeries && chartSeries[3]}/>
+					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" renderData={chartSeries ? {series: [chartSeries[3]]} : "loading"} />
 					<div className="chart-wrapper">
-						<CardDetailPieChart series={chartSeries && chartSeries[4]} title="Classes"/>
+						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[4]]} : "loading"} title="Classes"/>
 					</div>
 					<div className="chart-wrapper">
-						<CardDetailPieChart series={chartSeries && chartSeries[0]} title="Rarity"/>
+						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[0]]} : "loading"} title="Rarity"/>
 					</div>
 					<div className="chart-wrapper">
-						<CardDetailPieChart series={chartSeries && chartSeries[2]} title="Set"/>
+						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[2]]} : "loading"} title="Set"/>
 					</div>
 					<div className="chart-wrapper">
-						<CardDetailPieChart series={chartSeries && chartSeries[1]} title="Type"/>
+						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[1]]} : "loading"} title="Type"/>
 					</div>
 				</div>
 			</div>

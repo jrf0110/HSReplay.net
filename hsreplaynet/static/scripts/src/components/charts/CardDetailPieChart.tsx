@@ -1,14 +1,14 @@
 import * as React from "react";
-import {ChartSeries, ChartScheme} from "../../interfaces";
+import {ChartScheme, RenderData} from "../../interfaces";
 import {VictoryContainer, VictoryLabel, VictoryPie, VictoryTheme} from "victory";
-import {getChartScheme, toTitleCase} from "../../helpers";
+import {getChartScheme} from "../../helpers";
 
 interface CardDetailPieChartState {
 	text?: string;
 }
 
 interface CardDetailPieChartProps extends React.ClassAttributes<CardDetailPieChart> {
-	series: ChartSeries;
+	renderData: RenderData;
 	title: string;
 	percent?: boolean;
 	scheme?: ChartScheme;
@@ -28,15 +28,22 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 	render(): JSX.Element {
 		let content = null;
 		const labelText = this.state.text || this.props.title;
-
-		if (this.props.series) {
-			let data = this.props.series.data;
+		
+		if (this.props.renderData === "loading") {
+			content = <VictoryLabel text={"Loading..."} style={{fontSize: 32}} textAnchor="middle" verticalAnchor="middle" x={200} y={200}/>
+		}
+		else if (this.props.renderData === "error"){
+			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 32}} textAnchor="middle" verticalAnchor="middle" x={200} y={200}/>
+		}
+		else if (this.props.renderData) {
+			const series = this.props.renderData.series[0];
+			let data = series.data;
 			let fill = null;
 			let stroke = null;
 			let scheme = this.props.scheme;
 
-			if (!scheme && this.props.series.metadata && this.props.series.metadata["chart_scheme"]) {
-				scheme = getChartScheme(this.props.series.metadata["chart_scheme"]);
+			if (!scheme && series.metadata && series.metadata["chart_scheme"]) {
+				scheme = getChartScheme(series.metadata["chart_scheme"]);
 			}
 
 			if (scheme) {
@@ -64,7 +71,7 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 						data: {
 							transition: "transform .2s ease-in-out",
 							fill: fill,
-							strokeWidth: this.props.series.data.length > 1 ? 2 : 0,
+							strokeWidth: series.data.length > 1 ? 2 : 0,
 						},
 					}}
 					labels={[]}
@@ -95,9 +102,6 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 					]}
 				/>
 			);
-		}
-		else {
-			content = <VictoryLabel text={"Loading..."} style={{fontSize: 32}} textAnchor="middle" verticalAnchor="middle" x={200} y={200}/>
 		}
 
 		return <svg viewBox="0 0 400 450">

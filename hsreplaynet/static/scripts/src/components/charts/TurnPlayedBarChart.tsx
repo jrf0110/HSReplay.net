@@ -3,11 +3,11 @@ import {
 	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel,
 	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip
 } from "victory";
-import {ChartSeries} from "../../interfaces";
+import {RenderData} from "../../interfaces";
 import {getChartMetaData} from "../../helpers";
 
 interface WinrateByTurnLineChartProps {
-	series: ChartSeries;
+	renderData: RenderData;
 	widthRatio?: number;
 }
 
@@ -16,8 +16,17 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		const width = 150 * (this.props.widthRatio || 3);
 		let content = null;
 
-		if (this.props.series) {
-			const metaData = getChartMetaData(this.props.series.data);
+		if (this.props.renderData === "loading") {
+			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
+		}
+		else if (this.props.renderData === "error") {
+			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
+		}
+
+		else if (this.props.renderData) {
+			const series = this.props.renderData.series[0];
+			
+			const metaData = getChartMetaData(series.data);
 
 			const tooltip = <VictoryTooltip
 				cornerRadius={0}
@@ -58,17 +67,17 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metaData.yCenter ? "gray" : "transparent"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryArea
-						data={this.props.series.data.map(p => {return {x: p.x, y: p.y, y0: 0}})}
+						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 0}})}
 						style={{data: {fill: "url(#turn-played-gradient)"}}}
 						interpolation="step"
 					/>
 					<VictoryLine
-						data={this.props.series.data}
+						data={series.data}
 						interpolation="step"
 						style={{data: {strokeWidth: 1}}}
 					/>
 					<VictoryVoronoiTooltip
-						data={this.props.series.data.map(d => {return {x: d.x, y: metaData.yCenter, yValue: d.y}})}
+						data={series.data.map(d => {return {x: d.x, y: metaData.yCenter, yValue: d.y}})}
 						labels={d => "Turn " + d.x + "\n" + d.yValue + "%"}
 						labelComponent={tooltip}
 						style={{
@@ -77,9 +86,6 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					/>
 				</VictoryChart>
 			];
-		}
-		else {
-			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
 		}
 
 		return (

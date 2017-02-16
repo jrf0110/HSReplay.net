@@ -3,7 +3,6 @@ import WinrateByTurnLineChart from "./charts/WinrateByTurnLineChart";
 import CardDetailBarChart from "./charts/CardDetailBarChart";
 import CardDetailGauge from "./charts/CardDetailGauge";
 import CardDetailPieChart from "./charts/CardDetailPieChart";
-import CardDetailDecksList from "./charts/CardDetailDecksList";
 import CardRankingTable from "./CardRankingTable";
 import PopularityLineChart from "./charts/PopularityLineChart";
 import WinrateLineChart from "./charts/WinrateLineChart";
@@ -24,12 +23,6 @@ import {
 import QueryManager from "../QueryManager";
 
 interface CardDetailState {
-	queries?: Query[];
-	renders?: Map<string, RenderData>;
-	filterData?: FilterData;
-	selectedFilters?: Map<string, string>;
-	queryTime?: Date;
-	fetching?: boolean;
 	cardData?: Map<string, any>;
 	card?: any;
 	classDistribution?: RenderData;
@@ -55,14 +48,16 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
 		this.state = {
-			queries: null,
-			renders: new Map<string, RenderData>(),
-			filterData: null,
-			selectedFilters: new Map<string, string>(),
-			queryTime: null,
-			fetching: true,
 			cardData: null,
 			card: null,
+			classDistribution: "loading",
+			winrateByTurn: "loading",
+			popularityOverTime: "loading",
+			winrateOverTime: "loading",
+			popularityByTurn: "loading",
+			cardsOnSameTurn: "loading",
+			popularTargets: "loading",
+			popularDecks: "loading",
 		}
 
 		new HearthstoneJSON().getLatest((data) => {
@@ -100,7 +95,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				<CardRankingTable
 					cardData={this.state.cardData}
 					numRows={10}
-					tableRows={this.state.popularTargets && this.state.popularTargets.series.data["ALL"]}
+					tableData={this.state.popularTargets}
+					dataKey={"ALL"}
 					clickable
 				/>
 			];
@@ -113,7 +109,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			const set = this.state.card.set.toLowerCase();
 			let replayCount = null;
 
-			if (this.state.winrateOverTime) {
+			if (this.state.winrateOverTime !== "loading" && this.state.winrateOverTime !== "error") {
 				replayCount = (
 					<p className="pull-right">
 						{"based on " + toPrettyNumber(this.state.winrateOverTime.series[0].metadata["num_data_points"]) + " replays"}
@@ -153,7 +149,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="class-chart">
 							<CardDetailPieChart
 								percent
-								series={this.state.classDistribution && this.state.classDistribution.series[0]}
+								renderData={this.state.classDistribution}
 								title={"Class Popularity"}
 								scheme={getChartScheme("class")}
 								textPrecision={2}
@@ -168,13 +164,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
 							<PopularityLineChart
-								series={this.state.popularityOverTime && this.state.popularityOverTime.series[0]}
+								renderData={this.state.popularityOverTime}
 								widthRatio={2}
 							/>
 						</div>
 						<div className="col-lg-6 col-md-6">
 							<WinrateLineChart
-								series={this.state.winrateOverTime && this.state.winrateOverTime.series[0]}
+								renderData={this.state.winrateOverTime}
 								widthRatio={2}
 							/>
 						</div>
@@ -182,13 +178,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
 							<TurnPlayedBarChart
-								series={this.state.popularityByTurn && this.state.popularityByTurn.series[0]}
+								renderData={this.state.popularityByTurn}
 								widthRatio={2}
 							/>
 						</div>
 						<div className="col-lg-6 col-md-6">
 							<WinrateByTurnLineChart
-								series={this.state.winrateByTurn && this.state.winrateByTurn.series[0]}
+								renderData={this.state.winrateByTurn}
 								widthRatio={2}
 							/>
 						</div>
@@ -199,7 +195,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							<CardRankingTable
 								cardData={this.state.cardData}
 								numRows={10}
-								tableRows={this.state.cardsOnSameTurn && this.state.cardsOnSameTurn.series.data["ALL"]}
+								tableData={this.state.cardsOnSameTurn}
+								dataKey={"ALL"}
 								clickable
 							/>
 						</div>
@@ -230,7 +227,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	buildDecksList(): JSX.Element {
-		if (!this.state.popularDecks) {
+		if (this.state.popularDecks === "error" || this.state.popularDecks === "loading") {
 			return null;
 		}
 
@@ -240,8 +237,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		let index = 0;
 		do {
 			foundAny = false;
-			Object.keys(this.state.popularDecks.series.data).forEach(key => {
-				const data = this.state.popularDecks.series.data[key][index];
+			const series = this.state.popularDecks.series;
+			Object.keys(series.data).forEach(key => {
+				const data = series.data[key][index];
 				if (data) {
 					foundAny = true;
 					rows.push(data);
@@ -302,45 +300,45 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		if (this.cardIsNeutral(card)) {
 			this.queryManager.fetch(
 				"/analytics/query/single_card_class_distribution_by_include_count?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
-				(success, json) => this.setState({classDistribution: json})
+				(data) => this.setState({classDistribution: data})
 			);
 			this.queryManager.fetch(
 				"/analytics/query/neutral_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
-				(success, json) => this.setState({popularDecks: json})
+				(data) => this.setState({popularDecks: data})
 			);
 		}
 		else {
 			this.queryManager.fetch(
 				"/analytics/query/class_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
-				(success, json) => this.setState({popularDecks: json})
+				(data) => this.setState({popularDecks: data})
 			);
 		}
 		if (this.cardHasTargetReqs(card)) {
 			this.queryManager.fetch(
 				"/analytics/query/single_card_popular_targets?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
-				(success, json) => this.setState({popularTargets: json})
+				(data) => this.setState({popularTargets: data})
 			);
 		}
 
 		this.queryManager.fetch(
 			"/analytics/query/single_card_winrate_by_turn?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
-			(success, json) => this.setState({winrateByTurn: json})
+			(data) => this.setState({winrateByTurn: data})
 		);
 		this.queryManager.fetch(
 			"/analytics/query/single_card_include_popularity_over_time?card_id=" + this.props.dbfId + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
-			(success, json) => this.setState({popularityOverTime: json})
+			(data) => this.setState({popularityOverTime: data})
 		);
 		this.queryManager.fetch(
 			"/analytics/query/single_card_winrate_over_time?card_id=" + this.props.dbfId + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
-			(success, json) => this.setState({winrateOverTime: json})
+			(data) => this.setState({winrateOverTime: data})
 		);
 		this.queryManager.fetch(
 			"/analytics/query/single_card_popularity_by_turn?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
-			(success, json) => this.setState({popularityByTurn: json})
+			(data) => this.setState({popularityByTurn: data})
 		);
 		this.queryManager.fetch(
 			"/analytics/query/single_card_popular_together?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
-			(success, json) => this.setState({cardsOnSameTurn: json})
+			(data) => this.setState({cardsOnSameTurn: data})
 		);
 	}
 	

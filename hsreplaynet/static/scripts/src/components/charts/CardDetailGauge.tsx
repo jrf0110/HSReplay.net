@@ -1,10 +1,10 @@
 import * as React from "react";
-import {ChartSeries, ChartSchemeData} from "../../interfaces";
+import {ChartSchemeData, RenderData} from "../../interfaces";
 import {VictoryContainer, VictoryLabel, VictoryPie} from "victory";
 
 interface CardDetailGaugeProps extends React.ClassAttributes<CardDetailGauge> {
-	series: ChartSeries;
-	title: string;
+	renderData: RenderData;
+	title?: string;
 	speedometer?: boolean;
 	scheme?: ChartSchemeData;
 	maxValue?: number;
@@ -22,9 +22,16 @@ export default class CardDetailGauge extends React.Component<CardDetailGaugeProp
 
 		let content = null;
 
-		if (this.props.series) {
-			const hasData = this.props.series && this.props.series.data[0] && this.props.series.data[0].y;
-			const value = hasData ? this.props.series.data[0].y : maxValue/2;
+		if(this.props.renderData === "loading") {
+			content = <VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={(450 + offsetY) / 2} text={"Loading..."} style={{fontSize: 32}}/>
+		}
+		else if (this.props.renderData === "error") {
+			content = <VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={(450 + offsetY) / 2} text={"Please check back later"} style={{fontSize: 32}}/>
+		}
+		else if (this.props.renderData) {
+			const series = this.props.renderData.series[0];
+			const hasData = series && series.data[0] && series.data[0].y;
+			const value = hasData ? series.data[0].y : maxValue/2;
 
 			const data =  [{x: "data", y: (this.props.reverse ? maxValue - value : value)}];
 			const remaining = maxValue - data[0].y;
@@ -53,9 +60,6 @@ export default class CardDetailGauge extends React.Component<CardDetailGaugeProp
 				/>,
 				<VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={200} text={valueText} style={{fontSize: 40}}/>
 			];
-		}
-		else {
-			content = <VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={(450 + offsetY) / 2} text={"Loading..."} style={{fontSize: 32}}/>
 		}
 
 		return <svg viewBox={"0 " + offsetY + " 400 450"}>

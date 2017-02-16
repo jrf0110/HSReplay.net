@@ -1,7 +1,6 @@
 import * as React from "react";
 import CardDetailBarChart from "./charts/CardDetailBarChart";
 import CardDetailGauge from "./charts/CardDetailGauge";
-import CardDetailLineChart from "./charts/CardDetailLineChart";
 import CardDetailPieChart from "./charts/CardDetailPieChart";
 import CardIcon from "./CardIcon";
 import CardTile from "./CardTile";
@@ -15,7 +14,9 @@ import PopularityLineChart from "./charts/PopularityLineChart";
 import QueryManager from "../QueryManager";
 import WinrateLineChart from "./charts/WinrateLineChart";
 import {TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
-import {getChartScheme, toPrettyNumber, toTitleCase, getColorString} from "../helpers";
+import {
+	getChartScheme, toPrettyNumber, toTitleCase, getColorString, 
+} from "../helpers";
 import {Colors} from "../Colors";
 
 interface Card {
@@ -50,17 +51,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	constructor(props: DeckDetailProps, state: DeckDetailState) {
 		super(props, state);
 		this.state = {
-			averageDuration: null,
-			baseWinrates: null,
+			averageDuration: "loading",
+			baseWinrates: "loading",
 			cardData: null,
-			popularityOverTime: null,
+			popularityOverTime: "loading",
 			selectedClasses: null,
-			similarDecks: null,
+			similarDecks: "loading",
 			sortCol: "decklist",
 			sortDirection: 1,
-			tableDataAll: null,
-			tableDataClasses: null,
-			winrateOverTime: null,
+			tableDataAll: "loading",
+			tableDataClasses: "loading",
+			winrateOverTime: "loading",
 		}
 
 		this.fetch();
@@ -90,9 +91,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const selectedClass = this.getSelectedClass();
 		const allSelected = selectedClass === "ALL";
 
+		console.log(this.state.tableDataAll === "loading", this.state.tableDataAll === "error")
+
 		let replayCount = null;
 		const selectedTable = allSelected ? this.state.tableDataAll : this.state.tableDataClasses;
-		if (selectedTable) {
+		if (selectedTable !== "loading" && selectedTable !== "error") {
 			const metadata = selectedTable.series.metadata;
 			const numGames = allSelected ? metadata["total_games"] : metadata[selectedClass]["total_games"];
 			replayCount = (
@@ -106,7 +109,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		];
 
 		const winrates = [];
-		if (this.state.baseWinrates) {
+		if (this.state.baseWinrates !== "loading" && this.state.baseWinrates !== "error") {
 			const data = this.state.baseWinrates.series.data;
 			Object.keys(data).forEach(key => {
 				const winrate = +data[key][0]["win_rate"];
@@ -121,7 +124,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		const decks = [];
-		if (this.state.similarDecks) {
+		if (this.state.similarDecks !== "loading" && this.state.similarDecks !== "error") {
 			this.state.similarDecks.series.data[this.props.deckClass].forEach(row => {
 				const cards = this.props.deckCards.split(",");
 				const add = [];
@@ -152,16 +155,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				);
 			})
 		}
-		const chartSeries = this.buildChartSeries();
-		const costChart = chartSeries && <CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" series={chartSeries}/>
 
-		const duration = this.state.averageDuration && Math.round(+this.state.averageDuration.series[0].data[0].x/60);
 		return <div className="deck-detail-container">
 			<div className="row">
 				<div className="col-lg-3 col-left">
 					<img className="hero-image" src={STATIC_URL + "images/class-portraits/" + this.props.deckClass.toLowerCase() + ".png"} height={300}/>
 					<div className="chart-wrapper">
-						{costChart}
+						<CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" renderData={this.buildChartSeries()}/>
 					</div>
 					<HDTButton
 						card_ids={this.props.deckCards.split(",")}
@@ -190,13 +190,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
 							<PopularityLineChart
-								series={this.state.popularityOverTime && this.state.popularityOverTime.series[0]}
+								renderData={this.state.popularityOverTime}
 								widthRatio={2}
 							/>
 						</div>
 						<div className="col-lg-6 col-md-6">
 							<WinrateLineChart
-								series={this.state.winrateOverTime && this.state.winrateOverTime.series[0]}
+								renderData={this.state.winrateOverTime}
 								widthRatio={2}
 							/>
 						</div>
@@ -222,7 +222,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		</div>;
 	}
 
-	buildChartSeries(): ChartSeries {
+	buildChartSeries(): RenderData {
 		if (this.state.cardData && this.props.deckCards) {
 			const costs = {};
 			const costValues = [0, 1, 2, 3, 4, 5, 6, 7];
@@ -242,8 +242,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			costValues.forEach(value => {
 				series.data.push({x: ''+value, y: costs[value]});
 			})
-			return series;
+			return {series: [series]};
 		}
+		return "loading";
 	}
 
 	getGroupedCards(cards: string[]): Map<string, number> {
@@ -258,7 +259,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 		const cardRows = [];
 		if (this.state.cardData) {
-			if (tableData) {
+			if (tableData !== "loading" && tableData !== "error") {
 				const rows = tableData.series.data[key];
 				if (rows) {
 					let mulliganAvg = 0;
@@ -441,32 +442,32 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	fetch() {
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			(success, json) => this.setState({tableDataClasses: json})
+			(data) => this.setState({tableDataClasses: data})
 		);
 
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_mulligan_guide?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			(success, json) => this.setState({tableDataAll: json})
+			(data) => this.setState({tableDataAll: data})
 		);
 
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_winrate_over_time?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			(success, json) => this.setState({winrateOverTime: json})
+			(data) => this.setState({winrateOverTime: data})
 		);
 
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_base_winrate_by_opponent_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
-			(success, json) => this.setState({baseWinrates: json})
+			(data) => this.setState({baseWinrates: data})
 		);
 
 		//mock data
 		this.queryManager.fetch(
 			"/analytics/query/single_card_include_popularity_over_time?card_id=" + 374 + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
-			(success, json) => this.setState({popularityOverTime: json})
+			(data) => this.setState({popularityOverTime: data})
 		);
 		this.queryManager.fetch(
 			"/analytics/query/class_card_top_decks_when_played?card_id=" + 846 + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
-			(success, json) => this.setState({similarDecks: json})
+			(data) => this.setState({similarDecks: data})
 		);
 	}
 

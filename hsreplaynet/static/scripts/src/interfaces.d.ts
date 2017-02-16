@@ -121,7 +121,11 @@ export interface Query {
 	avg_query_duration_seconds?: number;
 }
 
-export interface TableData {
+export type FetchingState = "loading" | "error";
+
+export type TableData = TableQueryData | FetchingState;
+
+export interface TableQueryData {
 	title?: string;
 	series: TableSeries;
 }
@@ -143,8 +147,10 @@ export interface TableRow {
 	[header: string]: string;
 }
 
-export interface RenderData {
-	render_as: RenderTypes;
+export type RenderData = RenderQueryData | FetchingState;
+
+export interface RenderQueryData {
+	render_as?: RenderTypes;
 	domain_x?: [number, number];
 	domain_y?: [number, number];
 	label_x?: string;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import ClassIcon from "../ClassIcon";
-import { TableData, ChartSeries } from "../../interfaces";
+import { TableData, TableQueryData, ChartSeries } from "../../interfaces";
 import CardTile from "../CardTile";
 import ClassFilter from "../ClassFilter";
 import CardDetailPieChart from "../charts/CardDetailPieChart";
@@ -34,7 +34,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		this.state = {
 			topCardsIncluded: new Map<string, TableData>(),
 			topCardsPlayed: new Map<string, TableData>(),
-			selectedClasses: null,
+			selectedClasses: new Map<string, boolean>(),
 			numRowsVisible: 12,
 			error: null,
 			availableIncludedDates: null,
@@ -45,25 +45,25 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 
 		this.queryManager.fetch(
 			"/analytics/available-data/card_played_popularity_report",
-			(success: boolean, json: any) => {
-				if (success) {
-					this.state.availablePlayedDates = json;
-					this.buildAvailableDates();
+			(data) => {
+				if (data === "error") {
+					this.fetchingError();
 				}
 				else {
-					this.fetchingError();
+					this.state.availablePlayedDates = data;
+					this.buildAvailableDates();
 				}
 			}
 		);
 		this.queryManager.fetch(
 			"/analytics/available-data/card_included_popularity_report",
-			(success: boolean, json: any) => {
-				if (success) {
-					this.state.availableIncludedDates = json;
-					this.buildAvailableDates();
+			(data) => {
+				if (data === "error") {
+					this.fetchingError();
 				}
 				else {
-					this.fetchingError();
+					this.state.availableIncludedDates = data;
+					this.buildAvailableDates();
 				}
 			}
 		);
@@ -103,19 +103,11 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 
 		this.queryManager.fetch(
 			"/analytics/query/card_played_popularity_report?query_date=" + date,
-			(success: boolean, json: any) => {
-				if (success) {
-					this.setState({topCardsPlayed: this.state.topCardsPlayed.set(date, json)})
-				}
-			}
+			(data) => this.setState({topCardsPlayed: this.state.topCardsPlayed.set(date, data)})
 		)
 		this.queryManager.fetch(
 			"/analytics/query/card_included_popularity_report?query_date=" + date,
-			(success: boolean, json: any) => {
-				if (success) {
-					this.setState({topCardsIncluded: this.state.topCardsIncluded.set(date, json)})
-				}
-			}
+			(data) => this.setState({topCardsIncluded: this.state.topCardsIncluded.set(date, data)})
 		)
 	}
 
@@ -133,11 +125,12 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 
 		const date = this.state.availableDates.length > this.state.index &&  this.state.availableDates[this.state.index];
 		const prevDate = this.state.availableDates.length + 1 > this.state.index && this.state.availableDates[this.state.index + 1];
-		const topCardsIncluded = date && this.state.topCardsIncluded.get(date);
-		const topCardsPlayed = date && this.state.topCardsPlayed.get(date);
-		const prevTopCardsIncluded = prevDate && this.state.topCardsIncluded.get(prevDate);
-		const prevTopCardsPlayed = prevDate && this.state.topCardsPlayed.get(prevDate);
-		const loaded = topCardsIncluded && topCardsPlayed;
+		const topCardsIncluded = date ? this.state.topCardsIncluded.get(date) : "loading";
+		const topCardsPlayed = date ? this.state.topCardsPlayed.get(date) : "loading";
+		const prevTopCardsIncluded = prevDate ? this.state.topCardsIncluded.get(prevDate) : "loading";
+		const prevTopCardsPlayed = prevDate ? this.state.topCardsPlayed.get(prevDate) : "loading";
+		const error = topCardsIncluded === "error" || topCardsPlayed === "error";
+		const loaded = !error && (topCardsIncluded !== "loaded" && topCardsPlayed !== "loaded")
 
 		let content = null;
 
@@ -155,31 +148,28 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			</div>;
 		}
 		else {
-			const chartSeries = this.buildChartSeries(topCardsIncluded);
-			const rarityChart = chartSeries[0] && <CardDetailPieChart percent title="Rarity" series={chartSeries[0]}/>
-			const typeChart = chartSeries[1] && <CardDetailPieChart percent title="Type" series={chartSeries[1]}/>
-			const setChart = chartSeries[2] && <CardDetailPieChart percent title="Set" series={chartSeries[2]}/>
-			const costChart = chartSeries[3] && <CardDetailPieChart percent title="Cost" series={chartSeries[3]}/>
+			const selectedClass = this.getSelectedClass();
+			const chartSeries = this.buildChartSeries(topCardsIncluded as TableQueryData);
 			content = [
 				<div className ="row">
 					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 						<div className="chart-wrapper">
-							{rarityChart}
+							<CardDetailPieChart percent title="Rarity" renderData={chartSeries.length ? {series: [chartSeries[0]]} : "loading"}/>}
 						</div>
 					</div>
 					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 						<div className="chart-wrapper">
-							{typeChart}
+							<CardDetailPieChart percent title="Type" renderData={chartSeries.length ? {series: [chartSeries[1]]} : "loading"}/>
 						</div>
 					</div>
 					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 						<div className="chart-wrapper">
-							{setChart}
+							<CardDetailPieChart percent title="Set" renderData={chartSeries.length ? {series: [chartSeries[2]]} : "loading"}/>
 						</div>
 					</div>
 					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 						<div className="chart-wrapper">
-							{costChart}
+							<CardDetailPieChart percent title="Cost" renderData={chartSeries.length ? {series: [chartSeries[3]]} : "loading"}/>
 						</div>
 					</div>
 				</div>,
@@ -189,8 +179,9 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						<div>
 							<CardRankingTable 
 								numRows={this.state.numRowsVisible}
-								tableRows={topCardsIncluded.series.data[this.getSelectedClass()]}
-								previousTableRows={prevTopCardsIncluded && prevTopCardsIncluded.series.data[this.getSelectedClass()]}
+								tableData={topCardsIncluded}
+								prevTableData={prevTopCardsIncluded}
+								dataKey={selectedClass}
 								cardData={this.props.cardData}
 							/>
 						</div>
@@ -200,8 +191,9 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						<div>
 							<CardRankingTable 
 								numRows={this.state.numRowsVisible}
-								tableRows={topCardsPlayed.series.data[this.getSelectedClass()]}
-								previousTableRows={prevTopCardsPlayed && prevTopCardsPlayed.series.data[this.getSelectedClass()]}
+								tableData={topCardsPlayed}
+								prevTableData={prevTopCardsPlayed}
+								dataKey={selectedClass}
 								cardData={this.props.cardData}
 							/>
 						</div>
@@ -234,7 +226,8 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			}
 		}
 
-		const replayCount = topCardsPlayed && toPrettyNumber(+topCardsPlayed.series.metadata["total_games"]);
+		const replayCount = topCardsPlayed && topCardsPlayed !== "error"
+			&& topCardsPlayed !== "loading" && toPrettyNumber(+topCardsPlayed.series.metadata["total_games"]);
 
 		return <div className="report-container" id="card-popularity-report">
 			<div className="row">
@@ -276,7 +269,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		</div>;
 	}
 
-	buildChartSeries(topCardsIncluded: TableData): ChartSeries[] {
+	buildChartSeries(topCardsIncluded: TableQueryData): ChartSeries[] {
 		const chartSeries = [];
 
 		if (this.props.cardData && this.state.topCardsIncluded) {

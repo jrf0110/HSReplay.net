@@ -3,13 +3,13 @@ import {
 	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel,
 	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip
 } from "victory";
-import {ChartSeries} from "../../interfaces";
+import {RenderData} from "../../interfaces";
 import {getChartMetaData, toTimeSeries} from "../../helpers";
 import WinLossGradient from "./gradients/WinLossGradient";
 import moment from "moment";
 
-interface WinrateLineChartProps {
-	series: ChartSeries;
+interface WinrateLineChartProps extends React.ClassAttributes<WinrateLineChart> {
+	renderData: RenderData;
 	widthRatio?: number;
 }
 
@@ -19,8 +19,14 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		let content = null;
 		let timespan = null;
 
-		if (this.props.series) {
-			const series = toTimeSeries(this.props.series);
+		if(this.props.renderData === "loading") {
+			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
+		}
+		else if (this.props.renderData === "error") {
+			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
+		}
+		else if (this.props.renderData) {
+			const series = toTimeSeries(this.props.renderData.series[0]);
 			const metadata = getChartMetaData(series.data, 50, true);
 
 			timespan = "last " + moment.duration((+metadata.xMinMax[1].x - +metadata.xMinMax[0].x)/1000, "seconds").humanize();
@@ -84,9 +90,6 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					/>
 				</VictoryChart>
 			];
-		}
-		else {
-			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
 		}
 
 		return (

@@ -3,12 +3,12 @@ import {
 	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel, 
 	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip
 } from "victory";
-import {ChartSeries} from "../../interfaces";
+import {RenderData} from "../../interfaces";
 import {getChartMetaData, toTimeSeries} from "../../helpers";
 import WinLossGradient from "./gradients/WinLossGradient";
 
 interface WinrateByTurnLineChartProps {
-	series: ChartSeries;
+	renderData: RenderData;
 	widthRatio?: number;
 }
 
@@ -25,9 +25,15 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 
 		let content = null;
 
-		if (this.props.series) {
+		if (this.props.renderData === "loading") {
+			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
+		}
+		else if (this.props.renderData === "error") {
+			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
+		}
+		else if (this.props.renderData) {
 			const elements = [];
-			const series = toTimeSeries(this.props.series);
+			const series = toTimeSeries(this.props.renderData.series[0]);
 			const metaData = getChartMetaData(series.data, 50, false);
 
 			const tooltip = <VictoryTooltip
@@ -84,9 +90,6 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 						/>
 				</VictoryChart>
 			];
-		}
-		else {
-			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
 		}
 
 		return <svg viewBox={"0 0 " + width + " 150"}>

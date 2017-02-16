@@ -1,20 +1,26 @@
 import * as React from "react";
-import {TableRow} from "../interfaces";
+import {TableData, TableRow} from "../interfaces";
 import CardRankingTableRow from "./CardRankingTableRow";
 
 interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> {
+	tableData: TableData;
+	prevTableData?: TableData;
+	dataKey: string;
 	cardData: Map<string, any>
-	tableRows: TableRow[];
 	numRows: number;
-	previousTableRows?: TableRow[];
 	clickable?: boolean;
 }
 
 export default class CardRankingTable extends React.Component<CardRankingTableProps, any> {
 	render(): JSX.Element {
+		if (this.props.tableData === "error") {
+			return null;
+		}
+		
 		const cardRows = [];
-		if (this.props.cardData && this.props.tableRows) {
-			this.props.tableRows.slice(0, this.props.numRows).forEach(row => {
+		if (this.props.cardData && this.props.tableData !== "loading" && this.props.tableData) {
+			const tableRows = this.props.tableData.series.data[this.props.dataKey];
+			tableRows.slice(0, this.props.numRows).forEach(row => {
 				const cardid = row["card_id"] || row["dbf_id"] || row["entity_dbf_id"] || row["target_entity_dbf_id"];
 				const card = this.props.cardData.get(''+cardid);
 				cardRows.push(
@@ -46,8 +52,9 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 	}
 
 	getDelta(row: TableRow) {
-		if (this.props.previousTableRows) {
-			const prev = this.props.previousTableRows.find(prev => prev["card_id"] == row["card_id"]);
+		if (this.props.prevTableData && this.props.prevTableData !== "error" && this.props.prevTableData !== "loading") {
+			const prevRows = this.props.prevTableData.series.data[this.props.dataKey];
+			const prev = prevRows.find(prev => prev["card_id"] == row["card_id"]);
 			if (prev) {
 				return +prev["rank"] - +row["rank"];
 			}
