@@ -315,7 +315,7 @@ export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTick
 		const top = Math.max(yMax.y, midLine);
 		const bottom = Math.min(yMin.y, midLine);
 		const delta = (yMax.y - yMin.y);
-		const deltaMag = Math.floor(Math.log10(delta));
+		const deltaMag = Math.min(Math.floor(Math.log10(delta)), 0);
 		const factor = 10 ** (deltaMag - 1);
 		const roundingFactor = 5 * (baseRoundingFactor || 0.1) * factor * 10;
 		const domainMax = (Math.ceil(Math.ceil((top + delta * 0.1) / factor) / roundingFactor) * roundingFactor) * factor; 
