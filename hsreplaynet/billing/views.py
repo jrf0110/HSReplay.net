@@ -1,3 +1,4 @@
+from allauth.account.utils import send_email_confirmation
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -63,7 +64,8 @@ class StripeCheckoutMixin:
 			# So if the user doesn't have an email, we set it to the stripe email.
 			request.user.email = email
 			request.user.save()
-			# TODO: update emailaddress_set and send email confirmation (allauth)
+			# Send a confirmation email for email verification
+			send_email_confirmation(request, request.user)
 
 		return True
 
