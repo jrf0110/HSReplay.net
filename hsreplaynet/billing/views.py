@@ -88,7 +88,14 @@ class SubscribeView(LoginRequiredMixin, View):
 
 			if customer.subscription.cancel_at_period_end:
 				# The customer's subscription was canceled and is now being re-activated
-				customer.subscription.reactivate()
+				try:
+					customer.subscription.reactivate()
+				except InvalidRequestError:
+					# Maybe the subscription already ran out.
+					# Sync the subscriptions and display an error.
+					customer._sync_subscriptions()
+					messages.add_message(request, messages.ERROR, "Your subscription is no longer valid.")
+					return False
 				return True
 
 			messages.add_message(request, messages.ERROR, "You are already subscribed!")
