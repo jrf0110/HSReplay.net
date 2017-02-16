@@ -74,8 +74,8 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
 						tickValues={[metadata.yCenter].concat(metadata.yDomain)}
-						tickFormat={tick => "Rank " + tick}
-						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metadata.yCenter ? "gray" : "transparent"}, axis: {visibility: "hidden"}}}
+						tickFormat={tick => metadata.toFixed(tick) + "%"}
+						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryLine
 						data={series.data}

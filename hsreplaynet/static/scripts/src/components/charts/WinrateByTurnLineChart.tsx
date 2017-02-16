@@ -48,6 +48,11 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 				}}
 			/>;
 
+			const minAbove50 = metaData.yMinMax[0].y > 50;
+			const maxBelow50 = metaData.yMinMax[1].y < 50;
+			const isMinTick = (tick: number) => tick === metaData.yDomain[0];
+			const isMaxTick = (tick: number) => tick === metaData.yDomain[1];
+
 			content = [
 				<defs>
 					<WinLossGradient id="winrate-by-turn-gradient" metadata={metaData} />
@@ -67,8 +72,21 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
 						tickValues={[50].concat(metaData.yDomain)}
-						tickFormat={tick => tick + " %"}
-						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === 50 ? "gray" : "transparent"}, axis: {visibility: "hidden"}}}
+						tickFormat={tick => {
+							if (minAbove50 && isMinTick(tick)) {
+								return "";
+							}
+							if (maxBelow50 && isMaxTick(tick)) {
+								return ""
+							}
+							return metaData.toFixed(tick) + "%"
+						}}
+						style={{
+							axisLabel: {fontSize: 8},
+							tickLabels: {fontSize: 8},
+							grid: {stroke: tick => tick === 50 ? "gray" : (minAbove50 && isMinTick(tick) || maxBelow50 && isMaxTick(tick) ? "transparent" : "lightgray")},
+							axis: {visibility: "hidden"}
+						}}
 						/>
 					<VictoryArea
 						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 50}})}

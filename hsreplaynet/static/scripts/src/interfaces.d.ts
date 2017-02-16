@@ -195,4 +195,5 @@ export interface ChartMetaData {
 	yCenter: number;
 	seasonTicks: number[];
 	midLinePosition: number;
+	toFixed: (value: number) => string;
 }

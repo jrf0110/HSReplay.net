@@ -52,7 +52,6 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					width={width}
 					containerComponent={<VictoryContainer title={""}/>}
 					domain={{x: metaData.xDomain, y: [0, metaData.yDomain[1]]}}
-					domainPadding={{x: 0, y: 10}}
 					padding={{left: 40, top: 30, right: 20, bottom: 30}}
 					>
 					<VictoryAxis
@@ -64,7 +63,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 						axisLabelComponent={<VictoryLabel dx={10} />}
 						tickValues={[metaData.yCenter]}
 						tickFormat={tick => Math.round(+tick) + " %"}
-						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metaData.yCenter ? "gray" : "transparent"}, axis: {visibility: "hidden"}}}
+						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metaData.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryArea
 						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 0}})}

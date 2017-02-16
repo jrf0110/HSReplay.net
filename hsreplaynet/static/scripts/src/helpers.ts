@@ -279,7 +279,7 @@ export function isCollectibleCard(card: any) {
 	return card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1;
 }
 
-export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTicks?: boolean): ChartMetaData {
+export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTicks?: boolean, baseRoundingFactor?: number): ChartMetaData {
 		const ticks = [];
 		const xMin = data[0];
 		const xMax = data[data.length - 1];
@@ -312,9 +312,14 @@ export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTick
 		const maxDelta = Math.abs(midLine - yMax.y);
 		const midLinePosition = (maxDelta/(minDelta+maxDelta))
 
-		const domainDelta = Math.ceil(Math.max(maxDelta, minDelta) / 5) * 5;
-		const domainMin = Math.max(0, midLine - domainDelta);
-		const domainMax = midLine + domainDelta;
+		const top = Math.max(yMax.y, midLine);
+		const bottom = Math.min(yMin.y, midLine);
+		const delta = (yMax.y - yMin.y);
+		const deltaMag = Math.floor(Math.log10(delta));
+		const factor = 10 ** (deltaMag - 1);
+		const roundingFactor = 5 * (baseRoundingFactor || 0.1) * factor * 10;
+		const domainMax = (Math.ceil(Math.ceil((top + delta * 0.1) / factor) / roundingFactor) * roundingFactor) * factor; 
+		const domainMin = (Math.floor(Math.floor((bottom - delta * 0.1) / factor) / roundingFactor) * roundingFactor) * factor;
 
 		return {
 			xDomain: [+xMin.x, +xMax.x],
@@ -325,7 +330,27 @@ export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTick
 			yCenter: midLine,
 			seasonTicks: ticks,
 			midLinePosition: midLinePosition,
+			toFixed: x => {
+				const fixed = x.toFixed(Math.max(-deltaMag, 0) + 1);
+				const split = fixed.split(".");
+				const precision = sliceZeros(split[1]);
+				return split[0] + (precision.length ? "." + precision : "");
+			},
 		};
+}
+
+function sliceZeros(input: string): string {
+	if (!input) {
+		return "";
+	}
+	let index = -1;
+	const chars = input.split("");
+	chars.reverse().forEach((char, i) => {
+		if(index === -1 && char !== "0") {
+			index = i;
+		}
+	});
+	return index === -1 ? "" : chars.slice(index).reverse().join("");
 }
 
 export function toPrettyNumber(n: number): string {

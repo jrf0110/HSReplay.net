@@ -27,7 +27,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		}
 		else if (this.props.renderData) {
 			const series = toTimeSeries(this.props.renderData.series[0]);
-			const metadata = getChartMetaData(series.data, 50, true);
+			const metadata = getChartMetaData(series.data, 50, true, 1);
 
 			timespan = "last " + moment.duration((+metadata.xMinMax[1].x - +metadata.xMinMax[0].x)/1000, "seconds").humanize();
 
@@ -44,6 +44,11 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					}}
 				/>
 			);
+			
+			const minAbove50 = metadata.yMinMax[0].y > 50;
+			const maxBelow50 = metadata.yMinMax[1].y < 50;
+			const isMinTick = (tick: number) => tick === metadata.yDomain[0];
+			const isMaxTick = (tick: number) => tick === metadata.yDomain[1];
 
 			content = [
 				<defs>
@@ -67,8 +72,21 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
 						tickValues={[50].concat(metadata.yDomain)}
-						tickFormat={tick => tick + "%"}
-						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === 50 ? "gray" : "transparent"}, axis: {visibility: "hidden"}}}
+						tickFormat={tick => {
+							if (minAbove50 && isMinTick(tick)) {
+								return "";
+							}
+							if (maxBelow50 && isMaxTick(tick)) {
+								return ""
+							}
+							return metadata.toFixed(tick) + "%"
+						}}
+						style={{
+							axisLabel: {fontSize: 8},
+							tickLabels: {fontSize: 8},
+							grid: {stroke: tick => tick === 50 ? "gray" : (minAbove50 && isMinTick(tick) || maxBelow50 && isMaxTick(tick) ? "transparent" : "lightgray")},
+							axis: {visibility: "hidden"}
+						}}
 					/>
 					<VictoryArea
 						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 50}})}
