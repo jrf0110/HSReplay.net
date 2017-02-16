@@ -24,7 +24,7 @@ from sqlalchemy.sql import func, select
 from sqlalchemy.pool import NullPool
 from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
 from hsredshift.etl.views import (
-	get_materialized_view_list, get_materialized_view_update_statement
+	get_materialized_view_list, get_materialized_view_update_statement, get_view_dependencies
 )
 from psycopg2 import DatabaseError
 
@@ -1307,20 +1307,19 @@ class RedshiftStagingTrack(models.Model):
 		results = []
 		for t in self.tables.all():
 			if t.stage == RedshiftETLStage.INSERT_COMPLETE:
-				# TODO: How do we control the sequence that views get refreshed in?
-				# TODO: How do we emit multiple tasks per stage.
-				# How do we allow the materialized views to provide task work for each stage
-				# Gathering stats or creating the stage table should drop the previous stage table
-				# Deduplicating should regenerate the stage table
-				# Inserting needs to be a multi statement command that within a transaction
-				# deletes the rows from the target table that exist within the stage table.
-				# And then inserts everything from the stage table into the target table.
-				# http://docs.aws.amazon.com/redshift/latest/dg/merge-replacing-existing-rows.html
-				# an alternative option
-				# http://docs.aws.amazon.com/redshift/latest/dg/merge-specify-a-column-list.html
-
 				if t.is_materialized_view:
-					results.append(t.get_refresh_view_task())
+					# This allows views to depend on other views in their refresh logic.
+					dependent_views = get_view_dependencies(t.target_table)
+
+					dependencies_met = True
+					for dependent_view in dependent_views:
+						table_for_view = self.tables.filter(target_table=dependent_view).first()
+						required_stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE
+						if table_for_view.stage != required_stage:
+							dependencies_met = False
+
+					if dependencies_met:
+						results.append(t.get_refresh_view_task())
 				else:
 					t.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS_COMPLETE
 					t.refreshing_materialized_views_started_at = timezone.now()
