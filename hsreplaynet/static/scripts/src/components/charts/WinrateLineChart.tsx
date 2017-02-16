@@ -58,9 +58,9 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					height={150}
 					width={width}
 					containerComponent={<VictoryContainer title={""}/>}
+					domainPadding={{x: 0, y: 10}}
 					padding={{left: 40, top: 30, right: 20, bottom: 30}}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
-					domainPadding={{x: 0, y: 15}}
 					>
 					<VictoryAxis
 						scale="time"

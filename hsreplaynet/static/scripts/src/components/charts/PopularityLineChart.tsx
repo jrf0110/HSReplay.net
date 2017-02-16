@@ -60,9 +60,9 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 					height={150}
 					width={width}
 					containerComponent={<VictoryContainer title={""}/>}
-					domainPadding={{x: 10, y: 10}}
+					domainPadding={{x: 0, y: 10}}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
-					padding={{left: 55, top: 30, right: 20, bottom: 30}}
+					padding={{left: 40, top: 30, right: 20, bottom: 30}}
 					>
 					<VictoryAxis
 						scale="time"
