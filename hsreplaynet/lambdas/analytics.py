@@ -1,7 +1,12 @@
 import logging
+from django.conf import settings
 from hsredshift.analytics import queries
 from hsreplaynet.utils import instrumentation
-from hsreplaynet.analytics.processing import _do_execute_query
+from hsreplaynet.utils.influx import influx_metric
+from hsreplaynet.analytics.processing import (
+	_do_execute_query, get_redshift_cache_redis_client
+)
+from redis_semaphore import Semaphore, NotAvailable
 
 
 @instrumentation.lambda_handler(
@@ -12,6 +17,13 @@ def execute_redshift_query(event, context):
 	"""A handler that executes Redshift queries for the webserver"""
 	logger = logging.getLogger("hsreplaynet.lambdas.execute_redshift_query")
 
+	concurrent_redshift_query_semaphore = Semaphore(
+		get_redshift_cache_redis_client(),
+		count=settings.REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT,
+		namespace='redshift_analytics_queries',
+		blocking=False
+	)
+
 	query_name = event["query_name"]
 	logger.info("Query Name: %s" % query_name)
 
@@ -21,5 +33,14 @@ def execute_redshift_query(event, context):
 	query = queries.get_query(query_name)
 	params = query.build_full_params(supplied_params)
 
-	_do_execute_query(query, params)
-	logger.info("Query Execution Complete")
+	try:
+		with concurrent_redshift_query_semaphore:
+			_do_execute_query(query, params)
+			logger.info("Query Execution Complete")
+	except NotAvailable:
+		logger.warn("The Redshift query queue was already at max concurrency. Skipping query.")
+		influx_metric(
+			"redshift_concurrent_query_limit_exceeded",
+			{"count": 1},
+			query_name=query_name
+		)
