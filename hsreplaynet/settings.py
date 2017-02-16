@@ -378,6 +378,12 @@ REDSHIFT_ETL_CONCURRENT_TRACK_LIMIT = 2
 # Old replays or players with messed up system clocks
 REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS = 36
 
+# The percent of unsorted rows that can be in a table after inserts
+# Before a vacuum will be triggered. The Redshift default is 5
+# However we use 0 in order to prefer small vacuums after each track loads
+# Instead of intermittent large vacuums
+REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE = 0
+
 WEBHOOKS = {
 	"SCHEME_WHITELIST": ["http", "https"],
 	"NETLOC_BLACKLIST": ["localhost"],

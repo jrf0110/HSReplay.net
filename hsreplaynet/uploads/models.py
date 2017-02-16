@@ -1702,9 +1702,12 @@ class RedshiftStagingTrackTable(models.Model):
 			))
 
 			def etl_task_func():
+				vacuum_target = 100 - settings.REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE
 				conn = get_new_redshift_connection()
 				conn.execute("SET QUERY_GROUP TO '%s';" % self.vacuum_query_handle)
-				conn.execute("VACUUM FULL %s;" % self.target_table)
+				conn.execute(
+					"VACUUM FULL %s TO %i PERCENT;" % (self.target_table, vacuum_target)
+				)
 
 			self.launch_background_thread(self.vacuum_query_handle, etl_task_func)
 
@@ -1939,7 +1942,7 @@ class RedshiftStagingTrackTable(models.Model):
 		return get_new_redshift_connection().execute(query).scalar()
 
 	def vacuum_is_needed(self):
-		VACUUM_THRESHOLD = 5
+		VACUUM_THRESHOLD = settings.REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE
 		pct_unsorted = self.get_pct_unsorted()
 		return pct_unsorted >= VACUUM_THRESHOLD
 
