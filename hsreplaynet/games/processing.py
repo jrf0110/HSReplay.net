@@ -575,13 +575,21 @@ def replay_meets_recency_requirements(upload_event, global_game):
 	# The purpose of this filtering is to do reduce variability and thrash in our vacuuming
 	# If we determine that vacuuming is not a bottleneck than we can consider
 	# relaxing this requirement.
-	max_delay = settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
-	diff = global_game.match_start - upload_event.log_upload_date
-	diff_hours = abs(diff.total_seconds()) / 3600.0
-	meets_requirements = diff_hours <= max_delay
+	meets_requirements, diff_hours = _dates_within_threshold(
+		global_game.match_start,
+		upload_event.log_upload_date,
+		settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
+	)
 	if not meets_requirements:
 		influx_metric("replay_failed_recency_requirement", {"count": 1, "diff": diff_hours})
 	return meets_requirements
+
+
+def _dates_within_threshold(d1, d2, threshold_hours):
+	diff = d1 - d2
+	diff_hours = abs(diff.total_seconds()) / 3600.0
+	within_threshold = diff_hours <= threshold_hours
+	return within_threshold, diff_hours
 
 
 def get_game_info(global_game, replay):
@@ -618,6 +626,31 @@ def get_game_info(global_game, replay):
 			},
 		}
 	}
+
+	can_normalize_game_date, diff_hours = _dates_within_threshold(
+		global_game.match_start,
+		timezone.now(),
+		settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
+	)
+
+	if can_normalize_game_date:
+		# If the match_start is within +/- 36 hours of the server's datetime
+		# Then we use the server's datetime as the game_date to reduce unnecessary
+		# VACUUM thrash due to the global user base of hsreplay.net
+		# However, if the difference is greater than 36 hours than we may be reprocessing
+		# Old replays, in which case we don't want to skew the dataset.
+		game_info["game_date"] = timezone.now().date()
+		influx_metric(
+			"replay_game_date_normalization",
+			{"count": 1},
+			using_server_date=True
+		)
+	else:
+		influx_metric(
+			"replay_game_date_normalization",
+			{"count": 1},
+			using_server_date=False
+		)
 
 	return game_info
 
