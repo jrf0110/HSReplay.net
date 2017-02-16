@@ -26,20 +26,22 @@
 
 					<td>{% if email.primary %}
 							<span class="label label-info">✔ Primary</span>
-						{% else %}
+						{% elif email.verified %}
 							<form method="POST" action="{% url 'account_email' %}">
 								{% csrf_token %}
 								<input type="hidden" name="email" value="{{ email.email }}"/>
 								<button type="submit" name="action_primary" class="btn btn-xs btn-primary">{% trans 'Make Primary' %}</button>
 							</form>
-						{% endif %}</td>
-
+						{% endif %}
+					</td>
 					<td>
+						{% if not email.primary %}
 						<form method="POST" action="{% url 'account_email' %}">
 							{% csrf_token %}
 							<input type="hidden" name="email" value="{{ email.email }}"/>
 							<button type="submit" name="action_remove" class="btn btn-xs btn-danger">{% trans 'Remove' %}</button>
 						</form>
+						{% endif %}
 					</td>
 				</tr>
 				{% endfor %}
