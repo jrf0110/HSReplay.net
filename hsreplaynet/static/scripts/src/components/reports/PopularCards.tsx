@@ -130,7 +130,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		const prevTopCardsIncluded = prevDate ? this.state.topCardsIncluded.get(prevDate) : "loading";
 		const prevTopCardsPlayed = prevDate ? this.state.topCardsPlayed.get(prevDate) : "loading";
 		const error = topCardsIncluded === "error" || topCardsPlayed === "error";
-		const loaded = !error && (topCardsIncluded !== "loaded" && topCardsPlayed !== "loaded")
+		const loaded = !error && (topCardsIncluded !== "loaded" && topCardsPlayed !== "loaded");
 
 		let content = null;
 
@@ -154,7 +154,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 				<div className ="row">
 					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 						<div className="chart-wrapper">
-							<CardDetailPieChart percent title="Rarity" renderData={chartSeries.length ? {series: [chartSeries[0]]} : "loading"}/>}
+							<CardDetailPieChart percent title="Rarity" renderData={chartSeries.length ? {series: [chartSeries[0]]} : "loading"}/>
 						</div>
 					</div>
 					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
