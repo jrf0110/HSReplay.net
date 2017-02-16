@@ -8,6 +8,11 @@ export default class QueryManager {
 	private duplicates: Query[] = [];
 	private running: Query[]  = [];
 	private throttle = false;
+	private readonly poll: boolean;
+
+	constructor(poll: boolean = false) {
+		this.poll = poll;
+	}
 
 	public fetch(url: string, callback: (success: boolean, json: any) => void) {
 		if (this.queue.every(q => q.url !== url) && this.running.every(q => q.url !== url)) {
@@ -29,7 +34,7 @@ export default class QueryManager {
 	private fetchInternal(query: Query) {
 		this.running.push(query);
 		fetch("https://dev.hsreplay.net" + query.url, {credentials: "include"}).then((response) => {
-			if (response.status === 202) {
+			if (this.poll && response.status === 202) {
 				this.throttle = true;
 				this.running.splice(this.running.indexOf(query), 1);
 				this.queue.unshift(query);
