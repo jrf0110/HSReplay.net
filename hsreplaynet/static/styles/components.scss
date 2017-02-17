@@ -47,3 +47,26 @@
 	}
 }
 
+.mana-curve {
+	list-style: none;
+	padding-left: 0px;
+	
+	> li {
+		background: linear-gradient(transparent 60%, rgba(0,0,0,0.1) 100%);
+		float: left;
+		height: 30px;
+		margin-left: 1px;
+		position: relative;
+		width: 5px;
+		
+		>span {
+			background: $lightblue;
+			bottom: 0;
+			display: block;
+			left: 0;
+			position: absolute;
+			right: 0;
+		}
+	}
+}
+
