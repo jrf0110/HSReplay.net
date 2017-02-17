@@ -1,0 +1,10 @@
+Hello {{ user_display }}!
+
+You've added this e-mail address to your account. We need to verify that you own it.
+
+If this is correct, go to the following URL to confirm:
+
+{{ activate_url }}
+
+Cheers,
+The HSReplay.net Team
