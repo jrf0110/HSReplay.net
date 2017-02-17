@@ -86,6 +86,10 @@
 							<li><a href="{% url 'card_discover' %}">Card Database</a></li>
 						{% endif %}
 
+						{% if user.is_authenticated and user.is_staff %}
+							<li><a href="{% url 'deck_discover' %}">Deck Database</a></li>
+						{% endif %}
+
 						{% feature "archetypes" %}
 							<li><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
 						{% endfeature %}

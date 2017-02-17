@@ -84,7 +84,7 @@ export interface SelectableProps {
 	onSelect?: (key: string) => void;
 }
 
-type RenderTypes = "line_chart" | "bar_chart" | "list" | "class_pie_chart" | "single_value" | "gauge" | "list_table";
+type RenderTypes = "chart" | "table" | "line_chart" | "bar_chart" | "list" | "class_pie_chart" | "single_value" | "gauge" | "list_table";
 
 export interface FilterData {
 	filters: Filter[];

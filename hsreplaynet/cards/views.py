@@ -38,6 +38,10 @@ def deckdetail(request, deck_id):
 	)
 
 
+def deck_discover(request):
+	return render(request, "cards/deck_discover.html", {})
+
+
 def discover(request):
 	return render(request, "cards/card_discover.html", {})
 

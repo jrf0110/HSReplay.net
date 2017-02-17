@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from .views import (
 	archetypes, winrates, counters, canonicals, carddetail,
-	popular_cards, deckdetail, discover
+	popular_cards, deckdetail, discover, deck_discover
 )
 
 
@@ -13,5 +13,6 @@ urlpatterns = [
 	url(r"^popular/$", popular_cards, name="popular_cards"),
 	url(r"^discover/$", discover, name="card_discover"),
 	url(r"^(?P<card_id>\w+)$", carddetail, name="card_detail"),
+	url(r"^decks/discover/$", deck_discover, name="deck_discover"),
 	url(r"^decks/(?P<deck_id>\w+)$", deckdetail, name="deck_detail"),
 ]
