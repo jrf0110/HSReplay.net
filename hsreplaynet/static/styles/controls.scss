@@ -141,6 +141,11 @@
 				color: gray;
 				text-align: center;
 			}
+
+			.selected .card-tile {
+				box-shadow: rgba(0, 0, 127, 0.1) 30px 30px 30px;
+				color: $lighterblue;
+			}
 		}
 	}
 }
