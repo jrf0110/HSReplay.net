@@ -158,18 +158,40 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 		else {
 			content = [
-				<div className="card-list-wrapper">
+				<div className="card-list">
 					{tiles}
 				</div>,
 				showMoreButton
 			];
 		}
 
+		let search = null;
+
 		const filterCounts = this.filterCounts(filteredCards);
-		const filterClassNames = ["filter-col"];
-		const contentClassNames = ["content-col"]
+		const filterClassNames = ["filter-wrapper"];
+		const contentClassNames = ["card-list-wrapper"]
 		if (!this.state.showFilters) {
 			filterClassNames.push("hidden-xs");
+			search = (
+				<div className="search-wrapper">
+					<button
+						className="btn btn-default visible-xs"
+						type="button"
+						onClick={() => this.setState({showFilters: !this.state.showFilters})}
+					>
+						<span className="glyphicon glyphicon-filter"/>
+						Filters
+					</button>
+					<input 
+						autoFocus
+						placeholder="Search..."
+						type="search"
+						className="form-control"
+						value={this.state.textFilter}
+						onChange={(x) => this.setState({textFilter: x.target["value"]})}
+					/>
+				</div>
+			);
 		}
 		else {
 			contentClassNames.push("hidden-xs");
@@ -177,70 +199,37 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 		return (
 			<div className="card-discover">
-				<div className={filterClassNames.join(" ")}>
-					<span className="visible-xs">
-						<button
-							className="btn btn-primary"
-							type="button"
-							onClick={() => this.setState({showFilters: false})}
-						>
-							Back
-						</button>
-					</span>
-					{this.buildFilters(filterCounts)}
-				</div>
-				<div className={contentClassNames.join(" ")}>
-					<div className="search-wrapper">
-						<button
-							className="btn btn-default visible-xs"
-							type="button"
-							onClick={() => this.setState({showFilters: !this.state.showFilters})}
-						>
-							<span className="glyphicon glyphicon-filter"/>
-							Filters
-						</button>
-						<input 
-							autoFocus
-							placeholder="Search..."
-							type="search"
-							className="form-control"
-							value={this.state.textFilter}
-							onChange={(x) => this.setState({textFilter: x.target["value"]})}
-						/>
+				{search}
+				<div className="content-wrapper">
+					<div className={filterClassNames.join(" ")}>
+						<span className="visible-xs">
+							<button
+								className="btn btn-primary"
+								type="button"
+								onClick={() => this.setState({showFilters: false})}
+							>
+								Back
+							</button>
+						</span>
+						{this.buildFilters(filterCounts)}
 					</div>
-					<div>
-						<ClassFilter 
-							hideAll
-							key={this.state.classFilterKey}
-							multiSelect={false}
-							filters="AllNeutral"
-							selectionChanged={(selection) => {
-									let selected = null;
-									selection.forEach((val, key) => {
-										if (val && key !== "ALL") {
-											selected = key;
-										}
-									});
-									this.setState({filters: this.state.filters.set("playerClass", selected && [selected])});
-								}
-							}
-						/>
+					<div className={contentClassNames.join(" ")}>
+						{content}
 					</div>
-					{content}
-				</div>
-				<div className="chart-col visible-lg">
-					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" renderData={chartSeries ? {series: [chartSeries[3]]} : "loading"} />
-					<div className="chart-wrapper">
-						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[4]]} : "loading"} title="Classes"/>
-					</div>
-					<div className="chart-wrapper">
-						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[0]]} : "loading"} title="Rarity"/>
-					</div>
-					<div className="chart-wrapper">
-						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[2]]} : "loading"} title="Set"/>
-					</div>
-					<div className="chart-wrapper">
-						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[1]]} : "loading"} title="Type"/>
+					<div className="chart-list visible-lg">
+						<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" renderData={chartSeries ? {series: [chartSeries[3]]} : "loading"} />
+						<div className="chart-wrapper">
+							<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[4]]} : "loading"} title="Classes"/>
+						</div>
+						<div className="chart-wrapper">
+							<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[0]]} : "loading"} title="Rarity"/>
+						</div>
+						<div className="chart-wrapper">
+							<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[2]]} : "loading"} title="Set"/>
+						</div>
+						<div className="chart-wrapper">
+							<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[1]]} : "loading"} title="Type"/>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -338,10 +327,28 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			resetButton = <a href="#" onClick={() => this.resetFilters()}>Reset all filters</a>
 		}
 		return (
-			<div className="filter-panel">
+			<div className="filters">
 				<div className="pull-right">
 					{resetButton}
 				</div>
+				<h4>Class</h4>
+				<ClassFilter 
+					hideAll
+					key={this.state.classFilterKey}
+					multiSelect={false}
+					filters="AllNeutral"
+					minimal
+					selectionChanged={(selection) => {
+							let selected = null;
+							selection.forEach((val, key) => {
+								if (val && key !== "ALL") {
+									selected = key;
+								}
+							});
+							this.setState({filters: this.state.filters.set("playerClass", selected && [selected])});
+						}
+					}
+				/>
 				<h4>Cost</h4>
 				<ul className="filter-list-cost">
 					{this.getFilterItems("cost", filterCounts.cost)}

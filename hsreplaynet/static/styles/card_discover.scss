@@ -1,185 +1,196 @@
 .card-discover {
-	display: flex;
 
-	.filter-col {
-		padding-top: 150px;
-		width: 250px;
-
-		@media(max-width: 768px) {
-			padding-top: 20px;
-			width: 100%;
+	.search-wrapper {
+		max-width: 500px;
+		margin: 20px auto;
+		display: flex;
+		>input {
+			border-radius: 0px;
 		}
+	}
 
-		>span>button {
-			display: block;
-			width: 100%;
-		}
+	.content-wrapper {
+		display: flex;
 
-		.filter-panel {
+		.filter-wrapper {
+			width: 250px;
 
-			.cost-filter {
-				display: flex;
-				justify-content: center;
-				flex-wrap: wrap;
+			@media(max-width: 768px) {
+				padding-top: 20px;
+				width: 100%;
 			}
 
-			>h4 {
-				border-bottom: 1px solid $darkgrey;
+			>span>button {
+				display: block;
+				width: 100%;
 			}
-			
 
-			> ul {
-				padding-left: 10px;
-				&.filter-list-cost {
+			.filters {
+
+				.cost-filter {
 					display: flex;
-					flex-wrap: wrap;
 					justify-content: center;
+					flex-wrap: wrap;
 				}
 
-				>li:hover {
-					color: $red;
+				.class-filter-wrapper {
+					margin-left: 15px;
+					margin-right: 15px;
 
-					&.selected {
-						text-decoration: line-through;
-					}
-
-					&.mana-crystal {
-						filter: brightness(1.2);
-						text-decoration: none;
+					.class-icon {
+						height: 2.3em;
+						width: 2.3em;
 					}
 				}
 
-				>li {
-					cursor: pointer;
-					user-select: none;
-					list-style-type: none;
+				>h4 {
+					border-bottom: 1px solid $darkgrey;
+				}
+				
 
-					&.mana-crystal {
-						filter: saturate(0) opacity(0.9);
-						height: 28px;
-						margin: 3px 0;
-						width: 28px;
+				> ul {
+					padding-left: 10px;
+					&.filter-list-cost {
+						display: flex;
+						flex-wrap: wrap;
+						justify-content: center;
+					}
+
+					>li:hover {
+						color: $red;
 
 						&.selected {
-							filter: saturate(1) opacity(1);
-						}
-
-						> div {
-							color: white;
-							font-weight: bold;
-							margin-top: -24px;
-							text-align: center;
-							text-shadow: -1px -1px 0 #000,
-								1px -1px 0 #000,
-								-1px 1px 0 #000,
-								1px 1px 0 #000;
-							white-space: pre;
-						}
-					}
-
-					&.format {
-						margin-top: 7px;
-					}
-
-					.badge {
-						float: right;
-					}
-
-					&.selected {
-						font-weight: bold;
-
-						.badge {
-							background: $aqua;
-						}
-					}
-
-					&.disabled {
-						cursor: not-allowed;
-						color: lightgray;
-
-						.badge {
-							background: lightgray;
+							text-decoration: line-through;
 						}
 
 						&.mana-crystal {
-							filter: saturate(0) opacity(0.5);
+							filter: brightness(1.2);
+							text-decoration: none;
 						}
-						
+					}
+
+					>li {
+						cursor: pointer;
+						user-select: none;
+						list-style-type: none;
+
+						&.mana-crystal {
+							filter: saturate(0) opacity(0.9);
+							height: 28px;
+							margin: 3px 0;
+							width: 28px;
+
+							&.selected {
+								filter: saturate(1) opacity(1);
+							}
+
+							> div {
+								color: white;
+								font-weight: bold;
+								margin-top: -24px;
+								text-align: center;
+								text-shadow: -1px -1px 0 #000,
+									1px -1px 0 #000,
+									-1px 1px 0 #000,
+									1px 1px 0 #000;
+								white-space: pre;
+							}
+						}
+
+						&.format {
+							margin-top: 7px;
+						}
+
+						.badge {
+							float: right;
+						}
+
 						&.selected {
+							font-weight: bold;
 
 							.badge {
-								background: #afc4cf;
+								background: $aqua;
+							}
+						}
+
+						&.disabled {
+							cursor: not-allowed;
+							color: lightgray;
+
+							.badge {
+								background: lightgray;
 							}
 
 							&.mana-crystal {
-								filter: saturate(1) opacity(0.5);
+								filter: saturate(0) opacity(0.5);
+							}
+							
+							&.selected {
+
+								.badge {
+									background: #afc4cf;
+								}
+
+								&.mana-crystal {
+									filter: saturate(1) opacity(0.5);
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-	}
-
-	.content-col {
-		width: calc(100% - 500px);
-
-		@media(max-width: 1200px) {
-			width: calc(100% - 250px);
-		}
-
-		@media(max-width: 768px) {
-			width: 100%;
-		}
-
-		.search-wrapper {
-			max-width: 500px;
-			margin: 20px auto;
-			display: flex;
-			>input {
-				border-radius: 0px;
-			}
-		}
-
-		.more-button {
-			text-align: center;
-		}
 
 		.card-list-wrapper {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: center;
+			width: calc(100% - 500px);
 
-			.card-image {
-				>img {
-					height: 350px;
+			@media(max-width: 1200px) {
+				width: calc(100% - 250px);
+			}
 
-					@media(max-width: 992px) {
-						height: 300px;
+			@media(max-width: 768px) {
+				width: 100%;
+			}
+
+			.more-button {
+				text-align: center;
+			}
+
+			.card-list {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+
+				.card-image {
+					>img {
+						height: 350px;
+
+						@media(max-width: 992px) {
+							height: 300px;
+						}
+						
+						@media(max-width: 450px) {
+							height: 230px;
+						}
 					}
-					
-					@media(max-width: 450px) {
-						height: 230px;
+				}
+
+				.card-image:hover {
+					img {
+						transition: all .1s ease-in-out;
+						transform: scale(1.05);
 					}
 				}
 			}
 
-			.card-image:hover {
-				img {
-					transition: all .1s ease-in-out;
-					transform: scale(1.05);
-				}
+			.no-search-result {
+				text-align: center;
+				padding: 50px 0;
 			}
 		}
 
-		.no-search-result {
-			text-align: center;
-			padding: 50px 0;
+		.chart-list {
+			width: 250px;
 		}
-	}
-
-	.chart-col {
-		width: 250px;
-		padding-top: 150px;
 	}
 }
