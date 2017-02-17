@@ -15,8 +15,8 @@ interface CardIconProps extends React.ClassAttributes<CardIcon> {
 
 export default class CardIcon extends React.Component<CardIconProps, CardIconState> {
 	readonly baseSize = 34;
-	readonly baseBackgroundWidth = 134;
-	readonly baseOffset = -75;
+	readonly baseBackgroundWidth = 126;
+	readonly baseOffset = -70;
 
 	constructor(props: CardIconProps, state: CardIconState) {
 		super(props, state);
@@ -33,13 +33,13 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 			const style = {
 				backgroundImage: "url(https://art.hearthstonejson.com/v1/tiles/" + this.props.cardId + ".png)",
 				backgroundPositionX: this.baseOffset * (size / this.baseSize) + "px",
-				backgroundSize: this.baseBackgroundWidth * (size / this.baseSize) + "px " + size + "px",
+				backgroundSize: this.baseBackgroundWidth * (size / this.baseSize) + "px " + (size - 2) + "px",
 				height: size + "px",
 				width: size + "px",
 			};
 
 			let mark = null;
-			if (this.props.mark) {
+			if (this.props.mark !== undefined) {
 				mark = <span style={this.props.markStyle}>{this.props.mark}</span>;
 			}
 
@@ -57,6 +57,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 							height={350}
 							src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"}
 							style={imageStyle}
+							onMouseEnter={() => this.setState({hovering: false})}
 						/>
 				);
 			}
