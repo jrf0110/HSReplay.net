@@ -128,20 +128,21 @@
 				</nav>
 			</div>
 		</div>
+	{% endblock %}
+	</header>
 
 		{% if messages %}
 		{% spaceless %}
-		<ul id="site-messages">
+		<div id="site-messages">
+			<ul class="inner">
 			{% for message in messages %}
-				{% if message.level > DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-					<li>{{ message }}</li>
-				{% endif %}
+				<li>{{ message }}</li>
 			{% endfor %}
-		</ul>
+			</ul>
+		</div>
+		<script type="text/javascript">$("#site-messages").delay(3200).fadeOut("slow");</script>
 		{% endspaceless %}
 		{% endif %}
-	{% endblock %}
-	</header>
 
 	{% block fullcontent %}
 	<div id="content">

@@ -164,14 +164,22 @@ body, html {
 
 /* Elements */
 
-#site-messages:not(:empty) {
-	background-color: $blue;
-	color: white;
-	list-style: none;
-	margin: 1em auto;
-	padding: 1em;
+#site-messages {
+	width: 100%;
+	position: absolute;
+	top: 50px;
+	z-index: 100;
 	text-align: center;
-	width: 300px;
+
+	ul.inner {
+		background-color: $blue;
+		box-shadow: #aaa 2px 2px 3px;
+		color: white;
+		list-style: none;
+		margin: 1em auto;
+		padding: 1em;
+		width: 300px;
+	}
 }
 
 /* Status message for uploads in progress */
