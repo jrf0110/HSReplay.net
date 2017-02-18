@@ -11,6 +11,7 @@ import {toTitleCase, toPrettyNumber} from "../helpers";
 
 type DeckType = "aggro" | "midrange" | "control";
 type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
+type SortProp = "win_rate" | "total_games";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -25,6 +26,7 @@ interface DeckDiscoverState {
 	page?: number;
 	selectedClasses?: Map<string, boolean>;
 	showFilters?: boolean;
+	sortProp?: SortProp;
 }
 
 interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
@@ -50,6 +52,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			page: 0,
 			selectedClasses: null,
 			showFilters: false,
+			sortProp: "win_rate",
 		}
 
 		this.fetch();
@@ -258,12 +261,31 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							availableCards={this.state.cards}
 							onCardsChanged={(cards) => this.setState({excludedCards: cards, page: 0})}
 						/>
+						<h4>Sort by</h4>
+						<ul>
+							{this.buildSortFilter("win_rate")}
+							{this.buildSortFilter("total_games")}
+						</ul>
 					</div>
 				</div>
 				<div className={contentClassNames.join(" ")}>
 					{content}
 				</div>
 			</div>
+		);
+	}
+
+	buildSortFilter(sortProp: SortProp): JSX.Element {
+		const selected = this.state.sortProp === sortProp;
+		const onClick = () => {
+			if (!selected) {
+				this.setState({sortProp: sortProp});
+			}
+		}
+		return (
+			<li onClick={onClick} className={selected ? "selected no-deselect" : null}>
+				{sortProp === "win_rate" ? "Winrate" : "Popularity"}
+			</li>
 		);
 	}
 
