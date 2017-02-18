@@ -61,6 +61,10 @@
 				We will never sell it or share it with anybody.
 			</p>
 
+			{% if form.errors %}
+				<div class="alert alert-danger">{{ form.email.errors }}</div>
+			{% endif %}
+
 			<input type="email" name="email" id="id_email" size="30" placeholder="E-mail address" required="required"/>
 			<button type="submit" name="action_add" class="btn btn-primary">{% trans "Add E-mail" %}</button>
 		</form>
