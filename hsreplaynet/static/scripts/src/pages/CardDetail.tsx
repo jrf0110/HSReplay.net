@@ -7,7 +7,6 @@ import CardRankingTable from "../components/CardRankingTable";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import TurnPlayedBarChart from "../components/charts/TurnPlayedBarChart";
-import TopCardsList from "../components/TopCardsList";
 import ClassFilter from "../components/ClassFilter";
 import {Colors} from "../Colors";
 import {

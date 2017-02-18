@@ -1,6 +1,5 @@
 import * as React from "react";
 import CardTile from "../components/CardTile";
-import CardDiscoverFilter from "../components/CardDiscoverFilter";
 import CardDetailBarChart from "../components/charts/CardDetailBarChart";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import ClassFilter from "../components/ClassFilter";
