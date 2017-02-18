@@ -4,6 +4,7 @@ import CardDetailBarChart from "../components/charts/CardDetailBarChart";
 import CardDetailGauge from "../components/charts/CardDetailGauge";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
+import DeckList from "../components/DeckList";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import TurnPlayedBarChart from "../components/charts/TurnPlayedBarChart";
@@ -12,7 +13,7 @@ import {Colors} from "../Colors";
 import {
 	FilterData, Filter, FilterElement, FilterDefinition, KeyValuePair,
 	Query, RenderData, ChartSeries, ChartSeriesMetaData, DataPoint,
-	TableData
+	TableData, DeckObj
 } from "../interfaces";
 import HearthstoneJSON from "hearthstonejson";
 import {
@@ -22,16 +23,16 @@ import {
 import QueryManager from "../QueryManager";
 
 interface CardDetailState {
-	cardData?: Map<string, any>;
 	card?: any;
-	classDistribution?: RenderData;
-	winrateByTurn?: RenderData;
-	popularityOverTime?: RenderData;
-	winrateOverTime?: RenderData;
-	popularityByTurn?: RenderData;
+	cardData?: Map<string, any>;
 	cardsOnSameTurn?: TableData;
+	classDistribution?: RenderData;
 	popularTargets?: TableData;
-	popularDecks?: TableData;
+	popularityByTurn?: RenderData;
+	popularityOverTime?: RenderData;
+	recommendedDecks?: TableData;
+	winrateByTurn?: RenderData;
+	winrateOverTime?: RenderData;
 }
 
 interface CardDetailProps extends React.ClassAttributes<CardDetail> {
@@ -47,16 +48,16 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
 		this.state = {
-			cardData: null,
 			card: null,
-			classDistribution: "loading",
-			winrateByTurn: "loading",
-			popularityOverTime: "loading",
-			winrateOverTime: "loading",
-			popularityByTurn: "loading",
+			cardData: null,
 			cardsOnSameTurn: "loading",
+			classDistribution: "loading",
 			popularTargets: "loading",
-			popularDecks: "loading",
+			popularityByTurn: "loading",
+			popularityOverTime: "loading",
+			recommendedDecks: "loading",
+			winrateByTurn: "loading",
+			winrateOverTime: "loading",
 		}
 
 		new HearthstoneJSON().getLatest((data) => {
@@ -87,18 +88,22 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	render(): JSX.Element {
+		let numMostCombinedRows = 8;
 		let mostPopularTargets = null;
 		if (this.cardHasTargetReqs()) {
 			mostPopularTargets = [
-				<h3>Most popular targets</h3>,
+				<h4>Most popular targets</h4>,
 				<CardRankingTable
 					cardData={this.state.cardData}
-					numRows={10}
+					numRows={8}
 					tableData={this.state.popularTargets}
 					dataKey={"ALL"}
 					clickable
 				/>
 			];
+		}
+		else {
+			numMostCombinedRows *= 2;
 		}
 
 		let classDistribution = null;
@@ -115,14 +120,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</p>
 				);
 			}
+		
+			const cardNameStyle = {
+				backgroundImage: "url(/static/images/set-icons/" + set + ".png"
+			}
 
 			title = [
-					<img src={STATIC_URL + "images/set-icons/" + set + ".png"} title={setNames[set]}/>,
-					<div>
-						<h1>{this.state.card.name}</h1>
-						{toTitleCase(this.state.card.playerClass) + " " + toTitleCase(this.state.card.type)}
-						{replayCount}
-					</div>
+				<h1 className="card-name" style={cardNameStyle}>{this.state.card.name}</h1>,
+				<h4>{toTitleCase(this.state.card.playerClass) + " " + toTitleCase(this.state.card.type)}</h4>
 			];
 
 			if (!isCollectibleCard(this.state.card)) {
@@ -151,130 +156,98 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				}
 
 				content = [
-					<div className="row">
-						<div className="col-lg-6 col-md-6">
-							<PopularityLineChart
-								renderData={this.state.popularityOverTime}
-								widthRatio={2}
-							/>
-						</div>
-						<div className="col-lg-6 col-md-6">
-							<WinrateLineChart
-								renderData={this.state.winrateOverTime}
-								widthRatio={2}
-							/>
-						</div>
-					</div>,
-					<div className="row">
+					<div className="card-detail row">
 						<div className="col-lg-6 col-md-6">
 							<TurnPlayedBarChart
 								renderData={this.state.popularityByTurn}
 								widthRatio={2}
 							/>
-						</div>
-						<div className="col-lg-6 col-md-6">
 							<WinrateByTurnLineChart
 								renderData={this.state.winrateByTurn}
 								widthRatio={2}
 							/>
 						</div>
-					</div>,
-					<div className="row">
 						<div className="col-lg-6 col-md-6">
-							<h3>Most combined with</h3>	
+							<h4>Most combined with</h4>	
 							<CardRankingTable
 								cardData={this.state.cardData}
-								numRows={10}
+								numRows={numMostCombinedRows}
 								tableData={this.state.cardsOnSameTurn}
 								dataKey={"ALL"}
 								clickable
 							/>
-						</div>
-						<div className="col-lg-6 col-md-6">
 							{mostPopularTargets}
 						</div>
-					</div>
+					</div>,
 				]
 			}
 		}
 
-
 		return <div className="card-detail-container">
-			<div className="row">
-				<div className="col-lg-3 col-md-4 col-sm-5 col-left">
-					<img className="card-image" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} />
-					{classDistribution}
-					{this.buildDecksList()}
-				</div>
-				<div className="col-lg-9 col-md-8 col-sm-7 col-right">
-					<div className="page-title">
-						{title}
+			<div className="card-header" style={{backgroundImage: "url(http://art.hearthstonejson.com/v1/512x/" + this.props.cardId + ".jpg"}}>
+				<div className="card-header-fade">
+					<div className="row">
+						<div className="col-title col-lg-4">
+							<div className="page-title">
+								{title}
+							</div>
+						</div>
+						<div className="col-lg-4 col-md-6">
+							<PopularityLineChart
+								renderData={this.state.popularityOverTime}
+								widthRatio={2}
+							/>
+						</div>
+						<div className="col-lg-4 col-md-6">
+							<WinrateLineChart
+								renderData={this.state.winrateOverTime}
+								widthRatio={2}
+							/>
+						</div>
 					</div>
+				</div>
+			</div>
+			<div className="row">
+				<div className="col-lg-4 col-md-4 col-sm-4 col-left">
+					<img className="card-image" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} />
+					<span></span>
+					{classDistribution}
+				</div>
+				<div className="col-lg-8 col-md-8 col-sm-8 col-right">
 					{content}
 				</div>
 			</div>
+			<h3>Recommended Decks</h3>
+			{this.buildRecommendedDecks()}
 		</div>;
 	}
 
-	buildDecksList(): JSX.Element {
-		if (this.state.popularDecks === "error" || this.state.popularDecks === "loading") {
+	buildRecommendedDecks(): JSX.Element {
+		if (!this.state.recommendedDecks || this.state.recommendedDecks === "loading" || this.state.recommendedDecks === "error") {
 			return null;
 		}
 
-		const rows = [];
-		const playerClasses = [];
-		let foundAny = false;
-		let index = 0;
-		do {
-			foundAny = false;
-			const series = this.state.popularDecks.series;
-			Object.keys(series.data).forEach(key => {
-				const data = series.data[key][index];
-				if (data) {
-					foundAny = true;
-					rows.push(data);
-					if (playerClasses.indexOf(data["player_class"]) === -1) {
-						playerClasses.push(data["player_class"]);
-					}
-				}
-			});
-			index++;
+		if(!this.state.cardData) {
+			return null;
 		}
-		while (foundAny && rows.length < this.maxDecks);
-
-		rows.sort((a, b) => +a["win_rate"] < +b["win_rate"] ? 1 : -1);
-		playerClasses.sort();
-
-		const decksList = [];
-		playerClasses.forEach(pClass => {
-			const decks = [];
-
-			decksList.push(
-				<span className="pull-right">Winrate</span>,
-				<h4>{toTitleCase(pClass)}</h4>
-			);
-
-			rows.filter(row => row["player_class"] === pClass).forEach(row => {
-				const winrate = +row["win_rate"];
-				decks.push(
-					<li>
-						<a href={"/decks/" + row["deck_id"]}>
-							{pClass}
-							<span className="badge" style={{background: this.getBadgeColor(winrate)}}>{winrate + "%"}</span>
-						</a>
-					</li>
-				);
-			});
-
-			decksList.push(<ul>{decks}</ul>);
+		
+		const decks: DeckObj[] = [];
+		const data = this.state.recommendedDecks.series.data;
+		Object.keys(data).forEach(key => {
+			data[key].forEach(deck => {
+				const cards = JSON.parse(deck["deck_list"]);
+				const cardData = cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
+				decks.push({
+					cards: cardData,
+					deckId: +deck["deck_id"],
+					numGames: +deck["num_games"],
+					playerClass: deck["player_class"],
+					winrate: +deck["win_rate"]
+				});
+			})
 		});
 
-		return (
-			<div className="deck-list">
-				<h3>Hottest decks</h3>
-				{decksList}
-			</div>
-		);
+		return <DeckList decks={decks} pageSize={5} />;
 	}
 	
 	getBadgeColor(winrate: number) {
@@ -292,16 +265,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			this.queryManager.fetch(
 				"/analytics/query/single_card_class_distribution_by_include_count?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 				(data) => this.setState({classDistribution: data})
-			);
-			this.queryManager.fetch(
-				"/analytics/query/neutral_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
-				(data) => this.setState({popularDecks: data})
-			);
-		}
-		else {
-			this.queryManager.fetch(
-				"/analytics/query/class_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
-				(data) => this.setState({popularDecks: data})
 			);
 		}
 		if (this.cardHasTargetReqs(card)) {
@@ -330,6 +293,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		this.queryManager.fetch(
 			"/analytics/query/single_card_popular_together?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({cardsOnSameTurn: data})
+		);
+		this.queryManager.fetch(
+			"/analytics/query/recommended_decks_for_card?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&card_id=" + this.props.dbfId,
+			(data) => this.setState({recommendedDecks: data})
 		);
 	}
 	
