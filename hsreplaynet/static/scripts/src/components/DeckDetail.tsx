@@ -140,7 +140,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 				decks.push(
 					<li>
-						<a href={"/cards/decks/" + row["deck_id"]}>
+						<a href={"/decks/" + row["deck_id"]}>
 							<ClassIcon heroClassName={this.props.deckClass} />
 							{toTitleCase(row["player_class"])}
 						</a>

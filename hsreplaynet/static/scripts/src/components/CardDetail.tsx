@@ -259,7 +259,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				const winrate = +row["win_rate"];
 				decks.push(
 					<li>
-						<a href={"/cards/decks/" + row["deck_id"]}>
+						<a href={"/decks/" + row["deck_id"]}>
 							{pClass}
 							<span className="badge" style={{background: this.getBadgeColor(winrate)}}>{winrate + "%"}</span>
 						</a>

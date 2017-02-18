@@ -374,7 +374,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		
 		return (
 			<li style={{backgroundImage: "url(http://art.hearthstonejson.com/v1/256x/HERO_0" + heroId + ".jpg"}}>
-				<a href={"/cards/decks/" + deck.deck_id}>
+				<a href={"/decks/" + deck.deck_id}>
 					<div>
 						<div className="col-lg-2 col-md-2">
 							<span className="deck-name" style={{backgroundImage: "url(/static/images/64x/class-icons/" + deck.player_class.toLowerCase() + ".png"}}>{toTitleCase(deck.player_class)}</span>
