@@ -9,6 +9,10 @@ import {cardSorting, toTitleCase} from "../helpers";
 
 type DeckType = "aggro" | "midrange" | "control";
 type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
+type RankRange = "ALL" | "LEGEND_ONLY" | "ONE_THROUGH_FIVE" | "SIX_THROUGH_TEN" | "ELEVEN_THROUGH_FIFTEEN" | "SIXTEEN_THROUGH_TWENTY" | "TWENTYONE_THROUGH_TWENTYFIVE" | "LEGEND_THROUGH_TEN" | "ELEVEN_THROUGH_TWENTYFIVE";
+type Region = "ALL" | "REGION_US" | "REGION_EU" | "REGION_KR" | "REGION_CN";
+type TimeFrame = "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS" | "CURRENT_SEASON" | "PREVIOUS_SEASON";
+
 type SortProp = "win_rate" | "total_games";
 
 interface DeckDiscoverState {
@@ -21,10 +25,12 @@ interface DeckDiscoverState {
 	excludedCards?: any[];
 	gameMode?: GameMode;
 	includedCards?: any[];
-	page?: number;
+	rankRange?: RankRange;
+	region?: Region;
 	selectedClasses?: Map<string, boolean>;
 	showFilters?: boolean;
 	sortProp?: SortProp;
+	timeFrame?: TimeFrame;
 }
 
 interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
@@ -44,21 +50,27 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			deckData: new Map<string, TableData>(),
 			deckType: null,
 			excludedCards: [],
-			includedCards: [],
 			gameMode: "RANKED_STANDARD",
-			page: 0,
+			includedCards: [],
+			rankRange: "ALL",
+			region: "ALL",
 			selectedClasses: null,
 			showFilters: false,
 			sortProp: "win_rate",
+			timeFrame: "LAST_30_DAYS",
 		}
 
 		this.fetch();
+	}
+
+	cacheKey(): string {
+		return this.state.gameMode + this.state.rankRange + this.state.region + this.state.timeFrame;
 	}
 	
 	render(): JSX.Element {
 		const selectedClass = this.getSelectedClass();
 		const decks: DeckObj[] = [];
-		const deckData = this.state.deckData.get(this.state.gameMode);
+		const deckData = this.state.deckData.get(this.cacheKey());
 		if (!deckData) {
 			this.fetch();
 		}
@@ -195,38 +207,64 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							multiSelect={false}
 							filters="All"
 							minimal
-							selectionChanged={(selected) => this.setState({selectedClasses: selected, page: 0})}
+							selectionChanged={(selected) => this.setState({selectedClasses: selected})}
 						/>
-						<h4>Deck type</h4>
-						<ul>
-							{this.buildDeckTypeFilter("aggro")}
-							{this.buildDeckTypeFilter("midrange")}
-							{this.buildDeckTypeFilter("control")}
-						</ul>
-						<h4>Mode</h4>
-						<ul>
-							{this.buildModeFilter("RANKED_STANDARD")}
-							{this.buildModeFilter("RANKED_WILD")}
-							{this.buildModeFilter("TAVERNBRAWL")}
-						</ul>
 						{resetInclude}
 						<h4>Include cards</h4>
 						<CardSearch
 							key={"cardinclude" + this.state.cardSearchIncludeKey}
 							availableCards={this.state.cards}
-							onCardsChanged={(cards) => this.setState({includedCards: cards, page: 0})}
+							onCardsChanged={(cards) => this.setState({includedCards: cards})}
 						/>
 						{resetExclude}
 						<h4>Exclude cards</h4>
 						<CardSearch
 							key={"cardexclude" + this.state.cardSearchExcludeKey}
 							availableCards={this.state.cards}
-							onCardsChanged={(cards) => this.setState({excludedCards: cards, page: 0})}
+							onCardsChanged={(cards) => this.setState({excludedCards: cards})}
 						/>
+						<h4>Deck type</h4>
+						<ul>
+							{this.buildFilter("deckType", "aggro", "Aggro", null)}
+							{this.buildFilter("deckType", "midrange", "Midrange", null)}
+							{this.buildFilter("deckType", "control", "Control", null)}
+						</ul>
+						<h4>Mode</h4>
+						<ul>
+							{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
+							{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
+							{this.buildFilter("gameMode", "TAVERNBRAWL", "Brawl")}
+						</ul>
+						<h4>Time frame</h4>
+						<ul>
+							{this.buildFilter("timeFrame", "LAST_7_DAYS", "Last 7 days")}
+							{this.buildFilter("timeFrame", "LAST_14_DAYS", "Last 14 days")}
+							{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
+							{this.buildFilter("timeFrame", "CURRENT_SEASON", "Current season")}
+							{this.buildFilter("timeFrame", "PREVIOUS_SEASON", "Previous season")}
+						</ul>
+						<h4>Rank range</h4>
+						<ul>
+							{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL")}
+							{this.buildFilter("rankRange", "ONE_THROUGH_FIVE", "1 - 5", "ALL")}
+							{this.buildFilter("rankRange", "SIX_THROUGH_TEN", "6 - 10", "ALL")}
+							{this.buildFilter("rankRange", "ELEVEN_THROUGH_FIFTEEN", "11 - 15", "ALL")}
+							{this.buildFilter("rankRange", "SIXTEEN_THROUGH_TWENTY", "16 - 20", "ALL")}
+							{this.buildFilter("rankRange", "TWENTYONE_THROUGH_TWENTYFIVE", "21 - 25", "ALL")}
+							{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL")}
+							{this.buildFilter("rankRange", "ELEVEN_THROUGH_TWENTYFIVE", "11 - 25", "ALL")}
+						</ul>
+						<h4>Region</h4>
+						<ul>
+							{this.buildFilter("region", "REGION_US", "Americas", "ALL")}
+							{this.buildFilter("region", "REGION_EU", "Europe", "ALL")}
+							{this.buildFilter("region", "REGION_KR", "Asia", "ALL")}
+							{this.buildFilter("region", "REGION_CN", "China", "ALL")}
+						</ul>
 						<h4>Sort by</h4>
 						<ul>
-							{this.buildSortFilter("win_rate")}
-							{this.buildSortFilter("total_games")}
+							{this.buildFilter("sortProp", "win_rate", "Winrate")}
+							{this.buildFilter("sortProp", "total_games", "Popularity")}
 						</ul>
 					</div>
 				</div>
@@ -237,51 +275,30 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		);
 	}
 
-	buildSortFilter(sortProp: SortProp): JSX.Element {
-		const selected = this.state.sortProp === sortProp;
+	buildFilter(prop: string, key: string, displayValue: string, defaultValue?: string): JSX.Element {
+		const selected = this.state[prop] === key;
 		const onClick = () => {
-			if (!selected) {
-				this.setState({sortProp: sortProp});
+			if (!selected || defaultValue !== undefined) {
+				const newState = {};
+				newState[prop] = selected ? defaultValue : key;
+				this.setState(newState);
 			}
 		}
-		return (
-			<li onClick={onClick} className={selected ? "selected no-deselect" : null}>
-				{sortProp === "win_rate" ? "Winrate" : "Popularity"}
-			</li>
-		);
-	}
+		
+		const classNames = [];
+		if (selected) {
+			classNames.push("selected");
+			if (!defaultValue) {
+				classNames.push("no-deselect");
+			}
+		}
 
-	buildDeckTypeFilter(deckType: DeckType): JSX.Element {
-		const selected = this.state.deckType === deckType;
-		const onClick = () => {
-			this.setState({deckType: selected ? null : deckType});
-		}
 		return (
-			<li onClick={onClick} className={selected ? "selected" : null}>
-				{toTitleCase(deckType)}
+			<li onClick={onClick} className={classNames.join(" ")}>
+				{displayValue}
 			</li>
 		);
-	}
 
-	buildModeFilter(gameMode: GameMode): JSX.Element {
-		const selected = this.state.gameMode === gameMode;
-		const onClick = () => {
-			if (!selected) {
-				this.setState({gameMode: gameMode, page: 0});
-			}
-		}
-		const modeStr = () => {
-			switch(gameMode) {
-				case "RANKED_STANDARD": return "Standard";
-				case "RANKED_WILD": return "Wild";
-				case "TAVERNBRAWL": return "Brawl";
-			}
-		}
-		return (
-			<li onClick={onClick} className={selected ? "selected no-deselect" : null}>
-				{modeStr()}
-			</li>
-		);
 	}
 
 	getSelectedClass(): string {
@@ -305,15 +322,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			deckType: null,
 			excludedCards: [],
 			includedCards: [],
-			page: 0,
 			selectedClasses: null
 		});
 	}
 
 	fetch() {
 		this.queryManager.fetch(
-			"/analytics/query/list_decks_by_win_rate?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + this.state.gameMode,
-			(data) => this.setState({deckData: this.state.deckData.set(this.state.gameMode, data)})
+			"/analytics/query/list_decks_by_win_rate?TimeRange=" + this.state.timeFrame + "&RankRange=" + this.state.rankRange + "&GameType=" + this.state.gameMode + "&Region=" + this.state.region,
+			(data) => this.setState({deckData: this.state.deckData.set(this.cacheKey(), data)})
 		);
 	}
 
