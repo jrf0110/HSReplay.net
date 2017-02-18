@@ -305,7 +305,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const selected = this.state.gameMode === gameMode;
 		const onClick = () => {
 			if (!selected) {
-				this.setState({gameMode: gameMode});
+				this.setState({gameMode: gameMode, page: 0});
 			}
 		}
 		const modeStr = () => {
