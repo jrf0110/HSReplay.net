@@ -17,13 +17,13 @@ def deck_detail(request, deck_id):
 	deck_class = guess_class(deck)
 	return render(
 		request,
-		"cards/deck_detail.html",
+		"decks/deck_detail.html",
 		{"deck": deck, "cards": decklist, "deck_class": deck_class.name}
 	)
 
 
 def deck_list(request):
-	return render(request, "cards/deck_discover.html", {})
+	return render(request, "decks/deck_discover.html", {})
 
 
 def canonical_decks(request):
