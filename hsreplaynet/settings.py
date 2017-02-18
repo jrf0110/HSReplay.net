@@ -80,6 +80,7 @@ INSTALLED_APPS_WEB = [
 	"webpack_loader",
 	"hsreplaynet.admin",
 	"hsreplaynet.articles",
+	"hsreplaynet.decks",
 	"hsreplaynet.packs",
 	"hsreplaynet.oauth2",
 ]

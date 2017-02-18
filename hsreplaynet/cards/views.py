@@ -1,16 +1,14 @@
+import json
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest
-import json
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist
-from hearthstone.enums import CardClass
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
 from hsreplaynet.cards.models import Archetype
 from hsreplaynet.features.decorators import view_requires_feature_access
-from .models import Card, Deck
+from .models import Card
 from .queries import CardCountersQueryBuilder
-from hsreplaynet.cards.archetypes import guess_class
 
 
 def archetypes(request):
@@ -19,27 +17,6 @@ def archetypes(request):
 
 def popular_cards(request):
 	return render(request, "cards/popular_cards.html", {})
-
-
-def deckdetail(request, deck_id):
-	try:
-		deck = Deck.objects.get(id=deck_id)
-	except Deck.DoesNotExist:
-		raise Http404("Deck not found")
-	cards = deck.card_id_list()
-	if (len(cards)) != 30:
-		raise Http404("Deck not found")
-	decklist = ",".join(cards)
-	deck_class = guess_class(deck)
-	return render(
-		request,
-		"cards/deck_detail.html",
-		{"deck": deck, "cards": decklist, "deck_class": deck_class.name}
-	)
-
-
-def deck_discover(request):
-	return render(request, "cards/deck_discover.html", {})
 
 
 def discover(request):
@@ -54,34 +31,6 @@ def carddetail(request, card_id):
 	if not card:
 		raise Http404("Card not found")
 	return render(request, "cards/card_detail.html", {"card": card})
-
-
-@login_required
-@view_requires_feature_access("winrates")
-def canonicals(request):
-	result = []
-	archetypes = Archetype.objects.prefetch_related(
-		"canonical_decks__deck__includes"
-	).all()
-	for archetype in archetypes:
-		record = {
-			"name": archetype.name,
-			"archetype_id": archetype.id,
-			"player_class_id": archetype.player_class,
-			"player_class_name": CardClass(archetype.player_class).name
-		}
-
-		canonical_deck = archetype.canonical_decks.order_by('-created').first()
-		if canonical_deck:
-			record["representative_deck"] = {
-				"card_ids": canonical_deck.deck.card_id_list(),
-				"digest": canonical_deck.deck.digest
-			}
-
-		result.append(record)
-
-	payload_str = json.dumps(result, indent=4, sort_keys=True)
-	return HttpResponse(payload_str, content_type="application/json")
 
 
 @login_required

@@ -69,7 +69,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 		this.nonce = 0;
 		this.samplesPerDay = this.state.sampleSize / this.state.lookback;
 		this.fetch();
-		fetch("https://hsreplay.net/cards/canonicals/", {
+		fetch("https://hsreplay.net/decks/canonical/json/", {
 			credentials: "include",
 		}).then((response) => {
 			return response.json();
