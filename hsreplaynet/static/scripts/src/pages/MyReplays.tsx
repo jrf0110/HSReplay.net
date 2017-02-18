@@ -1,10 +1,10 @@
 import * as React from "react";
 import {cookie} from "cookie_js";
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer, ReplayFilter} from "../interfaces";
-import GameHistorySearch from "../components/GameHistorySearch";
-import GameHistorySelectFilter from "../components/GameHistorySelectFilter";
-import GameHistoryList from "../components/GameHistoryList";
-import GameHistoryTable from "../components/GameHistoryTable";
+import GameHistorySearch from "../components/gamehistory/GameHistorySearch";
+import GameHistorySelectFilter from "../components/gamehistory/GameHistorySelectFilter";
+import GameHistoryList from "../components/gamehistory/GameHistoryList";
+import GameHistoryTable from "../components/gamehistory/GameHistoryTable";
 import InfoBoxSection from "../components/InfoBoxSection";
 import Pager from "../components/Pager";
 import {parseQuery, toQueryString} from "../QueryParser"

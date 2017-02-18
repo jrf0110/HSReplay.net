@@ -1,11 +1,11 @@
 import * as React from "react";
-import {GlobalGamePlayer, ImageProps, CardArtProps} from "../interfaces";
-import ClassIcon from "./ClassIcon";
+import {GlobalGamePlayer, ImageProps, CardArtProps} from "../../interfaces";
+import ClassIcon from "../ClassIcon";
 import GameHistoryPlayer from "./GameHistoryPlayer";
-import GameModeIcon from "./GameModeIcon";
-import GameModeText from "./GameModeText";
-import {PlayState, BnetGameType} from "../hearthstone";
-import {getDuration, getAge} from "../PrettyTime";
+import GameModeIcon from "../GameModeIcon";
+import GameModeText from "../GameModeText";
+import {PlayState, BnetGameType} from "../../hearthstone";
+import {getDuration, getAge} from "../../PrettyTime";
 
 
 interface GameHistoryTableRowProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryTableRow> {

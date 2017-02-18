@@ -1,5 +1,5 @@
 import * as React from "react";
-import {CardArtProps} from "../interfaces";
+import {CardArtProps} from "../../interfaces";
 
 
 interface GameHistoryPlayerProps extends CardArtProps, React.ClassAttributes<GameHistoryPlayer> {

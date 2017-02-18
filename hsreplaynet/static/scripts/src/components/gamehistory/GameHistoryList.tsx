@@ -1,7 +1,7 @@
 import * as React from "react";
 import GameHistoryItem from "./GameHistoryItem";
-import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
-import {PlayState} from "../hearthstone";
+import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../../interfaces";
+import {PlayState} from "../../hearthstone";
 
 interface GameHistoryListProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryList> {
 	games: GameReplay[];

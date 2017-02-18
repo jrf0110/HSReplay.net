@@ -1,6 +1,6 @@
 import * as React from "react";
 import GameHistoryTableRow from "./GameHistoryTableRow";
-import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
+import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../../interfaces";
 import GameHistoryList from "./GameHistoryList";
 
 interface GameHistoryTableProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryTable> {
