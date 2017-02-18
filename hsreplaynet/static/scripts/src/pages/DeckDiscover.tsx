@@ -56,8 +56,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 	
 	render(): JSX.Element {
-		console.log("render");
-		
 		const selectedClass = this.getSelectedClass();
 		const decks: DeckObj[] = [];
 		const deckData = this.state.deckData.get(this.state.gameMode);

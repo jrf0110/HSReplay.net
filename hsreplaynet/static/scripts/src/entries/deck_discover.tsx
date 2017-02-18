@@ -4,7 +4,6 @@ import DeckDiscover from "../pages/DeckDiscover";
 import HearthstoneJSON from "hearthstonejson";
 
 const render = (cardData) => {
-	console.log(cardData)
 	ReactDOM.render(
 		<DeckDiscover cardData={cardData} />,
 		document.getElementById("deck-discover-container")
