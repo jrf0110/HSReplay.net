@@ -2,7 +2,7 @@ import * as React from "react";
 import CardTile from "./CardTile";
 import HDTButton from "./HDTButton";
 
-interface DeckListProps extends React.ClassAttributes<DeckList> {
+interface CardListProps extends React.ClassAttributes<CardList> {
 	cardDb: Map<string, any>;
 	cards: string[];
 	cardHeight?: number;
@@ -13,7 +13,7 @@ interface DeckListProps extends React.ClassAttributes<DeckList> {
 	id?: number;
 }
 
-export default class DeckList extends React.Component<DeckListProps, any> {
+export default class CardList extends React.Component<CardListProps, any> {
 	public render(): JSX.Element {
 		if (!this.props.cardDb) {
 			return <div>Loading...</div>
@@ -28,7 +28,7 @@ export default class DeckList extends React.Component<DeckListProps, any> {
 		});
 		cards = cards.sort(this.sortBy("name")).sort(this.sortBy("cost"));
 		return (
-			<ul className="decklist">
+			<ul className="card-list">
 				{cards}
 				{this.props.showButton && cards.length > 0 && this.props.class ?
 					<HDTButton

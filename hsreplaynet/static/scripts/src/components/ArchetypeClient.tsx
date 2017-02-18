@@ -10,7 +10,7 @@ import IntensitySelector from "./stats/controls/IntensitySelector";
 import DateRangeSelector from "./stats/controls/DateRangeSelector";
 import {NumberRow} from "./stats/Matrix";
 import {Matchup} from "./stats/Matrix";
-import DeckList from "./DeckList";
+import CardList from "./CardList";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 	cardData: Map<string, any>;
@@ -200,7 +200,7 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 				</li>
 			</ul>
 			<h3 className="text-center">Decklist</h3>
-			<DeckList
+			<CardList
 				cardDb={this.props.cardData}
 				cards={archetype.representative_deck.card_ids}
 				name={archetype.name}

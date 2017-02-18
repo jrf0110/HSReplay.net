@@ -6,7 +6,6 @@ import CardIcon from "./CardIcon";
 import CardTile from "./CardTile";
 import ClassFilter from "./ClassFilter";
 import ClassIcon from "./ClassIcon";
-import DeckList from "./DeckList";
 import HearthstoneJSON from "hearthstonejson";
 import HDTButton from "./HDTButton";
 import InfoIcon from "./InfoIcon";

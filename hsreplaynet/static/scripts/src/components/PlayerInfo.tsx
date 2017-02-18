@@ -1,5 +1,5 @@
 import * as React from "react";
-import DeckList from "./DeckList"
+import CardList from "./CardList"
 import {GameReplay, GlobalGamePlayer} from "../interfaces"
 import HearthstoneJSON from "hearthstonejson";
 
@@ -93,7 +93,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 				if(this.state.showOpponentDeck) {
 					const className = this.toTitleCase(this.state.game.opposing_player.hero_class_name);
 					opponentDeck.push(
-						<DeckList
+						<CardList
 							cardDb={this.state.db}
 							cards={this.state.game.opposing_deck.cards}
 							class={className}
@@ -113,7 +113,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 				if(this.state.showPlayerDeck) {
 					const className = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
 					playerDeck.push(
-						<DeckList
+						<CardList
 							cardDb={this.state.db}
 							cards={this.state.game.friendly_deck.cards}
 							class={className}
