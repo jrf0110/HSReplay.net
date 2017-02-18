@@ -10,15 +10,17 @@ import {ChartSeries, TableData} from "../interfaces";
 import {toTitleCase, toPrettyNumber} from "../helpers";
 
 type DeckType = "aggro" | "midrange" | "control";
+type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
 	cardSearchIncludeKey?: number;
 	cards?: any[];
 	classFilterKey?: string;
-	deckData?: TableData;
+	deckData?: Map<string, TableData>;
 	deckType?: DeckType;
 	excludedCards?: any[];
+	gameMode?: GameMode;
 	includedCards?: any[];
 	page?: number;
 	selectedClasses?: Map<string, boolean>;
@@ -40,25 +42,27 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			cardSearchIncludeKey: 0,
 			cards: null,
 			classFilterKey: "ALL",
-			deckData: "loading",
+			deckData: new Map<string, TableData>(),
 			deckType: null,
 			excludedCards: [],
 			includedCards: [],
+			gameMode: "RANKED_STANDARD",
 			page: 0,
 			selectedClasses: null,
 			showFilters: false,
 		}
 
-		this.queryManager.fetch(
-			"/analytics/query/list_decks_by_win_rate?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
-			(data) => this.setState({deckData: data})
-		);
+		this.fetch();
 	}
 	
 	render(): JSX.Element {
 		const selectedClass = this.getSelectedClass();
 		const pageOffset = this.state.page * this.pageSize;
 		const decks = [];
+		const deckData = this.state.deckData.get(this.state.gameMode);
+		if (!deckData) {
+			this.fetch();
+		}
 		let deckCount = 0;
 		if (this.props.cardData) {
 			if (!this.state.cards) {
@@ -73,9 +77,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				this.state.cards = cards;
 			}
 
-			if (this.state.deckData !== "loading" && this.state.deckData !== "error") {
-				const deckData = [];
-				const data = this.state.deckData.series.data;
+			if (deckData && deckData !== "loading" && deckData !== "error") {
+				const deckElements = [];
+				const data = deckData.series.data;
 				Object.keys(data).forEach(key => {
 					if (selectedClass === "ALL" || selectedClass === key) {
 						data[key].forEach(deck => {
@@ -89,16 +93,16 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 										|| this.state.deckType === "control" && costSum >= 100) {
 											deck["cards"] = cardData;
 											deck["player_class"] = key;
-											deckData.push(deck);
+											deckElements.push(deck);
 										}
 								}
 							}
 						});
 					}
 				});
-				deckData.sort((a, b) => b.win_rate - a.win_rate);
-				deckData.slice(pageOffset, pageOffset + this.pageSize).forEach(deck => decks.push(this.buildDeckTile(deck)));
-				deckCount = deckData.length;
+				deckElements.sort((a, b) => b[this.state.sortProp] - a[this.state.sortProp]);
+				deckElements.slice(pageOffset, pageOffset + this.pageSize).forEach(deck => decks.push(this.buildDeckTile(deck)));
+				deckCount = deckElements.length;
 			}
 		}
 
@@ -113,14 +117,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 		
 		let content = null;
-		if (this.state.deckData === "loading" || !this.props.cardData) {
+		if (!deckData || deckData === "loading" || !this.props.cardData) {
 			content = (
 				<div className="content-message">
 					<h2>Loading...</h2>
 				</div>
 			);
 		}
-		else if (this.state.deckData === "error") {
+		else if (deckData === "error") {
 			content = (
 				<div className="content-message">
 					<h2>Something went wrong :(</h2>
@@ -234,6 +238,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							{this.buildDeckTypeFilter("midrange")}
 							{this.buildDeckTypeFilter("control")}
 						</ul>
+						<h4>Mode</h4>
+						<ul>
+							{this.buildModeFilter("RANKED_STANDARD")}
+							{this.buildModeFilter("RANKED_WILD")}
+							{this.buildModeFilter("TAVERNBRAWL")}
+						</ul>
 						{resetInclude}
 						<h4>Include cards</h4>
 						<CardSearch
@@ -260,7 +270,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	buildDeckTypeFilter(deckType: DeckType): JSX.Element {
 		const selected = this.state.deckType === deckType;
 		const onClick = () => {
-			this.setState({deckType: selected ? null : deckType})
+			this.setState({deckType: selected ? null : deckType});
 		}
 		return (
 			<li onClick={onClick} className={selected ? "selected" : null}>
@@ -268,7 +278,28 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</li>
 		);
 	}
-	
+
+	buildModeFilter(gameMode: GameMode): JSX.Element {
+		const selected = this.state.gameMode === gameMode;
+		const onClick = () => {
+			if (!selected) {
+				this.setState({gameMode: gameMode});
+			}
+		}
+		const modeStr = () => {
+			switch(gameMode) {
+				case "RANKED_STANDARD": return "Standard";
+				case "RANKED_WILD": return "Wild";
+				case "TAVERNBRAWL": return "Brawl";
+			}
+		}
+		return (
+			<li onClick={onClick} className={selected ? "selected no-deselect" : null}>
+				{modeStr()}
+			</li>
+		);
+	}
+
 	getSelectedClass(): string {
 		if (!this.state.selectedClasses) {
 			return undefined;
@@ -367,6 +398,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			page: 0,
 			selectedClasses: null
 		});
+	}
+
+	fetch() {
+		this.queryManager.fetch(
+			"/analytics/query/list_decks_by_win_rate?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + this.state.gameMode,
+			(data) => this.setState({deckData: this.state.deckData.set(this.state.gameMode, data)})
+		);
 	}
 
 }
