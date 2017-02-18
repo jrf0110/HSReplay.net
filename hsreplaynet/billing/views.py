@@ -30,8 +30,8 @@ class StripeCheckoutMixin:
 
 		plans = Plan.objects.all()
 		# Hardcoding assumptions: exactly 1 monthly and 1 semiannual plan
-		context["monthly_plan"] = plans.filter(interval_count=1).get()
-		context["semiannual_plan"] = plans.filter(interval_count=6).get()
+		context["monthly_plan"] = plans.get(stripe_id=settings.MONTHLY_PLAN_ID)
+		context["semiannual_plan"] = plans.get(stripe_id=settings.SEMIANNUAL_PLAN_ID)
 
 		return context
 
