@@ -158,6 +158,7 @@ WEBPACK_LOADER = {
 	"DEFAULT": {
 		"BUNDLE_DIR_NAME": "webpack/",
 		"STATS_FILE": os.path.join(BUILD_DIR, "webpack-stats.json"),
+		"TIMEOUT": 5,
 	}
 }
 
