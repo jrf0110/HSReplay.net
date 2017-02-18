@@ -1,22 +1,19 @@
 import * as React from "react";
+import {CardObj} from "../interfaces";
 
 interface ManaCurveProps extends React.ClassAttributes<ManaCurve> {
-	cardData: Map<string, any>;
-	cardIds: string[];
+	cards: CardObj[];
 }
 
 export default class ManaCurve extends React.Component<ManaCurveProps, any> {
-	render(): JSX.Element {
-		if (!this.props.cardData) {
-			return null;
-		}
 
+	render(): JSX.Element {
 		const bars = [];
 		const costs = [0, 0, 0, 0, 0, 0, 0, 0];
 
-		this.props.cardIds.forEach(id => costs[Math.min(this.props.cardData.get(''+id).cost, 7)] += 1);
+		(this.props.cards || []).forEach(cardObj => costs[Math.min(cardObj.card.cost, 7)] += cardObj.count);
 
-		const maxCost = Math.max.apply(Math, costs);
+		const maxCost = Math.max.apply(Math, costs) || 1;
 		
 		costs.forEach(cost => {
 			bars.push(

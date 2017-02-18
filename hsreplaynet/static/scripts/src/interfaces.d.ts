@@ -197,3 +197,16 @@ export interface ChartMetaData {
 	midLinePosition: number;
 	toFixed: (value: number) => string;
 }
+
+export interface DeckObj {
+	cards: CardObj[];
+	deckId: number;
+	playerClass: string;
+	numGames: number;
+	winrate: number;
+}
+
+export interface CardObj {
+	card: any;
+	count: number;
+}

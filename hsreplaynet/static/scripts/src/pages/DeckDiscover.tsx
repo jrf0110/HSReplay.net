@@ -1,13 +1,11 @@
 import * as React from "react";
-import CardIcon from "../components/CardIcon";
 import CardSearch from "../components/CardSearch";
 import ClassFilter from "../components/ClassFilter";
-import ClassIcon from "../components/ClassIcon";
-import ManaCurve from "../components/ManaCurve";
+import DeckList from "../components/DeckList";
 import Pager from "../components/Pager";
 import QueryManager from "../QueryManager";
-import {ChartSeries, TableData} from "../interfaces";
-import {toTitleCase, toPrettyNumber} from "../helpers";
+import {DeckObj, TableData} from "../interfaces";
+import {cardSorting, toTitleCase} from "../helpers";
 
 type DeckType = "aggro" | "midrange" | "control";
 type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
@@ -35,7 +33,6 @@ interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
 	private readonly queryManager: QueryManager = new QueryManager();
-	private readonly pageSize = 12;
 
 	constructor(props: DeckDiscoverProps, state: DeckDiscoverState) {
 		super(props, state);
@@ -59,14 +56,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 	
 	render(): JSX.Element {
+		console.log("render");
+		
 		const selectedClass = this.getSelectedClass();
-		const pageOffset = this.state.page * this.pageSize;
-		const decks = [];
+		const decks: DeckObj[] = [];
 		const deckData = this.state.deckData.get(this.state.gameMode);
 		if (!deckData) {
 			this.fetch();
 		}
-		let deckCount = 0;
 		if (this.props.cardData) {
 			if (!this.state.cards) {
 				const cards = [];
@@ -75,8 +72,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						cards.push(card);
 					}
 				});
-				cards.sort((a, b) => a["name"] > b["name"] ? 1 : -1);
-				cards.sort((a, b) => a["cost"] > b["cost"] ? 1 : -1);
+				cards.sort(cardSorting)
 				this.state.cards = cards;
 			}
 
@@ -104,21 +100,18 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					}
 				});
 				deckElements.sort((a, b) => b[this.state.sortProp] - a[this.state.sortProp]);
-				deckElements.slice(pageOffset, pageOffset + this.pageSize).forEach(deck => decks.push(this.buildDeckTile(deck)));
-				deckCount = deckElements.length;
+				deckElements.forEach(deck => {
+					decks.push({
+						cards: deck.cards,
+						deckId: deck.deck_id,
+						playerClass: deck.player_class,
+						numGames: deck.total_games,
+						winrate: deck.win_rate
+					});
+				});
 			}
 		}
 
-		let next = null;
-		if (deckCount > (this.state.page + 1) * this.pageSize) {
-			next = () => this.setState({page: this.state.page + 1});
-		}
-
-		let prev = null;
-		if (this.state.page > 0) {
-			prev = () => this.setState({page: this.state.page - 1});
-		}
-		
 		let content = null;
 		if (!deckData || deckData === "loading" || !this.props.cardData) {
 			content = (
@@ -135,7 +128,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				</div>
 			);
 		}
-		else if(deckCount === 0) {
+		else if(decks.length === 0) {
 			content = (
 				<div className="content-message">
 					<h2>No decks found</h2>
@@ -144,36 +137,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			);
 		}
 		else {
-			const min = pageOffset + 1;
-			const max = Math.min(pageOffset + this.pageSize, deckCount);
-			content = [
-				<div className="paging pull-right">
-					<span>{min + " - " + max + " out of  " + deckCount}</span>
-					<Pager previous={prev} next={next} />
-				</div>,
-				<div className="clearfix" />,
-				<div className="row header-row">
-					<div className="col-lg-2 col-md-2">
-						Deck
-					</div>
-					<div className="col-lg-1 col-md-1">
-						Winrate
-					</div>
-					<div className="col-lg-1 col-md-1">
-						Mana
-					</div>
-					<div className="col-lg-8 col-md-8">
-						Cards
-					</div>
-				</div>,
-				<ul>
-					{decks}
-				</ul>,
-				<div className="paging pull-right">
-					<span>{min + " - " + max + " out of  " + deckCount}</span>
-					<Pager previous={prev} next={next} />
-				</div>
-			];
+			content = <DeckList decks={decks} pageSize={12} />
 		}
 
 		const filterClassNames = ["filter-wrapper"];
@@ -333,80 +297,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			}
 		});
 		return selectedClass;
-	}
-
-	buildDeckTile(deck: any): JSX.Element {
-		const heroes = ["WARRIOR", "SHAMAN", "ROGUE", "PALADIN", "HUNTER", "DRUID", "WARLOCK", "MAGE", "PRIEST"];
-		const cardIds = [];
-		const cards = [];
-		let dustCost = 0;
-		let margin = 5;
-		if (this.props.cardData) {
-			deck.cards.sort((a, b) => {
-				if (a.card.cost > b.card.cost) { return 1; }
-				if (a.card.cost < b.card.cost) { return -1; }
-				if (a.card.name > b.card.name) { return 1; }
-				if (a.card.name < b.card.name) { return -1; }
-				return 0;
-			});
-			deck.cards.forEach(obj => {
-				const card = obj.card;
-				dustCost += this.getCost(card.rarity) * obj.count;
-				cardIds.push(card.dbfId);
-				if (obj.count > 1) {
-					cardIds.push(card.dbfId);
-				}
-				if (deck.cards.length > 21) {
-					margin = 18;
-				}
-				cards.push(
-					<li style={{marginLeft: -margin}}>
-						<CardIcon cardId={card.id} mark={card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count} markStyle={{color: "#f4d442", top: 0, right: 0, fontSize: "1em"}}/>
-					</li>
-				)
-			});
-		}
-
-		let heroId = ''+(heroes.indexOf(deck.player_class) + 1);
-		if(["WARRIOR", "SHAMAN", "PALADIN", "HUNTER", "MAGE", "PRIEST"].indexOf(deck.player_class) !== -1) {
-			heroId += "a";
-		}
-		
-		return (
-			<li style={{backgroundImage: "url(http://art.hearthstonejson.com/v1/256x/HERO_0" + heroId + ".jpg"}}>
-				<a href={"/decks/" + deck.deck_id}>
-					<div>
-						<div className="col-lg-2 col-md-2">
-							<span className="deck-name" style={{backgroundImage: "url(/static/images/64x/class-icons/" + deck.player_class.toLowerCase() + ".png"}}>{toTitleCase(deck.player_class)}</span>
-							<span className="dust-cost" style={{backgroundImage: "url(/static/images/dust.png"}}>{dustCost}</span>
-						</div>
-						<div className="col-lg-1 col-md-1">
-							<span className="win-rate">{deck.win_rate}%</span>
-							<span className="game-count">{toPrettyNumber(deck.total_games)} games</span>
-						</div>
-						<div className="col-lg-1 col-md-1">
-							<ManaCurve cardIds={cardIds} cardData={this.props.cardData} />
-						</div>
-						<div className="col-lg-8 col-md-8">
-							<ul className="card-list" style={{paddingLeft: margin}}>
-								{cards}
-							</ul>
-						</div>
-					</div>
-				</a>
-			</li>
-		);
-	}
-
-	getCost(rarity: string) {
-		//TODO take adventures etc into account
-		switch(rarity) {
-			case "COMMON": return 40;
-			case "RARE": return 100;
-			case "EPIC": return 400;
-			case "LEGENDARY": return 1600;
-		}
-		return 0;
 	}
 
 	resetFilters() {
