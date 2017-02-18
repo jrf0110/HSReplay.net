@@ -1,20 +1,23 @@
 #!/usr/bin/env bash
 
-PROJECT="$HOME/hsreplay.net"
+ZSH_PROFILE="$HOME/.config/zsh/profile"
 
 mkdir -p "$HOME/.cache" "$HOME/.config/zsh"
-echo 'source $HOME/env/bin/activate' > "$HOME/.config/zsh/profile"
-echo 'export PATH=$VIRTUAL_ENV/bin:$HOME/node_modules/.bin:$PATH' >> "$HOME/.config/zsh/profile"
-echo 'export HSREPLAYNET_DEBUG=1' >> "$HOME/.config/zsh/profile"
-echo "cd $PROJECT" >> "$HOME/.config/zsh/profile"
+cat > "$ZSH_PROFILE" <<EOF
+source \$HOME/env/bin/activate
+export PATH="\$VIRTUAL_ENV/bin:\$HOME/node_modules/.bin:\$PATH"
+export PROJECT=\$HOME/hsreplay.net
+export HSREPLAYNET_DEBUG=1
+
+cd \$PROJECT
+EOF
 cp /etc/skel/.zshrc "$HOME/.zshrc"
 
 python3 -m venv "$HOME/env"
-source "$HOME/env/bin/activate"
+source "$ZSH_PROFILE"
+
 pip install --upgrade pip setuptools
 pip install -r "$PROJECT/requirements/dev.txt"
-
-export PATH="$HOME/node_modules/.bin:$PATH"
 
 cd "$PROJECT"
 yarn install --modules-folder "$HOME/node_modules" --pure-lockfile --no-progress
