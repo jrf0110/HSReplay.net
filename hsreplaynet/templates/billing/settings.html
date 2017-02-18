@@ -9,7 +9,7 @@
 		{% with customer.subscription as sub %}
 		{% if sub %}
 
-			<h4>{{ sub.plan.name }}</h4>
+			<h4>{{ sub.plan.name }} ({{ sub.plan.human_readable_cost }})</h4>
 
 			{% if sub.cancel_at_period_end %}
 
@@ -31,15 +31,12 @@
 				</form>
 
 				<p>
-					Your subscription will renew on <strong><time datetime="{{ sub.current_period_end|date:'c' }}">{{ sub.current_period_end|date:"F d, Y" }}</time></strong>.
+					Subscribed since <strong><time datetime="{{ sub.start|date:'c' }}">{{ sub.start|date:"F d, Y" }}</time></strong>.
 					Thanks for supporting us!
 				</p>
-				{% if sub.plan.amount %}
-					<p>
-						Next payment occurs on <time datetime="{{ sub.current_period_end|date:'c' }}">{{ sub.current_period_end|date:"Y-m-d" }}</time>
-						for <strong>{{ sub.plan.currency|upper }} {{ sub.plan.amount }}</strong>
-					</p>
-				{% endif %}
+				<p>
+					Your subscription will renew on <strong><time datetime="{{ sub.current_period_end|date:'c' }}">{{ sub.current_period_end|date:"F d, Y" }}</time></strong>.
+				</p>
 			{% endif %}
 
 		{% else %}
