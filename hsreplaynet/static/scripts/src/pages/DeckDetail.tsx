@@ -226,7 +226,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			})
 		});
 
-		return <DeckList decks={decks} pageSize={5} />;
+		return <DeckList decks={decks} pageSize={5} hideTopPager />;
 	}
 
 	buildChartSeries(): RenderData {

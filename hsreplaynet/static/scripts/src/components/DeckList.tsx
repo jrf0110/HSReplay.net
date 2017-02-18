@@ -10,6 +10,7 @@ interface DeckListState {
 interface DeckListProps extends React.ClassAttributes<DeckList> {
 	decks: DeckObj[];
 	pageSize: number;
+	hideTopPager?: boolean;
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -66,7 +67,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 		);
 		return (
 			<div className="deck-list">
-				{pager}
+				{!this.props.hideTopPager && pager}
 				<div className="clearfix" />
 				<div className="row header-row">
 					<div className="col-lg-2 col-md-2">

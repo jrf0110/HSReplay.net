@@ -247,7 +247,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			})
 		});
 
-		return <DeckList decks={decks} pageSize={5} />;
+		return <DeckList decks={decks} pageSize={5} hideTopPager/>;
 	}
 	
 	getBadgeColor(winrate: number) {
