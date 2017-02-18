@@ -6,16 +6,17 @@ import CardIcon from "../components/CardIcon";
 import CardTile from "../components/CardTile";
 import ClassFilter from "../components/ClassFilter";
 import ClassIcon from "../components/ClassIcon";
+import DeckList from "../components/DeckList";
 import HearthstoneJSON from "hearthstonejson";
 import HDTButton from "../components/HDTButton";
 import InfoIcon from "../components/InfoIcon";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import QueryManager from "../QueryManager";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
-import {TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
+import {DeckObj, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
-	getChartScheme, toPrettyNumber, toTitleCase, getColorString, 
-	wildSets
+	getChartScheme, getColorString, getDustCost, getHeroCardId,
+	toPrettyNumber, toTitleCase, wildSets
 } from "../helpers";
 import {Colors} from "../Colors";
 
@@ -29,8 +30,8 @@ interface DeckDetailState {
 	baseWinrates?: TableData;
 	cardData?: Map<string, any>;
 	popularityOverTime?: RenderData;
-	selectedClasses?: Map<string, boolean>;
 	similarDecks?: TableData;
+	selectedClasses?: Map<string, boolean>;
 	sortCol?: string;
 	sortDirection?: number;
 	tableDataAll?: TableData;
@@ -55,8 +56,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			baseWinrates: "loading",
 			cardData: null,
 			popularityOverTime: "loading",
-			selectedClasses: null,
 			similarDecks: "loading",
+			selectedClasses: null,
 			sortCol: "decklist",
 			sortDirection: 1,
 			tableDataAll: "loading",
@@ -66,7 +67,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		new HearthstoneJSON().getLatest((data) => {
 			const map = new Map<string, any>();
-			data.forEach(card => map.set(card.id, card));
+			data.forEach(card => map.set(''+card.dbfId, card));
 			this.setState({cardData: map});
 			this.fetch();
 		});
@@ -120,83 +121,45 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			});
 		}
 
-		const decks = [];
-		if (this.state.similarDecks !== "loading" && this.state.similarDecks !== "error") {
-			this.state.similarDecks.series.data[this.props.deckClass].forEach(row => {
-				const cards = this.props.deckCards.split(",");
-				const add = [];
-				const sub = [];
-				const addRndCards = () => {
-					add.push(<CardIcon size={28} cardId={cards[Math.floor(Math.random() * cards.length)]} mark="+" markStyle={{color: "limegreen"}}/>);
-					sub.push(<CardIcon size={28} cardId={cards[Math.floor(Math.random() * cards.length)]} mark="-" markStyle={{color: "red"}}/>);
-				}
-				addRndCards();
-				if (Math.random() > 0.5) {
-					addRndCards();
-				}
-				if (Math.random() > 0.3) {
-					addRndCards();
-				}
-
-				decks.push(
-					<li>
-						<a href={"/decks/" + row["deck_id"]}>
-							<ClassIcon heroClassName={this.props.deckClass} />
-							{toTitleCase(row["player_class"])}
-						</a>
-						<div className="card-icons">
-							{sub}
-							{add}
-						</div>
-					</li>
-				);
-			})
+		let dustCost = null;
+		if (this.state.cardData) {
+			this.props.deckCards.split(",").forEach(id => dustCost += getDustCost(this.state.cardData.get(id).rarity));
+		}
+		
+		const deckNameStyle = {
+			backgroundImage: "url(/static/images/class-icons/" + this.props.deckClass.toLowerCase() + ".png"
+		}
+		
+		const dustCostStyle = {
+			backgroundImage: "url(/static/images/dust.png"
 		}
 
 		return <div className="deck-detail-container">
-			<div className="row">
-				<div className="col-lg-3 col-left">
-					<img className="hero-image" src={STATIC_URL + "images/class-portraits/" + this.props.deckClass.toLowerCase() + ".png"} height={300}/>
-					<div className="chart-wrapper">
-						<CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" renderData={this.buildChartSeries()}/>
-					</div>
-					<HDTButton
-						card_ids={this.props.deckCards.split(",")}
-						class={this.props.deckClass}
-						name={this.getDeckName()}
-						sourceUrl={window.location.toString()}
-					/>
-					<div className="winrate-list">
-						<h4>Winrate against</h4>
-						<ul>
-							{winrates}
-						</ul>
-					</div>
-					<div className="deck-list">
-						<span className="pull-right">Changes</span>
-						<h4>Similar decks</h4>
-						<ul id="similar-decks-list">
-							{decks}
-						</ul>
-					</div>
-				</div>
-				<div className="col-lg-9 col-right">
-					<div className="page-title">
-						{title}
-					</div>
+			<div className="deck-header" style={{backgroundImage: "url(http://art.hearthstonejson.com/v1/512x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}}>
+				<div className="deck-header-fade">
 					<div className="row">
-						<div className="col-lg-6 col-md-6">
+						<div className="col-lg-4">
+							<h1 className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.deckClass)}</h1>
+							<h4 className="dust-cost" style={dustCostStyle}>{dustCost}</h4>
+						</div>
+						<div className="col-lg-4 col-md-6">
 							<PopularityLineChart
 								renderData={this.state.popularityOverTime}
 								widthRatio={2}
 							/>
 						</div>
-						<div className="col-lg-6 col-md-6">
+						<div className="col-lg-4 col-md-6">
 							<WinrateLineChart
 								renderData={this.state.winrateOverTime}
 								widthRatio={2}
 							/>
 						</div>
+					</div>
+				</div>
+			</div>
+			<div className="deck-detail row">
+				<div className="col-lg-9 col-right">
+					<div className="row">
 					</div>
 					<div id="opponent-class-filter">
 						<span>Opponent:</span>
@@ -215,8 +178,55 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					{replayCount}
 					{this.buildTable(selectedTable, selectedClass)}
 				</div>
+				<div className="col-lg-3 col-left">
+					<div className="winrate-list">
+						<h4>Winrate against</h4>
+						<ul>
+							{winrates}
+						</ul>
+					</div>
+					<div className="chart-wrapper">
+						<CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" renderData={this.buildChartSeries()}/>
+					</div>
+					<HDTButton
+						card_ids={this.props.deckCards.split(",")}
+						class={this.props.deckClass}
+						name={this.getDeckName()}
+						sourceUrl={window.location.toString()}
+					/>
+				</div>
 			</div>
+			<h3>Similar Decks</h3>
+			{this.buildSimilarDecks()}
 		</div>;
+	}
+	
+	buildSimilarDecks(): JSX.Element {
+		if (!this.state.similarDecks || this.state.similarDecks === "loading" || this.state.similarDecks === "error") {
+			return null;
+		}
+
+		if(!this.state.cardData) {
+			return null;
+		}
+		
+		const decks: DeckObj[] = [];
+		const data = this.state.similarDecks.series.data;
+		Object.keys(data).forEach(key => {
+			data[key].forEach(deck => {
+				const cards = JSON.parse(deck["deck_list"]);
+				const cardData = cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
+				decks.push({
+					cards: cardData,
+					deckId: +deck["deck_id"],
+					numGames: +deck["num_games"],
+					playerClass: deck["player_class"],
+					winrate: +deck["win_rate"]
+				});
+			})
+		});
+
+		return <DeckList decks={decks} pageSize={5} />;
 	}
 
 	buildChartSeries(): RenderData {
@@ -472,8 +482,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			"/analytics/query/single_card_include_popularity_over_time?card_id=" + 374 + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({popularityOverTime: data})
 		);
+
+		const mockCard = this.props.deckCards.split(',').map(id => this.state.cardData.get(id)).find(card => card.playerClass !== "NEUTRAL");
+
 		this.queryManager.fetch(
-			"/analytics/query/class_card_top_decks_when_played?card_id=" + 846 + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
+			"/analytics/query/recommended_decks_for_card?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&card_id=" + mockCard.dbfId,
 			(data) => this.setState({similarDecks: data})
 		);
 	}

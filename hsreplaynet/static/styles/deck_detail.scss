@@ -14,14 +14,61 @@
 			}
 		}
 	}
+
+	.deck-header {
+		background-position-y: -50px;
+		background-repeat: no-repeat;
+		border-bottom: 1px solid $darkgrey;
+		border-top: 1px solid $darkgrey;
+		height: 275px;
+		position: relative;
+
+		.deck-header-fade {
+			background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.6) 100px, $offwhite 512px);
+			height: 100%;
+			padding: 20px 0 0 40px;
+						
+			.deck-name {
+				background-repeat: no-repeat;
+				background-size: contain;
+				line-height: 65px;
+				margin: 5px 0 0 5px;
+				padding-left: 75px;
+			}
+			
+			.dust-cost {
+				background-repeat: no-repeat;
+				background-size: contain;
+				line-height: 30px;
+				margin-left: 80px;
+				margin-top: 0px;
+				opacity: 0.9;
+				padding-left: 25px;
+			}
+
+			.page-title {
+				display: flex;
+				height: 75px;
+
+				>img {
+					height: 50px;
+					opacity: 0.3;
+					width: 50px;
+				}
+			}
+		}
+	}
+
+	.deck-detail {
+		padding-top: 15px;
+	}
+	
+	>h3 {
+		border-bottom: 1px solid $darkgrey;
+	}
+
 	.col-left {
 
-		.hero-image {
-			display: block;
-			max-width: 250px;
-			margin: 40px auto 0px auto;
-		}
-		
 		.chart-wrapper {
 			width: 100%;
 			margin: 0 auto;
@@ -31,7 +78,8 @@
 			justify-content: center;
 		}
 
-		.deck-list, .winrate-list {
+		.winrate-list {
+			padding-top: 17px;
 			margin: 0px auto;
 			width: 90%;
 
@@ -86,21 +134,6 @@
 	}
 
 	.col-right {
-
-		.page-title {
-			display: flex;
-			height: 75px;
-
-			>img {
-				height: 50px;
-				width: 50px;
-				opacity: 0.3;
-			}
-
-			>div {
-				width: 100%;
-			}
-		}
 
 		.message-wrapper {
 			 margin-top: 70px

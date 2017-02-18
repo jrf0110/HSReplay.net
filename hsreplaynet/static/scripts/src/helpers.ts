@@ -474,3 +474,34 @@ export function cardSorting(a: any, b: any): number {
 	}
 	return 0;
 }
+
+export function getHeroCardId(playerClass: string, skin: boolean) {
+	//Heroes sorted by X in their cardId (HERO_0X)
+	const sorted = [
+		"WARRIOR", "SHAMAN", "ROGUE",
+		"PALADIN", "HUNTER", "DRUID",
+		"WARLOCK", "MAGE", "PRIEST"
+	];
+
+	const hasSkin = [
+		"WARRIOR", "SHAMAN", "PALADIN", "HUNTER", "MAGE", "PRIEST"
+	];
+
+	let heroId = ''+(sorted.indexOf(playerClass.toUpperCase()) + 1);
+	if(skin && hasSkin.indexOf(playerClass.toUpperCase()) !== -1) {
+		heroId += "a";
+	}
+	
+	return "HERO_0" + heroId;
+}
+
+export function getDustCost(rarity: string) {
+	//TODO take adventures etc into account
+	switch(rarity) {
+		case "COMMON": return 40;
+		case "RARE": return 100;
+		case "EPIC": return 400;
+		case "LEGENDARY": return 1600;
+	}
+	return 0;
+}
