@@ -237,6 +237,16 @@ class Deck(models.Model):
 		fields = ("id", "count", "deck_id", "card__name")
 		return self.includes.all().select_related("card").only(*fields)
 
+	def card_dbf_id_list(self):
+		result = []
+
+		includes = self.includes.values_list("card__dbf_id", "count")
+		for id, count in includes:
+			for i in range(count):
+				result.append(id)
+
+		return result
+
 	def card_id_list(self):
 		result = []
 

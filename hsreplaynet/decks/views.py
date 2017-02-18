@@ -10,10 +10,10 @@ def deck_detail(request, deck_id):
 		deck = Deck.objects.get(id=deck_id)
 	except Deck.DoesNotExist:
 		raise Http404("Deck not found")
-	cards = deck.card_id_list()
+	cards = deck.card_dbf_id_list()
 	if (len(cards)) != 30:
 		raise Http404("Deck not found")
-	decklist = ",".join(cards)
+	decklist = ",".join("%s" % dbf_id for dbf_id in cards)
 	deck_class = guess_class(deck)
 	return render(
 		request,
