@@ -1,8 +1,7 @@
-import json
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest
 from django.shortcuts import render
-from django.http import HttpResponse, Http404
+from django.http import JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
 from hsreplaynet.cards.models import Archetype
@@ -74,8 +73,7 @@ def winrates(request):
 		"expected_winrates": expected_winrates
 	}
 
-	payload_str = json.dumps(payload, indent=4, sort_keys=True)
-	return HttpResponse(payload_str, content_type="application/json")
+	return JsonResponse(payload)
 
 
 @login_required
