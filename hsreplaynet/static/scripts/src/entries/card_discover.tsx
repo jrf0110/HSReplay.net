@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import CardDiscover from "../components/CardDiscover";
+import CardDiscover from "../pages/CardDiscover";
 import HearthstoneJSON from "hearthstonejson";
 
 const render = (cardData) => {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {image, cardArt} from "../helpers";
-import MyReplays from "../components/MyReplays";
+import MyReplays from "../pages/MyReplays";
 
 
 ReactDOM.render(

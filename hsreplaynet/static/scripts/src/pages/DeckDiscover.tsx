@@ -1,10 +1,10 @@
 import * as React from "react";
-import CardIcon from "./CardIcon";
-import CardSearch from "./CardSearch";
-import ClassFilter from "./ClassFilter";
-import ClassIcon from "./ClassIcon";
-import ManaCurve from "./ManaCurve";
-import Pager from "./Pager";
+import CardIcon from "../components/CardIcon";
+import CardSearch from "../components/CardSearch";
+import ClassFilter from "../components/ClassFilter";
+import ClassIcon from "../components/ClassIcon";
+import ManaCurve from "../components/ManaCurve";
+import Pager from "../components/Pager";
 import QueryManager from "../QueryManager";
 import {ChartSeries, TableData} from "../interfaces";
 import {toTitleCase, toPrettyNumber} from "../helpers";

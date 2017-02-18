@@ -3,7 +3,7 @@ import $ from "jquery";
 import {Colors} from "../../Colors";
 import MatrixBody from "./MatrixBody";
 import {SelectableProps} from "../../interfaces";
-import {EvaluatedArchetype} from "../ArchetypeClient";
+import {EvaluatedArchetype} from "../../pages/ArchetypeClient";
 
 interface MatrixProps extends SelectableProps, React.ClassAttributes<Matrix> {
 	matrix: NumberMatrix;

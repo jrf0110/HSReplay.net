@@ -1,12 +1,12 @@
 import * as React from "react";
-import CardTile from "./CardTile";
-import CardDiscoverFilter from "./CardDiscoverFilter";
-import CardDetailBarChart from "./charts/CardDetailBarChart";
-import CardDetailPieChart from "./charts/CardDetailPieChart";
-import ClassFilter from "./ClassFilter";
+import CardTile from "../components/CardTile";
+import CardDiscoverFilter from "../components/CardDiscoverFilter";
+import CardDetailBarChart from "../components/charts/CardDetailBarChart";
+import CardDetailPieChart from "../components/charts/CardDetailPieChart";
+import ClassFilter from "../components/ClassFilter";
 import {ChartSeries} from "../interfaces";
 import {setNames, toTitleCase, wildSets} from "../helpers";
-import CardImage from "./CardImage";
+import CardImage from "../components/CardImage";
 
 interface CardFilters {
 	playerClass: any;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import PopularCards from "../components/reports/PopularCards";
+import PopularCards from "../pages/PopularCards";
 import HearthstoneJSON from "hearthstonejson";
 
 const render = (cardData) => {

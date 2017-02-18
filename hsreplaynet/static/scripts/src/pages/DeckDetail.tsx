@@ -1,17 +1,17 @@
 import * as React from "react";
-import CardDetailBarChart from "./charts/CardDetailBarChart";
-import CardDetailGauge from "./charts/CardDetailGauge";
-import CardDetailPieChart from "./charts/CardDetailPieChart";
-import CardIcon from "./CardIcon";
-import CardTile from "./CardTile";
-import ClassFilter from "./ClassFilter";
-import ClassIcon from "./ClassIcon";
+import CardDetailBarChart from "../components/charts/CardDetailBarChart";
+import CardDetailGauge from "../components/charts/CardDetailGauge";
+import CardDetailPieChart from "../components/charts/CardDetailPieChart";
+import CardIcon from "../components/CardIcon";
+import CardTile from "../components/CardTile";
+import ClassFilter from "../components/ClassFilter";
+import ClassIcon from "../components/ClassIcon";
 import HearthstoneJSON from "hearthstonejson";
-import HDTButton from "./HDTButton";
-import InfoIcon from "./InfoIcon";
-import PopularityLineChart from "./charts/PopularityLineChart";
+import HDTButton from "../components/HDTButton";
+import InfoIcon from "../components/InfoIcon";
+import PopularityLineChart from "../components/charts/PopularityLineChart";
 import QueryManager from "../QueryManager";
-import WinrateLineChart from "./charts/WinrateLineChart";
+import WinrateLineChart from "../components/charts/WinrateLineChart";
 import {TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
 	getChartScheme, toPrettyNumber, toTitleCase, getColorString, 

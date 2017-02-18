@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import ArchetypeClient from "../components/ArchetypeClient";
+import ArchetypeClient from "../pages/ArchetypeClient";
 import HearthstoneJSON from "hearthstonejson";
 
 const render = (cardData) => {

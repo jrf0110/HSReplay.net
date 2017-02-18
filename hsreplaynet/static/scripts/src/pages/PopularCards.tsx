@@ -1,14 +1,14 @@
 import * as React from "react";
-import ClassIcon from "../ClassIcon";
-import { TableData, TableQueryData, ChartSeries } from "../../interfaces";
-import CardTile from "../CardTile";
-import ClassFilter from "../ClassFilter";
-import CardDetailPieChart from "../charts/CardDetailPieChart";
-import CardDetailBarChart from "../charts/CardDetailBarChart";
-import CardRankingTable from "../CardRankingTable";
-import LoadingIndicator from "../LoadingIndicator";
-import {setNames, toTitleCase, toPrettyNumber} from "../../helpers";
-import QueryManager from "../../QueryManager";
+import ClassIcon from "../components/ClassIcon";
+import { TableData, TableQueryData, ChartSeries } from "../interfaces";
+import CardTile from "../components/CardTile";
+import ClassFilter from "../components/ClassFilter";
+import CardDetailPieChart from "../components/charts/CardDetailPieChart";
+import CardDetailBarChart from "../components/charts/CardDetailBarChart";
+import CardRankingTable from "../components/CardRankingTable";
+import LoadingIndicator from "../components/LoadingIndicator";
+import {setNames, toTitleCase, toPrettyNumber} from "../helpers";
+import QueryManager from "../QueryManager";
 
 interface PopularCardsState {
 	topCardsIncluded?: Map<string, TableData>;

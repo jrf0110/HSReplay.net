@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {image, cardArt} from "../helpers";
-import DeckDetail from "../components/DeckDetail";
+import DeckDetail from "../pages/DeckDetail";
 
 
 const deckId = +document.getElementById("deck-info").getAttribute("deck-id");

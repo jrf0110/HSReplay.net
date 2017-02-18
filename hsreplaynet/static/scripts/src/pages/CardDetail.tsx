@@ -1,14 +1,14 @@
 import * as React from "react";
-import WinrateByTurnLineChart from "./charts/WinrateByTurnLineChart";
-import CardDetailBarChart from "./charts/CardDetailBarChart";
-import CardDetailGauge from "./charts/CardDetailGauge";
-import CardDetailPieChart from "./charts/CardDetailPieChart";
-import CardRankingTable from "./CardRankingTable";
-import PopularityLineChart from "./charts/PopularityLineChart";
-import WinrateLineChart from "./charts/WinrateLineChart";
-import TurnPlayedBarChart from "./charts/TurnPlayedBarChart";
-import TopCardsList from "./TopCardsList";
-import ClassFilter from "./ClassFilter";
+import WinrateByTurnLineChart from "../components/charts/WinrateByTurnLineChart";
+import CardDetailBarChart from "../components/charts/CardDetailBarChart";
+import CardDetailGauge from "../components/charts/CardDetailGauge";
+import CardDetailPieChart from "../components/charts/CardDetailPieChart";
+import CardRankingTable from "../components/CardRankingTable";
+import PopularityLineChart from "../components/charts/PopularityLineChart";
+import WinrateLineChart from "../components/charts/WinrateLineChart";
+import TurnPlayedBarChart from "../components/charts/TurnPlayedBarChart";
+import TopCardsList from "../components/TopCardsList";
+import ClassFilter from "../components/ClassFilter";
 import {Colors} from "../Colors";
 import {
 	FilterData, Filter, FilterElement, FilterDefinition, KeyValuePair,

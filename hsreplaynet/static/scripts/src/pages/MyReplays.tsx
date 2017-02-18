@@ -1,15 +1,15 @@
 import * as React from "react";
 import {cookie} from "cookie_js";
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer, ReplayFilter} from "../interfaces";
-import GameHistorySearch from "./GameHistorySearch";
-import GameHistorySelectFilter from "./GameHistorySelectFilter";
-import GameHistoryList from "./GameHistoryList";
-import GameHistoryTable from "./GameHistoryTable";
-import InfoBoxSection from "./InfoBoxSection";
-import Pager from "./Pager";
+import GameHistorySearch from "../components/GameHistorySearch";
+import GameHistorySelectFilter from "../components/GameHistorySelectFilter";
+import GameHistoryList from "../components/GameHistoryList";
+import GameHistoryTable from "../components/GameHistoryTable";
+import InfoBoxSection from "../components/InfoBoxSection";
+import Pager from "../components/Pager";
 import {parseQuery, toQueryString} from "../QueryParser"
 import {formatMatch, modeMatch, nameMatch, resultMatch, heroMatch, opponentMatch} from "../GameFilters"
-import ClassDistributionPieChart from "./charts/ClassDistributionPieChart";
+import ClassDistributionPieChart from "../components/charts/ClassDistributionPieChart";
 
 
 type ViewType = "tiles" | "list";

@@ -1,16 +1,16 @@
 import * as React from "react";
-import Distribution from "./Distribution";
+import Distribution from "../components/Distribution";
 import {BnetGameType} from "../hearthstone";
-import Matrix from "./stats/Matrix";
-import SampleSizeSelector from "./stats/controls/SampleSizeSelector";
-import RankRangeSelector from "./stats/controls/RankRangeSelector";
+import Matrix from "../components/stats/Matrix";
+import SampleSizeSelector from "../components/stats/controls/SampleSizeSelector";
+import RankRangeSelector from "../components/stats/controls/RankRangeSelector";
 import {Colors} from "../Colors";
-import ColorSchemeSelector from "./stats/controls/ColorSchemeSelector";
-import IntensitySelector from "./stats/controls/IntensitySelector";
-import DateRangeSelector from "./stats/controls/DateRangeSelector";
-import {NumberRow} from "./stats/Matrix";
-import {Matchup} from "./stats/Matrix";
-import CardList from "./CardList";
+import ColorSchemeSelector from "../components/stats/controls/ColorSchemeSelector";
+import IntensitySelector from "../components/stats/controls/IntensitySelector";
+import DateRangeSelector from "../components/stats/controls/DateRangeSelector";
+import {NumberRow} from "../components/stats/Matrix";
+import {Matchup} from "../components/stats/Matrix";
+import CardList from "../components/CardList";
 
 interface ArchetypeClientProps extends React.ClassAttributes<ArchetypeClient> {
 	cardData: Map<string, any>;
