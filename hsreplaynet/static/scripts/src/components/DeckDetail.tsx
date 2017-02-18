@@ -16,6 +16,7 @@ import WinrateLineChart from "./charts/WinrateLineChart";
 import {TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
 	getChartScheme, toPrettyNumber, toTitleCase, getColorString, 
+	wildSets
 } from "../helpers";
 import {Colors} from "../Colors";
 
@@ -64,12 +65,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			winrateOverTime: "loading",
 		}
 
-		this.fetch();
-
 		new HearthstoneJSON().getLatest((data) => {
 			const map = new Map<string, any>();
 			data.forEach(card => map.set(card.id, card));
 			this.setState({cardData: map});
+			this.fetch();
 		});
 	}
 
@@ -90,8 +90,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	render(): JSX.Element {
 		const selectedClass = this.getSelectedClass();
 		const allSelected = selectedClass === "ALL";
-
-		console.log(this.state.tableDataAll === "loading", this.state.tableDataAll === "error")
 
 		let replayCount = null;
 		const selectedTable = allSelected ? this.state.tableDataAll : this.state.tableDataClasses;
@@ -439,34 +437,44 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return selectedClass;
 	}
 
+	isWildDeck(): boolean {
+		if (!this.props.deckCards || !this.state.cardData) {
+			return undefined;
+		}
+		return this.props.deckCards.split(",").map(id => this.state.cardData.get(id))
+			.some(card => wildSets.indexOf(card.set) !== -1);
+	}
+
 	fetch() {
+		const mode = this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
+
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({tableDataClasses: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_mulligan_guide?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_mulligan_guide?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({tableDataAll: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_winrate_over_time?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_winrate_over_time?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({winrateOverTime: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_base_winrate_by_opponent_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_base_winrate_by_opponent_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({baseWinrates: data})
 		);
 
 		//mock data
 		this.queryManager.fetch(
-			"/analytics/query/single_card_include_popularity_over_time?card_id=" + 374 + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
+			"/analytics/query/single_card_include_popularity_over_time?card_id=" + 374 + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({popularityOverTime: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/class_card_top_decks_when_played?card_id=" + 846 + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+			"/analytics/query/class_card_top_decks_when_played?card_id=" + 846 + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({similarDecks: data})
 		);
 	}
