@@ -135,7 +135,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		return <div className="deck-detail-container">
-			<div className="deck-header" style={{backgroundImage: "url(http://art.hearthstonejson.com/v1/512x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}}>
+			<div className="deck-header" style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/512x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}}>
 				<div className="deck-header-fade">
 					<div className="row">
 						<div className="col-lg-4">

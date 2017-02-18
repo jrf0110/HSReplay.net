@@ -184,7 +184,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		}
 
 		return <div className="card-detail-container">
-			<div className="card-header" style={{backgroundImage: "url(http://art.hearthstonejson.com/v1/512x/" + this.props.cardId + ".jpg"}}>
+			<div className="card-header" style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/512x/" + this.props.cardId + ".jpg"}}>
 				<div className="card-header-fade">
 					<div className="row">
 						<div className="col-title col-lg-4">
