@@ -10,12 +10,12 @@
 			<div class="container">
 				<ul class="nav navbar-nav">
 					<li><a href="{% url 'account_edit' %}">Settings</a></li>
+					<li><a href="{% url 'account_email' %}">E-Mail</a></li>
 					<li><a href="{% url 'account_api' %}">API access</a></li>
 					{% feature "webhooks" %}
 						<li><a href="{% url 'oauth2_app_list' %}">OAuth apps</a></li>
 					{% endfeature %}
 					{% if user.is_staff %}
-						<li><a href="{% url 'account_email' %}">E-Mail</a></li>
 						<li><a href="{% url 'account_change_password' %}">Password</a></li>
 					{% endif %}
 					<li><a href="{% url 'socialaccount_connections' %}">Battle.net</a></li>
