@@ -126,16 +126,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</div>
 			];
 
-			if (isWildCard(this.state.card)) {
-				content = (
-					<div className="message-wrapper">
-						<h3>Sorry, we currently don't have statistics for wild cards.</h3>
-						<p>But we are working on it, please check back later!</p>
-						<a href="/cards/discover/">In the mean time, check out our card database for card with available stats!</a>
-					</div>
-				);
-			}
-			else if (!isCollectibleCard(this.state.card)) {
+			if (!isCollectibleCard(this.state.card)) {
 				content = (
 					<div className="message-wrapper">
 						<h3>Sorry, we currently don't have statistics for non-collectible cards.</h3>
@@ -294,50 +285,51 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	fetch(card: any) {
-		if (isWildCard(card) || !isCollectibleCard(card)) {
+		if (!isCollectibleCard(card)) {
 			return;
 		}
+		const mode = isWildCard(card) ? "RANKED_WILD" : "RANKED_WILD";
 		if (this.cardIsNeutral(card)) {
 			this.queryManager.fetch(
-				"/analytics/query/single_card_class_distribution_by_include_count?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+				"/analytics/query/single_card_class_distribution_by_include_count?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 				(data) => this.setState({classDistribution: data})
 			);
 			this.queryManager.fetch(
-				"/analytics/query/neutral_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+				"/analytics/query/neutral_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 				(data) => this.setState({popularDecks: data})
 			);
 		}
 		else {
 			this.queryManager.fetch(
-				"/analytics/query/class_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+				"/analytics/query/class_card_top_decks_when_played?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 				(data) => this.setState({popularDecks: data})
 			);
 		}
 		if (this.cardHasTargetReqs(card)) {
 			this.queryManager.fetch(
-				"/analytics/query/single_card_popular_targets?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+				"/analytics/query/single_card_popular_targets?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 				(data) => this.setState({popularTargets: data})
 			);
 		}
 
 		this.queryManager.fetch(
-			"/analytics/query/single_card_winrate_by_turn?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+			"/analytics/query/single_card_winrate_by_turn?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({winrateByTurn: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_include_popularity_over_time?card_id=" + this.props.dbfId + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
+			"/analytics/query/single_card_include_popularity_over_time?card_id=" + this.props.dbfId + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({popularityOverTime: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_winrate_over_time?card_id=" + this.props.dbfId + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=RANKED_STANDARD",
+			"/analytics/query/single_card_winrate_over_time?card_id=" + this.props.dbfId + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({winrateOverTime: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_popularity_by_turn?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+			"/analytics/query/single_card_popularity_by_turn?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({popularityByTurn: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_popular_together?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=RANKED_STANDARD",
+			"/analytics/query/single_card_popular_together?card_id=" + this.props.dbfId + "&TimeRange=LAST_1_DAY&RankRange=ALL&GameType=" + mode,
 			(data) => this.setState({cardsOnSameTurn: data})
 		);
 	}
