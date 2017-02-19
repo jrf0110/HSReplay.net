@@ -196,21 +196,19 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			contentClassNames.push("hidden-xs");
 		}
 
+		const resetButton = (
+			<button className="btn btn-primary visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
+				Back to card list
+			</button>
+		);
 		return (
 			<div className="card-discover">
 				{search}
 				<div className="content-wrapper">
 					<div className={filterClassNames.join(" ")}>
-						<span className="visible-xs">
-							<button
-								className="btn btn-primary"
-								type="button"
-								onClick={() => this.setState({showFilters: false})}
-							>
-								Back
-							</button>
-						</span>
+						{resetButton}
 						{this.buildFilters(filterCounts)}
+						{resetButton}
 					</div>
 					<div className={contentClassNames.join(" ")}>
 						{content}
