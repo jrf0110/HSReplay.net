@@ -31,7 +31,7 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 			textClassNames.push("highlight");
 		}
 		return (
-			<div className="hdt-button-wrapper">
+			<div className="hdt-button-wrapper hidden-xs">
 				<img src={STATIC_URL + "images/hdt_icon.png"} />
 				<span className={textClassNames.join(" ")} id={"copy-deck-" + (this.props.id || 1)}>
 					{this.state.copied ? "Press Ctrl-V in HDT" : "Copy deck to HDT"}
