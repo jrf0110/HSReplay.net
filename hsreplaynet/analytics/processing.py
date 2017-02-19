@@ -113,10 +113,12 @@ def _do_execute_query(query, params):
 
 			start_ts = time.time()
 			exception_raised = False
+			exception_msg = None
 			try:
 				response_payload = query.execute(engine, params)
-			except Exception:
+			except Exception as e:
 				exception_raised = True
+				exception_msg = str(e)
 				raise
 			finally:
 				end_ts = time.time()
@@ -124,6 +126,7 @@ def _do_execute_query(query, params):
 
 				query_execute_metric_fields = {
 					"duration_seconds": duration_seconds,
+					"exception_message": exception_msg
 				}
 				query_execute_metric_fields.update(
 					params.supplied_non_filters_dict

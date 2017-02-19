@@ -39,8 +39,14 @@ def execute_redshift_query(event, context):
 			logger.info("Query Execution Complete")
 	except NotAvailable:
 		logger.warn("The Redshift query queue was already at max concurrency. Skipping query.")
+
+		metric_fields = {
+			"count": 1
+		}
+		metric_fields.update(params.supplied_non_filters_dict)
 		influx_metric(
-			"redshift_concurrent_query_limit_exceeded",
-			{"count": 1},
-			query_name=query_name
+			"redshift_query_lambda_execution_concurrency_exceeded",
+			metric_fields,
+			query_name=query_name,
+			**params.supplied_filters_dict
 		)
