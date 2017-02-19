@@ -97,7 +97,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			const metadata = selectedTable.series.metadata;
 			const numGames = allSelected ? metadata["total_games"] : metadata[selectedClass]["total_games"];
 			replayCount = (
-				<span className="replay-count pull-left">{"based on " + toPrettyNumber(numGames) + " replays"}</span>
+				<span className="replay-count">{"based on " + toPrettyNumber(numGames) + " replays"}</span>
 			);
 		}
 
@@ -138,20 +138,26 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			<div className="deck-header" style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/512x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}}>
 				<div className="deck-header-fade">
 					<div className="row">
-						<div className="col-lg-4">
+						<div className="col-lg-4 col-md-6 col-sm-6 col-xs-12">
 							<h1 className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.deckClass)}</h1>
 							<h4 className="dust-cost" style={dustCostStyle}>{dustCost}</h4>
+							<HDTButton
+								card_ids={this.props.deckCards.split(",")}
+								class={this.props.deckClass}
+								name={this.getDeckName()}
+								sourceUrl={window.location.toString()}
+							/>
 						</div>
-						<div className="col-lg-4 col-md-6">
-							<div className="chart-wrapper">
+						<div className="col-lg-4 col-md-6 col-sm-6 hidden-xs">
+							<div className="chart-wrapper wide">
 								<PopularityLineChart
 									renderData={this.state.popularityOverTime}
 									widthRatio={2}
 								/>
 							</div>
 						</div>
-						<div className="col-lg-4 col-md-6">
-							<div className="chart-wrapper">
+						<div className="col-lg-4 hidden-md hidden-sm hidden-xs">
+							<div className="chart-wrapper wide">
 								<WinrateLineChart
 									renderData={this.state.winrateOverTime}
 									widthRatio={2}
@@ -162,9 +168,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</div>
 			</div>
 			<div className="deck-detail row">
-				<div className="col-lg-9 col-right">
-					<div className="row">
-					</div>
+				<div className="col-lg-10 col-md-12 col-sm-12 col-xs-12 deck-breakdown">
 					<div id="opponent-class-filter">
 						<span>Opponent:</span>
 						<ClassFilter
@@ -180,24 +184,43 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
 					</h3>
 					{replayCount}
-					{this.buildTable(selectedTable, selectedClass)}
+					<div className="table-wrapper">
+						{this.buildTable(selectedTable, selectedClass)}
+					</div>
 				</div>
-				<div className="col-lg-3 col-left">
-					<div className="winrate-list">
-						<h4>Winrate against</h4>
-						<ul>
-							{winrates}
-						</ul>
+				<div className="col-lg-2 col-md-12 col-sm-12 col-xs-12">
+					<div className="chart-wrapper wide visible-xs">
+						<PopularityLineChart
+							renderData={this.state.popularityOverTime}
+							widthRatio={2}
+						/>
 					</div>
-					<div className="chart-wrapper">
-						<CardDetailBarChart labelX="Manacurve" widthRatio={1.8} title="Cost" renderData={this.buildChartSeries()}/>
+					<div className="row">
+						<div className="visible-xs col-xs-12">
+							<div className="chart-wrapper wide">
+								<WinrateLineChart
+									renderData={this.state.winrateOverTime}
+									widthRatio={2}
+								/>
+							</div>
+						</div>
+						<div className="col-lg-12 col-md-6 col-sm-5 col-xs-12">
+							<div className="winrate-list">
+								<h4>Winrate against</h4>
+								<ul>
+									{winrates}
+								</ul>
+							</div>
+						</div>
+						<div className="hidden-lg col-md-6 col-sm-7 hidden-xs">
+							<div className="chart-wrapper wide">
+								<WinrateLineChart
+									renderData={this.state.winrateOverTime}
+									widthRatio={2}
+								/>
+							</div>
+						</div>
 					</div>
-					<HDTButton
-						card_ids={this.props.deckCards.split(",")}
-						class={this.props.deckClass}
-						name={this.getDeckName()}
-						sourceUrl={window.location.toString()}
-					/>
 				</div>
 			</div>
 			<h3>Similar Decks</h3>

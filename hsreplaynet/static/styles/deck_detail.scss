@@ -1,18 +1,20 @@
 .deck-detail-container {
 	width: 98%;
 	margin-top: 20px;
+		
+	.chart-wrapper {
+		margin: 0 auto;
+		width: 100%;
+		max-width: 250px;
+		margin: 0 auto;
+		&.wide {
+			max-width: 450px;
+		}
+	}
 
 	.chart-column {
 		padding-left: 0;
 		padding-right: 0;
-
-		.chart-wrapper {
-			max-width: 150px;
-			margin: 0 auto;
-			&.wide {
-				max-width: 500px;
-			}
-		}
 	}
 
 	.deck-header {
@@ -46,6 +48,14 @@
 				padding-left: 25px;
 			}
 
+			.hdt-button-wrapper {
+				flex-direction: row;
+				padding-left: 50px;
+				.highlight {
+					color: black;
+				}
+			}
+
 			.page-title {
 				display: flex;
 				height: 75px;
@@ -67,77 +77,67 @@
 		border-bottom: 1px solid $darkgrey;
 	}
 
-	.chart-wrapper {
-		max-width: 450px;
-	}
+	.winrate-list {
+		margin-top: 27px;
 
-	.col-left {
-
-		.chart-wrapper {
-			width: 100%;
-			margin: 0 auto;
+		>h4 {
+			border-bottom: 1px solid $darkgrey;
 		}
 
-		.hdt-button-wrapper {
-			justify-content: center;
-		}
+		> ul {
+			padding-left: 10px;
 
-		.winrate-list {
-			padding-top: 17px;
-			margin: 0px auto;
-			width: 90%;
+			>li {
+				user-select: none;
+				list-style-type: none;
+				border-bottom: 1px solid $lightgrey;
 
-			>h4 {
-				border-bottom: 1px solid $darkgrey;
-			}
+				.badge {
+					float: right;
+					margin-top: 3px;
+				}
 
-			> ul {
-				padding-left: 10px;
+				.class-icon {
+					height: 24px;
+					width: 24px;
+					margin-right: 5px;
+				}
 
-				>li {
-					user-select: none;
-					list-style-type: none;
-					border-bottom: 1px solid $lightgrey;
-
-					.badge {
-						float: right;
-						margin-top: 3px;
-					}
-
-					.class-icon {
-						height: 24px;
-						width: 24px;
-						margin-right: 5px;
-					}
-
-					.card-icons {
-						display: flex;
-						float: right;
-						
-						.card-icon {
-							margin-left: 2px;
-						}
-					}
+				.card-icons {
+					display: flex;
+					float: right;
 					
-				}
-
-				>li:nth-child(even) {
-					background: rgb(249, 249, 249);
-				}
-
-				&#similar-decks-list >li {
-					height: 34px;
-					padding: 3px 0;
-
-					>a {
-						line-height: 28px;
+					.card-icon {
+						margin-left: 2px;
 					}
+				}
+				
+			}
+
+			>li:nth-child(even) {
+				background: rgb(249, 249, 249);
+			}
+
+			&#similar-decks-list >li {
+				height: 34px;
+				padding: 3px 0;
+
+				>a {
+					line-height: 28px;
 				}
 			}
 		}
 	}
 
-	.col-right {
+	.deck-breakdown {
+
+		.table-wrapper {
+			overflow-x: auto;
+			
+			>table {
+				min-width: 1050px;
+			}
+		}
 
 		.message-wrapper {
 			 margin-top: 70px
@@ -171,6 +171,7 @@
 		}
 
 		.replay-count {
+			display: block;
 			color: gray;
 			font-style: italic;
 			margin: -10px 0 0 5px;
