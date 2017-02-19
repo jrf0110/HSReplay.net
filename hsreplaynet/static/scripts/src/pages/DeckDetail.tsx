@@ -270,13 +270,19 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 		const cardRows = [];
 		if (this.state.cardData) {
+			const cardList = []
+			const rowList = [];
+			const groupedCards = this.getGroupedCards(this.props.deckCards.split(","));
+			groupedCards.forEach((count, cardId) => cardList.push({cardObj: this.state.cardData.get(cardId), count: count}));
+
+			let rows = null;
+			let mulliganAvg = 0;
+			let drawnAvg = 0;
+			let playedAvg = 0;
+			let deadAvg = 0;
 			if (tableData !== "loading" && tableData !== "error") {
-				const rows = tableData.series.data[key];
+				rows = tableData.series.data[key];
 				if (rows) {
-					let mulliganAvg = 0;
-					let drawnAvg = 0;
-					let playedAvg = 0;
-					let deadAvg = 0;
 					rows.forEach(row => {
 						mulliganAvg += +row["opening_hand_win_rate"];
 						drawnAvg += +row["win_rate_when_drawn"];
@@ -289,29 +295,24 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					drawnAvg /= rows.length;
 					playedAvg /= rows.length;
 					deadAvg /= rows.length;
-
-					const cardList = []
-					const groupedCards = this.getGroupedCards(this.props.deckCards.split(","));
-					groupedCards.forEach((count, cardId) => cardList.push({cardObj: this.state.cardData.get(cardId), count: count}));
-
-					const rowList = [];
-					cardList.forEach(card => {
-						const row = rows.find(r => r["card_id"] === card.cardObj.dbfId);
-						rowList.push({row: row, card: card})
-					})
-
-					if (this.state.sortCol === "decklist") {
-						rowList.sort(sortByCardProp("name")).sort(sortByCardProp("cost"));
-					}
-					else {
-						rowList.sort((a, b) => +a.row[this.state.sortCol] > +b.row[this.state.sortCol] ? this.state.sortDirection : -this.state.sortDirection);
-					}
 					
-					rowList.forEach(item => {
-						cardRows.push(this.buildCardRow(item.card, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg, deadAvg));
-					})
 				}
 			}
+			cardList.forEach(card => {
+				const row = rows && rows.find(r => r["card_id"] === card.cardObj.dbfId);
+				rowList.push({row: row, card: card})
+			})
+
+			if (this.state.sortCol === "decklist") {
+				rowList.sort(sortByCardProp("name")).sort(sortByCardProp("cost"));
+			}
+			else {
+				rowList.sort((a, b) => +a.row[this.state.sortCol] > +b.row[this.state.sortCol] ? this.state.sortDirection : -this.state.sortDirection);
+			}
+			
+			rowList.forEach(item => {
+				cardRows.push(this.buildCardRow(item.card, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg, deadAvg));
+			})
 		}
 
 		const onHeaderClick = (name: string, defaultDir: number = -1) => {
@@ -396,7 +397,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</a>
 			</div>
 		</td>);
-		if (row){
+		if (row) {
 			const mulligan = this.getWinrateData(mulliganWinrate, +row["opening_hand_win_rate"]);
 			const drawn = this.getWinrateData(drawnWinrate, +row["win_rate_when_drawn"]);
 			const played = this.getWinrateData(playedWinrate, +row["win_rate_when_played"]);
@@ -423,6 +424,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<td>{(+row["avg_turn_played_on"]).toFixed(2)}</td>,
 				);
 			}
+		}
+		else {
+			cols.push(
+				<td style={{whiteSpace: "pre"}}> </td>,
+				<td></td>,
+				<td></td>,
+				<td></td>,
+				<td></td>,
+				<td></td>,
+				<td></td>,
+			);
 		}
 		return <tr className="card-table-row">
 			{cols}
