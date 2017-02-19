@@ -1,10 +1,11 @@
 import * as React from "react";
 import CardIcon from "./CardIcon";
 import ManaCurve from "./ManaCurve";
-import {DeckObj} from "../interfaces";
+import {CardObj, DeckObj} from "../interfaces";
 import {cardSorting, getDustCost, getHeroCardId, toTitleCase, toPrettyNumber} from "../helpers";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
+	compareWith?: CardObj[];
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
@@ -31,22 +32,29 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				fontSize: "1em",
 				right: 0,
 				top: 0
+			};
+
+			let itemClassName = null;
+			if (this.props.compareWith) {
+				if (this.props.compareWith.some(c => c.card.id === card.id && c.count <= obj.count)) {
+					itemClassName = "unchanged";
+				}
 			}
 
 			cardIcons.push(
-				<li>
+				<li className={itemClassName}>
 					<CardIcon cardId={card.id} mark={markText} markStyle={markStyle}/>
 				</li>
-			)
+			);
 		});
 
 		const deckNameStyle = {
 			backgroundImage: "url(/static/images/64x/class-icons/" + this.props.playerClass.toLowerCase() + ".png"
-		}
+		};
 
 		const dustCostStyle = {
 			backgroundImage: "url(/static/images/dust.png"
-		}
+		};
 		
 		return (
 			<li style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.playerClass, true) + ".jpg"}}>

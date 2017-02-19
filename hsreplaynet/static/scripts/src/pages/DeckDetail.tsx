@@ -13,7 +13,7 @@ import InfoIcon from "../components/InfoIcon";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import QueryManager from "../QueryManager";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
-import {DeckObj, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
+import {CardObj, DeckObj, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
 	getChartScheme, getColorString, getDustCost, getHeroCardId,
 	toPrettyNumber, toTitleCase, wildSets
@@ -253,7 +253,19 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			})
 		});
 
-		return <DeckList decks={decks} pageSize={5} hideTopPager />;
+		const cards: CardObj[] = [];
+		this.props.deckCards.split(",").forEach(id => {
+			const card = this.state.cardData.get(id);
+			const existing = cards.find(c => c.card.id === id);
+			if (existing) {
+				existing.count += 1;
+			}
+			else {
+				cards.push({card, count: 1});
+			}
+		});
+
+		return <DeckList decks={decks} pageSize={5} hideTopPager compareWith={cards} />;
 	}
 
 	buildChartSeries(): RenderData {

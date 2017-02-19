@@ -1,7 +1,7 @@
 import * as React from "react";
 import DeckTile from "./DeckTile";
 import Pager from "./Pager";
-import {DeckObj} from "../interfaces";
+import {CardObj, DeckObj} from "../interfaces";
 
 interface DeckListState {
 	page: number;
@@ -11,6 +11,7 @@ interface DeckListProps extends React.ClassAttributes<DeckList> {
 	decks: DeckObj[];
 	pageSize: number;
 	hideTopPager?: boolean;
+	compareWith?: CardObj[];
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -43,6 +44,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					playerClass={deck.playerClass}
 					numGames={deck.numGames}
 					winrate={deck.winrate}
+					compareWith={this.props.compareWith}
 				/>
 			);
 		});

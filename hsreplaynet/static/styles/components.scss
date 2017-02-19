@@ -156,6 +156,10 @@
 							float: left;
 							min-width: 15px;
 
+							&.unchanged {
+								filter: grayscale(100%);
+							}
+
 							>div {
 								margin-top: 15px;
 								float: left;
@@ -166,6 +170,10 @@
 								margin-right: 3px;
 								line-height: 50px;
 							}
+						}
+
+						.unchanged:hover {
+							filter: grayscale(0);
 						}
 					}
 
