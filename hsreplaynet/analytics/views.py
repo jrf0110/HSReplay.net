@@ -59,7 +59,8 @@ def _fetch_query_results(query, params):
 	triggered_refresh = False
 	if cached_data:
 		was_cache_hit = True
-		if cached_data.cached_params.are_stale(params):
+		is_stale, num_seconds = cached_data.cached_params.are_stale(params)
+		if is_stale:
 			triggered_refresh = True
 			# Execute the query to refresh the stale data asynchronously
 			# And then return the data we have available immediately
@@ -74,12 +75,21 @@ def _fetch_query_results(query, params):
 			status=202,
 		)
 
+	query_fetch_metric_fields = {
+		"count": 1,
+		"seconds_stale": num_seconds
+	}
+	query_fetch_metric_fields.update(
+		params.supplied_non_filters_dict
+	)
+
 	influx_metric(
 		"redshift_query_fetch",
-		{"count": 1},
+		query_fetch_metric_fields,
 		cache_hit=was_cache_hit,
-		query=query.name,
-		triggered_refresh=triggered_refresh
+		query_name=query.name,
+		triggered_refresh=triggered_refresh,
+		**params.supplied_filters_dict
 	)
 
 	payload_str = json.dumps(response_payload, indent=4, sort_keys=True)
