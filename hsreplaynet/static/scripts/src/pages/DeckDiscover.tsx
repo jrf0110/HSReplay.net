@@ -63,17 +63,26 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		this.fetch();
 	}
 
-	cacheKey(): string {
-		return this.state.gameMode + this.state.rankRange + this.state.region + this.state.timeFrame;
+	cacheKey(state?: DeckDiscoverState): string {
+		state = state || this.state;
+		return state.gameMode + state.rankRange + state.region + state.timeFrame;
+	}
+
+	componentDidUpdate(prevProps: DeckDiscoverProps, prevState: DeckDiscoverState) {
+		const cacheKey = this.cacheKey();
+		const prevCacheKey = this.cacheKey(prevState);
+		if (cacheKey !== prevCacheKey) {
+			const deckData = this.state.deckData.get(cacheKey);
+			if (!deckData || deckData === "error") {
+				this.fetch();
+			}
+		}
 	}
 	
 	render(): JSX.Element {
 		const selectedClass = this.getSelectedClass();
 		const decks: DeckObj[] = [];
 		const deckData = this.state.deckData.get(this.cacheKey());
-		if (!deckData) {
-			this.fetch();
-		}
 		if (this.props.cardData) {
 			if (!this.state.cards) {
 				const cards = [];
@@ -133,8 +142,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		else if (deckData === "error") {
 			content = (
 				<div className="content-message">
-					<h2>Something went wrong :(</h2>
-					Please try again later.
+					<h2>Counting cards...</h2>
+					Please check back later.
 				</div>
 			);
 		}
