@@ -143,16 +143,20 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<h4 className="dust-cost" style={dustCostStyle}>{dustCost}</h4>
 						</div>
 						<div className="col-lg-4 col-md-6">
-							<PopularityLineChart
-								renderData={this.state.popularityOverTime}
-								widthRatio={2}
-							/>
+							<div className="chart-wrapper">
+								<PopularityLineChart
+									renderData={this.state.popularityOverTime}
+									widthRatio={2}
+								/>
+							</div>
 						</div>
 						<div className="col-lg-4 col-md-6">
-							<WinrateLineChart
-								renderData={this.state.winrateOverTime}
-								widthRatio={2}
-							/>
+							<div className="chart-wrapper">
+								<WinrateLineChart
+									renderData={this.state.winrateOverTime}
+									widthRatio={2}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>

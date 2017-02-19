@@ -158,14 +158,18 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				content = [
 					<div className="card-detail row">
 						<div className="col-lg-6 col-md-6">
-							<TurnPlayedBarChart
-								renderData={this.state.popularityByTurn}
-								widthRatio={2}
-							/>
-							<WinrateByTurnLineChart
-								renderData={this.state.winrateByTurn}
-								widthRatio={2}
-							/>
+							<div className="chart-wrapper">
+								<TurnPlayedBarChart
+									renderData={this.state.popularityByTurn}
+									widthRatio={2}
+								/>
+							</div>
+							<div className="chart-wrapper">
+								<WinrateByTurnLineChart
+									renderData={this.state.winrateByTurn}
+									widthRatio={2}
+								/>
+							</div>
 						</div>
 						<div className="col-lg-6 col-md-6">
 							<h4>Most combined with</h4>	
@@ -193,16 +197,20 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</div>
 						</div>
 						<div className="col-lg-4 col-md-6">
-							<PopularityLineChart
-								renderData={this.state.popularityOverTime}
-								widthRatio={2}
-							/>
+							<div className="chart-wrapper">
+								<PopularityLineChart
+									renderData={this.state.popularityOverTime}
+									widthRatio={2}
+								/>
+							</div>
 						</div>
 						<div className="col-lg-4 col-md-6">
-							<WinrateLineChart
-								renderData={this.state.winrateOverTime}
-								widthRatio={2}
-							/>
+							<div className="chart-wrapper">
+								<WinrateLineChart
+									renderData={this.state.winrateOverTime}
+									widthRatio={2}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
