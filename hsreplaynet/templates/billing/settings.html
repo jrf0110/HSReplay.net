@@ -12,7 +12,6 @@
 			<h4>{{ sub.plan.name }} ({{ sub.plan.human_readable_cost }})</h4>
 
 			{% if sub.cancel_at_period_end %}
-
 				<form method="POST" action="{% url 'premium_subscribe' %}" class="premium-plan-form">
 					{% csrf_token %}
 					<input type="hidden" name="plan" value="{{ sub.plan.stripe_id }}"/>
@@ -68,10 +67,11 @@
 		<hr/>
 		<ul>
 			<li><strong>Customer ID:</strong> <code>{{ customer.stripe_id }}</code></li>
-			{% if customer.subscription %}
-				<li><strong>Subscription ID:</strong> <code>{{ customer.subscription.stripe_id }}</code></li>
-				<li><strong>Plan ID:</strong> <code>{{ customer.subscription.plan.stripe_id }}</code></li>
-			{% endif %}
+			{% for sub in customer.subscriptions.all %}
+				{% if sub.status != "canceled" %}
+					<li><strong>Subscription ID:</strong> <code>{{ sub.stripe_id }}</code> ({{ sub.status }}) <code>{{ sub.plan.stripe_id }}</code></li>
+				{% endif %}
+			{% endfor %}
 		</ul>
 		{% endif %}
 
