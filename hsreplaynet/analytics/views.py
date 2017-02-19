@@ -57,6 +57,7 @@ def _fetch_query_results(query, params):
 	cached_data = get_from_redshift_cache(params.cache_key)
 	was_cache_hit = False
 	triggered_refresh = False
+	num_seconds = 0
 	if cached_data:
 		was_cache_hit = True
 		is_stale, num_seconds = cached_data.cached_params.are_stale(params)

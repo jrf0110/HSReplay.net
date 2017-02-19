@@ -103,8 +103,7 @@ def _do_execute_query(query, params):
 		# and now the value is available,
 		# or it's because we're going to do the work
 		cached_data = get_from_redshift_cache(params.cache_key)
-		is_stale, num_seconds = cached_data.cached_params.are_stale(params)
-		if cached_data and not is_stale:
+		if cached_data and not cached_data.cached_params.are_stale(params)[0]:
 			log.info("Up-to-date cached data exists. Exiting without running query.")
 			return cached_data
 		else:
