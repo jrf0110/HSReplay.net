@@ -157,7 +157,19 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 				content = [
 					<div className="card-detail row">
-						<div className="col-lg-6 col-md-6">
+						<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+							<div className="chart-wrapper visible-xs">
+								<PopularityLineChart
+									renderData={this.state.popularityOverTime}
+									widthRatio={2}
+								/>
+							</div>
+							<div className="chart-wrapper hidden-lg">
+								<WinrateLineChart
+									renderData={this.state.winrateOverTime}
+									widthRatio={2}
+								/>
+							</div>
 							<div className="chart-wrapper">
 								<TurnPlayedBarChart
 									renderData={this.state.popularityByTurn}
@@ -191,12 +203,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			<div className="card-header" style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/512x/" + this.props.cardId + ".jpg"}}>
 				<div className="card-header-fade">
 					<div className="row">
-						<div className="col-title col-lg-4">
+						<div className="col-title col-lg-4 col-md-6 col-sm-6 col-xs-12">
 							<div className="page-title">
 								{title}
 							</div>
 						</div>
-						<div className="col-lg-4 col-md-6">
+						<div className="col-lg-4 col-md-6 col-sm-6 hidden-xs">
 							<div className="chart-wrapper">
 								<PopularityLineChart
 									renderData={this.state.popularityOverTime}
@@ -204,7 +216,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								/>
 							</div>
 						</div>
-						<div className="col-lg-4 col-md-6">
+						<div className="col-lg-4 hidden-md hidden-sm hidden-xs">
 							<div className="chart-wrapper">
 								<WinrateLineChart
 									renderData={this.state.winrateOverTime}
