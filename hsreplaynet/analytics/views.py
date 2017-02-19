@@ -66,10 +66,12 @@ def _fetch_query_results(query, params):
 			# And then return the data we have available immediately
 			execute_query(query, params, async=True)
 		response_payload = cached_data.response_payload
+		payload_str = json.dumps(response_payload, indent=4, sort_keys=True)
+		response = HttpResponse(payload_str, content_type="application/json")
 	else:
 		execute_query(query, params, async=True)
 		# Nothing to return so tell the client to check back later
-		return HttpResponse(
+		response = HttpResponse(
 			"Query is processing. Check back later.",
 			content_type="text/plain",
 			status=202,
@@ -92,8 +94,7 @@ def _fetch_query_results(query, params):
 		**params.supplied_filters_dict
 	)
 
-	payload_str = json.dumps(response_payload, indent=4, sort_keys=True)
-	return HttpResponse(payload_str, content_type="application/json")
+	return response
 
 
 def user_is_eligible_for_query(user, params):
