@@ -8,6 +8,7 @@ from django.utils import timezone
 from hsredshift.analytics import queries
 from django.http import HttpResponse
 from hsredshift.analytics import filters
+from hsreplaynet.utils import log
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.influx import get_redshift_query_average_duration_seconds
 from .processing import execute_query, get_from_redshift_cache, evict_from_cache
@@ -55,11 +56,9 @@ def fetch_query_results(request, name):
 def _fetch_query_results(query, params):
 
 	cached_data = get_from_redshift_cache(params.cache_key)
-	was_cache_hit = False
 	triggered_refresh = False
 	num_seconds = 0
 	if cached_data:
-		was_cache_hit = True
 		is_stale, num_seconds = cached_data.cached_params.are_stale(params)
 		if is_stale:
 			triggered_refresh = True
@@ -78,9 +77,11 @@ def _fetch_query_results(query, params):
 			status=202,
 		)
 
+	was_cache_hit = str(bool(cached_data))
+	log.info("Query: %s Cache Hit: %s" % (query.name, was_cache_hit))
 	query_fetch_metric_fields = {
 		"count": 1,
-		"seconds_stale": num_seconds
+		"seconds_stale": float(num_seconds)
 	}
 	query_fetch_metric_fields.update(
 		params.supplied_non_filters_dict
