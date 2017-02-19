@@ -186,18 +186,18 @@
 			}
 			
 			>a:hover {
-				background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.5) 100px, $offwhite 256px);
+				background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.5) 100px, #f1f2f4 256px);
 				text-decoration: none;
 			}
 		}
 		>li:nth-child(odd) {
 			
 			>a {
-				background: linear-gradient(to right, $offwhite 1%, rgba(255, 255, 255, 0.7) 100px, white 256px);
+				background: linear-gradient(to right, $offwhite 1%, rgba(255, 255, 255, 0.7) 100px, #f9f9f9 256px);
 			}
 
 			>a:hover {
-				background: linear-gradient(to right, $offwhite 1%, rgba(255, 255, 255, 0.5) 100px, white 256px);
+				background: linear-gradient(to right, $offwhite 1%, rgba(255, 255, 255, 0.5) 100px, #f1f2f4 256px);
 			}
 		}
 	}
