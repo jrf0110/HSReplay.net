@@ -156,16 +156,16 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			);
 		}
 		else {
-			content = <DeckList decks={decks} pageSize={12} />
+			content = <DeckList decks={decks} pageSize={12} />;
 		}
 
 		const filterClassNames = ["filter-wrapper"];
 		const contentClassNames = ["deck-list-wrapper"]
 		if (!this.state.showFilters) {
-			filterClassNames.push("hidden-xs");
+			filterClassNames.push("hidden-xs hidden-sm");
 		}
 		else {
-			contentClassNames.push("hidden-xs");
+			contentClassNames.push("hidden-xs hidden-sm");
 		}
 
 		let resetButton = null;
@@ -196,7 +196,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		return (
 			<div className="deck-discover">
 				<div className={filterClassNames.join(" ")}>
-					<span className="visible-xs">
+					<span className="visible-xs visible-sm">
 						<button
 							className="btn btn-primary"
 							type="button"
@@ -278,6 +278,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</div>
 				</div>
 				<div className={contentClassNames.join(" ")}>
+					<button
+						className="btn btn-default pull-left visible-xs visible-sm"
+						type="button"
+						onClick={() => this.setState({showFilters: true})}
+					>
+						<span className="glyphicon glyphicon-filter"/>
+						Filters
+					</button>
 					{content}
 				</div>
 			</div>
