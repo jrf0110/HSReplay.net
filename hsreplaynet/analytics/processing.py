@@ -1,8 +1,9 @@
 import json
+import time
 from django.core.cache import caches
 from django.conf import settings
 from sqlalchemy import create_engine
-from hsreplaynet.utils.influx import influx_timer
+from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils import log
 from hsredshift.analytics.library.base import RedshiftQueryParams
@@ -102,16 +103,40 @@ def _do_execute_query(query, params):
 		# and now the value is available,
 		# or it's because we're going to do the work
 		cached_data = get_from_redshift_cache(params.cache_key)
-		if cached_data and not cached_data.cached_params.are_stale(params):
+		is_stale, num_seconds = cached_data.cached_params.are_stale(params)
+		if cached_data and not is_stale:
 			log.info("Up-to-date cached data exists. Exiting without running query.")
 			return cached_data
 		else:
 			log.info("Cached data missing or stale. Executing query now.")
 			# DO EXPENSIVE WORK
-			with influx_timer("redshift_query_duration", query=query.name):
-				results = query.as_result_set().execute(engine, params)
 
-			response_payload = query.to_response_payload(results, params)
+			start_ts = time.time()
+			exception_raised = False
+			try:
+				response_payload = query.execute(engine, params)
+			except Exception:
+				exception_raised = True
+				raise
+			finally:
+				end_ts = time.time()
+				duration_seconds = round(end_ts - start_ts, 2)
+
+				query_execute_metric_fields = {
+					"duration_seconds": duration_seconds,
+				}
+				query_execute_metric_fields.update(
+					params.supplied_non_filters_dict
+				)
+
+				influx_metric(
+					"redshift_query_execute",
+					query_execute_metric_fields,
+					exception_thrown=exception_raised,
+					query_name=query.name,
+					**params.supplied_filters_dict
+				)
+
 			cached_data = CachedRedshiftResult(response_payload, params)
 
 			get_redshift_cache().set(
