@@ -59,34 +59,36 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 		
 		const min = pageOffset + 1;
 		const max = Math.min(pageOffset + this.props.pageSize, deckCount);
-		const pager = (
-			<div className="paging pull-right">
-				<span>{min + " - " + max + " out of  " + deckCount}</span>
-				<Pager previous={prev} next={next} />
-			</div>
-		);
+		const pager = (top) => {
+			return (
+				<div className="paging pull-right">
+					<span className={top ? "hidden-xs" : null}>{min + " - " + max + " out of  " + deckCount}</span>
+					<Pager previous={prev} next={next} />
+				</div>
+			);
+		};
 		return (
 			<div className="deck-list">
-				{!this.props.hideTopPager && pager}
+				{!this.props.hideTopPager && pager(true)}
 				<div className="clearfix" />
 				<div className="row header-row">
-					<div className="col-lg-2 col-md-2">
+					<div className="col-lg-2 col-md-2 col-sm-2 col-xs-5">
 						Deck
 					</div>
-					<div className="col-lg-1 col-md-1">
+					<div className="col-lg-1 col-md-2 col-sm-2 col-xs-4" style={{textAlign: "center"}}>
 						Winrate
 					</div>
-					<div className="col-lg-1 col-md-1">
+					<div className="col-lg-1 col-md-1 hidden-sm col-xs-3" style={{textAlign: "center"}}>
 						Mana
 					</div>
-					<div className="col-lg-8 col-md-8">
+					<div className="col-lg-8 col-md-7 col-sm-8 hidden-xs">
 						Cards
 					</div>
 				</div>
 				<ul>
 					{deckTiles}
 				</ul>
-				{pager}
+				{pager(false)}
 			</div>
 		);
 	}

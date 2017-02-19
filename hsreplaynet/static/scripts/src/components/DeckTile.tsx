@@ -14,7 +14,6 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 		const cardIds = [];
 		const cardIcons = [];
 		let dustCost = 0;
-		let margin = 5;
 
 		cards.sort(cardSorting)
 		
@@ -24,9 +23,6 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			cardIds.push(card.dbfId);
 			if (obj.count > 1) {
 				cardIds.push(card.dbfId);
-			}
-			if (cards.length > 21) {
-				margin = 18;
 			}
 			
 			const markText = card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count;
@@ -38,7 +34,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			}
 
 			cardIcons.push(
-				<li style={{marginLeft: -margin}}>
+				<li>
 					<CardIcon cardId={card.id} mark={markText} markStyle={markStyle}/>
 				</li>
 			)
@@ -56,19 +52,19 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			<li style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.playerClass, true) + ".jpg"}}>
 				<a href={"/decks/" + this.props.deckId}>
 					<div>
-						<div className="col-lg-2 col-md-2">
+						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-5">
 							<span className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.playerClass)}</span>
 							<span className="dust-cost" style={dustCostStyle}>{dustCost}</span>
 						</div>
-						<div className="col-lg-1 col-md-1">
+						<div className="col-lg-1 col-md-2 col-sm-2 col-xs-4">
 							<span className="win-rate">{this.props.winrate}%</span>
 							<span className="game-count">{toPrettyNumber(this.props.numGames)} games</span>
 						</div>
-						<div className="col-lg-1 col-md-1">
+						<div className="col-lg-1 col-md-1 hidden-sm col-xs-3">
 							<ManaCurve cards={this.props.cards} />
 						</div>
-						<div className="col-lg-8 col-md-8">
-							<ul className="card-list" style={{paddingLeft: margin}}>
+						<div className="col-lg-8 col-md-7 col-sm-8 hidden-xs">
+							<ul className="card-list">
 								{cardIcons}
 							</ul>
 						</div>

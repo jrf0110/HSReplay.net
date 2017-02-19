@@ -148,10 +148,13 @@
 					}
 
 					.card-list {
+						display: flex;
 						list-style-type: none;
+						margin-right: 20px;
 
 						>li {
 							float: left;
+							min-width: 15px;
 
 							>div {
 								margin-top: 15px;
@@ -167,8 +170,9 @@
 					}
 
 					.mana-curve {
-						width: 75px;
-						padding: 17px 0 0 13px;
+						width: 48px;
+						padding-top: 17px;
+						margin: 0 auto;
 					}
 				}
 			}
