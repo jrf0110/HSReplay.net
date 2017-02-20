@@ -10,6 +10,7 @@ import DeckList from "../components/DeckList";
 import HearthstoneJSON from "hearthstonejson";
 import HDTButton from "../components/HDTButton";
 import InfoIcon from "../components/InfoIcon";
+import PremiumWrapper from "../components/PremiumWrapper";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import QueryManager from "../QueryManager";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
@@ -175,15 +176,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</div>
 			</div>
 			<div id="opponent-class-filter">
-				<h4>Filter by opponent</h4>
-				<ClassFilter
-					filters="All"
-					selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-					multiSelect={false}
-					hideAll
-					minimal
-					disabled={this.mockFree()}
-				/>
+				<PremiumWrapper isPremium={!this.mockFree()}>
+					<h4>Filter by opponent</h4>
+					<ClassFilter
+						filters="All"
+						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+						multiSelect={false}
+						hideAll
+						minimal
+						disabled={this.mockFree()}
+					/>
+				</PremiumWrapper>
 			</div>
 			<h3>
 				{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
