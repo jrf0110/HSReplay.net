@@ -21,6 +21,7 @@ def execute_redshift_query(event, context):
 		get_redshift_cache_redis_client(),
 		count=settings.REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT,
 		namespace='redshift_analytics_queries',
+		stale_client_timeout=300,
 		blocking=False
 	)
 
