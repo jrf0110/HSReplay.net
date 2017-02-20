@@ -312,12 +312,14 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	buildFilters(filterCounts: CardFilters): JSX.Element {
-		let showReset = false;
-		this.state.filters.forEach((val, key) => {
-			if (val && val.length) {
-				showReset = true;
-			}
-		});
+		let showReset = this.state.textFilter && !!this.state.textFilter.length;
+		if (!showReset) {
+			this.state.filters.forEach((val, key) => {
+				if (val && val.length) {
+					showReset = true;
+				}
+			});
+		}
 
 		let resetButton = null;
 		if (showReset) {
