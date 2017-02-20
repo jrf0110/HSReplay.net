@@ -3,8 +3,7 @@ from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
 from django.http import HttpResponseForbidden
-from datetime import date, timedelta, datetime
-from django.utils import timezone
+from datetime import date
 from hsredshift.analytics import queries
 from django.http import HttpResponse
 from hsredshift.analytics import filters
@@ -23,22 +22,6 @@ def evict_query_from_cache(request, name):
 	params = query.build_full_params(request.GET)
 	evict_from_cache(params.cache_key)
 	return HttpResponse()
-
-
-def available_data(self, name):
-	# This is a stub to unblock client development
-	# Until we implement support for queries providing a manifest
-	# Of available data.
-	yesterday = timezone.now().date() - timedelta(days=1)
-	redshift_epoch_start = timezone.make_aware(datetime(2017, 1, 24)).date()
-	redshift_epoch_span = yesterday - redshift_epoch_start
-	available_data = [yesterday.isoformat()]
-	for offset in range(1, redshift_epoch_span.days):
-		next_day = yesterday - timedelta(days=offset)
-		available_data.append(next_day.isoformat())
-
-	payload_str = json.dumps(available_data, indent=4, sort_keys=True)
-	return HttpResponse(payload_str, content_type="application/json")
 
 
 def fetch_query_results(request, name):
