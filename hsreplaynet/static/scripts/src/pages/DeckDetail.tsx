@@ -115,7 +115,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<li>
 						<ClassIcon heroClassName={key} small/>
 						{toTitleCase(data[key][0]["player_class"])}
-						<div className="badge" style={{background: this.getBadgeColor(winrate)}}>{winrate + "%"}</div>
+						<div className="badge" style={{background: this.getBadgeColor(winrate)}}>{(+winrate).toFixed(1) + "%"}</div>
 					</li>
 				);
 			});
@@ -438,8 +438,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			const played = this.getWinrateData(playedWinrate, +row["win_rate_when_played"]);
 			const dead = this.getWinrateData(+row["dead_percent"], deadAverage);
 			cols.push(
-				<td className="winrate-cell" style={{color: mulligan.color}}>{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(2) + "%"}</td>,
-				<td>{(+row["keep_percentage"]).toFixed(2) + "%"}</td>,
+				<td className="winrate-cell" style={{color: mulligan.color}}>{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(1) + "%"}</td>,
+				<td>{(+row["keep_percentage"]).toFixed(1) + "%"}</td>,
 			);
 			if (this.mockFree()) {
 				cols.push(
@@ -452,11 +452,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 			else {
 				cols.push(
-					<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(2) + "%"}</td>,
-					<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(2) + "%"}</td>,
-					<td className="winrate-cell" style={{color: dead.color}}>{dead.tendencyStr + (+row["dead_percent"]).toFixed(2) + "%"}</td>,
-					<td>{(+row["avg_turns_in_hand"]).toFixed(2)}</td>,
-					<td>{(+row["avg_turn_played_on"]).toFixed(2)}</td>,
+					<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(1) + "%"}</td>,
+					<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(1) + "%"}</td>,
+					<td className="winrate-cell" style={{color: dead.color}}>{dead.tendencyStr + (+row["dead_percent"]).toFixed(1) + "%"}</td>,
+					<td>{(+row["avg_turns_in_hand"]).toFixed(1)}</td>,
+					<td>{(+row["avg_turn_played_on"]).toFixed(1)}</td>,
 				);
 			}
 		}
@@ -481,7 +481,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const colorWinrate = 50 + Math.max(-50, Math.min(50, (5 * winrateDelta)));
 		const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
 		const color = getColorString(Colors.REDGREEN3, 75, colorWinrate/100)
-		return {delta: winrateDelta.toFixed(2), color, tendencyStr}
+		return {delta: winrateDelta.toFixed(1), color, tendencyStr}
 	}
 
 	getSelectedClass(): string {

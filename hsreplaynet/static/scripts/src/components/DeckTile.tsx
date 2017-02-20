@@ -65,7 +65,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 							<span className="dust-cost" style={dustCostStyle}>{dustCost}</span>
 						</div>
 						<div className="col-lg-1 col-md-2 col-sm-2 col-xs-4">
-							<span className="win-rate">{this.props.winrate}%</span>
+							<span className="win-rate">{(+this.props.winrate).toFixed(1)}%</span>
 							<span className="game-count">{toPrettyNumber(this.props.numGames)} games</span>
 						</div>
 						<div className="col-lg-1 col-md-1 hidden-sm col-xs-3">
