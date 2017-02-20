@@ -170,7 +170,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 		let resetButton = null;
 		if (this.state.deckType || this.state.excludedCards.length || this.state.includedCards.length || selectedClass && selectedClass !== "ALL") {
-			resetButton = <a href="#" onClick={() => this.resetFilters()}>Reset all filters</a>
+			resetButton = <button className="btn btn-danger" onClick={() => this.resetFilters()}>Reset all filters</button>
 		}
 
 		let resetInclude = null;
@@ -206,9 +206,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						</button>
 					</span>
 					<div className="filters">
-						<div className="pull-right">
-							{resetButton}
-						</div>
+						{resetButton}
 						<h4>Class</h4>
 						<ClassFilter 
 							hideAll

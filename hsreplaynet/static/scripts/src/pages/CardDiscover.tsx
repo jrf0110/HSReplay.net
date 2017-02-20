@@ -173,11 +173,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			filterClassNames.push("hidden-xs");
 			search = (
 				<div className="search-wrapper">
-					<button
-						className="btn btn-default visible-xs"
-						type="button"
-						onClick={() => this.setState({showFilters: !this.state.showFilters})}
-					>
+					<button className="btn btn-default visible-xs" type="button" onClick={() => this.setState({showFilters: !this.state.showFilters})}>
 						<span className="glyphicon glyphicon-filter"/>
 						Filters
 					</button>
@@ -323,13 +319,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 		let resetButton = null;
 		if (showReset) {
-			resetButton = <a href="#" onClick={() => this.resetFilters()}>Reset all filters</a>
+			resetButton = <button className="btn btn-danger" onClick={() => this.resetFilters()}>Reset all filters</button>
 		}
 		return (
 			<div className="filters">
-				<div className="pull-right">
-					{resetButton}
-				</div>
+				{resetButton}
 				<h4>Class</h4>
 				<ClassFilter 
 					hideAll

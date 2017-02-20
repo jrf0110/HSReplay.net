@@ -26,6 +26,11 @@
 
 			.filters {
 
+				>button {
+					margin-top: 10px;
+					width: 100%;
+				}
+
 				.cost-filter {
 					display: flex;
 					justify-content: center;
