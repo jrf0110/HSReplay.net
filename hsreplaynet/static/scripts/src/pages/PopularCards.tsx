@@ -1,25 +1,22 @@
 import * as React from "react";
-import ClassIcon from "../components/ClassIcon";
-import { TableData, TableQueryData, ChartSeries } from "../interfaces";
-import CardTile from "../components/CardTile";
-import ClassFilter from "../components/ClassFilter";
-import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardDetailBarChart from "../components/charts/CardDetailBarChart";
+import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
-import LoadingIndicator from "../components/LoadingIndicator";
-import {setNames, toTitleCase, toPrettyNumber} from "../helpers";
+import ClassFilter from "../components/ClassFilter";
 import QueryManager from "../QueryManager";
+import { TableData, TableQueryData, ChartSeries, GameMode, RankRange, Region, TimeFrame} from "../interfaces";
 
 interface PopularCardsState {
 	topCardsIncluded?: Map<string, TableData>;
 	topCardsPlayed?: Map<string, TableData>;
 	selectedClasses?: Map<string, boolean>;
 	numRowsVisible?: number;
-	error?: string;
-	availableIncludedDates?: string[];
-	availablePlayedDates?: string[];
-	availableDates?: string[]
-	index?: number;
+	classFilterKey?: number;
+	gameMode?: GameMode;
+	rankRange?: RankRange;
+	region?: Region;
+	showFilters?: boolean;
+	timeFrame?: TimeFrame;
 }
 
 interface PopularCardsProps extends React.ClassAttributes<PopularCards> {
@@ -36,83 +33,37 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			topCardsPlayed: new Map<string, TableData>(),
 			selectedClasses: new Map<string, boolean>(),
 			numRowsVisible: 12,
-			error: null,
-			availableIncludedDates: null,
-			availablePlayedDates: null,
-			availableDates: [],
-			index: 0,
+			classFilterKey: 0,
+			gameMode: "RANKED_STANDARD",
+			rankRange: "ALL",
+			region: "ALL",
+			showFilters: false,
+			timeFrame: "LAST_30_DAYS",
 		}
-
-		this.queryManager.fetch(
-			"/analytics/available-data/card_played_popularity_report",
-			(data) => {
-				if (data === "error") {
-					this.fetchingError();
-				}
-				else {
-					this.state.availablePlayedDates = data;
-					this.buildAvailableDates();
-				}
-			}
-		);
-		this.queryManager.fetch(
-			"/analytics/available-data/card_included_popularity_report",
-			(data) => {
-				if (data === "error") {
-					this.fetchingError();
-				}
-				else {
-					this.state.availableIncludedDates = data;
-					this.buildAvailableDates();
-				}
-			}
-		);
+		
+		this.fetchIncluded();
+		this.fetchPlayed();
+	}
+	
+	cacheKey(state?: PopularCardsState): string {
+		state = state || this.state;
+		return state.gameMode + state.rankRange + state.region + state.timeFrame;
 	}
 
-	buildAvailableDates() {
-		if (this.state.availableIncludedDates && this.state.availablePlayedDates) {
-			const availableDates = this.state.availableIncludedDates.filter(x => this.state.availablePlayedDates.indexOf(x) !== -1);
-			if (availableDates.length === 0) {
-				this.setState({error: "No data available. Please check back later."});
+	componentDidUpdate(prevProps: PopularCardsProps, prevState: PopularCardsState) {
+		const cacheKey = this.cacheKey();
+		const prevCacheKey = this.cacheKey(prevState);
+		if (cacheKey !== prevCacheKey) {
+			let deckData = this.state.topCardsIncluded.get(cacheKey);
+			if (!deckData || deckData === "error") {
+				this.fetchIncluded();
 			}
-			else {
-				this.state.availableDates = availableDates;
-				this.loadDate(0);
+			
+			deckData = this.state.topCardsPlayed.get(cacheKey);
+			if (!deckData || deckData === "error") {
+				this.fetchPlayed();
 			}
 		}
-	}
-
-	loadDate(index: number) {
-		const date = this.state.availableDates.length > index && this.state.availableDates[index];
-		const prevDate = this.state.availableDates.length + 1 > index && this.state.availableDates[index + 1];
-		const hasDate = this.state.topCardsPlayed.has(date) || this.state.topCardsIncluded.has(date);
-		const hasPrevDate = this.state.topCardsPlayed.has(prevDate) || this.state.topCardsIncluded.has(prevDate);
-		if (!hasDate) {
-			this.fetchDate(index);
-		}
-		if (!hasPrevDate) {
-			this.fetchDate(index + 1);
-		}
-	}
-
-	fetchDate(index: number) {
-		if (this.state.availableDates.length <= index) {
-			return;
-		}
-		const date = this.state.availableDates[index];
-
-		this.queryManager.fetch(
-			"/analytics/query/card_played_popularity_report?query_date=" + date,
-			(data) => this.setState({topCardsPlayed: this.state.topCardsPlayed.set(date, data)})
-		)
-		this.queryManager.fetch(
-			"/analytics/query/card_included_popularity_report?query_date=" + date,
-			(data) => this.setState({topCardsIncluded: this.state.topCardsIncluded.set(date, data)})
-		)
-	}
-
-	fetchingError() {
-		this.setState({error: "Oops. We seem to be having some technical difficulties. Please try again later."});
 	}
 
 	render(): JSX.Element {
@@ -123,33 +74,28 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			{"Show more..."}
 		</button>;
 
-		const date = this.state.availableDates.length > this.state.index &&  this.state.availableDates[this.state.index];
-		const prevDate = this.state.availableDates.length + 1 > this.state.index && this.state.availableDates[this.state.index + 1];
-		const topCardsIncluded = date ? this.state.topCardsIncluded.get(date) : "loading";
-		const topCardsPlayed = date ? this.state.topCardsPlayed.get(date) : "loading";
-		const prevTopCardsIncluded = prevDate ? this.state.topCardsIncluded.get(prevDate) : "loading";
-		const prevTopCardsPlayed = prevDate ? this.state.topCardsPlayed.get(prevDate) : "loading";
-		const error = topCardsIncluded === "error" || topCardsPlayed === "error";
-		const loaded = !error && (topCardsIncluded !== "loaded" && topCardsPlayed !== "loaded");
+		const played = this.state.topCardsPlayed.get(this.cacheKey());
+		const included = this.state.topCardsIncluded.get(this.cacheKey());
 
 		let content = null;
-
-		if (this.state.error) {
-			content = <div className="error-message">
-				<h3>{this.state.error}</h3>
-			</div>;
-		}
-		else if (!loaded || !topCardsIncluded || !topCardsPlayed) {
-			content = <div className="loading-message">
-				<h3>Loading...</h3>
-				<div className="loading-wrapper">
-					<LoadingIndicator height={20}/>
+		if (!played || !included || played === "loading" || included === "loading" || !this.props.cardData) {
+			content = (
+				<div className="content-message">
+					<h2>Counting cards...</h2>
 				</div>
-			</div>;
+			);
+		}
+		else if (played === "error" || included === "error") {
+			content = (
+				<div className="content-message">
+					<h2>Alright, working on it...</h2>
+					Please check back later.
+				</div>
+			);
 		}
 		else {
 			const selectedClass = this.getSelectedClass();
-			const chartSeries = this.buildChartSeries(topCardsIncluded as TableQueryData);
+			const chartSeries = this.buildChartSeries(included);
 			content = [
 				<div className ="row">
 					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
@@ -179,8 +125,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						<div>
 							<CardRankingTable 
 								numRows={this.state.numRowsVisible}
-								tableData={topCardsIncluded}
-								prevTableData={prevTopCardsIncluded}
+								tableData={included}
 								dataKey={selectedClass}
 								cardData={this.props.cardData}
 							/>
@@ -191,8 +136,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						<div>
 							<CardRankingTable 
 								numRows={this.state.numRowsVisible}
-								tableData={topCardsPlayed}
-								prevTableData={prevTopCardsPlayed}
+								tableData={played}
 								dataKey={selectedClass}
 								cardData={this.props.cardData}
 							/>
@@ -204,69 +148,108 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 				</div>
 			];
 		}
-
-		const hasNext = this.state.index > 0;
-		const hasPrevious = this.state.index < this.state.availableDates.length - 1;
-		const previousClassName = "btn btn-default" + (hasPrevious ? "" : " disabled");
-		const nextClassName = "btn btn-default" + (hasNext ? "" : " disabled");
-
-		const loadPrevious = () => {
-			if (hasPrevious) {
-				const nextIndex = this.state.index + 1;
-				this.setState({index: nextIndex});
-				this.loadDate(nextIndex);
-				this.loadDate(nextIndex + 1);
-			}
+		
+		const filterClassNames = ["filter-wrapper"];
+		const contentClassNames = ["report-content"]
+		if (!this.state.showFilters) {
+			filterClassNames.push("hidden-xs hidden-sm");
 		}
-		const loadNext = () => {
-			if (hasNext) {
-				const nextIndex = this.state.index - 1;
-				this.setState({index: nextIndex});
-				this.loadDate(nextIndex);
-			}
+		else {
+			contentClassNames.push("hidden-xs hidden-sm");
 		}
-
-		const replayCount = topCardsPlayed && topCardsPlayed !== "error"
-			&& topCardsPlayed !== "loading" && toPrettyNumber(+topCardsPlayed.series.metadata["total_games"]);
 
 		return <div className="report-container" id="card-popularity-report">
-			<div className="row">
-				<div className="info-column col-lg-4">
-					<img className="title-card" src={STATIC_URL + "images/title-cards/ranked-standard-popularity.png"}/>
-					<div className="controls-wrapper row">
-						<div className="date-control-wrapper col-md-12">
-							<button type="button" className={previousClassName} onClick={loadPrevious}>
-								<span className="glyphicon glyphicon-chevron-left"/>
-							</button>
-							<div>
-								{date}
-							</div>
-							<button type="button" className={nextClassName} onClick={loadNext}>
-								<span className="glyphicon glyphicon-chevron-right"/>
-							</button>
-						</div>
-						<div className="col-md-12">
-							{!this.state.error && loaded ? ("Based on " + replayCount + " replays") : null}
-						</div>
-						<div className="col-md-12">
-							<ClassFilter
-								filters="AllNeutral"
-								selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-								multiSelect={false}
-								hideAll
-							/>
-						</div>
-					</div>
-					<div className="ad-wrapper">
-					</div>
-				</div>
-				<div className="content-wrapper col-lg-8">
-					{content}
+			<div className={filterClassNames.join(" ")}>
+				<span className="visible-xs visible-sm">
+					<button
+						className="btn btn-primary"
+						type="button"
+						onClick={() => this.setState({showFilters: false})}
+					>
+						Back
+					</button>
+				</span>
+				<div className="filters">
+					<h4>Class</h4>
+					<ClassFilter 
+						hideAll
+						key={this.state.classFilterKey}
+						multiSelect={false}
+						filters="AllNeutral"
+						minimal
+						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+					/>
+					<h4>Mode</h4>
+					<ul>
+						{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
+						{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
+						{this.buildFilter("gameMode", "TAVERNBRAWL", "Brawl")}
+					</ul>
+					<h4>Time frame</h4>
+					<ul>
+						{this.buildFilter("timeFrame", "LAST_7_DAYS", "Last 7 days")}
+						{this.buildFilter("timeFrame", "LAST_14_DAYS", "Last 14 days")}
+						{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
+						{this.buildFilter("timeFrame", "CURRENT_SEASON", "Current season")}
+						{this.buildFilter("timeFrame", "PREVIOUS_SEASON", "Previous season")}
+					</ul>
+					<h4>Rank range</h4>
+					<ul>
+						{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL")}
+						{this.buildFilter("rankRange", "ONE_THROUGH_FIVE", "1 - 5", "ALL")}
+						{this.buildFilter("rankRange", "SIX_THROUGH_TEN", "6 - 10", "ALL")}
+						{this.buildFilter("rankRange", "ELEVEN_THROUGH_FIFTEEN", "11 - 15", "ALL")}
+						{this.buildFilter("rankRange", "SIXTEEN_THROUGH_TWENTY", "16 - 20", "ALL")}
+						{this.buildFilter("rankRange", "TWENTYONE_THROUGH_TWENTYFIVE", "21 - 25", "ALL")}
+						{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL")}
+						{this.buildFilter("rankRange", "ELEVEN_THROUGH_TWENTYFIVE", "11 - 25", "ALL")}
+					</ul>
+					<h4>Region</h4>
+					<ul>
+						{this.buildFilter("region", "REGION_US", "Americas", "ALL")}
+						{this.buildFilter("region", "REGION_EU", "Europe", "ALL")}
+						{this.buildFilter("region", "REGION_KR", "Asia", "ALL")}
+						{this.buildFilter("region", "REGION_CN", "China", "ALL")}
+					</ul>
 				</div>
 			</div>
-			<div className="row">
+			<div className={contentClassNames.join(" ")}>
+				<button
+					className="btn btn-default visible-xs visible-sm"
+					type="button"
+					onClick={() => this.setState({showFilters: true})}
+				>
+					<span className="glyphicon glyphicon-filter"/>
+					Filters
+				</button>
+				{content}
 			</div>
 		</div>;
+	}
+	
+	buildFilter(prop: string, key: string, displayValue: string, defaultValue?: string): JSX.Element {
+		const selected = this.state[prop] === key;
+		const onClick = () => {
+			if (!selected || defaultValue !== undefined) {
+				const newState = {};
+				newState[prop] = selected ? defaultValue : key;
+				this.setState(newState);
+			}
+		}
+		
+		const classNames = [];
+		if (selected) {
+			classNames.push("selected");
+			if (!defaultValue) {
+				classNames.push("no-deselect");
+			}
+		}
+
+		return (
+			<li onClick={onClick} className={classNames.join(" ")}>
+				{displayValue}
+			</li>
+		);
 	}
 
 	buildChartSeries(topCardsIncluded: TableQueryData): ChartSeries[] {
@@ -315,5 +298,19 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			}
 		});
 		return selectedClass;
+	}
+	
+	fetchIncluded() {
+		this.queryManager.fetch(
+			"/analytics/query/card_included_popularity_report?TimeRange=" + this.state.timeFrame + "&RankRange=" + this.state.rankRange + "&GameType=" + this.state.gameMode + "&Region=" + this.state.region,
+			(data) => this.setState({topCardsIncluded: this.state.topCardsIncluded.set(this.cacheKey(), data)})
+		);
+	}
+
+	fetchPlayed() {
+		this.queryManager.fetch(
+			"/analytics/query/card_played_popularity_report?TimeRange=" + this.state.timeFrame + "&RankRange=" + this.state.rankRange + "&GameType=" + this.state.gameMode + "&Region=" + this.state.region,
+			(data) => this.setState({topCardsPlayed: this.state.topCardsPlayed.set(this.cacheKey(), data)})
+		);
 	}
 }

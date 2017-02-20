@@ -5,7 +5,7 @@
 {% block title %}Card Menagerie - Popular cards in Ranked Standard{% endblock %}
 
 {% block fullcontent %}
-<div id="content-container" class="container-fluid" style="display: flex;justify-content: center;">
+<div id="content-container" class="container-fluid">
 </div>
 {% if user.is_authenticated and user.is_staff %}
 	{% render_bundle "popular_cards" %}

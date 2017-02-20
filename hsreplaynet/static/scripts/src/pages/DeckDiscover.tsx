@@ -4,22 +4,17 @@ import ClassFilter from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
 import Pager from "../components/Pager";
 import QueryManager from "../QueryManager";
-import {DeckObj, TableData} from "../interfaces";
+import {DeckObj, TableData, GameMode, RankRange, Region, TimeFrame} from "../interfaces";
 import {cardSorting, toTitleCase} from "../helpers";
 
 type DeckType = "aggro" | "midrange" | "control";
-type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
-type RankRange = "ALL" | "LEGEND_ONLY" | "ONE_THROUGH_FIVE" | "SIX_THROUGH_TEN" | "ELEVEN_THROUGH_FIFTEEN" | "SIXTEEN_THROUGH_TWENTY" | "TWENTYONE_THROUGH_TWENTYFIVE" | "LEGEND_THROUGH_TEN" | "ELEVEN_THROUGH_TWENTYFIVE";
-type Region = "ALL" | "REGION_US" | "REGION_EU" | "REGION_KR" | "REGION_CN";
-type TimeFrame = "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS" | "CURRENT_SEASON" | "PREVIOUS_SEASON";
-
 type SortProp = "win_rate" | "total_games";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
 	cardSearchIncludeKey?: number;
 	cards?: any[];
-	classFilterKey?: string;
+	classFilterKey?: number;
 	deckData?: Map<string, TableData>;
 	deckType?: DeckType;
 	excludedCards?: any[];
@@ -46,7 +41,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			cardSearchExcludeKey: 0,
 			cardSearchIncludeKey: 0,
 			cards: null,
-			classFilterKey: "ALL",
+			classFilterKey: 0,
 			deckData: new Map<string, TableData>(),
 			deckType: null,
 			excludedCards: [],
