@@ -12,7 +12,7 @@ interface PopularCardsState {
 	selectedClasses?: Map<string, boolean>;
 	numRowsVisible?: number;
 	classFilterKey?: number;
-	gameMode?: GameMode;
+	gameMode?: GameMode | "ARENA";
 	rankRange?: RankRange;
 	region?: Region;
 	showFilters?: boolean;
@@ -184,6 +184,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
 						{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
 						{this.buildFilter("gameMode", "TAVERNBRAWL", "Brawl")}
+						{this.buildFilter("gameMode", "ARENA", "Arena")}
 					</ul>
 					<h4>Time frame</h4>
 					<ul>
