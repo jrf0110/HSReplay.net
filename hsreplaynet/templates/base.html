@@ -1,8 +1,8 @@
 {% extends "skeleton.html" %}
 {% load static %}
-{% load features %}
 {% load socialaccount %}
 {% load web_extras %}
+{% load feature from features %}
 
 {% block stylesheets %}
 	<link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700" rel="stylesheet">
@@ -90,13 +90,13 @@
 							<li><a href="{% url 'deck_discover' %}">Deck Database</a></li>
 						{% endif %}
 
-						{% feature "archetypes" %}
+						{% feature "archetypes" as archetypes %}{% if archetypes.enabled %}
 							<li><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
-						{% endfeature %}
+						{% endif %}
 
-						{% feature "scenarios" %}
+						{% feature "scenarios" as scenarios %}{% if scenarios.enabled %}
 							<li><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
-						{% endfeature %}
+						{% endif %}
 
 						{% if user.is_authenticated and user.is_staff %}
 							<li><a href="{% url 'admin:index' %}">Admin</a></li>

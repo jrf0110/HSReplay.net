@@ -1,5 +1,4 @@
 {% extends "account/base.html" %}
-{% load features %}
 
 {% block content %}
 	<section id="account-api" class="box-section">
@@ -35,7 +34,6 @@
 		</div>
 	</section>
 
-	{% feature "webhooks" %}
 	<section id="account-webhooks" class="box-section">
 		<h3>Webhooks</h3>
 		<div class="inner">
@@ -81,5 +79,4 @@
 			<a href="{% url 'account_new_webhook' %}" class="btn btn-info">Add webhook…</a>
 		</div>
 	</section>
-	{% endfeature %}
 {% endblock %}

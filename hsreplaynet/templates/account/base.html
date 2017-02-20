@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load static %}
-{% load features %}
 
 {% block title %}Account{% endblock %}
 
@@ -12,9 +11,7 @@
 					<li><a href="{% url 'account_edit' %}">Settings</a></li>
 					<li><a href="{% url 'account_email' %}">E-Mail</a></li>
 					<li><a href="{% url 'account_api' %}">API access</a></li>
-					{% feature "webhooks" %}
-						<li><a href="{% url 'oauth2_app_list' %}">OAuth apps</a></li>
-					{% endfeature %}
+					<li><a href="{% url 'oauth2_app_list' %}">OAuth apps</a></li>
 					{% if user.is_staff %}
 						<li><a href="{% url 'account_change_password' %}">Password</a></li>
 					{% endif %}
