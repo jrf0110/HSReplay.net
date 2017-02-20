@@ -167,27 +167,25 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</div>
 				</div>
 			</div>
+			<div id="opponent-class-filter">
+				<h4>Filter by opponent</h4>
+				<ClassFilter
+					filters="All"
+					selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+					multiSelect={false}
+					hideAll
+					minimal
+					disabled={this.mockFree()}
+				/>
+			</div>
+			<h3>
+				{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
+			</h3>
+			{replayCount}
+			<div className="table-wrapper">
+				{this.buildTable(selectedTable, selectedClass)}
+			</div>
 			<div className="deck-detail row">
-				<div className="col-lg-10 col-md-12 col-sm-12 col-xs-12 deck-breakdown">
-					<div id="opponent-class-filter">
-						<span>Opponent:</span>
-						<ClassFilter
-							filters="All"
-							selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-							multiSelect={false}
-							hideAll
-							minimal
-							disabled={this.mockFree()}
-						/>
-					</div>
-					<h3>
-						{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
-					</h3>
-					{replayCount}
-					<div className="table-wrapper">
-						{this.buildTable(selectedTable, selectedClass)}
-					</div>
-				</div>
 				<div className="col-lg-2 col-md-12 col-sm-12 col-xs-12">
 					<div className="chart-wrapper wide visible-xs">
 						<PopularityLineChart
@@ -204,14 +202,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								/>
 							</div>
 						</div>
-						<div className="col-lg-12 col-md-6 col-sm-5 col-xs-12">
-							<div className="winrate-list">
-								<h4>Winrate against</h4>
-								<ul>
-									{winrates}
-								</ul>
-							</div>
-						</div>
 						<div className="hidden-lg col-md-6 col-sm-7 hidden-xs">
 							<div className="chart-wrapper wide">
 								<WinrateLineChart
@@ -225,6 +215,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</div>
 			<h3>Similar Decks</h3>
 			{this.buildSimilarDecks()}
+			<div className="winrate-list">
+				<h4>Winrate against</h4>
+				<ul>
+					{winrates}
+				</ul>
+			</div>
 		</div>;
 	}
 	

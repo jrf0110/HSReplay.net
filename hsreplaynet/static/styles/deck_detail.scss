@@ -78,7 +78,7 @@
 	}
 
 	.winrate-list {
-		margin-top: 27px;
+		padding-top: 27px;
 
 		>h4 {
 			border-bottom: 1px solid $darkgrey;
@@ -129,53 +129,51 @@
 		}
 	}
 
-	.deck-breakdown {
-
-		.table-wrapper {
-			overflow-x: auto;
-			
-			>table {
-				min-width: 1050px;
-			}
+	#opponent-class-filter {
+		margin-top: 30px;
+		text-align: center;
+		
+		.class-icon {
+			height: 2.3em;
+			width: 2.3em;
 		}
+	}
 
-		.message-wrapper {
-			 margin-top: 70px
+
+	.table-wrapper {
+		overflow-x: auto;
+		
+		>table {
+			min-width: 1050px;
 		}
+	}
 
-		.table-header-sortable {
-			cursor: pointer;
-			user-select: none;
+	.message-wrapper {
+			margin-top: 70px
+	}
 
-			.no-sort {
-				opacity: 0;
-			}
+	.table-header-sortable {
+		cursor: pointer;
+		user-select: none;
+
+		.no-sort {
+			opacity: 0;
 		}
+	}
 
-		.table-header-card {
-			width: 217px;
-		}
+	.table-header-card {
+		width: 217px;
+	}
 
-		>h3 {
-			border-bottom: 1px solid $darkgrey;
-		}
+	>h3 {
+		border-bottom: 1px solid $darkgrey;
+	}
 
-		#opponent-class-filter {
-			display: flex;
-			float: right;
-			margin-top: 12px;
-			> span {
-				line-height: 28px;
-				margin-top: 5px;
-			}
-		}
-
-		.replay-count {
-			display: block;
-			color: gray;
-			font-style: italic;
-			margin: -10px 0 0 5px;
-		}
+	.replay-count {
+		display: block;
+		color: gray;
+		font-style: italic;
+		margin: -10px 0 0 5px;
 	}
 }
 
