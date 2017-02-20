@@ -19,6 +19,7 @@ import {
 	getChartScheme, getColorString, getDustCost, getHeroCardId,
 	toPrettyNumber, toTitleCase, wildSets
 } from "../helpers";
+import {showModal} from "../Premium";
 import {Colors} from "../Colors";
 
 interface Card {
@@ -72,10 +73,22 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			this.setState({cardData: map});
 			this.fetch();
 		});
+
+		if (this.getQueryParams().indexOf("premium-modal") !== -1) {
+			showModal();
+		}
+	}
+
+	getQueryParams(): string[] {
+		const params = window.location.href.split("?")[1];
+		if (params) {
+			return params.split("&");
+		}
+		return [];
 	}
 
 	mockFree(): boolean {
-		return window.location.href.split("?")[1] === "free";
+		return this.getQueryParams().indexOf("free") !== -1;
 	}
 
 	getDeckName(): string {
