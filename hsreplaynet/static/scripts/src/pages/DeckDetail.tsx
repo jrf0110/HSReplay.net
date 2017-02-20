@@ -126,6 +126,18 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			this.props.deckCards.split(",").forEach(id => dustCost += getDustCost(this.state.cardData.get(id).rarity));
 		}
 		
+		let hdtButton = null;
+		if (this.state.cardData) {
+			hdtButton = (
+				<HDTButton
+					card_ids={this.props.deckCards.split(",").map(dbfId => this.state.cardData.get(dbfId).id)}
+					class={this.props.deckClass}
+					name={this.getDeckName()}
+					sourceUrl={window.location.toString()}
+				/>
+			);
+		}
+		
 		const deckNameStyle = {
 			backgroundImage: "url(/static/images/class-icons/" + this.props.deckClass.toLowerCase() + ".png"
 		}
@@ -141,12 +153,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<div className="col-lg-4 col-md-6 col-sm-6 col-xs-12">
 							<h1 className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.deckClass)}</h1>
 							<h4 className="dust-cost" style={dustCostStyle}>{dustCost}</h4>
-							<HDTButton
-								card_ids={this.props.deckCards.split(",")}
-								class={this.props.deckClass}
-								name={this.getDeckName()}
-								sourceUrl={window.location.toString()}
-							/>
+							{hdtButton}
 						</div>
 						<div className="col-lg-4 col-md-6 col-sm-6 hidden-xs">
 							<div className="chart-wrapper wide">
