@@ -12,13 +12,15 @@ from stripe.error import InvalidRequestError
 
 class StripeCheckoutMixin:
 	def get_customer(self, request):
-		# The Stripe customer model corresponding to the user
-		customer, _ = Customer.get_or_create(request.user)
-		return customer
+		if request.user.is_authenticated:
+			# The Stripe customer model corresponding to the user
+			customer, _ = Customer.get_or_create(request.user)
+			return customer
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 
+		# Will be None if the user is not authenticated
 		context["customer"] = self.get_customer(self.request)
 
 		# `payment_methods` is a queryset of the customer's payment sources
