@@ -280,44 +280,50 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		if (!isCollectibleCard(card)) {
 			return;
 		}
+
+		const buildUrl = (queryName: string, mode: string): string => {
+			return "/analytics/query/" + queryName + "?card_id=" + this.props.dbfId + "&GameType=" + mode;
+		}
+
 		const mode = isWildCard(card) ? "RANKED_WILD" : "RANKED_STANDARD";
+
 		if (this.cardIsNeutral(card)) {
 			this.queryManager.fetch(
-				"/analytics/query/single_card_class_distribution_by_include_count?card_id=" + this.props.dbfId + "GameType=" + mode,
+				buildUrl("single_card_class_distribution_by_include_count", mode),
 				(data) => this.setState({classDistribution: data})
 			);
 		}
+
 		if (this.cardHasTargetReqs(card)) {
 			this.queryManager.fetch(
-				"/analytics/query/single_card_popular_targets?card_id=" + this.props.dbfId + "GameType=" + mode,
+				buildUrl("single_card_popular_targets", mode),
 				(data) => this.setState({popularTargets: data})
 			);
 		}
 
 		this.queryManager.fetch(
-			"/analytics/query/single_card_winrate_by_turn?card_id=" + this.props.dbfId + "GameType=" + mode,
+			buildUrl("single_card_winrate_by_turn", mode),
 			(data) => this.setState({winrateByTurn: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_include_popularity_over_time?card_id=" + this.props.dbfId + "GameType=" + mode,
+			buildUrl("single_card_include_popularity_over_time", mode),
 			(data) => this.setState({popularityOverTime: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_winrate_over_time?card_id=" + this.props.dbfId + "&GameType=" + mode,
+			buildUrl("single_card_winrate_over_time", mode),
 			(data) => this.setState({winrateOverTime: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_popularity_by_turn?card_id=" + this.props.dbfId + "GameType=" + mode,
+			buildUrl("single_card_popularity_by_turn", mode),
 			(data) => this.setState({popularityByTurn: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/single_card_popular_together?card_id=" + this.props.dbfId + "GameType=" + mode,
+			buildUrl("single_card_popular_together", mode),
 			(data) => this.setState({cardsOnSameTurn: data})
 		);
 		this.queryManager.fetch(
-			"/analytics/query/recommended_decks_for_card?GameType=" + mode + "&card_id=" + this.props.dbfId,
+			buildUrl("recommended_decks_for_card", mode),
 			(data) => this.setState({recommendedDecks: data})
 		);
 	}
-	
 }
