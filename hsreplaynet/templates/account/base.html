@@ -1,16 +1,20 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static from static %}
+{% load feature from features %}
 
 {% block title %}Account{% endblock %}
 
 {% block fullcontent %}
+{% feature "billing" as billing %}
 	{% if user.is_authenticated %}
 		<nav class="navbar navbar-default">
 			<div class="container">
 				<ul class="nav navbar-nav">
 					<li><a href="{% url 'account_edit' %}">Settings</a></li>
 					<li><a href="{% url 'account_email' %}">E-Mail</a></li>
-					<li><a href="{% url 'billing_methods' %}">Billing</a></li>
+					{% if billing.enabled %}
+						<li><a href="{% url 'billing_methods' %}">Billing</a></li>
+					{% endif %}
 					<li><a href="{% url 'account_api' %}">API access</a></li>
 					<li><a href="{% url 'oauth2_app_list' %}">OAuth apps</a></li>
 					{% if user.is_staff %}

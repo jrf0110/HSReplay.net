@@ -56,6 +56,8 @@
 {% block body %}
 
 	{% block premium_modal %}
+		{% feature "billing" as billing %}
+		{% if billing %}
 		<div id="premium-modal" style="display: none;">
 			<div class="inner">
 				<h3>Premium-only content</h3>
@@ -105,6 +107,7 @@
 				{% endif %}
 			</div>
 		</div>
+		{% endif %}
 	{% endblock %}
 
 	<header>

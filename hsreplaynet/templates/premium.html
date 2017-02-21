@@ -1,8 +1,12 @@
 {% extends "flatpages/default.html" %}
-{% load setting from web_extras %}
 {% load static from static %}
+{% load feature from features %}
+{% load setting from web_extras %}
 
 {% block content %}
+{% feature "billing" as billing %}
+
+{% if billing.enabled %}
 <article id="premium-upgrade-page" class="page">
 	<h2>HearthSim Premium</h2>
 
@@ -34,5 +38,6 @@
 		Plan: {{ semiannual_plan.name }}. ${{ semiannual_plan.amount }} billed every 6 months
 	</p>
 </article>
+{% endif %}
 
 {% endblock %}

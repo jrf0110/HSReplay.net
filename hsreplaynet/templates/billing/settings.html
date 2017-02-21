@@ -1,8 +1,19 @@
 {% extends "account/base.html" %}
-{% load setting from web_extras %}
 {% load static from static %}
+{% load feature from features %}
+{% load setting from web_extras %}
 
 {% block content %}
+
+{% feature "billing" as billing %}
+{% if billing.read_only %}
+	<p class="alert alert-warning">
+		Due to site maintenance, billing is in read-only mode.
+	</p>
+{% endif %}
+
+{% if billing.enabled %}
+
 <section id="account-billing-plan" class="box-section">
 	<h3>Premium plan</h3>
 	<div class="inner">
@@ -15,7 +26,7 @@
 				<form method="POST" action="{% url 'premium_subscribe' %}" class="premium-plan-form">
 					{% csrf_token %}
 					<input type="hidden" name="plan" value="{{ sub.plan.stripe_id }}"/>
-					<button type="submit" name="cancel" class="btn btn-primary">Reactivate</button>
+					<button {% if billing.read_only %}disabled{% endif %} type="submit" name="cancel" class="btn btn-primary">Reactivate</button>
 				</form>
 
 				<p>
@@ -26,7 +37,7 @@
 
 				<form method="POST" action="{% url 'premium_cancel' %}" class="premium-plan-form">
 					{% csrf_token %}
-					<button type="submit" name="cancel" class="btn btn-danger">Cancel subscription</button>
+					<button {% if billing.read_only %}disabled{% endif %} type="submit" name="cancel" class="btn btn-danger">Cancel subscription</button>
 				</form>
 
 				<p>
@@ -43,7 +54,7 @@
 				Subscribe to <a href="{% url 'premium' %}">HearthSim Premium</a> to support the site and get loads of new features.
 			</p>
 
-			{% if payment_methods %}
+			{% if payment_methods and not billing.read_only %}
 				<form method="POST" action="{% url 'premium_subscribe' %}">
 					{% csrf_token %}
 
@@ -109,35 +120,39 @@
 
 					{% if stripe_debug %}<p><code>{{ source.stripe_id }}</code></p>{% endif %}
 
-					<form method="POST" action="{% url 'billing_update_card' %}" class="card-remove-form">
-						{% csrf_token %}
-						<input type="hidden" name="stripe_id" value="{{ source.stripe_id }}"/>
-						<button type="submit" name="delete" class="btn btn-danger">Remove card</button>
-						{% if source != customer.default_source %}
-							<button type="submit" name="set_default" class="btn btn-primary">Set as default</button>
-						{% endif %}
-					</form>
+					{% if not billing.read_only %}
+						<form method="POST" action="{% url 'billing_update_card' %}" class="card-remove-form">
+							{% csrf_token %}
+							<input type="hidden" name="stripe_id" value="{{ source.stripe_id }}"/>
+							<button type="submit" name="delete" class="btn btn-danger">Remove card</button>
+							{% if source != customer.default_source %}
+								<button type="submit" name="set_default" class="btn btn-primary">Set as default</button>
+							{% endif %}
+						</form>
+					{% endif %}
 				</li>
 			{% endfor %}
 			</ul>
 		{% endif %}
 
-		<p>
-			<form method="POST" action="{% url 'billing_methods' %}">
-				{% csrf_token %}
-				<script
-					type="text/javascript" src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-					data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
-					data-image="{% static 'images/hsreplay-thumbnail.png' %}"
-					data-name="HSReplay.net"
-					{% if user.email %}data-email="{{ user.email }}"{% endif %}
-					data-locale="auto"
-					data-description="Add a credit card"
-					data-label="Add a credit card"
-					data-panel-label="Add card"
-				></script>
-			</form>
-		</p>
+		{% if not billing.read_only %}
+			<p>
+				<form method="POST" action="{% url 'billing_methods' %}">
+					{% csrf_token %}
+					<script
+						type="text/javascript" src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+						data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
+						data-image="{% static 'images/hsreplay-thumbnail.png' %}"
+						data-name="HSReplay.net"
+						{% if user.email %}data-email="{{ user.email }}"{% endif %}
+						data-locale="auto"
+						data-description="Add a credit card"
+						data-label="Add a credit card"
+						data-panel-label="Add card"
+					></script>
+				</form>
+			</p>
+		{% endif %}
 	</div>
 </section>
 
@@ -171,4 +186,5 @@
 		{% endif %}
 	</div>
 </section>
+{% endif %}
 {% endblock %}
