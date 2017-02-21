@@ -5,10 +5,6 @@
 	> * {
 		flex-grow: 1;
 	}
-
-	> .infobox {
-		flex-basis: 300px;
-	}
 }
 
 #joust-container {
@@ -40,5 +36,11 @@
 
 	#replay-comments {
 		padding-top: 20px;
+	}
+}
+
+@media (min-width: 768px) {
+	#replay-infobox {
+		min-width: 300px;
 	}
 }
