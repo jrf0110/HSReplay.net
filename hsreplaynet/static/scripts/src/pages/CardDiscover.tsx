@@ -2,7 +2,7 @@ import * as React from "react";
 import CardTile from "../components/CardTile";
 import CardDetailBarChart from "../components/charts/CardDetailBarChart";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
-import ClassFilter from "../components/ClassFilter";
+import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import {ChartSeries} from "../interfaces";
 import {setNames, toTitleCase, wildSets} from "../helpers";
 import CardImage from "../components/CardImage";
@@ -31,7 +31,6 @@ interface CardDiscoverState {
 	currentSortDirection?: number;
 	filters?: Map<string, string[]>;
 	numCards?: number;
-	classFilterKey?: number;
 	showFilters?: boolean;
 }
 
@@ -66,7 +65,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			currentSortDirection: null,
 			filters: new Map<string, string[]>(),
 			numCards: 20,
-			classFilterKey: 0,
 			showFilters: false,
 		}
 		this.fetchPlaceholderImage();
@@ -167,7 +165,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		let search = null;
 
 		const filterCounts = this.filterCounts(filteredCards);
-		const filterClassNames = ["filter-wrapper"];
+		const filterClassNames = ["infobox full-xs"];
 		const contentClassNames = ["card-list-wrapper"]
 		if (!this.state.showFilters) {
 			filterClassNames.push("hidden-xs");
@@ -192,37 +190,37 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			contentClassNames.push("hidden-xs");
 		}
 
-		const resetButton = (
-			<button className="btn btn-primary visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
+		const backButton = (
+			<button className="btn btn-primary btn-full visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
 				Back to card list
 			</button>
 		);
+
 		return (
 			<div className="card-discover">
-				{search}
-				<div className="content-wrapper">
-					<div className={filterClassNames.join(" ")}>
-						{resetButton}
-						{this.buildFilters(filterCounts)}
-						{resetButton}
+				<div className={filterClassNames.join(" ")} id="card-discover-infobox">
+					<h1>Card Database</h1>
+					{backButton}
+					{this.buildFilters(filterCounts)}
+					{backButton}
+				</div>
+				<div className={contentClassNames.join(" ")}>
+					{search}
+					{content}
+				</div>
+				<div className="chart-list visible-lg">
+					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" renderData={chartSeries ? {series: [chartSeries[3]]} : "loading"} />
+					<div className="chart-wrapper">
+						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[4]]} : "loading"} title="Classes"/>
 					</div>
-					<div className={contentClassNames.join(" ")}>
-						{content}
+					<div className="chart-wrapper">
+						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[0]]} : "loading"} title="Rarity"/>
 					</div>
-					<div className="chart-list visible-lg">
-						<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" renderData={chartSeries ? {series: [chartSeries[3]]} : "loading"} />
-						<div className="chart-wrapper">
-							<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[4]]} : "loading"} title="Classes"/>
-						</div>
-						<div className="chart-wrapper">
-							<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[0]]} : "loading"} title="Rarity"/>
-						</div>
-						<div className="chart-wrapper">
-							<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[2]]} : "loading"} title="Set"/>
-						</div>
-						<div className="chart-wrapper">
-							<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[1]]} : "loading"} title="Type"/>
-						</div>
+					<div className="chart-wrapper">
+						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[2]]} : "loading"} title="Set"/>
+					</div>
+					<div className="chart-wrapper">
+						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[1]]} : "loading"} title="Type"/>
 					</div>
 				</div>
 			</div>
@@ -233,7 +231,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		this.setState({
 			filters: new Map<string, string[]>(),
 			textFilter: "",
-			classFilterKey: this.state.classFilterKey + 1,
 		});
 	}
 
@@ -307,7 +304,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		return filters;
 	}
 
-	buildFilters(filterCounts: CardFilters): JSX.Element {
+	buildFilters(filterCounts: CardFilters): JSX.Element[] {
 		let showReset = this.state.textFilter && !!this.state.textFilter.length;
 		if (!showReset) {
 			this.state.filters.forEach((val, key) => {
@@ -319,56 +316,48 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 		let resetButton = null;
 		if (showReset) {
-			resetButton = <button className="btn btn-danger" onClick={() => this.resetFilters()}>Reset all filters</button>
+			resetButton = <button className="btn btn-danger btn-full" onClick={() => this.resetFilters()}>Reset all filters</button>
 		}
-		return (
-			<div className="filters">
-				{resetButton}
-				<h4>Class</h4>
-				<ClassFilter 
-					hideAll
-					key={this.state.classFilterKey}
-					multiSelect={false}
-					filters="AllNeutral"
-					minimal
-					selectionChanged={(selection) => {
-							let selected = null;
-							selection.forEach((val, key) => {
-								if (val && key !== "ALL") {
-									selected = key;
-								}
-							});
-							this.setState({filters: this.state.filters.set("playerClass", selected && [selected])});
-						}
-					}
-				/>
-				<h4>Cost</h4>
-				<ul className="filter-list-cost">
-					{this.getFilterItems("cost", filterCounts.cost)}
-				</ul>
-				<h4>Rarity</h4>
-				<ul>
-					{this.getFilterItems("rarity", filterCounts.rarity)}
-				</ul>
-				<h4>Set</h4>
-				<ul>
-					{this.getFilterItems("set", filterCounts.set)}
-					{this.buildFilterItem("format", "Standard only", filterCounts.format["Standard only"])}
-				</ul>
-				<h4>Type</h4>
-				<ul>
-					{this.getFilterItems("type", filterCounts.type)}
-				</ul>
-				<h4>Race</h4>
-				<ul>
-					{this.getFilterItems("race", filterCounts.race)}
-				</ul>
-				<h4>Mechanics</h4>
-				<ul>
-					{this.getFilterItems("mechanics", filterCounts.mechanics)}
-				</ul>
-			</div>
-		);
+		return [
+			resetButton,
+			<h2>Class</h2>,
+			<ClassFilter 
+				filters="AllNeutral"
+				hideAll
+				minimal
+				multiSelect={false}
+				selectedClasses={(this.state.filters.get("playerClass") || ["ALL"]) as FilterOption[]}
+				selectionChanged={(selection) => {
+					const selected = selection && selection.find(x => x !== "ALL");
+					this.setState({filters: this.state.filters.set("playerClass", selected && [selected])});
+				}}
+			/>,
+			<h2>Cost</h2>,
+			<ul className="filter-list-cost">
+				{this.getFilterItems("cost", filterCounts.cost)}
+			</ul>,
+			<h2>Rarity</h2>,
+			<ul>
+				{this.getFilterItems("rarity", filterCounts.rarity)}
+			</ul>,
+			<h2>Set</h2>,
+			<ul>
+				{this.getFilterItems("set", filterCounts.set)}
+				{this.buildFilterItem("format", "Standard only", filterCounts.format["Standard only"])}
+			</ul>,
+			<h2>Type</h2>,
+			<ul>
+				{this.getFilterItems("type", filterCounts.type)}
+			</ul>,
+			<h2>Race</h2>,
+			<ul>
+				{this.getFilterItems("race", filterCounts.race)}
+			</ul>,
+			<h2>Mechanics</h2>,
+			<ul>
+				{this.getFilterItems("mechanics", filterCounts.mechanics)}
+			</ul>
+		];
 	}
 
 	getFilterItems(key: string, counts: any): JSX.Element[] {
@@ -407,10 +396,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		};
 
-		const classNames = ["filter-item"];
-		if (prop === "format") {
-			classNames.push("format");
-		}
+		const classNames = ["filter-item selectable"];
 		if (!count) {
 			classNames.push("disabled");
 		}
@@ -421,7 +407,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (prop !== "cost") {
 			return <li className={classNames.join(" ")} onClick={onClick}>
 				{text}
-				<span className="badge">
+				<span className="infobox-value">
 					{count || 0}
 				</span>
 			</li>;
