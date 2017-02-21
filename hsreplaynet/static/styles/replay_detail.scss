@@ -17,12 +17,6 @@
 	display: inherit;
 }
 
-@media (max-width: 767px) {
-	#replay-infobox {
-		max-width: none;
-	}
-}
-
 #replay-comments {
 	padding: 10px;
 
@@ -33,4 +27,18 @@
 
 #share-game-dialog {
 	padding: 1em 0.5em 0;
+}
+
+@media (max-width: 767px) {
+	#replay-infobox {
+		max-width: none;
+	}
+
+	#replay-container {
+		flex-direction: column;
+	}
+
+	#replay-comments {
+		padding-top: 20px;
+	}
 }

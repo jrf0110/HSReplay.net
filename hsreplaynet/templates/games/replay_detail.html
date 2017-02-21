@@ -41,7 +41,7 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block fullcontent %}
-<div class="flex-container clearfix">
+<div class="flex-container" id="replay-container">
 	{% with replay.global_game as gg %}
 	<aside id="replay-infobox" class="infobox" data-shortid="{{ replay.shortid }}">
 		<h1>{{ gg.format_friendly_name|default:"Ranked" }}</h1>
@@ -97,9 +97,9 @@
 		</ul>
 	</aside>
 	{% endwith %}
-	<main class="hidden-xs">
+	<main>
 		{% include "snippets/noscript.html" %}
-		<section id="joust-container"
+		<section id="joust-container" class="hidden-xs"
 			data-replayurl="{{ replay.replay_xml.url }}"
 			{% if user.is_authenticated %}data-locale="{{ user.locale }}"{% endif %}
 			{% if user.joust_autoplay is False %}data-autoplay="false"{% endif %}
