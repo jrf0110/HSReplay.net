@@ -555,12 +555,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			(data) => this.setState({baseWinrates: data})
 		);
 
-		//mock data
 		this.queryManager.fetch(
-			"/analytics/query/single_card_include_popularity_over_time?card_id=" + 374 + "&GameType=" + mode,
+			"/analytics/query/single_deck_popularity_over_time?GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({popularityOverTime: data})
 		);
 
+		//mock data
 		const mockCard = this.props.deckCards.split(',').map(id => this.state.cardData.get(id)).find(card => card.playerClass !== "NEUTRAL");
 
 		this.queryManager.fetch(
