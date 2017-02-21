@@ -512,35 +512,35 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const mode = this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_mulligan_guide_by_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_mulligan_guide_by_class?GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({tableDataClasses: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_mulligan_guide?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_mulligan_guide?GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({tableDataAll: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_winrate_over_time?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_winrate_over_time?GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({winrateOverTime: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_base_winrate_by_opponent_class?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_base_winrate_by_opponent_class?GameType=" + mode + "&deck_id=" + this.props.deckId,
 			(data) => this.setState({baseWinrates: data})
 		);
 
 		//mock data
 		this.queryManager.fetch(
-			"/analytics/query/single_card_include_popularity_over_time?card_id=" + 374 + "&TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode,
+			"/analytics/query/single_card_include_popularity_over_time?card_id=" + 374 + "&GameType=" + mode,
 			(data) => this.setState({popularityOverTime: data})
 		);
 
 		const mockCard = this.props.deckCards.split(',').map(id => this.state.cardData.get(id)).find(card => card.playerClass !== "NEUTRAL");
 
 		this.queryManager.fetch(
-			"/analytics/query/recommended_decks_for_card?TimeRange=LAST_14_DAYS&RankRange=ALL&GameType=" + mode + "&card_id=" + mockCard.dbfId,
+			"/analytics/query/recommended_decks_for_card?GameType=" + mode + "&card_id=" + mockCard.dbfId,
 			(data) => this.setState({similarDecks: data})
 		);
 	}

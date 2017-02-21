@@ -235,33 +235,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						<ul>
 							{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
 							{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
-							{this.buildFilter("gameMode", "TAVERNBRAWL", "Brawl")}
 						</ul>
 						<h4>Time frame</h4>
 						<ul>
-							{this.buildFilter("timeFrame", "LAST_7_DAYS", "Last 7 days")}
-							{this.buildFilter("timeFrame", "LAST_14_DAYS", "Last 14 days")}
 							{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
-							{this.buildFilter("timeFrame", "CURRENT_SEASON", "Current season")}
-							{this.buildFilter("timeFrame", "PREVIOUS_SEASON", "Previous season")}
-						</ul>
-						<h4>Rank range</h4>
-						<ul>
-							{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL")}
-							{this.buildFilter("rankRange", "ONE_THROUGH_FIVE", "1 - 5", "ALL")}
-							{this.buildFilter("rankRange", "SIX_THROUGH_TEN", "6 - 10", "ALL")}
-							{this.buildFilter("rankRange", "ELEVEN_THROUGH_FIFTEEN", "11 - 15", "ALL")}
-							{this.buildFilter("rankRange", "SIXTEEN_THROUGH_TWENTY", "16 - 20", "ALL")}
-							{this.buildFilter("rankRange", "TWENTYONE_THROUGH_TWENTYFIVE", "21 - 25", "ALL")}
-							{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL")}
-							{this.buildFilter("rankRange", "ELEVEN_THROUGH_TWENTYFIVE", "11 - 25", "ALL")}
-						</ul>
-						<h4>Region</h4>
-						<ul>
-							{this.buildFilter("region", "REGION_US", "Americas", "ALL")}
-							{this.buildFilter("region", "REGION_EU", "Europe", "ALL")}
-							{this.buildFilter("region", "REGION_KR", "Asia", "ALL")}
-							{this.buildFilter("region", "REGION_CN", "China", "ALL")}
 						</ul>
 						<h4>Sort by</h4>
 						<ul>
