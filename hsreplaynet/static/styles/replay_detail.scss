@@ -1,6 +1,9 @@
 .infobox {
 	background-color: $blue;
+	border-top: 1px solid $darkblue;
 	color: white;
+	max-width: 300px;
+	padding-bottom: 50px;
 	width: 100%;
 
 	a, a:hover, a:active {
@@ -20,16 +23,16 @@
 	}
 
 	h1 {
-		background-color: $lightblue;
 		padding: 1em 0;
 		font-size: 1.2em;
 		text-align: center;
 		text-transform: uppercase;
 		font-weight: normal;
+		margin-bottom: 0;
 	}
 
 	h2 {
-		background-color: $aqua;
+		background-color: $darkblue;
 		color: $lighterblue;
 		font-size: 1.1em;
 		margin: 0;
@@ -46,8 +49,25 @@
 	}
 
 	li {
-		border-bottom: 1px solid $aqua;
+		border-bottom: 1px solid $darkblue;
 		padding: 0.5em 1em;
+
+		&.selectable {
+			cursor: pointer;
+			user-select: none;
+			list-style-type: none;
+
+			&.selected {
+				font-weight: bold;
+				color: white;
+				background: $lightblue1;
+			}
+
+			&.selected:not(.no-deselect)::before {
+				content: "× ";
+				color: $lightgrey;
+			}
+		}
 
 		ul {
 			> li:first-of-type {
@@ -60,8 +80,18 @@
 		}
 	}
 
-	li:last-of-type {
-		border-bottom: none;
+	li:hover {
+		&.selectable {
+			background: $lightblue1;
+		}
+
+		&.selected {
+			background: $lighterblue1;
+		}
+		
+		&.selected:not(.no-deselect)::before {
+			color: $red;
+		}
 	}
 
 	#share-game-dialog {
@@ -79,8 +109,42 @@
 		cursor: pointer;
 	}
 
+	li:hover.selectable .infobox-value, li.selected .infobox-value {
+		color: white;
+	}
+
 	input, select {
 		color: black;
 		font-weight: normal;
+	}
+	
+	.class-filter-wrapper {
+		margin: 10px 40px;
+
+		.class-icon {
+			height: 2.3em;
+			width: 2.3em;
+		}
+	}
+
+	.search-wrapper {
+		padding: 10px;
+	}
+
+	.btn-full {
+		margin: 5px 0;
+		width: 100%;
+	}
+
+	&.full-sm {
+		@media(max-width: 992px) {
+			max-width: 100%;
+		}
+	}
+
+	&.full-xs {
+		@media(max-width: 768px) {
+			max-width: 100%;
+		}
 	}
 }
