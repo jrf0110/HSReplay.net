@@ -21,6 +21,9 @@ export default class GameHistoryList extends React.Component<GameHistoryListProp
 				if (!(i % 3)) {
 					columns.push(<div className="clearfix visible-md-block"/>);
 				}
+				if (!(i % 4)) {
+					columns.push(<div className="clearfix visible-lg-block"/>);
+				}
 			}
 
 			let players = [];

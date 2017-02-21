@@ -1,5 +1,15 @@
-.content.replay-listing {
-	margin: 1em auto;
+
+.my-replays-content {
+	display: flex;
+}
+
+.replay-list {
+	width: calc(100% - 300px);
+	padding: 10px;
+
+	@media(max-width: 992px) {
+		width: 100%;
+	}
 }
 
 .game-history-item {
@@ -94,10 +104,6 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 }
 
 @media (min-width: 1200px) {
-	.content.replay-listing {
-		max-width: 80%;
-	}
-
 	.hsreplay-involved figure {
 		font-size: 1vw;
 	}
@@ -354,29 +360,13 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 }
 
 #myreplays-infobox {
+	.chart-wrapper {
+		max-width: 300px;
+	}
+}
+.header-buttons {
 	margin-bottom: 10px;
-	ul {
-		padding-bottom: 0.75em;
-		a {
-			display: block;
-			text-align: center;
-		}
-	}
-	h1 {
-		padding: 0.65em 0.65em 0.65em 0em;
-
-		.infobox-value {
-			color: white;
-			padding-right: 10px;
-		}
-	}
 }
-
-.header-buttons .view-selector {
-		float: left;
-		margin-bottom: 10px;
-}
-
 
 /* Styling for empty section */
 

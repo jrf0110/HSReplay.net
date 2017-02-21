@@ -62,7 +62,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 			text += " - " + Math.round(100.0 * wins/total) + "% winrate"
 		}
 		return (
-			<div>
+			<div className="chart-wrapper">
 				<VictoryPie
 					containerComponent={<VictoryContainer title={""}/>}
 					data={data}

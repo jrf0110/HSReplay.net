@@ -1,6 +1,6 @@
 import * as React from "react";
 import {cookie} from "cookie_js";
-import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer, ReplayFilter} from "../interfaces";
+import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
 import GameHistorySearch from "../components/gamehistory/GameHistorySearch";
 import GameHistorySelectFilter from "../components/gamehistory/GameHistorySelectFilter";
 import GameHistoryList from "../components/gamehistory/GameHistoryList";
@@ -10,6 +10,7 @@ import Pager from "../components/Pager";
 import {parseQuery, toQueryString} from "../QueryParser"
 import {formatMatch, modeMatch, nameMatch, resultMatch, heroMatch, opponentMatch} from "../GameFilters"
 import ClassDistributionPieChart from "../components/charts/ClassDistributionPieChart";
+import ClassFilter, {FilterOption} from "../components/ClassFilter";
 
 
 type ViewType = "tiles" | "list";
@@ -19,16 +20,16 @@ interface MyReplaysProps extends ImageProps, CardArtProps, React.ClassAttributes
 }
 
 interface MyReplaysState {
-	working?: boolean;
-	queryMap?: Map<string, string>;
-	gamesPages?: Map<number, GameReplay[]>;
 	count?: number;
-	next?: string,
-	receivedPages?: number;
 	currentLocalPage?: number;
+	gamesPages?: Map<number, GameReplay[]>;
+	next?: string,
 	pageSize?: number;
-	filters?: ReplayFilter[];
+	queryMap?: Map<string, string>;
+	receivedPages?: number;
+	showFilters?: boolean;
 	viewType?: ViewType;
+	working?: boolean;
 }
 
 export default class MyReplays extends React.Component<MyReplaysProps, MyReplaysState> {
@@ -39,17 +40,17 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		super(props, context);
 		let viewType = cookie.get(this.viewCookie, "tiles") as ViewType;
 		this.state = {
-			working: true,
-			queryMap: parseQuery(document.location.hash.substr(1)),
-			gamesPages: new Map<number, GameReplay[]>(),
 			count: 0,
-			next: null,
-			receivedPages: 0,
 			currentLocalPage: 0,
+			gamesPages: new Map<number, GameReplay[]>(),
+			next: null,
 			pageSize: 1,
+			queryMap: parseQuery(document.location.hash.substr(1)),
+			receivedPages: 0,
+			showFilters: false,
 			viewType: viewType,
+			working: true,
 		};
-		this.state.filters = this.getFilters();
 		this.query("/api/v1/games/");
 	}
 
@@ -182,6 +183,16 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			}
 			content = <div className="list-message">{message}</div>;
 		}
+		
+		const filterClassNames = ["infobox full-sm"];
+		const contentClassNames = ["replay-list"]
+		if (!this.state.showFilters) {
+			filterClassNames.push("hidden-xs hidden-sm");
+		}
+		else {
+			contentClassNames.push("hidden-xs hidden-sm");
+		}
+
 
 		let next = hasNext && !this.state.working ? () => {
 			this.setState({currentLocalPage: this.state.currentLocalPage + 1});
@@ -190,51 +201,134 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		let previous = this.state.currentLocalPage > 0 ? () => {
 			this.setState({currentLocalPage: this.state.currentLocalPage - 1});
 		} : null;
+		
+		let resetButton = null;
+		if (toQueryString(this.state.queryMap).length) {
+			resetButton = (
+				<button className="btn btn-danger btn-full" onClick={(e) => {e.preventDefault(); this.setState({queryMap: new Map<string, string>()})}}>
+					Reset all filters
+				</button>
+			);
+		}
+		
+		const backButton = (
+			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
+				Back to card list
+			</button>
+		);
 
 		return (
-			<div>
-				<div className="header-buttons">
-					<div className="btn-group view-selector">
-						<button type="button" className={"btn btn-" + (this.state.viewType === "list" ? "primary" : "default")} onClick={() => this.setView("list")}>List view</button>
-						<button type="button" className={"btn btn-" + (this.state.viewType === "tiles" ? "primary" : "default")} onClick={() => this.setView("tiles")}>Tile view</button>
+			<div className="my-replays-content">
+				<div className={filterClassNames.join(" ")} id="myreplays-infobox">
+					<h1>My Replays</h1>
+					{backButton}
+					{resetButton}
+					<h2>Classes Played</h2>
+					<ClassDistributionPieChart
+						games={games}
+						loadingGames={this.state.working}
+						onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
+					/>
+					<h2>Hero</h2>
+					<ClassFilter 
+						filters="All"
+						hideAll
+						key={"playerfilter" + 0}
+						minimal
+						multiSelect={false}
+						selectedClasses={[(this.state.queryMap.get("hero") || "ALL").toUpperCase() as FilterOption]}
+						selectionChanged={(selection) => {
+								const selected = selection.find(x => x !== "ALL") || null;
+								this.setState({queryMap: this.state.queryMap.set("hero", selected && selected.toLowerCase()), currentLocalPage: 0});
+							}
+						}
+					/>
+					<h2>Opponent</h2>
+					<ClassFilter 
+						filters="All"
+						hideAll
+						key={"opponentfilter" + 0}
+						minimal
+						multiSelect={false}
+						selectedClasses={[(this.state.queryMap.get("opponent") || "ALL").toUpperCase() as FilterOption]}
+						selectionChanged={(selection) => {
+								const selected = selection.find(x => x !== "ALL") || null;
+								this.setState({queryMap: this.state.queryMap.set("opponent", selected && selected.toLowerCase()), currentLocalPage: 0});
+							}
+						}
+					/>
+					<h2>Player</h2>
+					<GameHistorySearch
+						query={this.state.queryMap.get("name")}
+						setQuery={(value: string) => this.setState({queryMap: this.state.queryMap.set("name", value), currentLocalPage: 0})}
+					/>
+					<h2>Mode</h2>
+					<ul>
+						{this.buildFilter("mode", "arena", "Arena")}
+						{this.buildFilter("mode", "ranked", "Ranked")}
+						{this.buildFilter("mode", "casual", "Casual")}
+						{this.buildFilter("mode", "brawl", "Brawl")}
+						{this.buildFilter("mode", "friendly", "Friendly")}
+						{this.buildFilter("mode", "adventure", "Adventure")}
+					</ul>
+					<h2>Format</h2>
+					<ul>
+						{this.buildFilter("format", "standard", "Standard")}
+						{this.buildFilter("format", "wild", "Wild")}
+					</ul>
+					<h2>Result</h2>
+					<ul>
+						{this.buildFilter("result", "won", "Won")}
+						{this.buildFilter("format", "lost", "Lost")}
+					</ul>
+					<h2>Display</h2>
+					<ul>
+						<li className={"selectable no-deselect" + (this.state.viewType === "list" ? " selected" : "")} onClick={() => this.setView("list")}>
+							List view
+						</li>
+						<li className={"selectable no-deselect" + (this.state.viewType === "tiles" ? " selected" : "")} onClick={() => this.setView("tiles")}>
+							Tile view
+						</li>
+					</ul>
+					{backButton}
+				</div>
+				<div className={contentClassNames.join(" ")}>
+					<div className="header-buttons">
+						<button className="btn btn-default pull-left visible-xs visible-sm" type="button" onClick={() => this.setState({showFilters: true})}>
+							<span className="glyphicon glyphicon-filter"/>
+							Filters
+						</button>
+						<div className="pull-right">
+							<Pager next={next} previous={previous}/>
+						</div>
+						<div className="clearfix" />
 					</div>
+					{content}
 					<div className="pull-right">
 						<Pager next={next} previous={previous}/>
-					</div>
-					<div className="clearfix" />
-				</div>
-				<div className="row">
-					<div className="col-md-3 col-sm-12 col-xs-12 infobox-wrapper">
-						<div className="infobox" id="myreplays-infobox">
-							<InfoBoxSection header="Classes Played" collapsedSizes={["xs", "sm"]} headerStyle="h1">
-								<ClassDistributionPieChart
-									games={games}
-									loadingGames={this.state.working}
-									onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
-								/>
-							</InfoBoxSection>
-							<InfoBoxSection header="Filters" collapsedSizes={["xs", "sm"]} headerStyle="h1">
-								<ul>
-									{this.getFiltersControls()}
-									{toQueryString(this.state.queryMap).length ?
-										<li>
-											<a href="#" onClick={(e) => {e.preventDefault(); this.setState({queryMap: new Map<string, string>()})}}>Reset filters</a>
-										</li> : null}
-								</ul>
-							</InfoBoxSection>
-						</div>
-					</div>
-					<div className="col-md-9 col-sm-12 col-xs-12" id="replay-search">
-						<div>
-							{content}
-							<div className="pull-right">
-								<Pager next={next} previous={previous}/>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>
 		);
+	}
+
+	buildFilter(prop: string, key: string, displayValue: string): JSX.Element {
+		const selected = this.state.queryMap.get(prop) === key;
+		const onClick = () => {
+			this.setState({queryMap: this.state.queryMap.set(prop, selected ? null : key), currentLocalPage: 0});
+		}
+		
+		const classNames = ["selectable"];
+		if (selected) {
+			classNames.push("selected");
+		}
+
+		return (
+			<li onClick={onClick} className={classNames.join(" ")}>
+				{displayValue}
+			</li>
+		);
+
 	}
 
 	private setView(view: ViewType) {
@@ -250,63 +344,4 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			currentLocalPage: 0
 		});
 	}
-
-	private getFiltersControls(): JSX.Element[] {
-		let filters = [];
-		filters.push(
-			<li>
-				<GameHistorySearch
-					query={this.state.queryMap.get("name")}
-					setQuery={(value: string) => this.setState({queryMap: this.state.queryMap.set("name", value), currentLocalPage: 0})}
-				/>
-			</li>
-		)
-		this.state.filters.forEach(filter => {
-			filters.push(
-				<li>
-					<GameHistorySelectFilter
-						default={filter.default}
-						options={filter.options}
-						selected={this.state.queryMap.get(filter.name)}
-						onChanged={(value: string) => this.setState({queryMap: this.state.queryMap.set(filter.name, value), currentLocalPage: 0})}
-					/>
-				</li>
-			)
-		});
-		return filters;
-	}
-
-	getFilters(): ReplayFilter[] {
-		return [
-			{
-				name: "mode",
-				default: "All Modes",
-				options: [["arena", "Arena"], ["ranked", "Ranked"], ["casual", "Casual"], ["brawl", "Tavern Brawl"],
-					["friendly", "Friendly"], ["adventure", "Adventure"]]
-			},
-			{
-				name: "format",
-				default: "All Formats",
-				options: [["standard", "Standard"], ["wild", "Wild"]]
-			},
-			{
-				name: "result",
-				default: "All Results",
-				options: [["won", "Won"], ["lost", "Lost"]]
-			},
-			{
-				name: "hero",
-				default: "All Heroes",
-				options: [["druid", "Druid"], ["hunter", "Hunter"], ["mage", "Mage"], ["paladin", "Paladin"], ["priest", "Priest"],
-					["rogue", "Rogue"], ["shaman", "Shaman"], ["warlock", "Warlock"], ["warrior", "Warrior"]],
-			},
-			{
-				name: "opponent",
-				default: "All Opponents",
-				options: [["druid", "Druid"], ["hunter", "Hunter"], ["mage", "Mage"], ["paladin", "Paladin"], ["priest", "Priest"],
-					["rogue", "Rogue"], ["shaman", "Shaman"], ["warlock", "Warlock"], ["warrior", "Warrior"]],
-			}
-		];
-	}
-
 }

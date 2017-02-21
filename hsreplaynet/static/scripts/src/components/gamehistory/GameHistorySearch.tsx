@@ -16,7 +16,7 @@ export default class GameHistorySearch extends React.Component<GameHistorySearch
 			this.props.query = "";
 		}
 		return (
-			<div>
+			<div className="search-wrapper">
 				<input
 					type="search"
 					placeholder="Search for players…"

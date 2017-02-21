@@ -73,12 +73,6 @@ export interface CardArtProps {
 	cardArt: (string) => string;
 }
 
-export interface ReplayFilter {
-	name: string;
-	default: string;
-	options: [string, string][];
-}
-
 export interface SelectableProps {
 	select?: string;
 	onSelect?: (key: string) => void;
