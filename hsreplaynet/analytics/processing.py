@@ -10,6 +10,7 @@ from hsreplaynet.utils.aws.sqs import write_messages_to_queue
 from hsreplaynet.utils import log
 from hearthstone.enums import CardSet
 from hearthstone.cardxml import load
+from hsredshift.analytics.filters import GameType
 from hsredshift.analytics.queries import RedshiftCatalogue
 from hsredshift.analytics.library.base import RedshiftQueryParams
 import redis_lock
@@ -231,12 +232,16 @@ def _generate_permutations_for_query(query, card_db):
 			if non_filter_parameter == "card_id":
 				for id, card in card_db.items():
 					if card.collectible:
-						if _is_wild(card) and "RANKED_STANDARD" == parameter_permutation.get("GameType", ""):
-							continue
-
-						new_permutation = copy.copy(parameter_permutation)
-						new_permutation["card_id"] = card.dbf_id
-						result.append(new_permutation)
+						game_type = parameter_permutation.get("GameType", "")
+						if _is_wild(card):
+							if game_type == GameType.RANKED_WILD.name:
+								new_permutation = copy.copy(parameter_permutation)
+								new_permutation["card_id"] = card.dbf_id
+								result.append(new_permutation)
+						else:
+							new_permutation = copy.copy(parameter_permutation)
+							new_permutation["card_id"] = card.dbf_id
+							result.append(new_permutation)
 
 			elif non_filter_parameter == "deck_id":
 				if "GameType" in parameter_permutation:
