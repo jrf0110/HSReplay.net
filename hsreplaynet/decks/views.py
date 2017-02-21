@@ -3,6 +3,9 @@ from django.shortcuts import render
 from hearthstone.enums import CardClass
 from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.cards.models import Archetype, Deck
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import View
+from hsreplaynet.games.models import GameReplay
 
 
 def deck_detail(request, deck_id):
@@ -49,3 +52,16 @@ def canonical_decks(request):
 		result.append(record)
 
 	return JsonResponse(result, safe=False)
+
+
+class MyDeckIDsView(LoginRequiredMixin, View):
+	def get(self, request):
+		deck_ids = set()
+		for replay in GameReplay.objects.live().filter(user=request.user).all():
+			deck_ids.add(replay.friendly_deck.id)
+
+		payload = {
+			"my_decks": list(deck_ids),
+		}
+
+		return JsonResponse(payload)
