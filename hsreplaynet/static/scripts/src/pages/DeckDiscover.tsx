@@ -22,6 +22,7 @@ interface DeckDiscoverState {
 	rankRange?: RankRange;
 	region?: Region;
 	selectedClasses?: FilterOption[];
+	selectedOpponentClasses?: FilterOption[];
 	showFilters?: boolean;
 	sortProp?: SortProp;
 	timeFrame?: TimeFrame;
@@ -50,6 +51,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			rankRange: "ALL",
 			region: "ALL",
 			selectedClasses: ["ALL"],
+			selectedOpponentClasses: ["ALL"],
 			showFilters: false,
 			sortProp: "win_rate",
 			timeFrame: "LAST_30_DAYS",
@@ -117,14 +119,20 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						});
 					}
 				});
-				deckElements.sort((a, b) => b[this.state.sortProp] - a[this.state.sortProp]);
+
+				const selectedOpponent = this.state.selectedOpponentClasses[0];
+				const winrateField = selectedOpponent === "ALL" ? "overall_win_rate" : "win_rate_vs_" + selectedOpponent;
+				const sortProp = this.state.sortProp === "win_rate" ? winrateField : this.state.sortProp;
+
+				deckElements.sort((a, b) => b[sortProp] - a[sortProp]);
+
 				deckElements.forEach(deck => {
 					decks.push({
 						cards: deck.cards,
 						deckId: deck.deck_id,
 						playerClass: deck.player_class,
 						numGames: deck.total_games,
-						winrate: deck.win_rate
+						winrate: deck[winrateField],
 					});
 				});
 			}
@@ -202,6 +210,15 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						multiSelect={false}
 						selectedClasses={this.state.selectedClasses}
 						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+					/>
+					<h2>Winrate vs</h2>
+					<ClassFilter 
+						filters="All"
+						hideAll
+						minimal
+						multiSelect={false}
+						selectedClasses={this.state.selectedOpponentClasses}
+						selectionChanged={(selected) => this.setState({selectedOpponentClasses: selected})}
 					/>
 					<h2>Include cards</h2>
 					<CardSearch
@@ -291,12 +308,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 
 	fetch() {
+		//TODO: use "list_decks_by_win_rate" for non-premium
 		this.queryManager.fetch(
-			"/analytics/query/list_decks_by_win_rate?TimeRange=" + this.state.timeFrame + "&RankRange=" + this.state.rankRange + "&GameType=" + this.state.gameMode + "&Region=" + this.state.region,
+			"/analytics/query/list_decks_by_opponent_win_rate?TimeRange=" + this.state.timeFrame + "&RankRange=" + this.state.rankRange + "&GameType=" + this.state.gameMode + "&Region=" + this.state.region,
 			(data) => this.setState({deckData: this.state.deckData.set(this.cacheKey(), data)})
 		);
 		
 		this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data.my_decks}));
 	}
-
 }
