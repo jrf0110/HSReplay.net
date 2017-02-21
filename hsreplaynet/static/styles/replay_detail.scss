@@ -1,3 +1,40 @@
+.flex-container {
+	display: flex;
+	flex-direction: row;
+
+	> * {
+		flex-grow: 1;
+	}
+
+	> .infobox {
+		flex-basis: 300px;
+	}
+}
+
+#joust-container {
+	padding: 10px;
+	height: calc(100vh - 50px); // subtract navbar
+}
+
+#replay-infobox {
+	overflow: visible;
+	z-index: 1;
+}
+
+#comments-infobox {
+	width: 300px;
+	border-top: none;
+	z-index: 0;
+}
+
+#replay-comments {
+	padding: 10px;
+
+	> h2 {
+		margin-top: 0;
+	}
+}
+
 #share-game-dialog {
 	padding: 1em 0.5em 0;
 }

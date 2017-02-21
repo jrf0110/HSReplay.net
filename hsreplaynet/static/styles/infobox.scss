@@ -5,7 +5,7 @@
 	max-width: 300px;
 	padding-bottom: 50px;
 	display: inline-block;
-	flex-shrink: 0;
+	flex-grow: 1;
 
 	a, a:hover, a:active {
 		&:not(.btn) {
