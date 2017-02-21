@@ -41,10 +41,11 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block fullcontent %}
-<main class="flex-container clearfix">
+<div class="flex-container clearfix">
 	{% with replay.global_game as gg %}
 	<aside id="replay-infobox" class="infobox" data-shortid="{{ replay.shortid }}">
 		<h1>{{ gg.format_friendly_name|default:"Ranked" }}</h1>
+		<div id="replay-toggle-container"></div>
 
 		<h2>Players</h2>
 		<div id="infobox-players-container" game-id="{{ replay.shortid }}" player-name="{{ replay.friendly_player.name }}"
@@ -82,7 +83,7 @@
 		<div id="share-game-dialog" data-url="{{ canonical_url }}"></div>
 
 		<h2>Controls</h2>
-		<ul class="infobox-settings">
+		<ul class="infobox-settings hidden-sm">
 			{% if user == replay.user %}
 				<li class="clearfix">Visibility <span class="infobox-value" id="replay-visibility" data-selected="{{ replay.visibility.value }}"></span></li>
 				<li class="clearfix">Delete <span class="infobox-value" id="replay-delete" data-redirect="{% url 'my_replays' %}"></span></li>
@@ -96,7 +97,7 @@
 		</ul>
 	</aside>
 	{% endwith %}
-	<article>
+	<main class="hidden-xs">
 		{% include "snippets/noscript.html" %}
 		<section id="joust-container"
 			data-replayurl="{{ replay.replay_xml.url }}"
@@ -109,8 +110,8 @@
 		<section id="replay-comments" class="clearfix">
 			{% include "comments/comment_section.html" with object=replay %}
 		</section>
-	</article>
-</main>
+	</main>
+</div>
 
 <script src="{% joust_static 'joust.js' %}"></script>
 <script>if(typeof Joust === "undefined") var Joust = null;</script>

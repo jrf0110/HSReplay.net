@@ -6,15 +6,23 @@ import MetricsReporter from "./metrics/MetricsReporter";
 import BatchingMiddleware from "./metrics/BatchingMiddleware";
 import InfluxMetricsBackend from "./metrics/InfluxMetricsBackend";
 import * as React from "react";
-
+import {Launcher} from "joust";
 
 export default class JoustEmbedder extends EventEmitter {
 	public turn: number = null;
 	public reveal: boolean = null;
 	public swap: boolean = null;
 	public locale: string = "enUS";
+	public launcher: Launcher = null;
+	private target: HTMLElement = null;
+	private url: string = null;
 
 	public embed(target: HTMLElement) {
+		this.prepare(target);
+		this.render();
+	}
+
+	public prepare(target: HTMLElement) {
 		// find container
 		if (!target) {
 			throw new Error("No target specified");
@@ -31,8 +39,9 @@ export default class JoustEmbedder extends EventEmitter {
 			return;
 		}
 
-		let launcher = Joust.launcher(target);
-		let release = Joust.release();
+		const launcher: Launcher = Joust.launcher(target);
+		this.launcher = launcher;
+		const release = Joust.release();
 
 		// setup RavenJS/Sentry
 		let logger = null;
@@ -178,6 +187,13 @@ export default class JoustEmbedder extends EventEmitter {
 		if (!url.match(/^http(s?):\/\//) && !url.startsWith("/")) {
 			url = "/" + url;
 		}
-		launcher.fromUrl(url);
+		this.url = url;
+	}
+
+	public render() {
+		if (!this.url) {
+			throw new Error("Not prepared"); // you are
+		}
+		this.launcher.fromUrl(this.url);
 	}
 }

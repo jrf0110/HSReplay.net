@@ -11,7 +11,7 @@ import VisibilityDropdown from "../components/VisibilityDropdown";
 import {Visibility} from "../interfaces";
 import DeleteReplayButton from "../components/DeleteReplayButton";
 import PlayerInfo from "../components/PlayerInfo";
-
+import {start} from "repl";
 
 // add Django CSRF token to jQuery.ajax
 jQueryCSRF.init();
@@ -22,7 +22,8 @@ let shortid = document.getElementById("replay-infobox").getAttribute("data-short
 // Joust
 let embedder = new JoustEmbedder();
 
-var container = document.getElementById("joust-container");
+const container = document.getElementById("joust-container");
+const startPaused = container.getAttribute("data-autoplay") == "false";
 if (container.hasAttribute("data-locale")) {
 	embedder.locale = container.getAttribute("data-locale");
 }
@@ -42,8 +43,6 @@ if (location.hash) {
 		embedder.swap = (+ret[1] === 1);
 	}
 }
-
-embedder.embed(container);
 
 // share dialog
 let metrics: MetricsReporter = null;
@@ -85,10 +84,11 @@ renderShareDialog();
 embedder.on("turn", renderShareDialog);
 embedder.on("reveal", renderShareDialog);
 embedder.on("swap", renderShareDialog);
+embedder.prepare(container);
 
 // privacy dropodown
 let visibilityTarget = document.getElementById("replay-visibility");
-if(visibilityTarget) {
+if (visibilityTarget) {
 	let status = +visibilityTarget.getAttribute("data-selected") as Visibility;
 	ReactDOM.render(
 		<VisibilityDropdown initial={status} shortid={shortid} />,
@@ -98,10 +98,11 @@ if(visibilityTarget) {
 
 // delete link
 let deleteTarget = document.getElementById("replay-delete");
-if(deleteTarget) {
+if (deleteTarget) {
 	let redirect = deleteTarget.getAttribute("data-redirect");
 	ReactDOM.render(
-		<DeleteReplayButton shortid={shortid} done={() => window.location.href = redirect} />,
+		<DeleteReplayButton shortid={shortid}
+							done={() => window.location.href = redirect} />,
 		deleteTarget
 	);
 }
@@ -114,8 +115,58 @@ if (playerInfo) {
 	const opponentName = playerInfo.getAttribute("opponent-name");
 	const build = +playerInfo.getAttribute("build");
 	ReactDOM.render(
-		<PlayerInfo gameId={gameId} playerName={playerName} opponentName={opponentName} build={build}/>,
+		<PlayerInfo gameId={gameId} playerName={playerName} opponentName={opponentName}
+					build={build} />,
 		playerInfo
 	);
 }
 
+// fullscreen button for mobile
+let wasPlaying = !startPaused;
+let first = true;
+const toggleButton = document.getElementById("replay-toggle-container");
+
+ReactDOM.render(
+	embedder.launcher ?
+		<button className="btn btn-primary btn-full visible-xs" type="button" onClick={() => {
+		first = false;
+		container.parentElement.className = "";
+		embedder.launcher.fullscreen(true);
+	}}>
+			Enter Replay
+		</button> :
+		<button className="btn btn-danger btn-full visible-xs" type="button" onClick={() => {
+			alert([
+				"Something went wrong when trying to initialize our Replay applet (Joust).",
+				"Please ensure you have no plugins blocking it, such as Adblockers or NoScript.",
+				"Otherwise try opening this replay on another device.",
+			].join(" "));
+		}}>
+			Something went wrong…
+		</button>,
+	toggleButton
+);
+
+const style = typeof window.getComputedStyle === "function" ? window.getComputedStyle(container) : {};
+if (style["display"] == "none") {
+	embedder.launcher.startPaused(true);
+}
+
+const initialClassName = container.parentElement.className;
+
+embedder.launcher.onFullscreen((fullscreen: boolean): void => {
+	if (fullscreen) {
+		if (wasPlaying) {
+			embedder.launcher.play();
+		}
+	}
+	else {
+		// leave fullscreen
+		wasPlaying = embedder.launcher.playing;
+		embedder.launcher.pause();
+		container.parentElement.className = initialClassName;
+	}
+});
+
+// embed joust
+embedder.render();

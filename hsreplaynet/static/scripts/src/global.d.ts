@@ -43,6 +43,8 @@ declare module "joust" {
 
 		onToggleSwap(callback: (swap: boolean) => void): Launcher;
 
+		onFullscreen(callback: (fullscreen: boolean) => void): Launcher;
+
 		startPaused(paused?: boolean): Launcher;
 
 		startAtTurn(turn: number): Launcher;
@@ -50,6 +52,8 @@ declare module "joust" {
 		startRevealed(reveal: boolean): Launcher;
 
 		startSwapped(swap: boolean): Launcher;
+
+		fullscreen(fullscreen: boolean): Launcher;
 
 		logger(logger: (message: string | Error) => void): Launcher;
 
@@ -68,6 +72,10 @@ declare module "joust" {
 		pause(): void;
 
 		toggle(): void;
+
+		rewind(): void;
+
+		playing: boolean;
 
 		enableKeybindings(): Launcher;
 

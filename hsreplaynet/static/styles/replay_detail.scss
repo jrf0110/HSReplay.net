@@ -14,17 +14,13 @@
 #joust-container {
 	padding: 10px;
 	height: calc(100vh - 50px); // subtract navbar
+	display: inherit;
 }
 
-#replay-infobox {
-	overflow: visible;
-	z-index: 1;
-}
-
-#comments-infobox {
-	width: 300px;
-	border-top: none;
-	z-index: 0;
+@media (max-width: 767px) {
+	#replay-infobox {
+		max-width: none;
+	}
 }
 
 #replay-comments {
