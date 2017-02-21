@@ -80,11 +80,11 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 					<VictoryLine
 						data={series.data}
 						interpolation="basis"
-						style={{data: {stroke: "url(#popularity-gradient)", strokeWidth: 3}}}
+						style={{data: {stroke: this.colorMin, strokeWidth: 2}}}
 					/>
 					<VictoryScatter
 						data={[metadata.xMinMax[0], metadata.xMinMax[1]]}
-						style={{data: {fill: d => d.x == metadata.xMinMax[0].x ? this.colorMin : this.colorMax}}}
+						style={{data: {fill: this.colorMin}}}
 					/>
 					<VictoryVoronoiTooltip
 						data={series.data}
