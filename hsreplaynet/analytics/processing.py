@@ -260,8 +260,13 @@ def _is_wild(card):
 	return card.card_set in (CardSet.NAXX, CardSet.GVG)
 
 
+_eligible_decks_cache = {}
+
+
 def _get_eligible_deck_ids(game_type):
-	list_decks_query = RedshiftCatalogue.instance().get_query("list_decks_by_win_rate")
-	params = list_decks_query.build_full_params(dict(GameType=game_type))
-	result_set = list_decks_query.as_result_set().execute(get_redshift_engine(), params)
-	return [row["deck_id"] for row in result_set]
+	if game_type not in _eligible_decks_cache:
+		list_decks_query = RedshiftCatalogue.instance().get_query("list_decks_by_win_rate")
+		params = list_decks_query.build_full_params(dict(GameType=game_type))
+		result_set = list_decks_query.as_result_set().execute(get_redshift_engine(), params)
+		_eligible_decks_cache[game_type] = [row["deck_id"] for row in result_set]
+	return _eligible_decks_cache[game_type]
