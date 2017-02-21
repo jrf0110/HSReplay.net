@@ -607,6 +607,7 @@ def get_game_info(global_game, replay):
 		"scenario_id": global_game.scenario_id,
 		"ladder_season": global_game.ladder_season,
 		"brawl_season": global_game.brawl_season,
+		"game_date": timezone.now().date(),
 		"players": {
 			"1": {
 				"deck_id": int(player1.deck_list.id),
@@ -626,31 +627,6 @@ def get_game_info(global_game, replay):
 			},
 		}
 	}
-
-	can_normalize_game_date, diff_hours = _dates_within_threshold(
-		global_game.match_start,
-		timezone.now(),
-		settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
-	)
-
-	if can_normalize_game_date:
-		# If the match_start is within +/- 36 hours of the server's datetime
-		# Then we use the server's datetime as the game_date to reduce unnecessary
-		# VACUUM thrash due to the global user base of hsreplay.net
-		# However, if the difference is greater than 36 hours than we may be reprocessing
-		# Old replays, in which case we don't want to skew the dataset.
-		game_info["game_date"] = timezone.now().date()
-		influx_metric(
-			"replay_game_date_normalization",
-			{"count": 1},
-			using_server_date=True
-		)
-	else:
-		influx_metric(
-			"replay_game_date_normalization",
-			{"count": 1},
-			using_server_date=False
-		)
 
 	return game_info
 
