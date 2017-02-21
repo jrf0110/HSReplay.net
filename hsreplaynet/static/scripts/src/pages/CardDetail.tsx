@@ -280,7 +280,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		if (!isCollectibleCard(card)) {
 			return;
 		}
-		const mode = isWildCard(card) ? "RANKED_WILD" : "RANKED_WILD";
+		const mode = isWildCard(card) ? "RANKED_WILD" : "RANKED_STANDARD";
 		if (this.cardIsNeutral(card)) {
 			this.queryManager.fetch(
 				"/analytics/query/single_card_class_distribution_by_include_count?card_id=" + this.props.dbfId + "GameType=" + mode,
