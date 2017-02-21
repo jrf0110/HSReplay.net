@@ -1,6 +1,6 @@
 import * as React from "react";
 import CardSearch from "../components/CardSearch";
-import ClassFilter from "../components/ClassFilter";
+import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
 import Pager from "../components/Pager";
 import QueryManager from "../QueryManager";
@@ -14,7 +14,6 @@ interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
 	cardSearchIncludeKey?: number;
 	cards?: any[];
-	classFilterKey?: number;
 	deckData?: Map<string, TableData>;
 	deckType?: DeckType;
 	excludedCards?: any[];
@@ -22,7 +21,7 @@ interface DeckDiscoverState {
 	includedCards?: any[];
 	rankRange?: RankRange;
 	region?: Region;
-	selectedClasses?: Map<string, boolean>;
+	selectedClasses?: FilterOption[];
 	showFilters?: boolean;
 	sortProp?: SortProp;
 	timeFrame?: TimeFrame;
@@ -41,7 +40,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			cardSearchExcludeKey: 0,
 			cardSearchIncludeKey: 0,
 			cards: null,
-			classFilterKey: 0,
 			deckData: new Map<string, TableData>(),
 			deckType: null,
 			excludedCards: [],
@@ -49,7 +47,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			includedCards: [],
 			rankRange: "ALL",
 			region: "ALL",
-			selectedClasses: null,
+			selectedClasses: ["ALL"],
 			showFilters: false,
 			sortProp: "win_rate",
 			timeFrame: "LAST_30_DAYS",
@@ -75,7 +73,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 	
 	render(): JSX.Element {
-		const selectedClass = this.getSelectedClass();
+		const selectedClass = this.state.selectedClasses[0];
 		const decks: DeckObj[] = [];
 		const deckData = this.state.deckData.get(this.cacheKey());
 		if (this.props.cardData) {
@@ -154,7 +152,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			content = <DeckList decks={decks} pageSize={12} />;
 		}
 
-		const filterClassNames = ["filter-wrapper"];
+		const filterClassNames = ["infobox full-sm"];
 		const contentClassNames = ["deck-list-wrapper"]
 		if (!this.state.showFilters) {
 			filterClassNames.push("hidden-xs hidden-sm");
@@ -165,87 +163,63 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 		let resetButton = null;
 		if (this.state.deckType || this.state.excludedCards.length || this.state.includedCards.length || selectedClass && selectedClass !== "ALL") {
-			resetButton = <button className="btn btn-danger" onClick={() => this.resetFilters()}>Reset all filters</button>
+			resetButton = <button className="btn btn-danger btn-full" onClick={() => this.resetFilters()}>Reset all filters</button>
 		}
 
-		let resetInclude = null;
-		if (this.state.includedCards.length) {
-			const onClick = () => {
-				this.setState({includedCards: [], cardSearchIncludeKey: this.state.cardSearchIncludeKey + 1});
-			}
-			resetInclude = (
-				<a href="#" onClick={onClick} style={{float: "right"}}>clear</a>
-			);
-		}
-		
-		let resetExclude = null;
-		if (this.state.excludedCards.length) {
-			const onClick = () => {
-				this.setState({excludedCards: [], cardSearchExcludeKey: this.state.cardSearchExcludeKey + 1});
-			}
-			resetExclude = (
-				<a href="#" onClick={onClick} style={{float: "right"}}>clear</a>
-			);
-		}
+		const backButton = (
+			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
+				Back to card list
+			</button>
+		);
 
 		return (
 			<div className="deck-discover">
-				<div className={filterClassNames.join(" ")}>
-					<span className="visible-xs visible-sm">
-						<button
-							className="btn btn-primary"
-							type="button"
-							onClick={() => this.setState({showFilters: false})}
-						>
-							Back
-						</button>
-					</span>
-					<div className="filters">
-						{resetButton}
-						<h4>Class</h4>
-						<ClassFilter 
-							hideAll
-							key={this.state.classFilterKey}
-							multiSelect={false}
-							filters="All"
-							minimal
-							selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-						/>
-						{resetInclude}
-						<h4>Include cards</h4>
-						<CardSearch
-							key={"cardinclude" + this.state.cardSearchIncludeKey}
-							availableCards={this.state.cards}
-							onCardsChanged={(cards) => this.setState({includedCards: cards})}
-						/>
-						{resetExclude}
-						<h4>Exclude cards</h4>
-						<CardSearch
-							key={"cardexclude" + this.state.cardSearchExcludeKey}
-							availableCards={this.state.cards}
-							onCardsChanged={(cards) => this.setState({excludedCards: cards})}
-						/>
-						<h4>Deck type</h4>
-						<ul>
-							{this.buildFilter("deckType", "aggro", "Aggro", null)}
-							{this.buildFilter("deckType", "midrange", "Midrange", null)}
-							{this.buildFilter("deckType", "control", "Control", null)}
-						</ul>
-						<h4>Mode</h4>
-						<ul>
-							{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
-							{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
-						</ul>
-						<h4>Time frame</h4>
-						<ul>
-							{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
-						</ul>
-						<h4>Sort by</h4>
-						<ul>
-							{this.buildFilter("sortProp", "win_rate", "Winrate")}
-							{this.buildFilter("sortProp", "total_games", "Popularity")}
-						</ul>
-					</div>
+				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
+					<h1>Deck Database</h1>
+					{backButton}
+					{resetButton}
+					<h2>Class</h2>
+					<ClassFilter 
+						filters="All"
+						hideAll
+						minimal
+						multiSelect={false}
+						selectedClasses={this.state.selectedClasses}
+						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+					/>
+					<h2>Include cards</h2>
+					<CardSearch
+						key={"cardinclude" + this.state.cardSearchIncludeKey}
+						availableCards={this.state.cards}
+						onCardsChanged={(cards) => this.setState({includedCards: cards})}
+					/>
+					<h2>Exclude cards</h2>
+					<CardSearch
+						key={"cardexclude" + this.state.cardSearchExcludeKey}
+						availableCards={this.state.cards}
+						onCardsChanged={(cards) => this.setState({excludedCards: cards})}
+					/>
+					<h2>Deck type</h2>
+					<ul>
+						{this.buildFilter("deckType", "aggro", "Aggro", null)}
+						{this.buildFilter("deckType", "midrange", "Midrange", null)}
+						{this.buildFilter("deckType", "control", "Control", null)}
+					</ul>
+					<h2>Mode</h2>
+					<ul>
+						{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
+						{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
+					</ul>
+					<h2>Time frame</h2>
+					<ul>
+						{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
+					</ul>
+					<h2>Sort by</h2>
+					<ul>
+						{this.buildFilter("sortProp", "win_rate", "Winrate")}
+						{this.buildFilter("sortProp", "total_games", "Popularity")}
+					</ul>
+					{backButton}
 				</div>
 				<div className={contentClassNames.join(" ")}>
 					<button
@@ -272,10 +246,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			}
 		}
 		
-		const classNames = [];
+		const classNames = ["selectable"];
 		if (selected) {
 			classNames.push("selected");
-			if (!defaultValue) {
+			if (defaultValue === undefined) {
 				classNames.push("no-deselect");
 			}
 		}
@@ -288,28 +262,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 	}
 
-	getSelectedClass(): string {
-		if (!this.state.selectedClasses) {
-			return undefined;
-		}
-		let selectedClass = "ALL";
-		this.state.selectedClasses.forEach((value, key) => {
-			if(value) {
-				selectedClass = key;
-			}
-		});
-		return selectedClass;
-	}
-
 	resetFilters() {
 		this.setState({
 			cardSearchExcludeKey: this.state.cardSearchExcludeKey + 1,
 			cardSearchIncludeKey: this.state.cardSearchIncludeKey + 1,
-			classFilterKey: this.state.classFilterKey + 1,
 			deckType: null,
 			excludedCards: [],
 			includedCards: [],
-			selectedClasses: null
+			selectedClasses: ["ALL"]
 		});
 	}
 

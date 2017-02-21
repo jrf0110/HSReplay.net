@@ -72,8 +72,12 @@
 
 .deck-list {
 
-	.paging >span {
-		padding-right: 5px;
+	.paging {
+		padding-bottom: 10px;
+
+		>span {
+			padding-right: 5px;
+		}
 	}
 
 	.header-row {

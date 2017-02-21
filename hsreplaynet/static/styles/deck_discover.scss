@@ -1,74 +1,24 @@
 .deck-discover {
 	display: flex;
 
-	.filter-wrapper {
-		width: 250px;
-		margin-top: 45px;
+	#deck-discover-infobox {
+		.card-search-results {
+			width: calc(100% - 20px);
 
-		@media(max-width: 992px) {
-			margin-top: 20px;
-			width: 100%;
-		}
-
-		>span>button {
-			display: block;
-			width: 100%;
-		}
-
-		.filters {
-
-			>button {
-				width: 100%;
-				margin-top: 10px;
-			}
-			>h4 {
-				border-bottom: 1px solid $darkgrey;
-			}
-			
-			.class-filter-wrapper {
-				margin-left: 15px;
-				margin-right: 15px;
-				
-				.class-icon {
-					height: 2.3em;
-					width: 2.3em;
-				}
-			}
-			
-
-			> ul {
-				padding-left: 10px;
-
-				>li:hover {
-					color: $red;
-
-					&.selected:not(.no-deselect) {
-						text-decoration: line-through;
-					}
-
-				}
-
-				>li {
-					cursor: pointer;
-					user-select: none;
-					list-style-type: none;
-
-					&.selected {
-						font-weight: bold;
-					}
-				}
+			li {
+				padding: 0;
 			}
 		}
 	}
 
 	.deck-list-wrapper {
-		width: calc(100% - 250px);
-		margin-top: 20px;
-		margin-left: 20px;
+		min-height: 1180px;
+		padding: 20px;
+		width: calc(100% - 300px);
 
-		@media(max-width: 992px) {
-			width: 100%;
+		@media(max-width: 991px) {
 			margin-left: 0px;
+			width: 100%;
 		}
 		
 		.content-message {

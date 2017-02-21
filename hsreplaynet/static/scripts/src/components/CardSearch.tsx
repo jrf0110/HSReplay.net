@@ -81,7 +81,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 		}
 
 		return (
-			<div className="card-search">
+			<div className="card-search search-wrapper">
 				<input 
 					className="form-control"
 					type="search"
