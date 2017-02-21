@@ -4,7 +4,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django_intenum import IntEnumField
-from djstripe.utils import subscriber_has_active_subscription
 from hsreplaynet.games.models import Visibility
 
 
@@ -68,6 +67,7 @@ class User(AbstractUser):
 
 	@cached_property
 	def is_premium(self):
+		from djstripe.utils import subscriber_has_active_subscription
 		return subscriber_has_active_subscription(self)
 
 	def delete_replays(self):
