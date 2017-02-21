@@ -25,6 +25,8 @@ interface DeckDiscoverState {
 	showFilters?: boolean;
 	sortProp?: SortProp;
 	timeFrame?: TimeFrame;
+	myDecks?: number[];
+	personal?: boolean;
 }
 
 interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
@@ -51,6 +53,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			showFilters: false,
 			sortProp: "win_rate",
 			timeFrame: "LAST_30_DAYS",
+			myDecks: [],
+			personal: false,
 		}
 
 		this.fetch();
@@ -102,9 +106,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 									if (!this.state.deckType || this.state.deckType === "aggro" && costSum < 80
 										|| this.state.deckType === "midrange" && costSum >= 80 && costSum < 100
 										|| this.state.deckType === "control" && costSum >= 100) {
-											deck["cards"] = cardData;
-											deck["player_class"] = key;
-											deckElements.push(deck);
+											if (!this.state.personal || !this.state.myDecks || this.state.myDecks.indexOf(+deck["deck_id"]) !== -1) {
+												deck["cards"] = cardData;
+												deck["player_class"] = key;
+												deckElements.push(deck);
+											}
 										}
 								}
 							}
@@ -172,6 +178,16 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</button>
 		);
 
+		const personal = [];
+		if (this.state.myDecks && this.state.myDecks.length) {
+			personal.push(
+				<h2>Personal</h2>,
+				<ul>
+					{this.buildFilter("personal", "mydecks", "My decks only", null)}
+				</ul>
+			);
+		}
+
 		return (
 			<div className="deck-discover">
 				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
@@ -199,6 +215,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						availableCards={this.state.cards}
 						onCardsChanged={(cards) => this.setState({excludedCards: cards})}
 					/>
+					{personal}
 					<h2>Deck type</h2>
 					<ul>
 						{this.buildFilter("deckType", "aggro", "Aggro", null)}
@@ -278,6 +295,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			"/analytics/query/list_decks_by_win_rate?TimeRange=" + this.state.timeFrame + "&RankRange=" + this.state.rankRange + "&GameType=" + this.state.gameMode + "&Region=" + this.state.region,
 			(data) => this.setState({deckData: this.state.deckData.set(this.cacheKey(), data)})
 		);
+		
+		this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data.my_decks}));
 	}
 
 }
