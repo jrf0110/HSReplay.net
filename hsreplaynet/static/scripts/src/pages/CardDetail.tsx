@@ -8,7 +8,6 @@ import DeckList from "../components/DeckList";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import TurnPlayedBarChart from "../components/charts/TurnPlayedBarChart";
-import ClassFilter from "../components/ClassFilter";
 import {Colors} from "../Colors";
 import {
 	FilterData, Filter, FilterElement, FilterDefinition, KeyValuePair,

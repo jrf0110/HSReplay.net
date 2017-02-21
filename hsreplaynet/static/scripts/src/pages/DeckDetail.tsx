@@ -4,7 +4,7 @@ import CardDetailGauge from "../components/charts/CardDetailGauge";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardIcon from "../components/CardIcon";
 import CardTile from "../components/CardTile";
-import ClassFilter from "../components/ClassFilter";
+import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import ClassIcon from "../components/ClassIcon";
 import DeckList from "../components/DeckList";
 import HearthstoneJSON from "hearthstonejson";
@@ -33,7 +33,7 @@ interface DeckDetailState {
 	cardData?: Map<string, any>;
 	popularityOverTime?: RenderData;
 	similarDecks?: TableData;
-	selectedClasses?: Map<string, boolean>;
+	selectedClasses?: FilterOption[];
 	sortCol?: string;
 	sortDirection?: number;
 	tableDataAll?: TableData;
@@ -59,7 +59,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			cardData: null,
 			popularityOverTime: "loading",
 			similarDecks: "loading",
-			selectedClasses: null,
+			selectedClasses: ["ALL"],
 			sortCol: "decklist",
 			sortDirection: 1,
 			tableDataAll: "loading",
@@ -102,7 +102,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	render(): JSX.Element {
-		const selectedClass = this.getSelectedClass();
+		const selectedClass = this.state.selectedClasses[0];
 		const allSelected = selectedClass === "ALL";
 
 		let replayCount = null;
@@ -192,12 +192,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<PremiumWrapper isPremium={!this.mockFree()}>
 					<h4>Filter by opponent</h4>
 					<ClassFilter
+						disabled={this.mockFree()}
 						filters="All"
-						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-						multiSelect={false}
 						hideAll
 						minimal
-						disabled={this.mockFree()}
+						multiSelect={false}
+						selectedClasses={this.state.selectedClasses}
+						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
 					/>
 				</PremiumWrapper>
 			</div>
@@ -501,19 +502,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
 		const color = getColorString(Colors.REDGREEN3, 75, colorWinrate/100)
 		return {delta: winrateDelta.toFixed(1), color, tendencyStr}
-	}
-
-	getSelectedClass(): string {
-		if (!this.state.selectedClasses) {
-			return undefined;
-		}
-		let selectedClass = "ALL";
-		this.state.selectedClasses.forEach((value, key) => {
-			if(value) {
-				selectedClass = key;
-			}
-		});
-		return selectedClass;
 	}
 
 	isWildDeck(): boolean {

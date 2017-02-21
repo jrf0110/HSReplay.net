@@ -2,26 +2,23 @@ import * as React from "react";
 import {getHeroColor, toTitleCase} from "../helpers";
 import ClassIcon from "./ClassIcon";
 
-type FilterOption = "ALL" | "DRUID" | "HUNTER" | "MAGE"
+export type FilterOption = "ALL" | "DRUID" | "HUNTER" | "MAGE"
 	| "PALADIN" | "PRIEST" | "ROGUE" | "SHAMAN"
 	| "WARLOCK" | "WARRIOR" | "NEUTRAL";
 
 type FilterPreset = "All" | "AllNeutral" | "Neutral" | "ClassesOnly";
 
-interface ClassFilterState {
-	selectedClasses?: Map<string, boolean>;
-}
-
 interface ClassFilterProps extends React.ClassAttributes<ClassFilter> {
-	filters: FilterOption[] | FilterPreset;
-	selectionChanged: (selected: Map<string, boolean>) => void;
-	multiSelect: boolean;
-	hideAll?: boolean;
 	disabled?: boolean;
+	filters: FilterOption[] | FilterPreset;
+	hideAll?: boolean;
 	minimal?: boolean;
+	multiSelect: boolean;
+	selectedClasses: FilterOption[];
+	selectionChanged: (selected: FilterOption[]) => void;
 }
 
-export default class ClassFilter extends React.Component<ClassFilterProps, ClassFilterState> {
+export default class ClassFilter extends React.Component<ClassFilterProps, void> {
 	private readonly classes: FilterOption[] = [
 		"DRUID", "HUNTER", "MAGE",
 		"PALADIN", "PRIEST", "ROGUE",
@@ -35,19 +32,8 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 		["ClassesOnly", this.classes]
 	]);
 
-	constructor(props: ClassFilterProps, state: ClassFilterState) {
-		super(props, state);
-		const selectedClasses = new Map<string, boolean>();
-		if (this.props.multiSelect) {
-			this.getAvailableFilters().forEach(c => selectedClasses.set(c, true));
-		}
-		else {
-			selectedClasses.set(this.getAvailableFilters()[0], true);
-		}
-		this.state = {
-			selectedClasses: selectedClasses,
-		}
-		this.props.selectionChanged(this.state.selectedClasses)
+	constructor(props: ClassFilterProps) {
+		super(props);
 	}
 
 	getAvailableFilters(): FilterOption[] {
@@ -61,7 +47,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 			if (this.props.hideAll && key === "ALL") {
 				return;
 			}
-			const selected = this.state.selectedClasses.get(key);
+			const selected = this.props.selectedClasses.indexOf(key) !== -1;
 			filters.push(this.buildIcon(key, selected));
 		});
 		return <div className="class-filter-wrapper">
@@ -69,8 +55,8 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 		</div>;
 	}
 
-	buildIcon(className: string, selected: boolean): JSX.Element {
-		const isSelected = selected || this.allSelected();
+	buildIcon(className: FilterOption, selected: boolean): JSX.Element {
+		const isSelected = selected || this.props.selectedClasses.indexOf("ALL") !== -1;
 		const wrapperClassName = "class-icon-label-wrapper" + (!this.props.disabled && isSelected ? "" : " deselected");
 		let label = null;
 		if (!this.props.minimal) {
@@ -84,42 +70,33 @@ export default class ClassFilter extends React.Component<ClassFilterProps, Class
 		</span>;
 	}
 
-	onLabelClick(className: string, selected: boolean) {
+	onLabelClick(className: FilterOption, selected: boolean) {
 		if (this.props.disabled) {
 			return;
 		}
-		let newState = this.state.selectedClasses;
+		let newSelected = this.props.selectedClasses;
 
-		const currentSelection = [];
-		this.state.selectedClasses.forEach((value, key) => {
-			if (value) {
-				currentSelection.push(key);
-			}
-		});
-		const clickedLastSelected = currentSelection.length == 1 && currentSelection[0] === className;
+		const clickedLastSelected = newSelected.length == 1 && newSelected[0] === className;
 
 		if(this.props.multiSelect) {
 			if (clickedLastSelected) {
-				this.getAvailableFilters().forEach(key => newState.set(key, true));
+				newSelected = this.getAvailableFilters();
+			}
+			else if (selected) {
+				newSelected = newSelected.filter(x => x !== className);
 			}
 			else {
-				newState.set(className, !selected)
+				newSelected.push(className);
 			}
 		}
 		else {
 			if (clickedLastSelected && this.getAvailableFilters().indexOf("ALL") !== -1) {
-				newState = new Map<string, boolean>([["ALL", true]])
+				newSelected = ["ALL"];
 			}
 			else {
-				newState = new Map<string, boolean>([[className, true]])
+				newSelected = [className]
 			}
 		}
-
-		this.setState({selectedClasses: newState});
-		this.props.selectionChanged(newState);
-	}
-
-	allSelected(): boolean {
-		return this.state.selectedClasses.get("ALL");
+		this.props.selectionChanged(newSelected);
 	}
 }

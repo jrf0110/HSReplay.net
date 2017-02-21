@@ -4,7 +4,7 @@ import {
 	VictoryLabel, VictoryStack, VictoryTooltip
 } from "victory";
 import {getHeroColor} from "../../helpers";
-import ClassFilter from "../ClassFilter";
+import ClassFilter, {FilterOption} from "../ClassFilter";
 
 interface ClassData {
 	key: string;
@@ -19,7 +19,7 @@ interface ClassData {
 }
 
 interface ClassStackedBarChartState {
-	selectedClasses?: Map<string, boolean>;
+	selectedClasses?: FilterOption[];
 	offset?: number;
 	data?: ClassData[];
 }
@@ -35,7 +35,7 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 	constructor(props: ClassStackedBarChartProps, state: ClassStackedBarChartState) {
 		super(props, state);
 		this.state = {
-			selectedClasses: new Map<string, boolean>(),
+			selectedClasses: ["ALL"],
 			offset: 0,
 			data: null,
 		}
@@ -60,10 +60,7 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 		const bars = [];
 
 		if (this.state.selectedClasses) {
-			this.state.selectedClasses.forEach((selected, key) => {
-				if (!selected) {
-					return;
-				}
+			this.state.selectedClasses.forEach(key => {
 				const color = getHeroColor(key);
 				const tooltip = <VictoryTooltip
 					dy={-4}
@@ -101,8 +98,9 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 		const classFilter = this.props.hideLegend ? null :
 			<ClassFilter
 				filters="ClassesOnly"
-				selectionChanged={(selected) => this.setState({selectedClasses: selected})}
 				multiSelect={true}
+				selectedClasses={this.state.selectedClasses}
+				selectionChanged={(selected) => this.setState({selectedClasses: selected})}
 				/>;
 
 		return <div className="chart stacked-bar-chart">
