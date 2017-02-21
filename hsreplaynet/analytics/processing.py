@@ -1,11 +1,16 @@
 import json
 import time
+import copy
 from django.core.cache import caches
 from django.conf import settings
 from sqlalchemy import create_engine
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.aws.clients import LAMBDA
+from hsreplaynet.utils.aws.sqs import write_messages_to_queue
 from hsreplaynet.utils import log
+from hearthstone.enums import CardSet
+from hearthstone.cardxml import load
+from hsredshift.analytics.queries import RedshiftCatalogue
 from hsredshift.analytics.library.base import RedshiftQueryParams
 import redis_lock
 
@@ -194,3 +199,69 @@ def get_from_redshift_cache(cache_key):
 		# It will be handled like a Cache Miss
 		log.exception(e)
 		return None
+
+
+def fill_redshift_cache_warming_queue():
+	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
+	messages = get_queries_for_cache_warming()
+	write_messages_to_queue(queue_name, messages)
+
+
+def get_queries_for_cache_warming():
+	queries = []
+	card_db, _ = load()
+	for query in RedshiftCatalogue.instance().inventory.values():
+		for permutation in _generate_permutations_for_query(query, card_db):
+			queries.append({
+				"query_name": query.name,
+				"supplied_parameters": permutation
+			})
+	return queries
+
+
+def _generate_permutations_for_query(query, card_db):
+	result = []
+
+	for parameter_permutation in query.generate_supported_filter_permutations():
+		non_filter_parameters = query.get_available_non_filter_parameters()
+		if len(non_filter_parameters) == 0:
+			result.append(parameter_permutation)
+		elif len(non_filter_parameters) == 1:
+			non_filter_parameter = non_filter_parameters[0]
+			if non_filter_parameter == "card_id":
+				for id, card in card_db.items():
+					if card.collectible:
+						if _is_wild(card) and "RANKED_STANDARD" == parameter_permutation.get("GameType", ""):
+							continue
+
+						new_permutation = copy.copy(parameter_permutation)
+						new_permutation["card_id"] = card.dbf_id
+						result.append(new_permutation)
+
+			elif non_filter_parameter == "deck_id":
+				if "GameType" in parameter_permutation:
+					game_type = parameter_permutation["GameType"]
+				else:
+					game_type = "RANKED_STANDARD"
+
+				for deck_id in _get_eligible_deck_ids(game_type):
+					new_permutation = copy.copy(parameter_permutation)
+					new_permutation["deck_id"] = deck_id
+					result.append(new_permutation)
+			else:
+				raise RuntimeError("Support for filter %s not implemented." % non_filter_parameter)
+		else:
+			raise RuntimeError("Support for multiple non filter params not implemented")
+
+	return result
+
+
+def _is_wild(card):
+	return card.card_set in (CardSet.NAXX, CardSet.GVG)
+
+
+def _get_eligible_deck_ids(game_type):
+	list_decks_query = RedshiftCatalogue.instance().get_query("list_decks_by_win_rate")
+	params = list_decks_query.build_full_params(dict(GameType=game_type))
+	result_set = list_decks_query.as_result_set().execute(get_redshift_engine(), params)
+	return [row["deck_id"] for row in result_set]

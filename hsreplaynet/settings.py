@@ -399,6 +399,10 @@ REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE = 0
 # fully saturated
 REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT = 5
 
+# This queue gets polled once a minute and any queries in it get executed.
+REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME = "redshift_analytics_query_queue"
+
+
 WEBHOOKS = {
 	"SCHEME_WHITELIST": ["http", "https"],
 	"NETLOC_BLACKLIST": ["localhost"],

@@ -1,0 +1,31 @@
+import json
+from .clients import SQS
+
+
+def get_or_create_queue(queue_name):
+	# If the queue already exists, the existing queue will be returned.
+	response = SQS.create_queue(QueueName=queue_name)
+	return response["QueueUrl"]
+
+
+def write_messages_to_queue(queue_name, messages):
+	queue_url = get_or_create_queue(queue_name)
+
+	# Messages can be batched to SQS 10 at a time
+	for batch in batches(messages, 10):
+		entries = []
+		for id, message in enumerate(batch):
+			entries.append({
+				"Id": str(id),
+				"MessageBody": json.dumps(message, separators=(',', ':'))
+			})
+
+		response = SQS.send_message_batch(QueueUrl=queue_url, Entries=entries)
+		if 'Failed' in response and len(response['Failed']):
+			raise RuntimeError(json.dumps(response['Failed']))
+
+
+def batches(l, n):
+	"""Yield successive n-sized chunks from l."""
+	for i in range(0, len(l), n):
+		yield l[i:i + n]
