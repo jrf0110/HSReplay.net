@@ -276,7 +276,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const cards: CardObj[] = [];
 		this.props.deckCards.split(",").forEach(id => {
 			const card = this.state.cardData.get(id);
-			const existing = cards.find(c => c.card.id === id);
+			const existing = cards.find(c => c.card.dbfId === +id);
 			if (existing) {
 				existing.count += 1;
 			}

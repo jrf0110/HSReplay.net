@@ -36,7 +36,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 			let itemClassName = null;
 			if (this.props.compareWith) {
-				if (this.props.compareWith.some(c => c.card.id === card.id && c.count <= obj.count)) {
+				if (this.props.compareWith.some(c => c.card.id === card.id && c.count >= obj.count)) {
 					itemClassName = "unchanged";
 				}
 			}
