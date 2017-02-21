@@ -2,16 +2,15 @@ import * as React from "react";
 import CardDetailBarChart from "../components/charts/CardDetailBarChart";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
-import ClassFilter from "../components/ClassFilter";
+import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import QueryManager from "../QueryManager";
 import { TableData, TableQueryData, ChartSeries, GameMode, TimeFrame} from "../interfaces";
 
 interface PopularCardsState {
 	topCardsIncluded?: Map<string, TableData>;
 	topCardsPlayed?: Map<string, TableData>;
-	selectedClasses?: Map<string, boolean>;
+	selectedClasses?: FilterOption[];
 	numRowsVisible?: number;
-	classFilterKey?: number;
 	gameMode?: GameMode | "ARENA";
 	showFilters?: boolean;
 	timeFrame?: TimeFrame;
@@ -29,9 +28,8 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		this.state = {
 			topCardsIncluded: new Map<string, TableData>(),
 			topCardsPlayed: new Map<string, TableData>(),
-			selectedClasses: new Map<string, boolean>(),
+			selectedClasses: ["ALL"],
 			numRowsVisible: 12,
-			classFilterKey: 0,
 			gameMode: "RANKED_STANDARD",
 			showFilters: false,
 			timeFrame: "LAST_30_DAYS",
@@ -63,6 +61,8 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	}
 
 	render(): JSX.Element {
+		const selectedClass = this.state.selectedClasses[0];
+
 		const showMoreButton = this.state.numRowsVisible >= 100 ? null
 			: <button className="btn btn-default"
 			type="button"
@@ -90,7 +90,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			);
 		}
 		else {
-			const selectedClass = this.getSelectedClass();
+			const selectedClass = this.state.selectedClasses[0];
 			const chartSeries = this.buildChartSeries(included);
 			content = [
 				<div className ="row">
@@ -145,47 +145,51 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			];
 		}
 		
-		const filterClassNames = ["filter-wrapper"];
-		const contentClassNames = ["report-content"]
+		const filterClassNames = ["infobox full-sm"];
+		const contentClassNames = ["report-content container-fluid"]
 		if (!this.state.showFilters) {
 			filterClassNames.push("hidden-xs hidden-sm");
 		}
 		else {
 			contentClassNames.push("hidden-xs hidden-sm");
 		}
+		
+		let resetButton = null;
+		if (selectedClass && selectedClass !== "ALL") {
+			resetButton = <button className="btn btn-danger btn-full" onClick={() => this.setState({selectedClasses: ["ALL"]})}>Reset all filters</button>
+		}
+
+		const backButton = (
+			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
+				Back to the exhibition
+			</button>
+		);
 
 		return <div className="report-container" id="card-popularity-report">
 			<div className={filterClassNames.join(" ")}>
-				<span className="visible-xs visible-sm">
-					<button
-						className="btn btn-primary"
-						type="button"
-						onClick={() => this.setState({showFilters: false})}
-					>
-						Back
-					</button>
-				</span>
-				<div className="filters">
-					<h4>Class</h4>
-					<ClassFilter 
-						hideAll
-						key={this.state.classFilterKey}
-						multiSelect={false}
-						filters="AllNeutral"
-						minimal
-						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-					/>
-					<h4>Mode</h4>
-					<ul>
-						{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
-						{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
-						{this.buildFilter("gameMode", "ARENA", "Arena")}
-					</ul>
-					<h4>Time frame</h4>
-					<ul>
-						{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
-					</ul>
-				</div>
+				<h1>Card Menagerie</h1>
+				{backButton}
+				{resetButton}
+				<h2>Class</h2>
+				<ClassFilter 
+					hideAll
+					multiSelect={false}
+					filters="AllNeutral"
+					minimal
+					selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+					selectedClasses={this.state.selectedClasses}
+				/>
+				<h2>Mode</h2>
+				<ul>
+					{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
+					{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
+					{this.buildFilter("gameMode", "ARENA", "Arena")}
+				</ul>
+				<h2>Time frame</h2>
+				<ul>
+					{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
+				</ul>
+				{backButton}
 			</div>
 			<div className={contentClassNames.join(" ")}>
 				<button
@@ -211,7 +215,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			}
 		}
 		
-		const classNames = [];
+		const classNames = ["selectable"];
 		if (selected) {
 			classNames.push("selected");
 			if (!defaultValue) {
@@ -230,7 +234,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		const chartSeries = [];
 
 		if (this.props.cardData && this.state.topCardsIncluded) {
-			const selectedClass = this.getSelectedClass();
+			const selectedClass = this.state.selectedClasses[0];
 			const rows = topCardsIncluded.series.data[selectedClass];
 			const data = {rarity: {}, cardtype: {}, cardset: {}, cost: {}};
 			const totals = {rarity: 0, cardtype: 0, cardset: 0, cost: 0};
@@ -262,16 +266,6 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			})
 		}
 		return chartSeries;
-	}
-
-	getSelectedClass(): string {
-		let selectedClass = "ALL";
-		this.state.selectedClasses.forEach((value, key) => {
-			if(value) {
-				selectedClass = key;
-			}
-		});
-		return selectedClass;
 	}
 	
 	fetchIncluded() {
