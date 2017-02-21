@@ -53,7 +53,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			selectedClasses: ["ALL"],
 			selectedOpponentClasses: ["ALL"],
 			showFilters: false,
-			sortProp: "win_rate",
+			sortProp: "total_games",
 			timeFrame: "LAST_30_DAYS",
 			myDecks: [],
 			personal: false,
@@ -250,8 +250,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</ul>
 					<h2>Sort by</h2>
 					<ul>
-						{this.buildFilter("sortProp", "win_rate", "Winrate")}
 						{this.buildFilter("sortProp", "total_games", "Popularity")}
+						{this.buildFilter("sortProp", "win_rate", "Winrate")}
 					</ul>
 					{backButton}
 				</div>
