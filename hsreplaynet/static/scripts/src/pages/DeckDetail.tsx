@@ -31,6 +31,7 @@ interface DeckDetailState {
 	averageDuration?: RenderData;
 	baseWinrates?: TableData;
 	cardData?: Map<string, any>;
+	expandWinrate?: boolean;
 	popularityOverTime?: RenderData;
 	similarDecks?: TableData;
 	selectedClasses?: FilterOption[];
@@ -57,6 +58,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			averageDuration: "loading",
 			baseWinrates: "loading",
 			cardData: null,
+			expandWinrate: false,
 			popularityOverTime: "loading",
 			similarDecks: "loading",
 			selectedClasses: ["ALL"],
@@ -122,22 +124,28 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const winrates = [];
 		if (this.state.baseWinrates !== "loading" && this.state.baseWinrates !== "error") {
-			const data = this.state.baseWinrates.series.data;
-			Object.keys(data).forEach(key => {
+			const data = Object.assign({}, this.state.baseWinrates.series.data);
+			const keys = Object.keys(data);
+			keys.sort((a, b) => data[a][0]["player_class"] > data[b][0]["player_class"] ? 1 : -1)
+			keys.forEach(key => {
 				const winrate = +data[key][0]["win_rate"];
 				winrates.push(
 					<li>
-						<ClassIcon heroClassName={key} small/>
-						{toTitleCase(data[key][0]["player_class"])}
-						<div className="badge" style={{background: this.getBadgeColor(winrate)}}>{(+winrate).toFixed(1) + "%"}</div>
+						vs. {toTitleCase(data[key][0]["player_class"])}
+						<span className="infobox-value">{(+winrate).toFixed(1) + "%"}</span>
 					</li>
 				);
 			});
 		}
 
-		let dustCost = null;
+		let dustCost = 0;
+		let totalCost = 0;
 		if (this.state.cardData) {
-			this.props.deckCards.split(",").forEach(id => dustCost += getDustCost(this.state.cardData.get(id).rarity));
+			this.props.deckCards.split(",").forEach(id => {
+				const card = this.state.cardData.get(id);
+				dustCost += getDustCost(card.rarity);
+				totalCost += card.cost; 
+			});
 		}
 		
 		let hdtButton = null;
@@ -160,91 +168,101 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			backgroundImage: "url(/static/images/dust.png"
 		}
 
+		let deckData = null;
+		if (this.state.tableDataAll && this.state.tableDataAll !== "loading" && this.state.tableDataAll !== "error") {
+			const winrateClassNames = ["selectable expandable"];
+			let subWinrates = null;
+			if (this.state.expandWinrate) {
+				winrateClassNames.push("expanded");
+				subWinrates = (
+					<ul>{winrates}</ul>
+				);
+			}
+			deckData = [
+				<h2>Data</h2>,
+				<ul>
+					<li>
+						Based on
+						<span className="infobox-value">{toPrettyNumber(+this.state.tableDataAll.series.metadata["total_games"]) + " replays"}</span>
+					</li>
+					<li className={winrateClassNames.join(" ")} onClick={() => this.setState({expandWinrate: !this.state.expandWinrate})}>
+						Winrate
+						<span className="infobox-value">{(+this.state.tableDataAll.series.metadata["base_win_rate"]).toFixed(1) + "%"}</span>
+						{subWinrates}
+					</li>
+					<li>
+						Avg. duration
+						<span className="infobox-value">{"a few minutes"}</span>
+					</li>
+					<li>
+						Avg. turns
+						<span className="infobox-value">{"a few turns"}</span>
+					</li>
+				</ul>
+			];
+		}
+
 		return <div className="deck-detail-container">
-			<div className="deck-header" style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/512x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}}>
-				<div className="deck-header-fade">
-					<div className="row">
-						<div className="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-							<h1 className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.deckClass)}</h1>
-							<h4 className="dust-cost" style={dustCostStyle}>{dustCost}</h4>
-							{hdtButton}
-						</div>
-						<div className="col-lg-4 col-md-6 col-sm-6 hidden-xs">
-							<div className="chart-wrapper wide">
-								<PopularityLineChart
-									renderData={this.state.popularityOverTime}
-									widthRatio={2}
-								/>
-							</div>
-						</div>
-						<div className="col-lg-4 hidden-md hidden-sm hidden-xs">
-							<div className="chart-wrapper wide">
-								<WinrateLineChart
-									renderData={this.state.winrateOverTime}
-									widthRatio={2}
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id="opponent-class-filter">
+			<aside className="infobox">
+				<img className="hero-image" src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"} />
+				<h2>Info</h2>
+				<ul>
+					<li>
+						Class
+						<span className="infobox-value">{toTitleCase(this.props.deckClass)}</span>
+					</li>
+					<li>
+						Type
+						<span className="infobox-value">{totalCost > 100 ? "Control" : (totalCost > 80 ? "Midrange" : "Aggro")}</span>
+					</li>
+					<li>
+						Cost
+						<span className="infobox-value">{dustCost && dustCost + " Dust"}</span>
+					</li>
+					{hdtButton}
+				</ul>
 				<PremiumWrapper isPremium={!this.mockFree()}>
-					<h4>Filter by opponent</h4>
+					<h2>Breakdown by opponent</h2>
 					<ClassFilter
-						disabled={this.mockFree()}
 						filters="All"
 						hideAll
 						minimal
 						multiSelect={false}
 						selectedClasses={this.state.selectedClasses}
-						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+						selectionChanged={(selected) => !this.mockFree() && this.setState({selectedClasses: selected})}
 					/>
 				</PremiumWrapper>
-			</div>
-			<h3>
-				{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
-			</h3>
-			{replayCount}
-			<div className="table-wrapper">
-				{this.buildTable(selectedTable, selectedClass)}
-			</div>
-			<div className="deck-detail row">
-				<div className="col-lg-2 col-md-12 col-sm-12 col-xs-12">
-					<div className="chart-wrapper wide visible-xs">
-						<PopularityLineChart
-							renderData={this.state.popularityOverTime}
-							widthRatio={2}
-						/>
-					</div>
-					<div className="row">
-						<div className="visible-xs col-xs-12">
-							<div className="chart-wrapper wide">
-								<WinrateLineChart
-									renderData={this.state.winrateOverTime}
-									widthRatio={2}
-								/>
-							</div>
+				{deckData}
+			</aside>
+			<main className="container-fluid">
+				<div className="row">
+					<div className="col-lg-6 col-md-6">
+						<div className="chart-wrapper wide">
+							<PopularityLineChart
+								renderData={this.state.popularityOverTime}
+								widthRatio={2}
+							/>
 						</div>
-						<div className="hidden-lg col-md-6 col-sm-7 hidden-xs">
-							<div className="chart-wrapper wide">
-								<WinrateLineChart
-									renderData={this.state.winrateOverTime}
-									widthRatio={2}
-								/>
-							</div>
+					</div>
+					<div className="col-lg-6 col-md-6">
+						<div className="chart-wrapper wide">
+							<WinrateLineChart
+								renderData={this.state.winrateOverTime}
+								widthRatio={2}
+							/>
 						</div>
 					</div>
 				</div>
-			</div>
-			<h3>Similar Decks</h3>
-			{this.buildSimilarDecks()}
-			<div className="winrate-list">
-				<h4>Winrate against</h4>
-				<ul>
-					{winrates}
-				</ul>
-			</div>
+				<h3>
+					{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
+				</h3>
+				{replayCount}
+				<div className="table-wrapper">
+					{this.buildTable(selectedTable, selectedClass)}
+				</div>
+				<h3>Similar Decks</h3>
+				{this.buildSimilarDecks()}
+			</main>
 		</div>;
 	}
 	

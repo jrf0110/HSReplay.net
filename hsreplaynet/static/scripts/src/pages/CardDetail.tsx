@@ -246,13 +246,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				{backButton}
 				<img className="card-image" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} />
 				<p>{this.state.card && this.state.card.flavor}</p>
-				<h2>Data</h2>
-				<ul>
-					<li>
-						Based on
-						<span className="infobox-value">{replayCount && replayCount + " replays"}</span>
-					</li>
-				</ul>
 				<h2>Info</h2>
 				<ul>
 					<li>
@@ -276,6 +269,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<li>
 						Artist
 						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
+					</li>
+				</ul>
+				<h2>Data</h2>
+				<ul>
+					<li>
+						Based on
+						<span className="infobox-value">{replayCount && replayCount + " replays"}</span>
 					</li>
 				</ul>
 				{classDistribution}

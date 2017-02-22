@@ -76,13 +76,28 @@
 			}
 		}
 
+		&.expandable {
+			cursor: pointer;
+			user-select: none;
+		}
+
+		&.expandable::before {
+			content: "› ";
+			font-weight: bold;
+		}
+
+		&.expanded::before {
+			content: "‹ ";
+		}
+
 		ul {
 			> li:first-of-type {
-				border-top: 1px solid $aqua;
+				border-top: 1px solid $darkblue;
 			}
 
 			> li:last-of-type {
 				padding-bottom: 0;
+				border-bottom: 0;
 			}
 		}
 	}
