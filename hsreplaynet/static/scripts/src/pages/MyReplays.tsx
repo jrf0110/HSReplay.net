@@ -1,19 +1,22 @@
 import * as React from "react";
-import {cookie} from "cookie_js";
-import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
+import ClassDistributionPieChart from "../components/charts/ClassDistributionPieChart";
+import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import GameHistoryList from "../components/gamehistory/GameHistoryList";
 import GameHistorySearch from "../components/gamehistory/GameHistorySearch";
 import GameHistorySelectFilter from "../components/gamehistory/GameHistorySelectFilter";
-import GameHistoryList from "../components/gamehistory/GameHistoryList";
 import GameHistoryTable from "../components/gamehistory/GameHistoryTable";
 import InfoBoxSection from "../components/InfoBoxSection";
 import Pager from "../components/Pager";
+import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
+import {cookie} from "cookie_js";
 import {formatMatch, modeMatch, nameMatch, resultMatch, heroMatch, opponentMatch} from "../GameFilters"
-import ClassDistributionPieChart from "../components/charts/ClassDistributionPieChart";
-import ClassFilter, {FilterOption} from "../components/ClassFilter";
-
 import {parseQuery, toQueryString, QueryMap} from "../QueryParser"
 
 type ViewType = "tiles" | "list";
+
+interface GamesPage {
+	[index: number]: GameReplay[];
+}
 
 interface MyReplaysProps extends ImageProps, CardArtProps, React.ClassAttributes<MyReplays> {
 	username: string;
@@ -22,7 +25,7 @@ interface MyReplaysProps extends ImageProps, CardArtProps, React.ClassAttributes
 interface MyReplaysState {
 	count?: number;
 	currentLocalPage?: number;
-	gamesPages?: Map<number, GameReplay[]>;
+	gamesPages?: GamesPage;
 	next?: string,
 	pageSize?: number;
 	queryMap?: QueryMap;
@@ -33,7 +36,6 @@ interface MyReplaysState {
 }
 
 export default class MyReplays extends React.Component<MyReplaysProps, MyReplaysState> {
-
 	readonly viewCookie: string = "myreplays_viewtype";
 
 	constructor(props: MyReplaysProps, context: any) {
@@ -42,7 +44,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		this.state = {
 			count: 0,
 			currentLocalPage: 0,
-			gamesPages: new Map<number, GameReplay[]>(),
+			gamesPages: {} as GamesPage,
 			next: null,
 			pageSize: 1,
 			queryMap: parseQuery(document.location.hash.substr(1)),
@@ -61,22 +63,29 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		$.getJSON(url, {username: this.props.username}, (data) => {
 			let games = [];
 			if (data.count) {
-				if(!!this.state.count && this.state.count !== data.count) {
+				if(this.state.count && this.state.count !== data.count) {
 					this.setState({
 						receivedPages: 0,
-						gamesPages: new Map<number, GameReplay[]>(),
-						count: data.count
+						gamesPages: [],
+						count: data.count,
 					});
 					this.query("/api/v1/games/");
 					return;
 				}
 				games = data.results;
-				if (!this.state.gamesPages.has(this.state.receivedPages)) {
-					this.state.gamesPages = this.state.gamesPages.set(this.state.receivedPages, games);
-					this.state.receivedPages++;
-					if(games.length > this.state.pageSize) {
-						this.state.pageSize = games.length;
-					}
+
+				if (Object.keys(this.state.gamesPages).indexOf(""+this.state.receivedPages) === -1) {
+					const pages = Object.assign({}, this.state.gamesPages);
+					pages[this.state.receivedPages] = games;
+					this.setState({
+						count: data.count,
+						gamesPages: pages,
+						next: data.next,
+						pageSize: Math.max(this.state.pageSize, games.length),
+						receivedPages: this.state.receivedPages + 1,
+						working: false,
+					});
+					return;
 				}
 			}
 			this.setState({
@@ -133,18 +142,19 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		});
 
 		let page = 0;
-		if(this.state.gamesPages.has(page)) {
-			games = this.filterGames(this.state.gamesPages.get(page));
+		const firstPage = this.state.gamesPages[page];
+		if(firstPage) {
+			games = this.filterGames(firstPage);
 			//we load one more than we need so we know whether there is next page
 			while (games.length < (this.state.pageSize * (this.state.currentLocalPage + 1) + 1)) {
-				page++;
-				if (!this.state.gamesPages.has(page)) {
+				const nextPage = this.state.gamesPages[++page];
+				if (!nextPage) {
 					if (this.state.next && !this.state.working && (hasFilters || page == this.state.currentLocalPage)) {
 						this.query(this.state.next);
 					}
 					break;
 				}
-				games = games.concat(this.filterGames(this.state.gamesPages.get(page)));
+				games = games.concat(this.filterGames(nextPage));
 			}
 			//slice off everything before the currentLocalPage
 			games = games.slice(this.state.pageSize * (this.state.currentLocalPage));
