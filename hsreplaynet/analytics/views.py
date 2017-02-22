@@ -1,11 +1,8 @@
-import json
-from django.urls import reverse
-from django.contrib.admin.views.decorators import staff_member_required
-from django.http import Http404
-from django.http import HttpResponseForbidden
 from datetime import date
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import Http404, HttpResponseForbidden, JsonResponse
+from django.urls import reverse
 from hsredshift.analytics import queries
-from django.http import HttpResponse
 from hsredshift.analytics import filters
 from hsreplaynet.utils import log
 from hsreplaynet.utils.influx import influx_metric
@@ -21,7 +18,7 @@ def evict_query_from_cache(request, name):
 
 	params = query.build_full_params(request.GET)
 	evict_from_cache(params.cache_key)
-	return HttpResponse()
+	return JsonResponse({"msg": "OK"})
 
 
 def fetch_query_results(request, name):
@@ -37,7 +34,6 @@ def fetch_query_results(request, name):
 
 
 def _fetch_query_results(query, params):
-
 	cached_data = get_from_redshift_cache(params.cache_key)
 	triggered_refresh = False
 	num_seconds = 0
@@ -48,17 +44,13 @@ def _fetch_query_results(query, params):
 			# Execute the query to refresh the stale data asynchronously
 			# And then return the data we have available immediately
 			execute_query(query, params, async=True)
-		response_payload = cached_data.response_payload
-		payload_str = json.dumps(response_payload, indent=4, sort_keys=True)
-		response = HttpResponse(payload_str, content_type="application/json")
+		result = cached_data.response_payload
+		response = JsonResponse(result)
 	else:
 		execute_query(query, params, async=True)
 		# Nothing to return so tell the client to check back later
-		response = HttpResponse(
-			"Query is processing. Check back later.",
-			content_type="text/plain",
-			status=202,
-		)
+		result = {"msg": "Query is processing. Check back later."}
+		response = JsonResponse(result, status=202)
 
 	was_cache_hit = str(bool(cached_data))
 	log.info("Query: %s Cache Hit: %s" % (query.name, was_cache_hit))
@@ -102,8 +94,7 @@ def card_inventory(request, card_id):
 
 		result.append(inventory_entry)
 
-	payload_str = json.dumps(result, indent=4, sort_keys=True)
-	return HttpResponse(payload_str, content_type="application/json")
+	return JsonResponse(result)
 
 
 def get_filters(request):
@@ -133,5 +124,4 @@ def get_filters(request):
 		]
 	}
 
-	payload_str = json.dumps(result, indent=4, sort_keys=True)
-	return HttpResponse(payload_str, content_type="application/json")
+	return JsonResponse(result)
