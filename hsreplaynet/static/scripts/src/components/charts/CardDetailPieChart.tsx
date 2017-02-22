@@ -15,6 +15,8 @@ interface CardDetailPieChartProps extends React.ClassAttributes<CardDetailPieCha
 	sortByValue?: boolean;
 	removeEmpty?: boolean;
 	textPrecision?: number;
+	fontColor?: string;
+	fixedFontSize?: number;
 }
 
 export default class CardDetailPieChart extends React.Component<CardDetailPieChartProps, CardDetailPieChartState> {
@@ -106,7 +108,17 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 
 		return <svg viewBox="0 0 400 450">
 			{content}
-			<VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={400} text={labelText} style={{fontSize: Math.min(40, 60 - Math.ceil(labelText.length/5 + 1)*5)}}/>
+			<VictoryLabel
+				textAnchor="middle"
+				verticalAnchor="middle"
+				x={200}
+				y={400}
+				text={labelText}
+				style={{
+					fill: this.props.fontColor,
+					fontSize: this.props.fixedFontSize || Math.min(40, 60 - Math.ceil(labelText.length/5 + 1)*5)
+				}}
+			/>
 		</svg>;
 	}
 
