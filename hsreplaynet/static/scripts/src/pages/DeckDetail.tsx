@@ -33,8 +33,9 @@ interface DeckDetailState {
 	cardData?: Map<string, any>;
 	expandWinrate?: boolean;
 	popularityOverTime?: RenderData;
-	similarDecks?: TableData;
 	selectedClasses?: FilterOption[];
+	showInfo?: boolean;
+	similarDecks?: TableData;
 	sortCol?: string;
 	sortDirection?: number;
 	tableDataAll?: TableData;
@@ -61,6 +62,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			expandWinrate: false,
 			popularityOverTime: "loading",
 			similarDecks: "loading",
+			showInfo: false,
 			selectedClasses: ["ALL"],
 			sortCol: "decklist",
 			sortDirection: 1,
@@ -202,8 +204,24 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			];
 		}
 
+		const asideClassNames = ["infobox"];
+		const mainClassNames = ["container-fluid"];
+		if (this.state.showInfo) {
+			mainClassNames.push("hidden-xs");
+		}
+		else {
+			asideClassNames.push("hidden-xs");
+		}
+
+		const backButton = (
+			<button type="button" className="btn btn-primary btn-full visible-xs" onClick={() => this.setState({showInfo: false})}>
+				Back to the stats
+			</button>
+		);
+
 		return <div className="deck-detail-container">
-			<aside className="infobox">
+			<aside className={asideClassNames.join(" ")}>
+				{backButton}
 				<img className="hero-image" src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"} />
 				<h2>Info</h2>
 				<ul>
@@ -233,8 +251,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					/>
 				</PremiumWrapper>
 				{deckData}
+				{backButton}
 			</aside>
-			<main className="container-fluid">
+			<main className={mainClassNames.join(" ")}>
+				<button type="button" className="btn btn-default btn-full visible-xs" onClick={() => this.setState({showInfo: true})}>
+					Show deck info
+				</button>
 				<div className="row">
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">

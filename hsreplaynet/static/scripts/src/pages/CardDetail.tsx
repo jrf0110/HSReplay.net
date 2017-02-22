@@ -235,6 +235,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		else {
 			asideClassNames.push("hidden-xs");
 		}
+
 		const backButton = (
 			<button type="button" className="btn btn-primary btn-full visible-xs" onClick={() => this.setState({showInfo: false})}>
 				Back to the stats
