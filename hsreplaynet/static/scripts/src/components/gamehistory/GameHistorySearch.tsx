@@ -1,6 +1,5 @@
 import * as React from "react";
 
-
 interface GameHistorySearchProps extends React.ClassAttributes<GameHistorySearchState > {
 	query: string;
 	setQuery: (query: string) => void;
@@ -12,16 +11,13 @@ interface GameHistorySearchState {
 export default class GameHistorySearch extends React.Component<GameHistorySearchProps, GameHistorySearchState> {
 
 	render(): JSX.Element {
-		if (!this.props.query) {
-			this.props.query = "";
-		}
 		return (
 			<div className="search-wrapper">
 				<input
 					type="search"
 					placeholder="Search for players…"
 					className="form-control"
-					value={this.props.query}
+					value={this.props.query || ""}
 					onChange={(e: any) => this.props.setQuery(e.target.value)}
 				/>
 			</div>
