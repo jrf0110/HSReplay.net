@@ -11,7 +11,6 @@ import VisibilityDropdown from "../components/VisibilityDropdown";
 import {Visibility} from "../interfaces";
 import DeleteReplayButton from "../components/DeleteReplayButton";
 import PlayerInfo from "../components/PlayerInfo";
-import {start} from "repl";
 
 // add Django CSRF token to jQuery.ajax
 jQueryCSRF.init();
