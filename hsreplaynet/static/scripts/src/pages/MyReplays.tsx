@@ -53,7 +53,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			viewType: viewType,
 			working: true,
 		};
-		this.query("/api/v1/games/");
+		this.query("/api/v1/games/?username=" + encodeURIComponent(props.username));
 	}
 
 	protected query(url: string) {
@@ -61,7 +61,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			working: true
 		});
 		fetch(
-			url + "?username=" + encodeURIComponent(this.props.username),
+			url,
 			{
 				headers: new Headers({"accept": "application/json"}),
 				credentials: "same-origin",
