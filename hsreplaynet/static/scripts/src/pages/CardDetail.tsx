@@ -17,7 +17,7 @@ import {
 import HearthstoneJSON from "hearthstonejson";
 import {
 	toTitleCase, getChartScheme, setNames, toPrettyNumber, isWildCard, 
-	isCollectibleCard, getColorString
+	isCollectibleCard, getColorString, getDustCost
 } from "../helpers";
 import QueryManager from "../QueryManager";
 
@@ -30,6 +30,7 @@ interface CardDetailState {
 	popularityByTurn?: RenderData;
 	popularityOverTime?: RenderData;
 	recommendedDecks?: TableData;
+	showInfo?: boolean;
 	winrateByTurn?: RenderData;
 	winrateOverTime?: RenderData;
 }
@@ -54,6 +55,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			popularTargets: "loading",
 			popularityByTurn: "loading",
 			popularityOverTime: "loading",
+			showInfo: false,
 			recommendedDecks: "loading",
 			winrateByTurn: "loading",
 			winrateOverTime: "loading",
@@ -87,7 +89,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	render(): JSX.Element {
-		let numMostCombinedRows = 8;
 		let mostPopularTargets = null;
 		if (this.cardHasTargetReqs()) {
 			mostPopularTargets = [
@@ -101,80 +102,64 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				/>
 			];
 		}
-		else {
-			numMostCombinedRows *= 2;
-		}
 
 		let classDistribution = null;
-		let title = null;
+		let replayCount = null;
 		let content = null;
 		if (this.state.card) {
 			const set = this.state.card.set.toLowerCase();
-			let replayCount = null;
-
 			if (this.state.winrateOverTime !== "loading" && this.state.winrateOverTime !== "error") {
-				replayCount = (
-					<p className="pull-right">
-						{"based on " + toPrettyNumber(this.state.winrateOverTime.series[0].metadata["num_data_points"]) + " replays"}
-					</p>
-				);
+				replayCount = toPrettyNumber(this.state.winrateOverTime.series[0].metadata["num_data_points"]);
 			}
 		
 			const cardNameStyle = {
 				backgroundImage: "url(/static/images/set-icons/" + set + ".png"
 			}
 
-			title = [
-				<h1 className="card-name" style={cardNameStyle}>{this.state.card.name}</h1>,
-				<h4>{toTitleCase(this.state.card.playerClass) + " " + toTitleCase(this.state.card.type)}</h4>
-			];
-
 			if (!isCollectibleCard(this.state.card)) {
 				content = (
-					<div className="message-wrapper">
+					<div id="message-wrapper">
 						<h3>Sorry, we currently don't have statistics for non-collectible cards.</h3>
-						<a href="/cards/discover/">Check out our card database for card with available stats!</a>
+						<a href="/cards/">Check out our card database for card with available stats!</a>
 					</div>
 				);
 			}
 			else {
-				if (this.cardIsNeutral()) {
-					classDistribution = (
-						<div className="class-chart">
-							<CardDetailPieChart
-								percent
-								renderData={this.state.classDistribution}
-								title={"Class Popularity"}
-								scheme={getChartScheme("class")}
-								textPrecision={2}
-								sortByValue
-								removeEmpty
-							/>
-						</div>
-					);
-				}
+				const tableWidth = mostPopularTargets ? 6 : 12;
 
 				content = [
-					<div className="card-detail row">
-						<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-							<div className="chart-wrapper visible-xs">
+					<h2 className="visible-xs">{this.state.card && this.state.card.name}</h2>,
+					<button type="button" className="btn btn-default btn-full visible-xs" onClick={() => this.setState({showInfo: true})}>
+						Show card info
+					</button>,
+					<div className="row">
+						<div className="col-lg-6 col-md-6">
+							<div className="chart-wrapper">
 								<PopularityLineChart
 									renderData={this.state.popularityOverTime}
 									widthRatio={2}
 								/>
 							</div>
-							<div className="chart-wrapper hidden-lg">
-								<WinrateLineChart
-									renderData={this.state.winrateOverTime}
-									widthRatio={2}
-								/>
-							</div>
+						</div>
+						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<TurnPlayedBarChart
 									renderData={this.state.popularityByTurn}
 									widthRatio={2}
 								/>
 							</div>
+						</div>
+					</div>,
+					<div className="row">
+						<div className="col-lg-6 col-md-6">
+							<div className="chart-wrapper">
+								<WinrateLineChart
+									renderData={this.state.winrateOverTime}
+									widthRatio={2}
+								/>
+							</div>
+						</div>
+						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<WinrateByTurnLineChart
 									renderData={this.state.winrateByTurn}
@@ -182,62 +167,123 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								/>
 							</div>
 						</div>
-						<div className="col-lg-6 col-md-6">
+					</div>,
+					<div className="row" id="card-tables">
+						<div className={"col-lg-" + tableWidth + " col-md-" + tableWidth}>
 							<h4>Most combined with</h4>	
 							<CardRankingTable
 								cardData={this.state.cardData}
-								numRows={numMostCombinedRows}
+								numRows={8}
 								tableData={this.state.cardsOnSameTurn}
 								dataKey={"ALL"}
 								clickable
 							/>
+						</div>
+						<div className="col-lg-6 col-md-6">
 							{mostPopularTargets}
 						</div>
 					</div>,
-				]
+					<h3>Recommended Decks</h3>,
+					this.buildRecommendedDecks()
+				];
+				
+				if (this.cardIsNeutral() && this.state.classDistribution !== "loading" && this.state.classDistribution !== "error") {
+					classDistribution = (
+						<div className="class-chart">
+							<CardDetailPieChart
+								fixedFontSize={22}
+								fontColor="white"
+								percent
+								removeEmpty
+								renderData={this.state.classDistribution}
+								scheme={getChartScheme("class")}
+								sortByValue
+								textPrecision={2}
+								title={"Class Popularity"}
+							/>
+						</div>
+					);
+				}
 			}
 		}
 
+		let race = null;
+		if (this.state.card && this.state.card.race) {
+			race = (
+				<li>
+					Race
+					<span className="infobox-value">{toTitleCase(this.state.card.race)}</span>
+				</li>
+			);
+		}
+
+		let craftingCost = null;
+		if (this.state.card && this.state.card.rarity && this.state.card.rarity !== "FREE") {
+			craftingCost = (
+				<li>
+					Cost
+					<span className="infobox-value">{getDustCost(this.state.card.rarity) + " Dust"}</span>
+				</li>
+			);
+		}
+
+		const asideClassNames = ["infobox"];
+		const mainClassNames = ["container-fluid"];
+		if (this.state.showInfo) {
+			mainClassNames.push("hidden-xs");
+		}
+		else {
+			asideClassNames.push("hidden-xs");
+		}
+		const backButton = (
+			<button type="button" className="btn btn-primary btn-full visible-xs" onClick={() => this.setState({showInfo: false})}>
+				Back to the stats
+			</button>
+		);
+
 		return <div className="card-detail-container">
-			<div className="card-header" style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/512x/" + this.props.cardId + ".jpg"}}>
-				<div className="card-header-fade">
-					<div className="row">
-						<div className="col-title col-lg-4 col-md-6 col-sm-6 col-xs-12">
-							<div className="page-title">
-								{title}
-							</div>
-						</div>
-						<div className="col-lg-4 col-md-6 col-sm-6 hidden-xs">
-							<div className="chart-wrapper">
-								<PopularityLineChart
-									renderData={this.state.popularityOverTime}
-									widthRatio={2}
-								/>
-							</div>
-						</div>
-						<div className="col-lg-4 hidden-md hidden-sm hidden-xs">
-							<div className="chart-wrapper">
-								<WinrateLineChart
-									renderData={this.state.winrateOverTime}
-									widthRatio={2}
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div className="row">
-				<div className="col-lg-4 col-md-4 col-sm-4 col-left">
-					<img className="card-image" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} />
-					<span></span>
-					{classDistribution}
-				</div>
-				<div className="col-lg-8 col-md-8 col-sm-8 col-right">
-					{content}
-				</div>
-			</div>
-			<h3>Recommended Decks</h3>
-			{this.buildRecommendedDecks()}
+			<aside className={asideClassNames.join(" ")}>
+				{backButton}
+				<img className="card-image" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} />
+				<p>{this.state.card && this.state.card.flavor}</p>
+				<h2>Data</h2>
+				<ul>
+					<li>
+						Based on
+						<span className="infobox-value">{replayCount && replayCount + " replays"}</span>
+					</li>
+				</ul>
+				<h2>Info</h2>
+				<ul>
+					<li>
+						Class
+						<span className="infobox-value">{this.state.card && toTitleCase(this.state.card.playerClass)}</span>
+					</li>
+					<li>
+						Type
+						<span className="infobox-value">{this.state.card && toTitleCase(this.state.card.type)}</span>
+					</li>
+					<li>
+						Rarity
+						<span className="infobox-value">{this.state.card && toTitleCase(this.state.card.rarity)}</span>
+					</li>
+					<li>
+						Set
+						<span className="infobox-value">{this.state.card && this.state.card.set && setNames[this.state.card.set.toLowerCase()]}</span>
+					</li>
+					{race}
+					{craftingCost}
+					<li>
+						Artist
+						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
+					</li>
+				</ul>
+				{classDistribution}
+				{backButton}
+			</aside>
+			<main className={mainClassNames.join(" ")}>
+				{content}
+			</main>
 		</div>;
 	}
 

@@ -1,96 +1,64 @@
 .card-detail-container {
-	width: 98%;
-	margin-top: 20px;
+	display: flex;
 
-	.col-left {
-
-		.card-image, .class-chart {
-			display: block;
-			max-width: 250px;
-			margin: 0px auto;
+	>main {
+		min-height: calc(100vh - 50px);
+		padding-top: 10px;
+		width: calc(100% - 300px);
+		
+		>h3 {
+			border-bottom: 1px solid $darkgrey;
 		}
-	}
-	
-	.card-header {
-		background-position: -50px -75px;
-		background-repeat: no-repeat;
-		border-bottom: 1px solid $darkgrey;
-		border-top: 1px solid $darkgrey;
-		height: 275px;
-		position: relative;
 
-		.card-header-fade {
-			background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.6) 100px, $offwhite 400px);
-			height: 100%;
-			padding: 20px 0 0 40px;
+		>.row {
+			border-bottom: 1px solid $lightgrey;
+		}
 			
-			.col-title {
-				display: flex;
+		>.row:nth-child(even) {
+			background: rgb(249, 249, 249);
+		}
 
-				.card-name {
-					background-repeat: no-repeat;
-					background-size: contain;
-					line-height: 65px;
-					margin: 5px 0 0 5px;
-					padding-left: 75px;
-					white-space: nowrap;
-				}
-			
-				.page-title {
-					height: 75px;
+		#card-tables {
+			>div >* {
+				max-width: 500px;
+				margin: 0 auto;
+			}
 
-					>img {
-						height: 50px;
-						width: 50px;
-						opacity: 0.3;
-					}
-
-					>h4 {
-						margin-left: 80px;
-						opacity: 0.9;
-					}
-				}
+			h4 {
+				padding-top: 20px;
 			}
 		}
 
-	}
+		#message-wrapper {
+			text-align: center;
+		}
 
-	.card-detail {
-		padding-top: 15px;
+		@media(max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+		}
 	}
+	
+	>aside {
+		.card-image {
+			margin-left: calc(50% - 125px);
+			width: 250px;
+		}
+		
+		>p {
+			font-style: italic;
+			margin: 0 10px 10px 10px;
+			text-align: center;
+		}
 
-	>h3 {
-		border-bottom: 1px solid $darkgrey;
+		@media(max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+		}
 	}
 
 	.chart-wrapper {
-		max-width: 450px;
-	}
-
-	
-	.col-right {
-
-		.message-wrapper {
-			 margin-top: 70px
-		}
-	}
-}
-@media (min-width: 1400px) {
-	.card-detail-container {
-		width: 80%;
-	}
-}
-
-.chart-column {
-	padding-left: 0;
-	padding-right: 0;
-
-}
-
-.chart-wrapper {
-	max-width: 250px;
-	margin: 0 auto;
-	&.wide {
-		max-width: 500px;
+		max-width: 700px;
+		margin: 0 auto;
 	}
 }
