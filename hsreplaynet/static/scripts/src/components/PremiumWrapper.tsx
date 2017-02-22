@@ -13,7 +13,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		if (!this.props.isPremium) {
 			info = (
 				<div className="premium-info">
-					<h4>Premium</h4>
+					<h4>Premium only</h4>
 					<span>Click here for more info!</span>
 				</div>
 			);

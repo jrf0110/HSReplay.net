@@ -3,6 +3,7 @@ import CardSearch from "../components/CardSearch";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
 import Pager from "../components/Pager";
+import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import {DeckObj, TableData, GameMode, RankRange, Region, TimeFrame} from "../interfaces";
 import {cardSorting, toTitleCase} from "../helpers";
@@ -203,23 +204,25 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					{backButton}
 					{resetButton}
 					<h2>Class</h2>
-					<ClassFilter 
-						filters="All"
-						hideAll
-						minimal
-						multiSelect={false}
-						selectedClasses={this.state.selectedClasses}
-						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-					/>
-					<h2>Winrate vs</h2>
-					<ClassFilter 
-						filters="All"
-						hideAll
-						minimal
-						multiSelect={false}
-						selectedClasses={this.state.selectedOpponentClasses}
-						selectionChanged={(selected) => this.setState({selectedOpponentClasses: selected})}
-					/>
+						<ClassFilter 
+							filters="All"
+							hideAll
+							minimal
+							multiSelect={false}
+							selectedClasses={this.state.selectedClasses}
+							selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+						/>
+					<PremiumWrapper isPremium={!this.mockFree()}>
+						<h2>Winrate vs</h2>
+						<ClassFilter 
+							filters="All"
+							hideAll
+							minimal
+							multiSelect={false}
+							selectedClasses={this.state.selectedOpponentClasses}
+							selectionChanged={(selected) => !this.mockFree() && this.setState({selectedOpponentClasses: selected})}
+						/>
+					</PremiumWrapper>
 					<h2>Include cards</h2>
 					<CardSearch
 						key={"cardinclude" + this.state.cardSearchIncludeKey}
@@ -233,21 +236,33 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						onCardsChanged={(cards) => this.setState({excludedCards: cards})}
 					/>
 					{personal}
-					<h2>Deck type</h2>
-					<ul>
-						{this.buildFilter("deckType", "aggro", "Aggro", null)}
-						{this.buildFilter("deckType", "midrange", "Midrange", null)}
-						{this.buildFilter("deckType", "control", "Control", null)}
-					</ul>
+						<h2>Deck type</h2>
+						<ul>
+							{this.buildFilter("deckType", "aggro", "Aggro", null)}
+							{this.buildFilter("deckType", "midrange", "Midrange", null)}
+							{this.buildFilter("deckType", "control", "Control", null)}
+						</ul>
 					<h2>Mode</h2>
 					<ul>
 						{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
 						{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
 					</ul>
-					<h2>Time frame</h2>
-					<ul>
-						{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
-					</ul>
+					<PremiumWrapper isPremium={!this.mockFree()}>
+						<h2>Time frame</h2>
+						<ul>
+							{this.buildFilter("timeFrame", "CURRENT_SEASON", "Current season", undefined, true)}
+							{this.buildFilter("timeFrame", "LAST_3_DAYS", "Last 3 days", undefined, true)}
+							{this.buildFilter("timeFrame", "LAST_7_DAYS", "Last 7 days", undefined, true)}
+							{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days", undefined, true)}
+						</ul>
+					</PremiumWrapper>
+					<PremiumWrapper isPremium={!this.mockFree()}>
+						<h2>Rank range</h2>
+						<ul>
+							{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL", true)}
+							{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL", true)}
+						</ul>
+					</PremiumWrapper>
 					<h2>Sort by</h2>
 					<ul>
 						{this.buildFilter("sortProp", "total_games", "Popularity")}
@@ -270,10 +285,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		);
 	}
 
-	buildFilter(prop: string, key: string, displayValue: string, defaultValue?: string): JSX.Element {
+	buildFilter(prop: string, key: string, displayValue: string, defaultValue?: string, locked?: boolean): JSX.Element {
 		const selected = this.state[prop] === key;
 		const onClick = () => {
-			if (!selected || defaultValue !== undefined) {
+			if (!locked && (!selected || defaultValue !== undefined)) {
 				const newState = {};
 				newState[prop] = selected ? defaultValue : key;
 				this.setState(newState);
@@ -316,4 +331,17 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		
 		this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data.my_decks}));
 	}
+	
+	getQueryParams(): string[] {
+		const params = window.location.href.split("?")[1];
+		if (params) {
+			return params.split("&");
+		}
+		return [];
+	}
+
+	mockFree(): boolean {
+		return this.getQueryParams().indexOf("free") !== -1;
+	}
+
 }

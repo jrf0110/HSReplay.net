@@ -49,6 +49,10 @@
 		}
 	}
 
+	.premium-wrapper h2 {
+		padding-left: 30px;
+	}
+
 	li {
 		border-bottom: 1px solid $darkblue;
 		padding: 0.5em 1em;
@@ -116,7 +120,8 @@
 	}
 
 	.class-filter-wrapper {
-		margin: 10px 40px;
+		padding: 10px 40px;
+		margin: 0;
 
 		.class-icon {
 			height: 2.3em;
