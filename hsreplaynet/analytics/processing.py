@@ -231,7 +231,7 @@ def _generate_permutations_for_query(query, card_db):
 			non_filter_parameter = non_filter_parameters[0]
 			if non_filter_parameter == "card_id":
 				for id, card in card_db.items():
-					if card.collectible:
+					if card.collectible and query.is_valid_for_card(card.dbf_id):
 						game_type = parameter_permutation.get("GameType", "")
 						if _is_wild(card):
 							if game_type == GameType.RANKED_WILD.name:
