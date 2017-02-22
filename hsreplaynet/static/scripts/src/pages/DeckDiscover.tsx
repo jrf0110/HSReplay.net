@@ -78,23 +78,25 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			}
 		}
 	}
-	
+
+	componentWillReceiveProps(nextProps: DeckDiscoverProps) {
+		if (!this.state.cards && nextProps.cardData) {
+			const cards = [];
+			nextProps.cardData.forEach((card, id) => {
+				if (card.name && card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1) {
+					cards.push(card);
+				}
+			});
+			cards.sort(cardSorting)
+			this.setState({cards});
+		}
+	}
+
 	render(): JSX.Element {
 		const selectedClass = this.state.selectedClasses[0];
 		const decks: DeckObj[] = [];
 		const deckData = this.state.deckData.get(this.cacheKey());
 		if (this.props.cardData) {
-			if (!this.state.cards) {
-				const cards = [];
-				this.props.cardData.forEach((card, id) => {
-					if (card.name && card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1) {
-						cards.push(card);
-					}
-				});
-				cards.sort(cardSorting)
-				this.state.cards = cards;
-			}
-
 			if (deckData && deckData !== "loading" && deckData !== "error") {
 				const deckElements = [];
 				const data = deckData.series.data;
