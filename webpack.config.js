@@ -45,6 +45,7 @@ const settings = exportSettings.reduce((obj, current) => {
 
 const entry = (name) => {
 	return [
+		"es6-promise", // Promise polyfill (required for fetch)
 		"whatwg-fetch", // fetch polyfill
 		path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name),
 	];

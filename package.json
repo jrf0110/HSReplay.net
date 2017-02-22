@@ -14,6 +14,7 @@
 		"blob": "0.0.4",
 		"clipboard": "^1.5.16",
 		"cookie_js": "^1.2.2",
+		"es6-promise": "^4.0.5",
 		"hearthstonejson": "0.2.1",
 		"json-loader": "^0.5.4",
 		"lodash": "^4.17.2",
