@@ -23,8 +23,12 @@ class StripeCheckoutMixin:
 		# Will be None if the user is not authenticated
 		context["customer"] = self.get_customer(self.request)
 
-		# `payment_methods` is a queryset of the customer's payment sources
-		context["payment_methods"] = context["customer"].sources.all()
+		if context["customer"]:
+			# `payment_methods` is a queryset of the customer's payment sources
+			context["payment_methods"] = context["customer"].sources.all()
+		else:
+			# When anonymous, the customer is None, thus has no payment methods
+			context["payment_methods"] = []
 
 		# `stripe_debug` is set if DEBUG is on *and* we are using a test mode pubkey
 		test_mode = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_")
