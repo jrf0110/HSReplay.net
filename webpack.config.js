@@ -8,7 +8,6 @@ const spawnSync = require("child_process").spawnSync;
 const url = require("url");
 const _ = require("lodash");
 
-
 const exportSettings = [
 	"STATIC_URL",
 	"JOUST_STATIC_URL",
@@ -30,74 +29,87 @@ const settings = exportSettings.reduce((obj, current) => {
 	return obj;
 }, {
 	INFLUX_DATABASE_JOUST: db ? JSON.stringify(url.format({
-		protocol: db.SSL ? "https" : "http",
-		hostname: db.HOST,
-		port: "" + db.PORT || 8086,
-		pathname: "/write",
-		query: {
-			db: db.NAME,
-			u: db.USER,
-			p: db.PASSWORD,
-			precision: "s",
-		}
-	})) : undefined
+			protocol: db.SSL ? "https" : "http",
+			hostname: db.HOST,
+			port: "" + db.PORT || 8086,
+			pathname: "/write",
+			query: {
+				db: db.NAME,
+				u: db.USER,
+				p: db.PASSWORD,
+				precision: "s",
+			}
+		})) : undefined
 });
 
-const entry = (name, polyfill) => {
-	const entries = [];
-	if (polyfill !== false) {
-		entries.push("babel-polyfill"); // ES6 polyfill
-		entries.push("whatwg-fetch"); // fetch polyfill, requires ES6 or Promise polyfill
-	}
-	entries.push(path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name));
-	return entries;
-};
-
-module.exports = {
-	context: __dirname,
-	entry: {
-		my_replays: entry("my_replays"),
-		replay_detail: entry("replay_detail", false),
-		replay_embed: entry("replay_embed", false),
-		archetypes: entry("archetypes"),
-		victory_widgets: entry("victory_widgets"),
-		card_detail: entry("card_detail"),
-		popular_cards: entry("popular_cards"),
-		deck_detail: entry("deck_detail"),
-		card_discover: entry("card_discover"),
-		deck_discover: entry("deck_discover"),
-	},
-	output: {
-		path: path.resolve(__dirname, "./build/generated/webpack"),
-		filename: "[name].js",
-	},
-	resolve: {
-		modulesDirectories: ["node_modules"],
-		extensions: ["", ".js", ".jsx", ".d.ts", ".ts", ".tsx"],
-	},
-	module: {
-		loaders: [
-			{
-				test: /\.tsx?$/,
-				loaders: [
-					"babel-loader?presets[]=react&presets[]=es2015",
-					"ts-loader",
-				],
-			}
+module.exports = (env) => {
+	env = env || {};
+	const entry = (name, polyfill) => {
+		const entries = [];
+		if (polyfill !== false) {
+			entries.push("babel-polyfill"); // ES6 polyfill
+			entries.push("whatwg-fetch"); // fetch polyfill, requires ES6 or Promise polyfill
+		}
+		entries.push(path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name));
+		return entries;
+	};
+	return {
+		context: __dirname,
+		entry: {
+			my_replays: entry("my_replays"),
+			replay_detail: entry("replay_detail"),
+			replay_embed: entry("replay_embed"),
+			archetypes: entry("archetypes"),
+			victory_widgets: entry("victory_widgets"),
+			card_detail: entry("card_detail"),
+			popular_cards: entry("popular_cards"),
+			deck_detail: entry("deck_detail"),
+			card_discover: entry("card_discover"),
+			deck_discover: entry("deck_discover"),
+		},
+		output: {
+			path: path.join(__dirname, "./build/generated/webpack"),
+			filename: "[name].js",
+		},
+		resolve: {
+			modules: [
+				path.join(__dirname, "./hsreplaynet/static/scripts/src/"),
+				"node_modules"
+			],
+			extensions: [".js", ".jsx", ".d.ts", ".ts", ".tsx"],
+		},
+		module: {
+			rules: [
+				{
+					test: /\.tsx?$/,
+					use: [
+						{
+							loader: "babel-loader",
+							query: {
+								presets: ["react", "es2015"],
+								cacheDirectory: !!env.cache,
+							},
+						},
+						{
+							loader: "ts-loader",
+						},
+					],
+				}
+			],
+		},
+		externals: {
+			"react": "React",
+			"react-dom": "ReactDOM",
+			"jquery": "jQuery",
+			"joust": "Joust",
+		},
+		plugins: [
+			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
+			new webpack.DefinePlugin(settings),
 		],
-	},
-	externals: {
-		"react": "React",
-		"react-dom": "ReactDOM",
-		"jquery": "jQuery",
-		"joust": "Joust",
-	},
-	plugins: [
-		new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
-		new webpack.DefinePlugin(settings),
-	],
-	watchOptions: {
-		// required in the Vagrant setup due to Vagrant inotify not working
-		poll: true
-	},
+		watchOptions: {
+			// required in the Vagrant setup due to Vagrant inotify not working
+			poll: true
+		},
+	};
 };
