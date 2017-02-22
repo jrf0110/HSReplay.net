@@ -60,10 +60,16 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		this.setState({
 			working: true
 		});
-		$.getJSON(url, {username: this.props.username}, (data) => {
+		fetch(
+			url + "?username=" + encodeURIComponent(this.props.username),
+			{
+				headers: new Headers({"accept": "application/json"}),
+				credentials: "same-origin",
+			}
+		).then((response) => response.json()).then((data: any) => {
 			let games = [];
 			if (data.count) {
-				if(this.state.count && this.state.count !== data.count) {
+				if (this.state.count && this.state.count !== data.count) {
 					this.setState({
 						receivedPages: 0,
 						gamesPages: [],
@@ -74,7 +80,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				}
 				games = data.results;
 
-				if (Object.keys(this.state.gamesPages).indexOf(""+this.state.receivedPages) === -1) {
+				if (Object.keys(this.state.gamesPages).indexOf("" + this.state.receivedPages) === -1) {
 					const pages = Object.assign({}, this.state.gamesPages);
 					pages[this.state.receivedPages] = games;
 					this.setState({
