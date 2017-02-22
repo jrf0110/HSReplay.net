@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% load static %}
 {% load render_bundle from webpack_loader %}
+{% load feature from features %}
 
 {% block title %}{{card.name|default:"Unknown Card"}}{% endblock %}
 
 {% block fullcontent %}
-<div id="card-info" card-id="{{ card.id }}" dbf-id="{{ card.dbf_id }}"></div>
-<div id="card-container">
-</div>
-{% if user.is_authenticated and user.is_staff %}
+{% feature "carddb" as ft_carddb %}
+{% if ft_carddb.enabled %}
+	<div id="card-info" card-id="{{ card.id }}" dbf-id="{{ card.dbf_id }}"></div>
+	<div id="card-container"></div>
 	{% render_bundle "card_detail" %}
 {% endif %}
 {% endblock %}

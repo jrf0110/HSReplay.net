@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% load static %}
 {% load render_bundle from webpack_loader %}
+{% load feature from features %}
 
 {% block title %}Deck Database{% endblock %}
 
 {% block fullcontent %}
-<div id="deck-discover-container">
-</div>
-{% if user.is_authenticated and user.is_staff %}
+{% feature "carddb" as ft_carddb %}
+{% if ft_carddb.enabled %}
+	<div id="deck-discover-container"></div>
 	{% render_bundle "deck_discover" %}
 {% endif %}
 {% endblock %}

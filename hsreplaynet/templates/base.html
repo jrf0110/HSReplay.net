@@ -133,23 +133,20 @@
 							<li><a href="{% url 'my_replays' %}">My Replays</a></li>
 						{% endif %}
 
-						{% if user.is_authenticated and user.is_staff %}
-							<li><a href="{% url 'popular_cards' %}">Popular Cards</a></li>
+						{% feature "topcards" as ft_topcards %}{% if ft_topcards.enabled %}
+							<li><a href="{% url 'popular_cards' %}">Top Popular Cards</a></li>
 						{% endif %}
 
-						{% if user.is_authenticated and user.is_staff %}
+						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
 							<li><a href="{% url 'card_discover' %}">Card Database</a></li>
-						{% endif %}
-
-						{% if user.is_authenticated and user.is_staff %}
 							<li><a href="{% url 'deck_discover' %}">Deck Database</a></li>
 						{% endif %}
 
-						{% feature "archetypes" as archetypes %}{% if archetypes.enabled %}
+						{% feature "archetypes" as ft_archetypes %}{% if ft_archetypes.enabled %}
 							<li><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
 						{% endif %}
 
-						{% feature "scenarios" as scenarios %}{% if scenarios.enabled %}
+						{% feature "scenarios" as ft_scenarios %}{% if ft_scenarios.enabled %}
 							<li><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
 						{% endif %}
 

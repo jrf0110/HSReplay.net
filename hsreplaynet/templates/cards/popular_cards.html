@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% load static %}
 {% load render_bundle from webpack_loader %}
+{% load feature from features %}
 
-{% block title %}Card Menagerie - Popular cards in Ranked Standard{% endblock %}
+{% block title %}Top popular cards - Ranked Standard{% endblock %}
 
 {% block fullcontent %}
-<div id="content-container">
-</div>
-{% if user.is_authenticated and user.is_staff %}
+{% feature "topcards" as ft_topcards %}
+{% if ft_topcards.enabled %}
+<div id="content-container"></div>
 	{% render_bundle "popular_cards" %}
 {% endif %}
 {% endblock %}

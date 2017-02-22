@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% load static %}
 {% load render_bundle from webpack_loader %}
+{% load feature from features %}
 
 {% block title %}Card Database{% endblock %}
 
 {% block fullcontent %}
-<div id="card-container">
-</div>
-{% if user.is_authenticated and user.is_staff %}
+{% feature "carddb" as ft_carddb %}
+{% if ft_carddb.enabled %}
+	<div id="card-container"></div>
 	{% render_bundle "card_discover" %}
 {% endif %}
 {% endblock %}

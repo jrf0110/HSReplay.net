@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% load static %}
 {% load render_bundle from webpack_loader %}
+{% load feature from features %}
 
 {% block title %}{{deck.name|default:"Unnamed Deck"}}{% endblock %}
 
 {% block fullcontent %}
-<div id="deck-info"
-	deck-id="{{ deck.id }}"
-	deck-cards="{{ cards }}"
-	deck-class="{{ deck_class }}">
-</div>
-<div id="deck-container" style="display: flex;justify-content: center;">
-</div>
-{% if user.is_authenticated and user.is_staff %}
+{% feature "carddb" as ft_carddb %}
+{% if ft_carddb.enabled %}
+	<div id="deck-info"
+		deck-id="{{ deck.id }}"
+		deck-cards="{{ cards }}"
+		deck-class="{{ deck_class }}">
+	</div>
+	<div id="deck-container" style="display: flex;justify-content: center;"></div>
 	{% render_bundle "deck_detail" %}
 {% endif %}
 {% endblock %}

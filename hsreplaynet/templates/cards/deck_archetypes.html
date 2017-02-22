@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% load static %}
-{% load web_extras %}
 {% load render_bundle from webpack_loader %}
+{% load feature from features %}
 
 {% block title %}Archetypes{% endblock %}
 
 {% block fullcontent %}
+{% feature "archetypes" as ft_archetypes %}
+{% if ft_archetypes.enabled %}
 	<div class="page-header">
 		<div class="container-fluid">
 			<h1>Archetypes</h1>
@@ -18,4 +19,5 @@
 	</div>
 
 	{% render_bundle "archetypes" %}
+{% endif %}
 {% endblock %}
