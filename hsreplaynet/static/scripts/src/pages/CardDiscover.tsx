@@ -1,11 +1,11 @@
 import * as React from "react";
-import CardTile from "../components/CardTile";
 import CardDetailBarChart from "../components/charts/CardDetailBarChart";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
+import CardImage from "../components/CardImage";
+import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import {ChartSeries} from "../interfaces";
-import {setNames, toTitleCase, wildSets} from "../helpers";
-import CardImage from "../components/CardImage";
+import {cardSorting, setNames, toTitleCase, wildSets} from "../helpers";
 
 interface CardFilters {
 	playerClass: any;
@@ -18,17 +18,9 @@ interface CardFilters {
 	format: any;
 }
 
-// "classFilterKey" is a bit of a hack to reset the ClassFilter component.
-// Changing the key attribute on an element causes it to be re-created.
-// TODO: remove ClassFilter internal state
-
 interface CardDiscoverState {
 	textFilter?: string;
 	cards?: any[];
-	sortProps?: string[];
-	sortDirection?: number;
-	currentSortProps?: string[];
-	currentSortDirection?: number;
 	filters?: Map<string, string[]>;
 	numCards?: number;
 	showFilters?: boolean;
@@ -59,10 +51,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		this.state = {
 			textFilter: null,
 			cards: null,
-			sortProps: ["name", "cost"],
-			sortDirection: 1,
-			currentSortProps: null,
-			currentSortDirection: null,
 			filters: new Map<string, string[]>(),
 			numCards: 20,
 			showFilters: false,
@@ -75,19 +63,21 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		image.src = this.placeholderUrl;
 	}
 
-	render(): JSX.Element {
-		if (this.props.cardData && !this.state.cards) {
+	componentWillReceiveProps(nextProps: CardDiscoverProps) {
+		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
-			this.props.cardData.forEach((card, id) => {
+			nextProps.cardData.forEach((card, id) => {
 				if (card.name && card.collectible && this.filters.type.indexOf(card.type) !== -1) {
 					cards.push(card);
 				}
 			});
-			this.state.cards = cards;
+			cards.sort(cardSorting);
+			this.setState({cards});
 		}
+	}
 
+	render(): JSX.Element {
 		let chartSeries = null;
-
 		const tiles = [];
 		const filteredCards = {
 			playerClass: [],
@@ -101,14 +91,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 		const allFilteredCards = [];
 		const filterKeys = Object.keys(filteredCards);
+
 		if (this.state.cards) {
-			if(this.state.currentSortProps !== this.state.sortProps || this.state.currentSortDirection !== this.state.sortDirection) {
-				this.state.sortProps.forEach(x => {
-					this.state.cards.sort((a, b) => a[x] > b[x] ? this.state.sortDirection : -this.state.sortDirection);
-				});
-				this.state.currentSortProps = this.state.sortProps;
-				this.state.currentSortDirection = this.state.sortDirection;
-			}
 			this.state.cards.forEach(card => {
 				filterKeys.forEach(x => {
 					if (!this.filter(card, x)) {
