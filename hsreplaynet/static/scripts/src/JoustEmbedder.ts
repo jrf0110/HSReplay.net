@@ -1,14 +1,13 @@
 import * as Joust from "joust";
 import Raven from "raven-js";
 import {joustAsset, cardArt} from "./helpers";
-import {EventEmitter} from "events";
 import MetricsReporter from "./metrics/MetricsReporter";
 import BatchingMiddleware from "./metrics/BatchingMiddleware";
 import InfluxMetricsBackend from "./metrics/InfluxMetricsBackend";
 import * as React from "react";
 import {Launcher} from "joust";
 
-export default class JoustEmbedder extends EventEmitter {
+export default class JoustEmbedder {
 	public turn: number = null;
 	public reveal: boolean = null;
 	public swap: boolean = null;
@@ -16,6 +15,9 @@ export default class JoustEmbedder extends EventEmitter {
 	public launcher: Launcher = null;
 	private target: HTMLElement = null;
 	private url: string = null;
+	public onTurn: (turn: number) => void = null;
+	public onToggleSwap: (swap: boolean) => void = null;
+	public onToggleReveal: (reveal: boolean) => void = null;
 
 	public embed(target: HTMLElement) {
 		this.prepare(target);
@@ -141,7 +143,7 @@ export default class JoustEmbedder extends EventEmitter {
 		}
 		launcher.onTurn((newTurn: number) => {
 			this.turn = newTurn;
-			this.emit("turn", newTurn);
+			this.onTurn && this.onTurn(newTurn);
 		});
 
 		if (this.reveal !== null) {
@@ -149,7 +151,7 @@ export default class JoustEmbedder extends EventEmitter {
 		}
 		launcher.onToggleReveal((newReveal: boolean) => {
 			this.reveal = newReveal;
-			this.emit("reveal", newReveal);
+			this.onToggleReveal && this.onToggleReveal(newReveal);
 		});
 
 		if (this.swap !== null) {
@@ -157,7 +159,7 @@ export default class JoustEmbedder extends EventEmitter {
 		}
 		launcher.onToggleSwap((newSwap: boolean) => {
 			this.swap = newSwap;
-			this.emit("swap", newSwap);
+			this.onToggleSwap && this.onToggleSwap(newSwap);
 		});
 
 		// autoplay

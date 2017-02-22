@@ -80,9 +80,9 @@ function renderShareDialog() {
 }
 
 renderShareDialog();
-embedder.on("turn", renderShareDialog);
-embedder.on("reveal", renderShareDialog);
-embedder.on("swap", renderShareDialog);
+embedder.onTurn = () => renderShareDialog();
+embedder.onToggleReveal = () => renderShareDialog();
+embedder.onToggleSwap = () => renderShareDialog();
 embedder.prepare(container);
 
 // privacy dropodown
