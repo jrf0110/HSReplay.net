@@ -463,10 +463,20 @@ export function getColorString(colors: Colors, intensity: number, winrate: numbe
 
 export function cardSorting(a: any, b: any): number {
 	if (a.card !== undefined) {
-		a = a.card;
+		if (a.card.cardObj !== undefined) {
+			a = a.card.cardObj
+		}
+		else {
+			a = a.card;
+		}
 	}
 	if(b.card !== undefined) {
-		b = b.card;
+		if (b.card.cardObj !== undefined) {
+			b = b.card.cardObj;
+		}
+		else {
+			b = b.card;
+		}
 	}
 	if (a.cost > b.cost) { 
 		return 1;

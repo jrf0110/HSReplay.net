@@ -16,8 +16,8 @@ import QueryManager from "../QueryManager";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import {CardObj, DeckObj, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
-	getChartScheme, getColorString, getDustCost, getHeroCardId,
-	toPrettyNumber, toTitleCase, wildSets
+	cardSorting, getChartScheme, getColorString, getDustCost,
+	getHeroCardId, toPrettyNumber, toTitleCase, wildSets,
 } from "../helpers";
 import {showModal} from "../Premium";
 import {Colors} from "../Colors";
@@ -320,9 +320,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	buildTable(tableData: TableData, key: string): JSX.Element {
-		const sortByCardProp = (prop: string) =>  {
-			return (a, b) => a.card.cardObj[prop] > b.card.cardObj[prop] ? this.state.sortDirection : -this.state.sortDirection;
-		}
 		const cardRows = [];
 		if (this.state.cardData) {
 			const cardList = []
@@ -368,7 +365,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			})
 
 			if (this.state.sortCol === "decklist") {
-				rowList.sort(sortByCardProp("name")).sort(sortByCardProp("cost"));
+				rowList.sort(cardSorting);
 			}
 			else {
 				rowList.sort((a, b) => +a.row[this.state.sortCol] > +b.row[this.state.sortCol] ? this.state.sortDirection : -this.state.sortDirection);
