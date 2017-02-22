@@ -43,20 +43,22 @@ const settings = exportSettings.reduce((obj, current) => {
 	})) : undefined
 });
 
-const entry = (name) => {
-	return [
-		"babel-polyfill", // ES6 polyfill
-		"whatwg-fetch", // fetch polyfill, requires ES6 or Promise polyfill
-		path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name),
-	];
+const entry = (name, polyfill) => {
+	const entries = [];
+	if (polyfill !== false) {
+		entries.push("babel-polyfill"); // ES6 polyfill
+		entries.push("whatwg-fetch"); // fetch polyfill, requires ES6 or Promise polyfill
+	}
+	entries.push(path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name));
+	return entries;
 };
 
 module.exports = {
 	context: __dirname,
 	entry: {
 		my_replays: entry("my_replays"),
-		replay_detail: entry("replay_detail"),
-		replay_embed: entry("replay_embed"),
+		replay_detail: entry("replay_detail", false),
+		replay_embed: entry("replay_embed", false),
 		archetypes: entry("archetypes"),
 		victory_widgets: entry("victory_widgets"),
 		card_detail: entry("card_detail"),
