@@ -8,6 +8,8 @@
 	flex-grow: 1;
 
 	a, a:hover, a:active {
+		cursor: pointer;
+
 		&:not(.btn) {
 			color: $lighterblue;
 		}
@@ -107,7 +109,6 @@
 		color: $lighterblue;
 		font-weight: bold;
 		float: right;
-		cursor: pointer;
 	}
 
 	li:hover.selectable .infobox-value, li.selected .infobox-value {
