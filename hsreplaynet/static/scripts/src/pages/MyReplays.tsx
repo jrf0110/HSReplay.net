@@ -229,7 +229,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						loadingGames={this.state.working}
 						onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
 					/>
-					<h2>Hero</h2>
+					<h2>Player class</h2>
 					<ClassFilter 
 						filters="All"
 						hideAll
@@ -243,7 +243,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 							}
 						}
 					/>
-					<h2>Opponent</h2>
+					<h2>Opponent class</h2>
 					<ClassFilter 
 						filters="All"
 						hideAll
@@ -257,7 +257,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 							}
 						}
 					/>
-					<h2>Player</h2>
+					<h2>Find players</h2>
 					<GameHistorySearch
 						query={this.state.queryMap.get("name")}
 						setQuery={(value: string) => this.setState({queryMap: this.state.queryMap.set("name", value), currentLocalPage: 0})}
