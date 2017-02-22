@@ -208,3 +208,8 @@
 	}
 }
 
+.hdt-button >.highlight::before {
+	content: "✔ ";
+	color: limegreen;
+}
+
