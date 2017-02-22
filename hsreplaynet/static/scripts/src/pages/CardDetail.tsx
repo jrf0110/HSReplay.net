@@ -24,7 +24,6 @@ import QueryManager from "../QueryManager";
 interface CardDetailState {
 	card?: any;
 	cardData?: Map<string, any>;
-	cardsOnSameTurn?: TableData;
 	classDistribution?: RenderData;
 	popularTargets?: TableData;
 	popularityByTurn?: RenderData;
@@ -50,7 +49,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		this.state = {
 			card: null,
 			cardData: null,
-			cardsOnSameTurn: "loading",
 			classDistribution: "loading",
 			popularTargets: "loading",
 			popularityByTurn: "loading",
@@ -125,7 +123,15 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				);
 			}
 			else {
-				const tableWidth = mostPopularTargets ? 6 : 12;
+
+				let cardTables = null;
+				if (mostPopularTargets) {
+					cardTables = (
+						<div>
+							{mostPopularTargets}
+						</div>
+					);
+				}
 
 				content = [
 					<h2 className="visible-xs">{this.state.card && this.state.card.name}</h2>,
@@ -169,19 +175,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						</div>
 					</div>,
 					<div className="row" id="card-tables">
-						<div className={"col-lg-" + tableWidth + " col-md-" + tableWidth}>
-							<h4>Most combined with</h4>	
-							<CardRankingTable
-								cardData={this.state.cardData}
-								numRows={8}
-								tableData={this.state.cardsOnSameTurn}
-								dataKey={"ALL"}
-								clickable
-							/>
-						</div>
-						<div className="col-lg-6 col-md-6">
-							{mostPopularTargets}
-						</div>
+						{cardTables}
 					</div>,
 					<h3>Recommended Decks</h3>,
 					this.buildRecommendedDecks()
@@ -362,10 +356,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		this.queryManager.fetch(
 			buildUrl("single_card_popularity_by_turn", mode),
 			(data) => this.setState({popularityByTurn: data})
-		);
-		this.queryManager.fetch(
-			buildUrl("single_card_popular_together", mode),
-			(data) => this.setState({cardsOnSameTurn: data})
 		);
 		this.queryManager.fetch(
 			buildUrl("recommended_decks_for_card", mode),
