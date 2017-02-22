@@ -24,6 +24,7 @@
 		"typings": "^2.0.0",
 		"victory": "^0.14.2",
 		"webpack": "^1.14.0",
-		"webpack-bundle-tracker": "^0.1.0"
+		"webpack-bundle-tracker": "^0.1.0",
+		"whatwg-fetch": "^2.0.2"
 	}
 }

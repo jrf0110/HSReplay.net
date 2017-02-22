@@ -43,19 +43,26 @@ const settings = exportSettings.reduce((obj, current) => {
 	})) : undefined
 });
 
+const entry = (name) => {
+	return [
+		"whatwg-fetch", // fetch polyfill
+		path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name),
+	];
+};
+
 module.exports = {
 	context: __dirname,
 	entry: {
-		my_replays: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/my_replays"),
-		replay_detail: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/replay_detail"),
-		replay_embed: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/replay_embed"),
-		archetypes: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/archetypes"),
-		victory_widgets: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/victory_widgets"),
-		card_detail: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/card_detail"),
-		popular_cards: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/popular_cards"),
-		deck_detail: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/deck_detail"),
-		card_discover: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/card_discover"),
-		deck_discover: path.resolve(__dirname, "./hsreplaynet/static/scripts/src/entries/deck_discover"),
+		my_replays: entry("my_replays"),
+		replay_detail: entry("replay_detail"),
+		replay_embed: entry("replay_embed"),
+		archetypes: entry("archetypes"),
+		victory_widgets: entry("victory_widgets"),
+		card_detail: entry("card_detail"),
+		popular_cards: entry("popular_cards"),
+		deck_detail: entry("deck_detail"),
+		card_discover: entry("card_discover"),
+		deck_discover: entry("deck_discover"),
 	},
 	output: {
 		path: path.resolve(__dirname, "./build/generated/webpack"),
