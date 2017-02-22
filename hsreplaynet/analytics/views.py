@@ -45,7 +45,7 @@ def _fetch_query_results(query, params):
 			# And then return the data we have available immediately
 			execute_query(query, params, async=True)
 		result = cached_data.response_payload
-		response = JsonResponse(result)
+		response = JsonResponse(result, json_dumps_params=dict(indent=4))
 	else:
 		execute_query(query, params, async=True)
 		# Nothing to return so tell the client to check back later
