@@ -7,6 +7,7 @@ interface PremiumWrapperProps extends React.ClassAttributes<PremiumWrapper> {
 }
 
 export default class PremiumWrapper extends React.Component<PremiumWrapperProps, any> {
+	private touchCount: number = 0;
 	
 	render(): JSX.Element {
 		let info = null;
@@ -21,9 +22,15 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		return (
 			<div
 				className="premium-wrapper"
-				onClick={(e) => !this.props.isPremium && showModal()}
+				onTouchStart={() => this.touchCount++}
+				onClick={(e) => (this.touchCount % 2 === 0) && !this.props.isPremium && showModal()}
 				onMouseEnter={() => !this.props.isPremium && this.setState({showInfo: true, fadeOut: false})}
-				onMouseLeave={() => !this.props.isPremium && this.setState({fadeOut: true})}
+				onMouseLeave={() => {
+					if(!this.props.isPremium) {
+						this.touchCount = 0;
+						this.setState({fadeOut: true});
+					}
+				}}
 			>
 				<img className="premium-icon" src={STATIC_URL + "images/ranked-medals/Medal_Ranked_Legend.png"} />
 				{info}
