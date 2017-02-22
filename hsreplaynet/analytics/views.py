@@ -84,7 +84,7 @@ def _fetch_query_results(query, params):
 
 def user_is_eligible_for_query(user, params):
 	if params.has_premium_values:
-		return (not user.is_anonymous) and (user.is_premium)
+		return user.is_authenticated and user.is_premium
 	else:
 		return True
 
