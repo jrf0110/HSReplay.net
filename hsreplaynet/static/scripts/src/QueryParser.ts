@@ -1,26 +1,31 @@
-export function parseQuery(query: string): Map<string, string> {
+export interface QueryMap {
+	[prop: string]: string;
+}
+
+export function parseQuery(query: string): QueryMap {
 	if (!query) {
-		return new Map<string, string>();
+		return {};
 	}
-	var map: Map<string, string> = new Map<string, string>();
+	const map = {} as QueryMap;
 	query.split("&").forEach(v => {
-		var kvp = v.split("=");
+		const kvp = v.split("=");
 		if(kvp.length === 2 && kvp[0] && kvp[1]) {
-			map = map.set(kvp[0], kvp[1]);
+			map[decodeURIComponent(kvp[0])] = decodeURIComponent(kvp[1]);
 		}
 	});
 	return map;
 }
 
-export function toQueryString(map: Map<string, string>): string {
-	if (map.size == 0) {
+export function toQueryString(map: QueryMap): string {
+	const keys = Object.keys(map);
+	if (!keys.length) {
 		return "";
 	}
-	var terms = [];
-	map.forEach((v, k) =>{
-		if (k && v) {
-			terms[terms.length] = k + "=" + v
+	const terms = [];
+	keys.forEach(key => {
+		if (key && map[key]) {
+			terms.push(encodeURIComponent(key) + "=" + encodeURIComponent(map[key]))
 		}
-	});
+	})
 	return terms.join("&");
 }
