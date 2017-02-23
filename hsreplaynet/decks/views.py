@@ -8,9 +8,9 @@ from django.views.generic import View
 from hsreplaynet.games.models import GameReplay
 
 
-def deck_detail(request, deck_id):
+def deck_detail(request, id):
 	try:
-		deck = Deck.objects.get(id=deck_id)
+		deck = Deck.objects.get(id=id)
 	except Deck.DoesNotExist:
 		raise Http404("Deck not found")
 	cards = deck.card_dbf_id_list()
