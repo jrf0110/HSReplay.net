@@ -240,7 +240,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					{hdtButton}
 				</ul>
 				<PremiumWrapper isPremium={!this.mockFree()}>
-					<h2>Breakdown by opponent</h2>
+					<h2>Breakdown vs. opponent</h2>
 					<ClassFilter
 						filters="All"
 						hideAll
@@ -279,7 +279,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
 				</h3>
 				{replayCount}
-				<div className="table-wrapper">
+				<div className="row table-wrapper">
 					{this.buildTable(selectedTable, selectedClass)}
 				</div>
 				<h3>Similar Decks</h3>
@@ -540,6 +540,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		else {
 			cols.push(
 				<td style={{whiteSpace: "pre"}}> </td>,
+				<td></td>,
 				<td></td>,
 				<td></td>,
 				<td></td>,
