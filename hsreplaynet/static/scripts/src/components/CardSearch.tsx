@@ -2,7 +2,6 @@ import * as React from "react";
 import CardTile from "./CardTile";
 
 interface CardSearchState {
-	selectedCards?: any[];
 	cardSearchText?: string;
 	cardSearchHasFocus?: boolean;
 	cardSearchCount?: number;
@@ -13,6 +12,7 @@ interface CardSearchState {
 interface CardSearchProps extends React.ClassAttributes<CardSearch> {
 	availableCards: any[]
 	onCardsChanged: (cards: any[]) => void;
+	selectedCards: any[];
 }
 
 export default class CardSearch extends React.Component<CardSearchProps, CardSearchState> {
@@ -22,7 +22,6 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 	constructor(props: CardSearchProps, state: CardSearchState) {
 		super(props, state);
 		this.state = {
-			selectedCards: [],
 			cardSearchText: "",
 			cardSearchHasFocus: false,
 			cardSearchCount: this.defaultCardCount,
@@ -102,14 +101,12 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 
 	addCard(card: any): void {
 		const newState = {cardSearchText: "", cardSearchCount: this.defaultCardCount, selectedIndex: 0, selectedcard: null};
-		if (this.state.selectedCards.indexOf(card) === -1) {
-			const newSelectedCards = this.state.selectedCards.concat([card]);
+		if (this.props.selectedCards && this.props.selectedCards.indexOf(card) === -1) {
+			const newSelectedCards = this.props.selectedCards.concat([card]);
 			newSelectedCards.sort((a, b) => a["name"] > b["name"] ? 1 : -1);
 			newSelectedCards.sort((a, b) => a["cost"] > b["cost"] ? 1 : -1);
-			newState["selectedCards"] = newSelectedCards;
 			this.props.onCardsChanged(newSelectedCards);
 		}
-		this.setState(newState);
 	};
 
 	onKeyDown(event: React.KeyboardEvent, numCards: number): void {
@@ -132,12 +129,14 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 	}
 
 	getSelectedCards(): JSX.Element[] {
+		if (!this.props.selectedCards) {
+			return null;
+		}
 		const selectedCards = [];
-		this.state.selectedCards.forEach(card => {
+		this.props.selectedCards.forEach(card => {
 			const removeCard = () => {
-				const newSelectedCards = this.state.selectedCards.filter(x => x !== card);
+				const newSelectedCards = this.props.selectedCards.filter(x => x !== card);
 				this.props.onCardsChanged(newSelectedCards)
-				this.setState({selectedCards: newSelectedCards});
 			};
 			selectedCards.push(
 				<li>
