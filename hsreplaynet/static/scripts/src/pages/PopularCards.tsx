@@ -4,6 +4,7 @@ import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import QueryManager from "../QueryManager";
+import ResetHeader from "../components/ResetHeader";
 import { TableData, TableQueryData, ChartSeries, GameMode, TimeFrame} from "../interfaces";
 
 interface PopularCardsState {
@@ -154,11 +155,6 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			contentClassNames.push("hidden-xs hidden-sm");
 		}
 		
-		let resetButton = null;
-		if (selectedClass && selectedClass !== "ALL") {
-			resetButton = <button className="btn btn-danger btn-full" onClick={() => this.setState({selectedClasses: ["ALL"]})}>Reset all filters</button>
-		}
-
 		const backButton = (
 			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
 				Back to the exhibition
@@ -167,9 +163,10 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 
 		return <div className="report-container" id="card-popularity-report">
 			<div className={filterClassNames.join(" ")}>
-				<h1>Card Menagerie</h1>
 				{backButton}
-				{resetButton}
+				<ResetHeader onReset={() => this.setState({selectedClasses: ["ALL"]})} showReset={selectedClass && selectedClass !== "ALL"} >
+					Card Menagerie
+				</ResetHeader>
 				<h2>Class</h2>
 				<ClassFilter 
 					hideAll

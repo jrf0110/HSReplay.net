@@ -7,6 +7,7 @@ import GameHistorySelectFilter from "../components/gamehistory/GameHistorySelect
 import GameHistoryTable from "../components/gamehistory/GameHistoryTable";
 import InfoBoxSection from "../components/InfoBoxSection";
 import Pager from "../components/Pager";
+import ResetHeader from "../components/ResetHeader";
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
 import {cookie} from "cookie_js";
 import {formatMatch, modeMatch, nameMatch, resultMatch, heroMatch, opponentMatch} from "../GameFilters"
@@ -220,15 +221,6 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			this.setState({currentLocalPage: this.state.currentLocalPage - 1});
 		} : null;
 
-		let resetButton = null;
-		if (toQueryString(this.state.queryMap).length) {
-			resetButton = (
-				<button className="btn btn-danger btn-full" onClick={(e) => {e.preventDefault(); this.setState({queryMap: {}})}}>
-					Reset all filters
-				</button>
-			);
-		}
-
 		const backButton = (
 			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
 				Back to card list
@@ -238,9 +230,10 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		return (
 			<div className="my-replays-content">
 				<div className={filterClassNames.join(" ")} id="myreplays-infobox">
-					<h1>My Replays</h1>
 					{backButton}
-					{resetButton}
+					<ResetHeader onReset={() => this.setState({queryMap: {}})} showReset={toQueryString(this.state.queryMap).length > 0} >
+						My Replays
+					</ResetHeader>
 					<h2>Classes Played</h2>
 					<ClassDistributionPieChart
 						games={games}

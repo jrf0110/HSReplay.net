@@ -5,6 +5,7 @@ import DeckList from "../components/DeckList";
 import Pager from "../components/Pager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
+import ResetHeader from "../components/ResetHeader";
 import {DeckObj, TableData, GameMode, RankRange, Region, TimeFrame} from "../interfaces";
 import {cardSorting, toTitleCase} from "../helpers";
 
@@ -179,10 +180,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			contentClassNames.push("hidden-xs hidden-sm");
 		}
 
-		let resetButton = null;
-		if (this.state.deckType || this.state.excludedCards.length || this.state.includedCards.length || selectedClass && selectedClass !== "ALL") {
-			resetButton = <button className="btn btn-danger btn-full" onClick={() => this.resetFilters()}>Reset all filters</button>
-		}
+		const showReset = !!(this.state.deckType || this.state.excludedCards.length || this.state.includedCards.length || selectedClass && selectedClass !== "ALL");
 
 		const backButton = (
 			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
@@ -206,9 +204,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		return (
 			<div className="deck-discover">
 				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
-					<h1>Deck Database</h1>
 					{backButton}
-					{resetButton}
+					<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
+						Deck Database
+					</ResetHeader>
 					<h2>Class</h2>
 						<ClassFilter 
 							filters="All"

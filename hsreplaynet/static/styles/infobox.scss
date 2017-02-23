@@ -164,4 +164,13 @@
 			max-width: 100%;
 		}
 	}
+
+	.reset-header {
+		&.btn {
+			border: 0;
+			display: block;
+			line-height: 1.1em;
+			margin: 0;
+		}
+	}
 }

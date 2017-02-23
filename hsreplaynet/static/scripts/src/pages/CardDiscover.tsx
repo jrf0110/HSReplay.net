@@ -4,6 +4,7 @@ import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardImage from "../components/CardImage";
 import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import ResetHeader from "../components/ResetHeader";
 import {ChartSeries} from "../interfaces";
 import {cardSorting, setNames, toTitleCase, wildSets} from "../helpers";
 
@@ -183,7 +184,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		return (
 			<div className="card-discover">
 				<div className={filterClassNames.join(" ")} id="card-discover-infobox">
-					<h1>Card Database</h1>
 					{backButton}
 					{this.buildFilters(filterCounts)}
 					{backButton}
@@ -298,12 +298,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			});
 		}
 
-		let resetButton = null;
-		if (showReset) {
-			resetButton = <button className="btn btn-danger btn-full" onClick={() => this.resetFilters()}>Reset all filters</button>
-		}
 		return [
-			resetButton,
+			<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
+				Card Database
+			</ResetHeader>,
 			<h2>Class</h2>,
 			<ClassFilter 
 				filters="AllNeutral"
