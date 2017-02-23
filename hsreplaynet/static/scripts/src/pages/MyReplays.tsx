@@ -317,7 +317,9 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						</div>
 						<div className="clearfix" />
 					</div>
-					{content}
+					<div className="container-fluid">
+						{content}
+					</div>
 					<div className="pull-right">
 						<Pager next={next} previous={previous}/>
 					</div>
