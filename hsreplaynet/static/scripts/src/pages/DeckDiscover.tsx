@@ -252,17 +252,17 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<PremiumWrapper isPremium={!this.mockFree()}>
 						<h2>Time frame</h2>
 						<ul>
-							{this.buildFilter("timeFrame", "CURRENT_SEASON", "Current season", undefined, true)}
-							{this.buildFilter("timeFrame", "LAST_3_DAYS", "Last 3 days", undefined, true)}
-							{this.buildFilter("timeFrame", "LAST_7_DAYS", "Last 7 days", undefined, true)}
-							{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days", undefined, true)}
+							{this.buildFilter("timeFrame", "CURRENT_SEASON", "Current season", undefined, this.mockFree())}
+							{this.buildFilter("timeFrame", "LAST_3_DAYS", "Last 3 days", undefined, this.mockFree())}
+							{this.buildFilter("timeFrame", "LAST_7_DAYS", "Last 7 days", undefined, this.mockFree())}
+							{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days", undefined, this.mockFree())}
 						</ul>
 					</PremiumWrapper>
 					<PremiumWrapper isPremium={!this.mockFree()}>
 						<h2>Rank range</h2>
 						<ul>
-							{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL", true)}
-							{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL", true)}
+							{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL", this.mockFree())}
+							{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL", this.mockFree())}
 						</ul>
 					</PremiumWrapper>
 					<h2>Sort by</h2>
