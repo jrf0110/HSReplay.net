@@ -4,6 +4,7 @@ import copy
 from django.core.cache import caches
 from django.conf import settings
 from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils.aws.sqs import write_messages_to_queue
@@ -185,7 +186,7 @@ def get_redshift_cache_redis_client():
 
 
 def get_redshift_engine():
-		return create_engine(settings.REDSHIFT_CONNECTION)
+		return create_engine(settings.REDSHIFT_CONNECTION, poolclass=NullPool)
 
 
 def get_from_redshift_cache(cache_key):
