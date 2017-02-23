@@ -6,15 +6,17 @@ import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import QueryManager from "../QueryManager";
 import ResetHeader from "../components/ResetHeader";
 import { TableData, TableQueryData, ChartSeries, GameMode, TimeFrame} from "../interfaces";
+import {
+	QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
+	setLocationQueryString, setQueryMap, toQueryString
+} from "../QueryParser"
 
 interface PopularCardsState {
+	numRowsVisible?: number;
+	queryMap?: QueryMap;
+	showFilters?: boolean;
 	topCardsIncluded?: Map<string, TableData>;
 	topCardsPlayed?: Map<string, TableData>;
-	selectedClasses?: FilterOption[];
-	numRowsVisible?: number;
-	gameMode?: GameMode | "ARENA";
-	showFilters?: boolean;
-	timeFrame?: TimeFrame;
 }
 
 interface PopularCardsProps extends React.ClassAttributes<PopularCards> {
@@ -23,17 +25,26 @@ interface PopularCardsProps extends React.ClassAttributes<PopularCards> {
 
 export default class PopularCards extends React.Component<PopularCardsProps, PopularCardsState> {
 	private readonly queryManager: QueryManager = new QueryManager();
+	private readonly defaultQueryMap: QueryMap = {
+		gameType: "RANKED_STANDARD",
+		playerClass: "ALL",
+		timeRange: "LAST_30_DAYS",
+	}
+	private readonly allowedValues = {
+		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
+		rankRange: [],
+		region: [],
+		timeRange: ["LAST_30_DAYS"],
+	}
 
 	constructor(props: PopularCardsProps, state: PopularCardsState) {
 		super(props, state);
 		this.state = {
+			numRowsVisible: 12,
+			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.allowedValues),
+			showFilters: false,
 			topCardsIncluded: new Map<string, TableData>(),
 			topCardsPlayed: new Map<string, TableData>(),
-			selectedClasses: ["ALL"],
-			numRowsVisible: 12,
-			gameMode: "RANKED_STANDARD",
-			showFilters: false,
-			timeFrame: "LAST_30_DAYS",
 		}
 		
 		this.fetchIncluded();
@@ -41,8 +52,15 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	}
 	
 	cacheKey(state?: PopularCardsState): string {
-		state = state || this.state;
-		return state.gameMode + state.timeFrame;
+		const queryMap = (state || this.state).queryMap;
+		const cacheKey = [];
+		Object.keys(this.allowedValues).forEach(key => {
+			const value = this.allowedValues[key];
+			if (value.length) {
+				cacheKey.push(queryMap[key]);
+			}
+		});
+		return cacheKey.join("");
 	}
 
 	componentDidUpdate(prevProps: PopularCardsProps, prevState: PopularCardsState) {
@@ -59,10 +77,13 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 				this.fetchPlayed();
 			}
 		}
+		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
 	}
 
 	render(): JSX.Element {
-		const selectedClass = this.state.selectedClasses[0];
+		const queryMap = Object.assign({}, this.state.queryMap);
+		
+		const selectedClass = queryMap["playerClass"];
 
 		const showMoreButton = this.state.numRowsVisible >= 100 ? null
 			: <button className="btn btn-default"
@@ -91,7 +112,6 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			);
 		}
 		else {
-			const selectedClass = this.state.selectedClasses[0];
 			const chartSeries = this.buildChartSeries(included);
 			content = [
 				<div className ="row">
@@ -164,7 +184,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		return <div className="report-container" id="card-popularity-report">
 			<div className={filterClassNames.join(" ")}>
 				{backButton}
-				<ResetHeader onReset={() => this.setState({selectedClasses: ["ALL"]})} showReset={selectedClass && selectedClass !== "ALL"} >
+				<ResetHeader onReset={() => this.setState({queryMap: this.defaultQueryMap})} showReset={queryMapHasChanges(this.state.queryMap, this.defaultQueryMap)}>
 					Card Menagerie
 				</ResetHeader>
 				<h2>Class</h2>
@@ -173,18 +193,18 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 					multiSelect={false}
 					filters="AllNeutral"
 					minimal
-					selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-					selectedClasses={this.state.selectedClasses}
+					selectedClasses={[queryMap["playerClass"] as FilterOption]}
+					selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 				/>
 				<h2>Mode</h2>
 				<ul>
-					{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}
-					{this.buildFilter("gameMode", "RANKED_WILD", "Wild")}
-					{this.buildFilter("gameMode", "ARENA", "Arena")}
+					{this.buildFilter("gameType", "RANKED_STANDARD", "Standard")}
+					{this.buildFilter("gameType", "RANKED_WILD", "Wild")}
+					{this.buildFilter("gameType", "ARENA", "Arena")}
 				</ul>
 				<h2>Time frame</h2>
 				<ul>
-					{this.buildFilter("timeFrame", "LAST_30_DAYS", "Last 30 days")}
+					{this.buildFilter("timeRange", "LAST_30_DAYS", "Last 30 days")}
 				</ul>
 				{backButton}
 			</div>
@@ -203,12 +223,10 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	}
 	
 	buildFilter(prop: string, key: string, displayValue: string, defaultValue?: string): JSX.Element {
-		const selected = this.state[prop] === key;
+		const selected = this.state.queryMap[prop] === key;
 		const onClick = () => {
 			if (!selected || defaultValue !== undefined) {
-				const newState = {};
-				newState[prop] = selected ? defaultValue : key;
-				this.setState(newState);
+				setQueryMap(this, prop, selected? defaultValue : key);
 			}
 		}
 		
@@ -231,7 +249,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		const chartSeries = [];
 
 		if (this.props.cardData && this.state.topCardsIncluded) {
-			const selectedClass = this.state.selectedClasses[0];
+			const selectedClass = this.state.queryMap["playerClass"];
 			const rows = topCardsIncluded.series.data[selectedClass];
 			const data = {rarity: {}, cardtype: {}, cardset: {}, cost: {}};
 			const totals = {rarity: 0, cardtype: 0, cardset: 0, cost: 0};
@@ -265,16 +283,26 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		return chartSeries;
 	}
 	
+	getQueryParams(): string {
+		const params = {
+			TimeRange: this.state.queryMap["timeRange"],
+			// RankRange: this.state.queryMap["rangeRange"],
+			GameType: this.state.queryMap["gameType"],
+			// Region: this.state.queryMap["region"],
+		};
+		return toQueryString(params);
+	}
+
 	fetchIncluded() {
 		this.queryManager.fetch(
-			"/analytics/query/card_included_popularity_report?TimeRange=" + this.state.timeFrame + "&GameType=" + this.state.gameMode,
+			"/analytics/query/card_included_popularity_report?" + this.getQueryParams(),
 			(data) => this.setState({topCardsIncluded: this.state.topCardsIncluded.set(this.cacheKey(), data)})
 		);
 	}
 
 	fetchPlayed() {
 		this.queryManager.fetch(
-			"/analytics/query/card_played_popularity_report?TimeRange=" + this.state.timeFrame + "&GameType=" + this.state.gameMode,
+			"/analytics/query/card_played_popularity_report?" + this.getQueryParams(),
 			(data) => this.setState({topCardsPlayed: this.state.topCardsPlayed.set(this.cacheKey(), data)})
 		);
 	}
