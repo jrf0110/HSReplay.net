@@ -411,8 +411,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				rowList.sort((a, b) => +a.row[this.state.sortCol] > +b.row[this.state.sortCol] ? this.state.sortDirection : -this.state.sortDirection);
 			}
 			
-			rowList.forEach(item => {
-				cardRows.push(this.buildCardRow(item.card, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg, deadAvg, mulliganSuggestionAvg, maxMulliganSuggestion));
+			rowList.forEach((item, index) => {
+				cardRows.push(this.buildCardRow(item.card, index === 0, rowList.length, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg, deadAvg, mulliganSuggestionAvg, maxMulliganSuggestion));
 			})
 		}
 
@@ -492,7 +492,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	buildCardRow(
-		card: any, row: TableRow, full: boolean, mulliganWinrate: number,
+		card: any, firstRow: boolean, rowCount: number, row: TableRow, full: boolean, mulliganWinrate: number,
 		drawnWinrate: number, playedWinrate: number, deadAverage: number,
 		mulliganSuggestionAvg: number, maxMulliganSuggestion: number
 	): JSX.Element {
@@ -517,13 +517,31 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<td className="winrate-cell" style={{color: mulliganSuggestion.color}}>{mulliganSuggestion.tendencyStr + (100 * +row["mulligan_suggestion"] / maxMulliganSuggestion).toFixed(1)}</td>,
 			);
 			if (this.mockFree()) {
-				cols.push(
-					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
-					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
-					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
-					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
-					<td style={{background: "rgba(0,0,0,0.1)"}}></td>,
-				);
+				if (firstRow) {
+					cols.push(
+						<td colSpan={7} rowSpan={rowCount} style={{background: "rgba(0,0,0,0.1)", textAlign: "center"}}>
+							<PremiumWrapper isPremium>
+								<h1 style={{padding: "50px"}}>HearthSim Premium</h1>
+								<ul style={{listStyleType: "none", padding: 0}}>
+									<li>You miss the old Hearthstone?</li>
+									<li>The more controlled Hearthstone?</li>
+									<li>See how games unfold Hearthstone?</li>
+									<li>No face explode Hearthstone?</li>
+									<li>You hate the new Hearthstone?</li>
+									<li>The dead turn two Hearthstone?</li>
+									<li>The pirate spew Hearthstone?</li>
+									<li>Rather stay in queue Hearthstone?</li>
+									<li>This is the sweet Hearthstone</li>
+									<li>Feel like elite Hearthstone</li>
+									<li>Just beat the meta</li>
+									<li>Subscribe to HearthSim Premium</li>
+								</ul>
+								<br/>
+								<button type="button" className="btn btn-primary" onClick={() => showModal()}>Find more information here!</button>
+							</PremiumWrapper>
+						</td>
+					);
+				}
 			}
 			else {
 				cols.push(
