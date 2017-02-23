@@ -202,21 +202,22 @@ def get_from_redshift_cache(cache_key):
 		return None
 
 
-def fill_redshift_cache_warming_queue():
+def fill_redshift_cache_warming_queue(eligible_queries=None):
 	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
-	messages = get_queries_for_cache_warming()
+	messages = get_queries_for_cache_warming(eligible_queries)
 	write_messages_to_queue(queue_name, messages)
 
 
-def get_queries_for_cache_warming():
+def get_queries_for_cache_warming(eligible_queries=None):
 	queries = []
 	card_db, _ = load()
 	for query in RedshiftCatalogue.instance().inventory.values():
-		for permutation in _generate_permutations_for_query(query, card_db):
-			queries.append({
-				"query_name": query.name,
-				"supplied_parameters": permutation
-			})
+		if eligible_queries is None or query.name in eligible_queries:
+			for permutation in _generate_permutations_for_query(query, card_db):
+				queries.append({
+					"query_name": query.name,
+					"supplied_parameters": permutation
+				})
 	return queries
 
 
