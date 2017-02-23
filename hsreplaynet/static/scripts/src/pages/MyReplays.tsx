@@ -104,7 +104,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 	}
 
 	componentDidUpdate(prevProps: MyReplaysProps, prevState: MyReplaysState, prevContext: any): void {
-		location.replace("#" + toQueryString(this.state.queryMap));
+		location.replace("#" + (toQueryString(this.state.queryMap) || "/"));
 	}
 
 	filterGames(input: GameReplay[]): GameReplay[] {
