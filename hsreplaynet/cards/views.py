@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.http.response import HttpResponseBadRequest
+from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render
-from django.http import JsonResponse
 from django.views.generic import DetailView, TemplateView
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
 from hsreplaynet.cards.models import Archetype
@@ -24,6 +23,25 @@ class CardListView(TemplateView):
 
 class CardDetailView(DetailView):
 	model = Card
+
+	def get_object(self, queryset=None):
+		if queryset is None:
+			queryset = self.get_queryset()
+
+		pk = self.kwargs[self.pk_url_kwarg]
+		if pk.isdigit():
+			# If it's numeric, filter using the dbf id
+			queryset = queryset.filter(dbf_id=pk)
+		else:
+			# Otherwise, use the card id
+			queryset = queryset.filter(id=pk)
+
+		try:
+			obj = queryset.get()
+		except queryset.model.DoesNotExist:
+			raise Http404("No card found matching the query.")
+
+		return obj
 
 
 @login_required
