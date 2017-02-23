@@ -1,14 +1,18 @@
 from django.conf.urls import url
-from .views import (
-	archetypes, winrates, counters, carddetail, popular_cards, discover
-)
+from . import views
+
+
+deck_archetypes = views.ArchetypesView.as_view()
+card_list = views.CardListView.as_view()
+popular_cards = views.PopularCardsView.as_view()
+card_detail = views.CardDetailView.as_view()
 
 
 urlpatterns = [
-	url(r"^$", discover, name="card_discover"),
-	url(r"^winrates/$", winrates, name="deck_winrates"),
-	url(r"^counters/$", counters, name="deck_counters"),
-	url(r"^archetypes/$", archetypes, name="deck_archetypes"),
+	url(r"^$", card_list, name="card_list"),
+	url(r"^archetypes/$", deck_archetypes, name="deck_archetypes"),
+	url(r"^counters/$", views.counters, name="deck_counters"),
 	url(r"^popular/$", popular_cards, name="popular_cards"),
-	url(r"^(?P<card_id>\w+)$", carddetail, name="card_detail"),
+	url(r"^winrates/$", views.winrates, name="deck_winrates"),
+	url(r"^(?P<pk>\w+)/$", card_detail, name="card_detail"),
 ]

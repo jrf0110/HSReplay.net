@@ -1,8 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest
 from django.shortcuts import render
-from django.http import JsonResponse, Http404
-from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
+from django.views.generic import DetailView, TemplateView
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
 from hsreplaynet.cards.models import Archetype
 from hsreplaynet.features.decorators import view_requires_feature_access
@@ -10,26 +10,20 @@ from .models import Card
 from .queries import CardCountersQueryBuilder
 
 
-def archetypes(request):
-	return render(request, "cards/deck_archetypes.html", {})
+class ArchetypesView(TemplateView):
+	template_name = "cards/deck_archetypes.html"
 
 
-def popular_cards(request):
-	return render(request, "cards/popular_cards.html", {})
+class PopularCardsView(TemplateView):
+	template_name = "cards/popular_cards.html"
 
 
-def discover(request):
-	return render(request, "cards/card_discover.html", {})
+class CardListView(TemplateView):
+	template_name = "cards/card_list.html"
 
 
-def carddetail(request, card_id):
-	try:
-		card = Card.objects.get(id=card_id)
-	except ObjectDoesNotExist:
-		card = None
-	if not card:
-		raise Http404("Card not found")
-	return render(request, "cards/card_detail.html", {"card": card})
+class CardDetailView(DetailView):
+	model = Card
 
 
 @login_required
