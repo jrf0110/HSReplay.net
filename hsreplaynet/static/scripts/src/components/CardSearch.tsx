@@ -44,10 +44,12 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				this.state.selectedCard = card;
 			}
 			cards.push(
-				<li key={card.id} onMouseEnter={() => this.setState({selectedIndex: index, selectedCard: card})}>
-					<a className={selected ? "selected" : undefined} href="#" onMouseDown={() => this.addCard(card)}>
+				<li key={card.id}
+					onMouseEnter={() => this.setState({selectedIndex: index, selectedCard: card})}
+					className={selected ? "selected" : undefined} 
+					onMouseDown={() => this.addCard(card)}
+				>
 						<CardTile card={card} count={1} height={34} rarityColored />
-					</a>
 				</li>
 			);
 		});
@@ -100,13 +102,14 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 	}
 
 	addCard(card: any): void {
-		const newState = {cardSearchText: "", cardSearchCount: this.defaultCardCount, selectedIndex: 0, selectedcard: null};
-		if (this.props.selectedCards && this.props.selectedCards.indexOf(card) === -1) {
-			const newSelectedCards = this.props.selectedCards.concat([card]);
+		const selected = this.props.selectedCards || [];
+		if (selected.indexOf(card) === -1) {
+			const newSelectedCards = selected.concat([card]);
 			newSelectedCards.sort((a, b) => a["name"] > b["name"] ? 1 : -1);
 			newSelectedCards.sort((a, b) => a["cost"] > b["cost"] ? 1 : -1);
 			this.props.onCardsChanged(newSelectedCards);
 		}
+		this.setState({cardSearchText: "", cardSearchCount: this.defaultCardCount, selectedIndex: 0, selectedCard: null});
 	};
 
 	onKeyDown(event: React.KeyboardEvent, numCards: number): void {
@@ -139,11 +142,9 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				this.props.onCardsChanged(newSelectedCards)
 			};
 			selectedCards.push(
-				<li>
-					<a href="#" onClick={removeCard}>
-						<div className="glyphicon glyphicon-remove" />
-						<CardTile card={card} count={1} height={34} rarityColored />
-					</a>
+				<li onClick={removeCard}>
+					<div className="glyphicon glyphicon-remove" />
+					<CardTile card={card} count={1} height={34} rarityColored />
 				</li>
 			);
 		});

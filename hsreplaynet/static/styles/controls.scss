@@ -101,6 +101,10 @@
 .card-search {
 	position: relative;
 
+	li {
+		cursor: pointer;
+	}
+
 	>ul {
 		list-style-type: none;
 		margin-bottom: 0px;
