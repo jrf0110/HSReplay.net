@@ -1,32 +1,33 @@
 from django.http import Http404, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView, View
 from hearthstone.enums import CardClass
 from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.cards.models import Archetype, Deck
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import View
 from hsreplaynet.games.models import GameReplay
 
 
-def deck_detail(request, id):
-	try:
-		deck = Deck.objects.get(id=id)
-	except Deck.DoesNotExist:
-		raise Http404("Deck not found")
-	cards = deck.card_dbf_id_list()
-	if (len(cards)) != 30:
-		raise Http404("Deck not found")
-	decklist = ",".join("%s" % dbf_id for dbf_id in cards)
-	deck_class = guess_class(deck)
-	return render(
-		request,
-		"decks/deck_detail.html",
-		{"deck": deck, "cards": decklist, "deck_class": deck_class.name}
-	)
+class DeckDetailView(View):
+	template_name = "decks/deck_detail.html"
+
+	def get(self, request, id):
+		deck = get_object_or_404(Deck, id=id)
+		cards = deck.card_dbf_id_list()
+		if len(cards) != 30:
+			raise Http404("Invalid deck")
+
+		context = {
+			"deck": deck,
+			"card_list": ",".join(str(id) for id in cards),
+			"deck_class": guess_class(deck).name,
+		}
+
+		return render(request, self.template_name, context)
 
 
-def deck_list(request):
-	return render(request, "decks/deck_discover.html", {})
+class DeckListView(TemplateView):
+	template_name = "decks/deck_list.html"
 
 
 def canonical_decks(request):
