@@ -96,6 +96,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 	render(): JSX.Element {
 		const selectedClass = this.state.selectedClasses[0];
+		const selectedOpponent = this.state.selectedOpponentClasses[0];
 		const decks: DeckObj[] = [];
 		const deckData = this.state.deckData.get(this.cacheKey());
 		if (this.props.cardData) {
@@ -125,8 +126,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					}
 				});
 
-				const selectedOpponent = this.state.selectedOpponentClasses[0];
 				const winrateField = selectedOpponent === "ALL" ? "overall_win_rate" : "win_rate_vs_" + selectedOpponent;
+				const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
 				const sortProp = this.state.sortProp === "win_rate" ? winrateField : this.state.sortProp;
 
 				deckElements.sort((a, b) => b[sortProp] - a[sortProp]);
@@ -136,7 +137,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						cards: deck.cards,
 						deckId: deck.deck_id,
 						playerClass: deck.player_class,
-						numGames: deck.total_games,
+						numGames: deck[numGamesField],
 						winrate: deck[winrateField],
 					});
 				});
@@ -168,6 +169,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			);
 		}
 		else {
+			const hasOpponent = selectedOpponent && selectedOpponent !== "ALL";
 			content = <DeckList decks={decks} pageSize={12} />;
 		}
 
