@@ -7,23 +7,26 @@ import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import ResetHeader from "../components/ResetHeader";
 import {ChartSeries} from "../interfaces";
 import {cardSorting, setNames, toTitleCase, wildSets} from "../helpers";
+import {
+	parseQuery, getQueryMapDiff, getQueryMapArray, getQueryMapFromLocation, 
+	setLocationQueryString, toQueryString, queryMapHasChanges, QueryMap, setQueryMap
+} from "../QueryParser"
 
 interface CardFilters {
-	playerClass: any;
 	cost: any;
+	format: any;
+	mechanics: any;
+	playerClass: any;
+	race: any;
 	rarity: any;
 	set: any;
 	type: any;
-	race: any;
-	mechanics: any;
-	format: any;
 }
 
 interface CardDiscoverState {
-	textFilter?: string;
 	cards?: any[];
-	filters?: Map<string, string[]>;
 	numCards?: number;
+	queryMap?: QueryMap;
 	showFilters?: boolean;
 }
 
@@ -46,13 +49,23 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
 	};
 	readonly placeholderUrl = STATIC_URL + "images/cardback_placeholder_kabal.png";
+	readonly defaultQueryMap: QueryMap = {
+		cost: "",
+		format: "",
+		mechanics: "",
+		type: "",
+		set: "",
+		rarity: "",
+		race: "",
+		playerClass: "ALL",
+		text: "",
+	}
 
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
 		super(props, state);
 		this.state = {
-			textFilter: null,
 			cards: null,
-			filters: new Map<string, string[]>(),
+			queryMap: getQueryMapFromLocation(this.defaultQueryMap, {}),
 			numCards: 20,
 			showFilters: false,
 		}
@@ -62,6 +75,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	fetchPlaceholderImage() {
 		const image = new Image();
 		image.src = this.placeholderUrl;
+	}
+
+	componentDidUpdate() {
+		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
 	}
 
 	componentWillReceiveProps(nextProps: CardDiscoverProps) {
@@ -78,6 +95,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	render(): JSX.Element {
+		const queryMap = Object.assign({}, this.state.queryMap);
+
 		let chartSeries = null;
 		const tiles = [];
 		const filteredCards = {
@@ -134,7 +153,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			content = (
 				<div className="no-search-result">
 					<h2>No cards found</h2>
-					<a href="#" onClick={() => this.resetFilters()}>Reset filters</a>
+					<a href="#" onClick={() => this.setState(this.defaultQueryMap)}>Reset filters</a>
 				</div>
 			);
 		}
@@ -165,8 +184,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						placeholder="Search..."
 						type="search"
 						className="form-control"
-						value={this.state.textFilter}
-						onChange={(x) => this.setState({textFilter: x.target["value"]})}
+						value={queryMap["text"]}
+						onChange={(x) => setQueryMap(this, "text", x.target["value"])}
 					/>
 				</div>
 			);
@@ -209,13 +228,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</div>
 			</div>
 		);
-	}
-
-	resetFilters() {
-		this.setState({
-			filters: new Map<string, string[]>(),
-			textFilter: "",
-		});
 	}
 
 	buildChartSeries(cards: any[]): ChartSeries[] {
@@ -289,17 +301,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	buildFilters(filterCounts: CardFilters): JSX.Element[] {
-		let showReset = this.state.textFilter && !!this.state.textFilter.length;
-		if (!showReset) {
-			this.state.filters.forEach((val, key) => {
-				if (val && val.length) {
-					showReset = true;
-				}
-			});
-		}
+		let showReset = queryMapHasChanges(this.state.queryMap, this.defaultQueryMap);
 
 		return [
-			<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
+			<ResetHeader onReset={() => this.setState({queryMap: this.defaultQueryMap})} showReset={showReset}>
 				Card Database
 			</ResetHeader>,
 			<h2>Class</h2>,
@@ -308,11 +313,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				hideAll
 				minimal
 				multiSelect={false}
-				selectedClasses={(this.state.filters.get("playerClass") || ["ALL"]) as FilterOption[]}
-				selectionChanged={(selection) => {
-					const selected = selection && selection.find(x => x !== "ALL");
-					this.setState({filters: this.state.filters.set("playerClass", selected && [selected])});
-				}}
+				selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
+				selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 			/>,
 			<h2>Cost</h2>,
 			<ul className="filter-list-cost">
@@ -367,14 +369,14 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				text = toTitleCase(value);
 				break;
 		}
-		const selected = this.state.filters.get(prop) && this.state.filters.get(prop).indexOf(value) !== -1;
+
+		const values = getQueryMapArray(this.state.queryMap, prop);
+		const selected = values.indexOf(value) !== -1;
 
 		const onClick = () => {
 			if (count) {
-				const newFilter = selected ? this.state.filters.get(prop).filter(x => x !== value) : (this.state.filters.get(prop) || []).concat(value);
-				this.setState({
-					filters: this.state.filters.set(prop, newFilter)
-				})
+				const newFilter = selected ? values.filter(x => x !== value) : values.concat(value);
+				setQueryMap(this, prop, newFilter.join(","))
 			}
 		};
 
@@ -404,9 +406,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 	}
 
-	filter(card: any, exlcudeFilter?: string): boolean {
-		if (this.state.textFilter) {
-			const text = this.state.textFilter.toLowerCase();
+	filter(card: any, excludeFilter?: string): boolean {
+		const queryMap = this.state.queryMap;
+		if (queryMap["text"]) {
+			const text = queryMap["text"].toLowerCase();
 			if (card.name.toLowerCase().indexOf(text) === -1) {
 				if (!card.text || card.text.toLowerCase().indexOf(text) === -1) {
 					return true;
@@ -415,8 +418,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 
 		let filter = false;
-		this.state.filters.forEach((values, key) => {
-			if (key === exlcudeFilter || !values || !values.length) {
+		Object.keys(this.filters).forEach(key => {
+			if (key === excludeFilter) {
+				return;
+			}
+			const values = getQueryMapArray(queryMap, key);
+			if (!values.length) {
 				return;
 			}
 
