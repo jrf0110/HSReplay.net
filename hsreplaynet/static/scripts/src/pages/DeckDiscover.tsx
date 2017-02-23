@@ -65,6 +65,22 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		this.fetch();
 	}
 
+	getDefaultFilters(): DeckDiscoverState {
+		return {
+			cardSearchExcludeKey: this.state.cardSearchExcludeKey + 1,
+			cardSearchIncludeKey: this.state.cardSearchIncludeKey + 1,
+			deckType: null,
+			excludedCards: [],
+			includedCards: [],
+			rankRange: "ALL",
+			region: "ALL",
+			selectedClasses: ["ALL"],
+			selectedOpponentClasses: ["ALL"],
+			timeFrame: "LAST_30_DAYS",
+			personal: false,
+		};
+	}
+
 	cacheKey(state?: DeckDiscoverState): string {
 		state = state || this.state;
 		return state.gameMode + state.rankRange + state.region + state.timeFrame;
@@ -164,7 +180,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			content = (
 				<div className="content-message">
 					<h2>No decks found</h2>
-					<a href="#" onClick={() => this.resetFilters()}>Reset filters</a>
+					<a href="#" onClick={() => this.setState(this.getDefaultFilters())}>Reset filters</a>
 				</div>
 			);
 		}
@@ -207,7 +223,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			<div className="deck-discover">
 				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
 					{backButton}
-					<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
+					<ResetHeader onReset={() => this.setState(this.getDefaultFilters())} showReset={showReset}>
 						Deck Database
 					</ResetHeader>
 					<h2>Class</h2>
@@ -322,17 +338,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</li>
 		);
 
-	}
-
-	resetFilters() {
-		this.setState({
-			cardSearchExcludeKey: this.state.cardSearchExcludeKey + 1,
-			cardSearchIncludeKey: this.state.cardSearchIncludeKey + 1,
-			deckType: null,
-			excludedCards: [],
-			includedCards: [],
-			selectedClasses: ["ALL"]
-		});
 	}
 
 	fetch() {
