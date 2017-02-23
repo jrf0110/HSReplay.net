@@ -44,15 +44,7 @@ const settings = exportSettings.reduce((obj, current) => {
 
 module.exports = (env) => {
 	env = env || {};
-	const entry = (name, polyfill) => {
-		const entries = [];
-		if (polyfill !== false) {
-			entries.push("babel-polyfill"); // ES6 polyfill
-			entries.push("whatwg-fetch"); // fetch polyfill, requires ES6 or Promise polyfill
-		}
-		entries.push(path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name));
-		return entries;
-	};
+	const entry = (name) => path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name);
 	return {
 		context: __dirname,
 		entry: {
@@ -66,6 +58,7 @@ module.exports = (env) => {
 			deck_detail: entry("deck_detail"),
 			card_discover: entry("card_discover"),
 			deck_discover: entry("deck_discover"),
+			polyfills: ["babel-polyfill", "whatwg-fetch"],
 		},
 		output: {
 			path: path.join(__dirname, "./build/generated/webpack"),

@@ -3,6 +3,7 @@
 {% load socialaccount %}
 {% load web_extras %}
 {% load feature from features %}
+{% load render_bundle from webpack_loader %}
 
 {% block stylesheets %}
 	<link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700" rel="stylesheet">
@@ -50,6 +51,7 @@
 		</script>
 	{% endif %}
 {% endblock %}
+{% render_bundle "polyfills" %}
 {% endblock %}
 
 {% block body %}
