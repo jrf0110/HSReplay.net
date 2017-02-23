@@ -44,22 +44,48 @@ const settings = exportSettings.reduce((obj, current) => {
 
 module.exports = (env) => {
 	env = env || {};
-	const entry = (name) => path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name);
+
+	// define entry points and groups with common code
+	const makeEntry = (name) => path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name);
+	const entries = {
+		my_replays: makeEntry("my_replays"),
+		replay_detail: makeEntry("replay_detail"),
+		replay_embed: makeEntry("replay_embed"),
+		card_detail: makeEntry("card_detail"),
+		card_discover: makeEntry("card_discover"),
+		deck_detail: makeEntry("deck_detail"),
+		deck_discover: makeEntry("deck_discover"),
+		popular_cards: makeEntry("popular_cards"),
+		victory_widgets: makeEntry("victory_widgets"),
+		polyfills: ["babel-polyfill", "whatwg-fetch"],
+	};
+
+	// flatten the entry points for config
+	const entriesFlat = {};
+	const groups = [];
+	for(const group in entries) {
+		const values = entries[group];
+		if(typeof values === "string" || Array.isArray(values)) {
+			entriesFlat[group] = values;
+		}
+		else if(typeof values === "object") {
+			groups.push(group);
+			for(const key in values) {
+				entriesFlat[key] = values[key];
+			}
+		}
+	}
+
+	// define a CommonsChunkPlugin for each group
+	const commons = groups.map((group) => new webpack.optimize.CommonsChunkPlugin({
+		names: group,
+		chunks: Object.keys(entries[group]),
+		minChunks: 3,
+	}));
+
 	return {
 		context: __dirname,
-		entry: {
-			my_replays: entry("my_replays"),
-			replay_detail: entry("replay_detail"),
-			replay_embed: entry("replay_embed"),
-			archetypes: entry("archetypes"),
-			victory_widgets: entry("victory_widgets"),
-			card_detail: entry("card_detail"),
-			popular_cards: entry("popular_cards"),
-			deck_detail: entry("deck_detail"),
-			card_discover: entry("card_discover"),
-			deck_discover: entry("deck_discover"),
-			polyfills: ["babel-polyfill", "whatwg-fetch"],
-		},
+		entry: entriesFlat,
 		output: {
 			path: path.join(__dirname, "./build/generated/webpack"),
 			filename: "[name].js",
@@ -99,7 +125,7 @@ module.exports = (env) => {
 		plugins: [
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
 			new webpack.DefinePlugin(settings),
-		],
+		].concat(commons),
 		watchOptions: {
 			// required in the Vagrant setup due to Vagrant inotify not working
 			poll: true
