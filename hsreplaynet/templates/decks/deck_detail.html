@@ -8,9 +8,9 @@
 {% feature "carddb" as ft_carddb %}
 {% if ft_carddb.enabled %}
 	<div id="deck-info"
-		deck-id="{{ deck.id }}"
-		deck-cards="{{ card_list }}"
-		deck-class="{{ deck_class }}">
+		data-deck-id="{{ deck.id }}"
+		data-deck-cards="{{ card_list }}"
+		data-deck-class="{{ deck_class }}">
 	</div>
 	<div id="deck-container"></div>
 	{% render_bundle "deck_detail" %}

@@ -7,7 +7,7 @@
 {% block fullcontent %}
 {% feature "carddb" as ft_carddb %}
 {% if ft_carddb.enabled %}
-	<div id="card-info" card-id="{{ card.id }}" dbf-id="{{ card.dbf_id }}"></div>
+	<div id="card-info" data-card-id="{{ card.id }}" data-dbf-id="{{ card.dbf_id }}"></div>
 	<div id="card-container"></div>
 	{% render_bundle "card_detail" %}
 {% endif %}

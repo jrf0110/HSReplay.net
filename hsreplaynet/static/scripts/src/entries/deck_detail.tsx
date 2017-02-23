@@ -4,9 +4,9 @@ import {image, cardArt} from "../helpers";
 import DeckDetail from "../pages/DeckDetail";
 
 
-const deckId = +document.getElementById("deck-info").getAttribute("deck-id");
-const cards = document.getElementById("deck-info").getAttribute("deck-cards");
-const deckClass = document.getElementById("deck-info").getAttribute("deck-class");
+const deckId = +document.getElementById("deck-info").getAttribute("data-deck-id");
+const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
+const deckClass = document.getElementById("deck-info").getAttribute("data-deck-class");
 ReactDOM.render(
 	<DeckDetail
 		deckId={deckId}

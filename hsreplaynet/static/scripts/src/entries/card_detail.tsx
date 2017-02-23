@@ -4,8 +4,8 @@ import {image, cardArt} from "../helpers";
 import CardDetail from "../pages/CardDetail";
 
 
-const cardId = document.getElementById("card-info").getAttribute("card-id");
-const dbfId = +document.getElementById("card-info").getAttribute("dbf-id");
+const cardId = document.getElementById("card-info").getAttribute("data-card-id");
+const dbfId = +document.getElementById("card-info").getAttribute("data-dbf-id");
 ReactDOM.render(
 	<CardDetail
 		cardId={cardId}
