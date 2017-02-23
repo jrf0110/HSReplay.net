@@ -63,6 +63,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 			}
 
 			return (
+				<a href={"/cards/" + this.props.cardId}>
 				<div
 					className="card-icon"
 					style={style}
@@ -72,6 +73,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 					{mark}
 					{tooltip}
 				</div>
+				</a>
 			);
 		}
 	}
