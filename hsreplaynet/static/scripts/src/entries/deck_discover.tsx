@@ -3,10 +3,13 @@ import * as ReactDOM from "react-dom";
 import DeckDiscover from "../pages/DeckDiscover";
 import HearthstoneJSON from "hearthstonejson";
 
+const container = document.getElementById("deck-discover-container");
+const authenticated = container.getAttribute("data-authenticated").toLowerCase() === "true";
+
 const render = (cardData) => {
 	ReactDOM.render(
-		<DeckDiscover cardData={cardData} />,
-		document.getElementById("deck-discover-container")
+		<DeckDiscover cardData={cardData} userIsAuthenticated={authenticated} />,
+		container
 	);
 };
 

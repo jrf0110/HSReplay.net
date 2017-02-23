@@ -33,6 +33,7 @@ interface DeckDiscoverState {
 
 interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
 	cardData: Map<string, any>;
+	userIsAuthenticated: boolean;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -189,14 +190,17 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</button>
 		);
 
-		const personal = [];
-		if (this.state.myDecks && this.state.myDecks.length) {
-			personal.push(
-				<h2>Personal</h2>,
-				<ul>
-					{this.buildFilter("personal", "mydecks", "My decks only", null)}
-				</ul>
-			);
+		let loginLink = null;
+		const personalClassNames = ["selectable"];
+		if (this.state.personal) {
+			personalClassNames.push("selected");
+		}
+		if (!this.props.userIsAuthenticated) {
+			personalClassNames.push("disabled");
+			loginLink = <a className="infobox-value" href="/account/login/?next=/decks/">Log in</a>;
+		}
+		else if (!this.state.myDecks.length) {
+			personalClassNames.push("disabled")
 		}
 
 		return (
@@ -237,13 +241,19 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						availableCards={this.state.cards}
 						onCardsChanged={(cards) => this.setState({excludedCards: cards})}
 					/>
-					{personal}
-						<h2>Deck type</h2>
-						<ul>
-							{this.buildFilter("deckType", "aggro", "Aggro", null)}
-							{this.buildFilter("deckType", "midrange", "Midrange", null)}
-							{this.buildFilter("deckType", "control", "Control", null)}
-						</ul>
+					<h2>Personal</h2>
+					<ul>
+						<li className={personalClassNames.join(" ")} onClick={() => personalClassNames.indexOf("disabled") === -1 && this.setState({personal: !this.state.personal})}>
+							My deck only
+							{loginLink}
+						</li>
+					</ul>
+					<h2>Deck type</h2>
+					<ul>
+						{this.buildFilter("deckType", "aggro", "Aggro", null)}
+						{this.buildFilter("deckType", "midrange", "Midrange", null)}
+						{this.buildFilter("deckType", "control", "Control", null)}
+					</ul>
 					<h2>Mode</h2>
 					<ul>
 						{this.buildFilter("gameMode", "RANKED_STANDARD", "Standard")}

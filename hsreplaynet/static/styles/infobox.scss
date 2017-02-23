@@ -90,6 +90,10 @@
 			content: "‹ ";
 		}
 
+		&.disabled {
+			color: gray;
+		}
+
 		ul {
 			> li:first-of-type {
 				border-top: 1px solid $darkblue;

@@ -7,7 +7,7 @@
 {% block fullcontent %}
 {% feature "carddb" as ft_carddb %}
 {% if ft_carddb.enabled %}
-	<div id="deck-discover-container"></div>
+	<div id="deck-discover-container" data-authenticated="{{ user.is_authenticated.value }}"></div>
 	{% render_bundle "deck_discover" %}
 {% endif %}
 {% endblock %}
