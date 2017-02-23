@@ -51,11 +51,13 @@ module.exports = (env) => {
 		my_replays: makeEntry("my_replays"),
 		replay_detail: makeEntry("replay_detail"),
 		replay_embed: makeEntry("replay_embed"),
-		card_detail: makeEntry("card_detail"),
-		card_discover: makeEntry("card_discover"),
-		deck_detail: makeEntry("deck_detail"),
-		deck_discover: makeEntry("deck_discover"),
-		popular_cards: makeEntry("popular_cards"),
+		stats: {
+			card_detail: makeEntry("card_detail"),
+			card_discover: makeEntry("card_discover"),
+			deck_detail: makeEntry("deck_detail"),
+			deck_discover: makeEntry("deck_discover"),
+			popular_cards: makeEntry("popular_cards"),
+		},
 		victory_widgets: makeEntry("victory_widgets"),
 		polyfills: ["babel-polyfill", "whatwg-fetch"],
 	};
