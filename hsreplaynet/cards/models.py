@@ -4,6 +4,7 @@ import json
 from django.db import models, connection
 from django.conf import settings
 from django.dispatch.dispatcher import receiver
+from django.urls import reverse
 from django_intenum import IntEnumField
 from hearthstone import enums
 
@@ -98,6 +99,9 @@ class Card(models.Model):
 
 	def __str__(self):
 		return self.name
+
+	def get_absolute_url(self):
+		return reverse("card_detail", kwargs={"pk": self.dbf_id})
 
 	def update_from_cardxml(self, cardxml, save=False):
 		for k in dir(cardxml):
