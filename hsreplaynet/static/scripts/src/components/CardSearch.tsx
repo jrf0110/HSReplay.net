@@ -6,7 +6,6 @@ interface CardSearchState {
 	cardSearchHasFocus?: boolean;
 	cardSearchCount?: number;
 	selectedIndex?: number;
-	selectedCard?: any;
 }
 
 interface CardSearchProps extends React.ClassAttributes<CardSearch> {
@@ -26,7 +25,6 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			cardSearchHasFocus: false,
 			cardSearchCount: this.defaultCardCount,
 			selectedIndex: 0,
-			selectedCard: null,
 		}
 	}
 
@@ -34,22 +32,18 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 		const searchLostFocus = () => {
 			this.setState({cardSearchHasFocus: false});
 		}
-		const availableCards = this.props.availableCards || [];
-		
+
 		const cards = [];
-		const matches = availableCards.filter(card => !this.state.cardSearchText || card.name.toLowerCase().indexOf(this.state.cardSearchText.toLowerCase()) !== -1);
+		const matches = this.getFilteredCards();
 		matches.slice(0, this.state.cardSearchCount).forEach((card, index) => {
 			const selected = this.state.selectedIndex === index;
-			if (selected) {
-				this.state.selectedCard = card;
-			}
 			cards.push(
 				<li key={card.id}
-					onMouseEnter={() => this.setState({selectedIndex: index, selectedCard: card})}
-					className={selected ? "selected" : undefined} 
+					onMouseEnter={() => this.setState({selectedIndex: index})}
+					className={selected ? "selected" : undefined}
 					onMouseDown={() => this.addCard(card)}
 				>
-						<CardTile card={card} count={1} height={34} rarityColored />
+					<CardTile card={card} count={1} height={34} rarityColored />
 				</li>
 			);
 		});
@@ -83,7 +77,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 
 		return (
 			<div className="card-search search-wrapper">
-				<input 
+				<input
 					className="form-control"
 					type="search"
 					placeholder="Search..."
@@ -109,26 +103,39 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			newSelectedCards.sort((a, b) => a["cost"] > b["cost"] ? 1 : -1);
 			this.props.onCardsChanged(newSelectedCards);
 		}
-		this.setState({cardSearchText: "", cardSearchCount: this.defaultCardCount, selectedIndex: 0, selectedCard: null});
+		this.setState({cardSearchText: "", cardSearchCount: this.defaultCardCount, selectedIndex: 0});
 	};
 
 	onKeyDown(event: React.KeyboardEvent, numCards: number): void {
-		switch(event.key) {
+		switch (event.key) {
 			case "ArrowDown":
+				if(!this.search) {
+					return;
+				}
 				this.setState({selectedIndex: Math.min(numCards - 1, this.state.selectedIndex + 1)});
-				if(this.search["scrollTop"] === 0) {
+				if (this.search["scrollTop"] === 0) {
 					this.search["scrollTop"] += 5;
 				}
 				this.search["scrollTop"] += 35;
 				break;
 			case "ArrowUp":
+				if(!this.search) {
+					return;
+				}
 				this.setState({selectedIndex: Math.max(0, this.state.selectedIndex - 1)});
 				this.search["scrollTop"] -= 35;
 				break;
 			case "Enter":
-				this.addCard(this.state.selectedCard);
+				this.addCard(this.getFilteredCards()[this.state.selectedIndex]);
 				break;
 		}
+	}
+
+	getFilteredCards(): any[] {
+		if (!this.props.availableCards) {
+			return [];
+		}
+		return this.props.availableCards.filter(card => !this.state.cardSearchText || card.name.toLowerCase().indexOf(this.state.cardSearchText.toLowerCase()) !== -1);
 	}
 
 	getSelectedCards(): JSX.Element[] {
