@@ -67,8 +67,12 @@ class User(AbstractUser):
 
 	@cached_property
 	def is_premium(self):
-		from djstripe.utils import subscriber_has_active_subscription
-		return subscriber_has_active_subscription(self)
+		from djstripe.models import Customer
+
+		customer, created = Customer.get_or_create(self)
+		if created:
+			return False
+		return customer.has_active_subscription()
 
 	def delete_replays(self):
 		self.replays.update(is_deleted=True)
