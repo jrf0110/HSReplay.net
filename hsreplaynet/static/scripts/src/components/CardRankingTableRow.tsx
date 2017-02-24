@@ -18,7 +18,7 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 		let cardTile = <CardTile height={34} card={this.props.card} count={1} rarityColored />;
 		if (this.props.clickable) {
 			cardTile = (
-				<a href={"/cards/" + this.props.card.id}>
+				<a href={"/cards/" + this.props.card.dbfId}>
 					{cardTile}
 				</a>
 			)

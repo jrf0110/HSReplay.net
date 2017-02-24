@@ -8,6 +8,7 @@ interface CardIconState {
 
 interface CardIconProps extends React.ClassAttributes<CardIcon> {
 	cardId: string;
+	dbfId: string;
 	size?: number;
 	mark?: string;
 	markStyle?: any;
@@ -63,7 +64,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 			}
 
 			return (
-				<a href={"/cards/" + this.props.cardId}>
+				<a href={"/cards/" + this.props.dbfId}>
 				<div
 					className="card-icon"
 					style={style}

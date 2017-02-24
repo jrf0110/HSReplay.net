@@ -6,6 +6,7 @@ interface CardImageState {
 
 interface CardImageProps extends React.ClassAttributes<CardImage> {
 	cardId: string;
+	dbfId: string;
 	placeholder: string;
 }
 
@@ -27,7 +28,7 @@ export default class CardImage extends React.Component<CardImageProps, CardImage
 
 	render(): JSX.Element {
 		return (
-			<a className="card-image" href={"/cards/" + this.props.cardId}>
+			<a className="card-image" href={"/cards/" + this.props.dbfId}>
 				<img src={this.state.url} height={350}/>
 			</a>
 		);

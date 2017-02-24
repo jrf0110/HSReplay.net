@@ -525,7 +525,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const cols = [];
 		cols.push(<td>
 			<div className="card-wrapper">
-				<a href={"/cards/" + card.cardObj.id}>
+				<a href={"/cards/" + card.cardObj.dbfId}>
 					<CardTile height={34} card={card.cardObj} count={card.count} rarityColored/>
 				</a>
 			</div>
