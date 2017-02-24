@@ -20,15 +20,15 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 		const cardRows = [];
 		if (this.props.cardData && this.props.tableData !== "loading" && this.props.tableData) {
 			const tableRows = this.props.tableData.series.data[this.props.dataKey];
+			tableRows.sort((a, b) => +a["rank"] - +b["rank"]);
 			tableRows.slice(0, this.props.numRows).forEach(row => {
-				const cardid = row["card_id"] || row["dbf_id"] || row["entity_dbf_id"] || row["target_entity_dbf_id"];
+				const cardid = row["card_id"] || row["dbf_id"];
 				const card = this.props.cardData.get(''+cardid);
 				cardRows.push(
 					<CardRankingTableRow
 						card={card}
 						popularity={+row["popularity"]}
 						rank={+row["rank"]}
-						delta={this.getDelta(row)}
 						clickable={this.props.clickable}
 					/>
 				);
@@ -50,16 +50,4 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 			</table>
 		</div>;
 	}
-
-	getDelta(row: TableRow) {
-		if (this.props.prevTableData && this.props.prevTableData !== "error" && this.props.prevTableData !== "loading") {
-			const prevRows = this.props.prevTableData.series.data[this.props.dataKey];
-			const prev = prevRows.find(prev => prev["card_id"] == row["card_id"]);
-			if (prev) {
-				return +prev["rank"] - +row["rank"];
-			}
-		}
-		return 0;
-	}
-
 }

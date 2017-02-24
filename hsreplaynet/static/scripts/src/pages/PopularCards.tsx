@@ -193,7 +193,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 				<ClassFilter 
 					hideAll
 					multiSelect={false}
-					filters="AllNeutral"
+					filters="All"
 					minimal
 					selectedClasses={[queryMap["playerClass"] as FilterOption]}
 					selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
@@ -266,7 +266,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			const data = {rarity: {}, cardtype: {}, cardset: {}, cost: {}};
 			const totals = {rarity: 0, cardtype: 0, cardset: 0, cost: 0};
 			rows.forEach(row => {
-				const card = this.props.cardData.get(row["card_id"])
+				const card = this.props.cardData.get(""+row["dbf_id"])
 				const value = +row["popularity"]
 				data["rarity"][card.rarity] = (data["rarity"][card.rarity] || 0) + value;
 				totals["rarity"] += value;

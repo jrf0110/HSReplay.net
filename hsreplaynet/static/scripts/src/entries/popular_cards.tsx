@@ -17,7 +17,7 @@ hsjson.getLatest((data: any[]) => {
 	const db = new Map();
 	for(let i = 0; i < data.length; i++) {
 		const card = data[i];
-		db.set(card.id, card);
+		db.set("" + card.dbfId, card);
 	}
 	render(db);
 });
