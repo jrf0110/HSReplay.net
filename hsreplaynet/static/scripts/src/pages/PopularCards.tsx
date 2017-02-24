@@ -143,10 +143,11 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						<h2>Most included cards</h2>
 						<div>
 							<CardRankingTable 
+								cardData={this.props.cardData}
+								clickable
+								dataKey={selectedClass}
 								numRows={this.state.numRowsVisible}
 								tableData={included}
-								dataKey={selectedClass}
-								cardData={this.props.cardData}
 							/>
 						</div>
 					</div>
@@ -154,10 +155,11 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						<h2>Most played cards</h2>
 						<div>
 							<CardRankingTable 
+								cardData={this.props.cardData}
+								clickable
+								dataKey={selectedClass}
 								numRows={this.state.numRowsVisible}
 								tableData={played}
-								dataKey={selectedClass}
-								cardData={this.props.cardData}
 							/>
 						</div>
 					</div>
