@@ -7,13 +7,14 @@ import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import ClassIcon from "../components/ClassIcon";
 import DeckList from "../components/DeckList";
-import HearthstoneJSON from "hearthstonejson";
 import HDTButton from "../components/HDTButton";
+import HearthstoneJSON from "hearthstonejson";
 import InfoIcon from "../components/InfoIcon";
-import PremiumWrapper from "../components/PremiumWrapper";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
+import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
+import moment from "moment";
 import {CardObj, DeckObj, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
 	cardSorting, getChartScheme, getColorString, getDustCost,
@@ -31,6 +32,7 @@ interface DeckDetailState {
 	averageDuration?: RenderData;
 	baseWinrates?: TableData;
 	cardData?: Map<string, any>;
+	deckData?: TableData;
 	expandWinrate?: boolean;
 	popularityOverTime?: RenderData;
 	selectedClasses?: FilterOption[];
@@ -59,6 +61,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			averageDuration: "loading",
 			baseWinrates: "loading",
 			cardData: null,
+			deckData: "loading",
 			expandWinrate: false,
 			popularityOverTime: "loading",
 			similarDecks: "loading",
@@ -171,37 +174,42 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		let deckData = null;
-		if (this.state.tableDataAll && this.state.tableDataAll !== "loading" && this.state.tableDataAll !== "error") {
-			const winrateClassNames = ["selectable expandable"];
-			let subWinrates = null;
-			if (this.state.expandWinrate) {
-				winrateClassNames.push("expanded");
-				subWinrates = (
-					<ul>{winrates}</ul>
-				);
+		if (this.state.deckData && this.state.deckData !== "loading" && this.state.deckData !== "error") {
+			const deck = this.state.deckData.series.data[this.props.deckClass].find(x => +x["deck_id"] === this.props.deckId);
+			if (deck) {
+				const winrateClassNames = ["selectable expandable"];
+				let subWinrates = null;
+				
+				if (this.state.expandWinrate) {
+					winrateClassNames.push("expanded");
+					subWinrates = (
+						<ul>{winrates}</ul>
+					);
+				}
+
+				deckData = [
+					<h2>Data</h2>,
+					<ul>
+						<li>
+							Based on
+							<span className="infobox-value">{toPrettyNumber(+deck["total_games"]) + " replays"}</span>
+						</li>
+						<li className={winrateClassNames.join(" ")} onClick={() => this.setState({expandWinrate: !this.state.expandWinrate})}>
+							Winrate
+							<span className="infobox-value">{(+deck["win_rate"]).toFixed(1) + "%"}</span>
+							{subWinrates}
+						</li>
+						<li>
+							Match duration
+							<span className="infobox-value">{moment.duration(+deck["avg_game_length_seconds"], "second").humanize()}</span>
+						</li>
+						<li>
+							Number of turns
+							<span className="infobox-value">{deck["avg_num_player_turns"]}</span>
+						</li>
+					</ul>
+				];
 			}
-			deckData = [
-				<h2>Data</h2>,
-				<ul>
-					<li>
-						Based on
-						<span className="infobox-value">{toPrettyNumber(+this.state.tableDataAll.series.metadata["total_games"]) + " replays"}</span>
-					</li>
-					<li className={winrateClassNames.join(" ")} onClick={() => this.setState({expandWinrate: !this.state.expandWinrate})}>
-						Winrate
-						<span className="infobox-value">{(+this.state.tableDataAll.series.metadata["base_win_rate"]).toFixed(1) + "%"}</span>
-						{subWinrates}
-					</li>
-					<li>
-						Avg. duration
-						<span className="infobox-value">{"a few minutes"}</span>
-					</li>
-					<li>
-						Avg. turns
-						<span className="infobox-value">{"a few turns"}</span>
-					</li>
-				</ul>
-			];
 		}
 
 		const asideClassNames = ["infobox"];
@@ -289,7 +297,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 	
 	buildSimilarDecks(): JSX.Element {
-		if (!this.state.similarDecks || this.state.similarDecks === "loading" || this.state.similarDecks === "error") {
+		if (!this.state.deckData || this.state.deckData === "loading" || this.state.deckData === "error") {
 			return null;
 		}
 
@@ -298,20 +306,35 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 		
 		const decks: DeckObj[] = [];
-		const data = this.state.similarDecks.series.data;
-		Object.keys(data).forEach(key => {
-			data[key].forEach(deck => {
-				const cards = JSON.parse(deck["deck_list"]);
-				const cardData = cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
-				decks.push({
-					cards: cardData,
-					deckId: +deck["deck_id"],
-					numGames: +deck["num_games"],
-					playerClass: deck["player_class"],
-					winrate: +deck["win_rate"]
-				});
+		const classDecks = this.state.deckData.series.data[this.props.deckClass];
+
+		const deckList = [];
+		this.props.deckCards.split(",").forEach(id => deckList[id] = (deckList[id] || 0) + 1);
+		
+		const byDistance = [];
+		classDecks.forEach(deck => {
+			let distance = 0;
+			const cards = JSON.parse(deck["deck_list"]);
+			cards.forEach(pair => {
+				distance += Math.abs(pair[1] - (deckList[pair[0]] || 0));
 			})
-		});
+			if (distance > 1 && distance < 3) {
+				byDistance.push({cards, deck, distance, numGames: +deck["total_games"]});
+			}
+		})
+
+		byDistance.sort((a, b) => b.numGames - a.numGames);
+
+		byDistance.slice(0, 15).forEach(deck => {
+			const cardData = deck.cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
+			decks.push({
+				cards: cardData,
+				deckId: +deck.deck["deck_id"],
+				numGames: +deck.deck["total_games"],
+				playerClass: this.props.deckClass,
+				winrate: +deck.deck["win_rate"]
+			});
+		})
 
 		const cards: CardObj[] = [];
 		this.props.deckCards.split(",").forEach(id => {
@@ -616,12 +639,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			(data) => this.setState({popularityOverTime: data})
 		);
 
-		//mock data
-		const mockCard = this.props.deckCards.split(',').map(id => this.state.cardData.get(id)).find(card => card.playerClass !== "NEUTRAL");
-
-		this.queryManager.fetch(
-			"/analytics/query/recommended_decks_for_card?GameType=" + mode + "&card_id=" + mockCard.dbfId,
-			(data) => this.setState({similarDecks: data})
+			this.queryManager.fetch(
+			"/analytics/query/list_decks_by_win_rate?GameType=" + mode,
+			(data) => this.setState({deckData: data})
 		);
 	}
 
