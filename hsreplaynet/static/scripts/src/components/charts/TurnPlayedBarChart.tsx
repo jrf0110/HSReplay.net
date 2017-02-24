@@ -24,7 +24,8 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		}
 
 		else if (this.props.renderData) {
-			const series = this.props.renderData.series[0];
+			const series = this.props.renderData.series.find(series => series.name === "popularity_by_turn") 
+				|| this.props.renderData.series[0];
 			
 			const metaData = getChartMetaData(series.data);
 

@@ -26,11 +26,10 @@ interface CardDetailState {
 	cardData?: Map<string, any>;
 	classDistribution?: RenderData;
 	popularTargets?: TableData;
-	popularityByTurn?: RenderData;
 	popularityOverTime?: RenderData;
 	recommendedDecks?: TableData;
 	showInfo?: boolean;
-	winrateByTurn?: RenderData;
+	statsByTurn?: RenderData;
 	winrateOverTime?: RenderData;
 }
 
@@ -51,11 +50,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			cardData: null,
 			classDistribution: "loading",
 			popularTargets: "loading",
-			popularityByTurn: "loading",
 			popularityOverTime: "loading",
-			showInfo: false,
 			recommendedDecks: "loading",
-			winrateByTurn: "loading",
+			showInfo: false,
+			statsByTurn: "loading",
 			winrateOverTime: "loading",
 		}
 
@@ -150,7 +148,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<TurnPlayedBarChart
-									renderData={this.state.popularityByTurn}
+									renderData={this.state.statsByTurn}
 									widthRatio={2}
 								/>
 							</div>
@@ -168,7 +166,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<WinrateByTurnLineChart
-									renderData={this.state.winrateByTurn}
+									renderData={this.state.statsByTurn}
 									widthRatio={2}
 								/>
 							</div>
@@ -342,8 +340,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		}
 
 		this.queryManager.fetch(
-			buildUrl("single_card_winrate_by_turn", mode),
-			(data) => this.setState({winrateByTurn: data})
+			buildUrl("single_card_stats_by_turn", mode),
+			(data) => this.setState({statsByTurn: data})
 		);
 		this.queryManager.fetch(
 			buildUrl("single_card_include_popularity_over_time", mode),
@@ -352,10 +350,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		this.queryManager.fetch(
 			buildUrl("single_card_winrate_over_time", mode),
 			(data) => this.setState({winrateOverTime: data})
-		);
-		this.queryManager.fetch(
-			buildUrl("single_card_popularity_by_turn", mode),
-			(data) => this.setState({popularityByTurn: data})
 		);
 		this.queryManager.fetch(
 			buildUrl("recommended_decks_for_card", mode),
