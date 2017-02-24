@@ -1,14 +1,13 @@
 import * as React from "react";
-import CardDetailBarChart from "../components/charts/CardDetailBarChart";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import ResetHeader from "../components/ResetHeader";
-import { TableData, TableQueryData, ChartSeries, GameMode, TimeFrame} from "../interfaces";
+import { TableData, TableQueryData, ChartSeries } from "../interfaces";
 import {
-	QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
+	QueryMap, getQueryMapFromLocation, queryMapHasChanges,
 	setLocationQueryString, setQueryMap, toQueryString
 } from "../QueryParser"
 
@@ -48,7 +47,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			topCardsIncluded: new Map<string, TableData>(),
 			topCardsPlayed: new Map<string, TableData>(),
 		}
-		
+
 		this.fetchIncluded();
 		this.fetchPlayed();
 	}
@@ -83,93 +82,6 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	}
 
 	render(): JSX.Element {
-		const queryMap = Object.assign({}, this.state.queryMap);
-		
-		const selectedClass = queryMap["playerClass"];
-
-		const showMoreButton = this.state.numRowsVisible >= 100 ? null
-			: <button className="btn btn-default"
-			type="button"
-			onClick={() => this.setState({numRowsVisible: Math.max(15, this.state.numRowsVisible) * 2})}>
-			{"Show more..."}
-		</button>;
-
-		const played = this.state.topCardsPlayed.get(this.cacheKey());
-		const included = this.state.topCardsIncluded.get(this.cacheKey());
-
-		let content = null;
-		if (!played || !included || played === "loading" || included === "loading" || !this.props.cardData) {
-			content = (
-				<div className="content-message">
-					<h2>Counting cards...</h2>
-				</div>
-			);
-		}
-		else if (played === "error" || included === "error") {
-			content = (
-				<div className="content-message">
-					<h2>Alright, working on it...</h2>
-					Please check back later.
-				</div>
-			);
-		}
-		else {
-			const chartSeries = this.buildChartSeries(included);
-			content = [
-				<div className ="row">
-					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
-						<div className="chart-wrapper">
-							<CardDetailPieChart percent title="Rarity" renderData={chartSeries.length ? {series: [chartSeries[0]]} : "loading"}/>
-						</div>
-					</div>
-					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
-						<div className="chart-wrapper">
-							<CardDetailPieChart percent title="Type" renderData={chartSeries.length ? {series: [chartSeries[1]]} : "loading"}/>
-						</div>
-					</div>
-					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
-						<div className="chart-wrapper">
-							<CardDetailPieChart percent title="Set" renderData={chartSeries.length ? {series: [chartSeries[2]]} : "loading"}/>
-						</div>
-					</div>
-					<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
-						<div className="chart-wrapper">
-							<CardDetailPieChart percent title="Cost" renderData={chartSeries.length ? {series: [chartSeries[3]]} : "loading"}/>
-						</div>
-					</div>
-				</div>,
-				<div className="row">
-					<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-						<h2>Most included cards</h2>
-						<div>
-							<CardRankingTable 
-								cardData={this.props.cardData}
-								clickable
-								dataKey={selectedClass}
-								numRows={this.state.numRowsVisible}
-								tableData={included}
-							/>
-						</div>
-					</div>
-					<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-						<h2>Most played cards</h2>
-						<div>
-							<CardRankingTable 
-								cardData={this.props.cardData}
-								clickable
-								dataKey={selectedClass}
-								numRows={this.state.numRowsVisible}
-								tableData={played}
-							/>
-						</div>
-					</div>
-				</div>,
-				<div className="button-more-wrapper row">
-					{showMoreButton}
-				</div>
-			];
-		}
-		
 		const filterClassNames = ["infobox full-sm"];
 		const contentClassNames = ["report-content container-fluid"]
 		if (!this.state.showFilters) {
@@ -179,63 +91,168 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			contentClassNames.push("hidden-xs hidden-sm");
 		}
 		
+		return <div className="report-container" id="card-popularity-report">
+			<div className={filterClassNames.join(" ")}>
+				{this.buildFilters()}
+			</div>
+			<div className={contentClassNames.join(" ")}>
+				{this.buildContent()}
+			</div>
+		</div>;
+	}
+
+	buildContent(): JSX.Element[] {
+		const played = this.state.topCardsPlayed.get(this.cacheKey());
+		const included = this.state.topCardsIncluded.get(this.cacheKey());
+
+		if (!played || !included || played === "loading" || included === "loading" || !this.props.cardData) {
+			return [
+				<div className="content-message">
+					<h2>Counting cards...</h2>
+				</div>
+			];
+		}
+		else if (played === "error" || included === "error") {
+			return [
+				<div className="content-message">
+					<h2>Alright, working on it...</h2>
+					Please check back later.
+				</div>
+			];
+		}
+		else {
+			return [
+				<button className="btn btn-default visible-xs visible-sm" type="button" onClick={() => this.setState({showFilters: true})}>
+					<span className="glyphicon glyphicon-filter"/>
+					Filters
+				</button>,
+				<div className ="row">
+					{this.buildCharts(included)}
+				</div>,
+				<div className="row">
+					{this.buildTables(played, included)}
+				</div>,
+				<div className="row" id="button-show-more">
+					{this.showMoreButton()}
+				</div>
+			];
+		}
+	}
+
+	buildFilters(): JSX.Element[] {
 		const backButton = (
 			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
 				Back to the exhibition
 			</button>
 		);
 
-		return <div className="report-container" id="card-popularity-report">
-			<div className={filterClassNames.join(" ")}>
-				{backButton}
-				<ResetHeader onReset={() => this.setState({queryMap: this.defaultQueryMap})} showReset={queryMapHasChanges(this.state.queryMap, this.defaultQueryMap)}>
-					Card Menagerie
-				</ResetHeader>
-				<h2>Class</h2>
-				<ClassFilter 
-					hideAll
-					multiSelect={false}
-					filters="All"
-					minimal
-					selectedClasses={[queryMap["playerClass"] as FilterOption]}
-					selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
-				/>
-				<h2>Mode</h2>
+		return [
+			backButton,
+			<ResetHeader onReset={() => this.setState({queryMap: this.defaultQueryMap})} showReset={queryMapHasChanges(this.state.queryMap, this.defaultQueryMap)}>
+				Card Menagerie
+			</ResetHeader>,
+			<h2>Class</h2>,
+			<ClassFilter 
+				hideAll
+				multiSelect={false}
+				filters="All"
+				minimal
+				selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
+				selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
+			/>,
+			<h2>Mode</h2>,
+			<ul>
+				{this.buildFilter("gameType", "RANKED_STANDARD", "Standard")}
+				{this.buildFilter("gameType", "RANKED_WILD", "Wild")}
+				{this.buildFilter("gameType", "ARENA", "Arena")}
+			</ul>,
+			<PremiumWrapper isPremium>
+				<h2>Time frame</h2>
 				<ul>
-					{this.buildFilter("gameType", "RANKED_STANDARD", "Standard")}
-					{this.buildFilter("gameType", "RANKED_WILD", "Wild")}
-					{this.buildFilter("gameType", "ARENA", "Arena")}
+					{this.buildFilter("timeRange", "LAST_3_DAYS", "Last 3 days")}
+					{this.buildFilter("timeRange", "LAST_7_DAYS", "Last 7 days")}
+					{this.buildFilter("timeRange", "LAST_14_DAYS", "Last 14 days")}
 				</ul>
-				<PremiumWrapper isPremium>
-					<h2>Time frame</h2>
-					<ul>
-						{this.buildFilter("timeRange", "LAST_3_DAYS", "Last 3 days")}
-						{this.buildFilter("timeRange", "LAST_7_DAYS", "Last 7 days")}
-						{this.buildFilter("timeRange", "LAST_14_DAYS", "Last 14 days")}
-					</ul>
-				</PremiumWrapper>
-				<PremiumWrapper isPremium>
-					<h2>Rank range</h2>
-					<ul>
-						{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL")}
-					</ul>
-				</PremiumWrapper>
-				{backButton}
-			</div>
-			<div className={contentClassNames.join(" ")}>
-				<button
-					className="btn btn-default visible-xs visible-sm"
-					type="button"
-					onClick={() => this.setState({showFilters: true})}
-				>
-					<span className="glyphicon glyphicon-filter"/>
-					Filters
-				</button>
-				{content}
-			</div>
-		</div>;
+			</PremiumWrapper>,
+			<PremiumWrapper isPremium>
+				<h2>Rank range</h2>
+				<ul>
+					{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL")}
+				</ul>
+			</PremiumWrapper>,
+			backButton
+		];
 	}
-	
+
+	showMoreButton(): JSX.Element {
+		if (this.state.numRowsVisible >= 100) {
+			return null;
+		}
+		return (
+			<button className="btn btn-default"
+				type="button"
+				onClick={() => this.setState({numRowsVisible: Math.max(15, this.state.numRowsVisible) * 2})}>
+				{"Show more..."}
+			</button>
+		);
+	}
+
+	buildTables(topCardsPlayed: TableData, topCardsIncluded: TableData): JSX.Element[] {
+		const selectedClass = this.state.queryMap["playerClass"];
+		return [
+			<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+				<h2>Most included cards</h2>
+				<div>
+					<CardRankingTable 
+						cardData={this.props.cardData}
+						clickable
+						dataKey={selectedClass}
+						numRows={this.state.numRowsVisible}
+						tableData={topCardsIncluded}
+					/>
+				</div>
+			</div>,
+			<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+				<h2>Most played cards</h2>
+				<div>
+					<CardRankingTable 
+						cardData={this.props.cardData}
+						clickable
+						dataKey={selectedClass}
+						numRows={this.state.numRowsVisible}
+						tableData={topCardsPlayed}
+					/>
+				</div>
+			</div>
+		];
+	}
+
+	buildCharts(data: TableQueryData): JSX.Element[] {
+		const chartSeries = this.buildChartSeries(data);
+		return [
+			<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
+				<div className="chart-wrapper">
+					<CardDetailPieChart percent title="Rarity" renderData={chartSeries.length ? {series: [chartSeries[0]]} : "loading"}/>
+				</div>
+			</div>,
+			<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
+				<div className="chart-wrapper">
+					<CardDetailPieChart percent title="Type" renderData={chartSeries.length ? {series: [chartSeries[1]]} : "loading"}/>
+				</div>
+			</div>,
+			<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
+				<div className="chart-wrapper">
+					<CardDetailPieChart percent title="Set" renderData={chartSeries.length ? {series: [chartSeries[2]]} : "loading"}/>
+				</div>
+			</div>,
+			<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
+				<div className="chart-wrapper">
+					<CardDetailPieChart percent title="Cost" renderData={chartSeries.length ? {series: [chartSeries[3]]} : "loading"}/>
+				</div>
+			</div>
+		];
+	}
+
 	buildFilter(prop: string, key: string, displayValue: string, defaultValue?: string): JSX.Element {
 		const selected = this.state.queryMap[prop] === key;
 		const onClick = () => {
@@ -261,7 +278,6 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 
 	buildChartSeries(topCardsIncluded: TableQueryData): ChartSeries[] {
 		const chartSeries = [];
-
 		if (this.props.cardData && this.state.topCardsIncluded) {
 			const selectedClass = this.state.queryMap["playerClass"];
 			const rows = topCardsIncluded.series.data[selectedClass];
