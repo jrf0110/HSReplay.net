@@ -179,7 +179,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			content = (
 				<div className="content-message">
 					<h2>No decks found</h2>
-					<a href="#" onClick={() => this.setState({queryMap: this.defaultQueryMap})}>Reset filters</a>
+					<button className="btn btn-default" type="button" onClick={() => this.setState({queryMap: this.defaultQueryMap})}>Reset filters</button>
 				</div>
 			);
 		}
