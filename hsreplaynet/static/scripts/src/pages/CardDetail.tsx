@@ -38,7 +38,7 @@ interface CardDetailState {
 interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 	cardId: string;
 	dbfId: number;
-	isPremium: boolean;
+	userIsPremium: boolean;
 }
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
@@ -270,7 +270,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
 					</li>
 				</ul>
-				<PremiumWrapper isPremium>
+				<PremiumWrapper isPremium={this.props.userIsPremium}>
 					<h2>Played against</h2>
 					<ClassFilter
 						filters="All"

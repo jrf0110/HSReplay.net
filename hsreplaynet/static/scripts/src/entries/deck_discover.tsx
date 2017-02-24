@@ -3,12 +3,14 @@ import * as ReactDOM from "react-dom";
 import DeckDiscover from "../pages/DeckDiscover";
 import HearthstoneJSON from "hearthstonejson";
 
+const mockFree = location.search.indexOf("free") !== -1;
+
 const container = document.getElementById("deck-discover-container");
 const authenticated = container.getAttribute("data-authenticated").toLowerCase() === "true";
 
 const render = (cardData) => {
 	ReactDOM.render(
-		<DeckDiscover cardData={cardData} userIsAuthenticated={authenticated} />,
+		<DeckDiscover cardData={cardData} userIsAuthenticated={authenticated} userIsPremium={!mockFree}/>,
 		container
 	);
 };

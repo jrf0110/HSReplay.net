@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import {image, cardArt} from "../helpers";
 import DeckDetail from "../pages/DeckDetail";
 
+const mockFree = location.search.indexOf("free") !== -1;
 
 const deckId = +document.getElementById("deck-info").getAttribute("data-deck-id");
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
@@ -12,6 +13,7 @@ ReactDOM.render(
 		deckId={deckId}
 		deckCards={cards}
 		deckClass={deckClass}
+		userIsPremium={!mockFree}
 	/>,
 	document.getElementById("deck-container")
 );

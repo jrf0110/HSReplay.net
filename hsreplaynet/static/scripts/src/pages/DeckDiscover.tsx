@@ -26,6 +26,7 @@ interface DeckDiscoverState {
 interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
 	cardData: Map<string, any>;
 	userIsAuthenticated: boolean;
+	userIsPremium: boolean;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -230,7 +231,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							selectedClasses={[queryMap["playerClass"] as FilterOption]}
 							selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 						/>
-					<PremiumWrapper isPremium={!this.mockFree()}>
+					<PremiumWrapper isPremium={this.props.userIsPremium}>
 						<h2>Winrate vs</h2>
 						<ClassFilter 
 							filters="All"
@@ -238,7 +239,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							minimal
 							multiSelect={false}
 							selectedClasses={[queryMap["opponentClass"] as FilterOption]}
-							selectionChanged={(selected) => !this.mockFree() && setQueryMap(this, "opponentClass", selected[0])}
+							selectionChanged={(selected) => this.props.userIsPremium && setQueryMap(this, "opponentClass", selected[0])}
 						/>
 					</PremiumWrapper>
 					<h2>Include cards</h2>
@@ -273,20 +274,20 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						{this.buildFilter("gameType", "RANKED_STANDARD", "Standard")}
 						{this.buildFilter("gameType", "RANKED_WILD", "Wild")}
 					</ul>
-					<PremiumWrapper isPremium={!this.mockFree()}>
+					<PremiumWrapper isPremium={this.props.userIsPremium}>
 						<h2>Time frame</h2>
 						<ul>
-							{this.buildFilter("timeRange", "CURRENT_SEASON", "Current season", undefined, this.mockFree())}
-							{this.buildFilter("timeRange", "LAST_3_DAYS", "Last 3 days", undefined, this.mockFree())}
-							{this.buildFilter("timeRange", "LAST_7_DAYS", "Last 7 days", undefined, this.mockFree())}
-							{this.buildFilter("timeRange", "LAST_30_DAYS", "Last 30 days", undefined, this.mockFree())}
+							{this.buildFilter("timeRange", "CURRENT_SEASON", "Current season", undefined, !this.props.userIsPremium)}
+							{this.buildFilter("timeRange", "LAST_3_DAYS", "Last 3 days", undefined, !this.props.userIsPremium)}
+							{this.buildFilter("timeRange", "LAST_7_DAYS", "Last 7 days", undefined, !this.props.userIsPremium)}
+							{this.buildFilter("timeRange", "LAST_30_DAYS", "Last 30 days", undefined, !this.props.userIsPremium)}
 						</ul>
 					</PremiumWrapper>
-					<PremiumWrapper isPremium={!this.mockFree()}>
+					<PremiumWrapper isPremium={this.props.userIsPremium}>
 						<h2>Rank range</h2>
 						<ul>
-							{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL", this.mockFree())}
-							{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL", this.mockFree())}
+							{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL", !this.props.userIsPremium)}
+							{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL", !this.props.userIsPremium)}
 						</ul>
 					</PremiumWrapper>
 					<h2>Sort by</h2>
@@ -360,9 +361,4 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 		return [];
 	}
-
-	mockFree(): boolean {
-		return this.getQueryParams().indexOf("free") !== -1;
-	}
-
 }

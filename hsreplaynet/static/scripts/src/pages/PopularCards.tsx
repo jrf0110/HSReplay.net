@@ -21,6 +21,7 @@ interface PopularCardsState {
 
 interface PopularCardsProps extends React.ClassAttributes<PopularCards> {
 	cardData: Map<string, any>;
+	userIsPremium: boolean;
 }
 
 export default class PopularCards extends React.Component<PopularCardsProps, PopularCardsState> {
@@ -166,7 +167,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 				{this.buildFilter("gameType", "RANKED_WILD", "Wild")}
 				{this.buildFilter("gameType", "ARENA", "Arena")}
 			</ul>,
-			<PremiumWrapper isPremium>
+			<PremiumWrapper isPremium={this.props.userIsPremium}>
 				<h2>Time frame</h2>
 				<ul>
 					{this.buildFilter("timeRange", "LAST_3_DAYS", "Last 3 days")}
@@ -174,7 +175,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 					{this.buildFilter("timeRange", "LAST_14_DAYS", "Last 14 days")}
 				</ul>
 			</PremiumWrapper>,
-			<PremiumWrapper isPremium>
+			<PremiumWrapper isPremium={this.props.userIsPremium}>
 				<h2>Rank range</h2>
 				<ul>
 					{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL")}

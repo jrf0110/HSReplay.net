@@ -50,6 +50,7 @@ interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
 	deckClass: string;
 	deckId: number;
 	deckName?: string;
+	userIsPremium: boolean;
 }
 
 export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
@@ -92,10 +93,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			return params.split("&");
 		}
 		return [];
-	}
-
-	mockFree(): boolean {
-		return this.getQueryParams().indexOf("free") !== -1;
 	}
 
 	getDeckName(): string {
@@ -250,7 +247,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</li>
 					{hdtButton}
 				</ul>
-				<PremiumWrapper isPremium={!this.mockFree()}>
+				<PremiumWrapper isPremium={this.props.userIsPremium}>
 					<h2>Breakdown vs. opponent</h2>
 					<ClassFilter
 						filters="All"
@@ -258,7 +255,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						minimal
 						multiSelect={false}
 						selectedClasses={this.state.selectedClasses}
-						selectionChanged={(selected) => !this.mockFree() && this.setState({selectedClasses: selected})}
+						selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
 					/>
 				</PremiumWrapper>
 				{deckData}
@@ -542,7 +539,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			cols.push(
 				<td className="winrate-cell" style={{color: mulliganSuggestion.color}}>{mulliganSuggestion.tendencyStr + (100 * +row["mulligan_suggestion"] / maxMulliganSuggestion).toFixed(1)}</td>,
 			);
-			if (this.mockFree()) {
+			if (!this.props.userIsPremium) {
 				if (firstRow) {
 					cols.push(
 						<td colSpan={7} rowSpan={rowCount} style={{background: "rgba(0,0,0,0.1)", textAlign: "center"}}>

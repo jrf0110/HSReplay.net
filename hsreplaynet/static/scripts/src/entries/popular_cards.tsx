@@ -3,9 +3,11 @@ import * as ReactDOM from "react-dom";
 import PopularCards from "../pages/PopularCards";
 import HearthstoneJSON from "hearthstonejson";
 
+const mockFree = location.search.indexOf("free") !== -1;
+
 const render = (cardData) => {
 	ReactDOM.render(
-		<PopularCards cardData={cardData} />,
+		<PopularCards cardData={cardData} userIsPremium={!mockFree} />,
 		document.getElementById("content-container")
 	);
 };
