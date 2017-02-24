@@ -25,9 +25,9 @@ interface CardDetailState {
 	card?: any;
 	cardData?: Map<string, any>;
 	classDistribution?: RenderData;
+	deckData?: TableData;
 	popularTargets?: TableData;
 	popularityOverTime?: RenderData;
-	recommendedDecks?: TableData;
 	selectedClasses?: FilterOption[];
 	showInfo?: boolean;
 	statsByTurn?: RenderData;
@@ -51,9 +51,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			card: null,
 			cardData: null,
 			classDistribution: "loading",
+			deckData: "loading",
 			popularTargets: "loading",
 			popularityOverTime: "loading",
-			recommendedDecks: "loading",
 			selectedClasses: ["ALL"],
 			showInfo: false,
 			statsByTurn: "loading",
@@ -298,29 +298,41 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	buildRecommendedDecks(): JSX.Element {
-		if (!this.state.recommendedDecks || this.state.recommendedDecks === "loading" || this.state.recommendedDecks === "error") {
+		if (!this.state.deckData || this.state.deckData === "loading" || this.state.deckData === "error") {
 			return null;
 		}
 
 		if(!this.state.cardData) {
 			return null;
 		}
-		
+
 		const decks: DeckObj[] = [];
-		const data = this.state.recommendedDecks.series.data;
-		Object.keys(data).forEach(key => {
-			data[key].forEach(deck => {
+		const data = this.state.deckData.series.data;
+		Object.keys(data).forEach(playerClass => {
+			const classDecks = [];
+
+			data[playerClass].forEach(deck => {
 				const cards = JSON.parse(deck["deck_list"]);
-				const cardData = cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
+				if (cards.some(pair => pair[0] === this.props.dbfId)) {
+					classDecks.push({cards, deck, numGames: +deck["total_games"]});
+				}
+			})
+
+			classDecks.sort((a, b) => b.numGames - a.numGames);
+
+			classDecks.slice(0, 10).forEach(deck => {
+				const cardData = deck.cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
 				decks.push({
 					cards: cardData,
-					deckId: +deck["deck_id"],
-					numGames: +deck["num_games"],
-					playerClass: deck["player_class"],
-					winrate: +deck["win_rate"]
+					deckId: +deck.deck["deck_id"],
+					numGames: +deck.deck["total_games"],
+					playerClass: playerClass,
+					winrate: +deck.deck["win_rate"]
 				});
-			})
+			});
 		});
+
+		decks.sort((a, b) => b.numGames - a.numGames);
 
 		return <DeckList decks={decks} pageSize={5} hideTopPager/>;
 	}
@@ -373,8 +385,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			(data) => this.setState({winrateOverTime: data})
 		);
 		this.queryManager.fetch(
-			buildUrl("recommended_decks_for_card", mode),
-			(data) => this.setState({recommendedDecks: data})
+			"/analytics/query/list_decks_by_win_rate?GameType=" + mode,
+			(data) => this.setState({deckData: data})
 		);
 	}
 }
