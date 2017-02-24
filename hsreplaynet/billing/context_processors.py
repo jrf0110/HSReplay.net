@@ -10,6 +10,6 @@ def premium(request):
 	return {
 		"premium": is_premium,
 		"show_premium_modal": not is_premium and "premium-modal" in request.GET,
-		"monthly_plan": Plan.objects.get(stripe_id=settings.MONTHLY_PLAN_ID),
-		"semiannual_plan": Plan.objects.get(stripe_id=settings.SEMIANNUAL_PLAN_ID),
+		"monthly_plan": Plan.objects.filter(stripe_id=settings.MONTHLY_PLAN_ID).first(),
+		"semiannual_plan": Plan.objects.filter(stripe_id=settings.SEMIANNUAL_PLAN_ID).first(),
 	}
