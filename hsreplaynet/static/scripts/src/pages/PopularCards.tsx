@@ -3,6 +3,7 @@ import CardDetailBarChart from "../components/charts/CardDetailBarChart";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import ResetHeader from "../components/ResetHeader";
 import { TableData, TableQueryData, ChartSeries, GameMode, TimeFrame} from "../interfaces";
@@ -28,13 +29,14 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	private readonly defaultQueryMap: QueryMap = {
 		gameType: "RANKED_STANDARD",
 		playerClass: "ALL",
-		timeRange: "LAST_30_DAYS",
+		rankRange: "ALL",
+		timeRange: "LAST_14_DAYS",
 	}
 	private readonly allowedValues = {
 		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
-		rankRange: [],
+		rankRange: ["LEGEND_THROUGH_TEN"],
 		region: [],
-		timeRange: ["LAST_30_DAYS"],
+		timeRange: ["LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS"],
 	}
 
 	constructor(props: PopularCardsProps, state: PopularCardsState) {
@@ -202,10 +204,20 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 					{this.buildFilter("gameType", "RANKED_WILD", "Wild")}
 					{this.buildFilter("gameType", "ARENA", "Arena")}
 				</ul>
-				<h2>Time frame</h2>
-				<ul>
-					{this.buildFilter("timeRange", "LAST_30_DAYS", "Last 30 days")}
-				</ul>
+				<PremiumWrapper isPremium>
+					<h2>Time frame</h2>
+					<ul>
+						{this.buildFilter("timeRange", "LAST_3_DAYS", "Last 3 days")}
+						{this.buildFilter("timeRange", "LAST_7_DAYS", "Last 7 days")}
+						{this.buildFilter("timeRange", "LAST_14_DAYS", "Last 14 days")}
+					</ul>
+				</PremiumWrapper>
+				<PremiumWrapper isPremium>
+					<h2>Rank range</h2>
+					<ul>
+						{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL")}
+					</ul>
+				</PremiumWrapper>
 				{backButton}
 			</div>
 			<div className={contentClassNames.join(" ")}>
@@ -286,7 +298,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	getQueryParams(): string {
 		const params = {
 			TimeRange: this.state.queryMap["timeRange"],
-			// RankRange: this.state.queryMap["rangeRange"],
+			RankRange: this.state.queryMap["rankRange"],
 			GameType: this.state.queryMap["gameType"],
 			// Region: this.state.queryMap["region"],
 		};
