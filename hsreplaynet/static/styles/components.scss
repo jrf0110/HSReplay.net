@@ -163,6 +163,34 @@
 								filter: grayscale(100%);
 							}
 
+							&.added {
+								.card-icon {
+									border: 2px solid lime;
+								}
+							}
+
+							&.reduced {
+								.card-icon {
+									border: 2px solid red;
+								}
+							}
+
+							&.removed {
+								.card-icon::before {
+									color: red;
+									content: "✕";
+									font-size: 32px;
+									left: 2px;
+									position: absolute;
+									text-align: center;
+									top: -10px;
+								}
+
+								.card-icon {
+									border: 2px solid red;
+								}
+							}
+
 							.card-icon {
 								float: left;
 								line-height: 50px;

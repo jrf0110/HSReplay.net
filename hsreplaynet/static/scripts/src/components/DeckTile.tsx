@@ -12,21 +12,21 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 	
 	render(): JSX.Element {
 		const cards = this.props.cards || [];
-		const cardIds = [];
 		const cardIcons = [];
 		let dustCost = 0;
 
+		if (this.props.compareWith) {
+			const removed = this.props.compareWith.filter(c1 => cards.every(c2 => c2.card.id !== c1.card.id));
+			removed.forEach(c => cards.push({card: c.card, count: 0}));
+		}
+
 		cards.sort(cardSorting)
-		
+
 		cards.forEach(obj => {
 			const card = obj.card;
 			dustCost += getDustCost(card.rarity) * obj.count;
-			cardIds.push(card.dbfId);
-			if (obj.count > 1) {
-				cardIds.push(card.dbfId);
-			}
 			
-			const markText = card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count;
+			const markText = obj.count ? (card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count) : null;
 			const markStyle = {
 				color: "#f4d442",
 				fontSize: "1em",
@@ -36,8 +36,20 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 			let itemClassName = null;
 			if (this.props.compareWith) {
-				if (this.props.compareWith.some(c => c.card.id === card.id && c.count >= obj.count)) {
-					itemClassName = "unchanged";
+				if (obj.count === 0) {
+					itemClassName = "removed";
+				}
+				else {
+					const comparisonCard = this.props.compareWith.find(c => c.card.id === card.id);
+					if (!comparisonCard || comparisonCard.count < obj.count) {
+						itemClassName = "added"
+					}
+					else if (comparisonCard.count > obj.count) {
+						itemClassName = "reduced";
+					}
+					else {
+						itemClassName = "unchanged";
+					}
 				}
 			}
 
