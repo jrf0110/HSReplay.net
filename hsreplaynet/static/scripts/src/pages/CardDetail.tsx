@@ -1,13 +1,13 @@
 import * as React from "react";
-import WinrateByTurnLineChart from "../components/charts/WinrateByTurnLineChart";
-import CardDetailBarChart from "../components/charts/CardDetailBarChart";
-import CardDetailGauge from "../components/charts/CardDetailGauge";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
+import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
-import WinrateLineChart from "../components/charts/WinrateLineChart";
+import PremiumWrapper from "../components/PremiumWrapper";
 import TurnPlayedBarChart from "../components/charts/TurnPlayedBarChart";
+import WinrateByTurnLineChart from "../components/charts/WinrateByTurnLineChart";
+import WinrateLineChart from "../components/charts/WinrateLineChart";
 import {Colors} from "../Colors";
 import {
 	FilterData, Filter, FilterElement, FilterDefinition, KeyValuePair,
@@ -28,8 +28,10 @@ interface CardDetailState {
 	popularTargets?: TableData;
 	popularityOverTime?: RenderData;
 	recommendedDecks?: TableData;
+	selectedClasses?: FilterOption[];
 	showInfo?: boolean;
 	statsByTurn?: RenderData;
+	statsByTurnByOpponent?: RenderData;
 	winrateOverTime?: RenderData;
 }
 
@@ -52,8 +54,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			popularTargets: "loading",
 			popularityOverTime: "loading",
 			recommendedDecks: "loading",
+			selectedClasses: ["ALL"],
 			showInfo: false,
 			statsByTurn: "loading",
+			statsByTurnByOpponent: "loading",
 			winrateOverTime: "loading",
 		}
 
@@ -148,7 +152,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<TurnPlayedBarChart
-									renderData={this.state.statsByTurn}
+									renderData={this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
+									opponentClass={this.state.selectedClasses[0]}
 									widthRatio={2}
 								/>
 							</div>
@@ -166,7 +171,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<WinrateByTurnLineChart
-									renderData={this.state.statsByTurn}
+									renderData={this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
+									opponentClass={this.state.selectedClasses[0]}
 									widthRatio={2}
 								/>
 							</div>
@@ -264,6 +270,17 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
 					</li>
 				</ul>
+				<PremiumWrapper isPremium>
+					<h2>Played against</h2>
+					<ClassFilter
+						filters="All"
+						hideAll
+						minimal
+						multiSelect={false}
+						selectedClasses={this.state.selectedClasses}
+						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
+					/>
+				</PremiumWrapper>
 				<h2>Data</h2>
 				<ul>
 					<li>
@@ -342,6 +359,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		this.queryManager.fetch(
 			buildUrl("single_card_stats_by_turn", mode),
 			(data) => this.setState({statsByTurn: data})
+		);
+		this.queryManager.fetch(
+			buildUrl("single_card_stats_by_turn_and_opponent", mode),
+			(data) => this.setState({statsByTurnByOpponent: data})
 		);
 		this.queryManager.fetch(
 			buildUrl("single_card_include_popularity_over_time", mode),

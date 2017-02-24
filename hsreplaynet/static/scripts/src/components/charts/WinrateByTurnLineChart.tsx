@@ -9,6 +9,7 @@ import WinLossGradient from "./gradients/WinLossGradient";
 
 interface WinrateByTurnLineChartProps {
 	renderData: RenderData;
+	opponentClass?: string;
 	widthRatio?: number;
 }
 
@@ -33,8 +34,9 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		}
 		else if (this.props.renderData) {
 			const elements = [];
-			const series = this.props.renderData.series.find(series => series.name === "winrates_by_turn") 
-				|| this.props.renderData.series[0];
+			const series = this.props.renderData.series.find(s => s.name === "winrates_by_turn" 
+				&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
+
 			const metaData = getChartMetaData(series.data, 50, false);
 
 			const tooltip = <VictoryTooltip
