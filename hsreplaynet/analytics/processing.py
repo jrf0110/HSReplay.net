@@ -214,7 +214,26 @@ def get_from_redshift_cache(cache_key):
 def fill_redshift_cache_warming_queue(eligible_queries=None):
 	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
 	messages = get_queries_for_cache_warming(eligible_queries)
-	write_messages_to_queue(queue_name, messages)
+	stales_queries = filter_freshly_cached_queries(messages)
+	write_messages_to_queue(queue_name, stales_queries)
+
+
+def filter_freshly_cached_queries(messages):
+	result = []
+	for msg in messages:
+		query = RedshiftCatalogue.instance().get_query(msg["query_name"])
+		params = query.build_full_params(msg["supplied_parameters"])
+
+		cached_data = get_from_redshift_cache(params.cache_key)
+		if cached_data:
+			if cached_data.cached_params.are_stale(params)[0]:
+				# Keep this message because the cache is stale
+				result.append(msg)
+		else:
+			# Keep this msg because nothing exists in cache
+			result.append(msg)
+
+	return result
 
 
 def get_queries_for_cache_warming(eligible_queries=None):
