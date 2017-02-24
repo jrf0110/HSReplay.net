@@ -177,14 +177,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		if (this.state.deckData && this.state.deckData !== "loading" && this.state.deckData !== "error") {
 			const deck = this.state.deckData.series.data[this.props.deckClass].find(x => +x["deck_id"] === this.props.deckId);
 			if (deck) {
-				const winrateClassNames = ["selectable expandable"];
+				const winrateClassNames = [];
 				let subWinrates = null;
 				
-				if (this.state.expandWinrate) {
-					winrateClassNames.push("expanded");
-					subWinrates = (
-						<ul>{winrates}</ul>
-					);
+				if (winrates.length) {
+					winrateClassNames.push("selectable", "expandable");
+					if (this.state.expandWinrate) {
+						winrateClassNames.push("expanded");
+						subWinrates = (
+							<ul>{winrates}</ul>
+						);
+					}
 				}
 
 				deckData = [
@@ -639,7 +642,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			(data) => this.setState({popularityOverTime: data})
 		);
 
-			this.queryManager.fetch(
+		this.queryManager.fetch(
 			"/analytics/query/list_decks_by_win_rate?GameType=" + mode,
 			(data) => this.setState({deckData: data})
 		);
