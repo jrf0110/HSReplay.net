@@ -57,58 +57,7 @@
 {% block body %}
 
 	{% block premium_modal %}
-		{% feature "billing" as billing %}
-		{% if billing %}
-		<div id="premium-modal" style="display: none;">
-			<div class="inner">
-				<h3>Premium-only content</h3>
-
-				<p>
-					Subscribe to <strong>HearthSim Premium</strong> to unlock this and
-					<a href="{% url 'premium' %}" target="_blank">many more features</a>!
-				</p>
-
-				{% if user.is_authenticated %}
-					{% if user.default_payment_method %}
-						<p>
-							Subscribe with {{ user.default_payment_method }}
-						</p>
-					{% else %}
-						<form method="POST" action="{% url 'premium' %}">
-							{% csrf_token %}
-							<p>
-								<label><input type="radio" name="plan" value="hearthsim-pro-monthly"/> $5/Month</label>
-							</p>
-							<p>
-								<label><input type="radio" name="plan" value="hearthsim-pro-semiannual" checked/> $25 every 6 months</label>
-							</p>
-							<button
-								disabled id="premium-modal-checkout-button" class="btn"
-								data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
-								data-image="{% static 'images/hsreplay-thumbnail.png' %}"
-								data-name="HearthSim Pro"
-								{% if user.email %}data-email="{{ user.email }}"{% endif %}
-								data-locale="auto"
-								data-description="Sign up for HearthSim Pro"
-								data-label="Sign me up!"
-								data-panel-label="Subscribe"
-							>Subscribe</button>
-						</form>
-					{% endif %}
-				{% else %}
-					<p>
-						Please log in with your Battle.net account first.
-						<em>HSReplay.net does not get your Battle.net password.</em>
-					</p>
-					<p>
-						<a href="{% provider_login_url "battlenet" %}?next={{ request.path }}%3Fpremium" class="promo-button">
-							Log in with Battle.net
-						</a>
-					</p>
-				{% endif %}
-			</div>
-		</div>
-		{% endif %}
+		{% include "premium_modal.html" %}
 	{% endblock %}
 
 	<header>
