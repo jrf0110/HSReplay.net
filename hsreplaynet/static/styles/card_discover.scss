@@ -76,10 +76,10 @@
 	}
 
 	.card-list-wrapper {
-		width: calc(100% - 500px);
+		width: calc(100% - 550px);
 
 		@media(max-width: 1200px) {
-			width: calc(100% - 250px);
+			width: calc(100% - 300px);
 		}
 
 		@media(max-width: 768px) {
