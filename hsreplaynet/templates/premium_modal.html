@@ -16,19 +16,19 @@
 		</p>
 
 		{% if user.is_authenticated %}
-			{% if user.default_payment_method %}
+			<form method="POST" action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}">
+				{% csrf_token %}
 				<p>
-					Subscribe with {{ user.default_payment_method }}
+					<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.human_readable_cost }}</label>
 				</p>
-			{% else %}
-				<form method="POST" action="{% url 'premium' %}">
-					{% csrf_token %}
+				<p>
+					<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked/> {{ semiannual_plan.human_readable_cost }}</label>
+				</p>
+				{% if user.default_payment_method %}
 					<p>
-						<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.human_readable_cost }}</label>
+						Subscribe with {{ user.default_payment_method }}
 					</p>
-					<p>
-						<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked/> {{ semiannual_plan.human_readable_cost }}</label>
-					</p>
+				{% else %}
 					<button
 						disabled id="premium-modal-checkout-button" class="btn"
 						data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
@@ -40,15 +40,15 @@
 						data-label="Sign me up!"
 						data-panel-label="Subscribe"
 					>Subscribe</button>
-				</form>
-			{% endif %}
+				{% endif %}
+			</form>
 		{% else %}
 			<p>
 				Please log in with your Battle.net account first.
 				<em>HSReplay.net does not get your Battle.net password.</em>
 			</p>
 			<p>
-				<a href="{% provider_login_url "battlenet" %}?next={{ request.path }}%3Fpremium" class="promo-button">
+				<a href="{% provider_login_url "battlenet" %}?next={{ request.path|urlencode }}%3Fpremium-modal" class="promo-button">
 					Log in with Battle.net
 				</a>
 			</p>

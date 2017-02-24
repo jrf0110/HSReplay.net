@@ -137,7 +137,7 @@
 
 		{% if not billing.read_only %}
 			<p>
-				<form method="POST" action="{% url 'billing_methods' %}">
+				<form method="POST" action="{% url 'premium_subscribe' %}">
 					{% csrf_token %}
 					<script
 						type="text/javascript" src="https://checkout.stripe.com/checkout.js" class="stripe-button"

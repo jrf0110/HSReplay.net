@@ -5,23 +5,24 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, View
 from djstripe.models import Customer, StripeCard
 from stripe.error import InvalidRequestError
 
 
-class StripeCheckoutMixin:
-	def get_customer(self, request):
-		if request.user.is_authenticated:
+class PaymentsMixin:
+	def get_customer(self):
+		if self.request.user.is_authenticated:
 			# The Stripe customer model corresponding to the user
-			customer, _ = Customer.get_or_create(request.user)
+			customer, _ = Customer.get_or_create(self.request.user)
 			return customer
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 
 		# Will be None if the user is not authenticated
-		context["customer"] = self.get_customer(self.request)
+		context["customer"] = self.get_customer()
 
 		if context["customer"]:
 			# `payment_methods` is a queryset of the customer's payment sources
@@ -36,18 +37,25 @@ class StripeCheckoutMixin:
 
 		return context
 
-	def process_checkout_form(self, request):
-		if request.POST.get("stripeTokenType") != "card":
+
+class BillingSettingsView(LoginRequiredMixin, PaymentsMixin, TemplateView):
+	template_name = "billing/settings.html"
+	success_url = reverse_lazy("billing_methods")
+
+
+class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
+	success_url = reverse_lazy("billing_methods")
+
+	def process_checkout_form(self, customer):
+		if self.request.POST.get("stripeTokenType") != "card":
 			# We always expect a card as token.
 			raise SuspiciousOperation("Invalid Stripe token type")
 
 		# The token represents the customer's payment method
-		token = request.POST.get("stripeToken", "")
+		token = self.request.POST.get("stripeToken", "")
 		if not token.startswith("tok_"):
 			# We either didn't get a token, or it was malformed. Discard outright.
 			raise SuspiciousOperation("Invalid Stripe token")
-
-		customer = self.get_customer(request)
 
 		try:
 			# Saving the token as a payment method will create the payment source for us.
@@ -55,37 +63,22 @@ class StripeCheckoutMixin:
 		except InvalidRequestError:
 			# Most likely, we got a bad token (eg. bad request)
 			# This is logged by Stripe.
-			messages.add_message(request, messages.ERROR, "Error adding payment card")
+			messages.add_message(self.request, messages.ERROR, "Error adding payment card")
 			return False
 
 		# Stripe Checkout supports capturing email.
 		# We ask for it if we don't have one yet.
-		email = request.POST.get("stripeEmail")
-		if email and not request.user.email:
+		email = self.request.POST.get("stripeEmail")
+		if email and not self.request.user.email:
 			# So if the user doesn't have an email, we set it to the stripe email.
-			request.user.email = email
-			request.user.save()
+			self.request.user.email = email
+			self.request.user.save()
 			# Send a confirmation email for email verification
-			send_email_confirmation(request, request.user)
+			send_email_confirmation(self.request, self.request.user)
 
 		return True
 
-	def post(self, request):
-		self.process_checkout_form(request)
-		return redirect(self.success_url)
-
-
-class BillingSettingsView(LoginRequiredMixin, StripeCheckoutMixin, TemplateView):
-	template_name = "billing/settings.html"
-	success_url = reverse_lazy("billing_methods")
-
-
-class SubscribeView(LoginRequiredMixin, View):
-	success_url = reverse_lazy("billing_methods")
-
-	def handle_form(self, request):
-		customer, _ = Customer.get_or_create(request.user)
-
+	def handle_subscribe(self, customer):
 		if customer.subscription:
 			# The customer is already subscribed
 
@@ -97,30 +90,48 @@ class SubscribeView(LoginRequiredMixin, View):
 					# Maybe the subscription already ran out.
 					# Sync the subscriptions and display an error.
 					customer._sync_subscriptions()
-					messages.add_message(request, messages.ERROR, "Your subscription is no longer valid.")
+					messages.add_message(self.request, messages.ERROR, "Your subscription has expired.")
 					return False
 				return True
 
-			messages.add_message(request, messages.ERROR, "You are already subscribed!")
+			messages.add_message(self.request, messages.ERROR, "You are already subscribed!")
 			return False
 
 		# The Stripe ID of the plan should be included in the POST
-		plan_id = request.POST.get("plan")
-		if not plan_id:
-			messages.add_message(request, messages.ERROR, "No plan specified. What happened?")
-			return False
+		plan_id = self.request.POST.get("plan")
+		# Have to check that it's a plan that users can subscribe to.
+		if plan_id not in (settings.MONTHLY_PLAN_ID, settings.SEMIANNUAL_PLAN_ID):
+			raise SuspiciousOperation("Invalid plan ID (%r)" % (plan_id))
 
 		try:
 			# Attempt to subscribe the customer to the plan
 			customer.subscribe(plan_id)
 		except InvalidRequestError:
 			# Most likely, bad form data. This will be logged by Stripe.
-			messages.add_message(request, messages.ERROR, "Could not process subscription.")
+			messages.add_message(self.request, messages.ERROR, "Could not process subscription.")
 			return False
 
+	def get_success_url(self):
+		success_url = self.request.GET.get("next", "")
+		if success_url and is_safe_url(success_url):
+			return success_url
+		return self.success_url
+
 	def post(self, request):
-		self.handle_form(request)
-		return redirect(self.success_url)
+		self.request = request
+		# Get the customer first so we can reuse it
+		customer = self.get_customer()
+
+		if "stripeTokenType" in request.POST:
+			# If there is a stripe token in the form, that means the user added a card.
+			# We need to add the card first, before attempting to subscribe.
+			self.process_checkout_form(customer)
+
+		if "plan" in request.POST:
+			# Optionally, a plan can be specified. We attempt subscribing to it if there is one.
+			self.handle_subscribe(customer)
+
+		return redirect(self.get_success_url())
 
 
 class CancelSubscriptionView(LoginRequiredMixin, View):
@@ -196,11 +207,5 @@ class UpdateCardView(LoginRequiredMixin, View):
 		return redirect(self.success_url)
 
 
-class PremiumDetailView(StripeCheckoutMixin, TemplateView):
+class PremiumDetailView(TemplateView):
 	template_name = "premium.html"
-	success_url = reverse_lazy("premium")
-
-	def post(self, request):
-		success = self.process_checkout_form(request)
-		if success:
-			return redirect(self.success_url)
