@@ -6,7 +6,7 @@
 {% feature "billing" as billing %}
 {% if billing %}
 {% if not premium %}
-<div id="premium-modal" style="display: none;">
+<div id="premium-modal"{% if not show_premium_modal %} style="display: none;"{% endif %}>
 	<div class="inner">
 		<h3>Premium-only content</h3>
 
