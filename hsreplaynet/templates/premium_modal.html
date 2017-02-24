@@ -5,6 +5,7 @@
 
 {% feature "billing" as billing %}
 {% if billing %}
+{% if not premium %}
 <div id="premium-modal" style="display: none;">
 	<div class="inner">
 		<h3>Premium-only content</h3>
@@ -54,4 +55,5 @@
 		{% endif %}
 	</div>
 </div>
+{% endif %}
 {% endif %}
