@@ -351,9 +351,6 @@ def create_firehose_stream(stream_name, table_name):
 			},
 			'Username': settings.REDSHIFT_USER,
 			'Password': settings.REDSHIFT_PASSWORD,
-			'RetryOptions': {
-				'DurationInSeconds': 0
-			},
 			'S3Configuration': {
 				'RoleARN': get_firehose_role_arn(),
 				'BucketARN': 'arn:aws:s3:::%s' % settings.REDSHIFT_STAGING_BUCKET,
