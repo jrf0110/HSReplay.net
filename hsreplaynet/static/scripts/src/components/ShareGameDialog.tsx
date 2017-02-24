@@ -85,9 +85,9 @@ export default class ShareGameDialog extends React.Component<ShareGameDialogProp
 		this.setState({preservePerspective: !this.state.preservePerspective});
 	}
 
-	protected onExternalShare(e: React.MouseEvent): void {
+	protected onExternalShare(e: React.MouseEvent<HTMLAnchorElement>): void {
 		e.preventDefault();
-		let target = e.currentTarget as HTMLElement;
+		let target = e.currentTarget;
 		window.open(target.getAttribute("href"), "_blank", "resizable,scrollbars=yes,status=1");
 		if(this.props.onShare) {
 			this.props.onShare(target.getAttribute("data-network") || "unknown", this.state.linkToTurn);
@@ -100,7 +100,7 @@ export default class ShareGameDialog extends React.Component<ShareGameDialogProp
 			<fieldset>
 				<div className="form-group">
 					<div className="input-group">
-						<input type="text" readonly id="replay-share-url" className="form-control"
+						<input type="text" readOnly id="replay-share-url" className="form-control"
 							   value={url}
 							   onSelect={(e) => this.input.setSelectionRange(0, this.input.value.length)}
 							   ref={(node) => this.input = node}/>

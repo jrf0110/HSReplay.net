@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import Distribution from "../components/Distribution";
 import {BnetGameType} from "../hearthstone";
 import Matrix from "../components/stats/Matrix";

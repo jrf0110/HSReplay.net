@@ -30,7 +30,7 @@ export default class InfoBoxSection extends React.Component<InfoBoxSectionProps,
 			null,
 			this.props.header,
 			collapsable ?
-				<a href="#" div className={"infobox-value " + buttonClassNames} onClick={() => this.setState({collapsed: !this.state.collapsed})}>
+				<a href="#" className={"infobox-value " + buttonClassNames} onClick={() => this.setState({collapsed: !this.state.collapsed})}>
 					{this.state.collapsed ? "show" : "hide"}
 				</a> : null
 		)

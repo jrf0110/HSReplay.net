@@ -56,7 +56,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			);
 		}
 
-		const onSearchScroll = (event: React.UIEvent) => {
+		const onSearchScroll = (event: React.UIEvent<HTMLDivElement>) => {
 			if (event.target["scrollTop"] + 200 >= event.target["scrollHeight"]) {
 				if (matches.length > this.state.cardSearchCount) {
 					this.setState({cardSearchCount: this.state.cardSearchCount + this.defaultCardCount});
@@ -106,7 +106,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 		this.setState({cardSearchText: "", cardSearchCount: this.defaultCardCount, selectedIndex: 0});
 	};
 
-	onKeyDown(event: React.KeyboardEvent, numCards: number): void {
+	onKeyDown(event: React.KeyboardEvent<HTMLInputElement>, numCards: number): void {
 		switch (event.key) {
 			case "ArrowDown":
 				if(!this.search) {

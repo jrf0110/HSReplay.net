@@ -413,7 +413,7 @@ WEBHOOKS = {
 
 # Monkeypatch default collectstatic ignore patterns
 from django.contrib.staticfiles.apps import StaticFilesConfig
-StaticFilesConfig.ignore_patterns += ["*.scss", "*.ts", "*.tsx", "typings.json"]
+StaticFilesConfig.ignore_patterns += ["*.scss", "*.ts", "*.tsx"]
 
 
 try:
