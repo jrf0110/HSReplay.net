@@ -1,6 +1,8 @@
 """
 Context processors for billing/premium purposes
 """
+from django.conf import settings
+from djstripe.models import Plan
 
 
 def premium(request):
@@ -8,4 +10,6 @@ def premium(request):
 	return {
 		"premium": is_premium,
 		"show_premium_modal": not is_premium and "premium-modal" in request.GET,
+		"monthly_plan": Plan.objects.get(stripe_id=settings.MONTHLY_PLAN_ID),
+		"semiannual_plan": Plan.objects.get(stripe_id=settings.SEMIANNUAL_PLAN_ID),
 	}

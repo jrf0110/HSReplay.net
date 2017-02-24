@@ -24,10 +24,10 @@
 				<form method="POST" action="{% url 'premium' %}">
 					{% csrf_token %}
 					<p>
-						<label><input type="radio" name="plan" value="hearthsim-pro-monthly"/> $5/Month</label>
+						<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.human_readable_cost }}</label>
 					</p>
 					<p>
-						<label><input type="radio" name="plan" value="hearthsim-pro-semiannual" checked/> $25 every 6 months</label>
+						<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked/> {{ semiannual_plan.human_readable_cost }}</label>
 					</p>
 					<button
 						disabled id="premium-modal-checkout-button" class="btn"

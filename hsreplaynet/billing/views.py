@@ -6,7 +6,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, View
-from djstripe.models import Customer, Plan, StripeCard
+from djstripe.models import Customer, StripeCard
 from stripe.error import InvalidRequestError
 
 
@@ -33,11 +33,6 @@ class StripeCheckoutMixin:
 		# `stripe_debug` is set if DEBUG is on *and* we are using a test mode pubkey
 		test_mode = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_")
 		context["stripe_debug"] = settings.DEBUG and test_mode
-
-		plans = Plan.objects.all()
-		# Hardcoding assumptions: exactly 1 monthly and 1 semiannual plan
-		context["monthly_plan"] = plans.get(stripe_id=settings.MONTHLY_PLAN_ID)
-		context["semiannual_plan"] = plans.get(stripe_id=settings.SEMIANNUAL_PLAN_ID)
 
 		return context
 
