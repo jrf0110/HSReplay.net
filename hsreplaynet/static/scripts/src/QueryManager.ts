@@ -46,6 +46,9 @@ export default class QueryManager {
 				);
 				return undefined;
 			}
+			if (response.status !== 200) {
+				return Promise.reject("Server returned " + response.status)
+			}
 			return response.json();
 		}).then((json) => {
 			if (json !== undefined) {
