@@ -94,7 +94,6 @@ def _execute_query_sync(query, params):
 
 def _do_execute_query(query, params):
 	# This method should always be getting executed within a Lambda context
-	engine = get_redshift_engine()
 
 	# Distributed dog pile lock pattern
 	# From: https://pypi.python.org/pypi/python-redis-lock
@@ -120,8 +119,9 @@ def _do_execute_query(query, params):
 			start_ts = time.time()
 			exception_raised = False
 			exception_msg = None
+			redshift_connection = get_new_redshift_connection()
 			try:
-				response_payload = query.execute(engine, params)
+				response_payload = query.execute(redshift_connection, params)
 			except Exception as e:
 				exception_raised = True
 				exception_msg = str(e)
@@ -129,6 +129,7 @@ def _do_execute_query(query, params):
 			finally:
 				end_ts = time.time()
 				duration_seconds = round(end_ts - start_ts, 2)
+				redshift_connection.close()
 
 				query_execute_metric_fields = {
 					"duration_seconds": duration_seconds,
@@ -187,6 +188,13 @@ def get_redshift_cache_redis_client():
 
 def get_redshift_engine():
 		return create_engine(settings.REDSHIFT_CONNECTION, poolclass=NullPool)
+
+
+def get_new_redshift_connection(autocommit=True):
+	conn = get_redshift_engine().connect()
+	if autocommit:
+		conn.execution_options(isolation_level="AUTOCOMMIT")
+	return conn
 
 
 def get_from_redshift_cache(cache_key):
