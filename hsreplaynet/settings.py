@@ -92,7 +92,7 @@ if not ENV_LAMBDA:
 	INSTALLED_APPS += INSTALLED_APPS_WEB
 
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
 	"django.contrib.sessions.middleware.SessionMiddleware",
 	"django.middleware.common.CommonMiddleware",
 	"django.middleware.csrf.CsrfViewMiddleware",
@@ -301,7 +301,7 @@ if ENV_DEV:
 		"debug_toolbar",
 		"explorer",
 	]
-	MIDDLEWARE_CLASSES += [
+	MIDDLEWARE += [
 		"debug_toolbar.middleware.DebugToolbarMiddleware",
 	]
 
