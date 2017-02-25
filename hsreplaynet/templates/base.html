@@ -101,7 +101,7 @@
 
 						{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 						{% if twitter_handle %}
-							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me">
+							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="twitter-button">
 								{% include "social/twitter_button.svg" with fill="white" width=22 height=22 %}
 							</a></li>
 						{% endif %}
