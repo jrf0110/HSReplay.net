@@ -4,6 +4,8 @@ import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardImage from "../components/CardImage";
 import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import InfoboxFilter from "../components/InfoboxFilter";
+import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import ResetHeader from "../components/ResetHeader";
 import {ChartSeries} from "../interfaces";
 import {cardSorting, setNames, toTitleCase, wildSets} from "../helpers";
@@ -37,7 +39,7 @@ interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
 	readonly filters = {
 		cost: [0, 1, 2, 3, 4, 5, 6, 7],
-		format: ["Standard only"],
+		format: ["standard"],
 		mechanics: [
 			"ENRAGED", "DEATHRATTLE", "TAUNT", "BATTLECRY", "CHARGE", "DIVINE_SHIELD", "WINDFURY",
 			"CHOOSE_ONE", "INSPIRE", "JADE_GOLEM", "COMBO", "FREEZE", "STEALTH"
@@ -280,7 +282,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				}
 				else if (key === "format") {
 					if (wildSets.indexOf(card.set) === -1){
-						filters.format["Standard only"] = (filters.format["Standard only"] || 0) + 1;
+						filters.format["standard"] = (filters.format["standard"] || 0) + 1;
 					}
 				}
 				else if (key === "cost") {
@@ -318,70 +320,73 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 			/>,
 			<h2>Cost</h2>,
-			<ul className="filter-list-cost">
-				{this.getFilterItems("cost", filterCounts.cost)}
-			</ul>,
+			<InfoboxFilterGroup deselectable classNames={["filter-list-cost"]} selectedValue={getQueryMapArray(this.state.queryMap, "cost")} onClick={(value, sender) => filterCounts.cost && this.onFilterItemClick("cost", sender, value)}>
+				{this.buildCostFilters(filterCounts.cost)}
+			</InfoboxFilterGroup>,
 			<h2>Rarity</h2>,
-			<ul>
-				{this.getFilterItems("rarity", filterCounts.rarity)}
-			</ul>,
+			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "rarity")} onClick={(value, sender) => filterCounts.rarity && this.onFilterItemClick("rarity", sender, value)}>
+				{this.buildFilterItems("rarity", filterCounts.rarity)}
+			</InfoboxFilterGroup>,
 			<h2>Set</h2>,
-			<ul>
-				{this.getFilterItems("set", filterCounts.set)}
-				{this.buildFilterItem("format", "Standard only", filterCounts.format["Standard only"])}
-			</ul>,
+			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "set")} onClick={(value, sender) => filterCounts.set && this.onFilterItemClick("set", sender, value)}>
+				{this.buildFilterItems("set", filterCounts.set)}
+				{this.buildFormatFilter(filterCounts.format["standard"])}
+			</InfoboxFilterGroup>,
 			<h2>Type</h2>,
-			<ul>
-				{this.getFilterItems("type", filterCounts.type)}
-			</ul>,
+			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "type")} onClick={(value, sender) => filterCounts.type && this.onFilterItemClick("type", sender, value)}>
+				{this.buildFilterItems("type", filterCounts.type)}
+			</InfoboxFilterGroup>,
 			<h2>Race</h2>,
-			<ul>
-				{this.getFilterItems("race", filterCounts.race)}
-			</ul>,
+			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "race")} onClick={(value, sender) => filterCounts.race && this.onFilterItemClick("race", sender, value)}>
+				{this.buildFilterItems("race", filterCounts.race)}
+			</InfoboxFilterGroup>,
 			<h2>Mechanics</h2>,
-			<ul>
-				{this.getFilterItems("mechanics", filterCounts.mechanics)}
-			</ul>
+			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "mechanics")} onClick={(value, sender) => filterCounts.mechanics && this.onFilterItemClick("mechanics", sender, value)}>
+				{this.buildFilterItems("mechanics", filterCounts.mechanics)}
+			</InfoboxFilterGroup>,
 		];
 	}
 
-	getFilterItems(key: string, counts: any): JSX.Element[] {
-		return this.filters[key].map(item => {
-			return this.buildFilterItem(key, ''+item, counts[item])
-		});
+	onFilterItemClick(key: string, sender: string, value: string): void {
+		const values = getQueryMapArray(this.state.queryMap, key);
+		const newFilter = value === null ? values.filter(x => x !== sender) : values.concat(value);
+		console.log(key, sender, value, values, newFilter)
+		setQueryMap(this, key, newFilter.join(","))
 	}
 
-	buildFilterItem(prop: string, value: string, count: number) {
-		let text = ''+value;
-		switch(prop) {
-			case "set":
-				text = setNames[text.toLowerCase()];
-				break;
-			case "mechanics":
-				if (text === "ENRAGED") {
-					text = "ENRAGE";
-				}
-				text = text.split("_").map(x => toTitleCase(x)).join(" ");
-				break;
-			case "cost":
-				text = +value < 7 ? text : " 7+";
-				break;
-			default:
-				text = toTitleCase(value);
-				break;
+	buildFilterItems(key: string, counts: any): JSX.Element[] {
+		const getText = (item: string) => {
+			if (key === "set") {
+				return setNames[item.toLowerCase()];
+			}
+			else if (key === "mechanics") {
+				return item === "ENRAGED" ? "Enrage" : item.split("_").map(x => toTitleCase(x)).join(" ");
+			}
+			else {
+				return toTitleCase(item);
+			}
 		}
 
-		const values = getQueryMapArray(this.state.queryMap, prop);
-		const selected = values.indexOf(value) !== -1;
+		return this.filters[key].map(item => (
+			<InfoboxFilter value={item} disabled={!counts[item]}>
+				{getText(""+item)}
+				<span className="infobox-value">{counts[item] || 0}</span>
+			</InfoboxFilter>
+		));
+	}
 
-		const onClick = () => {
-			if (count) {
-				const newFilter = selected ? values.filter(x => x !== value) : values.concat(value);
-				setQueryMap(this, prop, newFilter.join(","))
-			}
-		};
+	buildCostFilters(counts: any): JSX.Element[] {
+		return this.filters["cost"].map(item => (
+			<InfoboxFilter value={""+item} disabled={!counts[""+item]} classNames={["mana-crystal"]}>
+				<img src={STATIC_URL + "images/mana_crystal.png"} height={28}/>
+				<div>{+item < 7 ? item : " 7+"}</div>
+			</InfoboxFilter>
+		));
+	}
 
-		const classNames = ["filter-item selectable"];
+	buildFormatFilter(count: number) {
+		const selected = this.state.queryMap["format"] === "standard";
+		const classNames = ["selectable"];
 		if (!count) {
 			classNames.push("disabled");
 		}
@@ -389,22 +394,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			classNames.push("selected");
 		}
 		
-		if (prop !== "cost") {
-			return <li className={classNames.join(" ")} onClick={onClick}>
-				{text}
-				<span className="infobox-value">
-					{count || 0}
-				</span>
-			</li>;
-		}
-
-		classNames.push("mana-crystal");
-
-		return <li className={classNames.join(" ")} onClick={onClick}>
-			<img src={STATIC_URL + "images/mana_crystal.png"} height={28}/>
-			<div>{text}</div>
-		</li>
-
+		return(
+			<li className={classNames.join(" ")} onClick={() => count && setQueryMap(this, "format", selected ? null : "standard")}>
+				Standard only
+				<span className="infobox-value">{count || 0}</span>
+			</li>
+		);
 	}
 
 	filter(card: any, excludeFilter?: string): boolean {
@@ -432,7 +427,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			if (!filter && available.length) {
 				const cardValue = card[key];
 				if (key === "format") {
-					if (values.indexOf("Standard only") !== -1) {
+					if (values.indexOf("standard") !== -1) {
 						filter = wildSets.indexOf(card.set) !== -1;
 					}
 				}
