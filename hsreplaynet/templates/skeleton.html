@@ -16,7 +16,7 @@
 	{% block adsense %}{% endblock %}
 	{% endblock %}
 </head>
-<body{% if user.is_authenticated %} data-username="{{user.username}}"{% endif %}>
+<body{% if user.is_authenticated %} data-username="{{user.username}}"{% if premium %} data-premium="1"{% endif %}{% endif %}>
 	{% block body %}
 	{% endblock %}
 
