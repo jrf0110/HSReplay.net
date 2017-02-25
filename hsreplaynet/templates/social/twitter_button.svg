@@ -1,10 +1,10 @@
 <svg width="{{ width|default:29 }}" height="{{ height|default:29 }}" viewBox="0 0 612 612">
 <style>
-.bird {
+{{ selector }} .bird {
 	fill: {{ fill|default:"black" }};
 }
 
-.bird:hover {
+{{ selector }} .bird:hover {
 	fill: #1da1f2;
 	transition: fill 0.2s ease;
 }
