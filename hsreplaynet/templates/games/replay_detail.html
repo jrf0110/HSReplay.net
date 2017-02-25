@@ -90,7 +90,9 @@
 			{% endif %}
 			{% if user.is_staff %}
 				<li>View in Admin <span class="infobox-value"><a href="{% url 'admin:games_gamereplay_change' replay.id %}">Link</a></span></li>
-				<li>Player Deck Details <span class="infobox-value"><a href="{% url 'deck_detail' id=replay.friendly_deck.id %}">Link</a></span></li>
+				{% if replay.friendly_deck %}
+					<li>Player Deck Details <span class="infobox-value"><a href="{% url 'deck_detail' id=replay.friendly_deck.id %}">Link</a></span></li>
+				{% endif %}
 			{% endif %}
 			<!-- TODO: move this to Joust itself, in the extra menu -->
 			<li><a href="{{ replay.replay_xml.url }}" download="{{ replay.shortid }}.hsreplay.xml">Download XML</a></li>

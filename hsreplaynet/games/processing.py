@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.conf import settings
+from django.db.utils import IntegrityError
 from django.utils import timezone
 from hearthstone import __version__ as hslog_version
 from hearthstone.enums import CardType, GameTag
@@ -435,13 +436,21 @@ def update_global_players(global_game, entity_tree, meta):
 		name, real_name = get_player_names(player)
 		player_hero_id = player._hero.card_id
 
-		deck, created = Deck.objects.get_or_create_from_id_list(
-			decklist,
-			hero_id=player_hero_id,
-			game_type=global_game.game_type,
-			classify_into_archetype=True
-		)
-		log.debug("Prepared deck %i (created=%r)", deck.id, created)
+		try:
+			deck, created = Deck.objects.get_or_create_from_id_list(
+				decklist,
+				hero_id=player_hero_id,
+				game_type=global_game.game_type,
+				classify_into_archetype=True
+			)
+			log.debug("Prepared deck %i (created=%r)", deck.id, created)
+		except IntegrityError as e:
+			# This will happen if cards in the deck are not in the DB
+			# For example, during a patch release
+			influx_metric("replay_deck_create_failure", {"global_game_id": global_game.id})
+			log.exception("Could not create deck for player %r", player)
+			deck, _ = Deck.objects.get_or_create_from_id_list([])
+			created = False
 
 		common = {
 			"game": global_game,
