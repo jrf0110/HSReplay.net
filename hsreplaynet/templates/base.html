@@ -80,9 +80,7 @@
 				<nav class="collapse navbar-collapse" id="navbar-collapse">
 					{% block navlinks %}
 					<ul class="nav navbar-nav">
-						{% if user.is_authenticated %}
-							<li><a href="{% url 'my_replays' %}">My Replays</a></li>
-						{% endif %}
+						<li><a href="{% url 'my_replays' %}">My Replays</a></li>
 
 						{% feature "topcards" as ft_topcards %}{% if ft_topcards.enabled %}
 							<li><a href="{% url 'popular_cards' %}">Top Popular Cards</a></li>
@@ -101,19 +99,21 @@
 							<li><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
 						{% endif %}
 
-						{% if user.is_authenticated and user.is_staff %}
-							<li><a href="{% url 'admin:index' %}">Admin</a></li>
-						{% endif %}
-
 						{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 						{% if twitter_handle %}
-							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me">@{{ twitter_handle }}</a></li>
+							<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me">
+								{% include "social/twitter_button.svg" with fill="white" width=22 height=22 %}
+							</a></li>
 						{% endif %}
 					</ul>
 					{% endblock %}
 
 					<ul class="nav navbar-nav navbar-right">
 						{% if user.is_authenticated %}
+							{% if user.is_staff %}
+								<li><a href="{% url 'admin:index' %}">Admin</a></li>
+							{% endif %}
+
 							<li>
 								<a href="{% url 'account_edit' %}">
 									<img src="{% static 'images/bnet.png' %}"/>
