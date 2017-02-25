@@ -67,7 +67,14 @@ class User(AbstractUser):
 
 	@cached_property
 	def is_premium(self):
+		from django.conf import settings
 		from djstripe.models import Customer
+
+		# The PREMIUM_OVERRIDE setting allows forcing a True or False for all users
+		# This is especially useful if no Stripe API key is available
+		premium_override = getattr(settings, "PREMIUM_OVERRIDE", None)
+		if premium_override is not None:
+			return premium_override
 
 		customer, created = Customer.get_or_create(self)
 		if created:
