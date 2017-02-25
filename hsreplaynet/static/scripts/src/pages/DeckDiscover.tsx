@@ -48,7 +48,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 	private readonly allowedValues = {
 		gameType: ["RANKED_STANDARD", "RANKED_WILD"],
-		rankRange: ["LEGEND_ONLY", "LEGEND_THROUGH_TEN"],
+		rankRange: ["LEGEND_THROUGH_TEN"],
 		region: [],
 		timeRange: ["CURRENT_SEASON", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_30_DAYS"],
 	}
@@ -282,7 +282,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<PremiumWrapper isPremium={this.props.userIsPremium}>
 						<h2>Rank range</h2>
 						<InfoboxFilterGroup deselectable locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
-							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
