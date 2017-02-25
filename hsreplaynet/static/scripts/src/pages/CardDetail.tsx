@@ -136,10 +136,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				}
 
 				content = [
-					<h2 className="visible-xs">{this.state.card && this.state.card.name}</h2>,
-					<button type="button" className="btn btn-default btn-full visible-xs" onClick={() => this.setState({showInfo: true})}>
-						Show card info
-					</button>,
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
@@ -151,9 +147,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						</div>
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
-								<TurnPlayedBarChart
-									renderData={this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
-									opponentClass={this.state.selectedClasses[0]}
+								<WinrateLineChart
+									renderData={this.state.winrateOverTime}
 									widthRatio={2}
 								/>
 							</div>
@@ -162,8 +157,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
-								<WinrateLineChart
-									renderData={this.state.winrateOverTime}
+								<TurnPlayedBarChart
+									renderData={this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
+									opponentClass={this.state.selectedClasses[0]}
 									widthRatio={2}
 								/>
 							</div>
@@ -181,7 +177,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="row" id="card-tables">
 						{cardTables}
 					</div>,
-					<h3>Recommended Decks</h3>,
+					<h4>Recommended Decks</h4>,
 					this.buildRecommendedDecks()
 				];
 				
@@ -225,24 +221,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			);
 		}
 
-		const asideClassNames = ["infobox"];
-		const mainClassNames = ["container-fluid"];
-		if (this.state.showInfo) {
-			mainClassNames.push("hidden-xs");
-		}
-		else {
-			asideClassNames.push("hidden-xs");
-		}
-
-		const backButton = (
-			<button type="button" className="btn btn-primary btn-full visible-xs" onClick={() => this.setState({showInfo: false})}>
-				Back to the stats
-			</button>
-		);
-
 		return <div className="card-detail-container">
-			<aside className={asideClassNames.join(" ")}>
-				{backButton}
+			<aside className="infobox">
 				<img className="card-image" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} />
 				<p>{this.state.card && this.state.card.flavor}</p>
 				<h2>Info</h2>
@@ -289,9 +269,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</li>
 				</ul>
 				{classDistribution}
-				{backButton}
 			</aside>
-			<main className={mainClassNames.join(" ")}>
+			<main className="container-fluid">
 				{content}
 			</main>
 		</div>;

@@ -1,6 +1,10 @@
 .card-detail-container {
 	display: flex;
 
+	@media(max-width: 768px) {
+		flex-direction: column;
+	}
+
 	>main {
 		min-height: calc(100vh - 50px);
 		padding-top: 10px;
@@ -50,6 +54,7 @@
 		@media(max-width: 768px) {
 			max-width: 100%;
 			width: 100%;
+			padding-bottom: 0;
 		}
 
 		.class-chart {
