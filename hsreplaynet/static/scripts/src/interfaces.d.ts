@@ -198,6 +198,7 @@ export interface DeckObj {
 	playerClass: string;
 	numGames: number;
 	winrate: number;
+	duration: number;
 }
 
 export interface CardObj {

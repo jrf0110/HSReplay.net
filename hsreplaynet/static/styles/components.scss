@@ -206,8 +206,22 @@
 
 					.mana-curve {
 						width: 48px;
-						padding-top: 17px;
+						padding-top: 9px;
 						margin: 0 auto;
+					}
+
+					.duration {
+						display: table;
+						font-size: 0.9em;
+						line-height: 1.75em;
+						opacity: 0.6;
+						text-align: center;
+						white-space: nowrap;
+						width: 100%;
+
+						.glyphicon {
+							top: 2px;
+						}
 					}
 				}
 			}

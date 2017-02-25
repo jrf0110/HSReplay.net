@@ -325,6 +325,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				decks.push({
 					cards: cardData,
 					deckId: +deck.deck["deck_id"],
+					duration: +deck.deck["avg_game_length_seconds"],
 					numGames: +deck.deck["total_games"],
 					playerClass: playerClass,
 					winrate: +deck.deck["win_rate"]

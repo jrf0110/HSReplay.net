@@ -166,6 +166,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					decks.push({
 						cards: deck.cards,
 						deckId: deck.deck_id,
+						duration: deck.avg_game_length_seconds,
 						playerClass: deck.player_class,
 						numGames: deck[numGamesField],
 						winrate: deck[winrateField],

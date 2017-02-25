@@ -330,9 +330,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			decks.push({
 				cards: cardData,
 				deckId: +deck.deck["deck_id"],
+				duration: +deck.deck["avg_game_length_seconds"],
 				numGames: +deck.deck["total_games"],
 				playerClass: this.props.deckClass,
-				winrate: +deck.deck["win_rate"]
+				winrate: +deck.deck["win_rate"],
 			});
 		})
 

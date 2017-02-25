@@ -41,6 +41,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 				<DeckTile
 					cards={deck.cards}
 					deckId={deck.deckId}
+					duration={deck.duration}
 					playerClass={deck.playerClass}
 					numGames={deck.numGames}
 					winrate={deck.winrate}
