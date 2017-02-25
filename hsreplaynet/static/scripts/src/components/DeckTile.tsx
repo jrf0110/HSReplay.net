@@ -85,7 +85,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 							<ManaCurve cards={this.props.cards} />
 							<div className="duration">
 								<span className="glyphicon glyphicon-time" />
-								{" " + moment.duration(this.props.duration, "seconds").asMinutes().toFixed() + " min"}
+								{" " + moment.duration(this.props.duration, "seconds").asMinutes().toFixed(1) + " min"}
 							</div>
 						</div>
 						<div className="col-lg-8 col-md-7 col-sm-8 hidden-xs">

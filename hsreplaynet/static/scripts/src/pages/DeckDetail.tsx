@@ -201,7 +201,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						</li>
 						<li>
 							Match duration
-							<span className="infobox-value">{moment.duration(+deck["avg_game_length_seconds"], "second").humanize()}</span>
+							<span className="infobox-value">{moment.duration(+deck["avg_game_length_seconds"], "second").asMinutes().toFixed(1) + " minutes"}</span>
 						</li>
 						<li>
 							Number of turns
