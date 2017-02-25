@@ -614,10 +614,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	fetch() {
 		const mode = this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
 
-		this.queryManager.fetch(
-			"/analytics/query/single_deck_mulligan_guide_by_class?GameType=" + mode + "&deck_id=" + this.props.deckId,
-			(data) => this.setState({tableDataClasses: data})
-		);
+		if (this.props.userIsPremium) {
+			this.queryManager.fetch(
+				"/analytics/query/single_deck_mulligan_guide_by_class?GameType=" + mode + "&deck_id=" + this.props.deckId,
+				(data) => this.setState({tableDataClasses: data})
+			);
+		}
 
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_mulligan_guide?GameType=" + mode + "&deck_id=" + this.props.deckId,

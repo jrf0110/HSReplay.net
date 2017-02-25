@@ -46,7 +46,15 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		sortBy: "popularity",
 		timeRange: "LAST_30_DAYS",
 	}
+
 	private readonly allowedValues = {
+		gameType: ["RANKED_STANDARD", "RANKED_WILD"],
+		rankRange: [],
+		region: [],
+		timeRange: ["LAST_30_DAYS"],
+	}
+
+	private readonly allowedValuesPremium = {
 		gameType: ["RANKED_STANDARD", "RANKED_WILD"],
 		rankRange: ["LEGEND_THROUGH_TEN"],
 		region: [],
@@ -61,17 +69,22 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			cards: null,
 			deckData: new Map<string, TableData>(),
 			myDecks: [],
-			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.allowedValues),
+			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showFilters: false,
 		}
 		this.fetch();
 	}
 
+	getAllowedValues(): any {
+		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
+	}
+
 	cacheKey(state?: DeckDiscoverState): string {
+		const allowedValues = this.getAllowedValues();
 		const queryMap = (state || this.state).queryMap;
 		const cacheKey = [];
-		Object.keys(this.allowedValues).forEach(key => {
-			const value = this.allowedValues[key];
+		Object.keys(allowedValues).forEach(key => {
+			const value = allowedValues[key];
 			if (value.length) {
 				cacheKey.push(queryMap[key]);
 			}
@@ -315,20 +328,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			// Region: this.state.queryMap["region"],
 		};
 
-		//TODO: use "list_decks_by_win_rate" for non-premium
+		const query = this.props.userIsPremium ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
 		this.queryManager.fetch(
-			"/analytics/query/list_decks_by_opponent_win_rate?" + toQueryString(params),
+			"/analytics/query/" + query + "?" + toQueryString(params),
 			(data) => this.setState({deckData: this.state.deckData.set(this.cacheKey(), data)})
 		);
 		
 		this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data.my_decks}));
-	}
-	
-	getQueryParams(): string[] {
-		const params = window.location.href.split("?")[1];
-		if (params) {
-			return params.split("&");
-		}
-		return [];
 	}
 }

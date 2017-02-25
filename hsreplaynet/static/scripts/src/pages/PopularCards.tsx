@@ -34,7 +34,15 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		rankRange: "ALL",
 		timeRange: "LAST_14_DAYS",
 	}
+
 	private readonly allowedValues = {
+		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
+		rankRange: [],
+		region: [],
+		timeRange: ["LAST_14_DAYS"],
+	}
+	
+	private readonly allowedValuesPremium = {
 		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
 		rankRange: ["LEGEND_THROUGH_TEN"],
 		region: [],
@@ -45,7 +53,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		super(props, state);
 		this.state = {
 			numRowsVisible: 12,
-			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.allowedValues),
+			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showFilters: false,
 			topCardsIncluded: new Map<string, TableData>(),
 			topCardsPlayed: new Map<string, TableData>(),
@@ -54,12 +62,17 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		this.fetchIncluded();
 		this.fetchPlayed();
 	}
-	
+
+	getAllowedValues(): any {
+		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
+	}
+
 	cacheKey(state?: PopularCardsState): string {
+		const allowedValues = this.getAllowedValues();
 		const queryMap = (state || this.state).queryMap;
 		const cacheKey = [];
-		Object.keys(this.allowedValues).forEach(key => {
-			const value = this.allowedValues[key];
+		Object.keys(allowedValues).forEach(key => {
+			const value = allowedValues[key];
 			if (value.length) {
 				cacheKey.push(queryMap[key]);
 			}

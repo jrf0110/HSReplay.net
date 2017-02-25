@@ -368,13 +368,16 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			);
 		}
 
+		if (this.props.userIsPremium) {
+			this.queryManager.fetch(
+				buildUrl("single_card_stats_by_turn_and_opponent", mode),
+				(data) => this.setState({statsByTurnByOpponent: data})
+			);
+		}
+
 		this.queryManager.fetch(
 			buildUrl("single_card_stats_by_turn", mode),
 			(data) => this.setState({statsByTurn: data})
-		);
-		this.queryManager.fetch(
-			buildUrl("single_card_stats_by_turn_and_opponent", mode),
-			(data) => this.setState({statsByTurnByOpponent: data})
 		);
 		this.queryManager.fetch(
 			buildUrl("single_card_include_popularity_over_time", mode),
