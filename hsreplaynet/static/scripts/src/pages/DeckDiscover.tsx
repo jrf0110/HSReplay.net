@@ -2,6 +2,8 @@ import * as React from "react";
 import CardSearch from "../components/CardSearch";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
+import InfoboxFilter from "../components/InfoboxFilter";
+import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import Pager from "../components/Pager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
@@ -202,17 +204,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</button>
 		);
 
+		const personalDisabled = !this.props.userIsAuthenticated || !this.state.myDecks.length;
+
 		let loginLink = null;
-		const personalClassNames = ["selectable"];
 		if (!this.props.userIsAuthenticated) {
-			personalClassNames.push("disabled");
 			loginLink = <a className="infobox-value" href="/account/login/?next=/decks/">Log in</a>;
-		}
-		else if (!this.state.myDecks.length) {
-			personalClassNames.push("disabled")
-		}
-		else if (queryMap["personal"]) {
-			personalClassNames.push("selected");
 		}
 
 		return (
@@ -257,44 +253,44 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						selectedCards={this.props.cardData && queryMap["excludedCards"] && queryMap["excludedCards"].split(",").map(id => this.props.cardData.get(id))}
 					/>
 					<h2>Personal</h2>
-					<ul>
-						<li className={personalClassNames.join(" ")} onClick={() => personalClassNames.indexOf("disabled") === -1 && setQueryMap(this, "personal", queryMap["personal"] ? null : "true")}>
-							My deck only
+					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["personal"]} onClick={(value) => setQueryMap(this, "personal", value)}>
+						<InfoboxFilter value="true" disabled={personalDisabled}>
+							My decks only
 							{loginLink}
-						</li>
-					</ul>
+						</InfoboxFilter>
+					</InfoboxFilterGroup>
 					<h2>Deck type</h2>
-					<ul>
-						{this.buildFilter("deckType", "aggro", "Aggro", null)}
-						{this.buildFilter("deckType", "midrange", "Midrange", null)}
-						{this.buildFilter("deckType", "control", "Control", null)}
-					</ul>
+					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["deckType"]} onClick={(value) => setQueryMap(this, "deckType", value)}>
+						<InfoboxFilter value="aggro">Aggro</InfoboxFilter>
+						<InfoboxFilter value="midrange">Midrange</InfoboxFilter>
+						<InfoboxFilter value="control">Control</InfoboxFilter>
+					</InfoboxFilterGroup>
 					<h2>Mode</h2>
-					<ul>
-						{this.buildFilter("gameType", "RANKED_STANDARD", "Standard")}
-						{this.buildFilter("gameType", "RANKED_WILD", "Wild")}
-					</ul>
+					<InfoboxFilterGroup selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
+						<InfoboxFilter value="RANKED_STANDARD">Standard</InfoboxFilter>
+						<InfoboxFilter value="RANKED_WILD">Wild</InfoboxFilter>
+					</InfoboxFilterGroup>
 					<PremiumWrapper isPremium={this.props.userIsPremium}>
 						<h2>Time frame</h2>
-						<ul>
-							{this.buildFilter("timeRange", "CURRENT_SEASON", "Current season", undefined, !this.props.userIsPremium)}
-							{this.buildFilter("timeRange", "LAST_3_DAYS", "Last 3 days", undefined, !this.props.userIsPremium)}
-							{this.buildFilter("timeRange", "LAST_7_DAYS", "Last 7 days", undefined, !this.props.userIsPremium)}
-							{this.buildFilter("timeRange", "LAST_30_DAYS", "Last 30 days", undefined, !this.props.userIsPremium)}
-						</ul>
+						<InfoboxFilterGroup locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["timeRange"]} onClick={(value) => setQueryMap(this, "timeRange", value)}>
+							<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
+							<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+							<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+						</InfoboxFilterGroup>
 					</PremiumWrapper>
 					<PremiumWrapper isPremium={this.props.userIsPremium}>
 						<h2>Rank range</h2>
-						<ul>
-							{this.buildFilter("rankRange", "LEGEND_ONLY", "Legend only", "ALL", !this.props.userIsPremium)}
-							{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL", !this.props.userIsPremium)}
-						</ul>
+						<InfoboxFilterGroup deselectable locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
+							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>
+						</InfoboxFilterGroup>
 					</PremiumWrapper>
 					<h2>Sort by</h2>
-					<ul>
-						{this.buildFilter("sortBy", "popularity", "Popularity")}
-						{this.buildFilter("sortBy", "winrate", "Winrate")}
-					</ul>
+					<InfoboxFilterGroup selectedValue={this.state.queryMap["sortBy"]} onClick={(value) => setQueryMap(this, "sortBy", value)}>
+						<InfoboxFilter value="popularity">Popularity</InfoboxFilter>
+						<InfoboxFilter value="winrate">Winrate</InfoboxFilter>
+					</InfoboxFilterGroup>
 					{backButton}
 				</div>
 				<div className={contentClassNames.join(" ")}>
@@ -312,36 +308,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		);
 	}
 
-
-	buildFilter(prop: string, key: string, displayValue: string, defaultValue?: string, locked?: boolean): JSX.Element {
-		const selected = this.state.queryMap[prop] === key;
-		const onClick = () => {
-			if (!locked && (!selected || defaultValue !== undefined)) {
-				setQueryMap(this, prop, selected? defaultValue : key);
-			}
-		}
-		
-		const classNames = ["selectable"];
-		if (selected) {
-			classNames.push("selected");
-			if (defaultValue === undefined) {
-				classNames.push("no-deselect");
-			}
-		}
-
-		return (
-			<li onClick={onClick} className={classNames.join(" ")}>
-				{displayValue}
-			</li>
-		);
-
-	}
-
 	fetch() {
 		const params = {
-			TimeRange: this.state.queryMap["timeRange"],
-			RankRange: this.state.queryMap["rangeRange"],
-			GameType: this.state.queryMap["gameType"],
+			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
+			RankRange: this.state.queryMap["rankRange"] || this.defaultQueryMap["rankRange"],
+			GameType: this.state.queryMap["gameType"] || this.defaultQueryMap["gameType"],
 			// Region: this.state.queryMap["region"],
 		};
 
