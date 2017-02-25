@@ -212,24 +212,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 		}
 
-		const asideClassNames = ["infobox"];
-		const mainClassNames = ["container-fluid"];
-		if (this.state.showInfo) {
-			mainClassNames.push("hidden-xs");
-		}
-		else {
-			asideClassNames.push("hidden-xs");
-		}
-
-		const backButton = (
-			<button type="button" className="btn btn-primary btn-full visible-xs" onClick={() => this.setState({showInfo: false})}>
-				Back to the stats
-			</button>
-		);
-
 		return <div className="deck-detail-container">
-			<aside className={asideClassNames.join(" ")}>
-				{backButton}
+			<aside className="infobox">
 				<img className="hero-image" src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"} />
 				<h2>Info</h2>
 				<ul>
@@ -259,12 +243,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					/>
 				</PremiumWrapper>
 				{deckData}
-				{backButton}
 			</aside>
-			<main className={mainClassNames.join(" ")}>
-				<button type="button" className="btn btn-default btn-full visible-xs" onClick={() => this.setState({showInfo: true})}>
-					Show deck info
-				</button>
+			<main className="container-fluid">
 				<div className="row">
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
