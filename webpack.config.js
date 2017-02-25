@@ -89,26 +89,31 @@ module.exports = (env) => {
 		context: __dirname,
 		entry: entriesFlat,
 		output: {
-			path: path.join(__dirname, "./build/generated/webpack"),
+			path: path.join(__dirname, "build", "generated", "webpack"),
 			filename: "[name].js",
 		},
 		resolve: {
-			modules: [
-				path.join(__dirname, "./hsreplaynet/static/scripts/src/"),
-				"node_modules"
-			],
-			extensions: [".js", ".jsx", ".d.ts", ".ts", ".tsx"],
+			extensions: [".ts", ".tsx", ".js"],
 		},
 		module: {
 			rules: [
 				{
 					test: /\.tsx?$/,
+					exclude: /node_modules/,
 					use: [
 						{
 							loader: "babel-loader",
 							query: {
-								presets: ["react", "es2015"],
-								cacheDirectory: !!env.cache,
+								presets: [
+									"react",
+									[
+										"es2015",
+										{
+											modules: false,
+										},
+									],
+								],
+								cacheDirectory: env.cache && path.join(".cache", "babel-loader"),
 							},
 						},
 						{
