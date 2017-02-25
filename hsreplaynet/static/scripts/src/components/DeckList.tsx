@@ -49,7 +49,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 				/>
 			);
 		});
-		
+
 		let next = null;
 		if (deckCount > nextPageOffset) {
 			next = () => this.setState({page: this.state.page + 1});
@@ -59,13 +59,13 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 		if (this.state.page > 0) {
 			prev = () => this.setState({page: this.state.page - 1});
 		}
-		
+
 		const min = pageOffset + 1;
 		const max = Math.min(pageOffset + this.props.pageSize, deckCount);
 		const pager = (top) => {
 			return (
 				<div className="paging pull-right">
-					<span className={top ? "hidden-xs" : null}>{min + " - " + max + " out of  " + deckCount}</span>
+					<span className={top ? "hidden-xs" : null}>{min + "–" + max + " out of  " + deckCount}</span>
 					<Pager previous={prev} next={next} />
 				</div>
 			);
