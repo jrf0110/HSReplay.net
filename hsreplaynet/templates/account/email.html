@@ -1,13 +1,15 @@
 {% extends "account/base.html" %}
 {% load i18n %}
 
+{% block title %}Email{% endblock %}
+
 {% block content %}
 <section class="box-section">
-	<h3>{% trans "E-mail Addresses" %}</h3>
+	<h3>{% trans "Email Addresses" %}</h3>
 
 	<div class="inner">
 		{% if user.emailaddress_set.all %}
-			<p>{% trans "The following e-mail addresses are associated with your account:" %}</p>
+			<p>{% trans "The following email addresses are associated with your account:" %}</p>
 
 			<table id="account-settings-emails">
 				{% for email in user.emailaddress_set.all %}
@@ -51,22 +53,20 @@
 
 		<hr/>
 
-		<h4>{% trans "Add E-mail Address" %}</h4>
-
 		<form method="post" action="{% url 'account_email' %}" class="add_email">
 			{% csrf_token %}
-
-			<p>
-				Add an email so we can contact you for billing and account purposes.
-				We will never sell it or share it with anybody.
-			</p>
 
 			{% if form.errors %}
 				<div class="alert alert-danger">{{ form.email.errors }}</div>
 			{% endif %}
 
-			<input type="email" name="email" id="id_email" size="30" placeholder="E-mail address" required="required"/>
-			<button type="submit" name="action_add" class="btn btn-primary">{% trans "Add E-mail" %}</button>
+			<input type="email" name="email" id="id_email" size="30" placeholder="innkeeper@example.com" required="required"/>
+			<button type="submit" name="action_add" class="btn btn-success">{% trans "Add email address" %}</button>
+
+			<p class="help-block">
+				Add an email so we can contact you for billing and account purposes.
+				We will never sell it or share it with anybody.
+			</p>
 		</form>
 	</div>
 </section>

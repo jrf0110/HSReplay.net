@@ -11,7 +11,7 @@
 			<div class="container">
 				<ul class="nav navbar-nav">
 					<li><a href="{% url 'account_edit' %}">Settings</a></li>
-					<li><a href="{% url 'account_email' %}">E-Mail</a></li>
+					<li><a href="{% url 'account_email' %}">Email</a></li>
 					{% if billing.enabled %}
 						<li><a href="{% url 'billing_methods' %}">Billing</a></li>
 					{% endif %}

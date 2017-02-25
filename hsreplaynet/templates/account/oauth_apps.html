@@ -1,9 +1,11 @@
 {% extends "account/base.html" %}
 
+{% block title %}OAuth apps{% endblock %}
+
 {% block content %}
 	{% if authorized_apps.count %}
 		<section id="oauth2-authorized-applications" class="box-section">
-			<h3>Authorized applications</h3>
+			<h3>Authorized Applications</h3>
 			<div class="inner">
 				You have granted these applications access to your HSReplay.net account.
 				They do not have access to your Battle.net account.
@@ -27,7 +29,7 @@
 	{% endif %}
 
 	<section id="account-oauth2-applications" class="box-section">
-		<h3>Developer applications</h3>
+		<h3>Developer Applications</h3>
 
 		<div class="inner">
 		{% if not application_list.count %}

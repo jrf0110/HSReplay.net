@@ -1,5 +1,7 @@
 {% extends "account/base.html" %}
 
+{% block title %}API access{% endblock %}
+
 {% block content %}
 	<section id="account-api" class="box-section">
 		<h3>Authentication Tokens</h3>
@@ -76,7 +78,7 @@
 				</table>
 			{% endif %}
 
-			<a href="{% url 'account_new_webhook' %}" class="btn btn-info">Add webhook…</a>
+			<a href="{% url 'account_new_webhook' %}" class="btn btn-info">New webhook…</a>
 		</div>
 	</section>
 {% endblock %}

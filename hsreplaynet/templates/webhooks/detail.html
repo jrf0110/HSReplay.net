@@ -2,7 +2,7 @@
 
 {% block content %}
 	<section id="webhooks-form" class="box-section">
-	<h3>{% if webhook %}Edit webhook{% else %}Add webhook{% endif %}</h3>
+	<h3>{% if webhook %}Edit Webhook{% else %}New Webhook{% endif %}</h3>
 
 	<div class="inner">
 		{% if not webhook %}
@@ -38,15 +38,14 @@
 					required="required" placeholder="https://example.com/..."
 					class="form-control" value="{{ form.instance.url }}"
 				/>
+				{% if form.url.errors %}
+					<div class="alert alert-danger">{{ form.url.errors }}</div>
+				{% endif %}
+				<p class="help-block">
+					This URL will receive the JSON POST request.
+					It should always return either HTTP 200 or HTTP 201.
+				</p>
 			</div>
-
-			{% if form.url.errors %}
-				<div class="alert alert-danger">{{ form.url.errors }}</div>
-			{% endif %}
-			<p>
-				This URL will receive the JSON POST request.
-				It should always return either HTTP 200 or HTTP 201.
-			</p>
 
 			<div class="form-group">
 				<label for="id_secret">Secret</label>
@@ -54,21 +53,19 @@
 					type="password" name="secret" id="id_secret" size="30" maxlength="200"
 					class="form-control" value="{{ form.instance.secret }}"
 				/>
-				<p class="note">
-					Webhooks will contain an <code>X-Webhook-Signature</code> HTTP header,
-					that is a SHA256 HMAC of the payload's body.<br/>
+				<p class="help-block">
+					Webhooks will contain an <code>X-Webhook-Signature</code> HTTP header with an SHA-256 HMAC of the payload's body.<br/>
 					If you include a secret here, it will serve as the HMAC key.
-				</p>
-				<p>
-					The implementation is similar to Github webhooks.
-					<a href="https://developer.github.com/webhooks/securing/" target="_blank">More information</a>.
+					The implementation is similar to <a href="https://developer.github.com/webhooks/securing/" target="_blank">GitHub's webhooks</a>.
 				</p>
 			</div>
 
-			<p>
-				{{ form.is_active }}
-				<label for="id_is_active">Active</label>
-			</p>
+			<div class="checkbox">
+				<label>
+					{{ form.is_active }}
+					Active
+				</label>
+			</div>
 
 			{% if webhook %}
 				<button type="submit" class="btn btn-primary">Update webhook</button>
