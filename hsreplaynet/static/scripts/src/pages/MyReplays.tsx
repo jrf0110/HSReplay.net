@@ -5,6 +5,8 @@ import GameHistoryList from "../components/gamehistory/GameHistoryList";
 import GameHistorySearch from "../components/gamehistory/GameHistorySearch";
 import GameHistorySelectFilter from "../components/gamehistory/GameHistorySelectFilter";
 import GameHistoryTable from "../components/gamehistory/GameHistoryTable";
+import InfoboxFilter from "../components/InfoboxFilter";
+import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import Pager from "../components/Pager";
 import ResetHeader from "../components/ResetHeader";
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
@@ -269,33 +271,29 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						setQuery={(value: string) => this.setState({queryMap: this.setQueryMap("name", value), currentLocalPage: 0})}
 					/>
 					<h2>Mode</h2>
-					<ul>
-						{this.buildFilter("mode", "arena", "Arena")}
-						{this.buildFilter("mode", "ranked", "Ranked")}
-						{this.buildFilter("mode", "casual", "Casual")}
-						{this.buildFilter("mode", "brawl", "Brawl")}
-						{this.buildFilter("mode", "friendly", "Friendly")}
-						{this.buildFilter("mode", "adventure", "Adventure")}
-					</ul>
+					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["mode"]} onClick={(value) => this.setFilter("mode", value)}>
+						<InfoboxFilter value="arena">Arena</InfoboxFilter>
+						<InfoboxFilter value="ranked">Ranked</InfoboxFilter>
+						<InfoboxFilter value="casual">Casual</InfoboxFilter>
+						<InfoboxFilter value="brawl">Brawl</InfoboxFilter>
+						<InfoboxFilter value="friendly">Friendly</InfoboxFilter>
+						<InfoboxFilter value="adventure">Adventure</InfoboxFilter>
+					</InfoboxFilterGroup>
 					<h2>Format</h2>
-					<ul>
-						{this.buildFilter("format", "standard", "Standard")}
-						{this.buildFilter("format", "wild", "Wild")}
-					</ul>
+					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["format"]} onClick={(value) => this.setFilter("format", value)}>
+						<InfoboxFilter value="standard">Standard</InfoboxFilter>
+						<InfoboxFilter value="wild">Wild</InfoboxFilter>
+					</InfoboxFilterGroup>
 					<h2>Result</h2>
-					<ul>
-						{this.buildFilter("result", "won", "Won")}
-						{this.buildFilter("format", "lost", "Lost")}
-					</ul>
+					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["result"]} onClick={(value) => this.setFilter("result", value)}>
+						<InfoboxFilter value="won">Won</InfoboxFilter>
+						<InfoboxFilter value="lost">Lost</InfoboxFilter>
+					</InfoboxFilterGroup>
 					<h2>Display</h2>
-					<ul>
-						<li className={"selectable no-deselect" + (this.state.viewType === "list" ? " selected" : "")} onClick={() => this.setView("list")}>
-							List view
-						</li>
-						<li className={"selectable no-deselect" + (this.state.viewType === "tiles" ? " selected" : "")} onClick={() => this.setView("tiles")}>
-							Tile view
-						</li>
-					</ul>
+					<InfoboxFilterGroup selectedValue={this.state.viewType} onClick={(value) => this.setView(value as ViewType)}>
+						<InfoboxFilter value="list">List view</InfoboxFilter>
+						<InfoboxFilter value="tiles">Tile view</InfoboxFilter>
+					</InfoboxFilterGroup>
 					{backButton}
 				</div>
 				<div className={contentClassNames.join(" ")}>
@@ -320,29 +318,14 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		);
 	}
 
+	setFilter(key: string, value: string): void {
+		this.setState({queryMap: this.setQueryMap(key, value), currentLocalPage: 0});
+	}
+
 	setQueryMap(key: string, value: string): QueryMap {
 		const queryMap = Object.assign({}, this.state.queryMap);
 		queryMap[key] = value;
 		return queryMap;
-	}
-
-	buildFilter(prop: string, key: string, displayValue: string): JSX.Element {
-		const selected = this.state.queryMap[prop] === key;
-		const onClick = () => {
-			this.setState({queryMap: this.setQueryMap(prop, selected ? null : key), currentLocalPage: 0});
-		}
-
-		const classNames = ["selectable"];
-		if (selected) {
-			classNames.push("selected");
-		}
-
-		return (
-			<li onClick={onClick} className={classNames.join(" ")}>
-				{displayValue}
-			</li>
-		);
-
 	}
 
 	private setView(view: ViewType) {
