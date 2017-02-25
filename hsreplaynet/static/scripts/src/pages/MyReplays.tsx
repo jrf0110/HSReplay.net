@@ -5,7 +5,6 @@ import GameHistoryList from "../components/gamehistory/GameHistoryList";
 import GameHistorySearch from "../components/gamehistory/GameHistorySearch";
 import GameHistorySelectFilter from "../components/gamehistory/GameHistorySelectFilter";
 import GameHistoryTable from "../components/gamehistory/GameHistoryTable";
-import InfoBoxSection from "../components/InfoBoxSection";
 import Pager from "../components/Pager";
 import ResetHeader from "../components/ResetHeader";
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
