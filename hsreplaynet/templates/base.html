@@ -80,7 +80,9 @@
 				<nav class="collapse navbar-collapse" id="navbar-collapse">
 					{% block navlinks %}
 					<ul class="nav navbar-nav">
-						<li><a href="{% url 'my_replays' %}">My Replays</a></li>
+						{% if user.is_authenticated %}
+							<li><a href="{% url 'my_replays' %}">My Replays</a></li>
+						{% endif %}
 
 						{% feature "topcards" as ft_topcards %}{% if ft_topcards.enabled %}
 							<li><a href="{% url 'popular_cards' %}">Top Popular Cards</a></li>
