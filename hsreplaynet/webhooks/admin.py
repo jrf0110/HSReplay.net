@@ -25,7 +25,7 @@ class WebhookAdmin(admin.ModelAdmin):
 	)
 	list_filter = ("is_active", "is_deleted")
 	raw_id_fields = ("user", )
-	search_fields = ("url", "user", )
+	search_fields = ("uuid", "url", "user__username")
 	actions = (send_test_payload, )
 
 
