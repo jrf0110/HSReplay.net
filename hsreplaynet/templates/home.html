@@ -48,9 +48,6 @@
 					<li><a href="#faq">FAQ</a></li>
 					<li><a href="{% url 'downloads' %}">Download</a></li>
 					<li><a href="{% url 'articles_article_list' %}">Articles</a></li>
-					{% if user.is_authenticated %}
-						<li><a href="{% url 'my_replays' %}">My Replays</a></li>
-					{% endif %}
 
 					{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 					<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="twitter-button">
@@ -65,6 +62,7 @@
 						{% if user.is_staff %}
 							<li><a href="{% url 'admin:index' %}">Admin</a></li>
 						{% endif %}
+						<li><a href="{% url 'my_replays' %}">My Replays</a></li>
 						<li>
 							<a href="{% url 'account_edit' %}">
 								<img src="{% static 'images/bnet.png' %}"/>
