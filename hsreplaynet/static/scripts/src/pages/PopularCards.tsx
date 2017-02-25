@@ -2,6 +2,8 @@ import * as React from "react";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import InfoboxFilter from "../components/InfoboxFilter";
+import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import ResetHeader from "../components/ResetHeader";
@@ -162,24 +164,24 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 				selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 			/>,
 			<h2>Mode</h2>,
-			<ul>
-				{this.buildFilter("gameType", "RANKED_STANDARD", "Standard")}
-				{this.buildFilter("gameType", "RANKED_WILD", "Wild")}
-				{this.buildFilter("gameType", "ARENA", "Arena")}
-			</ul>,
+			<InfoboxFilterGroup selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
+				<InfoboxFilter value="RANKED_STANDARD">Standard</InfoboxFilter>
+				<InfoboxFilter value="RANKED_WILD">Wild</InfoboxFilter>
+				<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
+			</InfoboxFilterGroup>,
 			<PremiumWrapper isPremium={this.props.userIsPremium}>
 				<h2>Time frame</h2>
-				<ul>
-					{this.buildFilter("timeRange", "LAST_3_DAYS", "Last 3 days")}
-					{this.buildFilter("timeRange", "LAST_7_DAYS", "Last 7 days")}
-					{this.buildFilter("timeRange", "LAST_14_DAYS", "Last 14 days")}
-				</ul>
+				<InfoboxFilterGroup selectedValue={this.state.queryMap["timeRange"]} onClick={(value) => setQueryMap(this, "timeRange", value)}>
+					<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+					<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+					<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
+				</InfoboxFilterGroup>
 			</PremiumWrapper>,
 			<PremiumWrapper isPremium={this.props.userIsPremium}>
 				<h2>Rank range</h2>
-				<ul>
-					{this.buildFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend - 10", "ALL")}
-				</ul>
+				<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
+					<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>
+				</InfoboxFilterGroup>
 			</PremiumWrapper>,
 			backButton
 		];
@@ -254,29 +256,6 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		];
 	}
 
-	buildFilter(prop: string, key: string, displayValue: string, defaultValue?: string): JSX.Element {
-		const selected = this.state.queryMap[prop] === key;
-		const onClick = () => {
-			if (!selected || defaultValue !== undefined) {
-				setQueryMap(this, prop, selected? defaultValue : key);
-			}
-		}
-		
-		const classNames = ["selectable"];
-		if (selected) {
-			classNames.push("selected");
-			if (!defaultValue) {
-				classNames.push("no-deselect");
-			}
-		}
-
-		return (
-			<li onClick={onClick} className={classNames.join(" ")}>
-				{displayValue}
-			</li>
-		);
-	}
-
 	buildChartSeries(topCardsIncluded: TableQueryData): ChartSeries[] {
 		const chartSeries = [];
 		if (this.props.cardData && this.state.topCardsIncluded) {
@@ -316,9 +295,9 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	
 	getQueryParams(): string {
 		const params = {
-			TimeRange: this.state.queryMap["timeRange"],
-			RankRange: this.state.queryMap["rankRange"],
-			GameType: this.state.queryMap["gameType"],
+			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
+			RankRange: this.state.queryMap["rankRange"] || this.defaultQueryMap["rankRange"],
+			GameType: this.state.queryMap["gameType"] || this.defaultQueryMap["gameType"],
 			// Region: this.state.queryMap["region"],
 		};
 		return toQueryString(params);
