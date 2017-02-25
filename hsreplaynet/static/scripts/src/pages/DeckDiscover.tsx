@@ -44,6 +44,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		rankRange: "ALL",
 		region: "ALL",
 		sortBy: "popularity",
+		sortDirection: "descending",
 		timeRange: "LAST_30_DAYS",
 	}
 
@@ -160,7 +161,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
 				const sortProp = queryMap["sortBy"] === "winrate" ? winrateField : numGamesField;
 
-				deckElements.sort((a, b) => b[sortProp] - a[sortProp]);
+				const direction = queryMap["sortDirection"] === "descending" ? 1 : -1;
+				deckElements.sort((a, b) => (b[sortProp] - a[sortProp]) * direction);
 
 				deckElements.forEach(deck => {
 					decks.push({
@@ -303,6 +305,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<InfoboxFilterGroup selectedValue={this.state.queryMap["sortBy"]} onClick={(value) => setQueryMap(this, "sortBy", value)}>
 						<InfoboxFilter value="popularity">Popularity</InfoboxFilter>
 						<InfoboxFilter value="winrate">Winrate</InfoboxFilter>
+					</InfoboxFilterGroup>
+					<h2>Sort Direction</h2>
+					<InfoboxFilterGroup selectedValue={this.state.queryMap["sortDirection"]} onClick={(value) => setQueryMap(this, "sortDirection", value)}>
+						<InfoboxFilter value="ascending">Ascending</InfoboxFilter>
+						<InfoboxFilter value="descending">Descending</InfoboxFilter>
 					</InfoboxFilterGroup>
 					{backButton}
 				</div>
