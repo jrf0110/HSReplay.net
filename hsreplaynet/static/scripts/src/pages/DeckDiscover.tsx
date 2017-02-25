@@ -159,7 +159,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 				const winrateField = selectedOpponent === "ALL" ? "overall_win_rate" : "win_rate_vs_" + selectedOpponent;
 				const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
-				const sortProp = queryMap["sortBy"] === "winrate" ? winrateField : numGamesField;
+				const sortProp = queryMap["sortBy"] === "winrate" ? winrateField : (queryMap["sortBy"] === "popularity" ? numGamesField : "avg_game_length_seconds");
 
 				const direction = queryMap["sortDirection"] === "descending" ? 1 : -1;
 				deckElements.sort((a, b) => (b[sortProp] - a[sortProp]) * direction);
@@ -303,6 +303,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</PremiumWrapper>
 					<h2>Sort by</h2>
 					<InfoboxFilterGroup selectedValue={this.state.queryMap["sortBy"]} onClick={(value) => setQueryMap(this, "sortBy", value)}>
+						<InfoboxFilter value="duration">Duration</InfoboxFilter>
 						<InfoboxFilter value="popularity">Popularity</InfoboxFilter>
 						<InfoboxFilter value="winrate">Winrate</InfoboxFilter>
 					</InfoboxFilterGroup>
