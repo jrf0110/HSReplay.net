@@ -1,13 +1,16 @@
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, View
 from hearthstone.enums import CardClass
 from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.cards.models import Archetype, Deck
+from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.games.models import GameReplay
 
 
+@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class DeckDetailView(View):
 	template_name = "decks/deck_detail.html"
 
@@ -26,6 +29,7 @@ class DeckDetailView(View):
 		return render(request, self.template_name, context)
 
 
+@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class DeckListView(TemplateView):
 	template_name = "decks/deck_list.html"
 

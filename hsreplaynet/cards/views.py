@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView
 from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
 from hsreplaynet.cards.models import Archetype
@@ -13,14 +14,17 @@ class ArchetypesView(TemplateView):
 	template_name = "cards/deck_archetypes.html"
 
 
+@method_decorator(view_requires_feature_access("topcards"), name="dispatch")
 class PopularCardsView(TemplateView):
 	template_name = "cards/popular_cards.html"
 
 
+@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class CardListView(TemplateView):
 	template_name = "cards/card_list.html"
 
 
+@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class CardDetailView(DetailView):
 	model = Card
 

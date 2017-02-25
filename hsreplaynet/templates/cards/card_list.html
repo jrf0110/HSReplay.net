@@ -5,10 +5,7 @@
 {% block title %}Card Database{% endblock %}
 
 {% block fullcontent %}
-{% feature "carddb" as ft_carddb %}
-{% if ft_carddb.enabled %}
 	<div id="card-container"></div>
 	{% render_bundle "stats" %}
 	{% render_bundle "card_discover" %}
-{% endif %}
 {% endblock %}

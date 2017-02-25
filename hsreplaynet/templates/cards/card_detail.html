@@ -5,11 +5,8 @@
 {% block title %}{{card.name|default:"Unknown Card"}}{% endblock %}
 
 {% block fullcontent %}
-{% feature "carddb" as ft_carddb %}
-{% if ft_carddb.enabled %}
 	<div id="card-info" data-card-id="{{ card.id }}" data-dbf-id="{{ card.dbf_id }}"></div>
 	<div id="card-container"></div>
 	{% render_bundle "stats" %}
 	{% render_bundle "card_detail" %}
-{% endif %}
 {% endblock %}
