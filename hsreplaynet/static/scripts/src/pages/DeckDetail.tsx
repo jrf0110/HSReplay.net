@@ -290,13 +290,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<div className="row table-wrapper">
 					{this.buildTable(selectedTable, selectedClass)}
 				</div>
-				<h3>Similar Decks</h3>
 				{this.buildSimilarDecks()}
 			</main>
 		</div>;
 	}
 	
-	buildSimilarDecks(): JSX.Element {
+	buildSimilarDecks(): JSX.Element[] {
 		if (!this.state.deckData || this.state.deckData === "loading" || this.state.deckData === "error") {
 			return null;
 		}
@@ -321,7 +320,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			if (distance > 1 && distance < 3) {
 				byDistance.push({cards, deck, distance, numGames: +deck["total_games"]});
 			}
-		})
+		});
+
+		if (!byDistance.length) {
+			return null;
+		}
 
 		byDistance.sort((a, b) => b.numGames - a.numGames);
 
@@ -349,7 +352,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 		});
 
-		return <DeckList decks={decks} pageSize={5} hideTopPager compareWith={cards} />;
+		return [
+			<h3>Similar Decks</h3>,
+			<DeckList decks={decks} pageSize={5} hideTopPager compareWith={cards} />
+		];
 	}
 
 	buildChartSeries(): RenderData {
