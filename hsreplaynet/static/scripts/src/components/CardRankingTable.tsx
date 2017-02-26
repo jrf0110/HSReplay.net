@@ -20,15 +20,14 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 		const cardRows = [];
 		if (this.props.cardData && this.props.tableData !== "loading" && this.props.tableData) {
 			const tableRows = this.props.tableData.series.data[this.props.dataKey];
-			tableRows.sort((a, b) => +a["rank"] - +b["rank"]);
-			tableRows.slice(0, this.props.numRows).forEach(row => {
-				const cardid = row["card_id"] || row["dbf_id"];
-				const card = this.props.cardData.get(''+cardid);
+			tableRows.sort((a, b) => +b["popularity"] - +a["popularity"]);
+			tableRows.slice(0, this.props.numRows).forEach((row, index) => {
+				const card = this.props.cardData.get(''+row["dbf_id"]);
 				cardRows.push(
 					<CardRankingTableRow
 						card={card}
 						popularity={+row["popularity"]}
-						rank={+row["rank"]}
+						rank={index + 1}
 						clickable={this.props.clickable}
 					/>
 				);
