@@ -26,6 +26,7 @@ interface CardDetailState {
 	cardData?: Map<string, any>;
 	classDistribution?: RenderData;
 	deckData?: TableData;
+	discoverChoices?: TableData;
 	popularTargets?: TableData;
 	popularityOverTime?: RenderData;
 	selectedClasses?: FilterOption[];
@@ -52,6 +53,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			cardData: null,
 			classDistribution: "loading",
 			deckData: "loading",
+			discoverChoices: "loading",
 			popularTargets: "loading",
 			popularityOverTime: "loading",
 			selectedClasses: ["ALL"],
@@ -83,6 +85,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		return false;
 	}
 
+	cardHasDiscover(card?: any): boolean {
+		card = card || this.state.card;
+		console.log(card)
+		return card && card.text.indexOf("Discover") !== -1;
+	}
+
 	cardIsNeutral(card?: any): boolean {
 		card = card || this.state.card;
 		return card && card.playerClass === "NEUTRAL";
@@ -93,6 +101,20 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		if (this.cardHasTargetReqs() && this.state.popularTargets && this.state.popularTargets !== "loading" && this.state.popularTargets !== "error") {
 			mostPopularTargets = [
 				<h4>Most popular targets</h4>,
+				<CardRankingTable
+					cardData={this.state.cardData}
+					numRows={8}
+					tableData={this.state.popularTargets}
+					dataKey={"ALL"}
+					clickable
+				/>
+			];
+		}
+
+		let discoverChoices = null;
+		if (this.cardHasDiscover() && this.state.discoverChoices && this.state.discoverChoices !== "loading" && this.state.discoverChoices !== "error") {
+			discoverChoices = [
+				<h4>Best Discover choices</h4>,
 				<CardRankingTable
 					cardData={this.state.cardData}
 					numRows={8}
@@ -126,11 +148,20 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			}
 			else {
 
-				let cardTables = null;
+				let cardTables = [];
+				const colWidth = 12 / (+mostPopularTargets + +discoverChoices);
+
 				if (mostPopularTargets) {
-					cardTables = (
-						<div>
+					cardTables.push(
+						<div className={"col-lg-" + colWidth + " col-md-" + colWidth}>
 							{mostPopularTargets}
+						</div>
+					);
+				}
+				if (discoverChoices) {
+					cardTables.push(
+						<div className={"col-lg-" + colWidth + " col-md-" + colWidth}>
+							{discoverChoices}
 						</div>
 					);
 				}
@@ -351,6 +382,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			this.queryManager.fetch(
 				buildUrl("single_card_popular_targets", mode),
 				(data) => this.setState({popularTargets: data})
+			);
+		}
+
+		if (this.cardHasDiscover(card)) {
+			this.queryManager.fetch(
+				buildUrl("single_card_choices_by_winrate", mode),
+				(data) => this.setState({discoverChoices: data})
 			);
 		}
 
