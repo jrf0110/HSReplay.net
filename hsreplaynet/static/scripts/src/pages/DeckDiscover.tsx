@@ -15,12 +15,16 @@ import {
 	setLocationQueryString, setQueryMap, toQueryString
 } from "../QueryParser"
 
+interface MyDecks {
+	[deckId: number]: any;
+}
+
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
 	cardSearchIncludeKey?: number;
 	cards?: any[];
 	deckData?: Map<string, TableData>;
-	myDecks?: number[];
+	myDecks?: MyDecks;
 	queryMap?: QueryMap;
 	showFilters?: boolean;
 }
@@ -69,7 +73,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			cardSearchIncludeKey: 0,
 			cards: null,
 			deckData: new Map<string, TableData>(),
-			myDecks: [],
+			myDecks: null,
 			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showFilters: false,
 		}
@@ -145,7 +149,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 									const costSum = deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
 									const deckType = queryMap["deckType"];
 									if (!deckType || deckType === this.getDeckType(costSum)) {
-										if ((!queryMap["personal"] && this.state.myDecks.length) || !this.state.myDecks.length || this.state.myDecks.indexOf(+deck["deck_id"]) !== -1) {
+										if (!queryMap["personal"] || this.state.myDecks && this.state.myDecks[deck["deck_id"]]) {
 											deck["cards"] = deckList;
 											deck["player_class"] = key;
 											deckElements.push(deck);
@@ -220,7 +224,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</button>
 		);
 
-		const personalDisabled = !this.props.userIsAuthenticated || !this.state.myDecks.length;
+		const personalDisabled = !this.props.userIsAuthenticated || !this.state.myDecks;
 
 		let loginLink = null;
 		if (!this.props.userIsAuthenticated) {
@@ -271,7 +275,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<h2>Personal</h2>
 					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["personal"]} onClick={(value) => setQueryMap(this, "personal", value)}>
 						<InfoboxFilter value="true" disabled={personalDisabled}>
-							My decks only
+							My decks (last 30 days)
 							{loginLink}
 						</InfoboxFilter>
 					</InfoboxFilterGroup>
@@ -343,6 +347,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			(data) => this.setState({deckData: this.state.deckData.set(this.cacheKey(), data)})
 		);
 		
-		this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data.my_decks}));
+		if (!this.state.myDecks) {
+			this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data}));
+		}
 	}
 }
