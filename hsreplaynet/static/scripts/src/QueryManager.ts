@@ -35,7 +35,7 @@ export default class QueryManager {
 
 	private fetchInternal(query: Query) {
 		this.running.push(query);
-		fetch("https://hsreplay.net" + query.url, {credentials: "include"}).then((response) => {
+		fetch(query.url, {credentials: "include"}).then((response) => {
 			if (this.poll && response.status === 202) {
 				this.throttle = true;
 				this.running.splice(this.running.indexOf(query), 1);
