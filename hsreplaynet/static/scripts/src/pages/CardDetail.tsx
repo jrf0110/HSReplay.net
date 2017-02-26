@@ -90,7 +90,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 	render(): JSX.Element {
 		let mostPopularTargets = null;
-		if (this.cardHasTargetReqs()) {
+		if (this.cardHasTargetReqs() && this.state.popularTargets && this.state.popularTargets !== "loading" && this.state.popularTargets !== "error") {
 			mostPopularTargets = [
 				<h4>Most popular targets</h4>,
 				<CardRankingTable
@@ -177,7 +177,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="row" id="card-tables">
 						{cardTables}
 					</div>,
-					<h4>Recommended Decks</h4>,
 					this.buildRecommendedDecks()
 				];
 				
@@ -276,7 +275,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		</div>;
 	}
 
-	buildRecommendedDecks(): JSX.Element {
+	buildRecommendedDecks(): JSX.Element[] {
 		if (!this.state.deckData || this.state.deckData === "loading" || this.state.deckData === "error") {
 			return null;
 		}
@@ -312,9 +311,16 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			});
 		});
 
+		if (!decks.length) {
+			return null;
+		}
+
 		decks.sort((a, b) => b.numGames - a.numGames);
 
-		return <DeckList decks={decks} pageSize={5} hideTopPager/>;
+		return [
+			<h4>Recommended Decks</h4>,
+			<DeckList decks={decks} pageSize={5} hideTopPager/>
+		];
 	}
 	
 	getBadgeColor(winrate: number) {
