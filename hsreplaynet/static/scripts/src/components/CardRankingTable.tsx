@@ -1,10 +1,9 @@
 import * as React from "react";
-import {TableData, TableRow} from "../interfaces";
+import {TableData} from "../interfaces";
 import CardRankingTableRow from "./CardRankingTableRow";
 
 interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> {
 	tableData: TableData;
-	prevTableData?: TableData;
 	dataKey: string;
 	cardData: Map<string, any>
 	numRows: number;

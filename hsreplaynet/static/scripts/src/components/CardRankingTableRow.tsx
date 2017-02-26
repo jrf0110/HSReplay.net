@@ -5,7 +5,6 @@ interface CardRankingTableRowProps extends React.ClassAttributes<CardRankingTabl
 	card: any;
 	popularity: number;
 	rank: number;
-	delta?: number;
 	clickable?: boolean;
 }
 
@@ -14,7 +13,6 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 		if (!this.props.card) {
 			return null;
 		}
-		const delta = this.props.delta;
 		let cardTile = <CardTile height={34} card={this.props.card} count={1} rarityColored />;
 		if (this.props.clickable) {
 			cardTile = (
@@ -24,10 +22,7 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 			)
 		}
 		return <tr className="card-table-row">
-			<td className="rank-cell" title={this.getTitle()}>
-				<span style={{color: delta === 0 ? "black" : (delta > 0 ? "green" : "red")}}>
-					{this.getArrow()}
-				</span>
+			<td className="rank-cell">
 				{"#" + this.props.rank}
 			</td>
 			<td>
@@ -39,14 +34,6 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 				{this.getPopularity()}
 			</td>
 		</tr>;
-	}
-
-	getArrow(): string {
-		return this.props.delta ? (this.props.delta > 0 ? "▲" : "▼") : "    " ;
-	}
-
-	getTitle(): string {
-		return this.props.delta ? (this.props.delta > 0 ? "up from yesterday" : "down from yesterday") : "";
 	}
 
 	getPopularity() {
