@@ -90,6 +90,8 @@ class GlobalGame(models.Model):
 	num_turns = models.IntegerField(null=True, blank=True)
 	num_entities = models.IntegerField(null=True, blank=True)
 
+	tainted_decks = models.NullBooleanField()
+
 	digest = models.CharField(
 		max_length=40, unique=True, null=True,
 		help_text="SHA1 of str(game_handle), str(server_address), str(lo1), str(lo2)"

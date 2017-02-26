@@ -121,6 +121,7 @@ def find_or_create_global_game(entity_tree, meta):
 		"scenario_id": meta.get("scenario_id"),
 		"num_entities": len(entity_tree.entities),
 		"num_turns": entity_tree.tags.get(GameTag.TURN),
+		"tainted_decks": False,
 	}
 
 	if eligible_for_unification(meta):
@@ -340,7 +341,6 @@ def fetch_active_stream_prefix():
 	from hsreplaynet.uploads.models import RedshiftStagingTrack
 	prefix = RedshiftStagingTrack.objects.get_active_track_prefix()
 	return prefix
-	# return ''
 
 
 def validate_parser(parser, meta):
@@ -437,20 +437,21 @@ def update_global_players(global_game, entity_tree, meta):
 		player_hero_id = player._hero.card_id
 
 		try:
-			deck, created = Deck.objects.get_or_create_from_id_list(
+			deck, _ = Deck.objects.get_or_create_from_id_list(
 				decklist,
 				hero_id=player_hero_id,
 				game_type=global_game.game_type,
 				classify_into_archetype=True
 			)
-			log.debug("Prepared deck %i (created=%r)", deck.id, created)
+			log.debug("Prepared deck %i (created=%r)", deck.id, _)
 		except IntegrityError as e:
 			# This will happen if cards in the deck are not in the DB
 			# For example, during a patch release
 			influx_metric("replay_deck_create_failure", {"global_game_id": global_game.id})
 			log.exception("Could not create deck for player %r", player)
+			global_game.tainted_decks = True
+			# Replace with an empty deck
 			deck, _ = Deck.objects.get_or_create_from_id_list([])
-			created = False
 
 		common = {
 			"game": global_game,
@@ -537,7 +538,6 @@ def do_process_upload_event(upload_event):
 	# Defer flushing the exporter until after the UploadEvent is set to SUCCESS
 	# So that the player can start watching their replay sooner
 	def do_flush_exporter():
-
 		# Only if we were able to claim the advisory lock do we proceed here.
 		if can_attempt_redshift_load:
 			log.debug("Redshift lock acquired. Will attempt to flush to redshift")
@@ -565,6 +565,9 @@ def do_process_upload_event(upload_event):
 
 
 def should_load_into_redshift(upload_event, global_game):
+	if global_game.tainted_decks:
+		return False
+
 	is_not_test_data = (not upload_event.test_data)
 	is_not_exclude_from_stats = (not global_game.exclude_from_statistics)
 	is_not_already_loaded = global_game.loaded_into_redshift is None
