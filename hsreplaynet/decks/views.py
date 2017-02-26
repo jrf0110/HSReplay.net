@@ -71,21 +71,6 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 			global_game__match_start__gte=time_horizon
 		)
 
-		# Response payload modeled after redshift decklist response structure
-		result = {
-			"data": {
-				"DRUID": [],
-				"HUNTER": [],
-				"MAGE": [],
-				"PALADIN": [],
-				"PRIEST": [],
-				"ROGUE": [],
-				"SHAMAN": [],
-				"WARLOCK": [],
-				"WARRIOR": [],
-			}
-		}
-
 		deck_data = defaultdict(list)
 		for replay in qs.all():
 			friendly_player = replay.friendly_player
@@ -106,8 +91,11 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 				"player_class": player_class,
 				"num_turns": num_turns
 			}
-			deck_data[deck_id].append(replay_details)
 
+			if replay.friendly_deck.size == 30:
+				deck_data[deck_id].append(replay_details)
+
+		result = {}
 		for deck_id, replay_details in deck_data.items():
 			total_game_seconds = 0
 			game_seconds_denom = 0
@@ -130,13 +118,14 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 			win_rate = float(total_wins) / game_count
 			avg_game_length_seconds = float(total_game_seconds) / game_seconds_denom
 			avg_num_turns = float(total_num_turns) / game_count
-			if player_class:
-				result["data"][player_class].append({
-					"deck_id": deck_id,
-					"total_games": game_count,
-					"win_rate": round(win_rate, 2),
-					"avg_game_length_seconds": round(avg_game_length_seconds, 2),
-					"avg_num_turns": round(avg_num_turns, 2)
-				})
+
+			result[deck_id] = {
+				"deck_id": deck_id,
+				"player_class": player_class,
+				"total_games": game_count,
+				"win_rate": round(win_rate, 2),
+				"avg_game_length_seconds": round(avg_game_length_seconds, 2),
+				"avg_num_turns": round(avg_num_turns, 2)
+			}
 
 		return JsonResponse(result, json_dumps_params=dict(indent=4))
