@@ -11,6 +11,9 @@ from djstripe.models import Customer, StripeCard
 from stripe.error import InvalidRequestError
 
 
+STRIPE_DEBUG = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_") and settings.DEBUG
+
+
 class PaymentsMixin:
 	def get_customer(self):
 		if self.request.user.is_authenticated:
@@ -32,8 +35,7 @@ class PaymentsMixin:
 			context["payment_methods"] = []
 
 		# `stripe_debug` is set if DEBUG is on *and* we are using a test mode pubkey
-		test_mode = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_")
-		context["stripe_debug"] = settings.DEBUG and test_mode
+		context["stripe_debug"] = STRIPE_DEBUG
 
 		return context
 
@@ -145,8 +147,16 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 			messages.add_message(request, messages.ERROR, "You are not subscribed.")
 			return False
 
+		# Whether the cancellation has effect at the end of the period or immediately
+		# True by default (= the subscription remains, will cancel once it ends)
+		at_period_end = True
+
+		if STRIPE_DEBUG and request.POST.get("immediate", "") == "on":
+			# in STRIPE_DEBUG mode only, we allow immediate cancellation
+			at_period_end = False
+
 		try:
-			customer.subscription.cancel()
+			customer.subscription.cancel(at_period_end=at_period_end)
 		except InvalidRequestError as e:
 			if "No such subscription: " in str(e):
 				# The subscription doesn't exist (or was already cancelled)

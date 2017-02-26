@@ -26,7 +26,7 @@
 				<form method="POST" action="{% url 'premium_subscribe' %}" class="premium-plan-form">
 					{% csrf_token %}
 					<input type="hidden" name="plan" value="{{ sub.plan.stripe_id }}"/>
-					<button {% if billing.read_only %}disabled{% endif %} type="submit" name="cancel" class="btn btn-primary">Reactivate</button>
+					<button {% if billing.read_only %}disabled{% endif %} type="submit" class="btn btn-primary">Reactivate</button>
 				</form>
 
 				<p>
@@ -38,6 +38,7 @@
 				<form method="POST" action="{% url 'premium_cancel' %}" class="premium-plan-form">
 					{% csrf_token %}
 					<button {% if billing.read_only %}disabled{% endif %} type="submit" name="cancel" class="btn btn-danger">Cancel subscription</button>
+					{% if stripe_debug %}<p><label><input type="checkbox" name="immediate"/> Immediate (debug)</label></p>{% endif %}
 				</form>
 
 				<p>
