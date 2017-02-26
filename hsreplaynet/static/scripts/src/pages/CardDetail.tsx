@@ -89,7 +89,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 	cardHasDiscover(card?: any): boolean {
 		card = card || this.state.card;
-		return card && card.text.indexOf("Discover") !== -1;
+		return card && card.text && card.text.indexOf("Discover") !== -1;
 	}
 
 	cardIsNeutral(card?: any): boolean {
