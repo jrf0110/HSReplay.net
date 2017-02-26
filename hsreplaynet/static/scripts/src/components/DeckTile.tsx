@@ -83,7 +83,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 						</div>
 						<div className="col-lg-1 col-md-1 hidden-sm col-xs-3">
 							<ManaCurve cards={this.props.cards} />
-							<div className="duration">
+							<div className="duration" title="Average game length">
 								<span className="glyphicon glyphicon-time" />
 								{" " + moment.duration(this.props.duration, "seconds").asMinutes().toFixed(1) + " min"}
 							</div>
