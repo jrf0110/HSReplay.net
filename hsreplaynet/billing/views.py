@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, View
 from djstripe.models import Customer, StripeCard
-from stripe.error import InvalidRequestError
+from stripe.error import CardError, InvalidRequestError
 
 
 STRIPE_DEBUG = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_") and settings.DEBUG
@@ -111,6 +111,10 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		except InvalidRequestError:
 			# Most likely, bad form data. This will be logged by Stripe.
 			messages.add_message(self.request, messages.ERROR, "Could not process subscription.")
+			return False
+		except CardError:
+			# Card was declined for some reason
+			messages.error(self.request, "Your card was declined. You have not been charged.")
 			return False
 
 	def get_success_url(self):
