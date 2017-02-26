@@ -3,6 +3,8 @@ import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
+import InfoboxFilter from "../components/InfoboxFilter";
+import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import PremiumWrapper from "../components/PremiumWrapper";
 import TurnPlayedBarChart from "../components/charts/TurnPlayedBarChart";
@@ -290,6 +292,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
 					/>
 				</PremiumWrapper>
+				<h2>Time frame</h2>
+				<InfoboxFilterGroup selectedValue={"LAST_30_DAYS"} onClick={(value) => undefined}>
+					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+				</InfoboxFilterGroup>
 				<h2>Data</h2>
 				<ul>
 					<li>

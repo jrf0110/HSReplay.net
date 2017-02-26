@@ -9,6 +9,8 @@ import ClassIcon from "../components/ClassIcon";
 import DeckList from "../components/DeckList";
 import HDTButton from "../components/HDTButton";
 import HearthstoneJSON from "hearthstonejson";
+import InfoboxFilter from "../components/InfoboxFilter";
+import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import InfoIcon from "../components/InfoIcon";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import PremiumWrapper from "../components/PremiumWrapper";
@@ -230,6 +232,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
 					/>
 				</PremiumWrapper>
+				<h2>Time frame</h2>
+				<InfoboxFilterGroup selectedValue={"LAST_30_DAYS"} onClick={(value) => undefined}>
+					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+				</InfoboxFilterGroup>
 				{deckData}
 			</aside>
 			<main className="container-fluid">
