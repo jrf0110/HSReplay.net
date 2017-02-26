@@ -2,6 +2,7 @@
 {% load static %}
 {% load socialaccount %}
 {% load web_extras %}
+{% load feature from features %}
 
 {# Disable error reporting on front page (e.g. don't care about embedded Joust errors) #}
 {% block error_reporting %}
@@ -48,6 +49,15 @@
 					<li><a href="#faq">FAQ</a></li>
 					<li><a href="{% url 'downloads' %}">Download</a></li>
 					<li><a href="{% url 'articles_article_list' %}">Articles</a></li>
+
+					{% feature "topcards" as ft_topcards %}{% if ft_topcards.enabled %}
+						<li><a href="{% url 'popular_cards' %}">Top Popular Cards</a></li>
+					{% endif %}
+
+					{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
+						<li><a href="{% url 'card_list' %}">Card Database</a></li>
+						<li><a href="{% url 'deck_list' %}">Deck Database</a></li>
+					{% endif %}
 
 					{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 					<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="twitter-button">
