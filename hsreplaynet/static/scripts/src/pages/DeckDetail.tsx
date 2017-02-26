@@ -404,7 +404,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				}
 			}
 			cardList.forEach(card => {
-				const row = rows && rows.find(r => r["card_id"] === card.cardObj.dbfId);
+				const row = rows && rows.find(r => r["dbf_id"] === card.cardObj.dbfId);
 				rowList.push({row: row, card: card})
 			})
 
