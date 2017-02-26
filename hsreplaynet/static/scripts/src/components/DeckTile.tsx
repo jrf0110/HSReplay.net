@@ -25,7 +25,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 		cards.forEach(obj => {
 			const card = obj.card;
-			dustCost += getDustCost(card.rarity) * obj.count;
+			dustCost += getDustCost(card) * obj.count;
 			
 			const markText = obj.count ? (card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count) : null;
 			const markStyle = {

@@ -513,13 +513,18 @@ export function getHeroCardId(playerClass: string, skin: boolean) {
 	return "HERO_0" + heroId;
 }
 
-export function getDustCost(rarity: string) {
+export function getDustCost(card: any) {
 	//TODO take adventures etc into account
-	switch(rarity) {
+	if (!card || card.set === "CORE") {
+		return 0;
+	}
+
+	switch(card.rarity) {
 		case "COMMON": return 40;
 		case "RARE": return 100;
 		case "EPIC": return 400;
 		case "LEGENDARY": return 1600;
 	}
+
 	return 0;
 }

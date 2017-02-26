@@ -133,7 +133,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		if (this.state.cardData) {
 			this.props.deckCards.split(",").forEach(id => {
 				const card = this.state.cardData.get(id);
-				dustCost += getDustCost(card.rarity);
+				dustCost += getDustCost(card);
 				totalCost += card.cost; 
 			});
 		}

@@ -87,7 +87,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 	cardHasDiscover(card?: any): boolean {
 		card = card || this.state.card;
-		console.log(card)
 		return card && card.text.indexOf("Discover") !== -1;
 	}
 
@@ -242,11 +241,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		}
 
 		let craftingCost = null;
-		if (this.state.card && this.state.card.rarity && this.state.card.rarity !== "FREE") {
+		if (this.state.card && this.state.card.rarity && this.state.card.rarity !== "FREE" && this.state.card.set !== "CORE") {
 			craftingCost = (
 				<li>
 					Cost
-					<span className="infobox-value">{getDustCost(this.state.card.rarity) + " Dust"}</span>
+					<span className="infobox-value">{getDustCost(this.state.card) + " Dust"}</span>
 				</li>
 			);
 		}
