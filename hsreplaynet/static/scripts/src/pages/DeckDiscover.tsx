@@ -220,7 +220,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 		const backButton = (
 			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
-				Back to card list
+				Back to deck list
 			</button>
 		);
 
