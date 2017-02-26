@@ -45,6 +45,7 @@ class FeatureStatus(IntEnum):
 	IN_PROGRESS = 2
 	PUBLIC = 3
 	AUTHORIZED_ONLY = 4
+	LOGGED_IN_USERS = 5
 
 
 class Feature(models.Model):
@@ -85,6 +86,9 @@ class Feature(models.Model):
 		if self.status == FeatureStatus.STAFF_ONLY:
 			# If the user is staff we will have already returned True
 			return False
+
+		if self.status == FeatureStatus.LOGGED_IN_USERS:
+			return user.is_authenticated
 
 		if self.status == FeatureStatus.IN_PROGRESS:
 			return user.groups.filter(name=self.preview_group_name).exists()
