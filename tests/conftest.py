@@ -1,8 +1,12 @@
 import pytest
 from django.core.management import call_command
+from django.urls import reverse
+from django.conf import settings
 from base64 import b64encode
 from hsreplaynet.cards.models import Deck, Archetype, CanonicalDeck
 from hearthstone.enums import CardClass, FormatType
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 def pytest_addoption(parser):
@@ -10,6 +14,15 @@ def pytest_addoption(parser):
 		"--all",
 		action="store_true",
 		help="run slower tests not enabled by default"
+	)
+	parser.addoption(
+		"--smoke",
+		action="store_true",
+		help="run selenium smoke tests against dev.hsreplay.net to ensure no major regressions"
+	)
+	parser.addoption(
+		"--host",
+		default="https://hsreplay.net"
 	)
 
 
@@ -149,3 +162,36 @@ def s3_create_object_event():
 			}
 		}]
 	}
+
+
+@pytest.yield_fixture(scope="session")
+def full_url():
+	HOST = pytest.config.getoption("--host")
+
+	def resolver(page_name):
+		return HOST + reverse(page_name)
+
+	yield resolver
+
+
+@pytest.yield_fixture(scope="session")
+def browser(full_url):
+	test_username = settings.SMOKE_TEST_USER
+	test_password = settings.SMOKE_TEST_PASSWORD
+
+	browser = webdriver.Chrome('/usr/local/bin/chromedriver')
+	browser.implicitly_wait(3)
+	browser.wait = WebDriverWait(browser, 10)
+
+	browser.get(full_url("admin:login"))
+
+	username = browser.find_element_by_id("id_username")
+	password = browser.find_element_by_id("id_password")
+	username.clear()
+	password.clear()
+	username.send_keys(test_username)
+	password.send_keys(test_password)
+	password.submit()
+
+	yield browser
+	browser.quit()
