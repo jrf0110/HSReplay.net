@@ -30,6 +30,10 @@ interface Card {
 	count: number;
 }
 
+interface TableDataCache {
+	[key: string]: TableData;
+}
+
 interface DeckDetailState {
 	averageDuration?: RenderData;
 	baseWinrates?: TableData;
@@ -37,13 +41,14 @@ interface DeckDetailState {
 	deckData?: TableData;
 	expandWinrate?: boolean;
 	popularityOverTime?: RenderData;
+	rankRange?: string;
 	selectedClasses?: FilterOption[];
 	showInfo?: boolean;
 	similarDecks?: TableData;
 	sortCol?: string;
 	sortDirection?: number;
-	tableDataAll?: TableData;
-	tableDataClasses?: TableData;
+	tableDataAll?: TableDataCache;
+	tableDataClasses?: TableDataCache;
 	winrateOverTime?: RenderData;
 }
 
@@ -67,13 +72,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			deckData: "loading",
 			expandWinrate: false,
 			popularityOverTime: "loading",
+			rankRange: "ALL",
 			similarDecks: "loading",
 			showInfo: false,
 			selectedClasses: ["ALL"],
 			sortCol: "decklist",
 			sortDirection: 1,
-			tableDataAll: "loading",
-			tableDataClasses: "loading",
+			tableDataAll: {},
+			tableDataClasses: {},
 			winrateOverTime: "loading",
 		}
 
@@ -82,6 +88,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			data.forEach(card => map.set(''+card.dbfId, card));
 			this.setState({cardData: map});
 			this.fetch();
+			this.fetchMulliganGuide();
 		});
 	}
 
@@ -95,13 +102,29 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return getColorString(Colors.REDGREEN4, 50, colorWinrate/100);
 	}
 
+	cacheKey(state?: DeckDetailState): string {
+		return (state || this.state).rankRange;
+	}
+
+	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailProps) {
+		const cacheKey = this.cacheKey();
+		const prevCacheKey = this.cacheKey(prevState);
+		if (cacheKey !== prevCacheKey) {
+			let all = this.state.tableDataAll[cacheKey];
+			let byClass = this.state.tableDataClasses[cacheKey];
+			if (!all || all === "error" || !byClass || byClass === "error") {
+				this.fetchMulliganGuide();
+			}
+		}
+	}
+
 	render(): JSX.Element {
 		const selectedClass = this.state.selectedClasses[0];
 		const allSelected = selectedClass === "ALL";
 
 		let replayCount = null;
-		const selectedTable = allSelected ? this.state.tableDataAll : this.state.tableDataClasses;
-		if (selectedTable !== "loading" && selectedTable !== "error") {
+		const selectedTable = allSelected ? this.state.tableDataAll[this.cacheKey()] : this.state.tableDataClasses[this.cacheKey()];
+		if (selectedTable && selectedTable !== "loading" && selectedTable !== "error") {
 			const metadata = selectedTable.series.metadata;
 			const numGames = allSelected ? metadata["total_games"] : metadata[selectedClass]["total_games"];
 			replayCount = (
@@ -236,6 +259,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
 					/>
 				</PremiumWrapper>
+				<PremiumWrapper
+					isPremium={this.props.userIsPremium}
+					infoHeader="Deck breakdown rank range"
+					infoContent="Check out how this deck performs at higher ranks!"
+				>
+					<h2>Rank range</h2>
+					<InfoboxFilterGroup deselectable locked={!this.props.userIsPremium} selectedValue={this.state.rankRange} onClick={(value) => this.setState({rankRange: value})}>
+						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>
+					</InfoboxFilterGroup>
+				</PremiumWrapper>
 				<h2>Time frame</h2>
 				<InfoboxFilterGroup selectedValue={"LAST_30_DAYS"} onClick={(value) => undefined}>
 					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
@@ -266,13 +299,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</h3>
 				{replayCount}
 				<div className="row table-wrapper">
-					{this.buildTable(selectedTable, selectedClass)}
+					{selectedTable && this.buildTable(selectedTable, selectedClass)}
 				</div>
 				{this.buildSimilarDecks()}
 			</main>
 		</div>;
 	}
-	
+
 	buildSimilarDecks(): JSX.Element[] {
 		if (!this.state.deckData || this.state.deckData === "loading" || this.state.deckData === "error") {
 			return null;
@@ -596,33 +629,48 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			.some(card => wildSets.indexOf(card.set) !== -1);
 	}
 
-	fetch() {
+	fetchMulliganGuide() {
 		const mode = this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
+		const params = "deck_id=" + this.props.deckId + "&GameType=" + mode + "&RankRange=" + (this.state.rankRange || "ALL");
+		const cacheKey = this.cacheKey();
 
 		if (this.props.userIsPremium) {
 			this.queryManager.fetch(
-				"/analytics/query/single_deck_mulligan_guide_by_class?GameType=" + mode + "&deck_id=" + this.props.deckId,
-				(data) => this.setState({tableDataClasses: data})
+				"/analytics/query/single_deck_mulligan_guide_by_class?" + params,
+				(data) => {
+					const newState = Object.assign({}, this.state.tableDataClasses);
+					newState[cacheKey] = data;
+					this.setState({tableDataClasses: newState});
+				}
 			);
 		}
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_mulligan_guide?GameType=" + mode + "&deck_id=" + this.props.deckId,
-			(data) => this.setState({tableDataAll: data})
+			"/analytics/query/single_deck_mulligan_guide?" + params,
+			(data) => {
+				const newState = Object.assign({}, this.state.tableDataAll);
+				newState[cacheKey] = data;
+				this.setState({tableDataAll: newState});
+			}
 		);
+	}
+
+	fetch() {
+		const mode = this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
+		const params = "deck_id=" + this.props.deckId + "&GameType=" + mode;
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_winrate_over_time?GameType=" + mode + "&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_winrate_over_time?" + params,
 			(data) => this.setState({winrateOverTime: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_base_winrate_by_opponent_class?GameType=" + mode + "&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_base_winrate_by_opponent_class?" + params,
 			(data) => this.setState({baseWinrates: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_popularity_over_time?GameType=" + mode + "&deck_id=" + this.props.deckId,
+			"/analytics/query/single_deck_popularity_over_time?" + params,
 			(data) => this.setState({popularityOverTime: data})
 		);
 
