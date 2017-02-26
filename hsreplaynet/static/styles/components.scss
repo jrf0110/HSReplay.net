@@ -3,11 +3,12 @@
 	position: relative;
 
 	.info-icon-text {
-		//no idea why this is not inherited
 		background: rgba(251, 247, 246, 0.95);
 		border-radius: 2px;
 		border: 1px solid $blue;
+		color: black;
 		font-family: "Noto Sans", sans-serif;
+		font-size: 14px;
 		margin: 15px 0 0 -250px;
 		min-width: 250px;
 		padding: 5px;

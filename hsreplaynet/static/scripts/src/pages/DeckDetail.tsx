@@ -221,8 +221,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</li>
 					{hdtButton}
 				</ul>
-				<PremiumWrapper isPremium={this.props.userIsPremium}>
-					<h2>Breakdown vs. opponent</h2>
+				<PremiumWrapper
+					isPremium={this.props.userIsPremium}
+					infoHeader="Deck breakdown by opponent"
+					infoContent="Dive deeper into the deck breakdown and understand how cards perform versus specific opponents!"
+				>
+					<h2>Opponent class</h2>
 					<ClassFilter
 						filters="All"
 						hideAll

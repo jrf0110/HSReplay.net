@@ -253,6 +253,16 @@ body, html {
 		z-index: 100;
 	}
 
+	.info-icon {
+		color: $lightblue;
+		font-size: 1.2em;
+		padding: 8px;
+		position: absolute;
+		right: 0;
+		top: 0;
+		z-index: 101;
+	}
+
 	.premium-info:hover {
 		opacity: 1;
 	}

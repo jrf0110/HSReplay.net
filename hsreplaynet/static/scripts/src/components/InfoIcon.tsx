@@ -37,7 +37,7 @@ export default class InfoIcon extends React.Component<InfoIconProps, InfoIconSta
 		return (
 			<div 
 				className="info-icon glyphicon glyphicon-question-sign"
-				onMouseEnter={(e) => this.setState({hovering: true, isLeft: e.clientX < 275})}
+				onMouseEnter={(e) => this.setState({hovering: true, isLeft: e.clientX < 300})}
 				onMouseLeave={() => this.setState({hovering: false})}
 			>
 				{tooltip}

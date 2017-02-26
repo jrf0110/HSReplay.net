@@ -247,8 +247,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							selectedClasses={[queryMap["playerClass"] as FilterOption]}
 							selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 						/>
-					<PremiumWrapper isPremium={this.props.userIsPremium}>
-						<h2>Winrate vs</h2>
+					<PremiumWrapper
+						isPremium={this.props.userIsPremium}
+						infoHeader="Winrate by opponent"
+						infoContent="See at a glance how various decks perform against a specific class!"
+					>
+						<h2>Opponent class</h2>
 						<ClassFilter 
 							filters="All"
 							hideAll
@@ -290,7 +294,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						<InfoboxFilter value="RANKED_STANDARD">Standard</InfoboxFilter>
 						<InfoboxFilter value="RANKED_WILD">Wild</InfoboxFilter>
 					</InfoboxFilterGroup>
-					<PremiumWrapper isPremium={this.props.userIsPremium}>
+					<PremiumWrapper
+						isPremium={this.props.userIsPremium}
+						infoHeader="Time frame"
+						infoContent="Want to see what decks are hot right now? Look at data from a time frame of your choosing!"
+					>
 						<h2>Time frame</h2>
 						<InfoboxFilterGroup locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["timeRange"]} onClick={(value) => setQueryMap(this, "timeRange", value)}>
 							<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
@@ -299,7 +307,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
-					<PremiumWrapper isPremium={this.props.userIsPremium}>
+					<PremiumWrapper
+						isPremium={this.props.userIsPremium}
+						infoHeader="Rank range"
+						infoContent="Ready to climb the ladder? Check out how decks perform in the higher ranks!"
+					>
 						<h2>Rank range</h2>
 						<InfoboxFilterGroup deselectable locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
 							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>

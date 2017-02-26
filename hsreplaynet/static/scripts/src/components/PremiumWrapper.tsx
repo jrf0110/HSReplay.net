@@ -1,9 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import InfoIcon from "./InfoIcon";
 import {showModal} from "../Premium";
 
 interface PremiumWrapperProps extends React.ClassAttributes<PremiumWrapper> {
 	isPremium?: boolean;
+	infoHeader?: string;
+	infoContent?: string;
 }
 
 export default class PremiumWrapper extends React.Component<PremiumWrapperProps, any> {
@@ -19,6 +22,12 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 				</div>
 			);
 		}
+
+		let infoIcon = null;
+		if (this.props.infoHeader) {
+			infoIcon = <InfoIcon header={this.props.infoHeader} content={this.props.infoContent} />
+		}
+
 		return (
 			<div
 				className="premium-wrapper"
@@ -33,6 +42,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 				}}
 			>
 				<img className="premium-icon" src={STATIC_URL + "images/ranked-medals/Medal_Ranked_Legend.png"} />
+				{infoIcon}
 				{info}
 				{this.props.children}
 			</div>

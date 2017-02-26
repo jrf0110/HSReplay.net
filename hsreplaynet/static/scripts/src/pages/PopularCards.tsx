@@ -182,7 +182,11 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 				<InfoboxFilter value="RANKED_WILD">Wild</InfoboxFilter>
 				<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
 			</InfoboxFilterGroup>,
-			<PremiumWrapper isPremium={this.props.userIsPremium}>
+			<PremiumWrapper
+				isPremium={this.props.userIsPremium}
+				infoHeader="Time frame"	
+				infoContent="Get the most recent data on what cards are hot right now!"
+			>
 				<h2>Time frame</h2>
 				<InfoboxFilterGroup selectedValue={this.state.queryMap["timeRange"]} onClick={(value) => setQueryMap(this, "timeRange", value)}>
 					<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
@@ -190,7 +194,11 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 					<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
 				</InfoboxFilterGroup>
 			</PremiumWrapper>,
-			<PremiumWrapper isPremium={this.props.userIsPremium}>
+			<PremiumWrapper
+				isPremium={this.props.userIsPremium}
+				infoHeader="Rank range"
+				infoContent="Check out what cards get played on the higher ranks!"
+			>
 				<h2>Rank range</h2>
 				<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
 					<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>

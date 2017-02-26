@@ -281,8 +281,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
 					</li>
 				</ul>
-				<PremiumWrapper isPremium={this.props.userIsPremium}>
-					<h2>Played against</h2>
+				<PremiumWrapper 
+					isPremium={this.props.userIsPremium}
+					infoHeader="Turn data by opponent"
+					infoContent="Break down the turn played distribution and winrate by turn played even further and look at each opponent class individually!"
+				>
+					<h2>Opponent class</h2>
 					<ClassFilter
 						filters="All"
 						hideAll
