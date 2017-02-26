@@ -161,7 +161,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					}
 				});
 
-				const winrateField = selectedOpponent === "ALL" ? "overall_win_rate" : "win_rate_vs_" + selectedOpponent;
+				const winrateField = selectedOpponent === "ALL" ? "win_rate" : "win_rate_vs_" + selectedOpponent;
 				const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
 				const sortProp = queryMap["sortBy"] === "winrate" ? winrateField : (queryMap["sortBy"] === "popularity" ? numGamesField : "avg_game_length_seconds");
 
