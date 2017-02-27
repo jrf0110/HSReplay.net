@@ -79,7 +79,7 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 					/>
 					<VictoryLine
 						data={series.data}
-						interpolation="basis"
+						interpolation="monotoneX"
 						style={{data: {stroke: this.colorMin, strokeWidth: 2}}}
 					/>
 					<VictoryScatter
