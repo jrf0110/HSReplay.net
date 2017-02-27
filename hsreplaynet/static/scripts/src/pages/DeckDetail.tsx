@@ -326,7 +326,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</h3>
 				{replayCount}
 				<div className="row table-wrapper">
-					{selectedTable && this.buildTable(selectedTable, selectedClass)}
+					{this.buildTable(selectedTable, selectedClass)}
 				</div>
 				{this.buildSimilarDecks()}
 			</main>
@@ -440,7 +440,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			let drawnAvg = 0;
 			let playedAvg = 0;
 			let deadAvg = 0;
-			if (tableData !== "loading" && tableData !== "error") {
+			if (tableData && tableData !== "loading" && tableData !== "error") {
 				rows = tableData.series.data[key];
 				if (rows) {
 					rows.forEach(row => {
