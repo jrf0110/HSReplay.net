@@ -113,9 +113,10 @@ if (playerInfo) {
 	const playerName = playerInfo.getAttribute("player-name");
 	const opponentName = playerInfo.getAttribute("opponent-name");
 	const build = +playerInfo.getAttribute("build");
+	const featureCardDb = playerInfo.getAttribute("data-feature-carddb") === "1";
 	ReactDOM.render(
 		<PlayerInfo gameId={gameId} playerName={playerName} opponentName={opponentName}
-					build={build} />,
+					build={build} featureCardDb={featureCardDb}/>,
 		playerInfo
 	);
 }

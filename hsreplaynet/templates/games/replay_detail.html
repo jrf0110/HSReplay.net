@@ -3,6 +3,7 @@
 {% load web_extras %}
 {% load render_bundle from webpack_loader %}
 {% load humanize %}
+{% load feature from features %}
 
 {% block stylesheets %}
 	{{ block.super }}
@@ -49,7 +50,8 @@
 
 		<h2>Players</h2>
 		<div id="infobox-players-container" game-id="{{ replay.shortid }}" player-name="{{ replay.friendly_player.name }}"
-			 opponent-name="{{ replay.opposing_player.name }}" build="{{ replay.global_game.build }}">
+			 opponent-name="{{ replay.opposing_player.name }}" build="{{ replay.global_game.build }}"
+			 {% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}data-feature-carddb="1"{% endif %}>
 		</div>
 		<h2>Game</h2>
 		<ul id="infobox-game">

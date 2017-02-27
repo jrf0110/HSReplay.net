@@ -8,6 +8,7 @@ interface PlayerInfoProps extends React.ClassAttributes<PlayerInfo> {
 	playerName: string;
 	opponentName: string;
 	build: number;
+	featureCardDb: boolean;
 }
 
 interface PlayerInfoState {
@@ -100,6 +101,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							name={this.state.game.opposing_player.name + "'s " + className}
 							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
 							id={1}
+							clickable={this.props.featureCardDb}
 							/>
 					);
 				}
@@ -120,6 +122,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							name={this.state.game.friendly_player.name + "'s " + className}
 							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
 							id={2}
+							clickable={this.props.featureCardDb}
 						/>
 					);
 				}
