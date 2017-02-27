@@ -331,6 +331,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					{backButton}
 				</div>
 				<div className={contentClassNames.join(" ")}>
+					<div className="alert alert-info" role="alert">Decks require at least 1000 recorded games in the selected time frame to be listed</div>
 					<button
 						className="btn btn-default pull-left visible-xs visible-sm"
 						type="button"
