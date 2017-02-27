@@ -13,14 +13,17 @@
 	</div>
 	{% endif %}
 
-	{% include 'login_button.html' %}
-
 	<p>
 		We'll send you to the offfical Battle.net site where you can securely log in.<br/>
 		Battle.net will redirect you back here once you're done.
 	</p>
-	<p>
-		HSReplay.net does not gain access to your email address or password.
+
+	<p class="login-button">
+		{% include 'login_button.html' %}
+	</p>
+
+	<p class="help-block">
+		HSReplay.net does not gain access to your Battle.net email address or password.
 	</p>
 </div>
 
