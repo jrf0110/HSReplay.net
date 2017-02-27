@@ -8,16 +8,12 @@ import Pager from "../components/Pager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import ResetHeader from "../components/ResetHeader";
-import {DeckObj, TableData, GameMode, RankRange, Region, TimeFrame} from "../interfaces";
+import {DeckObj, TableData, GameMode, MyDecks, RankRange, Region, TimeFrame} from "../interfaces";
 import {cardSorting, toTitleCase} from "../helpers";
 import {
 	QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
 	setLocationQueryString, setQueryMap, toQueryString
 } from "../QueryParser"
-
-interface MyDecks {
-	[deckId: number]: any;
-}
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -359,7 +355,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			"/analytics/query/" + query + "?" + toQueryString(params),
 			(data) => this.setState({deckData: this.state.deckData.set(this.cacheKey(), data)})
 		);
-		
+
 		if (!this.state.myDecks) {
 			this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data}));
 		}

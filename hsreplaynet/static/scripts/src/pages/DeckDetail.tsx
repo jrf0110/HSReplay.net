@@ -17,7 +17,7 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import moment from "moment";
-import {CardObj, DeckObj, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
+import {CardObj, DeckObj, MyDecks, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
 	cardSorting, getChartScheme, getColorString, getDustCost,
 	getHeroCardId, toPrettyNumber, toTitleCase, wildSets,
@@ -40,6 +40,7 @@ interface DeckDetailState {
 	cardData?: Map<string, any>;
 	deckData?: TableData;
 	expandWinrate?: boolean;
+	myDecks?: MyDecks;
 	popularityOverTime?: RenderData;
 	rankRange?: string;
 	selectedClasses?: FilterOption[];
@@ -71,6 +72,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			cardData: null,
 			deckData: "loading",
 			expandWinrate: false,
+			myDecks: null,
 			popularityOverTime: "loading",
 			rankRange: "ALL",
 			similarDecks: "loading",
@@ -183,7 +185,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			backgroundImage: "url(/static/images/dust.png"
 		}
 
-		let deckData = null;
+		let deckData = [];
 		if (this.state.deckData && this.state.deckData !== "loading" && this.state.deckData !== "error") {
 			const deck = this.state.deckData.series.data[this.props.deckClass].find(x => +x["deck_id"] === this.props.deckId);
 			if (deck) {
@@ -200,7 +202,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					}
 				}
 
-				deckData = [
+				deckData.push(
 					<h2>Data</h2>,
 					<ul>
 						<li>
@@ -221,8 +223,33 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<span className="infobox-value">{deck["avg_num_player_turns"]}</span>
 						</li>
 					</ul>
-				];
+				);
 			}
+		}
+
+		if(this.state.myDecks && this.state.myDecks[this.props.deckId]) {
+			const deck = this.state.myDecks[this.props.deckId];
+			deckData.push(
+				<h2>Personal</h2>,
+				<ul>
+					<li>
+						Games
+						<span className="infobox-value">{deck.total_games}</span>
+					</li>
+					<li>
+						Winrate
+						<span className="infobox-value">{(+deck["win_rate"] * 100).toFixed(1) + "%"}</span>
+					</li>
+					<li>
+						Match duration
+						<span className="infobox-value">{moment.duration(+deck["avg_game_length_seconds"], "second").asMinutes().toFixed(1) + " minutes"}</span>
+					</li>
+					<li>
+						Number of turns
+						<span className="infobox-value">{deck["avg_num_turns"]}</span>
+					</li>
+				</ul>
+			);
 		}
 
 		return <div className="deck-detail-container">
@@ -678,6 +705,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			"/analytics/query/list_decks_by_win_rate?GameType=" + mode,
 			(data) => this.setState({deckData: data})
 		);
+
+		if (!this.state.myDecks) {
+			this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data}));
+		}
 	}
 
 }
