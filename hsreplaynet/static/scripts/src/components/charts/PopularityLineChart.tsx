@@ -79,10 +79,6 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 						interpolation="monotoneX"
 						style={{data: {stroke: this.colorMin, strokeWidth: 2}}}
 					/>
-					<VictoryScatter
-						data={[metadata.xMinMax[0], metadata.xMinMax[1]]}
-						style={{data: {fill: this.colorMin}}}
-					/>
 					<VictoryVoronoiTooltip
 						data={series.data}
 						labels={d => moment(d.x).format("YYYY-MM-DD") + "\n" + d.y + "%"}
