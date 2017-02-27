@@ -105,7 +105,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	cacheKey(state?: DeckDetailState): string {
-		return (state || this.state).rankRange;
+		return (state || this.state).rankRange || "ALL";
 	}
 
 	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailProps) {
