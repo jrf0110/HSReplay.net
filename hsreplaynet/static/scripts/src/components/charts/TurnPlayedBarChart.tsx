@@ -92,7 +92,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
 				{content}
-				<VictoryLabel text={"Turn played %"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
+				<VictoryLabel text={"Popularity - by turn played"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
 	}

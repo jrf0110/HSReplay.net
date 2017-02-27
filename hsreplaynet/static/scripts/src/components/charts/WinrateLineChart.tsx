@@ -17,7 +17,6 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
 		let content = null;
-		let timespan = null;
 
 		if(this.props.renderData === "loading") {
 			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
@@ -28,8 +27,6 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		else if (this.props.renderData) {
 			const series = toTimeSeries(this.props.renderData.series[0]);
 			const metadata = getChartMetaData(series.data, 50, true, 1);
-
-			timespan = "last " + moment.duration((+metadata.xMinMax[1].x - +metadata.xMinMax[0].x)/1000, "seconds").humanize();
 
 			const tooltip = (
 				<VictoryTooltip
@@ -113,7 +110,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
 				{content}
-				<VictoryLabel text={"Winrate" + (timespan ? " - " + timespan : "")} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
+				<VictoryLabel text={"Winrate - over time"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
 	}

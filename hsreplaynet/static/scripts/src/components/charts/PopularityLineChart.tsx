@@ -26,7 +26,6 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
 		let content = null;
-		let timespan = null;
 
 		if(this.props.renderData === "loading") {
 			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
@@ -37,8 +36,6 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 		else if (this.props.renderData) {
 			const series = toTimeSeries(this.props.renderData.series[0]);
 			const metadata = getChartMetaData(series.data, undefined, true);
-
-			timespan = "last " + moment.duration((+metadata.xMinMax[1].x - +metadata.xMinMax[0].x)/1000, "seconds").humanize();
 
 			const tooltip = <VictoryTooltip
 				cornerRadius={0}
@@ -100,7 +97,7 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
 				{content}
-				<VictoryLabel text={"Popularity" + (timespan ? " - " + timespan : "")} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
+				<VictoryLabel text={"Popularity - over time"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
 	}
