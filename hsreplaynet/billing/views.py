@@ -78,16 +78,14 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 			# Send a confirmation email for email verification
 			send_email_confirmation(self.request, self.request.user)
 
-		# If the customer does not have an email attached, we should set it.
-		if not customer.email:
-			# We'll be setting the email to either the one they input, or their existing one
-			email = email or self.request.user.email
-			# We can skip unnecessary API calls if we have no email at this point
-			if email:
-				# Retrieve it from the API
-				cus = customer.api_retrieve()
-				# Set it to either the email they put in, or the existing user's email
-				cus.email = email or self.request.user.email
+		# Let's attach the email we got to the Stripe customer object as well
+		email = email or self.request.user.email
+		if email:
+			# Retrieve the Stripe customer object from the API
+			cus = customer.api_retrieve()
+			# We skip the API call if it's a noop
+			if cus.email != email:
+				cus.email = email
 				# Write the results to the API
 				cus.save()
 
