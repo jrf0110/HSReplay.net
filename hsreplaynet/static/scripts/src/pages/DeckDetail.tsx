@@ -439,7 +439,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			let mulliganAvg = 0;
 			let drawnAvg = 0;
 			let playedAvg = 0;
-			let deadAvg = 0;
 			if (tableData && tableData !== "loading" && tableData !== "error") {
 				rows = tableData.series.data[key];
 				if (rows) {
@@ -447,14 +446,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						mulliganAvg += +row["opening_hand_win_rate"];
 						drawnAvg += +row["win_rate_when_drawn"];
 						playedAvg += +row["win_rate_when_played"];
-						const deadPercent = (1 - (+row["times_card_played"] / (+row["times_card_drawn"] + +row["times_kept"]))) * 100;
-						row["dead_percent"] = ''+deadPercent;
-						deadAvg += deadPercent;
 					});
 					mulliganAvg /= rows.length;
 					drawnAvg /= rows.length;
 					playedAvg /= rows.length;
-					deadAvg /= rows.length;
 				}
 			}
 			cardList.forEach(card => {
@@ -470,7 +465,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 			
 			rowList.forEach((item, index) => {
-				cardRows.push(this.buildCardRow(item.card, index === 0, rowList.length, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg, deadAvg));
+				cardRows.push(this.buildCardRow(item.card, index === 0, rowList.length, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg));
 			})
 		}
 
@@ -515,11 +510,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				{sortIndicator("win_rate_when_played")}
 				<InfoIcon header="Played Winrate" content="Average winrate of games where the card was played at any point." />
 			</th>,
-			<th onClick={() => onHeaderClick("dead_percent")}>
-				Dead
-				{sortIndicator("dead_percent")}
-				<InfoIcon header="Dead Card" content="Percentage of time the card is drawn but never played (still in the hand at the end of the game)." />
-			</th>,
 			<th onClick={() => onHeaderClick("avg_turns_in_hand")}>
 				Turns held
 				{sortIndicator("avg_turns_in_hand")}
@@ -546,7 +536,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	buildCardRow(
 		card: any, firstRow: boolean, rowCount: number, row: TableRow, full: boolean, mulliganWinrate: number,
-		drawnWinrate: number, playedWinrate: number, deadAverage: number
+		drawnWinrate: number, playedWinrate: number
 	): JSX.Element {
 		if (!card) {
 			return null;
@@ -563,7 +553,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			const mulligan = this.getWinrateData(mulliganWinrate, +row["opening_hand_win_rate"]);
 			const drawn = this.getWinrateData(drawnWinrate, +row["win_rate_when_drawn"]);
 			const played = this.getWinrateData(playedWinrate, +row["win_rate_when_played"]);
-			const dead = this.getWinrateData(+row["dead_percent"], deadAverage);
 			cols.push(
 				<td className="winrate-cell" style={{color: mulligan.color}}>{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(1) + "%"}</td>,
 				<td>{(+row["keep_percentage"]).toFixed(1) + "%"}</td>,
@@ -571,7 +560,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			if (!this.props.userIsPremium) {
 				if (firstRow) {
 					cols.push(
-						<td colSpan={5} rowSpan={rowCount} style={{background: "rgba(0,0,0,0.1)", textAlign: "center"}}>
+						<td colSpan={4} rowSpan={rowCount} style={{background: "rgba(0,0,0,0.1)", textAlign: "center"}}>
 							<PremiumWrapper isPremium>
 								<h1 style={{padding: "50px"}}>HearthSim Premium</h1>
 								<ul style={{listStyleType: "none", padding: 0}}>
@@ -599,7 +588,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				cols.push(
 					<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(1) + "%"}</td>,
 					<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(1) + "%"}</td>,
-					<td className="winrate-cell" style={{color: dead.color}}>{dead.tendencyStr + (+row["dead_percent"]).toFixed(1) + "%"}</td>,
 					<td>{(+row["avg_turns_in_hand"]).toFixed(1)}</td>,
 					<td>{(+row["avg_turn_played_on"]).toFixed(1)}</td>,
 				);
