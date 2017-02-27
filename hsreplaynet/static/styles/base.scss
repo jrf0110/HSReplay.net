@@ -205,7 +205,8 @@ body, html {
 	align-items: center;
 
 	background: rgba(22, 22, 22, 0.5);
-	position: absolute;
+	position: fixed;
+	top: 0;
 	margin: 0;
 	padding: 0;
 	width: 100%;
@@ -221,6 +222,24 @@ body, html {
 		h3 {
 			margin: 0 0 1em;
 			text-align: center;
+		}
+	}
+
+	.promo-button, .promo-button-outline {
+		font-size: 1em;
+		text-transform: uppercase;
+	}
+
+	#premium-modal-close {
+		padding: 0 1em;
+		font-size: 1.75em;
+		margin-top: -0.5em;
+		margin-right: -14px;
+		padding: 0 14px;
+
+		&, &:hover, &:active {
+			color: black;
+			text-decoration: none;
 		}
 	}
 }

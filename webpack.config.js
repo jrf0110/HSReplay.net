@@ -59,6 +59,7 @@ module.exports = (env) => {
 			popular_cards: makeEntry("popular_cards"),
 		},
 		victory_widgets: makeEntry("victory_widgets"),
+		premium_modal: makeEntry("premium_modal"),
 		polyfills: ["babel-polyfill", "whatwg-fetch"],
 	};
 

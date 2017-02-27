@@ -2,28 +2,36 @@
 {% load provider_login_url from socialaccount %}
 {% load feature from features %}
 {% load setting from web_extras %}
+{% load render_bundle from webpack_loader %}
 
 {% feature "billing" as billing %}
 {% if billing %}
 {% if not premium %}
-<div id="premium-modal"{% if not show_premium_modal %} style="display: none;"{% endif %}>
+<div id="premium-modal"{% if show_premium_modal %} data-stripe-load="1"{% else %} style="display: none;"{% endif %}>
 	<div class="inner">
+		<p class="pull-right"><a href="#" id="premium-modal-close" style="display: none;">&times;</a></p>
 		<h3>Premium-only content</h3>
 
 		<p>
 			Subscribe to <strong>HearthSim Premium</strong> to unlock this and
-			<a href="{% url 'premium' %}" target="_blank">many more features</a>!
+			<a href="{% url 'premium' %}?next={{ request.get_full_path|urlencode }}">many more features</a>!
 		</p>
 
 		{% if user.is_authenticated %}
 			<form method="POST" action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}">
 				{% csrf_token %}
-				<p>
-					<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.human_readable_cost }}</label>
-				</p>
-				<p>
-					<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked/> {{ semiannual_plan.human_readable_cost }}</label>
-				</p>
+				<div class="radio">
+					<label>
+						<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/>
+						{{ monthly_plan.human_readable_cost }}
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked/>
+						{{ semiannual_plan.human_readable_cost }}
+					</label>
+				</div>
 				{% if user.default_payment_method %}
 					<p>
 						Subscribe with {{ user.default_payment_method }}
@@ -45,16 +53,20 @@
 			</form>
 		{% else %}
 			<p>
-				Please log in with your Battle.net account first.
-				<em>HSReplay.net does not get your Battle.net password.</em>
+				Please log in to continue.
 			</p>
 			<p>
-				<a href="{% provider_login_url "battlenet" %}?next={{ request.path|urlencode }}%3Fpremium-modal" class="promo-button">
+				<a href="{% provider_login_url 'battlenet' %}?next={{ request.path|urlencode }}%3Fpremium-modal" class="promo-button hero-button">
 					Log in with Battle.net
 				</a>
+				<a href="{% url 'premium' %}?next={{ request.path|urlencode }}" class="promo-button-outline hero-button">Learn more&hellip;</a>
+			</p>
+			<p class="help-block">
+				HSReplay.net does not gain access to your Battle.net email address or password.
 			</p>
 		{% endif %}
 	</div>
 </div>
+{% render_bundle "premium_modal" %}
 {% endif %}
 {% endif %}
