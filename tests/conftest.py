@@ -1,12 +1,15 @@
 import pytest
+from uuid import uuid4
 from django.core.management import call_command
 from django.urls import reverse
-from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from base64 import b64encode
 from hsreplaynet.cards.models import Deck, Archetype, CanonicalDeck
 from hearthstone.enums import CardClass, FormatType
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 def pytest_addoption(parser):
@@ -16,9 +19,9 @@ def pytest_addoption(parser):
 		help="run slower tests not enabled by default"
 	)
 	parser.addoption(
-		"--smoke",
+		"--selenium",
 		action="store_true",
-		help="run selenium smoke tests against dev.hsreplay.net to ensure no major regressions"
+		help="run selenium tests against the --host target"
 	)
 	parser.addoption(
 		"--host",
@@ -174,24 +177,42 @@ def full_url():
 	yield resolver
 
 
+@pytest.mark.django_db
 @pytest.yield_fixture(scope="session")
-def browser(full_url):
-	test_username = settings.SMOKE_TEST_USER
-	test_password = settings.SMOKE_TEST_PASSWORD
+def browser(full_url, django_db_blocker):
+	with django_db_blocker.unblock():
+		user = None
+		try:
+			_username = "locust_user_%s" % str(uuid4())
+			_password = _username
+			user = get_user_model().objects.create(username=_username)
+			user.set_password(_password)
+			user.is_staff = True
+			user.groups.add(Group.objects.get(name="feature:billing:preview"))
+			user.groups.add(Group.objects.get(name="feature:carddb:preview"))
+			user.groups.add(Group.objects.get(name="feature:topcards:preview"))
+			user.save()  # Save needed to record password
 
-	browser = webdriver.Chrome('/usr/local/bin/chromedriver')
-	browser.implicitly_wait(3)
-	browser.wait = WebDriverWait(browser, 10)
+			browser = webdriver.Chrome('/usr/local/bin/chromedriver')
+			browser.implicitly_wait(3)
 
-	browser.get(full_url("admin:login"))
+			def wait_until(locator):
+				return WebDriverWait(browser, 10).until(
+					EC.presence_of_element_located(locator)
+				)
+			browser.wait_until = wait_until
 
-	username = browser.find_element_by_id("id_username")
-	password = browser.find_element_by_id("id_password")
-	username.clear()
-	password.clear()
-	username.send_keys(test_username)
-	password.send_keys(test_password)
-	password.submit()
+			browser.get(full_url("admin:login"))
+			username = browser.find_element_by_id("id_username")
+			password = browser.find_element_by_id("id_password")
+			username.clear()
+			password.clear()
+			username.send_keys(_username)
+			password.send_keys(_password)
+			password.submit()
 
-	yield browser
-	browser.quit()
+			yield browser
+
+			browser.quit()
+		finally:
+			user.delete()

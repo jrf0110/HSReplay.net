@@ -9,13 +9,13 @@ import pytest
 from pages import DeckDatabase, DeckDetail
 
 
-smoke_test_suite = pytest.mark.skipif(
-	not pytest.config.getoption("--smoke"),
+selenium_test_suite = pytest.mark.skipif(
+	not pytest.config.getoption("--selenium"),
 	reason="need --smoke option to run"
 )
 
 
-@smoke_test_suite
+@selenium_test_suite
 def test_deck_database(browser, full_url):
 	browser.get(full_url("deck_list"))
 	deck_database = DeckDatabase(browser)
