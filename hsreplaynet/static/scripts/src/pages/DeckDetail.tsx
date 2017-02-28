@@ -440,14 +440,15 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			if (tableData && tableData !== "loading" && tableData !== "error") {
 				rows = tableData.series.data[key];
 				if (rows) {
-					rows.forEach(row => {
+					const validRows = rows.filter(row => row);
+					validRows.forEach(row => {
 						mulliganAvg += +row["opening_hand_win_rate"];
 						drawnAvg += +row["win_rate_when_drawn"];
 						playedAvg += +row["win_rate_when_played"];
 					});
-					mulliganAvg /= rows.length;
-					drawnAvg /= rows.length;
-					playedAvg /= rows.length;
+					mulliganAvg /= validRows.length;
+					drawnAvg /= validRows.length;
+					playedAvg /= validRows.length;
 				}
 			}
 			cardList.forEach(card => {
