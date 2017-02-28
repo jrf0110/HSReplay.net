@@ -24,7 +24,6 @@ from uuid import uuid4
 from locust import HttpLocust, TaskSet, task
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
 from pages import DeckDatabase
 from locators import AdminLoginLocators
 from selenium.webdriver.support import expected_conditions as EC
