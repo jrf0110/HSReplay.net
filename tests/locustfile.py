@@ -24,6 +24,7 @@ from uuid import uuid4
 from locust import HttpLocust, TaskSet, task
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 from pages import DeckDatabase
 from locators import AdminLoginLocators
 from selenium.webdriver.support import expected_conditions as EC
@@ -66,7 +67,6 @@ class PremiumSignupBehavior(TaskSet):
 
 	def login(self):
 		self.browser.get(self.client.base_url + "/admin/login/")
-
 		username = self.browser.wait_until(AdminLoginLocators.USERNAME_INPUT)
 		password = self.browser.wait_until(AdminLoginLocators.PASSWORD_INPUT)
 		username.clear()
@@ -95,6 +95,7 @@ class PremiumSignupBehavior(TaskSet):
 	def signout(self):
 		deck_database = DeckDatabase(self.browser)
 		deck_database.logout()
+		self.browser.delete_all_cookies()
 
 	@task(1)
 	def signup_for_premium(self):
