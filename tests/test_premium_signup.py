@@ -8,6 +8,7 @@ selenium_test_suite = pytest.mark.skipif(
 )
 
 
+@pytest.mark.skip
 @selenium_test_suite
 def test_premium_signup(browser, full_url):
 	browser.get(full_url("deck_list"))

@@ -1,3 +1,4 @@
+import os
 import pytest
 from uuid import uuid4
 from django.core.management import call_command
@@ -181,38 +182,31 @@ def full_url():
 @pytest.yield_fixture(scope="session")
 def browser(full_url, django_db_blocker):
 	with django_db_blocker.unblock():
-		user = None
-		try:
-			_username = "locust_user_%s" % str(uuid4())
-			_password = _username
-			user = get_user_model().objects.create(username=_username)
-			user.set_password(_password)
-			user.is_staff = True
-			user.groups.add(Group.objects.get(name="feature:billing:preview"))
-			user.groups.add(Group.objects.get(name="feature:carddb:preview"))
-			user.groups.add(Group.objects.get(name="feature:topcards:preview"))
-			user.save()  # Save needed to record password
 
-			browser = webdriver.Chrome('/usr/local/bin/chromedriver')
-			browser.implicitly_wait(3)
+		_username = os.environ.get("SELENIUM_USERNAME", None)
+		_password = os.environ.get("SELENIUM_PASSWORD", None)
+		if not _username or not _password:
+			raise ValueError("Missing env variables SELENIUM_USER or SELENIUM_PASSWORD")
 
-			def wait_until(locator):
-				return WebDriverWait(browser, 10).until(
-					EC.presence_of_element_located(locator)
-				)
-			browser.wait_until = wait_until
+		browser = webdriver.Chrome('/usr/local/bin/chromedriver')
+		browser.implicitly_wait(3)
 
-			browser.get(full_url("admin:login"))
-			username = browser.find_element_by_id("id_username")
-			password = browser.find_element_by_id("id_password")
-			username.clear()
-			password.clear()
-			username.send_keys(_username)
-			password.send_keys(_password)
-			password.submit()
+		def wait_until(locator):
+			return WebDriverWait(browser, 10).until(
+				EC.presence_of_element_located(locator)
+			)
+		browser.wait_until = wait_until
 
-			yield browser
+		browser.get(full_url("admin:login"))
+		username = browser.find_element_by_id("id_username")
+		password = browser.find_element_by_id("id_password")
+		username.clear()
+		password.clear()
+		username.send_keys(_username)
+		password.send_keys(_password)
+		password.submit()
 
-			browser.quit()
-		finally:
-			user.delete()
+		yield browser
+
+		browser.quit()
+
