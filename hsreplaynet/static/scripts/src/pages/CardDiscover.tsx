@@ -68,7 +68,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		this.state = {
 			cards: null,
 			queryMap: getQueryMapFromLocation(this.defaultQueryMap, {}),
-			numCards: 20,
+			numCards: 24,
 			showFilters: false,
 		}
 		this.fetchPlaceholderImage();
@@ -99,7 +99,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	render(): JSX.Element {
 		const queryMap = Object.assign({}, this.state.queryMap);
 
-		let chartSeries = null;
 		const tiles = [];
 		const filteredCards = {
 			playerClass: [],
@@ -135,8 +134,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					allFilteredCards.push(card);
 				}
 			});
-
-			chartSeries = allFilteredCards.length && this.buildChartSeries(allFilteredCards);
 		}
 
 
@@ -214,51 +211,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					{search}
 					{content}
 				</div>
-				<div className="chart-list visible-lg">
-					<CardDetailBarChart labelX="Cost" widthRatio={1.8} title="Cost" renderData={chartSeries ? {series: [chartSeries[3]]} : "loading"} />
-					<div className="chart-wrapper">
-						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[4]]} : "loading"} title="Classes"/>
-					</div>
-					<div className="chart-wrapper">
-						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[0]]} : "loading"} title="Rarity"/>
-					</div>
-					<div className="chart-wrapper">
-						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[2]]} : "loading"} title="Set"/>
-					</div>
-					<div className="chart-wrapper">
-						<CardDetailPieChart renderData={chartSeries ? {series: [chartSeries[1]]} : "loading"} title="Type"/>
-					</div>
-				</div>
 			</div>
 		);
-	}
-
-	buildChartSeries(cards: any[]): ChartSeries[] {
-		const chartSeries = [];
-
-		const data = {rarity: {}, cardtype: {}, cardset: {}, cost: {}, class: {}};
-		cards.forEach(card => {
-			data["rarity"][card.rarity] = (data["rarity"][card.rarity] || 0) + 1;
-			data["cardtype"][card.type] = (data["cardtype"][card.type] || 0) + 1;
-			data["cardset"][card.set] = (data["cardset"][card.set] || 0) + 1;
-			const cost = ""+Math.min(7, card.cost);
-			data["cost"][cost] = (data["cost"][cost] || 0) + 1;
-			data["class"][card.playerClass] = (data["class"][card.playerClass] || 0) + 1;
-		});
-		Object.keys(data).forEach(name => {
-			const series = {
-				name: name,
-				data: [],
-				metadata: {
-					chart_scheme: name
-				}
-			}
-			Object.keys(data[name]).forEach(value => {
-				series.data.push({x: value.toLowerCase(), y: data[name][value]});
-			})
-			chartSeries.push(series);
-		})
-		return chartSeries;
 	}
 
 	filterCounts(cardFilters: CardFilters) : CardFilters {
