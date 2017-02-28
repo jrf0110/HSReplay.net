@@ -51,7 +51,7 @@
 
 				&.disabled {
 					cursor: not-allowed;
-					color: lightgray;
+					color: gray;
 
 					&.mana-crystal {
 						filter: saturate(0) opacity(0.5);
