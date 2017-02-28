@@ -273,21 +273,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</ul>
 				<PremiumWrapper
 					isPremium={this.props.userIsPremium}
-					infoHeader="Deck breakdown by opponent"
-					infoContent="Dive deeper into the deck breakdown and understand how cards perform versus specific opponents!"
-				>
-					<h2>Opponent class</h2>
-					<ClassFilter
-						filters="All"
-						hideAll
-						minimal
-						multiSelect={false}
-						selectedClasses={this.state.selectedClasses}
-						selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
-					/>
-				</PremiumWrapper>
-				<PremiumWrapper
-					isPremium={this.props.userIsPremium}
 					infoHeader="Deck breakdown rank range"
 					infoContent="Check out how this deck performs at higher ranks!"
 				>
@@ -303,6 +288,26 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				{deckData}
 			</aside>
 			<main className="container-fluid">
+				<div id="opponent-class-filter">
+					<PremiumWrapper isPremium={this.props.userIsPremium}>
+						<h3>Select your opponent</h3>
+						<ClassFilter
+							filters="All"
+							hideAll
+							minimal
+							multiSelect={false}
+							selectedClasses={this.state.selectedClasses}
+							selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
+						/>
+					</PremiumWrapper>
+				</div>
+				<h3>
+					{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
+				</h3>
+				{replayCount}
+				<div className="row table-wrapper">
+					{this.buildTable(selectedTable, selectedClass)}
+				</div>
 				<div className="row">
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
@@ -320,13 +325,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							/>
 						</div>
 					</div>
-				</div>
-				<h3>
-					{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
-				</h3>
-				{replayCount}
-				<div className="row table-wrapper">
-					{this.buildTable(selectedTable, selectedClass)}
 				</div>
 				{this.buildSimilarDecks()}
 			</main>
