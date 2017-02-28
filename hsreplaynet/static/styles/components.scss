@@ -135,20 +135,10 @@
 							font-size: 0.9em;
 						}
 
-						.win-rate {
+						.win-rate, .game-count, .duration {
 							text-align: center;
-							margin-top: 5px;
+							margin-top: 15px;
 						}
-
-						.game-count {
-							text-align: center;
-							font-size: 0.9em;
-							opacity: 0.6;
-							line-height: 20px;
-							margin-top: -5px;
-							white-space: nowrap;
-						}
-
 					}
 
 					.card-list {
@@ -207,18 +197,13 @@
 
 					.mana-curve {
 						width: 48px;
-						padding-top: 9px;
+						padding-top: 15px;
 						margin: 0 auto;
 					}
 
 					.duration {
-						display: table;
 						font-size: 0.9em;
-						line-height: 1.75em;
-						opacity: 0.6;
-						text-align: center;
 						white-space: nowrap;
-						width: 100%;
 
 						.glyphicon {
 							top: 2px;

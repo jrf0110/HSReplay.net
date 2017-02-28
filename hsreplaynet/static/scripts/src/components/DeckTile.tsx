@@ -73,22 +73,26 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			<li style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.playerClass, true) + ".jpg"}}>
 				<a href={"/decks/" + this.props.deckId}>
 					<div>
-						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-5">
+						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							<span className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.playerClass)}</span>
 							<span className="dust-cost" style={dustCostStyle}>{dustCost}</span>
 						</div>
-						<div className="col-lg-1 col-md-2 col-sm-2 col-xs-4">
+						<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3">
 							<span className="win-rate">{(+this.props.winrate).toFixed(1)}%</span>
-							<span className="game-count">{toPrettyNumber(this.props.numGames)} games</span>
 						</div>
-						<div className="col-lg-1 col-md-1 hidden-sm col-xs-3">
-							<ManaCurve cards={this.props.cards} />
+						<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3">
+							<span className="game-count">{toPrettyNumber(this.props.numGames)}</span>
+						</div>
+						<div className="col-lg-1 col-md-1 hidden-sm hidden-xs">
 							<div className="duration" title="Average game length">
 								<span className="glyphicon glyphicon-time" />
 								{" " + moment.duration(this.props.duration, "seconds").asMinutes().toFixed(1) + " min"}
 							</div>
 						</div>
-						<div className="col-lg-8 col-md-7 col-sm-8 hidden-xs">
+						<div className="col-lg-1 hidden-md hidden-sm hidden-xs">
+							<ManaCurve cards={this.props.cards} />
+						</div>
+						<div className="col-lg-6 col-md-7 col-sm-8 hidden-xs">
 							<ul className="card-list">
 								{cardIcons}
 							</ul>

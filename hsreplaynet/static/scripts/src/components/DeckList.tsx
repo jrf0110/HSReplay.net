@@ -75,16 +75,22 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 				{!this.props.hideTopPager && pager(true)}
 				<div className="clearfix" />
 				<div className="row header-row">
-					<div className="col-lg-2 col-md-2 col-sm-2 col-xs-5">
+					<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 						Deck
 					</div>
-					<div className="col-lg-1 col-md-2 col-sm-2 col-xs-4" style={{textAlign: "center"}}>
+					<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3" style={{textAlign: "center"}}>
 						Winrate
 					</div>
-					<div className="col-lg-1 col-md-1 hidden-sm col-xs-3" style={{textAlign: "center"}}>
-						Mana
+					<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3" style={{textAlign: "center"}}>
+						Games
 					</div>
-					<div className="col-lg-8 col-md-7 col-sm-8 hidden-xs">
+					<div className="col-lg-1 col-md-1 hidden-sm hidden-xs" style={{textAlign: "center"}}>
+						Duration
+					</div>
+					<div className="col-lg-1 hidden-md hidden-sm hidden-xs" style={{textAlign: "center"}}>
+						Cost
+					</div>
+					<div className="col-lg-6 col-md-7 col-sm-8 hidden-xs">
 						Cards
 					</div>
 				</div>
