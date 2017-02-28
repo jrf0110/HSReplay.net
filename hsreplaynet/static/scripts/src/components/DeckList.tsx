@@ -12,6 +12,9 @@ interface DeckListProps extends React.ClassAttributes<DeckList> {
 	pageSize: number;
 	hideTopPager?: boolean;
 	compareWith?: CardObj[];
+	onHeaderClicked?: (name: string) => void;
+	sortCol?: string;
+	sortDirection?: string;
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -70,6 +73,15 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 				</div>
 			);
 		};
+		
+		const sortIndicator = (name: string): JSX.Element => {
+			return (
+				<span className={name === this.props.sortCol ? "" : "no-sort"}>
+					{this.props.sortDirection === "ascending" ? "▴" : "▾"}
+				</span>
+			);
+		}
+
 		return (
 			<div className="deck-list">
 				{!this.props.hideTopPager && pager(true)}
@@ -78,16 +90,19 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 						Deck
 					</div>
-					<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3" style={{textAlign: "center"}}>
+					<div className={(this.props.onHeaderClicked ? "header-sortable " : "") + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => this.props.onHeaderClicked && this.props.onHeaderClicked("winrate")}>
 						Winrate
+						{sortIndicator("winrate")}
 					</div>
-					<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3" style={{textAlign: "center"}}>
+					<div className={(this.props.onHeaderClicked ? "header-sortable " : "") + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => this.props.onHeaderClicked && this.props.onHeaderClicked("popularity")}>
 						Games
+						{sortIndicator("popularity")}
 					</div>
-					<div className="col-lg-1 col-md-1 hidden-sm hidden-xs" style={{textAlign: "center"}}>
+					<div className={(this.props.onHeaderClicked ? "header-sortable " : "") + "header-center col-lg-1 col-md-1 hidden-sm hidden-xs"} onClick={() => this.props.onHeaderClicked &&  this.props.onHeaderClicked("duration")}>
 						Duration
+						{sortIndicator("duration")}
 					</div>
-					<div className="col-lg-1 hidden-md hidden-sm hidden-xs" style={{textAlign: "center"}}>
+					<div className="header-center col-lg-1 hidden-md hidden-sm hidden-xs">
 						Cost
 					</div>
 					<div className="col-lg-6 col-md-7 col-sm-8 hidden-xs">

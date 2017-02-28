@@ -202,7 +202,25 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			);
 		}
 		else {
-			content = <DeckList decks={decks} pageSize={12} />;
+			content = (
+				<DeckList
+					decks={decks}
+					onHeaderClicked={(name: string) => {
+						if (this.state.queryMap["sortBy"] === name) {
+							setQueryMap(this, "sortDirection", this.state.queryMap["sortDirection"] === "ascending" ? "descending" : "ascending");
+						}
+						else {
+							const queryMap = Object.assign({}, this.state.queryMap);
+							queryMap["sortDirection"] = "descending";
+							queryMap["sortBy"] = name;
+							this.setState({queryMap});
+						}
+					}}
+					pageSize={12}
+					sortCol={this.state.queryMap["sortBy"]}
+					sortDirection={this.state.queryMap["sortDirection"]}
+				/>
+			);
 		}
 
 		const filterClassNames = ["infobox full-sm"];
@@ -313,17 +331,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
-					<h2>Sort by</h2>
-					<InfoboxFilterGroup selectedValue={this.state.queryMap["sortBy"]} onClick={(value) => setQueryMap(this, "sortBy", value)}>
-						<InfoboxFilter value="duration">Duration</InfoboxFilter>
-						<InfoboxFilter value="popularity">Popularity</InfoboxFilter>
-						<InfoboxFilter value="winrate">Winrate</InfoboxFilter>
-					</InfoboxFilterGroup>
-					<h2>Sort Direction</h2>
-					<InfoboxFilterGroup selectedValue={this.state.queryMap["sortDirection"]} onClick={(value) => setQueryMap(this, "sortDirection", value)}>
-						<InfoboxFilter value="ascending">Ascending</InfoboxFilter>
-						<InfoboxFilter value="descending">Descending</InfoboxFilter>
-					</InfoboxFilterGroup>
 					{backButton}
 				</div>
 				<div className={contentClassNames.join(" ")}>

@@ -85,6 +85,19 @@
 		border-bottom: 1px solid $darkgrey;
 		margin-left: 0px;
 		margin-right: 0px;
+
+		.header-center {
+			text-align: center;
+		}
+
+		.header-sortable {
+			user-select: none;
+			cursor: pointer;
+		}
+
+		.no-sort {
+			opacity: 0;
+		}
 	}
 
 	>ul {
