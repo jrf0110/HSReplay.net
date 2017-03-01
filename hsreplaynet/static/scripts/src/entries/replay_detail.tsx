@@ -109,10 +109,10 @@ if (deleteTarget) {
 // Player info
 const playerInfo = document.getElementById("infobox-players-container");
 if (playerInfo) {
-	const gameId = playerInfo.getAttribute("game-id");
-	const playerName = playerInfo.getAttribute("player-name");
-	const opponentName = playerInfo.getAttribute("opponent-name");
-	const build = +playerInfo.getAttribute("build");
+	const gameId = playerInfo.getAttribute("data-game-id");
+	const playerName = playerInfo.getAttribute("data-player-name");
+	const opponentName = playerInfo.getAttribute("data-opponent-name");
+	const build = +playerInfo.getAttribute("data-build");
 	const featureCardDb = playerInfo.getAttribute("data-feature-carddb") === "1";
 	ReactDOM.render(
 		<PlayerInfo gameId={gameId} playerName={playerName} opponentName={opponentName}

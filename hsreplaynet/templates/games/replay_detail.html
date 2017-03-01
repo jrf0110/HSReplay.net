@@ -49,8 +49,8 @@
 		<div id="replay-toggle-container"></div>
 
 		<h2>Players</h2>
-		<div id="infobox-players-container" game-id="{{ replay.shortid }}" player-name="{{ replay.friendly_player.name }}"
-			 opponent-name="{{ replay.opposing_player.name }}" build="{{ replay.global_game.build }}"
+		<div id="infobox-players-container" data-game-id="{{ replay.shortid }}" data-player-name="{{ replay.friendly_player.name }}"
+			 data-opponent-name="{{ replay.opposing_player.name }}" data-build="{{ replay.global_game.build }}"
 			 {% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}data-feature-carddb="1"{% endif %}>
 		</div>
 		<h2>Game</h2>
