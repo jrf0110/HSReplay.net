@@ -552,8 +552,15 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			const mulligan = this.getWinrateData(mulliganWinrate, +row["opening_hand_win_rate"]);
 			const drawn = this.getWinrateData(drawnWinrate, +row["win_rate_when_drawn"]);
 			const played = this.getWinrateData(playedWinrate, +row["win_rate_when_played"]);
+			let statusIcon = null;
+			if (+row["times_in_opening_hand"] < 30) {
+				statusIcon = <span className="glyphicon glyphicon-warning-sign" title="Low number of data points" />;
+			}
 			cols.push(
-				<td className="winrate-cell" style={{color: mulligan.color}}>{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(1) + "%"}</td>,
+				<td className="winrate-cell" style={{color: mulligan.color}}>
+					{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(1) + "%"}
+					{statusIcon}
+				</td>,
 				<td>{(+row["keep_percentage"]).toFixed(1) + "%"}</td>,
 			);
 			if (!this.props.userIsPremium) {
