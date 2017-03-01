@@ -1,10 +1,7 @@
 import os
 import pytest
-from uuid import uuid4
 from django.core.management import call_command
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from base64 import b64encode
 from hsreplaynet.cards.models import Deck, Archetype, CanonicalDeck
 from hearthstone.enums import CardClass, FormatType
@@ -209,4 +206,3 @@ def browser(full_url, django_db_blocker):
 		yield browser
 
 		browser.quit()
-
