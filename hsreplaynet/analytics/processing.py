@@ -282,6 +282,9 @@ def _generate_permutations_for_query(query, card_db):
 					new_permutation = copy.copy(parameter_permutation)
 					new_permutation["deck_id"] = deck_id
 					result.append(new_permutation)
+			elif non_filter_parameter == "account_lo":
+				# TODO: Add the ability to enumerage the account_lo values for each registered account
+				pass
 			else:
 				raise RuntimeError("Support for filter %s not implemented." % non_filter_parameter)
 		else:
