@@ -1,0 +1,26 @@
+#deck-spotlight {
+	margin: 0 auto;
+	padding: 50px 0;
+	width: 80%;
+	
+	.content-message {
+		padding: 50px 0;
+		text-align: center;
+	}
+
+	>h1 {
+		text-align: center;
+	}
+
+	>h3 {
+		padding-left: 20px;
+	}
+
+	.deck-list {
+		padding-bottom: 20px;
+	}
+
+	#deck-db-link {
+		text-align: center;
+	}
+}

@@ -37,6 +37,11 @@ class DeckListView(TemplateView):
 	template_name = "decks/deck_list.html"
 
 
+@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
+class DeckSpotlightView(TemplateView):
+	template_name = "decks/deck_spotlight.html"
+
+
 def canonical_decks(request):
 	result = []
 	archetypes = Archetype.objects.prefetch_related(
