@@ -50,14 +50,15 @@ export default class QueryManager {
 				return Promise.reject("Server returned " + response.status)
 			}
 			return response.json();
+		}).catch((reason) => {
+			console.error('Query to "' + query.url + '" failed:', reason);
+			query.callback("error");
+			return null;
 		}).then((json) => {
 			if (json !== undefined) {
 				query.callback(json);
 			}
 			return json;
-		}).catch((reason) => {
-			query.callback("error");
-			return null;
 		}).then((json) => {
 			if (json !== undefined) {
 				this.running.splice(this.running.indexOf(query), 1);
