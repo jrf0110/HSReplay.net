@@ -124,7 +124,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		if (!played || !included || played === "loading" || included === "loading" || !this.props.cardData) {
 			return [
 				<div className="content-message">
-					<h2>Counting cards...</h2>
+					<h2>Counting cards…</h2>
 				</div>
 			];
 		}
@@ -202,7 +202,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			>
 				<h2>Rank range</h2>
 				<InfoboxFilterGroup locked={!this.props.userIsPremium} deselectable selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
-					<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>
+					<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
 				</InfoboxFilterGroup>
 			</PremiumWrapper>,
 			backButton
@@ -217,7 +217,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			<button className="btn btn-default"
 				type="button"
 				onClick={() => this.setState({numRowsVisible: Math.max(15, this.state.numRowsVisible) * 2})}>
-				{"Show more..."}
+				{"Show more…"}
 			</button>
 		);
 	}
