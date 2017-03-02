@@ -15,6 +15,7 @@ selenium_test_suite = pytest.mark.skipif(
 )
 
 
+@pytest.mark.skip
 @selenium_test_suite
 def test_deck_database(browser, full_url):
 	browser.get(full_url("deck_list"))
