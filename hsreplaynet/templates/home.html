@@ -51,7 +51,7 @@
 					<li><a href="{% url 'articles_article_list' %}">Articles</a></li>
 
 					{% feature "topcards" as ft_topcards %}{% if ft_topcards.enabled %}
-						<li><a href="{% url 'popular_cards' %}">Top Popular Cards</a></li>
+						<li><a href="{% url 'popular_cards' %}">Top Cards</a></li>
 					{% endif %}
 
 					{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}

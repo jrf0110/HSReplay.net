@@ -165,7 +165,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		return [
 			backButton,
 			<ResetHeader onReset={() => this.setState({queryMap: this.defaultQueryMap})} showReset={queryMapHasChanges(this.state.queryMap, this.defaultQueryMap)}>
-				Card Menagerie
+				Top Cards
 			</ResetHeader>,
 			<h2>Class</h2>,
 			<ClassFilter 
