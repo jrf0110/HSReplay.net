@@ -178,8 +178,8 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			/>,
 			<h2>Mode</h2>,
 			<InfoboxFilterGroup selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
-				<InfoboxFilter value="RANKED_STANDARD">Standard</InfoboxFilter>
-				<InfoboxFilter value="RANKED_WILD">Wild</InfoboxFilter>
+				<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+				<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
 				<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
 			</InfoboxFilterGroup>,
 			<PremiumWrapper
