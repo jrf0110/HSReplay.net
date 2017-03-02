@@ -66,6 +66,9 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 		const min = pageOffset + 1;
 		const max = Math.min(pageOffset + this.props.pageSize, deckCount);
 		const pager = (top) => {
+			if (this.props.decks.length <= this.props.pageSize) {
+				return null;
+			}
 			return (
 				<div className="paging pull-right">
 					<span className={top ? "hidden-xs" : null}>{min + "–" + max + " out of  " + deckCount}</span>
