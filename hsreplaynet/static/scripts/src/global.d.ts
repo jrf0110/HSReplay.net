@@ -123,3 +123,77 @@ declare module "victory" {
 		render(): JSX.Element;
 	}
 }
+
+declare module "tether-shepherd" {
+	class TetherEvents {
+		on(eventName: string, handler, context?): void;
+
+		off(eventName: string, handler?): void;
+
+		once(eventName: string, handler, context?): void;
+	}
+
+	export class Step extends TetherEvents {
+		options: StepOptions;
+
+		show(): void;
+
+		hide(): void;
+
+		cancel(): void;
+
+		complete(): void;
+
+		scrollTo(): void;
+
+		isOpen(): boolean;
+
+		destroy(): void;
+	}
+
+	interface ButtonOptions {
+		text: string;
+		classes?: string;
+		action?: () => any;
+		events?: any;
+	}
+
+	interface StepOptions {
+		text?: any;
+		title?: string;
+		attachTo?: any;
+		beforeShowPromise?: any;
+		classes?: string
+		buttons?: ButtonOptions|ButtonOptions[];
+		[other: string]: any;
+	}
+
+	interface TourOptions {
+		steps?: Step[];
+		defaults?: any;
+	}
+
+	export class Tour extends TetherEvents {
+		constructor(options?: TourOptions);
+
+		addStep(id?: string, options: StepOptions): void;
+
+		getById(id: string): Step;
+
+		next(): void;
+
+		back(): void;
+
+		cancel(): void;
+
+		complete(): void;
+
+		hide(): void;
+
+		show(id?: string|number): void;
+
+		start(): void;
+
+		getCurrentStep(): Step;
+	}
+}

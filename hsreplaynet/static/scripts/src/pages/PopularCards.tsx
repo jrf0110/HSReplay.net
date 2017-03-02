@@ -7,11 +7,16 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import ResetHeader from "../components/ResetHeader";
-import { TableData, TableQueryData, ChartSeries } from "../interfaces";
+import {TableData, TableQueryData, ChartSeries} from "../interfaces";
 import {
-	QueryMap, getQueryMapFromLocation, queryMapHasChanges,
-	setLocationQueryString, setQueryMap, toQueryString
-} from "../QueryParser"
+	QueryMap,
+	getQueryMapFromLocation,
+	queryMapHasChanges,
+	setLocationQueryString,
+	setQueryMap,
+	toQueryString
+} from "../QueryParser";
+import TourManager from "../TourManager";
 
 interface PopularCardsState {
 	numRowsVisible?: number;
@@ -41,7 +46,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		region: [],
 		timeRange: ["LAST_14_DAYS"],
 	}
-	
+
 	private readonly allowedValuesPremium = {
 		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
 		rankRange: ["LEGEND_THROUGH_TEN"],
@@ -57,7 +62,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			showFilters: false,
 			topCardsIncluded: new Map<string, TableData>(),
 			topCardsPlayed: new Map<string, TableData>(),
-		}
+		};
 
 		this.fetchIncluded();
 		this.fetchPlayed();
@@ -83,30 +88,105 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	componentDidUpdate(prevProps: PopularCardsProps, prevState: PopularCardsState) {
 		const cacheKey = this.cacheKey();
 		const prevCacheKey = this.cacheKey(prevState);
+		const includedCards = this.state.topCardsIncluded.get(cacheKey);
+		const playedCards = this.state.topCardsPlayed.get(cacheKey);
 		if (cacheKey !== prevCacheKey) {
-			let deckData = this.state.topCardsIncluded.get(cacheKey);
-			if (!deckData || deckData === "error") {
+			if (!includedCards|| includedCards === "error") {
 				this.fetchIncluded();
 			}
-			
-			deckData = this.state.topCardsPlayed.get(cacheKey);
-			if (!deckData || deckData === "error") {
+
+			if (!playedCards || playedCards === "error") {
 				this.fetchPlayed();
 			}
 		}
 		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
 	}
 
+	componentDidMount() {
+		this.createTour(false);
+	}
+
+	createTour(force?: boolean) {
+		const tour = new TourManager();
+		tour.createTour("popular_cards", [
+			{
+				id: "welcome",
+				title: "Introduction",
+				text: [
+					"Welcome to Top Cards! Here you can learn all about the most popular cards in Hearthstone.",
+					"",
+					"Take a short tour through the statistics displayed on this page and how you can adjust them.",
+				],
+			},
+			{
+				id: "most-included",
+				title: "Highest inclusion rate",
+				text: [
+					"These tables show you the cards that have been included in the most decks and the ones that have been played the most.",
+				],
+				attachTo: "#tables-row top",
+			},
+			{
+				id: "show-more-button",
+				title: "More cards",
+				text: "Expand the card list by clicking on this button.",
+				attachTo: "#show-more-button top",
+			},
+			{
+				id: "charts",
+				title: "Charts",
+				text: [
+					"These charts correspond to the tables below and show you various details about the cards below.",
+					"",
+					"Hover over the diagrams to see which color corresponds to what.",
+				],
+				attachTo: "#charts-row bottom",
+			},
+			{
+				id: "class-filter",
+				title: "Pick a class",
+				text: [
+					"Select a class by clicking on it's symbol.",
+					"The charts and tables will instantly update and only show the cards in decks of and played by the selected class.",
+				],
+				attachTo: "#class-filter right",
+			},
+			{
+				id: "mode-filter",
+				title: "Choose your game mode",
+				text: [
+					"Not interested in Ranked Standard?",
+					"Select your preferred game mode here.",
+				],
+				attachTo: "#mode-filter right",
+			},
+			{
+				id: "card-details",
+				title: "Card Details",
+				text: "Click on any card to leave this page and view in-depth statistics about that card.",
+				attachTo: () => {
+					const cards = document.getElementsByClassName("card-wrapper");
+					const card = cards.length ? cards[0] : null;
+					const element = card ? card.firstChild : null;
+					return {
+						element: element,
+						on: "top",
+					};
+				}
+			},
+		], null, force);
+	}
+
 	render(): JSX.Element {
 		const filterClassNames = ["infobox full-sm"];
-		const contentClassNames = ["report-content container-fluid"]
+		const contentClassNames = ["report-content container-fluid"];
 		if (!this.state.showFilters) {
 			filterClassNames.push("hidden-xs hidden-sm");
 		}
 		else {
 			contentClassNames.push("hidden-xs hidden-sm");
 		}
-		
+
 		return <div className="report-container" id="card-popularity-report">
 			<div className={filterClassNames.join(" ")}>
 				{this.buildFilters()}
@@ -129,9 +209,10 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			];
 		}
 		else if (played === "error" || included === "error") {
+			console.log(played, included);
 			return [
 				<div className="content-message">
-					<h2>Alright, working on it...</h2>
+					<h2>Something went wrong</h2>
 					Please check back later.
 				</div>
 			];
@@ -142,13 +223,13 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 					<span className="glyphicon glyphicon-filter"/>
 					Filters
 				</button>,
-				<div className ="row">
+				<div className ="row" id="charts-row">
 					{this.buildCharts(included)}
 				</div>,
-				<div className="row">
+				<div className="row" id="tables-row">
 					{this.buildTables(played, included)}
 				</div>,
-				<div className="row" id="button-show-more">
+				<div className="row text-center">
 					{this.showMoreButton()}
 				</div>
 			];
@@ -167,24 +248,28 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			<ResetHeader onReset={() => this.setState({queryMap: this.defaultQueryMap})} showReset={queryMapHasChanges(this.state.queryMap, this.defaultQueryMap)}>
 				Top Cards
 			</ResetHeader>,
-			<h2>Class</h2>,
-			<ClassFilter 
-				hideAll
-				multiSelect={false}
-				filters="All"
-				minimal
-				selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
-				selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
-			/>,
-			<h2>Mode</h2>,
-			<InfoboxFilterGroup selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
-				<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-				<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-				<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
-			</InfoboxFilterGroup>,
+			<section id="class-filter">
+				<h2>Class</h2>
+				<ClassFilter
+					hideAll
+					multiSelect={false}
+					filters="All"
+					minimal
+					selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
+					selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
+				/>
+			</section>,
+			<section id="mode-filter">
+				<h2>Mode</h2>
+				<InfoboxFilterGroup selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
+					<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+					<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
+				</InfoboxFilterGroup>
+			</section>,
 			<PremiumWrapper
 				isPremium={this.props.userIsPremium}
-				infoHeader="Time frame"	
+				infoHeader="Time frame"
 				infoContent="Get the most recent data on what cards are hot right now!"
 			>
 				<h2>Time frame</h2>
@@ -214,7 +299,9 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			return null;
 		}
 		return (
-			<button className="btn btn-default"
+			<button
+				id="show-more-button"
+				className="btn btn-default"
 				type="button"
 				onClick={() => this.setState({numRowsVisible: Math.max(15, this.state.numRowsVisible) * 2})}>
 				{"Show more…"}
@@ -225,10 +312,10 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	buildTables(topCardsPlayed: TableData, topCardsIncluded: TableData): JSX.Element[] {
 		const selectedClass = this.state.queryMap["playerClass"];
 		return [
-			<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+			<div id="most-included-cards" className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 				<h2>Most included cards</h2>
 				<div>
-					<CardRankingTable 
+					<CardRankingTable
 						cardData={this.props.cardData}
 						clickable
 						dataKey={selectedClass}
@@ -237,10 +324,10 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 					/>
 				</div>
 			</div>,
-			<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+			<div id="most-played-cards" className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 				<h2>Most played cards</h2>
 				<div>
-					<CardRankingTable 
+					<CardRankingTable
 						cardData={this.props.cardData}
 						clickable
 						dataKey={selectedClass}
@@ -314,7 +401,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		}
 		return chartSeries;
 	}
-	
+
 	getQueryParams(): string {
 		const params = {
 			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
