@@ -63,9 +63,9 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					<VictoryAxis
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
-						tickValues={[metaData.yCenter]}
+						tickValues={[0, metaData.yCenter]}
 						tickFormat={tick => Math.round(+tick) + " %"}
-						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metaData.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
+						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: d => (d === metaData.yCenter || d === 0) ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryArea
 						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 0}})}
