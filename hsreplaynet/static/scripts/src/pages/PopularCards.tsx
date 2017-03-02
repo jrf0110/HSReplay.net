@@ -46,7 +46,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
 		rankRange: ["LEGEND_THROUGH_TEN"],
 		region: [],
-		timeRange: ["LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS"],
+		timeRange: ["LAST_1_DAY", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS"],
 	}
 
 	constructor(props: PopularCardsProps, state: PopularCardsState) {
@@ -189,6 +189,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			>
 				<h2>Time frame</h2>
 				<InfoboxFilterGroup locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["timeRange"]} onClick={(value) => setQueryMap(this, "timeRange", value)}>
+					<InfoboxFilter value="LAST_1_DAY">Yesterday</InfoboxFilter>
 					<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
 					<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
 					<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
