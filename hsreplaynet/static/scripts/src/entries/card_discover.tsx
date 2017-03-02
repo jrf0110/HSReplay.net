@@ -12,11 +12,23 @@ const render = (cardData) => {
 
 render(null);
 
+const addMechanic = (card: any, mechanic: string) => {
+	if (!card.mechanics) {
+		card.mechanics = [];
+	}
+	if(card.mechanics.indexOf(mechanic) === -1) {
+		card.mechanics.push(mechanic);
+	}
+}
+
 const hsjson = new HearthstoneJSON();
 hsjson.getLatest((data: any[]) => {
 	const db = new Map();
 	for(let i = 0; i < data.length; i++) {
 		const card = data[i];
+		if(card.overload) {
+			addMechanic(card, "OVERLOAD");
+		}
 		db.set(card.id, card);
 	}
 	render(db);
