@@ -115,11 +115,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		let discoverChoices = null;
 		if (this.cardHasDiscover() && this.state.discoverChoices && this.state.discoverChoices !== "loading" && this.state.discoverChoices !== "error") {
 			discoverChoices = [
-				<h4>Best Discover choices</h4>,
+				<h4>Most popular Discover choices</h4>,
 				<CardRankingTable
 					cardData={this.state.cardData}
 					numRows={8}
-					tableData={this.state.popularTargets}
+					tableData={this.state.discoverChoices}
 					dataKey={"ALL"}
 					clickable
 				/>
