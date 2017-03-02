@@ -9,11 +9,10 @@ export default class QueryManager {
 	private queue: Query[] = [];
 	private duplicates: Query[] = [];
 	private running: Query[]  = [];
+	private tries = {};
 	private throttle = false;
-	private readonly poll: boolean;
 
-	constructor(poll: boolean = false) {
-		this.poll = poll;
+	constructor(private poll: boolean = true, private maxTries: number = 4) {
 	}
 
 	public fetch(url: string, callback: (data: CallbackData) => void) {
@@ -29,6 +28,14 @@ export default class QueryManager {
 	private tryFetchNext() {
 		if (this.queue.length && (!this.throttle || !this.running.length)) {
 			const next = this.queue.pop();
+			const tries = this.tries[next.url] || 0;
+			if (tries >= this.maxTries) {
+				next.callback("error");
+				this.duplicateCallbacks(next, "error");
+				this.tryFetchNext();
+				return;
+			}
+			this.tries[next.url] = tries + 1;
 			this.fetchInternal(next);
 		}
 	}
@@ -62,13 +69,17 @@ export default class QueryManager {
 		}).then((json) => {
 			if (json !== undefined) {
 				this.running.splice(this.running.indexOf(query), 1);
-				this.duplicates.slice().forEach(dup => {
-					if (dup.url == query.url) {
-						this.duplicates.splice(this.duplicates.indexOf(dup), 1);
-						dup.callback(json || "error");
-					}
-				});
+				this.duplicateCallbacks(query, json);
 				this.tryFetchNext();
+			}
+		});
+	}
+
+	private duplicateCallbacks(query: Query, response: any) {
+		this.duplicates.slice().forEach(dup => {
+			if (dup.url == query.url) {
+				this.duplicates.splice(this.duplicates.indexOf(dup), 1);
+				dup.callback(response || "error");
 			}
 		});
 	}

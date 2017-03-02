@@ -252,7 +252,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</button>
 		);
 
-		const personalDisabled = !this.props.userIsAuthenticated || !this.state.myDecks;
+		const personalDisabled = !this.props.userIsAuthenticated || !this.state.myDecks || this.state.myDecks === "error";
 
 		let loginLink = null;
 		if (!this.props.userIsAuthenticated) {
