@@ -457,7 +457,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			})
 
 			if (this.state.sortCol === "decklist") {
-				rowList.sort(cardSorting);
+				rowList.sort((a, b) => cardSorting(a, b, this.state.sortDirection));
 			}
 			else {
 				rowList.sort((a, b) => +a.row[this.state.sortCol] > +b.row[this.state.sortCol] ? this.state.sortDirection : -this.state.sortDirection);

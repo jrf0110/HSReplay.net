@@ -463,7 +463,7 @@ export function getColorString(colors: Colors, intensity: number, winrate: numbe
 	return hsl(neutral);
 }
 
-export function cardSorting(a: any, b: any): number {
+export function cardSorting(a: any, b: any, direction = 1): number {
 	if (a.card !== undefined) {
 		if (a.card.cardObj !== undefined) {
 			a = a.card.cardObj
@@ -481,16 +481,16 @@ export function cardSorting(a: any, b: any): number {
 		}
 	}
 	if (a.cost > b.cost) { 
-		return 1;
+		return direction;
 	}
 	if (a.cost < b.cost) {
-		return -1;
+		return -direction;
 	}
 	if (a.name > b.name) {
-		return 1;
+		return direction;
 	}
 	if (a.name < b.name) {
-		return -1;
+		return -direction;
 	}
 	return 0;
 }
