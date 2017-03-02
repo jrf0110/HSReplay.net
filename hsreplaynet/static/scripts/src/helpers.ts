@@ -368,13 +368,15 @@ export function toPrettyNumber(n: number): string {
 }
 
 export function toTimeSeries(series: ChartSeries) : ChartSeries {
-	return {
+	const timeSeries = {
 		data: series.data.map(d => {
 			return {x: new Date(d.x).getTime(), y: d.y}
 		}),
 		name: series.name,
 		metadata: series.metadata
 	};
+	timeSeries.data.sort((a, b) => +a.x - +b.x);
+	return timeSeries;
 }
 
 export function getColorString(colors: Colors, intensity: number, winrate: number, mirror?: boolean, disable?: boolean): string {
