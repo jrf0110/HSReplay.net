@@ -48,7 +48,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		type: ["MINION", "SPELL", "WEAPON"],
 		set: ["CORE", "EXPERT1", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "PROMO", "REWARD"],
 		rarity: ["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"],
-		race: ["BEAST", "DEMON", "DRAGON", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
+		race: ["BEAST", "DEMON", "DRAGON", "ELEMENTAL", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
 		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
 	};
 	readonly placeholderUrl = STATIC_URL + "images/cardback_placeholder_kabal.png";
