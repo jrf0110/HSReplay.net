@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+	<h2>Redeem a code</h2>
+	<form method="POST" action="">
+		{% csrf_token %}
+		{{ form.as_p }}
+		<button type="submit" class="btn btn-primary">Redeem</button>
+	</form>
+</div>
+
+{% endblock %}
