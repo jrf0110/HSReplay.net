@@ -1,8 +1,14 @@
 from enum import IntEnum
+from uuid import uuid4
 from django.contrib.auth.models import Group
 from django.db import models
 from django.dispatch.dispatcher import receiver
+from django.utils.timezone import now
 from django_intenum import IntEnumField
+
+
+class FeatureError(Exception):
+	pass
 
 
 class FeatureStatus(IntEnum):
@@ -120,6 +126,53 @@ class Feature(models.Model):
 	@property
 	def authorized_group(self):
 		return Group.objects.get(name=self.authorized_group_name)
+
+
+class FeatureInvite(models.Model):
+	"""
+	Represents an invitation to one or more feature tags.
+	"""
+	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
+	features = models.ManyToManyField(Feature, related_name="invites")
+	use_count = models.PositiveIntegerField(
+		default=0, editable=False,
+		help_text="The amount of times this invitation has been successfully used."
+	)
+	max_uses = models.PositiveIntegerField(default=0, help_text="0 for unlimited")
+	expires = models.DateTimeField(
+		blank=True, null=True, help_text="No longer valid after this date."
+	)
+
+	created = models.DateTimeField(auto_now_add=True)
+	modified = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		features = self.features.all()
+		return "Invitation to %s" % (", ".join(str(f) for f in features))
+
+	@property
+	def is_valid(self):
+		if self.max_uses and self.max_uses >= self.use_count:
+			return False
+
+		if self.expires and now() > self.expires:
+			return False
+
+		return True
+
+	def redeem_for_user(self, user):
+		if not self.is_valid:
+			self.delete()
+			raise FeatureError("Invitation is no longer valid.")
+
+		for feature in self.features.all():
+			feature.add_user_to_preview_group(user)
+
+		self.use_count += 1
+		self.save()
+
+		if not self.is_valid:
+			self.delete()
 
 
 @receiver(models.signals.post_save, sender=Feature)
