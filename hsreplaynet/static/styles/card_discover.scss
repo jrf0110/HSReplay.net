@@ -7,8 +7,26 @@
 		max-width: 500px;
 		padding: 0 10px;
 
-		>input {
+		input {
+			background: transparent;
+			border: 0;
+			border-bottom: 2px solid $blue;
 			border-radius: 0px;
+			box-shadow: none;
+			padding-left: 35px;
+		}
+
+		.form-group {
+			width: 100%;
+		}
+
+		.glyphicon-search {
+			right: unset;
+			color: $blue;
+		}
+
+		#filter-button {
+			margin: 0 5px 15px 0;
 		}
 	}
 

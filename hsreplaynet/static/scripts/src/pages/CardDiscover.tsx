@@ -177,18 +177,21 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			filterClassNames.push("hidden-xs");
 			search = (
 				<div className="search-wrapper">
-					<button className="btn btn-default visible-xs" type="button" onClick={() => this.setState({showFilters: !this.state.showFilters})}>
+					<button className="btn btn-default visible-xs" id="filter-button" type="button" onClick={() => this.setState({showFilters: !this.state.showFilters})}>
 						<span className="glyphicon glyphicon-filter"/>
 						Filters
 					</button>
-					<input 
-						autoFocus
-						placeholder="Search..."
-						type="search"
-						className="form-control"
-						value={queryMap["text"]}
-						onChange={(x) => setQueryMap(this, "text", x.target["value"])}
-					/>
+					<div className="form-group has-feedback">
+						<input 
+							autoFocus
+							placeholder="Search..."
+							type="search"
+							className="form-control"
+							value={queryMap["text"]}
+							onChange={(x) => setQueryMap(this, "text", x.target["value"])}
+						/>
+						<span className="glyphicon glyphicon-search form-control-feedback"/>
+					</div>
 				</div>
 			);
 		}
