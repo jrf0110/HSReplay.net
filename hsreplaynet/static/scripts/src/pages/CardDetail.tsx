@@ -254,7 +254,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 		return <div className="card-detail-container">
 			<aside className="infobox">
-				<img className="card-image" src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"} />
+				<img className="card-image" src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"} />
 				<p>{this.getCleanFlavorText()}</p>
 				<h2>Info</h2>
 				<ul>

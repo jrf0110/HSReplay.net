@@ -56,7 +56,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 						<img
 							className="card-image"
 							height={350}
-							src={"http://media.services.zam.com/v1/media/byName/hs/cards/enus/" + this.props.cardId + ".png"}
+							src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"}
 							style={imageStyle}
 							onMouseEnter={() => this.setState({hovering: false})}
 						/>
