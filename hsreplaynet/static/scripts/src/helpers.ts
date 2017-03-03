@@ -286,18 +286,19 @@ export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTick
 		const xCenter = +xMin.x + (+xMax.x - +xMin.x) / 2
 
 		if (seasonTicks) {
+			const offset = 12 * 60 * 60 * 1000;
 			const minDate = new Date(xMin.x);
 			const maxDate = new Date(xMax.x);
 			const season = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
 			if (season.getTime() >= minDate.getTime()) {
-				ticks.push(season.getTime());
+				ticks.push(season.getTime() - offset);
 				season.setMonth(season.getMonth() - 1);
 				if (season.getTime() >= minDate.getTime()) {
-					ticks.push(season.getTime());
+					ticks.push(season.getTime() - offset);
 				}
 			}
 			else {
-				ticks.push(minDate.getTime())
+				ticks.push(minDate.getTime() - offset);
 			}
 		}
 
