@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
 	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel, 
-	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip
+	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip, VictoryScatter
 } from "victory";
 import {RenderData} from "../../interfaces";
 import {getChartMetaData, toTimeSeries} from "../../helpers";
@@ -37,7 +37,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 			const series = this.props.renderData.series.find(s => s.name === "winrates_by_turn" 
 				&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 
-			const metaData = getChartMetaData(series.data, 50, false);
+			const metaData = getChartMetaData(series.data, 50, false, 10);
 
 			const tooltip = <VictoryTooltip
 				cornerRadius={0}
@@ -56,6 +56,10 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 			const isMinTick = (tick: number) => tick === metaData.yDomain[0];
 			const isMaxTick = (tick: number) => tick === metaData.yDomain[1];
 
+
+			const yTicks = [50];
+			metaData.yDomain.forEach(value => yTicks.indexOf(value) === -1 && yTicks.push(value));
+
 			content = [
 				<defs>
 					<WinLossGradient id="winrate-by-turn-gradient" metadata={metaData} />
@@ -64,18 +68,28 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					height={150}
 					width={width}
 					containerComponent={<VictoryContainer title={""}/>}
-					domainPadding={{x: 0, y: 10}}
+					domainPadding={{x: 5, y: 10}}
 					padding={{left: 40, top: 30, right: 20, bottom: 30}}
 					domain={{x: metaData.xDomain, y: metaData.yDomain}}
 					>
 					<VictoryAxis
-						tickFormat={tick => "Turn " + tick}
-						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}/>
+						tickCount={series.data.length}
+						tickFormat={tick => tick}
+						style={{
+							axisLabel: {fontSize: 8},
+							tickLabels: {fontSize: 8},
+							grid: {stroke: "lightgray"},
+							axis: {visibility: "hidden"}
+						}}
+					/>
 					<VictoryAxis
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
-						tickValues={[50].concat(metaData.yDomain)}
+						tickValues={yTicks}
 						tickFormat={tick => {
+							if (tick === 50) {
+								return "50%";
+							}
 							if (minAbove50 && isMinTick(tick)) {
 								return "";
 							}
@@ -94,16 +108,21 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					<VictoryArea
 						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 50}})}
 						style={{data: {fill: "url(#winrate-by-turn-gradient)"}}}
-						interpolation="step"
+						interpolation="monotoneX"
 					/>
 					<VictoryLine
 						data={series.data}
-						interpolation="step"
+						interpolation="monotoneX"
 						style={{data: {strokeWidth: 1}}}
 					/>
+					<VictoryScatter
+						data={series.data}
+						symbol="circle"
+						size={1}
+					/>
 					<VictoryVoronoiTooltip
-						data={series.data.map(d => {return {x: d.x, y: 50, yValue: d.y}})}
-						labels={d => "Turn " + d.x + "\n" + d.yValue + "%"}
+						data={series.data}
+						labels={d => "Turn " + d.x + "\n" + d.y + "%"}
 						labelComponent={tooltip}
 						style={{
 							labels: {fontSize: 6, padding: 5}

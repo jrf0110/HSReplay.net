@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
 	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel,
-	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip
+	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip, VictoryScatter
 } from "victory";
 import {RenderData} from "../../interfaces";
 import {getChartMetaData} from "../../helpers";
@@ -28,7 +28,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 			const series = this.props.renderData.series.find(s => s.name === "popularity_by_turn" 
 				&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 
-			const metaData = getChartMetaData(series.data);
+			const metaData = getChartMetaData(series.data, undefined, false, 10);
 
 			const tooltip = <VictoryTooltip
 				cornerRadius={0}
@@ -53,33 +53,49 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					height={150}
 					width={width}
 					containerComponent={<VictoryContainer title={""}/>}
+					domainPadding={[5, 5]}
 					domain={{x: metaData.xDomain, y: [0, metaData.yDomain[1]]}}
 					padding={{left: 40, top: 30, right: 20, bottom: 30}}
 					>
 					<VictoryAxis
-						tickFormat={tick => "Turn " + tick}
-						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}
+						tickCount={series.data.length}
+						tickFormat={tick => tick}
+						style={{
+							axisLabel: {fontSize: 8},
+							tickLabels: {fontSize: 8},
+							grid: {stroke: "lightgray"},
+							axis: {visibility: "hidden"}
+						}}
 					/>
 					<VictoryAxis
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
-						tickValues={[0, metaData.yCenter]}
+						tickValues={[0, metaData.yCenter, metaData.yDomain[1]]}
 						tickFormat={tick => Math.round(+tick) + " %"}
-						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: d => (d === metaData.yCenter || d === 0) ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
+						style={{
+							axisLabel: {fontSize: 8},
+							tickLabels: {fontSize: 8},
+							grid: {stroke: d => d === metaData.yCenter ? "gray" : "lightgray"},
+							axis: {visibility: "hidden"}
+						}}
 					/>
 					<VictoryArea
 						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 0}})}
 						style={{data: {fill: "url(#turn-played-gradient)"}}}
-						interpolation="step"
+						interpolation="monotoneX"
 					/>
 					<VictoryLine
 						data={series.data}
-						interpolation="step"
+						interpolation="monotoneX"
 						style={{data: {strokeWidth: 1}}}
 					/>
+					<VictoryScatter
+						data={series.data}
+						size={1}
+					/>
 					<VictoryVoronoiTooltip
-						data={series.data.map(d => {return {x: d.x, y: metaData.yCenter, yValue: d.y}})}
-						labels={d => "Turn " + d.x + "\n" + d.yValue + "%"}
+						data={series.data}
+						labels={d => "Turn " + d.x + "\n" + d.y + "%"}
 						labelComponent={tooltip}
 						style={{
 							labels: {fontSize: 6, padding: 5}
