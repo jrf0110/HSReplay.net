@@ -49,6 +49,20 @@
 		a, a:hover, a:active {
 			color: inherit;
 		}
+
+		&.collapsible {
+			cursor: pointer;
+
+			.glyphicon {
+				padding-right: 5px;
+			}
+		}
+	}
+
+	h2:hover {
+		&.collapsible {
+			background-color: $lightblue1;
+		}
 	}
 
 	.premium-wrapper h2 {
