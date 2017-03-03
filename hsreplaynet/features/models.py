@@ -158,7 +158,7 @@ class FeatureInvite(models.Model):
 
 	@property
 	def is_valid(self):
-		if self.max_uses and self.max_uses >= self.use_count:
+		if self.max_uses and self.use_count >= self.max_uses:
 			return False
 
 		if self.expires and now() > self.expires:
