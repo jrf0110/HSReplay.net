@@ -521,7 +521,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</th>,
 		)
 
-		return <table className="table table-striped">
+		return <table className="table table-striped table-hover">
 			<thead className="table-header-sortable">
 				<tr>
 					{headers}
