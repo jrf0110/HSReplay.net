@@ -30,7 +30,7 @@ class FeatureInviteRedeemView(LoginRequiredMixin, FormView):
 		return initial
 
 	def form_valid(self, form):
-		feature = FeatureInvite.objects.get(uuid=form.cleaned_data["uuid"])
-		feature.redeem_for_user(self.request.user)
+		invite = FeatureInvite.objects.get(uuid=form.cleaned_data["uuid"])
+		invite.redeem_for_user(self.request.user)
 		messages.info(self.request, "Code successfully redeemed.")
 		return super().form_valid(form)

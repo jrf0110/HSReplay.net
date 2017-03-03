@@ -106,10 +106,16 @@ class Feature(models.Model):
 			return user.groups.filter(name=self.authorized_group_name).exists()
 
 	def add_user_to_preview_group(self, user):
-		user.groups.add(self.preview_group)
+		group = self.preview_group
+		if group not in user.groups.all():
+			user.groups.add(self.preview_group)
+			return True
 
 	def add_user_to_authorized_group(self, user):
-		user.groups.add(self.authorized_group)
+		group = self.authorized_group
+		if group not in user.groups.all():
+			user.groups.add(self.preview_group)
+			return True
 
 	@property
 	def preview_group_name(self):
@@ -165,11 +171,15 @@ class FeatureInvite(models.Model):
 			self.delete()
 			raise FeatureError("Invitation is no longer valid.")
 
+		redeemed = False
 		for feature in self.features.all():
-			feature.add_user_to_preview_group(user)
+			if feature.add_user_to_preview_group(user):
+				redeemed = True
 
-		self.use_count += 1
-		self.save()
+		if redeemed:
+			# The invite is only considered redeemed if it had any effect
+			self.use_count += 1
+			self.save()
 
 		if not self.is_valid:
 			self.delete()
