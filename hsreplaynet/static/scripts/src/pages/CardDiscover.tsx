@@ -286,21 +286,17 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "rarity")} onClick={(value, sender) => filterCounts.rarity && this.onFilterItemClick("rarity", sender, value)}>
 				{this.buildFilterItems("rarity", filterCounts.rarity)}
 			</InfoboxFilterGroup>,
-			<h2>Set</h2>,
-			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "set")} onClick={(value, sender) => filterCounts.set && this.onFilterItemClick("set", sender, value)}>
+			<InfoboxFilterGroup header="Set" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "set")} onClick={(value, sender) => filterCounts.set && this.onFilterItemClick("set", sender, value)}>
 				{this.buildFilterItems("set", filterCounts.set)}
 				{this.buildFormatFilter(filterCounts.format["standard"])}
 			</InfoboxFilterGroup>,
-			<h2>Type</h2>,
-			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "type")} onClick={(value, sender) => filterCounts.type && this.onFilterItemClick("type", sender, value)}>
+			<InfoboxFilterGroup header="Type" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "type")} onClick={(value, sender) => filterCounts.type && this.onFilterItemClick("type", sender, value)}>
 				{this.buildFilterItems("type", filterCounts.type)}
 			</InfoboxFilterGroup>,
-			<h2>Race</h2>,
-			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "race")} onClick={(value, sender) => filterCounts.race && this.onFilterItemClick("race", sender, value)}>
+			<InfoboxFilterGroup header="Race" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "race")} onClick={(value, sender) => filterCounts.race && this.onFilterItemClick("race", sender, value)}>
 				{this.buildFilterItems("race", filterCounts.race)}
 			</InfoboxFilterGroup>,
-			<h2>Mechanics</h2>,
-			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "mechanics")} onClick={(value, sender) => filterCounts.mechanics && this.onFilterItemClick("mechanics", sender, value)}>
+			<InfoboxFilterGroup header="Mechanics" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "mechanics")} onClick={(value, sender) => filterCounts.mechanics && this.onFilterItemClick("mechanics", sender, value)}>
 				{this.buildFilterItems("mechanics", filterCounts.mechanics)}
 			</InfoboxFilterGroup>,
 		];
