@@ -26,7 +26,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		}
 		else if (this.props.renderData) {
 			const series = toTimeSeries(this.props.renderData.series[0]);
-			const metadata = getChartMetaData(series.data, 50, true, 1);
+			const metadata = getChartMetaData(series.data, 50, true, 10);
 
 			const tooltip = (
 				<VictoryTooltip
@@ -46,6 +46,9 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 			const maxBelow50 = metadata.yMinMax[1].y < 50;
 			const isMinTick = (tick: number) => tick === metadata.yDomain[0];
 			const isMaxTick = (tick: number) => tick === metadata.yDomain[1];
+
+			const yTicks = [50];
+			metadata.yDomain.forEach(value => yTicks.indexOf(value) === -1 && yTicks.push(value));
 
 			content = [
 				<defs>
@@ -70,6 +73,9 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 						axisLabelComponent={<VictoryLabel dx={10} />}
 						tickValues={[50].concat(metadata.yDomain)}
 						tickFormat={tick => {
+							if (tick === 50) {
+								return "50%";
+							}
 							if (minAbove50 && isMinTick(tick)) {
 								return "";
 							}

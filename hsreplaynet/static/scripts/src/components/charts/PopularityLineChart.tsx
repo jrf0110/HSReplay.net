@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
 	VictoryAxis, VictoryChart, VictoryContainer, VictoryLabel, VictoryLine,
-	VictoryScatter, VictoryVoronoiTooltip, VictoryTooltip
+	VictoryScatter, VictoryVoronoiTooltip, VictoryTooltip, VictoryArea
 } from "victory";
 import {RenderData} from "../../interfaces";
 import {getChartMetaData, toTimeSeries} from "../../helpers";
@@ -35,7 +35,7 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 		}
 		else if (this.props.renderData) {
 			const series = toTimeSeries(this.props.renderData.series[0]);
-			const metadata = getChartMetaData(series.data, undefined, true);
+			const metadata = getChartMetaData(series.data, undefined, true, 1);
 
 			const tooltip = <VictoryTooltip
 				cornerRadius={0}
@@ -51,7 +51,10 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 
 			content = [
 				<defs>
-					<PopularityGradient id="popularity-gradient" colorMin={this.colorMin} colorMax={this.colorMax} />
+					<linearGradient id="popularity-gradient" x1="50%" y1="100%" x2="50%" y2="0%">
+						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
+						<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
+					</linearGradient>
 				</defs>,
 				<VictoryChart
 					height={150}
@@ -74,10 +77,15 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 						tickFormat={tick => metadata.toFixed(tick) + "%"}
 						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
+					<VictoryArea
+						data={series.data.map(p => {return {x: p.x, y: p.y, y0: metadata.yDomain[0]}})}
+						style={{data: {fill: "url(#popularity-gradient)"}}}
+						interpolation="monotoneX"
+					/>
 					<VictoryLine
 						data={series.data}
 						interpolation="monotoneX"
-						style={{data: {stroke: this.colorMin, strokeWidth: 2}}}
+						style={{data: {strokeWidth: 1}}}
 					/>
 					<VictoryVoronoiTooltip
 						data={series.data}
