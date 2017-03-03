@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import CharField, Form, TextInput, ValidationError
 from django.urls import reverse_lazy
 from django.views.generic import FormView
-from .models import FeatureInvite
+from .models import FeatureError, FeatureInvite
 
 
 class FeatureInviteForm(Form):
@@ -31,6 +31,10 @@ class FeatureInviteRedeemView(LoginRequiredMixin, FormView):
 
 	def form_valid(self, form):
 		invite = FeatureInvite.objects.get(uuid=form.cleaned_data["uuid"])
-		invite.redeem_for_user(self.request.user)
-		messages.info(self.request, "Code successfully redeemed.")
+		try:
+			invite.redeem_for_user(self.request.user)
+		except FeatureError:
+			messages.error(self.request, "This code has expired.")
+		else:
+			messages.info(self.request, "Code successfully redeemed.")
 		return super().form_valid(form)
