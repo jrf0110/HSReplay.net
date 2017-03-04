@@ -223,15 +223,6 @@ class Deck(models.Model):
 		mana_sorted = sorted(alpha_sorted, key=lambda c: c.cost)
 		return mana_sorted.__iter__()
 
-	def save(self, *args, **kwargs):
-		EMPTY_DECK_DIGEST = "d41d8cd98f00b204e9800998ecf8427e"
-		if self.digest != EMPTY_DECK_DIGEST and self.includes.count() == 0:
-			# A client has set a digest by hand, so don't recalculate it.
-			return super(Deck, self).save(*args, **kwargs)
-		else:
-			self.digest = generate_digest_from_deck_list(self.card_id_list())
-			return super(Deck, self).save(*args, **kwargs)
-
 	@property
 	def all_includes(self):
 		"""
@@ -240,6 +231,18 @@ class Deck(models.Model):
 		"""
 		fields = ("id", "count", "deck_id", "card__name")
 		return self.includes.all().select_related("card").only(*fields)
+
+	def get_absolute_url(self):
+		return reverse("deck_detail", kwargs={"id": self.id})
+
+	def save(self, *args, **kwargs):
+		EMPTY_DECK_DIGEST = "d41d8cd98f00b204e9800998ecf8427e"
+		if self.digest != EMPTY_DECK_DIGEST and self.includes.count() == 0:
+			# A client has set a digest by hand, so don't recalculate it.
+			return super(Deck, self).save(*args, **kwargs)
+		else:
+			self.digest = generate_digest_from_deck_list(self.card_id_list())
+			return super(Deck, self).save(*args, **kwargs)
 
 	def card_dbf_id_list(self):
 		result = []
