@@ -206,6 +206,7 @@ class GlobalGamePlayer(models.Model):
 	real_name = models.CharField("Real name", blank=True, max_length=64)
 
 	player_id = PlayerIDField(blank=True)
+	pegasus_account = models.ForeignKey(PegasusAccount, null=True, on_delete=models.SET_NULL)
 	account_hi = models.BigIntegerField(
 		"Account Hi", blank=True, null=True,
 		help_text="The region value from account hilo"
