@@ -1,0 +1,4 @@
+<meta property="x-hearthstone:deck" content="{{ deck.name }}"/>
+<!-- <meta property="x-hearthstone:deck:hero" content="{{ deck.hero_id }}"/> -->
+<meta property="x-hearthstone:deck:cards" content="{{ deck.card_id_list|join:',' }}"/>
+<meta property="x-hearthstone:deck:url" content="https://hsreplay.net/{{ deck.get_absolute_url }}"/>
