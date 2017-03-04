@@ -4,6 +4,7 @@ from django.http import Http404, HttpResponseForbidden, JsonResponse
 from django.urls import reverse
 from hsredshift.analytics import queries
 from hsredshift.analytics import filters
+from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import log
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.influx import get_redshift_query_average_duration_seconds
@@ -21,13 +22,14 @@ def evict_query_from_cache(request, name):
 	return JsonResponse({"msg": "OK"})
 
 
+@view_requires_feature_access("carddb")
 def fetch_query_results(request, name):
 	query = queries.get_query(name)
 	if not query:
 		raise Http404("No query named: %s" % name)
 
 	params = query.build_full_params(request.GET)
-	if not user_is_eligible_for_query(request.user, params):
+	if not user_is_eligible_for_query(request.user, query, params):
 		return HttpResponseForbidden()
 
 	return _fetch_query_results(query, params)
@@ -74,9 +76,17 @@ def _fetch_query_results(query, params):
 	return response
 
 
-def user_is_eligible_for_query(user, params):
+def user_is_eligible_for_query(user, query, params):
 	if params.has_premium_values:
 		return user.is_authenticated and user.is_premium
+	elif query.is_personalized:
+		region_val = params.supplied_parameters.get("Region", None)
+		account_lo_val = params.supplied_parameters.get("account_lo", None)
+		if not region_val or not account_lo_val:
+			raise ValueError("Personalized queries must provide region & account_lo params")
+
+		# TODO: Check that this user is eligible for this account_hi / account_lo
+		return True
 	else:
 		return True
 
