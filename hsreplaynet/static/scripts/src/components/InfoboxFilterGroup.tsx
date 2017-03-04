@@ -48,7 +48,8 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 		if (this.props.header) {
 			let icon = null;
 			let headerClassName = null;
-			if (this.props.collapsed || this.props.collapsible) {
+			const collapsible = this.props.collapsed || this.props.collapsible;
+			if (collapsible) {
 				headerClassName = "collapsible";
 				if (this.state.collapsed) {
 					icon = <span className="glyphicon glyphicon-menu-down"/>
@@ -58,7 +59,7 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 				}
 			}
 			header = (
-				<h2 className={headerClassName} onClick={() => this.setState({collapsed: !this.state.collapsed})}>
+				<h2 className={headerClassName} onClick={() => collapsible && this.setState({collapsed: !this.state.collapsed})}>
 					{icon}
 					{this.props.header}
 				</h2>
