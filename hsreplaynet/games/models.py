@@ -5,7 +5,7 @@ from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django_intenum import IntEnumField
-from hearthstone.enums import BnetGameType, FormatType, PlayState
+from hearthstone.enums import BnetGameType, BnetRegion, FormatType, PlayState
 from hsreplaynet.api.models import AuthToken
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.utils.fields import PlayerIDField, ShortUUIDField
@@ -20,6 +20,30 @@ def _generate_upload_path(timestamp, shortid):
 def generate_upload_path(instance, filename):
 	ts = instance.global_game.match_start
 	return _generate_upload_path(ts, instance.shortid)
+
+
+class PegasusAccount(models.Model):
+	id = models.BigAutoField(primary_key=True)
+
+	account_hi = models.BigIntegerField(
+		"Account Hi",
+		help_text="The region value from account hilo"
+	)
+	account_lo = models.BigIntegerField(
+		"Account Lo",
+		help_text="The account ID value from account hilo"
+	)
+	region = IntEnumField(BnetRegion)
+	battletag = models.CharField(max_length=64, blank=True)
+
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+	)
+	created = models.DateTimeField(auto_now_add=True)
+	modified = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		unique_together = ("account_hi", "account_lo")
 
 
 class GlobalGame(models.Model):
@@ -177,9 +201,6 @@ class GlobalGamePlayer(models.Model):
 
 	name = models.CharField("Player name", blank=True, max_length=64, db_index=True)
 	real_name = models.CharField("Real name", blank=True, max_length=64)
-	user = models.ForeignKey(
-		settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
-	)
 
 	player_id = PlayerIDField(blank=True)
 	account_hi = models.BigIntegerField(
