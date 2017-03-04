@@ -3,7 +3,7 @@
 
 	.search-wrapper {
 		display: flex;
-		margin: 20px auto;
+		margin: 0px auto;
 		max-width: 500px;
 		padding: 0 10px;
 
@@ -24,14 +24,14 @@
 			right: unset;
 			color: $blue;
 		}
+	}
 
-		#filter-button {
-			margin: 0 5px 15px 0;
-		}
+	#filter-button {
+		margin: 0 5px 15px 0;
 	}
 
 	#card-discover-infobox {
-		> ul {
+		ul {
 			&.filter-list-cost {
 				display: flex;
 				justify-content: center;
@@ -93,7 +93,9 @@
 		}
 	}
 
-	.card-list-wrapper {
+	>main {
+		min-height: 100vh;
+		padding: 10px;
 		width: calc(100% - 300px);
 
 		@media(max-width: 768px) {
@@ -104,7 +106,11 @@
 			text-align: center;
 		}
 
-		.card-list {
+		#card-list, #card-table {
+			padding-top: 20px;
+		}
+
+		#card-list {
 			display: flex;
 			flex-wrap: wrap;
 			justify-content: center;
@@ -131,9 +137,42 @@
 			}
 		}
 
-		.no-search-result {
+		.content-message {
 			text-align: center;
 			padding: 50px 0;
+		}
+
+		.td-card {
+			min-width: 217px;
+			width: 217px;
+		}
+
+		.card-wrapper {
+			margin-bottom: -7px;
+			margin-top: -7px;
+		}
+
+		.no-sort {
+			opacity: 0;
+		}
+
+		.table-wrapper {
+			overflow-x: auto;
+			
+			>table {
+				min-width: 1000px;
+			}
+		}
+
+		th {
+			&.sortable {
+				cursor: pointer;
+				user-select: none;
+			}
+		}
+
+		td {
+			font-weight: bold;
 		}
 	}
 

@@ -20,7 +20,7 @@ import moment from "moment";
 import {CardObj, DeckObj, MyDecks, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
 	cardSorting, getChartScheme, getColorString, getDustCost,
-	getHeroCardId, toPrettyNumber, toTitleCase, wildSets,
+	getHeroCardId, toPrettyNumber, toTitleCase, wildSets, winrateData
 } from "../helpers";
 import {showModal} from "../Premium";
 import {Colors} from "../Colors";
@@ -549,9 +549,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</div>
 		</td>);
 		if (row) {
-			const mulligan = this.getWinrateData(mulliganWinrate, +row["opening_hand_win_rate"]);
-			const drawn = this.getWinrateData(drawnWinrate, +row["win_rate_when_drawn"]);
-			const played = this.getWinrateData(playedWinrate, +row["win_rate_when_played"]);
+			const mulligan = winrateData(mulliganWinrate, +row["opening_hand_win_rate"], 5);
+			const drawn = winrateData(drawnWinrate, +row["win_rate_when_drawn"], 5);
+			const played =winrateData(playedWinrate, +row["win_rate_when_played"], 5);
 			let statusIcon = null;
 			if (+row["times_in_opening_hand"] < 30) {
 				statusIcon = <span className="glyphicon glyphicon-warning-sign" title="Low number of data points" />;
@@ -613,14 +613,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return <tr className="card-table-row">
 			{cols}
 		</tr>;
-	}
-
-	getWinrateData(baseWinrate: number, winrate: number) {
-		const winrateDelta = winrate - baseWinrate;
-		const colorWinrate = 50 + Math.max(-50, Math.min(50, (5 * winrateDelta)));
-		const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
-		const color = getColorString(Colors.REDGREEN3, 75, colorWinrate/100)
-		return {delta: winrateDelta.toFixed(1), color, tendencyStr}
 	}
 
 	isWildDeck(): boolean {

@@ -531,3 +531,11 @@ export function getDustCost(card: any) {
 
 	return 0;
 }
+
+export function winrateData(baseWinrate: number, winrate: number, deltaFactor: number) {
+	const winrateDelta = winrate - baseWinrate;
+	const colorWinrate = 50 + Math.max(-50, Math.min(50, (deltaFactor * winrateDelta)));
+	const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
+	const color = getColorString(Colors.REDGREEN3, 75, colorWinrate/100)
+	return {delta: winrateDelta.toFixed(1), color, tendencyStr}
+}

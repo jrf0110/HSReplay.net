@@ -6,11 +6,13 @@ import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
+import QueryManager from "../QueryManager";
+import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
-import {ChartSeries} from "../interfaces";
-import {cardSorting, setNames, toTitleCase, wildSets} from "../helpers";
+import {ChartSeries, TableQueryData, TableData} from "../interfaces";
+import {cardSorting, setNames, toTitleCase, toPrettyNumber, wildSets, winrateData} from "../helpers";
 import {
-	parseQuery, getQueryMapDiff, getQueryMapArray, getQueryMapFromLocation, 
+	genCacheKey, parseQuery, getQueryMapDiff, getQueryMapArray, getQueryMapFromLocation, 
 	setLocationQueryString, toQueryString, queryMapHasChanges, QueryMap, setQueryMap
 } from "../QueryParser"
 
@@ -25,18 +27,28 @@ interface CardFilters {
 	type: any;
 }
 
+interface CardTableData {
+	[key: string]: TableData;
+}
+
 interface CardDiscoverState {
 	cards?: any[];
+	filteredCards: any[];
+	filterCounts: CardFilters;
 	numCards?: number;
 	queryMap?: QueryMap;
 	showFilters?: boolean;
+	topCardsIncluded?: CardTableData;
+	topCardsPlayed?: CardTableData;
 }
 
 interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 	cardData: Map<string, any>;
+	userIsPremium: boolean;
 }
 
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
+	private readonly queryManager: QueryManager = new QueryManager();
 	readonly filters = {
 		cost: [0, 1, 2, 3, 4, 5, 6, 7],
 		format: ["standard"],
@@ -51,29 +63,64 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		race: ["BEAST", "DEMON", "DRAGON", "ELEMENTAL", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
 		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
 	};
+	readonly multiClassGroups = {
+		GRIMY_GOONS: ["HUNTER", "PALADIN", "WARRIOR"],
+		KABAL: ["MAGE", "PRIEST", "WARLOCK"],
+		JADE_LOTUS: ["DRUID", "ROGUE", "SHAMAN"],
+	};
 	readonly placeholderUrl = STATIC_URL + "images/cardback_placeholder_kabal.png";
 	readonly defaultQueryMap: QueryMap = {
 		cost: "",
 		format: "",
+		gameType: "RANKED_STANDARD",
 		mechanics: "",
-		type: "",
-		set: "",
-		rarity: "",
-		race: "",
 		playerClass: "ALL",
+		race: "",
+		rankRange: "ALL",
+		rarity: "",
+		set: "",
+		sortBy: "includedPopularity",
+		sortDirection: "descending",
 		text: "",
+		timeRange: "LAST_14_DAYS",
+		type: "",
+		viewType: "advanced",
+	}
+
+	private readonly allowedValues = {
+		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
+		rankRange: [],
+		region: [],
+		timeRange: ["LAST_14_DAYS"],
+	}
+
+	private readonly allowedValuesPremium = {
+		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
+		rankRange: ["LEGEND_THROUGH_TEN"],
+		region: [],
+		timeRange: ["LAST_1_DAY", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS"],
 	}
 
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
 		super(props, state);
 		this.state = {
 			cards: null,
-			queryMap: getQueryMapFromLocation(this.defaultQueryMap, {}),
+			filteredCards: null,
+			filterCounts: null,
+			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			numCards: 24,
 			showFilters: false,
+			topCardsIncluded: {},
+			topCardsPlayed: {},
 		}
 		this.fetchPlaceholderImage();
 		this.filters.mechanics.sort();
+		this.fetchIncluded();
+		this.fetchPlayed();
+	}
+
+	getAllowedValues(): any {
+		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
 	}
 
 	fetchPlaceholderImage() {
@@ -81,8 +128,62 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		image.src = this.placeholderUrl;
 	}
 
-	componentDidUpdate() {
+	onSearchScroll(): void {
+		if (document.body.scrollTop + (window.innerHeight + 100) >= document.body.scrollHeight) {
+			if (this.state.filteredCards.length > this.state.numCards) {
+				this.setState({numCards: this.state.numCards + 10});
+			}
+		}
+	}
+
+	componentDidMount() {
+		document.addEventListener("scroll", () => this.onSearchScroll());
+	}
+
+	componentDidUnmount() {
+		document.removeEventListener("scroll", () => this.onSearchScroll());
+	}
+
+	componentDidUpdate(prevProps: CardDiscoverProps, prevState: CardDiscoverState) {
+		const cacheKey = this.state.queryMap["viewType"]=== "advanced" && genCacheKey(this);
+		const prevCacheKey = prevState.queryMap["viewType"] === "advanced" && genCacheKey(this, prevState);
+		const includedCards = this.state.topCardsIncluded[cacheKey];
+		const playedCards = this.state.topCardsPlayed[cacheKey];
+		
+		if (cacheKey !== prevCacheKey) {
+			if (!includedCards || includedCards === "error") {
+				this.fetchIncluded();
+			}
+
+			if (!playedCards || playedCards === "error") {
+				this.fetchPlayed();
+			}
+		}
 		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
+
+		if (!this.state.filteredCards || prevState.queryMap !== this.state.queryMap) {
+			this.updateFilteredCards();
+		}
+	}
+
+	updateFilteredCards(): void {
+		const filteredByProp = {};
+		const filterKeys = Object.keys(this.filters);
+		filterKeys.forEach(key => filteredByProp[key] = []);
+		const filteredCards = [];
+		if (this.state.cards) {
+			this.state.cards.forEach(card => {
+				filterKeys.forEach(x => {
+					if (!this.filter(card, x)) {
+						filteredByProp[x].push(card);
+					}
+				});
+				if (!this.filter(card)) {
+					filteredCards.push(card);
+				}
+			});
+		}
+		this.setState({filteredCards, filterCounts: this.filterCounts(filteredByProp as CardFilters)})
 	}
 
 	componentWillReceiveProps(nextProps: CardDiscoverProps) {
@@ -99,30 +200,46 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	render(): JSX.Element {
-		const queryMap = Object.assign({}, this.state.queryMap);
+		const cacheKey = genCacheKey(this);
+		const played = this.state.topCardsPlayed[cacheKey];
+		const included = this.state.topCardsIncluded[cacheKey];
+		const viewType = this.state.queryMap["viewType"];
 
-		const tiles = [];
-		const filteredCards = {
-			playerClass: [],
-			cost: [],
-			rarity: [],
-			set: [],
-			type: [],
-			race: [],
-			mechanics: [],
-			format: [],
+		let content = null;
+		if ((viewType === "advanced" && (!played || !included || played === "loading" || included === "loading")) || !this.props.cardData) {
+			content = [
+				<div className="content-message">
+					<h2>Loading...</h2>
+				</div>
+			];
 		}
-		const allFilteredCards = [];
-		const filterKeys = Object.keys(filteredCards);
-
-		if (this.state.cards) {
-			this.state.cards.forEach(card => {
-				filterKeys.forEach(x => {
-					if (!this.filter(card, x)) {
-						filteredCards[x].push(card);
-					}
-				});
-				if (!this.filter(card)) {
+		else if (viewType === "advanced" && (played === "error" || included === "error")) {
+			content = [
+				<div className="content-message">
+					<h2>Something went wrong</h2>
+					Please check back later.
+				</div>
+			];
+		}
+		else if(this.state.filteredCards && !this.state.filteredCards.length) {
+			content = (
+				<div className="content-message">
+					<h2>No cards found</h2>
+					<button className="btn btn-default" type="button" onClick={() => this.resetFilters()}>Reset filters</button>
+				</div>
+			);
+		}
+		else if (this.state.filteredCards) {
+			if (viewType === "advanced") {
+				content = [
+					<div className="table-wrapper">
+						{this.buildCardTable(included as TableQueryData, played as TableQueryData)}
+					</div>
+				];
+			}
+			else {
+				const tiles = [];
+				this.state.filteredCards.forEach(card => {
 					if (tiles.length < this.state.numCards) {
 						tiles.push(
 							<CardImage
@@ -133,61 +250,30 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 							/>
 						);
 					}
-					allFilteredCards.push(card);
-				}
-			});
-		}
-
-
-		let showMoreButton = null;
-		if (this.state.cards && allFilteredCards.length > this.state.numCards) {
-			showMoreButton = (
-				<div className="more-button">
-					<button type="button" className="btn btn-default" onClick={() => this.setState({numCards: this.state.numCards + 10})}>
-						Show more...
-					</button>
-				</div>
-			)
-		}
-
-		let content = null;
-		if(this.state.cards && !allFilteredCards.length) {
-			content = (
-				<div className="no-search-result">
-					<h2>No cards found</h2>
-					<button className="btn btn-default" type="button" onClick={() => this.setState({queryMap: this.defaultQueryMap})}>Reset filters</button>
-				</div>
-			);
-		}
-		else {
-			content = [
-				<div className="card-list">
-					{tiles}
-				</div>,
-				showMoreButton
-			];
+				})
+				content = [
+					<div id="card-list">
+						{tiles}
+					</div>
+				];
+			}
 		}
 
 		let search = null;
 
-		const filterCounts = this.filterCounts(filteredCards);
 		const filterClassNames = ["infobox full-xs"];
 		const contentClassNames = ["card-list-wrapper"]
 		if (!this.state.showFilters) {
 			filterClassNames.push("hidden-xs");
 			search = (
 				<div className="search-wrapper">
-					<button className="btn btn-default visible-xs" id="filter-button" type="button" onClick={() => this.setState({showFilters: !this.state.showFilters})}>
-						<span className="glyphicon glyphicon-filter"/>
-						Filters
-					</button>
 					<div className="form-group has-feedback">
 						<input 
 							autoFocus
 							placeholder="Search..."
 							type="search"
 							className="form-control"
-							value={queryMap["text"]}
+							value={this.state.queryMap["text"]}
 							onChange={(x) => setQueryMap(this, "text", x.target["value"])}
 						/>
 						<span className="glyphicon glyphicon-search form-control-feedback"/>
@@ -205,18 +291,149 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			</button>
 		);
 
+		const onAdvancedViewClick = () => {
+			const newMap = Object.assign({}, this.state.queryMap);
+			newMap["viewType"] = "advanced";
+			if (newMap["playerClass"] === "NEUTRAL") {
+				newMap["playerClass"] = "ALL";
+			}
+			this.setState({queryMap: newMap});
+		};
+
 		return (
 			<div className="card-discover">
-				<div className={filterClassNames.join(" ")} id="card-discover-infobox">
+				<aside className={filterClassNames.join(" ")} id="card-discover-infobox">
 					{backButton}
-					{this.buildFilters(filterCounts)}
+					{this.buildFilters()}
 					{backButton}
-				</div>
-				<div className={contentClassNames.join(" ")}>
+				</aside>
+				<main className={contentClassNames.join(" ")}>
+					<div className="btn-group pull-right">
+						<button type="button" className={"btn btn-" + (this.state.queryMap["viewType"] === "advanced" ? "primary" : "default")} onClick={onAdvancedViewClick}>
+							Advanced view
+						</button>
+						<button type="button" className={"btn btn-" + (this.state.queryMap["viewType"] === "simple" ? "primary" : "default")} onClick={() => setQueryMap(this, "viewType", "simple")}>
+							Simple view
+						</button>
+					</div>
+					<button className="btn btn-default visible-xs" id="filter-button" type="button" onClick={() => this.setState({showFilters: !this.state.showFilters})}>
+						<span className="glyphicon glyphicon-filter"/>
+						Filters
+					</button>
 					{search}
 					{content}
-				</div>
+				</main>
 			</div>
+		);
+	}
+	
+	buildCardTable(includedData: TableQueryData, playedData: TableQueryData): JSX.Element {
+		const rows = [];
+		const cardObjs = [];
+		const selectedClass = this.state.queryMap["playerClass"];
+
+		this.state.filteredCards && this.state.filteredCards.forEach(card => {
+			const included = includedData.series.data[selectedClass === "NEUTRAL" ? "ALL" : selectedClass].find(x => x.dbf_id === card.dbfId);
+			const played = playedData.series.data[selectedClass === "NEUTRAL" ? "ALL" : selectedClass].find(x => x.dbf_id === card.dbfId);
+			const includedCount = included && +included.count;
+			const includedDecks = included && +included.decks;
+			const includedPopularity = included && +included.popularity;
+			const includedWinrate = included && +included.win_rate;
+			const playedPopularity = played && +played.popularity;
+			const playedWinrate = played && +played.win_rate;
+			const playedCount = played && +played.total;
+			cardObjs.push({
+				card, includedCount, includedDecks, includedPopularity, includedWinrate,
+				playedPopularity, playedWinrate, playedCount
+			});
+		});
+
+		const sortDirection = this.state.queryMap["sortDirection"];
+		const direction = sortDirection === "descending" ? 1 : -1;
+		const sortBy = this.state.queryMap["sortBy"];
+		
+		if (sortBy === "card") {
+			cardObjs.sort((a, b) => cardSorting(a, b, direction));
+		}
+		else {
+			cardObjs.sort((a, b) => ((b[sortBy] || 0) - (a[sortBy] || 0)) * direction);
+		}
+
+		const sortIndicator = (name: string): JSX.Element => {
+			return (
+				<span className={name === sortBy ? "" : "no-sort"}>
+					{sortDirection === "ascending" ? "▴" : "▾"}
+				</span>
+			);
+		};
+
+		const onClick = (name: string): void => {
+			const queryMap = Object.assign({}, this.state.queryMap);
+			queryMap["sortBy"] = name;
+			if (sortBy === name) {
+				queryMap["sortDirection"] = sortDirection === "ascending" ? "descending" : "ascending";
+			}
+			else {
+				queryMap["sortDirection"] = name === "card" ? "ascending" : "descending";
+			}
+			this.setState({queryMap});
+		};
+
+		const toDynamicFixed = (value: number) => {
+			const digits = Math.min(Math.max(0, Math.floor(Math.log10(1 / value))), 6) + 1;
+			return value.toFixed(digits);
+		}
+
+		cardObjs.slice(0, this.state.numCards).forEach(obj => {
+			const playedPopularity = " (" + (obj.playedPopularity ? toDynamicFixed(obj.playedPopularity) + "%" : "0%") + ")";
+			const includedWrData = obj.includedWinrate && winrateData(50, obj.includedWinrate, 3);
+			const playedWrData = obj.playedWinrate && winrateData(50, obj.playedWinrate, 3);
+			rows.push(
+				<tr>
+					<td className="td-card"><div className="card-wrapper"><a href={"/cards/" + obj.card.dbfId}><CardTile card={obj.card} count={1} rarityColored height={34} tooltip /></a></div></td>
+					<td>{obj.includedCount ? obj.includedCount : "-"}</td>
+					<td>{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}</td>
+					<td style={{color: includedWrData && includedWrData.color}}>{obj.includedWinrate ? toDynamicFixed(obj.includedWinrate) + "%" : "-"}</td>
+					<td>{(obj.playedCount ? toPrettyNumber(obj.playedCount) : "0") + playedPopularity}</td>
+					<td style={{color: playedWrData && playedWrData.color}}>{obj.playedWinrate ? toDynamicFixed(obj.playedWinrate) + "%" : "-"}</td>
+				</tr>
+			);
+		})
+
+		return(
+			<table className="table table-striped table-hover" id="card-table">
+				<thead>
+					<tr>
+						<th className="sortable" onClick={() => onClick("card")}>
+							Card
+							{sortIndicator("card")}
+						</th>
+						<th className="sortable" onClick={() => onClick("includedCount")}>
+							Copies
+							{sortIndicator("includedCount")}
+						</th>
+						<th className="sortable" onClick={() => onClick("includedPopularity")}>
+							% of decks
+							{sortIndicator("includedPopularity")}
+						</th>
+						<th className="sortable" onClick={() => onClick("includedWinrate")}>
+							Deck winrate
+							{sortIndicator("includedWinrate")}
+						</th>
+						<th className="sortable" onClick={() => onClick("playedCount")}>
+							Times played
+							{sortIndicator("playedCount")}
+						</th>
+						<th className="sortable" onClick={() => onClick("playedWinrate")}>
+							Played Winrate
+							{sortIndicator("playedWinrate")}
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{rows}
+				</tbody>
+			</table>
 		);
 	}
 
@@ -262,54 +479,119 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		return filters;
 	}
 
-	buildFilters(filterCounts: CardFilters): JSX.Element[] {
-		let showReset = queryMapHasChanges(this.state.queryMap, this.defaultQueryMap);
+	getDefeaultQueryMap(): QueryMap {
+		const queryMap = Object.assign({}, this.defaultQueryMap);
+		queryMap["viewType"] = this.state.queryMap["viewType"];
+		return queryMap;
+	}
 
-		return [
-			<ResetHeader onReset={() => this.setState({queryMap: this.defaultQueryMap})} showReset={showReset}>
+	resetFilters(): void {
+		this.setState({queryMap: this.getDefeaultQueryMap()});
+	}
+
+	buildFilters(): JSX.Element[] {
+		let showReset = queryMapHasChanges(this.state.queryMap, this.getDefeaultQueryMap());
+
+		const filters = [
+			<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
 				Card Database
-			</ResetHeader>,
-			<h2>Class</h2>,
-			<ClassFilter 
-				filters="AllNeutral"
-				hideAll
-				minimal
-				multiSelect={false}
-				selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
-				selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
-			/>,
-			<h2>Cost</h2>,
-			<InfoboxFilterGroup deselectable classNames={["filter-list-cost"]} selectedValue={getQueryMapArray(this.state.queryMap, "cost")} onClick={(value, sender) => filterCounts.cost && this.onFilterItemClick("cost", sender, value)}>
-				{this.buildCostFilters(filterCounts.cost)}
-			</InfoboxFilterGroup>,
-			<h2>Rarity</h2>,
-			<InfoboxFilterGroup deselectable selectedValue={getQueryMapArray(this.state.queryMap, "rarity")} onClick={(value, sender) => filterCounts.rarity && this.onFilterItemClick("rarity", sender, value)}>
-				{this.buildFilterItems("rarity", filterCounts.rarity)}
-			</InfoboxFilterGroup>,
-			<InfoboxFilterGroup header="Set" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "set")} onClick={(value, sender) => filterCounts.set && this.onFilterItemClick("set", sender, value)}>
-				{this.buildFilterItems("set", filterCounts.set)}
-				{this.buildFormatFilter(filterCounts.format["standard"])}
-			</InfoboxFilterGroup>,
-			<InfoboxFilterGroup header="Type" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "type")} onClick={(value, sender) => filterCounts.type && this.onFilterItemClick("type", sender, value)}>
-				{this.buildFilterItems("type", filterCounts.type)}
-			</InfoboxFilterGroup>,
-			<InfoboxFilterGroup header="Race" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "race")} onClick={(value, sender) => filterCounts.race && this.onFilterItemClick("race", sender, value)}>
-				{this.buildFilterItems("race", filterCounts.race)}
-			</InfoboxFilterGroup>,
-			<InfoboxFilterGroup header="Mechanics" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "mechanics")} onClick={(value, sender) => filterCounts.mechanics && this.onFilterItemClick("mechanics", sender, value)}>
-				{this.buildFilterItems("mechanics", filterCounts.mechanics)}
-			</InfoboxFilterGroup>,
+			</ResetHeader>
 		];
+
+		if (this.state.queryMap["viewType"] === "simple") {
+			filters.push(
+				<h2>Card class</h2>,
+				<ClassFilter 
+					filters="AllNeutral"
+					hideAll
+					minimal
+					multiSelect={false}
+					selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
+					selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
+				/>
+			);
+		}
+		else {
+			filters.push(
+				<h2>Deck Class</h2>,
+				<ClassFilter 
+					filters="All"
+					hideAll
+					minimal
+					multiSelect={false}
+					selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
+					selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
+				/>,
+				<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["exclude"]} onClick={(value) => setQueryMap(this, "exclude", value)}>
+					<InfoboxFilter value="neutral">Class cards only</InfoboxFilter>
+					<InfoboxFilter value="class">Neutral cards only</InfoboxFilter>
+				</InfoboxFilterGroup>,
+				<section id="mode-filter">
+					<InfoboxFilterGroup header="Mode" selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
+						<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+						<InfoboxFilter disabled={this.state.queryMap["rankRange"] === "LEGEND_THROUGH_TEN"} value="ARENA">Arena</InfoboxFilter>
+					</InfoboxFilterGroup>
+				</section>,
+				<PremiumWrapper
+					isPremium={this.props.userIsPremium}
+					infoHeader="Time frame"
+					infoContent="Get the most recent data on what cards are hot right now!"
+				>
+					<InfoboxFilterGroup header="Time frame" locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["timeRange"]} onClick={(value) => setQueryMap(this, "timeRange", value)}>
+						<InfoboxFilter value="LAST_1_DAY">Yesterday</InfoboxFilter>
+						<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+						<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+						<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
+					</InfoboxFilterGroup>
+				</PremiumWrapper>,
+				<PremiumWrapper
+					isPremium={this.props.userIsPremium}
+					infoHeader="Rank range"
+					infoContent="Check out what cards get played on the higher ranks!"
+				>
+					<InfoboxFilterGroup header="Rank range" locked={!this.props.userIsPremium} deselectable selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
+						<InfoboxFilter disabled={this.state.queryMap["gameType"] === "ARENA"} value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+					</InfoboxFilterGroup>
+				</PremiumWrapper>
+			);
+		}
+
+		filters.push(
+			<InfoboxFilterGroup key="costs" header="Cost" deselectable classNames={["filter-list-cost"]} selectedValue={getQueryMapArray(this.state.queryMap, "cost")} onClick={(value, sender) => this.state.filterCounts && this.state.filterCounts.cost && this.onFilterItemClick("cost", sender, value)}>
+				{this.buildCostFilters(this.state.filterCounts && this.state.filterCounts.cost)}
+			</InfoboxFilterGroup>,
+			<InfoboxFilterGroup key="rarities" header="Rarity" deselectable selectedValue={getQueryMapArray(this.state.queryMap, "rarity")} onClick={(value, sender) => this.state.filterCounts && this.state.filterCounts.rarity && this.onFilterItemClick("rarity", sender, value)}>
+				{this.buildFilterItems("rarity", this.state.filterCounts && this.state.filterCounts.rarity)}
+			</InfoboxFilterGroup>,
+			<InfoboxFilterGroup key="sets" header="Set" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "set")} onClick={(value, sender) => this.state.filterCounts && this.state.filterCounts.set && this.onFilterItemClick("set", sender, value)}>
+				{this.buildFilterItems("set", this.state.filterCounts && this.state.filterCounts.set)}
+				{this.buildFormatFilter(this.state.filterCounts && this.state.filterCounts.format["standard"])}
+			</InfoboxFilterGroup>,
+			<InfoboxFilterGroup key="types" header="Type" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "type")} onClick={(value, sender) => this.state.filterCounts && this.state.filterCounts.type && this.onFilterItemClick("type", sender, value)}>
+				{this.buildFilterItems("type", this.state.filterCounts && this.state.filterCounts.type)}
+			</InfoboxFilterGroup>,
+			<InfoboxFilterGroup key="races" header="Race" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "race")} onClick={(value, sender) => this.state.filterCounts && this.state.filterCounts.race && this.onFilterItemClick("race", sender, value)}>
+				{this.buildFilterItems("race", this.state.filterCounts && this.state.filterCounts.race)}
+			</InfoboxFilterGroup>,
+			<InfoboxFilterGroup key="mechanics" header="Mechanics" collapsed deselectable selectedValue={getQueryMapArray(this.state.queryMap, "mechanics")} onClick={(value, sender) => this.state.filterCounts && this.state.filterCounts.mechanics && this.onFilterItemClick("mechanics", sender, value)}>
+				{this.buildFilterItems("mechanics", this.state.filterCounts && this.state.filterCounts.mechanics)}
+			</InfoboxFilterGroup>,
+		);
+
+		return filters;
 	}
 
 	onFilterItemClick(key: string, sender: string, value: string): void {
 		const values = getQueryMapArray(this.state.queryMap, key);
 		const newFilter = value === null ? values.filter(x => x !== sender) : values.concat(value);
-		console.log(key, sender, value, values, newFilter)
 		setQueryMap(this, key, newFilter.join(","))
 	}
 
 	buildFilterItems(key: string, counts: any): JSX.Element[] {
+		if (!counts) {
+			return null;
+		}
 		const getText = (item: string) => {
 			if (key === "set") {
 				return setNames[item.toLowerCase()];
@@ -331,7 +613,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	buildCostFilters(counts: any): JSX.Element[] {
-		return this.filters["cost"].map(item => (
+		return counts && this.filters["cost"].map(item => (
 			<InfoboxFilter value={""+item} disabled={!counts[""+item]} classNames={["mana-crystal"]}>
 				<img src={STATIC_URL + "images/mana_crystal.png"} height={28}/>
 				<div>{+item < 7 ? item : " 7+"}</div>
@@ -368,8 +650,33 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		}
 
+		const viewType = this.state.queryMap["viewType"];
+
+		if (viewType === "advanced") {
+			const exclude = this.state.queryMap["exclude"];
+			if (exclude === "neutral" && card.playerClass === "NEUTRAL") {
+				return true;
+			}
+			else if (exclude === "class" && card.playerClass !== "NEUTRAL") {
+				return true;
+			}
+			if (card.multiClassGroup && this.multiClassGroups[card.multiClassGroup].indexOf(card.playerClass) === -1) {
+				return true;
+			}
+			if (this.state.queryMap["gameType"] === "RANKED_STANDARD" && wildSets.indexOf(card.set) !== -1) {
+				return true;
+			}
+			const playerClass = this.state.queryMap["playerClass"];
+			if (playerClass !== "ALL" && playerClass !== card.playerClass && card.playerClass !== "NEUTRAL") {
+				return true;
+			}
+		}
+
 		let filter = false;
 		Object.keys(this.filters).forEach(key => {
+			if (viewType === "advanced" && key === "playerClass") {
+				return;
+			}
 			if (key === excludeFilter) {
 				return;
 			}
@@ -401,6 +708,46 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		});
 		return filter;
+	}
+
+	getQueryParams(): string {
+		const params = {
+			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
+			RankRange: this.state.queryMap["rankRange"] || this.defaultQueryMap["rankRange"],
+			GameType: this.state.queryMap["gameType"] || this.defaultQueryMap["gameType"],
+			// Region: this.state.queryMap["region"],
+		};
+		return toQueryString(params);
+	}
+
+	fetchIncluded() {
+		if (this.state.queryMap["viewType"] === "simple") {
+			return;
+		}
+		const cacheKey = genCacheKey(this);
+		this.queryManager.fetch(
+			"/analytics/query/card_included_popularity_report?" + this.getQueryParams(),
+			(data) => {
+				const topCardsIncluded = Object.assign({}, this.state.topCardsIncluded);
+				topCardsIncluded[cacheKey] = data;
+				this.setState({topCardsIncluded});
+			}
+		);
+	}
+
+	fetchPlayed() {
+		if (this.state.queryMap["viewType"] === "simple") {
+			return;
+		}
+		const cacheKey = genCacheKey(this);
+		this.queryManager.fetch(
+			"/analytics/query/card_played_popularity_report?" + this.getQueryParams(),
+			(data) => {
+				const topCardsPlayed = Object.assign({}, this.state.topCardsPlayed);
+				topCardsPlayed[cacheKey] = data;
+				this.setState({topCardsPlayed});
+			}
+		);
 	}
 
 }

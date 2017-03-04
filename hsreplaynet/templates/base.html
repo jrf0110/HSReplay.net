@@ -76,10 +76,6 @@
 				<nav class="collapse navbar-collapse" id="navbar-collapse">
 					{% block navlinks %}
 					<ul class="nav navbar-nav">
-						{% feature "topcards" as ft_topcards %}{% if ft_topcards.enabled %}
-							<li><a href="{% url 'popular_cards' %}">Top Cards</a></li>
-						{% endif %}
-
 						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
 							<li><a href="{% url 'card_list' %}">Card Database</a></li>
 							<li><a href="{% url 'deck_list' %}">Deck Database</a></li>

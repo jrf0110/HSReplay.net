@@ -3,9 +3,12 @@ import * as ReactDOM from "react-dom";
 import CardDiscover from "../pages/CardDiscover";
 import HearthstoneJSON from "hearthstonejson";
 
+const mockFree = location.search.indexOf("free") !== -1;
+const premium = document.body.getAttribute("data-premium") === "1";
+
 const render = (cardData) => {
 	ReactDOM.render(
-		<CardDiscover cardData={cardData} />,
+		<CardDiscover cardData={cardData} userIsPremium={premium && !mockFree}/>,
 		document.getElementById("card-container")
 	);
 };
