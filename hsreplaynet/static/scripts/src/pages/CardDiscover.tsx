@@ -265,6 +265,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const contentClassNames = ["card-list-wrapper"]
 		if (!this.state.showFilters) {
 			filterClassNames.push("hidden-xs");
+			let clear = null;
+			if (this.state.queryMap["text"]) {
+				clear = <span className="glyphicon glyphicon-remove form-control-feedback" onClick={() => setQueryMap(this, "text", "")} />;
+			}
 			search = (
 				<div className="search-wrapper">
 					<div className="form-group has-feedback">
@@ -277,6 +281,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 							onChange={(x) => setQueryMap(this, "text", x.target["value"])}
 						/>
 						<span className="glyphicon glyphicon-search form-control-feedback"/>
+						{clear}
 					</div>
 				</div>
 			);

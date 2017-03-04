@@ -24,6 +24,16 @@
 			right: unset;
 			color: $blue;
 		}
+
+		.glyphicon-remove {
+			cursor: pointer;
+			color: lightgray;
+			pointer-events: auto;
+		}
+
+		.glyphicon-remove:hover {
+			color: $red;
+		}
 	}
 
 	#filter-button {
