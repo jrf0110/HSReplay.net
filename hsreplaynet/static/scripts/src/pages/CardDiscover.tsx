@@ -10,7 +10,7 @@ import QueryManager from "../QueryManager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import {ChartSeries, TableQueryData, TableData} from "../interfaces";
-import {cardSorting, setNames, toTitleCase, toPrettyNumber, wildSets, winrateData} from "../helpers";
+import {cardSorting, cleanText, setNames, toTitleCase, toPrettyNumber, wildSets, winrateData} from "../helpers";
 import {
 	genCacheKey, parseQuery, getQueryMapDiff, getQueryMapArray, getQueryMapFromLocation, 
 	setLocationQueryString, toQueryString, queryMapHasChanges, QueryMap, setQueryMap
@@ -642,9 +642,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	filter(card: any, excludeFilter?: string): boolean {
 		const queryMap = this.state.queryMap;
 		if (queryMap["text"]) {
-			const text = queryMap["text"].toLowerCase();
-			if (card.name.toLowerCase().indexOf(text) === -1) {
-				if (!card.text || card.text.toLowerCase().indexOf(text) === -1) {
+			const text = cleanText(queryMap["text"]);
+			if (cleanText(card.name).indexOf(text) === -1) {
+				if (!card.text || cleanText(card.text).indexOf(text) === -1) {
 					return true;
 				}
 			}

@@ -539,3 +539,7 @@ export function winrateData(baseWinrate: number, winrate: number, deltaFactor: n
 	const color = getColorString(Colors.REDGREEN3, 75, colorWinrate/100)
 	return {delta: winrateDelta.toFixed(1), color, tendencyStr}
 }
+
+export function cleanText(text: string): string {
+	return text.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+}

@@ -1,5 +1,6 @@
 import * as React from "react";
 import CardTile from "./CardTile";
+import {cleanText} from "../helpers";
 
 interface CardSearchState {
 	cardSearchText?: string;
@@ -135,7 +136,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 		if (!this.props.availableCards) {
 			return [];
 		}
-		return this.props.availableCards.filter(card => !this.state.cardSearchText || card.name.toLowerCase().indexOf(this.state.cardSearchText.toLowerCase()) !== -1);
+		return this.props.availableCards.filter(card => !this.state.cardSearchText || cleanText(card.name).indexOf(cleanText(this.state.cardSearchText)) !== -1);
 	}
 
 	getSelectedCards(): JSX.Element[] {
