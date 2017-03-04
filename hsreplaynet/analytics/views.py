@@ -77,6 +77,9 @@ def _fetch_query_results(query, params):
 
 
 def user_is_eligible_for_query(user, query, params):
+	if user.is_staff:
+		return True
+
 	if params.has_premium_values:
 		return user.is_authenticated and user.is_premium
 	elif query.is_personalized:
@@ -85,8 +88,10 @@ def user_is_eligible_for_query(user, query, params):
 		if not region_val or not account_lo_val:
 			raise ValueError("Personalized queries must provide region & account_lo params")
 
-		# TODO: Check that this user is eligible for this account_hi / account_lo
-		return True
+		return user.pegasusaccount_set.filter(
+			account_lo=account_lo_val,
+			region=region_val
+		).exists()
 	else:
 		return True
 
