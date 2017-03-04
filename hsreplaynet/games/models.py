@@ -33,7 +33,7 @@ class PegasusAccount(models.Model):
 		"Account Lo",
 		help_text="The account ID value from account hilo"
 	)
-	region = IntEnumField(BnetRegion)
+	region = IntEnumField(enum=BnetRegion)
 	battletag = models.CharField(max_length=64, blank=True)
 
 	user = models.ForeignKey(
