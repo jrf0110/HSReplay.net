@@ -43,7 +43,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 					className={selected ? "selected" : undefined}
 					onMouseDown={() => this.addCard(card)}
 				>
-					<CardTile card={card} count={1} height={34} rarityColored />
+					<CardTile card={card} count={1} height={34} rarityColored tooltip/>
 				</li>
 			);
 		});
@@ -151,7 +151,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			selectedCards.push(
 				<li onClick={removeCard}>
 					<div className="glyphicon glyphicon-remove" />
-					<CardTile card={card} count={1} height={34} rarityColored />
+					<CardTile card={card} count={1} height={34} rarityColored tooltip />
 				</li>
 			);
 		});

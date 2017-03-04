@@ -4,6 +4,7 @@
 
 .card-tile {
 	color: white;
+	position: relative;
 	text-align: left;
 
 	margin-top: 1px;
@@ -74,7 +75,7 @@
 			white-space: nowrap;
 		}
 
-		.card-image {
+		.card-asset {
 			position: absolute;
 			height: 100%;
 		}
@@ -100,10 +101,17 @@
 			text-align: center;
 		}
 	}
+
+	.card-image {
+		position: fixed;
+		z-index: 1000;
+	}
 }
 
 .card-tile:hover {
-	filter: brightness(115%);
+	>* {
+		filter: brightness(115%);
+	}
 }
 
 .hdt-button-wrapper {

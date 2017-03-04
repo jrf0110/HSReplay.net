@@ -13,7 +13,7 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 		if (!this.props.card) {
 			return null;
 		}
-		let cardTile = <CardTile height={34} card={this.props.card} count={1} rarityColored />;
+		let cardTile = <CardTile height={34} card={this.props.card} count={1} rarityColored tooltip/>;
 		if (this.props.clickable) {
 			cardTile = (
 				<a href={"/cards/" + this.props.card.dbfId}>
