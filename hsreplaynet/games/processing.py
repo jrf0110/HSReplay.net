@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from hearthstone import __version__ as hslog_version
-from hearthstone.enums import CardType, GameTag
+from hearthstone.enums import BnetRegion, CardType, GameTag
 from hearthstone.hslog.exceptions import ParsingError
 from hearthstone.hslog.export import EntityTreeExporter
 from hearthstone.hslog.parser import LogParser
@@ -21,7 +21,7 @@ from hsreplaynet.utils.instrumentation import error_handler
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.uploads.models import UploadEventStatus
 from .models import (
-	GameReplay, GlobalGame, GlobalGamePlayer,
+	GameReplay, GlobalGame, GlobalGamePlayer, PegasusAccount,
 	_generate_upload_path, ReplayAlias
 )
 from hsredshift.etl.exporters import RedshiftPublishingExporter
@@ -409,7 +409,7 @@ def _is_decklist_superset(superset_decklist, subset_decklist):
 	return s1.issuperset(s2)
 
 
-def update_global_players(global_game, entity_tree, meta):
+def update_global_players(global_game, entity_tree, meta, upload_event):
 	# Fill the player metadata and objects
 	players = {}
 
@@ -417,6 +417,7 @@ def update_global_players(global_game, entity_tree, meta):
 		player_meta = meta.get("player%i" % (player.player_id), {})
 
 		is_spectated_replay = meta.get("spectator_mode", False)
+		is_friendly_player = player.player_id == meta["friendly_player"]
 		decklist_from_meta = player_meta.get("deck")
 		decklist_from_replay = [c.card_id for c in player.initial_deck if c.card_id]
 
@@ -453,6 +454,29 @@ def update_global_players(global_game, entity_tree, meta):
 			# Replace with an empty deck
 			deck, _ = Deck.objects.get_or_create_from_id_list([])
 
+		# Create the PegasusAccount first
+		defaults = {
+			"region": BnetRegion.from_account_hi(player.account_hi),
+			"battletag": name,
+		}
+
+		if not is_spectated_replay and not player.is_ai and is_friendly_player:
+			user = upload_event.token.user if upload_event.token else None
+			if user and user.battletag and user.battletag.startswith(player.name):
+				defaults["user"] = user
+
+		pegasus_account, created = PegasusAccount.objects.get_or_create(
+			account_hi=player.account_hi, account_lo=player.account_lo,
+			defaults=defaults
+		)
+		if not created and not pegasus_account.user and "user" in defaults:
+			# Set PegasusAccount.user if it's an available claim for the user
+			pegasus_account.user = defaults["user"]
+			pegasus_account.save()
+
+		log.debug("Prepared PegasusAccount %r", pegasus_account)
+
+		# Now create the GlobalGamePlayer object
 		common = {
 			"game": global_game,
 			"player_id": player.player_id,
@@ -519,7 +543,7 @@ def do_process_upload_event(upload_event):
 
 	# Create/Update the global game object and its players
 	global_game, global_game_created = find_or_create_global_game(entity_tree, meta)
-	players = update_global_players(global_game, entity_tree, meta)
+	players = update_global_players(global_game, entity_tree, meta, upload_event)
 
 	# Create/Update the replay object itself
 	replay, game_replay_created = find_or_create_replay(
