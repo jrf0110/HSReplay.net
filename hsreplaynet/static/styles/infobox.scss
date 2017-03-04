@@ -81,7 +81,7 @@
 			&.selected {
 				font-weight: bold;
 				color: white;
-				background: $lightblue1;
+				background: $lightred;
 			}
 
 			&.selected:not(.no-deselect)::before {
@@ -126,11 +126,11 @@
 		}
 
 		&.selected {
-			background: $lighterblue1;
+			background: $lighterred;
 		}
 
 		&.selected:not(.no-deselect)::before {
-			color: $red;
+			color: black;
 		}
 	}
 
