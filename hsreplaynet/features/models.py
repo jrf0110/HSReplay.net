@@ -27,31 +27,23 @@ class FeatureStatus(IntEnum):
 	result that template tags and API decorators return if they are unable to reach the
 	DB or find the feature in the DB for any reason.
 
-	- IN_PROGRESS: The default status that features start in. In progress features can
-	always be seen by staff. When a new feature is created in the database a new group
-	for that feature is automatically created. For example, if the feature name is
-	"winrates" then the group name will be "feature:winrates:preview". Any user who is made
-	a member of that group will then be able to see the feature when it has the IN_PROGRESS
-	status.
+	- AUTHORIZED_ONLY: The default status that features start in.  When a new feature is
+	created in the database a new group for that feature is automatically created. For
+	example, if the feature name is "winrates" then the group name will be "feature:winrates".
+	Any user who is made a member of that group will then be able to see the feature when it
+	has the AUTHORIZED_ONLY status.
+
+	- LOGGED_IN_USERS: Features that are public for everyone except anonymous users.
 
 	- PUBLIC: Features that are public are rendered even for anonymous users. This
 	status is the final resting status for any features that are offered for free once the
 	development is complete.
-
-	- AUTHORIZED_ONLY: When a new feature is created a second group is auto created based
-	on the template "feature:<FEATURE_NAME>:authorized". Any user who is in this group
-	will be able to see the feature when it is in this status. This is the final resting
-	status for features that are intended to be part of a premium offering. At the
-	implementation level, a "Product" can be thought of as a bundle of 1 or more
-	features. When a user purchases the product their user is added to the authorized group
-	for each feature that is included in the product.
 	"""
 	OFF = 0
 	STAFF_ONLY = 1
-	IN_PROGRESS = 2
-	PUBLIC = 3
-	AUTHORIZED_ONLY = 4
-	LOGGED_IN_USERS = 5
+	AUTHORIZED_ONLY = 2
+	LOGGED_IN_USERS = 3
+	PUBLIC = 4
 
 
 class Feature(models.Model):
@@ -75,7 +67,7 @@ class Feature(models.Model):
 	name = models.CharField(max_length=255, null=False, unique=True)
 	description = models.TextField(blank=True)
 	created = models.DateTimeField(auto_now_add=True)
-	status = IntEnumField(enum=FeatureStatus, default=FeatureStatus.IN_PROGRESS)
+	status = IntEnumField(enum=FeatureStatus, default=FeatureStatus.OFF)
 	read_only = models.BooleanField(default=False)
 
 	def __str__(self):
@@ -93,41 +85,24 @@ class Feature(models.Model):
 			# If the user is staff we will have already returned True
 			return False
 
-		if self.status == FeatureStatus.LOGGED_IN_USERS:
-			return user.is_authenticated
-
-		if self.status == FeatureStatus.IN_PROGRESS:
-			return user.groups.filter(name=self.preview_group_name).exists()
-
-		if self.status == FeatureStatus.PUBLIC:
-			return True
-
 		if self.status == FeatureStatus.AUTHORIZED_ONLY:
 			return user.groups.filter(name=self.authorized_group_name).exists()
 
-	def add_user_to_preview_group(self, user):
-		group = self.preview_group
-		if group not in user.groups.all():
-			user.groups.add(self.preview_group)
+		if self.status == FeatureStatus.LOGGED_IN_USERS:
+			return user.is_authenticated
+
+		if self.status == FeatureStatus.PUBLIC:
 			return True
 
 	def add_user_to_authorized_group(self, user):
 		group = self.authorized_group
 		if group not in user.groups.all():
-			user.groups.add(self.preview_group)
+			user.groups.add(self.authorized_group)
 			return True
 
 	@property
-	def preview_group_name(self):
-		return "feature:%s:preview" % self.name
-
-	@property
-	def preview_group(self):
-		return Group.objects.get(name=self.preview_group_name)
-
-	@property
 	def authorized_group_name(self):
-		return "feature:%s:authorized" % self.name
+		return "feature:%s:preview" % self.name
 
 	@property
 	def authorized_group(self):
@@ -173,7 +148,7 @@ class FeatureInvite(models.Model):
 
 		redeemed = False
 		for feature in self.features.all():
-			if feature.add_user_to_preview_group(user):
+			if feature.add_user_to_authorized_group(user):
 				redeemed = True
 
 		if redeemed:
@@ -187,5 +162,4 @@ class FeatureInvite(models.Model):
 
 @receiver(models.signals.post_save, sender=Feature)
 def create_feature_membership_groups(sender, instance, **kwargs):
-	Group.objects.get_or_create(name=instance.preview_group_name)
 	Group.objects.get_or_create(name=instance.authorized_group_name)
