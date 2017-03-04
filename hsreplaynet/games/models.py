@@ -45,6 +45,9 @@ class PegasusAccount(models.Model):
 	class Meta:
 		unique_together = ("account_hi", "account_lo")
 
+	def __str__(self):
+		return self.battletag
+
 
 class GlobalGame(models.Model):
 	"""
