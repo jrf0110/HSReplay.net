@@ -10,6 +10,7 @@ import ResetHeader from "../components/ResetHeader";
 import {TableData, TableQueryData, ChartSeries} from "../interfaces";
 import {
 	QueryMap,
+	genCacheKey,
 	getQueryMapFromLocation,
 	queryMapHasChanges,
 	setLocationQueryString,
@@ -72,22 +73,9 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
 	}
 
-	cacheKey(state?: PopularCardsState): string {
-		const allowedValues = this.getAllowedValues();
-		const queryMap = (state || this.state).queryMap;
-		const cacheKey = [];
-		Object.keys(allowedValues).forEach(key => {
-			const value = allowedValues[key];
-			if (value.length) {
-				cacheKey.push(queryMap[key]);
-			}
-		});
-		return cacheKey.join("");
-	}
-
 	componentDidUpdate(prevProps: PopularCardsProps, prevState: PopularCardsState) {
-		const cacheKey = this.cacheKey();
-		const prevCacheKey = this.cacheKey(prevState);
+		const cacheKey = genCacheKey(this, );
+		const prevCacheKey = genCacheKey(this, prevState);
 		const includedCards = this.state.topCardsIncluded.get(cacheKey);
 		const playedCards = this.state.topCardsPlayed.get(cacheKey);
 		if (cacheKey !== prevCacheKey) {
@@ -198,8 +186,8 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	}
 
 	buildContent(): JSX.Element[] {
-		const played = this.state.topCardsPlayed.get(this.cacheKey());
-		const included = this.state.topCardsIncluded.get(this.cacheKey());
+		const played = this.state.topCardsPlayed.get(genCacheKey(this));
+		const included = this.state.topCardsIncluded.get(genCacheKey(this));
 
 		if (!played || !included || played === "loading" || included === "loading" || !this.props.cardData) {
 			return [
@@ -413,16 +401,18 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 	}
 
 	fetchIncluded() {
+		const cacheKey = genCacheKey(this);
 		this.queryManager.fetch(
 			"/analytics/query/card_included_popularity_report?" + this.getQueryParams(),
-			(data) => this.setState({topCardsIncluded: this.state.topCardsIncluded.set(this.cacheKey(), data)})
+			(data) => this.setState({topCardsIncluded: this.state.topCardsIncluded.set(cacheKey, data)})
 		);
 	}
 
 	fetchPlayed() {
+		const cacheKey = genCacheKey(this);
 		this.queryManager.fetch(
 			"/analytics/query/card_played_popularity_report?" + this.getQueryParams(),
-			(data) => this.setState({topCardsPlayed: this.state.topCardsPlayed.set(this.cacheKey(), data)})
+			(data) => this.setState({topCardsPlayed: this.state.topCardsPlayed.set(cacheKey, data)})
 		);
 	}
 }

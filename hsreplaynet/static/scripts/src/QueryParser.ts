@@ -76,3 +76,16 @@ export function setQueryMap(caller: any, key: string, value: string): void {
 	queryMap[key] = value;
 	caller.setState({queryMap});
 }
+
+export function genCacheKey(caller: any, state?: any) {
+	const allowedValues = caller.getAllowedValues();
+	const queryMap = (state || caller.state).queryMap;
+	const cacheKey = [];
+	Object.keys(allowedValues).forEach(key => {
+		const value = allowedValues[key];
+		if (value.length) {
+			cacheKey.push(queryMap[key] || caller.defaultQueryMap[key]);
+		}
+	});
+	return cacheKey.join("");
+}

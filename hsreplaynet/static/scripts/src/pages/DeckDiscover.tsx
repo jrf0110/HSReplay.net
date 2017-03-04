@@ -11,7 +11,7 @@ import ResetHeader from "../components/ResetHeader";
 import {DeckObj, TableData, GameMode, MyDecks, RankRange, Region, TimeFrame} from "../interfaces";
 import {cardSorting, toTitleCase} from "../helpers";
 import {
-	QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
+	genCacheKey, QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
 	setLocationQueryString, setQueryMap, toQueryString
 } from "../QueryParser"
 
@@ -80,22 +80,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
 	}
 
-	cacheKey(state?: DeckDiscoverState): string {
-		const allowedValues = this.getAllowedValues();
-		const queryMap = (state || this.state).queryMap;
-		const cacheKey = [];
-		Object.keys(allowedValues).forEach(key => {
-			const value = allowedValues[key];
-			if (value.length) {
-				cacheKey.push(queryMap[key]);
-			}
-		});
-		return cacheKey.join("");
-	}
-
 	componentDidUpdate(prevProps: DeckDiscoverProps, prevState: DeckDiscoverState) {
-		const cacheKey = this.cacheKey();
-		const prevCacheKey = this.cacheKey(prevState);
+		const cacheKey = genCacheKey(this)
+		const prevCacheKey = genCacheKey(this, prevState);
 		if (cacheKey !== prevCacheKey) {
 			const deckData = this.state.deckData.get(cacheKey);
 			if (!deckData || deckData === "error") {
@@ -128,7 +115,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const selectedClass = queryMap["playerClass"];
 		const selectedOpponent = queryMap["opponentClass"];
 		const decks: DeckObj[] = [];
-		const deckData = this.state.deckData.get(this.cacheKey());
+		const deckData = this.state.deckData.get(genCacheKey(this));
 		if (this.props.cardData) {
 			if (deckData && deckData !== "loading" && deckData !== "error") {
 				const deckElements = [];
@@ -371,10 +358,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			// Region: this.state.queryMap["region"],
 		};
 
+		const cacheKey = genCacheKey(this);
+
 		const query = this.props.userIsPremium ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
 		this.queryManager.fetch(
 			"/analytics/query/" + query + "?" + toQueryString(params),
-			(data) => this.setState({deckData: this.state.deckData.set(this.cacheKey(), data)})
+			(data) => this.setState({deckData: this.state.deckData.set(cacheKey, data)})
 		);
 
 		if (!this.state.myDecks) {
