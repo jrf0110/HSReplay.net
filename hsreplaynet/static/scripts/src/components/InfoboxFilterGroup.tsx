@@ -66,10 +66,12 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 		}
 
 		return (
-			<ul className={this.props.classNames && this.props.classNames.join(" ")}>
+			<div className="infobox-filter-group">
 				{header}
-				{!this.state.collapsed && React.Children.map(this.props.children, cloneWidthProps)}
-			</ul>
+				<ul className={this.props.classNames && this.props.classNames.join(" ")}>
+					{!this.state.collapsed && React.Children.map(this.props.children, cloneWidthProps)}
+				</ul>
+			</div>
 		);
 	}
 }
