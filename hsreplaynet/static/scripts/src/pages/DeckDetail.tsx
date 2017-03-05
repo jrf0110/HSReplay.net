@@ -481,7 +481,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			{key: "keep_percentage", text: "Kept", infoHeader: "Kept", infoText: "Percentage card was kept when presented during mulligan." },
 			{key: "win_rate_when_drawn", text: "Drawn WR", infoHeader: "Drawn Winrate", infoText: "Average winrate of games where the card was drawn at any point." },
 			{key: "win_rate_when_played", text: "Played WR", infoHeader: "Played Winrate", infoText: "Average winrate of games where the card was played at any point." },
-			{key: "avg_turns_in_hand", text: "Turns held", infoHeader: "Turns held", infoText: "Average number of turn the card is held in hand"},
+			{key: "avg_turns_in_hand", text: "Turns held", infoHeader: "Turns held", infoText: "Average number of turn the card is held in hand."},
 			{key: "avg_turn_played_on", text: "Turn played", infoHeader: "Turn played", infoText: "Average turn the card is played on." },
 		];
 
