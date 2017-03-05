@@ -356,12 +356,12 @@ def validate_parser(parser, meta):
 			stream_prefix=fetch_active_stream_prefix()
 		).export()
 
-	entity_tree = exporter.game
+	game = exporter.game
 
-	if len(entity_tree.players) != 2:
-		raise ValidationError("Expected 2 players, found %i" % (len(entity_tree.players)))
+	if len(game.players) != 2:
+		raise ValidationError("Expected 2 players, found %i" % (len(game.players)))
 
-	for player in entity_tree.players:
+	for player in game.players:
 		# Set the player's name
 		player.name = parser.games[0].manager.get_player_by_id(player.id).name
 		if player.name is None:
@@ -388,14 +388,21 @@ def validate_parser(parser, meta):
 			raise ValidationError("Friendly player ID not present at upload and could not guess it.")
 		meta["friendly_player"] = id
 
-	if "reconnecting" not in meta:
-		meta["reconnecting"] = False
+	# We ignore "reconnecting" from the API, we only trust the log.
+	# if "reconnecting" not in meta:
+	# 	meta["reconnecting"] = False
+	# There are two ways of identifying a reconnected game:
+	# In reconnected games, the initial CREATE_GAME packet contains a STEP and STATE value.
+	# In older versions of HS (pre-13xxx), STATE is RUNNING even in the CREATE_GAME packet.
+	# Thankfully, looking at STEP is consistent across all versions, so we use that.
+	# It will be Step.INVALID if it's NOT a reconnected game.
+	meta["reconnecting"] = not not game.initial_step
 
 	# Add the start/end time to meta dict
 	meta["start_time"] = packet_tree.start_time
 	meta["end_time"] = packet_tree.end_time
 
-	return entity_tree, exporter
+	return game, exporter
 
 
 def get_player_names(player):
