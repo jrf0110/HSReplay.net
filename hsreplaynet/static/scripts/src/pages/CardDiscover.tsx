@@ -477,7 +477,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 	getDefeaultQueryMap(): QueryMap {
 		const queryMap = Object.assign({}, this.defaultQueryMap);
-		queryMap["viewType"] = this.state.queryMap["viewType"];
+		queryMap.viewType = this.state.queryMap.viewType;
+		queryMap.sortBy = this.state.queryMap.sortBy;
+		queryMap.sortDirection = this.state.queryMap.sortDirection;
 		return queryMap;
 	}
 

@@ -104,6 +104,17 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 	}
 
+	getDefeaultQueryMap(): QueryMap {
+		const queryMap = Object.assign({}, this.defaultQueryMap);
+		queryMap.sortBy = this.state.queryMap.sortBy;
+		queryMap.sortDirection = this.state.queryMap.sortDirection;
+		return queryMap;
+	}
+
+	resetFilters(): void {
+		this.setState({queryMap: this.getDefeaultQueryMap()});
+	}
+
 	getDeckType(totalCost: number): string {
 		return totalCost >= 100 ? "control" : (totalCost >= 80 ? "midrange" : "aggro");
 	}
@@ -206,7 +217,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				content = (
 					<div className="content-message">
 						<h2>No decks found</h2>
-						<button className="btn btn-default" type="button" onClick={() => this.setState({queryMap: this.defaultQueryMap})}>Reset filters</button>
+						<button className="btn btn-default" type="button" onClick={() => this.resetFilters()}>Reset filters</button>
 					</div>
 				);
 			}
@@ -259,7 +270,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			<div className="deck-discover">
 				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
 					{backButton}
-					<ResetHeader onReset={() => this.setState({queryMap: this.defaultQueryMap})} showReset={queryMapHasChanges(this.state.queryMap, this.defaultQueryMap)}>
+					<ResetHeader onReset={() => this.resetFilters()} showReset={queryMapHasChanges(this.state.queryMap, this.getDefeaultQueryMap())}>
 						Deck Database
 					</ResetHeader>
 					<h2>Class</h2>
