@@ -469,7 +469,7 @@ export function getColorString(
 	};
 
 	const hsl = (values: Array<number|null>): string => {
-		return "values(" + (+values[0]) + ", " + (+values[1]) + "%, " + (+values[2]) + "%)";
+		return "hsl(" + (+values[0]) + ", " + (+values[1]) + "%, " + (+values[2]) + "%)";
 	};
 
 	const severity = Math.abs(0.5 - winrate) * 2;
