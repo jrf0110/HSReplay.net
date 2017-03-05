@@ -43,13 +43,10 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, D
 			);
 		}
 		else {
+			const decks = this.getDecks(deckData);
 			content = [
-				<h3>Looking for some Combo/Control?</h3>,
-				this.buildDeckList(deckData, "avg_game_length_seconds", "duration"),
-				<h3>Can you keep up with these winrates?</h3>,
-				this.buildDeckList(deckData, "win_rate", "winrate"),
-				<h3>What everyone else is playing</h3>,
-				this.buildDeckList(deckData, "total_games", "numGames")
+				<h3>Trending now</h3>,
+				<DeckList decks={decks} pageSize={9} hideTopPager />
 			];
 		}
 
@@ -65,14 +62,14 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, D
 		);
 	}
 	
-	buildDeckList(deckData: TableQueryData, sortProp: string, sortProp2: string): JSX.Element {
+	getDecks(deckData: TableQueryData): DeckObj[] {
 		const decks: DeckObj[] = [];
 		const data = deckData.series.data;
 		Object.keys(data).forEach(key => {
 			if (!data[key].length) {
 				return;
 			}
-			data[key].sort((a, b) => +b[sortProp] - +a[sortProp]);
+			data[key].sort((a, b) => +b["popularity_delta"] - +a["popularity_delta"]);
 			const deck = data[key][0];
 			const cards = JSON.parse(deck["deck_list"]);
 			const deckList = cards.map(c => {return {card: this.props.cardData.get(''+c[0]), count: c[1]}});
@@ -85,15 +82,13 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, D
 				winrate: +deck["win_rate"],
 			});
 		});
-
-		decks.sort((a, b) => b[sortProp2] - a[sortProp2]);
-
-		return <DeckList decks={decks.slice(0, 3)} pageSize={3} hideTopPager />;
+		decks.sort((a, b) => a.playerClass > b.playerClass ? 1 : -1);
+		return decks;
 	}
 
-	fetch() {
+	fetch(): void {
 		this.queryManager.fetch(
-			"/analytics/query/list_decks_by_opponent_win_rate?" + toQueryString({TimeRange: "LAST_3_DAYS"}),
+			"/analytics/query/trending_decks_by_popularity",
 			(data) => this.setState({deckData: data})
 		);
 	}
