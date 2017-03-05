@@ -9,7 +9,7 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
 import ResetHeader from "../components/ResetHeader";
 import {DeckObj, TableData, GameMode, MyDecks, RankRange, Region, TimeFrame} from "../interfaces";
-import {cardSorting, toTitleCase} from "../helpers";
+import {cardSorting, getDustCost, toTitleCase} from "../helpers";
 import {
 	genCacheKey, QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
 	setLocationQueryString, setQueryMap, toQueryString
@@ -120,20 +120,22 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			if (deckData && deckData !== "loading" && deckData !== "error") {
 				const deckElements = [];
 				const data = deckData.series.data;
+				const includedCards = getQueryMapArray(queryMap, "includedCards").map(id => this.props.cardData.get(id));
+				const excludedCards = getQueryMapArray(queryMap, "excludedCards").map(id => this.props.cardData.get(id));
 				Object.keys(data).forEach(key => {
 					if (selectedClass === "ALL" || selectedClass === key) {
 						data[key].forEach(deck => {
 							const cards = JSON.parse(deck["deck_list"]);
 							const deckList = cards.map(c => {return {card: this.props.cardData.get(''+c[0]), count: c[1]}});
-							const includedCards = getQueryMapArray(queryMap, "includedCards").map(id => this.props.cardData.get(id));
 							if (!includedCards.length || includedCards.every(card => deckList.some(cardObj => cardObj.card.id === card.id))) {
-								const excludedCards = getQueryMapArray(queryMap, "excludedCards").map(id => this.props.cardData.get(id));
 								if (!excludedCards.length || !excludedCards.some(card => deckList.some(cardObj => cardObj.card.id === card.id))) {
 									const costSum = deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
 									const deckType = queryMap["deckType"];
 									if (!deckType || deckType === this.getDeckType(costSum)) {
 										if (!queryMap["personal"] || this.state.myDecks && this.state.myDecks[deck["deck_id"]]) {
 											deck["cards"] = deckList;
+											deck["dust_cost"] = deckList.reduce((a, b) => a + getDustCost(b.card) * b.count, 0);
+											deck["mana_cost"] = costSum;
 											deck["player_class"] = key;
 											deckElements.push(deck);
 										}
@@ -146,7 +148,18 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 				const winrateField = selectedOpponent === "ALL" ? "win_rate" : "win_rate_vs_" + selectedOpponent;
 				const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
-				const sortProp = queryMap["sortBy"] === "winrate" ? winrateField : (queryMap["sortBy"] === "popularity" ? numGamesField : "avg_game_length_seconds");
+				let sortProp = queryMap["sortBy"];
+				switch(sortProp) {
+					case "winrate": 
+						sortProp = winrateField;
+						break;
+					case "popularity":
+						sortProp = numGamesField;
+						break;
+					case "duration":
+						sortProp = "avg_game_length_seconds";
+						break;
+				}
 
 				const direction = queryMap["sortDirection"] === "descending" ? 1 : -1;
 				deckElements.sort((a, b) => (b[sortProp] - a[sortProp]) * direction);

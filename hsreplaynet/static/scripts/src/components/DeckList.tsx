@@ -85,28 +85,33 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 			);
 		}
 
+		const headerSortable = this.props.onHeaderClicked ? "header-sortable " : "";
+		const onClick = (key: string) => this.props.onHeaderClicked && this.props.onHeaderClicked(key);
+
 		return (
 			<div className="deck-list">
 				{!this.props.hideTopPager && pager(true)}
 				<div className="clearfix" />
 				<div className="row header-row">
-					<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
-						Deck
+					<div className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"} onClick={() => onClick("dust_cost")}>
+						Deck/Dust
+						{sortIndicator("dust_cost")}
 					</div>
-					<div className={(this.props.onHeaderClicked ? "header-sortable " : "") + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => this.props.onHeaderClicked && this.props.onHeaderClicked("winrate")}>
+					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => onClick("winrate")}>
 						Winrate
 						{sortIndicator("winrate")}
 					</div>
-					<div className={(this.props.onHeaderClicked ? "header-sortable " : "") + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => this.props.onHeaderClicked && this.props.onHeaderClicked("popularity")}>
+					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => onClick("popularity")}>
 						Games
 						{sortIndicator("popularity")}
 					</div>
-					<div className={(this.props.onHeaderClicked ? "header-sortable " : "") + "header-center col-lg-1 col-md-1 hidden-sm hidden-xs"} onClick={() => this.props.onHeaderClicked &&  this.props.onHeaderClicked("duration")}>
+					<div className={headerSortable + "header-center col-lg-1 col-md-1 hidden-sm hidden-xs"} onClick={() => onClick("duration")}>
 						Duration
 						{sortIndicator("duration")}
 					</div>
-					<div className="header-center col-lg-1 hidden-md hidden-sm hidden-xs">
+					<div className={headerSortable + "header-center col-lg-1 hidden-md hidden-sm hidden-xs"} onClick={() => onClick("mana_cost")}>
 						Cost
+						{sortIndicator("mana_cost")}
 					</div>
 					<div className="col-lg-6 col-md-7 col-sm-8 hidden-xs">
 						Cards
