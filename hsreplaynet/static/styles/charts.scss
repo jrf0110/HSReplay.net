@@ -22,6 +22,13 @@
 		cursor: pointer;
 		user-select: none;
 
+		&.selected {
+			.class-icon {
+				border: 2px solid purple;
+				border-radius: 50%;
+			}
+		}
+
 		&.unselected {
 			background-color: lightgray;
 			color: gray;

@@ -57,14 +57,26 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 
 	buildIcon(className: FilterOption, selected: boolean): JSX.Element {
 		const isSelected = selected || this.props.selectedClasses.indexOf("ALL") !== -1;
-		const wrapperClassName = "class-icon-label-wrapper" + (!this.props.disabled && isSelected ? "" : " deselected");
+		const wrapperClassNames = ["class-icon-label-wrapper"];
+		if (this.props.disabled || !isSelected) {
+			wrapperClassNames.push("deselected");
+		}
+		if (!this.props.disabled && selected) {
+			wrapperClassNames.push("selected");
+		}
 		let label = null;
 		if (!this.props.minimal) {
-			const labelClassName = "class-label hidden-xs " + (!this.props.disabled && isSelected ? className.toLowerCase() : "deselected");
-			label = <div className={labelClassName}>{toTitleCase(className)}</div>;
+			const labelClassNames = ["class-label hidden-xs "];
+			if (this.props.disabled || !isSelected) {
+				labelClassNames.push("deselected");
+			}
+			else {
+				labelClassNames.push(className.toLowerCase());
+			}
+			label = <div className={labelClassNames.join(" ")}>{toTitleCase(className)}</div>;
 		}
 
-		return <span className={wrapperClassName} onClick={() => this.onLabelClick(className, selected)}>
+		return <span className={wrapperClassNames.join(" ")} onClick={() => this.onLabelClick(className, selected)}>
 			<ClassIcon heroClassName={className} small />
 			{label}
 		</span>;
