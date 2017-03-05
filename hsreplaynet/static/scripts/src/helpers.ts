@@ -395,7 +395,10 @@ export function toTimeSeries(series: ChartSeries): ChartSeries {
 }
 
 export function getColorString(
-	colors: Colors, intensity: number, winrate: number, mirror?: boolean,
+	colors: Colors,
+	intensity: number,
+	winrate: number,
+	mirror?: boolean,
 	disable?: boolean,
 ): string {
 	if (mirror) {
@@ -457,23 +460,24 @@ export function getColorString(
 		return from + (to - from) * x;
 	};
 
-	const scaleArray = (x: number, from: number[], to: number[]): number[] => {
-		if (from.length !== to.length) {
-			throw new Error("Length missmatch");
-		}
-		return from.map((f, i) => scale(x, f, to[i]));
+	const scaleTriple = (x: number, from: Array<number|null>, to: Array<number|null>): number[] => {
+		return [
+			scale(x, from[0], to[0]),
+			scale(x, from[1], to[1]),
+			scale(x, from[2], to[2]),
+		];
 	};
 
-	const hsl = (values: number[]|null[]): string => {
+	const hsl = (values: Array<number|null>): string => {
 		return "values(" + (+values[0]) + ", " + (+values[1]) + "%, " + (+values[2]) + "%)";
 	};
 
 	const severity = Math.abs(0.5 - winrate) * 2;
 
 	if (winrate > 0.5) {
-		return hsl(scaleArray(severity, neutral, positive));
+		return hsl(scaleTriple(severity, neutral, positive));
 	} else if (winrate < 0.5) {
-		return hsl(scaleArray(severity, neutral, negative));
+		return hsl(scaleTriple(severity, neutral, negative));
 	}
 
 	return hsl(neutral);
