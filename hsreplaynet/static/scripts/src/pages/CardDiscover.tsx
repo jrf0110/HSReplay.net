@@ -419,11 +419,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 		const tableHeaders = [
 			{key: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
-			{key: "includedCount", text: "Copies"},
-			{key: "includedPopularity", text: "% of decks"},
-			{key: "includedWinrate", text: "Deck winrate"},
-			{key: "playedCount", text: "Times played"},
-			{key: "playedWinrate", text: "Played winrate"},
+			{key: "includedCount", text: "Copies", infoHeader: "Copies in deck", infoText: "Average number of copies in a deck."},
+			{key: "includedPopularity", text: "% of decks", infoHeader: "Included in % of decks", infoText: "Percentage of decks that include at least one copy of the card."},
+			{key: "includedWinrate", text: "Deck winrate", infoHeader: "Deck Winrate", infoText: "Average winrate of decks that include this card."},
+			{key: "playedCount", text: "Times played", infoHeader: "Times played", infoText: "Number of times the card was played."},
+			{key: "playedWinrate", text: "Played winrate", infoHeader: "Winrate when played", infoText: "Ave winrate of matches where the card was played."},
 		];
 
 		return (
