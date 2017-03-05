@@ -337,7 +337,11 @@ class GameReplay(models.Model):
 	replay will have fewer turns of gameplay then Player B's replay.
 	"""
 	class Meta:
-		ordering = ("global_game", )
+		# ordering = ("global_game", )
+		# Ordering on global_game causes nasty inner joins.
+		# We order by descending ID instead for now, until we have an upload_date.
+		ordering = ("-id", )
+
 		# Replays are unique to a perspective on the game (global_game):
 		# - client_handle: the *same* client cant be used for multiple replays
 		# - reconnecting: We do not currently unify games where the player reconnects
