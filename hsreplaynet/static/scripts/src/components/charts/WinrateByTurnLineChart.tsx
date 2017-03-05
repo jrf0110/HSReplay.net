@@ -11,6 +11,7 @@ interface WinrateByTurnLineChartProps {
 	renderData: RenderData;
 	opponentClass?: string;
 	widthRatio?: number;
+	premiumLocked?: boolean;
 }
 
 export default class WinrateByTurnLineChart extends React.Component<WinrateByTurnLineChartProps, any> {
@@ -39,17 +40,31 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 
 			const metaData = getChartMetaData(series.data, 50, false, 10);
 
-			const tooltip = <VictoryTooltip
-				cornerRadius={0}
-				pointerLength={0}
-				padding={1}
-				dx={d => d.x > metaData.xCenter ? -40 : 40}
-				dy={-12}
-				flyoutStyle={{
-					stroke: "gray",
-					fill: "rgba(255, 255, 255, 0.85)"
-				}}
-			/>;
+			let tooltips = null;
+			if (!this.props.premiumLocked) {
+				tooltips = (
+					<VictoryVoronoiTooltip
+						data={series.data}
+						labels={d => "Turn " + d.x + "\n" + d.y + "%"}
+						labelComponent={
+							<VictoryTooltip
+								cornerRadius={0}
+								pointerLength={0}
+								padding={1}
+								dx={d => d.x > metaData.xCenter ? -40 : 40}
+								dy={-12}
+								flyoutStyle={{
+									stroke: "gray",
+									fill: "rgba(255, 255, 255, 0.85)"
+								}}
+							/>
+						}
+						style={{
+							labels: {fontSize: 6, padding: 5}
+						}}
+					/>
+				);
+			}
 
 			const minAbove50 = metaData.yMinMax[0].y > 50;
 			const maxBelow50 = metaData.yMinMax[1].y < 50;
@@ -63,72 +78,70 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 			content = [
 				<defs>
 					<WinLossGradient id="winrate-by-turn-gradient" metadata={metaData} />
+					<filter id="winrate-gaussian-blur">
+						<feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+					</filter>
 				</defs>,
-				<VictoryChart
-					height={150}
-					width={width}
-					containerComponent={<VictoryContainer title={""}/>}
-					domainPadding={{x: 5, y: 10}}
-					padding={{left: 40, top: 30, right: 20, bottom: 30}}
-					domain={{x: metaData.xDomain, y: metaData.yDomain}}
-					>
-					<VictoryAxis
-						tickCount={series.data.length}
-						tickFormat={tick => tick}
-						style={{
-							axisLabel: {fontSize: 8},
-							tickLabels: {fontSize: 8},
-							grid: {stroke: "lightgray"},
-							axis: {visibility: "hidden"}
-						}}
-					/>
-					<VictoryAxis
-						dependentAxis
-						axisLabelComponent={<VictoryLabel dx={10} />}
-						tickValues={yTicks}
-						tickFormat={tick => {
-							if (tick === 50) {
-								return "50%";
-							}
-							if (minAbove50 && isMinTick(tick)) {
-								return "";
-							}
-							if (maxBelow50 && isMaxTick(tick)) {
-								return ""
-							}
-							return metaData.toFixed(tick) + "%"
-						}}
-						style={{
-							axisLabel: {fontSize: 8},
-							tickLabels: {fontSize: 8},
-							grid: {stroke: tick => tick === 50 ? "gray" : (minAbove50 && isMinTick(tick) || maxBelow50 && isMaxTick(tick) ? "transparent" : "lightgray")},
-							axis: {visibility: "hidden"}
-						}}
+				<svg filter={this.props.premiumLocked && "url(#winrate-gaussian-blur)"}>
+					<VictoryChart
+						height={150}
+						width={width}
+						containerComponent={<VictoryContainer title={""}/>}
+						domainPadding={{x: 5, y: 10}}
+						padding={{left: 40, top: 30, right: 20, bottom: 30}}
+						domain={{x: metaData.xDomain, y: metaData.yDomain}}
+						>
+						<VictoryAxis
+							tickCount={series.data.length}
+							tickFormat={tick => tick}
+							style={{
+								axisLabel: {fontSize: 8},
+								tickLabels: {fontSize: 8},
+								grid: {stroke: "lightgray"},
+								axis: {visibility: "hidden"}
+							}}
 						/>
-					<VictoryArea
-						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 50}})}
-						style={{data: {fill: "url(#winrate-by-turn-gradient)"}}}
-						interpolation="monotoneX"
-					/>
-					<VictoryLine
-						data={series.data}
-						interpolation="monotoneX"
-						style={{data: {strokeWidth: 1}}}
-					/>
-					<VictoryScatter
-						data={series.data}
-						symbol="circle"
-						size={1}
-					/>
-					<VictoryVoronoiTooltip
-						data={series.data}
-						labels={d => "Turn " + d.x + "\n" + d.y + "%"}
-						labelComponent={tooltip}
-						style={{
-							labels: {fontSize: 6, padding: 5}
-						}}
+						<VictoryAxis
+							dependentAxis
+							axisLabelComponent={<VictoryLabel dx={10} />}
+							tickValues={yTicks}
+							tickFormat={tick => {
+								if (tick === 50) {
+									return "50%";
+								}
+								if (minAbove50 && isMinTick(tick)) {
+									return "";
+								}
+								if (maxBelow50 && isMaxTick(tick)) {
+									return ""
+								}
+								return metaData.toFixed(tick) + "%"
+							}}
+							style={{
+								axisLabel: {fontSize: 8},
+								tickLabels: {fontSize: 8},
+								grid: {stroke: tick => tick === 50 ? "gray" : (minAbove50 && isMinTick(tick) || maxBelow50 && isMaxTick(tick) ? "transparent" : "lightgray")},
+								axis: {visibility: "hidden"}
+							}}
+							/>
+						<VictoryArea
+							data={series.data.map(p => {return {x: p.x, y: p.y, y0: 50}})}
+							style={{data: {fill: "url(#winrate-by-turn-gradient)"}}}
+							interpolation="monotoneX"
 						/>
-				</VictoryChart>
+						<VictoryLine
+							data={series.data}
+							interpolation="monotoneX"
+							style={{data: {strokeWidth: 1}}}
+						/>
+						<VictoryScatter
+							data={series.data}
+							symbol="circle"
+							size={1}
+						/>
+						{tooltips}
+					</VictoryChart>
+				</svg>
 			];
 		}
 

@@ -167,6 +167,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					);
 				}
 
+				let winrateChartData = this.winrateMockData;
+				if (this.props.userIsPremium) {
+					winrateChartData = this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent;
+				}
+
 				content = [
 					<div className="row">
 						<div className="col-lg-6 col-md-6">
@@ -198,11 +203,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						</div>
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
-								<WinrateByTurnLineChart
-									renderData={this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
-									opponentClass={this.state.selectedClasses[0]}
-									widthRatio={2}
-								/>
+								<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{top: "10px", right: "10px", left: "unset"}}>
+									<WinrateByTurnLineChart
+										renderData={winrateChartData}
+										opponentClass={this.state.selectedClasses[0]}
+										widthRatio={2}
+										premiumLocked={!this.props.userIsPremium}
+									/>
+								</PremiumWrapper>
 							</div>
 						</div>
 					</div>,
@@ -432,4 +440,23 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			(data) => this.setState({deckData: data})
 		);
 	}
+
+	readonly winrateMockData: RenderData = {
+		series: [{
+			name: "winrates_by_turn",
+			data: [
+				{y: 54, x: 1},
+				{y: 46, x: 2},
+				{y: 54, x: 3},
+				{y: 46, x: 4},
+				{y: 54, x: 5},
+				{y: 46, x: 6},
+				{y: 54, x: 7},
+				{y: 46, x: 8},
+				{y: 54, x: 9},
+				{y: 46, x: 10},
+			]
+		}]
+	};
+
 }

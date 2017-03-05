@@ -5,6 +5,7 @@ import {showModal} from "../Premium";
 
 interface PremiumWrapperProps extends React.ClassAttributes<PremiumWrapper> {
 	isPremium?: boolean;
+	iconStyle?: any;
 	infoHeader?: string;
 	infoContent?: string;
 }
@@ -41,7 +42,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 					}
 				}}
 			>
-				<img className="premium-icon" src={STATIC_URL + "images/ranked-medals/Medal_Ranked_Legend.png"} />
+				<img className="premium-icon" src={STATIC_URL + "images/ranked-medals/Medal_Ranked_Legend.png"} style={this.props.iconStyle}/>
 				{infoIcon}
 				{info}
 				{this.props.children}
