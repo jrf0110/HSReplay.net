@@ -167,6 +167,8 @@ class RawUpload(object):
 			self._shortid = fields["shortid"]
 			self._timestamp = datetime.strptime(fields["ts"], RawUpload.TIMESTAMP_FORMAT)
 
+			# These are loaded lazily from S3
+			self._descriptor = None
 			self._descriptor_key = self._create_raw_descriptor_key(fields["ts"], fields["shortid"])
 
 		elif key.startswith("uploads"):
@@ -181,7 +183,8 @@ class RawUpload(object):
 			self._timestamp = datetime.strptime(fields["ts"], RawUpload.TIMESTAMP_FORMAT)
 
 			self._upload_event = UploadEvent.objects.get(shortid=self._shortid)
-			self._descriptor_key = str(self._upload_event.descriptor)
+			self._descriptor = json.loads(self._upload_event.descriptor_data)
+			self._descriptor_key = str(self._upload_event.descriptor)  # No longer used
 
 		else:
 			raise NotImplementedError("__init__ is not supported for key pattern: %s" % key)
@@ -190,9 +193,6 @@ class RawUpload(object):
 		self._upload_event_log_key = None
 		self._upload_event_descriptor_key = None
 		self._upload_event_location_populated = False
-
-		# These are loaded lazily from S3
-		self._descriptor = None
 
 		# If this is changed to True before this RawUpload is sent to a kinesis stream
 		# Then the kinesis lambda will attempt to reprocess instead of exiting early
