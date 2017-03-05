@@ -17,8 +17,8 @@ queue_for_reprocessing.short_description = "Queue original upload for reprocessi
 
 class GlobalGamePlayerInline(admin.StackedInline):
 	model = GlobalGamePlayer
-	raw_id_fields = ("hero", )
-	readonly_fields = ("deck_list",)
+	raw_id_fields = ("hero", "pegasus_account")
+	readonly_fields = ("deck_list", )
 	max_num = 2
 	show_change_link = True
 
@@ -90,7 +90,7 @@ class GlobalGamePlayerAdmin(admin.ModelAdmin):
 		"rank", "stars", "legend_rank", "final_state"
 	)
 	list_filter = ("rank", "is_ai", "is_first", "hero_premium", "final_state", "player_id")
-	raw_id_fields = ("game", "hero", "deck_list")
+	raw_id_fields = ("game", "hero", "deck_list", "pegasus_account")
 	search_fields = ("name", "real_name")
 
 
