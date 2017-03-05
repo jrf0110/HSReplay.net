@@ -274,8 +274,9 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 				infoContent="Check out what cards get played on the higher ranks!"
 			>
 				<h2>Rank range</h2>
-				<InfoboxFilterGroup locked={!this.props.userIsPremium} deselectable selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
+				<InfoboxFilterGroup locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
 					<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+					<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 				</InfoboxFilterGroup>
 			</PremiumWrapper>,
 			backButton

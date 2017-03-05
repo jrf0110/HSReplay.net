@@ -342,8 +342,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						infoContent="Ready to climb the ladder? Check out how decks perform in the higher ranks!"
 					>
 						<h2>Rank range</h2>
-						<InfoboxFilterGroup deselectable locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
-							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend - 10</InfoboxFilter>
+						<InfoboxFilterGroup locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
+							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
 					{backButton}
