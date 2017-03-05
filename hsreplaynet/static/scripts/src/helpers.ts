@@ -1,5 +1,5 @@
-import {ChartScheme, ChartSchemeType, DataPoint, ChartMetaData, ChartSeries} from "./interfaces";
 import {Colors} from "./Colors";
+import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint} from "./interfaces";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -30,17 +30,28 @@ export function getHeroColor(hero: string): string {
 		return;
 	}
 	switch (hero.toUpperCase()) {
-		case "DRUID": return "#FF7D0A";
-		case "HUNTER": return "#ABD473";
-		case "MAGE": return "#69CCF0";
-		case "PALADIN": return "#F58CBA";
-		case "PRIEST": return "#D2D2D2";
-		case "ROGUE": return "#FFF01a";
-		case "SHAMAN": return "#0070DE";
-		case "WARLOCK": return "#9482C9";
-		case "WARRIOR": return "#C79C6E";
-		case "ALL": return "#808080";
-		case "NEUTRAL": return "#808080";
+		case "DRUID":
+			return "#FF7D0A";
+		case "HUNTER":
+			return "#ABD473";
+		case "MAGE":
+			return "#69CCF0";
+		case "PALADIN":
+			return "#F58CBA";
+		case "PRIEST":
+			return "#D2D2D2";
+		case "ROGUE":
+			return "#FFF01a";
+		case "SHAMAN":
+			return "#0070DE";
+		case "WARLOCK":
+			return "#9482C9";
+		case "WARRIOR":
+			return "#C79C6E";
+		case "ALL":
+			return "#808080";
+		case "NEUTRAL":
+			return "#808080";
 	}
 }
 
@@ -61,35 +72,35 @@ export function getChartScheme(theme: ChartSchemeType): ChartScheme {
 }
 
 const costScheme: ChartScheme = {
-	"0": {
+	0: {
 		fill: "rgba(204, 204, 255, 0.5)",
 		stroke: "rgba(204, 204, 255, 0.9)",
 	},
-	"1": {
+	1: {
 		fill: "rgba(153, 153, 255, 0.5)",
 		stroke: "rgba(153, 153, 255, 0.9)",
 	},
-	"2": {
+	2: {
 		fill: "rgba(102, 102, 255, 0.5)",
 		stroke: "rgba(102, 102, 255, 0.9)",
 	},
-	"3": {
+	3: {
 		fill: "rgba(51, 51, 255, 0.5)",
 		stroke: "rgba(51, 51, 255, 0.9)",
 	},
-	"4": {
+	4: {
 		fill: "rgba(0, 0, 255, 0.5)",
 		stroke: "rgba(0, 0, 255, 0.9)",
 	},
-	"5": {
+	5: {
 		fill: "rgba(0, 0, 204, 0.5)",
 		stroke: "rgba(0, 0, 204, 0.9)",
 	},
-	"6": {
+	6: {
 		fill: "rgba(0, 0, 153, 0.5)",
 		stroke: "rgba(0, 0, 153, 0.9)",
 	},
-	"7": {
+	7: {
 		fill: "rgba(0, 0, 102, 0.5)",
 		stroke: "rgba(0, 0, 102, 0.9)",
 		name: "7+",
@@ -97,45 +108,45 @@ const costScheme: ChartScheme = {
 };
 
 const rarityScheme: ChartScheme = {
-	"free": {
+	free: {
 		fill: "rgba(211, 211, 211, 0.5)",
 		stroke: "rgba(211, 211, 211, 0.9)",
 		name: "Free",
 	},
-	"common": {
+	common: {
 		fill: "rgba(169, 169, 169, 0.5)",
 		stroke: "rgba(169, 169, 169, 0.9)",
 		name: "Common",
 	},
-	"rare": {
+	rare: {
 		fill: "rgba(0, 112, 221, 0.5)",
 		stroke: "rgba(0, 112, 221, 0.9)",
 		name: "Rare",
 	},
-	"epic": {
+	epic: {
 		fill: "rgba(163, 53, 238, 0.5)",
 		stroke: "rgba(163, 53, 238, 0.9)",
 		name: "Epic",
 	},
-	"legendary": {
+	legendary: {
 		fill: "rgba(255, 128, 0, 0.5)",
 		stroke: "rgba(255, 128, 0, 0.9)",
 		name: "Legendary",
-	}
+	},
 };
 
 const cardtypeScheme: ChartScheme = {
-	"minion": {
+	minion: {
 		fill: "rgba(171, 212, 115, 0.5)",
 		stroke: "rgba(171, 212, 115, 0.9)",
 		name: "Minion",
 	},
-	"spell": {
+	spell: {
 		fill: "rgba(0, 112, 222, 0.5)",
 		stroke: "rgba(0, 112, 222, 0.9)",
 		name: "Spell",
 	},
-	"weapon": {
+	weapon: {
 		fill: "rgba(196, 30, 59, 0.5)",
 		stroke: "rgba(196, 30, 59, 0.9)",
 		name: "Weapon",
@@ -196,57 +207,57 @@ const cardsetScheme: ChartScheme = {
 };
 
 const classColorScheme: ChartScheme = {
-	"all": {
+	all: {
 		stroke: "rgba(169, 169, 169, 1)",
 		fill: "rgba(169, 169, 169, 0.7)",
 		name: "All",
 	},
-	"neutral": {
+	neutral: {
 		stroke: "rgba(169, 169, 169, 1)",
 		fill: "rgba(169, 169, 169, 0.7)",
 		name: "Neutral",
 	},
-	"druid": {
+	druid: {
 		stroke: "rgba(255, 125, 10, 1)",
 		fill: "rgba(255, 125, 10, 0.7)",
 		name: "Druid",
 	},
-	"hunter": {
+	hunter: {
 		stroke: "rgba(171, 212, 114, 1)",
 		fill: "rgba(171, 212, 114, 0.7)",
 		name: "Hunter",
 	},
-	"mage": {
+	mage: {
 		stroke: "rgba(105, 204, 240, 1)",
 		fill: "rgba(105, 204, 240, 0.7)",
 		name: "Mage",
 	},
-	"paladin": {
+	paladin: {
 		stroke: "rgba(245, 140, 186, 1)",
 		fill: "rgba(245, 140, 186, 0.7)",
 		name: "Paladin",
 	},
-	"priest": {
+	priest: {
 		stroke: "rgba(210, 210, 210, 1)",
 		fill: "rgba(210, 210, 210, 0.7)",
 		name: "Priest",
 	},
-	"rogue": {
+	rogue: {
 		stroke: "rgba(255, 217, 26, 1)",
 		fill: "rgba(255, 240, 26, 0.7)",
 		name: "Rogue",
 	},
-	"shaman": {
+	shaman: {
 		stroke: "rgba(0, 122, 222, 1)",
 		fill: "rgba(0, 122, 222, 0.7)",
 		name: "Shaman",
 	},
-	"warlock": {
+	warlock: {
 		stroke: "rgba(148, 130, 201, 1)",
 		fill: "rgba(148, 130, 201, 0.7)",
 		name: "Warlock",
 	},
-	"warrior": {
+	warrior: {
 		stroke: "rgba(199, 156, 110, 1)",
 		fill: "rgba(199, 156, 110, 0.7)",
 		name: "Warrior",
@@ -266,7 +277,7 @@ export const setNames = {
 	"loe": "League of Explorers",
 	"og": "Whispers of the Old Gods",
 	"kara": "One Night in Karazhan",
-	"gangs": "Mean Streets of Gadgetzan"
+	"gangs": "Mean Streets of Gadgetzan",
 };
 
 export const wildSets = ["NAXX", "GVG", "PROMO", "REWARD"];
@@ -279,73 +290,76 @@ export function isCollectibleCard(card: any) {
 	return card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1;
 }
 
-export function getChartMetaData(data: DataPoint[], midLine?: number, seasonTicks?: boolean, baseRoundingFactor?: number): ChartMetaData {
-		const ticks = [];
-		const xMin = data[0];
-		const xMax = data[data.length - 1];
-		const xCenter = +xMin.x + (+xMax.x - +xMin.x) / 2
+export function getChartMetaData(
+	data: DataPoint[],
+	midLine?: number,
+	seasonTicks?: boolean,
+	baseRoundingFactor?: number,
+): ChartMetaData {
+	const ticks = [];
+	const xMin = data[0];
+	const xMax = data[data.length - 1];
+	const xCenter = +xMin.x + (+xMax.x - +xMin.x) / 2;
 
-		if (seasonTicks) {
-			const offset = 12 * 60 * 60 * 1000;
-			const minDate = new Date(xMin.x);
-			const maxDate = new Date(xMax.x);
-			const season = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+	if (seasonTicks) {
+		const offset = 12 * 60 * 60 * 1000;
+		const minDate = new Date(xMin.x);
+		const maxDate = new Date(xMax.x);
+		const season = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+		if (season.getTime() >= minDate.getTime()) {
+			ticks.push(season.getTime() - offset);
+			season.setMonth(season.getMonth() - 1);
 			if (season.getTime() >= minDate.getTime()) {
 				ticks.push(season.getTime() - offset);
-				season.setMonth(season.getMonth() - 1);
-				if (season.getTime() >= minDate.getTime()) {
-					ticks.push(season.getTime() - offset);
-				}
 			}
-			else {
-				ticks.push(minDate.getTime() - offset);
-			}
+		} else {
+			ticks.push(minDate.getTime() - offset);
 		}
+	}
 
-		let yMin = data[0];
-		let yMax = data[0];
-		data.forEach(d => {
-			if (d.y < yMin.y) {
-				yMin = d;
-			}
-			else if (d.y > yMax.y) {
-				yMax = d;
-			}
-		});
-
-		if (!midLine) {
-			midLine = (yMax.y + yMin.y)/2
+	let yMin = data[0];
+	let yMax = data[0];
+	data.forEach((d) => {
+		if (d.y < yMin.y) {
+			yMin = d;
+		} else if (d.y > yMax.y) {
+			yMax = d;
 		}
+	});
 
-		const minDelta = Math.abs(midLine - yMin.y);
-		const maxDelta = Math.abs(midLine - yMax.y);
-		const midLinePosition = (maxDelta/(minDelta+maxDelta))
+	if (!midLine) {
+		midLine = (yMax.y + yMin.y) / 2;
+	}
 
-		const top = Math.max(yMax.y, midLine);
-		const bottom = Math.min(yMin.y, midLine);
-		const delta = (yMax.y - yMin.y);
-		const deltaMag = Math.min(Math.floor(Math.log10(delta)), 0);
-		const factor = 10 ** (deltaMag - 1);
-		const roundingFactor = 5 * (baseRoundingFactor || 0.1) * factor * 10;
-		const domainMax = Math.min(100, (Math.ceil(Math.ceil(top / factor) / roundingFactor) * roundingFactor) * factor); 
-		const domainMin = Math.max(0, (Math.floor(Math.floor(bottom / factor) / roundingFactor) * roundingFactor) * factor);
+	const minDelta = Math.abs(midLine - yMin.y);
+	const maxDelta = Math.abs(midLine - yMax.y);
+	const midLinePosition = (maxDelta / (minDelta + maxDelta));
 
-		return {
-			xDomain: [+xMin.x, +xMax.x],
-			xMinMax: [xMin, xMax],
-			xCenter: xCenter,
-			yDomain: [domainMin, domainMax],
-			yMinMax: [yMin, yMax],
-			yCenter: midLine,
-			seasonTicks: ticks,
-			midLinePosition: midLinePosition,
-			toFixed: x => {
-				const fixed = x.toFixed(Math.max(-deltaMag, 0) + 1);
-				const split = fixed.split(".");
-				const precision = sliceZeros(split[1]);
-				return split[0] + (precision.length ? "." + precision : "");
-			},
-		};
+	const top = Math.max(yMax.y, midLine);
+	const bottom = Math.min(yMin.y, midLine);
+	const delta = (yMax.y - yMin.y);
+	const deltaMag = Math.min(Math.floor(Math.log10(delta)), 0);
+	const factor = 10 ** (deltaMag - 1);
+	const roundingFactor = 5 * (baseRoundingFactor || 0.1) * factor * 10;
+	const domainMax = Math.min(100, (Math.ceil(Math.ceil(top / factor) / roundingFactor) * roundingFactor) * factor);
+	const domainMin = Math.max(0, (Math.floor(Math.floor(bottom / factor) / roundingFactor) * roundingFactor) * factor);
+
+	return {
+		xDomain: [+xMin.x, +xMax.x],
+		xMinMax: [xMin, xMax],
+		xCenter,
+		yDomain: [domainMin, domainMax],
+		yMinMax: [yMin, yMax],
+		yCenter: midLine,
+		seasonTicks: ticks,
+		midLinePosition,
+		toFixed: (x) => {
+			const fixed = x.toFixed(Math.max(-deltaMag, 0) + 1);
+			const split = fixed.split(".");
+			const precision = sliceZeros(split[1]);
+			return split[0] + (precision.length ? "." + precision : "");
+		},
+	};
 }
 
 function sliceZeros(input: string): string {
@@ -355,7 +369,7 @@ function sliceZeros(input: string): string {
 	let index = -1;
 	const chars = input.split("");
 	chars.reverse().forEach((char, i) => {
-		if(index === -1 && char !== "0") {
+		if (index === -1 && char !== "0") {
 			index = i;
 		}
 	});
@@ -368,19 +382,22 @@ export function toPrettyNumber(n: number): string {
 	return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-export function toTimeSeries(series: ChartSeries) : ChartSeries {
+export function toTimeSeries(series: ChartSeries): ChartSeries {
 	const timeSeries = {
-		data: series.data.map(d => {
-			return {x: new Date(d.x).getTime(), y: d.y}
+		data: series.data.map((d) => {
+			return {x: new Date(d.x).getTime(), y: d.y};
 		}),
 		name: series.name,
-		metadata: series.metadata
+		metadata: series.metadata,
 	};
 	timeSeries.data.sort((a, b) => +a.x - +b.x);
 	return timeSeries;
 }
 
-export function getColorString(colors: Colors, intensity: number, winrate: number, mirror?: boolean, disable?: boolean): string {
+export function getColorString(
+	colors: Colors, intensity: number, winrate: number, mirror?: boolean,
+	disable?: boolean,
+): string {
 	if (mirror) {
 		return "black";
 	}
@@ -432,7 +449,7 @@ export function getColorString(colors: Colors, intensity: number, winrate: numbe
 		negative[1] = 0;
 	}
 
-	const _fn = (x: number, from: number, to: number): number => {
+	const scale = (x: number, from: number, to: number): number => {
 		if (from === null || to === null) {
 			return +(to || from);
 		}
@@ -440,25 +457,23 @@ export function getColorString(colors: Colors, intensity: number, winrate: numbe
 		return from + (to - from) * x;
 	};
 
-	const fn = (x: number, from: number[], to: number[]): number[] => {
-		return [
-			_fn(x, from[0], to[0]),
-			_fn(x, from[1], to[1]),
-			_fn(x, from[2], to[2]),
-		];
+	const scaleArray = (x: number, from: number[], to: number[]): number[] => {
+		if (from.length !== to.length) {
+			throw new Error("Length missmatch");
+		}
+		return from.map((f, i) => scale(x, f, to[i]));
 	};
 
-	const hsl = (hsl: number[]|null[]): string => {
-		return "hsl(" + (+hsl[0]) + ", " + (+hsl[1]) + "%, " + (+hsl[2]) + "%)";
+	const hsl = (values: number[]|null[]): string => {
+		return "values(" + (+values[0]) + ", " + (+values[1]) + "%, " + (+values[2]) + "%)";
 	};
 
 	const severity = Math.abs(0.5 - winrate) * 2;
 
 	if (winrate > 0.5) {
-		return hsl(fn(severity, neutral, positive));
-	}
-	else if (winrate < 0.5) {
-		return hsl(fn(severity, neutral, negative));
+		return hsl(scaleArray(severity, neutral, positive));
+	} else if (winrate < 0.5) {
+		return hsl(scaleArray(severity, neutral, negative));
 	}
 
 	return hsl(neutral);
@@ -467,21 +482,19 @@ export function getColorString(colors: Colors, intensity: number, winrate: numbe
 export function cardSorting(a: any, b: any, direction = 1): number {
 	if (a.card !== undefined) {
 		if (a.card.cardObj !== undefined) {
-			a = a.card.cardObj
-		}
-		else {
+			a = a.card.cardObj;
+		} else {
 			a = a.card;
 		}
 	}
-	if(b.card !== undefined) {
+	if (b.card !== undefined) {
 		if (b.card.cardObj !== undefined) {
 			b = b.card.cardObj;
-		}
-		else {
+		} else {
 			b = b.card;
 		}
 	}
-	if (a.cost > b.cost) { 
+	if (a.cost > b.cost) {
 		return direction;
 	}
 	if (a.cost < b.cost) {
@@ -497,36 +510,40 @@ export function cardSorting(a: any, b: any, direction = 1): number {
 }
 
 export function getHeroCardId(playerClass: string, skin: boolean) {
-	//Heroes sorted by X in their cardId (HERO_0X)
+	// Heroes sorted by X in their cardId (HERO_0X)
 	const sorted = [
 		"WARRIOR", "SHAMAN", "ROGUE",
 		"PALADIN", "HUNTER", "DRUID",
-		"WARLOCK", "MAGE", "PRIEST"
+		"WARLOCK", "MAGE", "PRIEST",
 	];
 
 	const hasSkin = [
-		"WARRIOR", "SHAMAN", "PALADIN", "HUNTER", "MAGE", "PRIEST"
+		"WARRIOR", "SHAMAN", "PALADIN", "HUNTER", "MAGE", "PRIEST",
 	];
 
-	let heroId = ''+(sorted.indexOf(playerClass.toUpperCase()) + 1);
-	if(skin && hasSkin.indexOf(playerClass.toUpperCase()) !== -1) {
+	let heroId = "" + (sorted.indexOf(playerClass.toUpperCase()) + 1);
+	if (skin && hasSkin.indexOf(playerClass.toUpperCase()) !== -1) {
 		heroId += "a";
 	}
-	
+
 	return "HERO_0" + heroId;
 }
 
 export function getDustCost(card: any) {
-	//TODO take adventures etc into account
+	// TODO take adventures etc into account
 	if (!card || card.set === "CORE") {
 		return 0;
 	}
 
-	switch(card.rarity) {
-		case "COMMON": return 40;
-		case "RARE": return 100;
-		case "EPIC": return 400;
-		case "LEGENDARY": return 1600;
+	switch (card.rarity) {
+		case "COMMON":
+			return 40;
+		case "RARE":
+			return 100;
+		case "EPIC":
+			return 400;
+		case "LEGENDARY":
+			return 1600;
 	}
 
 	return 0;
@@ -536,8 +553,8 @@ export function winrateData(baseWinrate: number, winrate: number, deltaFactor: n
 	const winrateDelta = winrate - baseWinrate;
 	const colorWinrate = 50 + Math.max(-50, Math.min(50, (deltaFactor * winrateDelta)));
 	const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
-	const color = getColorString(Colors.REDGREEN3, 75, colorWinrate/100)
-	return {delta: winrateDelta.toFixed(1), color, tendencyStr}
+	const color = getColorString(Colors.REDGREEN3, 75, colorWinrate / 100);
+	return {delta: winrateDelta.toFixed(1), color, tendencyStr};
 }
 
 export function cleanText(text: string): string {
