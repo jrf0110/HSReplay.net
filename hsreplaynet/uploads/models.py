@@ -187,7 +187,7 @@ class RawUpload(object):
 			self.descriptor_key = str(self.upload_event.descriptor)  # No longer used
 
 		else:
-			raise NotImplementedError("__init__ is not supported for key pattern: %s" % key)
+			raise ValueError("Invalid key pattern: %r" % (key))
 
 		self._upload_event_log_bucket = None
 		self._upload_event_log_key = None
