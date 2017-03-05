@@ -40,41 +40,26 @@ export default class TourManager {
 			const classes = [];
 			const callbacks = [];
 
-			if (first && !last) {
+			if (!first) {
 				buttons.push({
-					text: "Skip",
+					text: "Back",
 					classes: "btn btn-default",
-					action: () => tour.cancel(),
+					action: () => tour.back(),
 				});
+			}
+			if (last) {
 				buttons.push({
-					text: "Start Tour",
+					text: "Done",
 					classes: "btn btn-success",
-					action: () => tour.next(),
+					action: () => tour.complete(),
 				});
-				classes.push("wide");
 			}
 			else {
-				if (!first) {
-					buttons.push({
-						text: "Back",
-						classes: "btn btn-default",
-						action: () => tour.back(),
-					});
-				}
-				if (!last) {
-					buttons.push({
-						text: "Next",
-						classes: "btn btn-primary",
-						action: () => tour.next(),
-					});
-				}
-				else {
-					buttons.push({
-						text: "Done",
-						classes: "btn btn-success",
-						action: () => tour.complete(),
-					});
-				}
+				buttons.push({
+					text: "Next",
+					classes: "btn btn-primary",
+					action: () => tour.next(),
+				});
 			}
 
 			const id = step.id;
