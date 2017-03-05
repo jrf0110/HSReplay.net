@@ -303,7 +303,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<h2>Personal</h2>
 					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["personal"]} onClick={(value) => setQueryMap(this, "personal", value)}>
 						<InfoboxFilter value="true" disabled={personalDisabled}>
-							My decks (last 30 days)
+							I have played (last 30 days)
 							{loginLink}
 						</InfoboxFilter>
 					</InfoboxFilterGroup>
