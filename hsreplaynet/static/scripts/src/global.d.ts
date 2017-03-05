@@ -197,3 +197,7 @@ declare module "tether-shepherd" {
 		getCurrentStep(): Step;
 	}
 }
+
+interface Window {
+	hsreplaynet_load_premium_modal: () => void;
+}
