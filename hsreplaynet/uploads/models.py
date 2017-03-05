@@ -154,7 +154,7 @@ class RawUpload(object):
 	def __init__(self, bucket, key):
 		self.bucket = bucket
 		self._log_key = key
-		self._upload_event = None
+		self.upload_event = None
 
 		if key.startswith("raw"):
 			self._state = RawUploadState.NEW
@@ -169,7 +169,7 @@ class RawUpload(object):
 
 			# These are loaded lazily from S3
 			self._descriptor = None
-			self._descriptor_key = self._create_raw_descriptor_key(fields["ts"], fields["shortid"])
+			self.descriptor_key = self._create_raw_descriptor_key(fields["ts"], fields["shortid"])
 
 		elif key.startswith("uploads"):
 			self._state = RawUploadState.HAS_UPLOAD_EVENT
@@ -182,9 +182,9 @@ class RawUpload(object):
 			self._shortid = fields["shortid"]
 			self._timestamp = datetime.strptime(fields["ts"], RawUpload.TIMESTAMP_FORMAT)
 
-			self._upload_event = UploadEvent.objects.get(shortid=self._shortid)
-			self._descriptor = json.loads(self._upload_event.descriptor_data)
-			self._descriptor_key = str(self._upload_event.descriptor)  # No longer used
+			self.upload_event = UploadEvent.objects.get(shortid=self._shortid)
+			self._descriptor = json.loads(self.upload_event.descriptor_data)
+			self.descriptor_key = str(self.upload_event.descriptor)  # No longer used
 
 		else:
 			raise NotImplementedError("__init__ is not supported for key pattern: %s" % key)
@@ -282,17 +282,13 @@ class RawUpload(object):
 		return self._signed_url_for(self._log_key)
 
 	@property
-	def descriptor_key(self):
-		return self._descriptor_key
-
-	@property
 	def descriptor_url(self):
-		return self._signed_url_for(self._descriptor_key)
+		return self._signed_url_for(self.descriptor_key)
 
 	@property
 	def descriptor(self):
 		if self._descriptor is None:
-			self._descriptor = self._get_object(self._descriptor_key)
+			self._descriptor = self._get_object(self.descriptor_key)
 
 		return self._descriptor
 
