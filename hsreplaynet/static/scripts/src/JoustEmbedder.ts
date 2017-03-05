@@ -1,11 +1,11 @@
+import {Launcher} from "joust";
 import * as Joust from "joust";
 import Raven from "raven-js";
-import {joustAsset, cardArt} from "./helpers";
-import MetricsReporter from "./metrics/MetricsReporter";
+import * as React from "react";
+import {cardArt, joustAsset} from "./helpers";
 import BatchingMiddleware from "./metrics/BatchingMiddleware";
 import InfluxMetricsBackend from "./metrics/InfluxMetricsBackend";
-import * as React from "react";
-import {Launcher} from "joust";
+import MetricsReporter from "./metrics/MetricsReporter";
 
 export default class JoustEmbedder {
 	public turn: number = null;
@@ -13,11 +13,11 @@ export default class JoustEmbedder {
 	public swap: boolean = null;
 	public locale: string = "enUS";
 	public launcher: Launcher = null;
-	private target: HTMLElement = null;
-	private url: string = null;
 	public onTurn: (turn: number) => void = null;
 	public onToggleSwap: (swap: boolean) => void = null;
 	public onToggleReveal: (reveal: boolean) => void = null;
+	private target: HTMLElement = null;
+	private url: string = null;
 
 	public embed(target: HTMLElement) {
 		this.prepare(target);
@@ -33,10 +33,10 @@ export default class JoustEmbedder {
 		if (!Joust.launcher) {
 			console.error("Could not load Joust");
 			target.innerHTML = '<p class="alert alert-danger">' +
-				'<strong>Loading failed:</strong> ' +
-				'Replay applet (Joust) could not be loaded. Please ensure you can access ' +
-				'<a href="' + JOUST_STATIC_URL + 'joust.js">' + JOUST_STATIC_URL + 'joust.js</a>.</p>' +
-				'<p>Otherwise try clearing your cache and refreshing this page.</p>';
+				"<strong>Loading failed:</strong> " +
+				"Replay applet (Joust) could not be loaded. Please ensure you can access " +
+				'<a href="' + JOUST_STATIC_URL + 'joust.js">' + JOUST_STATIC_URL + "joust.js</a>.</p>" +
+				"<p>Otherwise try clearing your cache and refreshing this page.</p>";
 			// could also offer document.location.reload(true)
 			return;
 		}
@@ -50,14 +50,12 @@ export default class JoustEmbedder {
 		let dsn = JOUST_RAVEN_DSN_PUBLIC;
 		if (dsn) {
 			let raven = Raven.config(dsn, {
-				release: release,
+				release,
 				environment: JOUST_RAVEN_ENVIRONMENT || "development",
 			}).install();
 			let username = document.body.getAttribute("data-username");
 			if (username) {
-				raven.setUserContext({
-					username: username,
-				});
+				raven.setUserContext({username});
 			}
 			(raven as any).setTagsContext({
 				react: React.version,
@@ -66,8 +64,7 @@ export default class JoustEmbedder {
 				if (raven) {
 					if (typeof err === "string") {
 						raven.captureMessage(err);
-					}
-					else {
+					} else {
 						raven.captureException(err);
 					}
 				}
@@ -82,7 +79,9 @@ export default class JoustEmbedder {
 		launcher.cardArt((cardId: string) => cardArt(cardId));
 
 		// setup metadata
-		launcher.metadataSource((build, locale) => HEARTHSTONEJSON_URL.replace(/%\(build\)s/, "" + build).replace(/%\(locale\)s/, locale));
+		launcher.metadataSource((build, locale) => {
+			return HEARTHSTONEJSON_URL.replace(/%\(build\)s/, "" + build).replace(/%\(locale\)s/, locale);
+		});
 		if (typeof launcher.selectedLocale !== "undefined" && !launcher.selectedLocale) {
 			launcher.locale(this.locale);
 		}
@@ -132,7 +131,7 @@ export default class JoustEmbedder {
 						realtime_fixed: 1,
 					});
 				}),
-				(series: string): string => "joust_" + series
+				(series: string): string => "joust_" + series,
 			);
 			launcher.events(track);
 		}
@@ -164,11 +163,10 @@ export default class JoustEmbedder {
 
 		// autoplay
 		let autoplay = target.getAttribute("data-autoplay");
-		if (autoplay == "false") {
+		if (autoplay === "false") {
 			// Only disable autoplay if it's *specifically* set to "false"
 			launcher.startPaused(true);
-		}
-		else {
+		} else {
 			launcher.startPaused(false);
 		}
 
