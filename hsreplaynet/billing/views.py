@@ -5,10 +5,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, View
 from djstripe.models import Customer, StripeCard
 from stripe.error import CardError, InvalidRequestError
+from hsreplaynet.features.decorators import view_requires_feature_access
 
 
 STRIPE_DEBUG = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_") and settings.DEBUG
@@ -232,5 +234,6 @@ class UpdateCardView(LoginRequiredMixin, View):
 		return redirect(self.success_url)
 
 
+@method_decorator(view_requires_feature_access("billing"), name="dispatch")
 class PremiumDetailView(TemplateView):
 	template_name = "premium/premium_detail.html"
