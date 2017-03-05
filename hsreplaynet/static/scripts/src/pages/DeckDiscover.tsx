@@ -34,7 +34,6 @@ interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
 	private readonly queryManager: QueryManager = new QueryManager();
 	private readonly defaultQueryMap: QueryMap = {
-		deckType: "",
 		excludedCards: "",
 		gameType: "RANKED_STANDARD",
 		includedCards: "",
@@ -130,15 +129,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							if (!includedCards.length || includedCards.every(card => deckList.some(cardObj => cardObj.card.id === card.id))) {
 								if (!excludedCards.length || !excludedCards.some(card => deckList.some(cardObj => cardObj.card.id === card.id))) {
 									const costSum = deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
-									const deckType = queryMap["deckType"];
-									if (!deckType || deckType === this.getDeckType(costSum)) {
-										if (!queryMap["personal"] || this.state.myDecks && this.state.myDecks[deck["deck_id"]]) {
-											deck["cards"] = deckList;
-											deck["dust_cost"] = deckList.reduce((a, b) => a + getDustCost(b.card) * b.count, 0);
-											deck["mana_cost"] = costSum;
-											deck["player_class"] = key;
-											deckElements.push(deck);
-										}
+									if (!queryMap["personal"] || this.state.myDecks && this.state.myDecks[deck["deck_id"]]) {
+										deck["cards"] = deckList;
+										deck["dust_cost"] = deckList.reduce((a, b) => a + getDustCost(b.card) * b.count, 0);
+										deck["mana_cost"] = costSum;
+										deck["player_class"] = key;
+										deckElements.push(deck);
 									}
 								}
 							}
@@ -310,12 +306,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							My decks (last 30 days)
 							{loginLink}
 						</InfoboxFilter>
-					</InfoboxFilterGroup>
-					<h2>Deck type</h2>
-					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["deckType"]} onClick={(value) => setQueryMap(this, "deckType", value)}>
-						<InfoboxFilter value="aggro">Aggro</InfoboxFilter>
-						<InfoboxFilter value="midrange">Midrange</InfoboxFilter>
-						<InfoboxFilter value="control">Control</InfoboxFilter>
 					</InfoboxFilterGroup>
 					<h2>Mode</h2>
 					<InfoboxFilterGroup selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
