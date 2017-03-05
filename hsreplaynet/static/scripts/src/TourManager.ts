@@ -1,5 +1,5 @@
-import * as Shepherd from "tether-shepherd";
 import {cookie} from "cookie_js";
+import * as Shepherd from "tether-shepherd";
 
 export interface StepDefinition {
 	id: string;
@@ -53,8 +53,7 @@ export default class TourManager {
 					classes: "btn btn-success",
 					action: () => tour.complete(),
 				});
-			}
-			else {
+			} else {
 				buttons.push({
 					text: "Next",
 					classes: "btn btn-primary",
@@ -73,20 +72,17 @@ export default class TourManager {
 			// add default classes
 			if (!step.classes) {
 				step.classes = "";
-			}
-			else {
+			} else {
 				step.classes += " ";
 			}
 			step.classes += classes.join(" ");
 
 			// add default buttons
-			step = Object.assign({}, {
-				buttons: buttons,
-			}, step);
+			step = Object.assign({}, {buttons}, step);
 
 			// callback for attachTo
 			let attachCallback = null;
-			if(typeof step.attachTo === "function") {
+			if (typeof step.attachTo === "function") {
 				callbacks.push((instance) => {
 					const result = step.attachTo();
 					instance.options.attachTo = result && result.element ? result : null;
@@ -117,10 +113,6 @@ export default class TourManager {
 		return tour;
 	}
 
-	protected buildTourIdentifier(tour: string): string {
-		return "tour_" + tour.toLowerCase() + "_seen";
-	}
-
 	public hasSeen(tour: string): boolean {
 		const id = this.buildTourIdentifier(tour);
 		return cookie.get(id, "0") !== "0";
@@ -129,5 +121,9 @@ export default class TourManager {
 	public markSeen(tour: string): void {
 		const id = this.buildTourIdentifier(tour);
 		cookie.set(id, "1", {expires: 10 * 365});
+	}
+
+	protected buildTourIdentifier(tour: string): string {
+		return "tour_" + tour.toLowerCase() + "_seen";
 	}
 }
