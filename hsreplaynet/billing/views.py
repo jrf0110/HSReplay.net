@@ -233,4 +233,4 @@ class UpdateCardView(LoginRequiredMixin, View):
 
 
 class PremiumDetailView(TemplateView):
-	template_name = "premium.html"
+	template_name = "premium/premium_detail.html"
