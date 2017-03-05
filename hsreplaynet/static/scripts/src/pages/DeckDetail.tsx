@@ -15,6 +15,7 @@ import InfoIcon from "../components/InfoIcon";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
+import SortableTable, {SortDirection} from "../components/SortableTable";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import moment from "moment";
 import {CardObj, DeckObj, MyDecks, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
@@ -46,8 +47,8 @@ interface DeckDetailState {
 	selectedClasses?: FilterOption[];
 	showInfo?: boolean;
 	similarDecks?: TableData;
-	sortCol?: string;
-	sortDirection?: number;
+	sortBy?: string;
+	sortDirection?: string;
 	tableDataAll?: TableDataCache;
 	tableDataClasses?: TableDataCache;
 	winrateOverTime?: RenderData;
@@ -78,8 +79,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			similarDecks: "loading",
 			showInfo: false,
 			selectedClasses: ["ALL"],
-			sortCol: "decklist",
-			sortDirection: 1,
+			sortBy: "decklist",
+			sortDirection: "ascending",
 			tableDataAll: {},
 			tableDataClasses: {},
 			winrateOverTime: "loading",
@@ -456,81 +457,39 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				rowList.push({row: row, card: card})
 			})
 
-			if (this.state.sortCol === "decklist") {
-				rowList.sort((a, b) => cardSorting(a, b, this.state.sortDirection));
+			const direction = this.state.sortDirection === "ascending" ? 1 : -1;
+
+			if (this.state.sortBy === "decklist") {
+				rowList.sort((a, b) => cardSorting(a, b, direction));
 			}
 			else {
-				rowList.sort((a, b) => +a.row[this.state.sortCol] > +b.row[this.state.sortCol] ? this.state.sortDirection : -this.state.sortDirection);
+				rowList.sort((a, b) => (+a.row[this.state.sortBy] - +b.row[this.state.sortBy]) * direction);
 			}
 			
 			rowList.forEach((item, index) => {
 				cardRows.push(this.buildCardRow(item.card, index === 0, rowList.length, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg));
-			})
+			});
 		}
 
-		const onHeaderClick = (name: string, defaultDir: number = -1) => {
-			this.setState({
-				sortCol: name,
-				sortDirection: this.state.sortCol !== name ? defaultDir : -this.state.sortDirection
-			})
+		const onSortChanged = (sortBy: string, sortDirection: SortDirection): void => {
+			this.setState({sortBy, sortDirection});
 		};
 
-		const sortIndicator = (name: string): JSX.Element => {
-			return (
-				<span className={name === this.state.sortCol ? "" : "no-sort"}>
-					{this.state.sortDirection > 0 ? "▴" : "▾"}
-				</span>
-			);
-		}
+		const tableHeaders = [
+			{key: "decklist", text: "Card", defaultSortDirection: "ascending" as SortDirection},
+			{key: "opening_hand_win_rate", text: "Mulligan WR", infoHeader: "Mulligan Winrate", infoText: "Winrate when the card ends up in the opening hand." },
+			{key: "keep_percentage", text: "Kept", infoHeader: "Kept", infoText: "Percentage card was kept when presented during mulligan." },
+			{key: "win_rate_when_drawn", text: "Drawn WR", infoHeader: "Drawn Winrate", infoText: "Average winrate of games where the card was drawn at any point." },
+			{key: "win_rate_when_played", text: "Played WR", infoHeader: "Played Winrate", infoText: "Average winrate of games where the card was played at any point." },
+			{key: "avg_turns_in_hand", text: "Turns held", infoHeader: "Turns held", infoText: "Average number of turn the card is held in hand"},
+			{key: "avg_turn_played_on", text: "Turn played", infoHeader: "Turn played", infoText: "Average turn the card is played on." },
+		];
 
-		const headers = [];
-		headers.push(
-			<th className="table-header-card" onClick={() => onHeaderClick("decklist", 1)}>
-				Cards
-				{sortIndicator("decklist")}
-			</th>,
-			<th onClick={() => onHeaderClick("opening_hand_win_rate")}>
-				Mulligan WR
-				{sortIndicator("opening_hand_win_rate")}
-				<InfoIcon header="Mulligan Winrate" content="Winrate when the card ends up in the opening hand." />
-			</th>,
-			<th onClick={() => onHeaderClick("keep_percentage")}>
-				Kept
-				{sortIndicator("keep_percentage")}
-				<InfoIcon header="Kept" content="Percentage card was kept when presented during mulligan." />
-			</th>,
-			<th onClick={() => onHeaderClick("win_rate_when_drawn")}>
-				Drawn WR
-				{sortIndicator("win_rate_when_drawn")}
-				<InfoIcon header="Drawn Winrate" content="Average winrate of games where the card was drawn at any point." />
-			</th>,
-			<th onClick={() => onHeaderClick("win_rate_when_played")}>
-				Played WR
-				{sortIndicator("win_rate_when_played")}
-				<InfoIcon header="Played Winrate" content="Average winrate of games where the card was played at any point." />
-			</th>,
-			<th onClick={() => onHeaderClick("avg_turns_in_hand")}>
-				Turns held
-				{sortIndicator("avg_turns_in_hand")}
-				<InfoIcon header="Turns held" content="Average number of turn the card is held in hand." />
-			</th>,
-			<th onClick={() => onHeaderClick("avg_turn_played_on")}>
-				Turn played
-				{sortIndicator("avg_turn_played_on")}
-				<InfoIcon header="Turn played" content="Average turn the card is played on." />
-			</th>,
-		)
-
-		return <table className="table table-striped table-hover">
-			<thead className="table-header-sortable">
-				<tr>
-					{headers}
-				</tr>
-			</thead>
-			<tbody>
+		return (
+			<SortableTable sortBy={this.state.sortBy} sortDirection={this.state.sortDirection as SortDirection} onSortChanged={onSortChanged} headers={tableHeaders}>
 				{cardRows}
-			</tbody>
-		</table>;
+			</SortableTable>
+		);
 	}
 
 	buildCardRow(

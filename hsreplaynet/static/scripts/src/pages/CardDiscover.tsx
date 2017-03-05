@@ -9,6 +9,7 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import QueryManager from "../QueryManager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
+import SortableTable, {SortDirection} from "../components/SortableTable";
 import {ChartSeries, TableQueryData, TableData} from "../interfaces";
 import {cardSorting, cleanText, setNames, toTitleCase, toPrettyNumber, wildSets, winrateData} from "../helpers";
 import {
@@ -353,12 +354,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			});
 		});
 
-		const sortDirection = this.state.queryMap["sortDirection"];
+		const sortDirection = this.state.queryMap["sortDirection"] as SortDirection;
 		const direction = sortDirection === "descending" ? 1 : -1;
 		const sortBy = this.state.queryMap["sortBy"];
 		
 		if (sortBy === "card") {
-			cardObjs.sort((a, b) => cardSorting(a, b, direction));
+			cardObjs.sort((a, b) => cardSorting(a, b, -direction));
 		}
 		else {
 			cardObjs.sort((a, b) => ((b[sortBy] || 0) - (a[sortBy] || 0)) * direction);
@@ -372,15 +373,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		};
 
-		const onClick = (name: string): void => {
+		const onSortChanged = (sortBy: string, sortDirection: SortDirection): void => {
 			const queryMap = Object.assign({}, this.state.queryMap);
-			queryMap["sortBy"] = name;
-			if (sortBy === name) {
-				queryMap["sortDirection"] = sortDirection === "ascending" ? "descending" : "ascending";
-			}
-			else {
-				queryMap["sortDirection"] = name === "card" ? "ascending" : "descending";
-			}
+			queryMap.sortBy = sortBy;
+			queryMap.sortDirection = sortDirection;
 			this.setState({queryMap});
 		};
 
@@ -395,50 +391,45 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			const playedWrData = obj.playedWinrate && winrateData(50, obj.playedWinrate, 3);
 			rows.push(
 				<tr>
-					<td className="td-card"><div className="card-wrapper"><a href={"/cards/" + obj.card.dbfId}><CardTile card={obj.card} count={1} rarityColored height={34} tooltip /></a></div></td>
-					<td>{obj.includedCount ? obj.includedCount : "-"}</td>
-					<td>{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}</td>
-					<td style={{color: includedWrData && includedWrData.color}}>{obj.includedWinrate ? toDynamicFixed(obj.includedWinrate) + "%" : "-"}</td>
-					<td>{(obj.playedCount ? toPrettyNumber(obj.playedCount) : "0") + playedPopularity}</td>
-					<td style={{color: playedWrData && playedWrData.color}}>{obj.playedWinrate ? toDynamicFixed(obj.playedWinrate) + "%" : "-"}</td>
+					<td className="td-card">
+						<div className="card-wrapper">
+							<a href={"/cards/" + obj.card.dbfId}>
+								<CardTile card={obj.card} count={1} rarityColored height={34} tooltip />
+							</a>
+						</div>
+					</td>
+					<td>
+						{obj.includedCount ? obj.includedCount : "-"}
+					</td>
+					<td>
+						{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}
+					</td>
+					<td style={{color: includedWrData && includedWrData.color}}>
+						{obj.includedWinrate ? toDynamicFixed(obj.includedWinrate) + "%" : "-"}
+					</td>
+					<td>
+						{(obj.playedCount ? toPrettyNumber(obj.playedCount) : "0") + playedPopularity}
+					</td>
+					<td style={{color: playedWrData && playedWrData.color}}>
+						{obj.playedWinrate ? toDynamicFixed(obj.playedWinrate) + "%" : "-"}
+					</td>
 				</tr>
 			);
-		})
+		});
 
-		return(
-			<table className="table table-striped table-hover" id="card-table">
-				<thead>
-					<tr>
-						<th className="sortable" onClick={() => onClick("card")}>
-							Card
-							{sortIndicator("card")}
-						</th>
-						<th className="sortable" onClick={() => onClick("includedCount")}>
-							Copies
-							{sortIndicator("includedCount")}
-						</th>
-						<th className="sortable" onClick={() => onClick("includedPopularity")}>
-							% of decks
-							{sortIndicator("includedPopularity")}
-						</th>
-						<th className="sortable" onClick={() => onClick("includedWinrate")}>
-							Deck winrate
-							{sortIndicator("includedWinrate")}
-						</th>
-						<th className="sortable" onClick={() => onClick("playedCount")}>
-							Times played
-							{sortIndicator("playedCount")}
-						</th>
-						<th className="sortable" onClick={() => onClick("playedWinrate")}>
-							Played Winrate
-							{sortIndicator("playedWinrate")}
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					{rows}
-				</tbody>
-			</table>
+		const tableHeaders = [
+			{key: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
+			{key: "includedCount", text: "Copies"},
+			{key: "includedPopularity", text: "% of decks"},
+			{key: "includedWinrate", text: "Deck winrate"},
+			{key: "playedCount", text: "Times played"},
+			{key: "playedWinrate", text: "Played winrate"},
+		];
+
+		return (
+			<SortableTable sortBy={sortBy} sortDirection={sortDirection} onSortChanged={onSortChanged} headers={tableHeaders}>
+				{rows}
+			</SortableTable>
 		);
 	}
 

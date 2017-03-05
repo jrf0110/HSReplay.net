@@ -116,7 +116,7 @@
 			text-align: center;
 		}
 
-		#card-list, #card-table {
+		#card-list, .table {
 			padding-top: 20px;
 		}
 
@@ -152,18 +152,9 @@
 			padding: 50px 0;
 		}
 
-		.td-card {
-			min-width: 217px;
-			width: 217px;
-		}
-
 		.card-wrapper {
 			margin-bottom: -7px;
 			margin-top: -7px;
-		}
-
-		.no-sort {
-			opacity: 0;
 		}
 
 		.table-wrapper {
@@ -174,16 +165,6 @@
 			}
 		}
 
-		th {
-			&.sortable {
-				cursor: pointer;
-				user-select: none;
-			}
-		}
-
-		td {
-			font-weight: bold;
-		}
 	}
 
 	.chart-list {

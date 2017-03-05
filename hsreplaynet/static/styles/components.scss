@@ -248,3 +248,24 @@
 	color: limegreen;
 }
 
+.table-sortable {
+	th {
+		&.th-sortable {
+			cursor: pointer;
+			user-select: none;
+		}
+	}
+
+	td {
+		font-weight: bold;
+	}
+
+	.td-card {
+		min-width: 217px;
+		width: 217px;
+	}
+
+	.no-sort {
+		opacity: 0;
+	}
+}

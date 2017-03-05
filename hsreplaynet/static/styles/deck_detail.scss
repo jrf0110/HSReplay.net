@@ -78,19 +78,6 @@
 		margin-top: 70px
 	}
 
-	.table-header-sortable {
-		cursor: pointer;
-		user-select: none;
-
-		.no-sort {
-			opacity: 0;
-		}
-	}
-
-	.table-header-card {
-		width: 217px;
-	}
-
 	.replay-count {
 		display: block;
 		color: gray;
