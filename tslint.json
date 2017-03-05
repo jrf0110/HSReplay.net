@@ -1,0 +1,25 @@
+{
+	"extends": [
+		"tslint:recommended",
+		"tslint-react"
+	],
+	"rules": {
+		"indent": [
+			true,
+			"tabs"
+		],
+		"interface-name": [
+			true,
+			"never-prefix"
+		],
+		"jsx-alignment": true,
+		"jsx-curly-spacing": "never",
+		"no-require-imports": true,
+		"no-string-literal": false,
+		"no-unused-expression": [
+			true,
+			"allow-fast-null-checks"
+		],
+		"object-literal-sort-keys": false
+	}
+}

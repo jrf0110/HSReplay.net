@@ -31,5 +31,9 @@
 		"webpack": "^2.2.1",
 		"webpack-bundle-tracker": "^0.2.0",
 		"whatwg-fetch": "^2.0.2"
+	},
+	"devDependencies": {
+		"tslint": "^4.5.1",
+		"tslint-react": "^2.4.0"
 	}
 }
