@@ -13,30 +13,6 @@
 	<p>
 		Upgrade to Premium! We have cool stuff! Promise!
 	</p>
-
-	<p>
-		{# Hardcoding USD because we need iso4217 for USD -> $ #}
-		Plan: {{ monthly_plan.name }}. ${{ monthly_plan.amount }} / Month
-
-		<form method="POST" action="{% url 'premium' %}">
-			{% csrf_token %}
-			<script
-				type="text/javascript" src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-				data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
-				data-image="{% static 'images/hsreplay-thumbnail.png' %}"
-				data-name="HearthSim Pro"
-				{% if user.email %}data-email="{{ user.email }}"{% endif %}
-				data-locale="auto"
-				data-description="Sign up for HearthSim Pro"
-				data-label="Sign me up!"
-				data-panel-label="Pay ${{ monthly_plan.amount }}"
-			></script>
-		</form>
-	</p>
-
-	<p>
-		Plan: {{ semiannual_plan.name }}. ${{ semiannual_plan.amount }} billed every 6 months
-	</p>
 </article>
 {% endif %}
 
