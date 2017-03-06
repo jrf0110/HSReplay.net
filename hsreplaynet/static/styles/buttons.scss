@@ -19,6 +19,12 @@
 		border: solid 1px $aqua;
 		background-color: $aqua;
 	}
+
+	&.gold-style {
+		border: solid 1px $gold;
+		background-color: $gold;
+		color: black;
+	}
 }
 
 .promo-button {
@@ -42,6 +48,12 @@
 		color: $aqua;
 		background-color: white;
 		border-color: $aqua;
+	}
+
+	&.gold-style {
+		color: $gold;
+		background-color: white;
+		border-color: $gold;
 	}
 }
 

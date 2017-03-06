@@ -3,17 +3,164 @@
 {% load feature from features %}
 {% load setting from web_extras %}
 
-{% block content %}
+{% block title %}
+	HSReplay.net Premium
+{% endblock %}
+
+{% block fullcontent %}
 {% feature "billing" as billing %}
 
-{% if billing.enabled %}
-<article id="premium-upgrade-page" class="page">
-	<h2>HearthSim Premium</h2>
+<article id="premium-upgrade-page">
+	<header id="opener">
+		<div class="container">
+			<h2>HSReplay.net <span>Premium</span></h2>
+			<p class="tagline">Support us &amp; access extra features.</p>
+			<p>Subscribe for just $5/month.</p>
+		</div>
+	</header>
 
-	<p>
-		Upgrade to Premium! We have cool stuff! Promise!
-	</p>
+	<section id="features">
+		{% setting "FEATURED_CARD_ID" as featured_card %}
+		{% setting "FEATURED_DECK_ID" as featured_deck %}
+		<div class="container">
+			<h3>Features</h3>
+			<p>You'll receive instant access to the following features when subscribing:</p>
+			<div class="row">
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/numbers.png' %}" class="bordered" />
+					<figcaption>
+						<h4>Mulligan Guides</h4>
+						<p>
+							Improve your deck piloting skills with our mulligan guides.
+							See which cards are dead in your hand and make informed card adjustments.
+						</p>
+						<ul class="example-links">
+							{% if featured_deck %}
+								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Deck</a></li>
+							{% endif %}
+						</ul>
+					</figcaption>
+				</figure>
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" />
+					<figcaption>
+						<h4>More Precision</h4>
+						<p>
+							Dive deep into the meta by adjusting statistics to your rank range and the most recent.
+						</p>
+						<ul class="example-links">
+							<li><a href="{% url 'card_list' %}">Card Database</a></li>
+							<li><a href="{% url 'deck_list' %}">Deck Database</a></li>
+							{% if featured_deck %}
+								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Deck</a></li>
+							{% endif %}
+						</ul>
+					</figcaption>
+				</figure>
+				<div class="clearfix"></div>
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" />
+					<figcaption>
+						<h4>Opponent Breakdown</h4>
+						<p>
+							Whether you're struggling against Paladin or want to know which card perfoms better
+							against a certain matchup, we have the data.
+						</p>
+						<ul class="example-links">
+							{% if featured_card %}
+								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Card</a></li>
+							{% endif %}
+							{% if featured_deck %}
+								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Deck</a></li>
+							{% endif %}
+						</ul>
+					</figcaption>
+				</figure>
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/charts.png' %}" class="bordered" />
+					<figcaption>
+						<h4>Power Spikes</h4>
+						<p>
+							Your new deck feels a bit weak in the late game?
+							Choose a card and see how effective it is at various stages in the game.
+						</p>
+						<ul class="example-links">
+							{% if featured_card %}
+								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Card</a></li>
+							{% endif %}
+						</ul>
+					</figcaption>
+				</figure>
+			</div>
+			<div class="single-row"><hr /><h4>Further more…</h4><hr /></div>
+			<div class="row">
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/filters.png' %}" />
+					<figcaption>
+						<h4>We trust our data</h4>
+						<p>Our statistics are backed by millions of games per week across all ranks and game modes.</p>
+					</figcaption>
+				</figure>
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/hearthsim_logo.png' %}" class="logo" />
+					<figcaption>
+						<h4>Support HearthSim</h4>
+						<p>
+							Your subscription directly supports the HearthSim company.
+							We are the team behind HSReplay.net, Hearthstone Deck Tracker and a lot more.
+						</p>
+						<p><a href="#hearthsim">Learn more&hellip;</a></p>
+					</figcaption>
+				</figure>
+				<figure class="col-sm-6 col-sm-offset-3 col-xs-12">
+					<figcaption>
+						<h4>&hellip;and we're just getting started!</h4>
+						<p>
+							We're not stopping here! Expect to see more features in the future.
+						</p>
+					</figcaption>
+				</figure>
+			</div>
+		</div>
+	</section>
+
+	<section id="go" class="promo">
+		<div class="container">
+			<h3>Subscribe</h3>
+			{% if not billing.read_only %}
+				This is where the magic happens.
+			{% else %}
+				<p class="alert alert-warning text-center">
+					New subscriptions are temporarily disabled. Please check back later.
+				</p>
+			{% endif %}
+		</div>
+	</section>
+
+	<section id="hearthsim">
+		<div class="container">
+			<div class="card">
+				<header>
+					<h3>HearthSim</h3>
+				</header>
+				<p>
+					In addition to Hearthstone Deck Tracker and HSReplay.net, the HearthSim community provides many of the open source software libraries and tools that power the various sites in the Hearthstone ecosystem.
+				</p>
+				<p>
+					Although we're software engineers and not Twitch streamers, we still need your support to be able to work on these projects full time and pay for the complex server infrastructure that powers it all.
+				</p>
+				<p>
+					You can support us, the deck tracker, and this site for $4.99 / month, which is the same price as subscribing to support a streamer on Twitch.
+					You'll get a bunch of kickass features like more detailed filters and statistics, and you'll also be helping us out to keep building great new stuff for the community.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<footer>
+		<p class="visible-xs text-center"><a href="#">&uparrow; Back to top</a></p>
+	</footer>
+
 </article>
-{% endif %}
 
 {% endblock %}
