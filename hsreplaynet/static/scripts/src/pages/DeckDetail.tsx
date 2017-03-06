@@ -157,12 +157,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		let dustCost = 0;
-		let totalCost = 0;
 		if (this.state.cardData) {
 			this.props.deckCards.split(",").forEach(id => {
 				const card = this.state.cardData.get(id);
 				dustCost += getDustCost(card);
-				totalCost += card.cost; 
 			});
 		}
 		
@@ -210,17 +208,21 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							Based on
 							<span className="infobox-value">{toPrettyNumber(+deck["total_games"]) + " replays"}</span>
 						</li>
+						<li>
+							Time frame
+							<span className="infobox-value">Last 30 days</span>
+						</li>
 						<li className={winrateClassNames.join(" ")} onClick={() => this.setState({expandWinrate: !this.state.expandWinrate})}>
 							Winrate
 							<span className="infobox-value">{(+deck["win_rate"]).toFixed(1) + "%"}</span>
 							{subWinrates}
 						</li>
 						<li>
-							Match duration
+							Avg. match duration
 							<span className="infobox-value">{moment.duration(+deck["avg_game_length_seconds"], "second").asMinutes().toFixed(1) + " minutes"}</span>
 						</li>
 						<li>
-							Number of turns
+							Avg. number of turns
 							<span className="infobox-value">{deck["avg_num_player_turns"]}</span>
 						</li>
 					</ul>
@@ -263,10 +265,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<span className="infobox-value">{toTitleCase(this.props.deckClass)}</span>
 					</li>
 					<li>
-						Type
-						<span className="infobox-value">{totalCost > 100 ? "Control" : (totalCost > 80 ? "Midrange" : "Aggro")}</span>
-					</li>
-					<li>
 						Cost
 						<span className="infobox-value">{dustCost && dustCost + " Dust"}</span>
 					</li>
@@ -283,10 +281,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</PremiumWrapper>
-				<h2>Time frame</h2>
-				<InfoboxFilterGroup selectedValue={"LAST_30_DAYS"} onClick={(value) => undefined}>
-					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
-				</InfoboxFilterGroup>
 				{deckData}
 			</aside>
 			<main className="container-fluid">
