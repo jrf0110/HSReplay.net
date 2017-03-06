@@ -37,9 +37,30 @@ def drain_redshift_query_queue(event, context):
 	# We run for 55 seconds, since the majority of queries take < 5 seconds to finish
 	# And the next scheduled invocation of this will be starting a minute after this one.
 	while duration < 55:
-		do_drain_redshift_query_queue_iteration()
+		did_work = do_drain_redshift_query_queue_iteration()
+		if not did_work:
+			time.sleep(5)
+
 		current_time = time.time()
 		duration = current_time - start_time
+
+
+def get_messages(max_num=10):
+	result = []
+	do_receive = True
+
+	while do_receive and len(result) < max_num:
+		response = SQS.receive_message(
+			QueueUrl=get_or_create_queue(settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME),
+			MaxNumberOfMessages=10
+		)
+		messages = response['Messages']
+		if len(messages):
+			result.extend(messages)
+		else:
+			do_receive = False
+
+	return result
 
 
 def do_drain_redshift_query_queue_iteration():
@@ -50,12 +71,9 @@ def do_drain_redshift_query_queue_iteration():
 
 	# We don't bother to pull more messages than open slots for running queries
 	if available_slots:
-		response = SQS.receive_message(
-			QueueUrl=get_or_create_queue(settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME),
-			MaxNumberOfMessages=available_slots
-		)
-		if 'Messages' in response:
-			messages = response['Messages']
+		messages = get_messages(available_slots)
+
+		if messages:
 			countdown_latch = CountDownLatch(len(messages))
 
 			def redshift_query_runner(message):
@@ -86,6 +104,11 @@ def do_drain_redshift_query_queue_iteration():
 
 			# We will exit once all child redshift_query_runners have returned.
 			countdown_latch.await()
+			return True
+		else:
+			return False
+	else:
+		return False
 
 
 def do_execute_redshift_query(query_name, supplied_params):
