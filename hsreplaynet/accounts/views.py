@@ -4,7 +4,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, UpdateView, View
 from allauth.socialaccount.models import SocialAccount
@@ -57,19 +57,20 @@ class ClaimAccountView(LoginRequiredMixin, View):
 				log.warning("%r is a real user. Deleting %r.", claim.token.user, claim)
 				# Something's wrong. Get rid of the claim and reject the request.
 				claim.delete()
-				influx_metric("hsreplaynet_account_claim", {"success": 0})
+				influx_metric("hsreplaynet_account_claim", {"count": 1}, error=1)
 				return HttpResponseForbidden("This token has already been claimed.")
 		claim.token.user = request.user
 		claim.token.save()
 		# Replays are claimed in AuthToken post_save signal (games.models)
 		claim.delete()
 		messages.info(request, "You have claimed your account. Nice!")
-		influx_metric("hsreplaynet_account_claim", {"success": 1})
+		influx_metric("hsreplaynet_account_claim", {"count": 1})
 		return redirect(self.get_redirect_url(request))
 
 
 class DeleteAccountView(LoginRequiredMixin, TemplateView):
 	template_name = "account/delete.html"
+	success_url = reverse_lazy("home")
 
 	def post(self, request):
 		if not request.POST.get("delete_confirm"):
@@ -79,19 +80,23 @@ class DeleteAccountView(LoginRequiredMixin, TemplateView):
 		delete_request.delete_replay_data = bool(request.POST.get("delete_replays"))
 		delete_request.save()
 		logout(self.request)
-		return redirect(reverse("home"))
+		return redirect(self.success_url)
 
 
 class MakePrimaryView(LoginRequiredMixin, View):
+	success_url = reverse_lazy("socialaccount_connections")
+
 	def post(self, request):
+		self.request = request
+
 		account = request.POST.get("account")
 		try:
 			socacc = SocialAccount.objects.get(id=account)
 		except SocialAccount.DoesNotExist:
-			return self.redirect()
+			return self.error(1)
 		if socacc.user != request.user:
 			# return HttpResponseForbidden("%r does not belong to you." % (socacc))
-			return self.redirect()
+			return self.error(2)
 
 		if socacc.provider != "battlenet":
 			raise NotImplementedError("Making non-battlenet account primary is not implemented")
@@ -100,12 +105,19 @@ class MakePrimaryView(LoginRequiredMixin, View):
 		if battletag:
 			if User.objects.filter(username=battletag).exists():
 				# A user with that username already exists
-				return self.redirect()
+				return self.error(3)
 			request.user.battletag = battletag
 			request.user.username = battletag
 			request.user.save()
-		return self.redirect()
 
-	def redirect(self):
-		# Do not identify errors to avoid leaking metadata
-		return redirect(reverse("socialaccount_connections"))
+		return self.complete()
+
+	def error(self, id):
+		log.warning("%r got error %r when making account primary" % (self.request.user, id))
+		influx_metric("hsreplaynet_make_primary", {"count": 1}, error=id)
+		messages.error(self.request, "Could not make account primary.")
+		return redirect(self.success_url)
+
+	def complete(self, success=True):
+		influx_metric("hsreplaynet_make_primary", {"count": 1})
+		return redirect(self.success_url)
