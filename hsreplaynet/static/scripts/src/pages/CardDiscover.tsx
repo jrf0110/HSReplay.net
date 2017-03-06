@@ -168,22 +168,23 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	updateFilteredCards(): void {
+		if (!this.state.cards) {
+			return;
+		}
 		const filteredByProp = {};
 		const filterKeys = Object.keys(this.filters);
 		filterKeys.forEach(key => filteredByProp[key] = []);
 		const filteredCards = [];
-		if (this.state.cards) {
-			this.state.cards.forEach(card => {
-				filterKeys.forEach(x => {
-					if (!this.filter(card, x)) {
-						filteredByProp[x].push(card);
-					}
-				});
-				if (!this.filter(card)) {
-					filteredCards.push(card);
+		this.state.cards.forEach(card => {
+			filterKeys.forEach(x => {
+				if (!this.filter(card, x)) {
+					filteredByProp[x].push(card);
 				}
 			});
-		}
+			if (!this.filter(card)) {
+				filteredCards.push(card);
+			}
+		});
 		this.setState({filteredCards, filterCounts: this.filterCounts(filteredByProp as CardFilters)})
 	}
 
