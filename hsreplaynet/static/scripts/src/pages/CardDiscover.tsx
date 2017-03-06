@@ -548,8 +548,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					infoHeader="Rank range"
 					infoContent="Check out what cards get played on the higher ranks!"
 				>
-					<InfoboxFilterGroup header="Rank range" locked={!this.props.userIsPremium} deselectable selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
+					<InfoboxFilterGroup header="Rank range" locked={!this.props.userIsPremium} selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}>
 						<InfoboxFilter disabled={this.state.queryMap["gameType"] === "ARENA"} value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+						<InfoboxFilter disabled={this.state.queryMap["gameType"] === "ARENA"} value="ALL">Legend–25</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</PremiumWrapper>
 			);
