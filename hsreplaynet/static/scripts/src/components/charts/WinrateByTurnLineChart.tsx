@@ -3,7 +3,7 @@ import {
 	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel, 
 	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip, VictoryScatter
 } from "victory";
-import {RenderData} from "../../interfaces";
+import {RenderData, RenderQueryData} from "../../interfaces";
 import {getChartMetaData, toTimeSeries} from "../../helpers";
 import WinLossGradient from "./gradients/WinLossGradient";
 
@@ -24,18 +24,18 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
-
+		const renderData = this.props.premiumLocked ? this.mockData : this.props.renderData;
 		let content = null;
 
-		if (this.props.renderData === "loading") {
+		if (renderData === "loading") {
 			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
 		}
-		else if (this.props.renderData === "error") {
+		else if (renderData === "error") {
 			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
 		}
-		else if (this.props.renderData) {
+		else if (renderData) {
 			const elements = [];
-			const series = this.props.renderData.series.find(s => s.name === "winrates_by_turn" 
+			const series = renderData.series.find(s => s.name === "winrates_by_turn" 
 				&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 
 			const metaData = getChartMetaData(series.data, 50, false, 10);
@@ -150,4 +150,22 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 			<VictoryLabel text={"Winrate - by turn played"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 		</svg>;
 	}
+
+	readonly mockData: RenderQueryData = {
+		series: [{
+			name: "winrates_by_turn",
+			data: [
+				{y: 54, x: 1},
+				{y: 46, x: 2},
+				{y: 54, x: 3},
+				{y: 46, x: 4},
+				{y: 54, x: 5},
+				{y: 46, x: 6},
+				{y: 54, x: 7},
+				{y: 46, x: 8},
+				{y: 54, x: 9},
+				{y: 46, x: 10},
+			]
+		}]
+	};
 }
