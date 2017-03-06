@@ -274,29 +274,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						Deck Database
 					</ResetHeader>
 					<h2>Class</h2>
-						<ClassFilter 
-							filters="All"
-							hideAll
-							minimal
-							multiSelect={false}
-							selectedClasses={[queryMap["playerClass"] as FilterOption]}
-							selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
-						/>
-					<PremiumWrapper
-						isPremium={this.props.userIsPremium}
-						infoHeader="Winrate by opponent"
-						infoContent="See at a glance how various decks perform against a specific class!"
-					>
-						<h2>Opponent class</h2>
-						<ClassFilter 
-							filters="All"
-							hideAll
-							minimal
-							multiSelect={false}
-							selectedClasses={[queryMap["opponentClass"] as FilterOption]}
-							selectionChanged={(selected) => this.props.userIsPremium && setQueryMap(this, "opponentClass", selected[0])}
-						/>
-					</PremiumWrapper>
+					<ClassFilter 
+						filters="All"
+						hideAll
+						minimal
+						multiSelect={false}
+						selectedClasses={[queryMap["playerClass"] as FilterOption]}
+						selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
+					/>
 					<h2>Include cards</h2>
 					<CardSearch
 						key={"cardinclude" + this.state.cardSearchIncludeKey}
@@ -351,6 +336,23 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				</div>
 				<div className={contentClassNames.join(" ")}>
 					<div className="alert alert-info" role="alert">Decks require at least 1000 recorded games in the selected time frame to be listed</div>
+					<div className="opponent-filter-wrapper">
+						<PremiumWrapper
+							isPremium={this.props.userIsPremium}
+							infoHeader="Winrate by opponent"
+							infoContent="See at a glance how various decks perform against a specific class!"
+						>
+							<h3>Opponent class</h3>
+							<ClassFilter 
+								filters="All"
+								hideAll
+								minimal
+								multiSelect={false}
+								selectedClasses={[queryMap["opponentClass"] as FilterOption]}
+								selectionChanged={(selected) => this.props.userIsPremium && setQueryMap(this, "opponentClass", selected[0])}
+							/>
+						</PremiumWrapper>
+					</div>
 					<button
 						className="btn btn-default pull-left visible-xs visible-sm"
 						type="button"

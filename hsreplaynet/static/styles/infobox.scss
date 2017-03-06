@@ -65,8 +65,14 @@
 		}
 	}
 
-	.premium-wrapper h2 {
-		padding-left: 30px;
+	.premium-wrapper {
+		h2 {
+			padding-left: 30px;
+		}
+
+		.info-icon {
+			color: $lightblue;
+		}
 	}
 
 	li {

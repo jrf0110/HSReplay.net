@@ -290,7 +290,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				{deckData}
 			</aside>
 			<main className="container-fluid">
-				<div id="opponent-class-filter">
+				<div className="opponent-filter-wrapper">
 					<PremiumWrapper isPremium={this.props.userIsPremium}>
 						<h3>Select your opponent</h3>
 						<ClassFilter

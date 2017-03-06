@@ -193,6 +193,23 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						</div>
 					</div>,
 					<div className="row">
+						<div className="opponent-filter-wrapper">
+							<PremiumWrapper
+								isPremium={this.props.userIsPremium}
+								infoHeader="Turn data by opponent"
+								infoContent="Break down the turn played distribution and winrate by turn played even further and look at each opponent class individually!"
+							>
+								<h3>Opponent class</h3>
+								<ClassFilter
+									filters="All"
+									hideAll
+									minimal
+									multiSelect={false}
+									selectedClasses={this.state.selectedClasses}
+									selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
+								/>
+							</PremiumWrapper>
+						</div>
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<TurnPlayedBarChart
@@ -290,21 +307,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
 					</li>
 				</ul>
-				<PremiumWrapper 
-					isPremium={this.props.userIsPremium}
-					infoHeader="Turn data by opponent"
-					infoContent="Break down the turn played distribution and winrate by turn played even further and look at each opponent class individually!"
-				>
-					<h2>Opponent class</h2>
-					<ClassFilter
-						filters="All"
-						hideAll
-						minimal
-						multiSelect={false}
-						selectedClasses={this.state.selectedClasses}
-						selectionChanged={(selected) => this.setState({selectedClasses: selected})}
-					/>
-				</PremiumWrapper>
 				<h2>Time frame</h2>
 				<InfoboxFilterGroup selectedValue={"LAST_30_DAYS"} onClick={(value) => undefined}>
 					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>

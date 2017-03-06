@@ -265,3 +265,18 @@
 		opacity: 0;
 	}
 }
+
+.opponent-filter-wrapper {
+	margin: 0 auto;
+	max-width: 400px;
+	text-align: center;
+
+	.class-icon {
+		height: 2.3em;
+		width: 2.3em;
+	}
+
+	.premium-wrapper {
+		padding: 0 5px 5px 5px;
+	}
+}
