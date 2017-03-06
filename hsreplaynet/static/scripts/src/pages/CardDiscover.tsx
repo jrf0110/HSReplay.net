@@ -391,7 +391,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			const playedWrData = obj.playedWinrate && winrateData(50, obj.playedWinrate, 3);
 			rows.push(
 				<tr>
-					<td className="td-card">
+					<td>
 						<div className="card-wrapper">
 							<a href={"/cards/" + obj.card.dbfId}>
 								<CardTile card={obj.card} count={1} rarityColored height={34} tooltip />
@@ -399,10 +399,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						</div>
 					</td>
 					<td>
-						{obj.includedCount ? obj.includedCount : "-"}
+						{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}
 					</td>
 					<td>
-						{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}
+						{obj.includedCount ? obj.includedCount : "-"}
 					</td>
 					<td style={{color: includedWrData && includedWrData.color}}>
 						{obj.includedWinrate ? toDynamicFixed(obj.includedWinrate) + "%" : "-"}
@@ -419,8 +419,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 		const tableHeaders = [
 			{key: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
+			{key: "includedPopularity", text: "In % of decks", infoHeader: "Included in % of decks", infoText: "Percentage of decks that include at least one copy of the card."},
 			{key: "includedCount", text: "Copies", infoHeader: "Copies in deck", infoText: "Average number of copies in a deck."},
-			{key: "includedPopularity", text: "% of decks", infoHeader: "Included in % of decks", infoText: "Percentage of decks that include at least one copy of the card."},
 			{key: "includedWinrate", text: "Deck winrate", infoHeader: "Deck Winrate", infoText: "Average winrate of decks that include this card."},
 			{key: "playedCount", text: "Times played", infoHeader: "Times played", infoText: "Number of times the card was played."},
 			{key: "playedWinrate", text: "Played winrate", infoHeader: "Winrate when played", infoText: "Ave winrate of matches where the card was played."},
