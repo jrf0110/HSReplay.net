@@ -3,7 +3,7 @@ from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.utils.safestring import mark_safe, mark_for_escaping
 from hsreplaynet.games.models import GameReplay
 
 
@@ -71,5 +71,5 @@ def static_absolute(context, value):
 def nav_active(context, name, css="active"):
 	request = context.request
 	if request.path == reverse(name):
-		return mark_safe(' class="%s"' % (css))
+		return mark_safe(' class="%s"' % (mark_for_escaping(css)))
 	return ""
