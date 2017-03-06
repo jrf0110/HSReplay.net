@@ -63,9 +63,7 @@ class ClaimAccountView(LoginRequiredMixin, View):
 		claim.token.save()
 		# Replays are claimed in AuthToken post_save signal (games.models)
 		claim.delete()
-		msg = "You have claimed your account. Yay!"
-		# XXX: using WARNING as a hack to ignore login/logout messages for now
-		messages.add_message(request, messages.WARNING, msg)
+		messages.info(request, "You have claimed your account. Nice!")
 		influx_metric("hsreplaynet_account_claim", {"success": 1})
 		return redirect(self.get_redirect_url(request))
 
