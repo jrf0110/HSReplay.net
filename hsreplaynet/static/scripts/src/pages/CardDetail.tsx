@@ -307,15 +307,15 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
 					</li>
 				</ul>
-				<h2>Time frame</h2>
-				<InfoboxFilterGroup selectedValue={"LAST_30_DAYS"} onClick={(value) => undefined}>
-					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
-				</InfoboxFilterGroup>
 				<h2>Data</h2>
 				<ul>
 					<li>
 						Based on
 						<span className="infobox-value">{replayCount && replayCount + " replays"}</span>
+					</li>
+					<li>
+						Time frame
+						<span className="infobox-value">Last 30 days</span>
 					</li>
 				</ul>
 				{classDistribution}
