@@ -405,7 +405,10 @@ class UploadEvent(models.Model):
 		if not hasattr(self, "_game"):
 			from hsreplaynet.games.models import GameReplay
 			if self.game_id:
-				self._game = GameReplay.objects.get(id=self.game_id)
+				try:
+					self._game = GameReplay.objects.get(id=self.game_id)
+				except GameReplay.DoesNotExist:
+					self._game = None
 			else:
 				self._game = None
 
