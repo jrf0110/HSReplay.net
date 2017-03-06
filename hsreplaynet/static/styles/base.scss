@@ -90,6 +90,16 @@ body, html {
 				background-color: $offwhite;
 			}
 		}
+
+		&.active {
+			text-decoration: underline;
+		}
+
+		&.active-span {
+			span {
+				text-decoration: underline;
+			}
+		}
 	}
 
 	a {

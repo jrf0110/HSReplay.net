@@ -74,23 +74,24 @@
 
 			<div class="container-fluid">
 				<nav class="collapse navbar-collapse" id="navbar-collapse">
+					{% with request.resolver_match.url_name as urlname %}
 					{% block navlinks %}
 					<ul class="nav navbar-nav">
 						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-							<li><a href="{% url 'card_list' %}">Card Database</a></li>
-							<li><a href="{% url 'deck_spotlight' %}">Deck Spotlight</a></li>
-							<li><a href="{% url 'deck_list' %}">Deck Database</a></li>
+							<li{% nav_active 'card_list' %}><a href="{% url 'card_list' %}">Card Database</a></li>
+							<li{% nav_active 'deck_spotlight' %}><a href="{% url 'deck_spotlight' %}">Deck Spotlight</a></li>
+							<li{% nav_active 'deck_list' %}><a href="{% url 'deck_list' %}">Deck Database</a></li>
 						{% endif %}
 
 						{% feature "archetypes" as ft_archetypes %}{% if ft_archetypes.enabled %}
-							<li><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
+							<li{% nav_active 'deck_archetypes' %}><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
 						{% endif %}
 
 						{% feature "scenarios" as ft_scenarios %}{% if ft_scenarios.enabled %}
-							<li><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
+							<li{% nav_active 'scenario_list_view' %}><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
 						{% endif %}
 
-						<li><a href="{% url 'articles_article_list' %}">Articles</a></li>
+						<li{% nav_active 'articles_article_list' %}><a href="{% url 'articles_article_list' %}">Articles</a></li>
 
 						{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 						<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="social-button">
@@ -112,9 +113,9 @@
 								<li><a href="{% url 'admin:index' %}">Admin</a></li>
 							{% endif %}
 
-							<li><a href="{% url 'my_replays' %}">My Replays</a></li>
+							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}">My Replays</a></li>
 
-							<li>
+							<li{% nav_active 'account_edit' css="active-span" %}>
 								<a href="{% url 'account_edit' %}">
 									<img src="{% static 'images/bnet.png' %}"/>
 									<span>{{ user.username }}</span>
@@ -128,6 +129,7 @@
 							</li>
 						{% endif %}
 					</ul>
+					{% endwith %}
 				</nav>
 			</div>
 		</div>
