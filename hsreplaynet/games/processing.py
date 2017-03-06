@@ -11,7 +11,7 @@ from django.utils import timezone
 from hearthstone import __version__ as hslog_version
 from hearthstone.enums import BnetRegion, CardType, GameTag
 from hearthstone.hslog.exceptions import ParsingError
-from hearthstone.hslog.export import EntityTreeExporter
+from hearthstone.hslog.export import EntityTreeExporter, FriendlyPlayerExporter
 from hearthstone.hslog.parser import LogParser
 from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
@@ -397,12 +397,11 @@ def validate_parser(parser, meta):
 		if db_hero.type != CardType.HERO:
 			raise ValidationError("%r is not a valid hero." % (player._hero))
 
-	if not meta.get("friendly_player"):
-		from hearthstone.hslog.export import FriendlyPlayerExporter
-		id = packet_tree.export(cls=FriendlyPlayerExporter)
-		if not id:
-			raise ValidationError("Friendly player ID not present at upload and could not guess it.")
-		meta["friendly_player"] = id
+	friendly_player_id = packet_tree.export(cls=FriendlyPlayerExporter)
+	if friendly_player_id:
+		meta["friendly_player"] = friendly_player_id
+	elif "friendly_player" not in meta:
+		raise ValidationError("Friendly player ID not present at upload and could not guess it.")
 
 	# We ignore "reconnecting" from the API, we only trust the log.
 	# if "reconnecting" not in meta:
