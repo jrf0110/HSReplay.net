@@ -58,7 +58,7 @@ $(document).ready(function() {
 		window.dispatchEvent(event);
 	};
 	$("#feat-joust-screenshot").click(function(e) {
-		if (e.ctrlKey || e.metaKey || e.which != 0) {
+		if (e.ctrlKey || e.metaKey || e.button != 0) {
 			return;
 		}
 		$("#joust-lightbox").fadeIn();
