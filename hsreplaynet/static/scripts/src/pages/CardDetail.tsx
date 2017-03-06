@@ -187,46 +187,45 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</div>
 						</div>
 					</div>,
-					<div className="row">
-						<div className="opponent-filter-wrapper">
-							<PremiumWrapper
-								isPremium={this.props.userIsPremium}
-								infoHeader="Turn data by opponent"
-								infoContent="Break down the turn played distribution and winrate by turn played even further and look at each opponent class individually!"
-							>
-								<h3>Opponent class</h3>
-								<ClassFilter
-									filters="All"
-									hideAll
-									minimal
-									multiSelect={false}
-									selectedClasses={this.state.selectedClasses}
-									selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
-								/>
-							</PremiumWrapper>
-						</div>
-						<div className="col-lg-6 col-md-6">
-							<div className="chart-wrapper">
-								<TurnPlayedBarChart
-									renderData={this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
-									opponentClass={this.state.selectedClasses[0]}
-									widthRatio={2}
-								/>
+					<PremiumWrapper
+						isPremium={this.props.userIsPremium}
+						infoHeader="By turn statistics"
+						infoContent="Find out when the card is usually played and how good that actually is!"
+					>
+						<div className="row">
+							<div className="opponent-filter-wrapper">
+									<h3>Opponent class</h3>
+									<ClassFilter
+										filters="All"
+										hideAll
+										minimal
+										multiSelect={false}
+										selectedClasses={this.state.selectedClasses}
+										selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
+									/>
 							</div>
-						</div>
-						<div className="col-lg-6 col-md-6">
-							<div className="chart-wrapper">
-								<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{top: "10px", right: "10px", left: "unset"}}>
+							<div className="col-lg-6 col-md-6">
+								<div className="chart-wrapper">
+									<TurnPlayedBarChart
+										renderData={this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
+										opponentClass={this.state.selectedClasses[0]}
+										widthRatio={2}
+										premiumLocked={!this.props.userIsPremium}
+									/>
+								</div>
+							</div>
+							<div className="col-lg-6 col-md-6">
+								<div className="chart-wrapper">
 									<WinrateByTurnLineChart
 										renderData={this.props.userIsPremium && this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
 										opponentClass={this.state.selectedClasses[0]}
 										widthRatio={2}
 										premiumLocked={!this.props.userIsPremium}
 									/>
-								</PremiumWrapper>
+								</div>
 							</div>
 						</div>
-					</div>,
+					</PremiumWrapper>,
 					<div className="row" id="card-tables">
 						{cardTables}
 					</div>,
