@@ -1,3 +1,4 @@
+import time
 import logging
 import json
 from threading import Thread
@@ -31,6 +32,17 @@ def execute_redshift_query(event, context):
 )
 def drain_redshift_query_queue(event, context):
 	"""A cron'd handler that attempts to drain any queued query requests in SQS."""
+	start_time = time.time()
+	duration = 0
+	# We run for 55 seconds, since the majority of queries take < 5 seconds to finish
+	# And the next scheduled invocation of this will be starting a minute after this one.
+	while duration < 55:
+		do_drain_redshift_query_queue_iteration()
+		current_time = time.time()
+		duration = current_time - start_time
+
+
+def do_drain_redshift_query_queue_iteration():
 	logger = logging.getLogger("hsreplaynet.lambdas.drain_redshift_query_queue")
 	semaphore = get_concurrent_redshift_query_semaphore()
 	available_slots = semaphore.available_count
