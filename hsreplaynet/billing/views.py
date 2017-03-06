@@ -13,9 +13,6 @@ from stripe.error import CardError, InvalidRequestError
 from hsreplaynet.features.decorators import view_requires_feature_access
 
 
-STRIPE_DEBUG = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_") and settings.DEBUG
-
-
 class PaymentsMixin:
 	def get_customer(self):
 		if self.request.user.is_authenticated:
@@ -35,9 +32,6 @@ class PaymentsMixin:
 		else:
 			# When anonymous, the customer is None, thus has no payment methods
 			context["payment_methods"] = []
-
-		# `stripe_debug` is set if DEBUG is on *and* we are using a test mode pubkey
-		context["stripe_debug"] = STRIPE_DEBUG
 
 		return context
 
@@ -168,6 +162,7 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 		# True by default (= the subscription remains, will cancel once it ends)
 		at_period_end = True
 
+		STRIPE_DEBUG = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_") and settings.DEBUG
 		if STRIPE_DEBUG and request.POST.get("immediate", "") == "on":
 			# in STRIPE_DEBUG mode only, we allow immediate cancellation
 			at_period_end = False
