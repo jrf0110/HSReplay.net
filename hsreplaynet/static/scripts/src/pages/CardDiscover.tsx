@@ -130,9 +130,14 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	onSearchScroll(): void {
-		if (document.body.scrollTop + (window.innerHeight + 100) >= document.body.scrollHeight) {
-			if (this.state.filteredCards.length > this.state.numCards) {
-				this.setState({numCards: this.state.numCards + 10});
+		if (this.state.filteredCards.length > this.state.numCards) {
+			const atBottom = () => document.body.scrollTop + (window.innerHeight + 100) >= document.body.scrollHeight;
+			if (atBottom()) {
+				window.setTimeout(() => {
+					if (atBottom()) {
+						this.setState({numCards: this.state.numCards + 10})
+					}
+				}, 300);
 			}
 		}
 	}
@@ -258,6 +263,15 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						{tiles}
 					</div>
 				];
+			}
+			if (this.state.filteredCards.length > this.state.numCards) {
+				content.push(
+					<div id="more-button-wrapper">
+						<button type="button" className="btn btn-default" onClick={() => this.setState({numCards: this.state.numCards + 10})}>
+							Show more...
+						</button>
+					</div>
+				)
 			}
 		}
 
