@@ -40,6 +40,11 @@ class UnsupportedReplay(ProcessingError):
 	pass
 
 
+class ReplayAlreadyExists(ProcessingError):
+	def __init__(self, msg, game=None):
+		self.game = game
+
+
 def eligible_for_unification(meta):
 	return all([meta.get("game_handle"), meta.get("server_ip")])
 
@@ -239,6 +244,14 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 		replay, created = GameReplay.objects.get_or_create(defaults=defaults, shortid=shortid)
 		log.debug("Replay %r has created=%r (no client_handle)", replay.id, created)
 
+	if not created:
+		# This can only happen if there is an inconsistency between UploadEvent.game
+		# and the processing run.
+		# For example, the processing crashed before UploadEvent.save(), or there are
+		# multiple processing calls before UploadEvent.game is saved.
+		msg = "Replay %r already exists. Try reprocessing (again)." % (shortid)
+		raise ReplayAlreadyExists(msg, replay)
+
 	# Save the replay file
 	replay.replay_xml.save("hsreplay.xml", xml_file, save=False)
 
@@ -254,7 +267,7 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 	return replay, created
 
 
-def handle_upload_event_exception(e):
+def handle_upload_event_exception(e, upload_event):
 	"""
 	Returns a (status, reraise) tuple.
 	The status will be set on the UploadEvent.
@@ -268,6 +281,9 @@ def handle_upload_event_exception(e):
 		return UploadEventStatus.UNSUPPORTED, True
 	elif isinstance(e, ValidationError):
 		return UploadEventStatus.VALIDATION_ERROR, True
+	elif isinstance(e, ReplayAlreadyExists):
+		upload_event.game = e.game
+		return UploadEventStatus.SERVER_ERROR, True
 	else:
 		return UploadEventStatus.SERVER_ERROR, True
 
@@ -289,7 +305,7 @@ def process_upload_event(upload_event):
 		from traceback import format_exc
 		upload_event.error = str(e)
 		upload_event.traceback = format_exc()
-		upload_event.status, reraise = handle_upload_event_exception(e)
+		upload_event.status, reraise = handle_upload_event_exception(e, upload_event)
 		upload_event.save()
 		if reraise:
 			raise
