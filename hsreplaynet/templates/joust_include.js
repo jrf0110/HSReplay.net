@@ -58,6 +58,9 @@ $(document).ready(function() {
 		window.dispatchEvent(event);
 	};
 	$("#feat-joust-screenshot").click(function(e) {
+		if (e.ctrlKey || e.metaKey || e.which != 0) {
+			return;
+		}
 		$("#joust-lightbox").fadeIn();
 		joust_check();
 		trigger_resize();
