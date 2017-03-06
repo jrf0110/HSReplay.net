@@ -316,6 +316,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<PopularityLineChart
 								renderData={this.state.popularityOverTime}
 								widthRatio={2}
+								maxYDomain={10}
 							/>
 						</div>
 					</div>

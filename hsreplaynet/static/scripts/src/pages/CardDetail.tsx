@@ -179,6 +179,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<PopularityLineChart
 									renderData={this.state.popularityOverTime}
 									widthRatio={2}
+									maxYDomain={100}
 								/>
 							</div>
 						</div>

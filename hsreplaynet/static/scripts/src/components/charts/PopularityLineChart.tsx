@@ -10,6 +10,7 @@ import moment from "moment";
 
 interface CardDetailLineChartProps extends React.ClassAttributes<CardDetailLineChart>{
 	renderData: RenderData;
+	maxYDomain: 10 | 100;
 	widthRatio?: number;
 }
 
@@ -36,6 +37,7 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 		else if (this.props.renderData) {
 			const series = toTimeSeries(this.props.renderData.series[0]);
 			const metadata = getChartMetaData(series.data, undefined, true, 1);
+			metadata.yDomain = [0, this.props.maxYDomain];
 
 			const tooltip = <VictoryTooltip
 				cornerRadius={0}
@@ -72,8 +74,9 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 					/>
 					<VictoryAxis
 						dependentAxis
+						scale="sqrt"
 						axisLabelComponent={<VictoryLabel dx={10} />}
-						tickValues={[metadata.yCenter].concat(metadata.yDomain)}
+						tickValues={this.props.maxYDomain == 10 ? [0, 0.5, 2, 5, 10] : [0, 5, 20, 50, 100]}
 						tickFormat={tick => metadata.toFixed(tick) + "%"}
 						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
