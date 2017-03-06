@@ -45,7 +45,7 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, D
 		else {
 			const decks = this.getDecks(deckData);
 			content = [
-				<h3>Trending now</h3>,
+				<h3>Trending now - stats of the last 24 hours</h3>,
 				<DeckList decks={decks} pageSize={9} hideTopPager />
 			];
 		}
@@ -56,7 +56,7 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, D
 				{content}
 				<section id="deck-db-link">
 					<h2>Can't find what you are looking for?</h2>
-					<a href="/decks/" className="promo-button">Check out the deck database!</a>
+					<a href="/decks/" className="promo-button">Check out all the decks!</a>
 				</section>
 			</div>
 		);
