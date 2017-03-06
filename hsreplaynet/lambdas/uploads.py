@@ -181,6 +181,8 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	obj.status = UploadEventStatus.VALIDATING
 
 	try:
+		if not obj.user_agent:
+			raise ValidationError("Missing User-Agent header")
 		header = gateway_headers.get("authorization", "")
 		token = AuthToken.get_token_from_header(header)
 		if not token:
