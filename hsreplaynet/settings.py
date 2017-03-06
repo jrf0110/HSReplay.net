@@ -325,6 +325,7 @@ HSREPLAY_CAMPAIGN = "utm_source=hsreplay.net&utm_medium=referral&utm_campaign=do
 HDT_DOWNLOAD_URL = "https://hsdecktracker.net/download/?%s" % (HSREPLAY_CAMPAIGN)
 HSTRACKER_DOWNLOAD_URL = "https://hsdecktracker.net/hstracker/download/?%s" % (HSREPLAY_CAMPAIGN)
 INFLUX_ENABLED = True
+UPLOAD_USER_AGENT_BLACKLIST = ()
 
 # Stripe plans
 MONTHLY_PLAN_ID = "hearthsim-pro-monthly"
