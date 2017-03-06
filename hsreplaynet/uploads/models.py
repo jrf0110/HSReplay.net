@@ -1106,6 +1106,17 @@ class RedshiftStagingTrack(models.Model):
 			# entered an error stage. This must be done manually.
 			raise RuntimeError("Refresh should never get called on errored tracks")
 
+		if self.stage == RedshiftETLStage.INITIALIZING:
+			# The track must completely enter and exit initializing in the course of
+			# a single lambda. If we ever discover the track in the initializing state,
+			# then it most likely got throttled midway through initialization and is
+			# corrupt and needs manual intervention.
+			self.stage = RedshiftETLStage.ERROR
+			self.save()
+			raise RuntimeError(
+				"Track %s did not successfully finish initializing" % self.track_prefix
+			)
+
 		for table in self.tables.all():
 			# If the table previously launched a long running operation
 			# This is where we check to see if completed.
