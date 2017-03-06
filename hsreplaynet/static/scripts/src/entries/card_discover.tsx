@@ -27,10 +27,13 @@ const addMechanic = (card: any, mechanic: string) => {
 const hsjson = new HearthstoneJSON();
 hsjson.getLatest((data: any[]) => {
 	const db = new Map();
-	for(let i = 0; i < data.length; i++) {
+	for (let i = 0; i < data.length; i++) {
 		const card = data[i];
-		if(card.overload) {
+		if (card.overload) {
 			addMechanic(card, "OVERLOAD");
+		}
+		if (card.referencedTags) {
+			card.referencedTags.forEach(tag => addMechanic(card, tag));
 		}
 		db.set(card.id, card);
 	}
