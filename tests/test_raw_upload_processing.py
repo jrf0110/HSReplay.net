@@ -47,8 +47,6 @@ class MockRawUpload(object):
 			with storage.open(key, mode="w") as log_file:
 				log_file.write(self._log)
 
-		self._upload_event_log_bucket = None
-		self._upload_event_log_key = None
 		self._reason = None
 		self._delete_was_called = False
 
@@ -101,9 +99,7 @@ class MockRawUpload(object):
 		return "put"
 
 	def prepare_upload_event_log_location(self, bucket, key, descriptor=None):
-		self._upload_event_log_bucket = bucket
-		self._upload_event_log_key = key
-		self._upload_event_descriptor = descriptor
+		pass
 
 	def make_failed(self, reason):
 		self._reason = reason

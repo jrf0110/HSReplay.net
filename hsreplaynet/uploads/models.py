@@ -189,11 +189,6 @@ class RawUpload(object):
 		else:
 			raise ValueError("Invalid key pattern: %r" % (key))
 
-		self._upload_event_log_bucket = None
-		self._upload_event_log_key = None
-		self._upload_event_descriptor_key = None
-		self._upload_event_location_populated = False
-
 		# If this is changed to True before this RawUpload is sent to a kinesis stream
 		# Then the kinesis lambda will attempt to reprocess instead of exiting early
 		self.attempt_reprocessing = False
@@ -205,15 +200,10 @@ class RawUpload(object):
 		return "raw/%s/%s.descriptor.json" % (ts_string, shortid)
 
 	def prepare_upload_event_log_location(self, bucket, key):
-		self._upload_event_log_bucket = bucket
-		self._upload_event_log_key = key
-
 		if key != self.log_key:
 			copy_source = "%s/%s" % (self.bucket, self.log_key)
 			log.debug("Copying power.log %r to %r:%r" % (copy_source, bucket, key))
 			aws.S3.copy_object(Bucket=bucket, Key=key, CopySource=copy_source)
-
-		self._upload_event_location_populated = True
 
 	def delete(self):
 		# We only perform delete on NEW raw uploads because when we get to this point we have
