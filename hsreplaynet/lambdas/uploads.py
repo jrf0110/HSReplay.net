@@ -217,7 +217,8 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 			obj.test_data = True
 
 		# Only old clients released during beta do not include a user agent
-		is_unsupported_client = not obj.user_agent
+		is_unsupported_client = obj.user_agent.startswith(settings.UPLOAD_USER_AGENT_BLACKLIST)
+
 		if is_unsupported_client:
 			logger.info("No UA provided. Marking as unsupported (client too old).")
 			influx_metric("upload_from_unsupported_client", {

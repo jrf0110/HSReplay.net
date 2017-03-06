@@ -334,10 +334,6 @@ def process_upload_event(upload_event):
 
 
 def parse_upload_event(upload_event, meta):
-	if upload_event.user_agent.startswith(settings.UPLOAD_USER_AGENT_BLACKLIST):
-		msg = "This version of your client is unsupported. Please update to the latest version."
-		raise UnsupportedReplay(msg)
-
 	orig_match_start = dateutil_parse(meta["match_start"])
 	match_start = get_valid_match_start(orig_match_start, upload_event.created)
 	if match_start != orig_match_start:
