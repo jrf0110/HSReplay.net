@@ -241,6 +241,11 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						loadingGames={this.state.working}
 						onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
 					/>
+					<h2>Display</h2>
+					<InfoboxFilterGroup selectedValue={this.state.viewType} onClick={(value) => this.setView(value as ViewType)}>
+						<InfoboxFilter value="list">List view</InfoboxFilter>
+						<InfoboxFilter value="tiles">Tile view</InfoboxFilter>
+					</InfoboxFilterGroup>
 					<h2>Player class</h2>
 					<ClassFilter
 						filters="All"
@@ -288,11 +293,6 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["result"]} onClick={(value) => this.setFilter("result", value)}>
 						<InfoboxFilter value="won">Won</InfoboxFilter>
 						<InfoboxFilter value="lost">Lost</InfoboxFilter>
-					</InfoboxFilterGroup>
-					<h2>Display</h2>
-					<InfoboxFilterGroup selectedValue={this.state.viewType} onClick={(value) => this.setView(value as ViewType)}>
-						<InfoboxFilter value="list">List view</InfoboxFilter>
-						<InfoboxFilter value="tiles">Tile view</InfoboxFilter>
 					</InfoboxFilterGroup>
 					{backButton}
 				</div>
