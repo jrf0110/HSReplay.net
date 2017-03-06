@@ -362,7 +362,7 @@ export function getChartMetaData(
 	};
 }
 
-function sliceZeros(input: string): string {
+export function sliceZeros(input: string): string {
 	if (!input) {
 		return "";
 	}
@@ -563,4 +563,9 @@ export function winrateData(baseWinrate: number, winrate: number, deltaFactor: n
 
 export function cleanText(text: string): string {
 	return text.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+}
+
+export function toDynamicFixed(value: number, fractionDigits: number = 1) {
+	const digits = Math.min(Math.max(0, Math.floor(Math.log10(1 / value))), (7 - fractionDigits)) + fractionDigits;
+	return value.toFixed(digits);
 }
