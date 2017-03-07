@@ -54,7 +54,7 @@ def get_messages(max_num=10):
 			QueueUrl=get_or_create_queue(settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME),
 			MaxNumberOfMessages=10
 		)
-		messages = response['Messages']
+		messages = response['Messages'] if 'Messages' in response else []
 		if len(messages):
 			result.extend(messages)
 		else:
