@@ -31,7 +31,7 @@ export default class CardDetailGauge extends React.Component<CardDetailGaugeProp
 		else if (this.props.renderData) {
 			const series = this.props.renderData.series[0];
 			const hasData = series && series.data[0] && series.data[0].y;
-			const value = hasData ? series.data[0].y : maxValue/2;
+			const value = hasData ? +series.data[0].y : maxValue/2;
 
 			const data =  [{x: "data", y: (this.props.reverse ? maxValue - value : value)}];
 			const remaining = maxValue - data[0].y;

@@ -320,24 +320,24 @@ export function getChartMetaData(
 	let yMin = data[0];
 	let yMax = data[0];
 	data.forEach((d) => {
-		if (d.y < yMin.y) {
+		if (+d.y < +yMin.y) {
 			yMin = d;
-		} else if (d.y > yMax.y) {
+		} else if (+d.y > +yMax.y) {
 			yMax = d;
 		}
 	});
 
 	if (!midLine) {
-		midLine = (yMax.y + yMin.y) / 2;
+		midLine = (+yMax.y + +yMin.y) / 2;
 	}
 
-	const minDelta = Math.abs(midLine - yMin.y);
-	const maxDelta = Math.abs(midLine - yMax.y);
+	const minDelta = Math.abs(midLine - +yMin.y);
+	const maxDelta = Math.abs(midLine - +yMax.y);
 	const midLinePosition = (maxDelta / (minDelta + maxDelta));
 
-	const top = Math.max(yMax.y, midLine);
-	const bottom = Math.min(yMin.y, midLine);
-	const delta = (yMax.y - yMin.y);
+	const top = Math.max(+yMax.y, midLine);
+	const bottom = Math.min(+yMin.y, midLine);
+	const delta = (+yMax.y - +yMin.y);
 	const deltaMag = Math.min(Math.floor(Math.log10(delta)), 0);
 	const factor = 10 ** (deltaMag - 1);
 	const roundingFactor = 5 * (baseRoundingFactor || 0.1) * factor * 10;

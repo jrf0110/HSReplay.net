@@ -164,8 +164,7 @@ export interface ChartSeriesMetaData {
 }
 
 export interface DataPoint {
-	x: string | number;
-	y: number;
+	[key: string] : string | number;
 }
 
 export type ChartSchemeType = "rarity" | "cardtype" | "cardset" | "cost" | "class";
