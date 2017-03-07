@@ -28,10 +28,6 @@ def fetch_query_results(request, name):
 	if not query:
 		raise Http404("No query named: %s" % name)
 
-	params = query.build_full_params(request.GET)
-	if not user_is_eligible_for_query(request.user, query, params):
-		return HttpResponseForbidden()
-
 	if query.is_personalized:
 		if request.user and not request.user.is_fake:
 
@@ -40,14 +36,23 @@ def fetch_query_results(request, name):
 				supplied_params = request.GET
 				supplied_params["Region"] = pegasus_account.region
 				supplied_params["account_lo"] = pegasus_account.account_lo
-				personalized_params = query.build_full_params(request.supplied_params)
-				return _fetch_query_results(query, personalized_params)
+				personal_params = query.build_full_params(request.supplied_params)
+
+				if not user_is_eligible_for_query(request.user, query, personal_params):
+					return HttpResponseForbidden()
+
+				return _fetch_query_results(query, personal_params)
 			else:
 				raise Http404("User does not have any Pegasus Accounts.")
 		else:
 			# Anonymous or Fake Users Can Never Request Personal Stats
 			return HttpResponseForbidden()
 	else:
+
+		params = query.build_full_params(request.GET)
+		if not user_is_eligible_for_query(request.user, query, params):
+			return HttpResponseForbidden()
+
 		return _fetch_query_results(query, params)
 
 
