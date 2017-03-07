@@ -111,7 +111,8 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 			for r in replay_details:
 				if player_class is None and r["player_class"]:
 					player_class = r["player_class"]
-				total_num_turns += r["num_turns"]
+				# Converting from game turns to player_turns
+				total_num_turns += round(float(r["num_turns"]) / 2)
 				game_count += 1
 				if r["final_state"] == PlayState.WON:
 					total_wins += 1
