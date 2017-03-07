@@ -33,10 +33,10 @@ def fetch_query_results(request, name):
 
 			pegasus_account = request.user.pegasusaccount_set.first()
 			if pegasus_account:
-				supplied_params = request.GET
-				supplied_params["Region"] = pegasus_account.region
+				supplied_params = dict(request.GET)
+				supplied_params["Region"] = pegasus_account.region.name
 				supplied_params["account_lo"] = pegasus_account.account_lo
-				personal_params = query.build_full_params(request.supplied_params)
+				personal_params = query.build_full_params(supplied_params)
 
 				if not user_is_eligible_for_query(request.user, query, personal_params):
 					return HttpResponseForbidden()
