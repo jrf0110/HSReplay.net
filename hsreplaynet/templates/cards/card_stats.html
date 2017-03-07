@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+{% load feature from features %}
+
+{% block title %}Card Statistics{% endblock %}
+
+{% block fullcontent %}
+	<div id="card-container" data-view-type="statistics"></div>
+	{% render_bundle "stats" %}
+	{% render_bundle "card_discover" %}
+{% endblock %}
