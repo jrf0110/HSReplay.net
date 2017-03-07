@@ -100,19 +100,42 @@ body, html {
 			&.social-button {
 				padding-bottom: 4px;
 			}
+
+			&.text-premium {
+				color: $gold;
+			}
 		}
 
 		&.active > a {
 			position: relative;
 			color: $lighterblue;
-			@media (min-width: 768px) {
+		}
+
+		&.active-premium > a {
+			color: $gold;
+
+			> &:focus, > &:hover {
+				color: $darkgold;
+			}
+		}
+
+		@media (min-width: 768px) {
+			&.active > a {
 				border-bottom: 3px solid $lighterblue;
+			}
+
+			&.active-premium > a {
+				border-bottom-color: $gold;
 			}
 		}
 
 		> a:focus, > a:hover {
 			color: $lightblue;
 			background: transparent;
+
+			&.text-premium {
+				color: $darkgold;
+			}
 		}
 
 		> .promo-button {

@@ -94,6 +94,11 @@
 
 						<li{% nav_active 'articles_article_list' %}><a href="{% url 'articles_article_list' %}"><span class="glyphicon glyphicons-article"></span>Articles</a></li>
 
+						{% feature "billing" as ft_billing %}
+						{% if ft_billing.enabled and not is_premium %}
+							<li{% nav_active 'premium' css='active active-premium' %}><a href="{% url 'premium' %}" class="text-premium">Premium</a></li>
+						{% endif %}
+
 						{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 						<li class="hidden-xs"><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="social-button">
 							<span class="label">Follow us on Twitter</span>
