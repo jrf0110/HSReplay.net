@@ -32,7 +32,23 @@ def fetch_query_results(request, name):
 	if not user_is_eligible_for_query(request.user, query, params):
 		return HttpResponseForbidden()
 
-	return _fetch_query_results(query, params)
+	if query.is_personalized:
+		if request.user and not request.user.is_fake:
+
+			pegasus_account = request.user.pegasusaccount_set.first()
+			if pegasus_account:
+				supplied_params = request.GET
+				supplied_params["Region"] = pegasus_account.region
+				supplied_params["account_lo"] = pegasus_account.account_lo
+				personalized_params = query.build_full_params(request.supplied_params)
+				return _fetch_query_results(query, personalized_params)
+			else:
+				raise Http404("User does not have any Pegasus Accounts.")
+		else:
+			# Anonymous or Fake Users Can Never Request Personal Stats
+			return HttpResponseForbidden()
+	else:
+		return _fetch_query_results(query, params)
 
 
 def _fetch_query_results(query, params):
@@ -82,16 +98,6 @@ def user_is_eligible_for_query(user, query, params):
 
 	if params.has_premium_values:
 		return user.is_authenticated and user.is_premium
-	elif query.is_personalized:
-		region_val = params.supplied_parameters.get("Region", None)
-		account_lo_val = params.supplied_parameters.get("account_lo", None)
-		if not region_val or not account_lo_val:
-			raise ValueError("Personalized queries must provide region & account_lo params")
-
-		return user.pegasusaccount_set.filter(
-			account_lo=account_lo_val,
-			region=region_val
-		).exists()
 	else:
 		return True
 
