@@ -10,5 +10,5 @@
 		href="{% provider_login_url 'battlenet' %}{{ query }}"
 	{% endif %}
 		class="promo-button hero-button">
-	Log in with Battle.net
+	{{ inscription|default:'Log in with Battle.net' }}
 </a>
