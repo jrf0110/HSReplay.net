@@ -51,7 +51,7 @@
 					<li><a href="{% url 'articles_article_list' %}">Articles</a></li>
 
 					{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-						<li><a href="{% url 'card_list' %}">Card Database</a></li>
+						<li><a href="{% url 'card_list' %}">Cards</a></li>
 						<li><a href="{% url 'deck_spotlight' %}">Deck Spotlight</a></li>
 						<li><a href="{% url 'deck_list' %}">Deck Database</a></li>
 					{% endif %}

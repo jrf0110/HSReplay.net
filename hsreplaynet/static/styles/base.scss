@@ -79,26 +79,36 @@ body, html {
 	}
 
 	.nav > li {
+		> a {
+			padding-bottom: 12px;
+
+			&.social-button {
+				padding-bottom: 4px;
+			}
+		}
+
+		&.active > a {
+			color: $lighterblue;
+			@media (min-width: 768px) {
+				border-bottom: 3px solid $lighterblue;
+			}
+		}
+
 		> a:focus, > a:hover {
-			color: $lightgrey;
-			background-color: transparent;
+			color: $lightblue;
+			background: transparent;
 		}
 
 		> .promo-button {
 			&:focus, &:hover {
 				color: $red;
 				background-color: $offwhite;
+				border-bottom: 0;
 			}
 		}
 
-		&.active {
-			text-decoration: underline;
-		}
-
-		&.active-span {
-			span {
-				text-decoration: underline;
-			}
+		.glyphicon {
+			padding-right: 3px;
 		}
 	}
 
@@ -124,10 +134,6 @@ body, html {
 		padding-top: 5px;
 	}
 
-	.social-button {
-		padding-top: 15px;
-		padding-bottom: 8.5px;
-	}
 }
 
 .site-footer {

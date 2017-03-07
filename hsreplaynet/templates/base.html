@@ -78,9 +78,9 @@
 					{% block navlinks %}
 					<ul class="nav navbar-nav">
 						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-							<li{% nav_active 'card_list' %}><a href="{% url 'card_list' %}">Card Database</a></li>
-							<li{% nav_active 'deck_spotlight' %}><a href="{% url 'deck_spotlight' %}">Deck Spotlight</a></li>
-							<li{% nav_active 'deck_list' %}><a href="{% url 'deck_list' %}">Deck Database</a></li>
+							<li{% nav_active 'card_list' %}><a href="{% url 'card_list' %}"><span class="glyphicon glyphicon-th-large"></span>Cards</a></li>
+							<li{% nav_active 'deck_spotlight' %}><a href="{% url 'deck_spotlight' %}"><span class="glyphicon glyphicon-fire"></span>Deck Spotlight</a></li>
+							<li{% nav_active 'deck_list' %}><a href="{% url 'deck_list' %}"><span class="glyphicon glyphicon-th-list"></span>Decks</a></li>
 						{% endif %}
 
 						{% feature "archetypes" as ft_archetypes %}{% if ft_archetypes.enabled %}
@@ -91,7 +91,7 @@
 							<li{% nav_active 'scenario_list_view' %}><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
 						{% endif %}
 
-						<li{% nav_active 'articles_article_list' %}><a href="{% url 'articles_article_list' %}">Articles</a></li>
+						<li{% nav_active 'articles_article_list' %}><a href="{% url 'articles_article_list' %}"><span class="glyphicon glyphicons-article"></span>Articles</a></li>
 
 						{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 						<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="social-button">
@@ -113,7 +113,7 @@
 								<li><a href="{% url 'admin:index' %}">Admin</a></li>
 							{% endif %}
 
-							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}">My Replays</a></li>
+							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
 
 							<li{% nav_active 'account_edit' css="active-span" %}>
 								<a href="{% url 'account_edit' %}">
