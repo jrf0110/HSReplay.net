@@ -1,5 +1,5 @@
 import {Colors} from "./Colors";
-import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint} from "./interfaces";
+import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, TableData} from "./interfaces";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -563,6 +563,14 @@ export function winrateData(baseWinrate: number, winrate: number, deltaFactor: n
 
 export function cleanText(text: string): string {
 	return text.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+}
+
+export function isLoading(tableData: TableData) {
+	return !tableData || tableData === "loading";
+}
+
+export function isError(tableData: TableData) {
+	return tableData === "error";
 }
 
 export function toDynamicFixed(value: number, fractionDigits: number = 1) {

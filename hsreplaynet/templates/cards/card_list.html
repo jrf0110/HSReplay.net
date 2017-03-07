@@ -2,10 +2,10 @@
 {% load render_bundle from webpack_loader %}
 {% load feature from features %}
 
-{% block title %}Card Database{% endblock %}
+{% block title %}Cards{% endblock %}
 
 {% block fullcontent %}
-	<div id="card-container"></div>
+	<div id="card-container" data-view-type="cards"></div>
 	{% render_bundle "stats" %}
 	{% render_bundle "card_discover" %}
 {% endblock %}
