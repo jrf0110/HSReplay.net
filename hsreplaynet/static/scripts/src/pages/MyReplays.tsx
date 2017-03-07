@@ -142,6 +142,28 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		return games;
 	}
 
+	buildChartData(games: GameReplay[]): any[] {
+		const data = [];
+		const heroGames = {};
+		const heroWins = {};
+		games.forEach((game: GameReplay) => {
+			if (game.friendly_player && game.friendly_player.hero_id.startsWith("HERO")) {
+				let hero = game.friendly_player.hero_class_name;
+				hero = hero.substr(0, 1).toUpperCase() + hero.substr(1, hero.length - 1).toLowerCase();
+				heroGames[hero] = (heroGames[hero] || 0) + 1;
+				if (game.won) {
+					heroWins[hero] = (heroWins[hero] || 0) + 1;
+				}
+			}
+		});
+		Object.keys(heroGames).forEach(key => {
+			const value = heroGames[key];
+			data.push({x: key, y: value, winrate: heroWins[key]/value})
+		})
+		data.sort((a, b) => a.y > b.y ? 1 : -1);
+		return data;
+	}
+
 	render(): JSX.Element {
 		let games = [];
 		const hasFilters = Object.keys(this.state.queryMap).some(key => {
@@ -237,8 +259,8 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 					</ResetHeader>
 					<h2>Classes Played</h2>
 					<ClassDistributionPieChart
-						games={games}
-						loadingGames={this.state.working}
+						data={this.buildChartData(games)}
+						loading={this.state.working}
 						onPieceClicked={(hero: string) => this.onPiePieceClicked(hero)}
 					/>
 					<h2>Display</h2>

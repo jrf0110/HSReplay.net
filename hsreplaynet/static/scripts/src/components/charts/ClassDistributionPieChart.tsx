@@ -4,14 +4,12 @@ import { VictoryPie, VictoryContainer} from "victory";
 import { getHeroColor } from "../../helpers";
 
 interface ClassDistributionPieChartState {
-	name?: string;
-	value?: number;
-	pct?: string;
+	hoveringSlice: any;
 }
 
 export interface ClassDistributionPieChartProps extends React.ClassAttributes<ClassDistributionPieChart>{
-	games: GameReplay[];
-	loadingGames?: boolean;
+	data: any[];
+	loading?: boolean;
 	onPieceClicked?: (name: string) => void;
 }
 
@@ -19,47 +17,38 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 	constructor() {
 		super();
 		this.state = {
-			name: "",
-			value: 0,
-			pct: "",
+			hoveringSlice: null,
 		}
 	}
 	render(): JSX.Element {
-		let data = [];
-		let numGames = this.props.games.length;
-		let wins = 0;
-		if (numGames == 0) {
-			data.push({x: " ", y: 1, name: null, color: "lightgrey"});
-		}
-		else {
-			let distr = new Map<string, number>();
-			this.props.games.forEach((game: GameReplay) => {
-				if (game.friendly_player && game.friendly_player.hero_id.startsWith("HERO")) {
-					let hero = game.friendly_player.hero_class_name;
-					hero = hero.substr(0, 1).toUpperCase() + hero.substr(1, hero.length - 1).toLowerCase();
-					distr.set(hero, (distr.get(hero) || 0) + 1);
-					if (game.won && (!this.state.name || this.state.name == hero)) {
-						wins++;
-					}
-				}
-			});
-			distr.forEach((value, key) => data.push({x: Math.round(100.0 * value/numGames) + "%", y: value, name: key, color: getHeroColor(key)}));
-			data = data.sort((a, b) => a.y > b.y ? 1 : -1);
-		}
 		let text = "";
-		if (numGames && this.state.name) {
-			text = this.state.name + ": " + this.state.value
+		const data = this.props.data && this.props.data.length ? this.props.data : [{x: " ", y: 1, color: "lightgrey"}];
+		const numGames = this.props.data && this.props.data.reduce((a, b) => a + b.y, 0);
+		if (numGames && this.state.hoveringSlice) {
+			text = this.state.hoveringSlice.xName + ": " + this.state.hoveringSlice.y;
 		}
 		else {
-			text = "Total: " + numGames
+			text = "Total: " + numGames;
 		}
-		const total = this.state.name ? this.state.value : numGames;
-		text += " game" + (total == 1 ? "" : "s");
-		if (this.props.loadingGames) {
+		const total = this.state.hoveringSlice ? this.state.hoveringSlice.y : numGames;
+		text += " game" + (!this.props.loading && total === 1 ? "" : "s");
+		if (this.props.loading) {
 			text += " [Loading...]"
 		}
 		else if (numGames) {
-			text += " - " + Math.round(100.0 * wins/total) + "% winrate"
+			let winrate = 0;
+			if (this.state.hoveringSlice) {
+				winrate = this.state.hoveringSlice.winrate;
+			}
+			else {
+				let count = 0;
+				data.forEach(d => {
+					winrate += d.winrate * d.y;
+					count += d.y;
+				});
+				winrate /= count;
+			}
+			text += " - " + Math.round(100.0 * winrate) + "% winrate";
 		}
 		return (
 			<div className="chart-wrapper">
@@ -67,19 +56,20 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 					containerComponent={<VictoryContainer title={""}/>}
 					data={data}
 					style={{
-						data: {fill: (d) => d.color, strokeWidth: 2, transition: "transform .2s ease-in-out"},
+						data: {fill: (d) => d.color || getHeroColor(d.xName), strokeWidth: 2, transition: "transform .2s ease-in-out"},
 						labels: {fill: "#FFFFFF", fontSize: 20},
 					}}
 					padding={{top: 70, bottom: 10, left: 80, right: 80}}
 					padAngle={2}
 					innerRadius={10}
+					labels={d => this.props.loading ? null : (d.y + "%")}
 					events={[{
 						target: "data",
 						eventHandlers: {
 							onMouseOver: () => {
 								return [{
 									mutation: (props) => {
-										this.setState({name: props.style.name, value: props.slice.value, pct: props.style.xName});
+										this.setState({hoveringSlice: props.slice.data});
 										return {
 											style: Object.assign({}, props.style, {stroke: "white", transform: "scale(1.05)"})
 										};
@@ -87,14 +77,14 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 								}]
 							},
 							onMouseOut: () => {
-								this.setState({name: null})
+								this.setState({hoveringSlice: null})
 								return [{
 									mutation: () => null
 								}];
 							},
 							onClick: () => {
 								if (this.props.onPieceClicked) {
-									this.props.onPieceClicked(this.state.name.toLowerCase());
+									this.props.onPieceClicked(this.state.hoveringSlice.x.toLowerCase());
 								}
 								return [{
 									mutation: () => null
