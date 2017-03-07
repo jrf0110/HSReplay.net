@@ -117,10 +117,10 @@
 							<li{% nav_active 'my_card_stats' %}><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Card Stats</a></li>
 							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
 
-							<li{% nav_active 'account_edit' css="active-span" %}>
+							<li{% nav_active 'account_edit' css="active" %}>
 								<a href="{% url 'account_edit' %}">
-									<img src="{% static 'images/bnet.png' %}"/>
-									<span>{{ user.username }}</span>
+									<span class="custom-icon" style="background-image: url('{% static 'images/bnet.png' %}')"></span>
+									{{ user.username }}
 								</a>
 							</li>
 						{% else %}

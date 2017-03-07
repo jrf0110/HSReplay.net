@@ -50,6 +50,20 @@ body, html {
 
 .navbar {
 	border-radius: 0;
+
+	.nav > li .custom-icon {
+		padding-right: 3px;
+	}
+}
+
+.custom-icon {
+	background-size: contain;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+	position: relative;
+	display: inline-block;
+	width: 17px;
+	height: 17px;
 }
 
 .navbar-hsreplay {
@@ -75,6 +89,7 @@ body, html {
 			padding: 12px 0;
 			display: inline-block;
 			font-size: 1.2em;
+			margin: 0;
 		}
 	}
 
@@ -88,6 +103,7 @@ body, html {
 		}
 
 		&.active > a {
+			position: relative;
 			color: $lighterblue;
 			@media (min-width: 768px) {
 				border-bottom: 3px solid $lighterblue;
