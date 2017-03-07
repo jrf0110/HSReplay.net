@@ -114,6 +114,7 @@
 								<li><a href="{% url 'admin:index' %}">Admin</a></li>
 							{% endif %}
 
+							<li{% nav_active 'my_card_stats' %}><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Card Stats</a></li>
 							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
 
 							<li{% nav_active 'account_edit' css="active-span" %}>
