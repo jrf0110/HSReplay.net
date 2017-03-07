@@ -20,9 +20,9 @@
 		background-color: $aqua;
 	}
 
-	&.gold-style {
-		border: solid 1px $gold;
-		background-color: $gold;
+	&.premium-style {
+		border: solid 1px $premium;
+		background-color: $premium;
 		color: black;
 	}
 }
@@ -50,10 +50,10 @@
 		border-color: $aqua;
 	}
 
-	&.gold-style {
-		color: $gold;
+	&.premium-style {
+		color: $premium;
 		background-color: white;
-		border-color: $gold;
+		border-color: $premium;
 	}
 }
 
