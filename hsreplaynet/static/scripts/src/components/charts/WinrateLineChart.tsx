@@ -4,7 +4,7 @@ import {
 	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip
 } from "victory";
 import {RenderData} from "../../interfaces";
-import {getChartMetaData, toTimeSeries} from "../../helpers";
+import {getChartMetaData, toTimeSeries, toDynamicFixed, sliceZeros} from "../../helpers";
 import WinLossGradient from "./gradients/WinLossGradient";
 import moment from "moment";
 
@@ -103,7 +103,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					/>
 					<VictoryVoronoiTooltip
 						data={series.data}
-						labels={d => moment(d.x).format("YYYY-MM-DD") + "\n" + d.y + "%"}
+						labels={d => moment(d.x).format("YYYY-MM-DD") + "\n" + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
 						labelComponent={tooltip}
 						style={{
 							labels: {fontSize: 6, padding: 5}
