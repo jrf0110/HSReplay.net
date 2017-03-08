@@ -38,8 +38,10 @@ const loadStripe = () => {
 	};
 
 	const keys = [
-		"key", "image", "name", "email", "locale",
-		"description", "label", "panel-label",
+		"image", "name", "description", "amount", "locale", "zip-code",
+		"billing-address", "currency", "panel-label", "shipping-address",
+		"email", "label", "allow-remember-me", "bitcoin", "alipay",
+		"alipay-reusable",
 	];
 	keys.forEach((key) => transfer("data-" + key));
 
