@@ -78,6 +78,8 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 
 		deck_data = defaultdict(list)
 		deck_lists = dict()
+		game_types_for_deck = defaultdict(lambda: defaultdict(int))
+
 		for replay in qs.all():
 			friendly_player = replay.friendly_player
 			player_class = friendly_player.hero.card_class.name
@@ -103,6 +105,7 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 			if replay.friendly_deck.size == 30:
 				deck_lists[deck_id] = replay.friendly_deck.as_dbf_json(serialized=False)
 				deck_data[deck_id].append(replay_details)
+				game_types_for_deck[deck_id][replay.global_game.game_type.name] += 1
 
 		result = {}
 		for deck_id, replay_details in deck_data.items():
@@ -139,7 +142,8 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 				"win_rate": round(win_rate, 2),
 				"avg_game_length_seconds": round(avg_game_length_seconds, 2),
 				"avg_num_turns": round(avg_num_turns, 2),
-				"replays": replay_urls
+				"replays": replay_urls,
+				"game_types": dict(game_types_for_deck[deck_id])
 			}
 
 		return JsonResponse(result, json_dumps_params=dict(indent=4))
