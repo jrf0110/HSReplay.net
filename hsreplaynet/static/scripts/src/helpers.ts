@@ -1,5 +1,5 @@
 import {Colors} from "./Colors";
-import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, TableData} from "./interfaces";
+import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, TableData, RenderData} from "./interfaces";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -565,12 +565,17 @@ export function cleanText(text: string): string {
 	return text.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 }
 
-export function isLoading(tableData: TableData) {
-	return !tableData || tableData === "loading";
+export function isLoading(data: TableData | RenderData) {
+	return !data || data === "loading";
 }
 
-export function isError(tableData: TableData) {
-	return tableData === "error";
+export function isError(data: TableData | RenderData) {
+	return data === "error";
+}
+
+export function isReady(data: TableData | RenderData) {
+	return !isLoading(data) && !isError(data);
+
 }
 
 export function toDynamicFixed(value: number, fractionDigits: number = 1) {

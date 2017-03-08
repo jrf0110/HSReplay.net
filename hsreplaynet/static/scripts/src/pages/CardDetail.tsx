@@ -14,28 +14,40 @@ import {Colors} from "../Colors";
 import {
 	FilterData, Filter, FilterElement, FilterDefinition, KeyValuePair,
 	Query, RenderData, ChartSeries, ChartSeriesMetaData, DataPoint,
-	TableData, DeckObj
+	TableData, DeckObj, TableQueryData, RenderQueryData
 } from "../interfaces";
 import HearthstoneJSON from "hearthstonejson";
 import {
 	toTitleCase, getChartScheme, setNames, toPrettyNumber, isWildCard, 
-	isCollectibleCard, getColorString, getDustCost
+	isCollectibleCard, getColorString, getDustCost, isLoading, isError, isReady
 } from "../helpers";
 import QueryManager from "../QueryManager";
+import {
+	genCacheKey, QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
+	setLocationQueryString, setQueryMap, toQueryString, getQueryMapDiff
+} from "../QueryParser"
+
+interface TableDataMap {
+	[key: string]: TableData;
+}
+
+interface RenderDataMap {
+	[key: string]: RenderData;
+}
 
 interface CardDetailState {
 	card?: any;
 	cardData?: Map<string, any>;
-	classDistribution?: RenderData;
-	deckData?: TableData;
-	discoverChoices?: TableData;
-	popularTargets?: TableData;
-	popularityOverTime?: RenderData;
-	selectedClasses?: FilterOption[];
+	classDistribution?: RenderDataMap;
+	deckData?: TableDataMap;
+	discoverChoices?: TableDataMap;
+	popularTargets?: TableDataMap;
+	popularityOverTime?: RenderDataMap;
+	queryMap?: QueryMap,
 	showInfo?: boolean;
-	statsByTurn?: RenderData;
-	statsByTurnByOpponent?: RenderData;
-	winrateOverTime?: RenderData;
+	statsByTurn?: RenderDataMap;
+	statsByTurnByOpponent?: RenderDataMap;
+	winrateOverTime?: RenderDataMap;
 }
 
 interface CardDetailProps extends React.ClassAttributes<CardDetail> {
@@ -47,22 +59,35 @@ interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
 	private readonly queryManager: QueryManager = new QueryManager();
 	private readonly maxDecks = 20;
+	private readonly defaultQueryMap: QueryMap = {
+		gameType: "RANKED_STANDARD",
+		opponentClass: "ALL",
+	}
+
+	private readonly allowedValues = {
+		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
+		opponentClass: [],
+	}
+
+	private readonly allowedValuesPremium = {
+		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
+	}
 
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
 		this.state = {
 			card: null,
 			cardData: null,
-			classDistribution: "loading",
-			deckData: "loading",
-			discoverChoices: "loading",
-			popularTargets: "loading",
-			popularityOverTime: "loading",
-			selectedClasses: ["ALL"],
+			classDistribution: {},
+			deckData: {},
+			discoverChoices: {},
+			popularTargets: {},
+			popularityOverTime: {},
+			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showInfo: false,
-			statsByTurn: "loading",
-			statsByTurnByOpponent: "loading",
-			winrateOverTime: "loading",
+			statsByTurn: {},
+			statsByTurnByOpponent: {},
+			winrateOverTime: {},
 		}
 
 		new HearthstoneJSON().getLatest((data) => {
@@ -77,6 +102,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			this.setState({cardData: map, card: thisCard});
 			this.fetch(thisCard);
 		});
+	}
+
+	getAllowedValues() {
+		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
 	}
 
 	cardHasTargetReqs(card?: any): boolean {
@@ -97,31 +126,44 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		return card && card.playerClass === "NEUTRAL";
 	}
 
+	componentDidUpdate(prevProps: CardDetailProps, prevState: CardDetailState) {
+		const cacheKey = genCacheKey(this)
+		const prevCacheKey = genCacheKey(this, prevState);
+		if (cacheKey !== prevCacheKey) {
+			this.fetch(this.state.card);
+		}
+		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
+	}
+
 	render(): JSX.Element {
+		const cacheKey = genCacheKey(this);
+
 		let mostPopularTargets = null;
-		if (this.cardHasTargetReqs() && this.state.popularTargets && this.state.popularTargets !== "loading" && this.state.popularTargets !== "error") {
+		if (this.cardHasTargetReqs() && isReady(this.state.popularTargets[cacheKey])) {
 			mostPopularTargets = [
 				<h4>Most popular targets</h4>,
 				<CardRankingTable
 					cardData={this.state.cardData}
 					numRows={8}
-					tableData={this.state.popularTargets}
+					tableData={this.state.popularTargets[cacheKey]}
 					dataKey={"ALL"}
 					clickable
+					urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 				/>
 			];
 		}
 
 		let discoverChoices = null;
-		if (this.cardHasDiscover() && this.state.discoverChoices && this.state.discoverChoices !== "loading" && this.state.discoverChoices !== "error") {
+		if (this.cardHasDiscover() && isReady(this.state.discoverChoices[cacheKey])) {
 			discoverChoices = [
 				<h4>Most popular Discover choices</h4>,
 				<CardRankingTable
 					cardData={this.state.cardData}
 					numRows={8}
-					tableData={this.state.discoverChoices}
+					tableData={this.state.discoverChoices[cacheKey]}
 					dataKey={"ALL"}
 					clickable
+					urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 				/>
 			];
 		}
@@ -131,8 +173,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		let content = null;
 		if (this.state.card) {
 			const set = this.state.card.set.toLowerCase();
-			if (this.state.winrateOverTime !== "loading" && this.state.winrateOverTime !== "error") {
-				replayCount = toPrettyNumber(this.state.winrateOverTime.series[0].metadata["num_data_points"]);
+			if (isReady(this.state.winrateOverTime[cacheKey])) {
+				replayCount = toPrettyNumber((this.state.winrateOverTime[cacheKey] as RenderQueryData).series[0].metadata["num_data_points"]);
 			}
 		
 			const cardNameStyle = {
@@ -172,7 +214,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<PopularityLineChart
-									renderData={this.state.popularityOverTime}
+									renderData={this.state.popularityOverTime[cacheKey]}
 									widthRatio={2}
 									maxYDomain={100}
 								/>
@@ -181,7 +223,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<WinrateLineChart
-									renderData={this.state.winrateOverTime}
+									renderData={this.state.winrateOverTime[cacheKey]}
 									widthRatio={2}
 								/>
 							</div>
@@ -200,8 +242,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									hideAll
 									minimal
 									multiSelect={false}
-									selectedClasses={this.state.selectedClasses}
-									selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
+									selectedClasses={[this.state.queryMap.opponentClass as FilterOption]}
+									selectionChanged={(selected) => this.props.userIsPremium && setQueryMap(this, "opponentClass", selected[0])}
 								/>
 							</PremiumWrapper>
 						</div>
@@ -209,8 +251,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							<div className="chart-wrapper">
 								<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
 									<TurnPlayedBarChart
-										renderData={this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
-										opponentClass={this.state.selectedClasses[0]}
+										renderData={this.state.queryMap.opponentClass === "ALL" ? this.state.statsByTurn[cacheKey] : this.state.statsByTurnByOpponent[cacheKey]}
+										opponentClass={this.state.queryMap.opponentClass}
 										widthRatio={2}
 										premiumLocked={!this.props.userIsPremium}
 									/>
@@ -221,8 +263,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							<div className="chart-wrapper">
 								<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
 									<WinrateByTurnLineChart
-										renderData={this.props.userIsPremium && this.state.selectedClasses[0] === "ALL" ? this.state.statsByTurn : this.state.statsByTurnByOpponent}
-										opponentClass={this.state.selectedClasses[0]}
+										renderData={this.props.userIsPremium && this.state.queryMap.opponentClass === "ALL" ? this.state.statsByTurn[cacheKey] : this.state.statsByTurnByOpponent[cacheKey]}
+										opponentClass={this.state.queryMap.opponentClass}
 										widthRatio={2}
 										premiumLocked={!this.props.userIsPremium}
 									/>
@@ -236,7 +278,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					this.buildRecommendedDecks()
 				];
 				
-				if (this.cardIsNeutral() && this.state.classDistribution !== "loading" && this.state.classDistribution !== "error") {
+				if (this.cardIsNeutral() && isReady(this.state.classDistribution[cacheKey])) {
 					classDistribution = (
 						<div className="class-chart">
 							<CardDetailPieChart
@@ -244,7 +286,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								fontColor="white"
 								percent
 								removeEmpty
-								renderData={this.state.classDistribution}
+								renderData={this.state.classDistribution[cacheKey]}
 								scheme={getChartScheme("class")}
 								sortByValue
 								textPrecision={2}
@@ -305,6 +347,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
 					</li>
 				</ul>
+				<InfoboxFilterGroup header="Mode" selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
+					<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+					<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
+				</InfoboxFilterGroup>
 				<h2>Data</h2>
 				<ul>
 					<li>
@@ -332,7 +379,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	buildRecommendedDecks(): JSX.Element[] {
-		if (!this.state.deckData || this.state.deckData === "loading" || this.state.deckData === "error") {
+		const cacheKey = genCacheKey(this);
+		if (!isReady(this.state.deckData[cacheKey])) {
 			return null;
 		}
 
@@ -341,7 +389,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		}
 
 		const decks: DeckObj[] = [];
-		const data = this.state.deckData.series.data;
+		const data = (this.state.deckData[cacheKey] as TableQueryData).series.data;
 		Object.keys(data).forEach(playerClass => {
 			const classDecks = [];
 
@@ -375,7 +423,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 		return [
 			<h4>Recommended Decks</h4>,
-			<DeckList decks={decks} pageSize={5} hideTopPager/>
+			<DeckList 
+				decks={decks}
+				pageSize={5}
+				hideTopPager
+				urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
+			/>
 		];
 	}
 	
@@ -390,55 +443,75 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			return;
 		}
 
-		const buildUrl = (queryName: string, mode: string): string => {
-			return "/analytics/query/" + queryName + "?card_id=" + this.props.dbfId + "&GameType=" + mode;
+		const buildUrl = (queryName: string): string => {
+			return "/analytics/query/" + queryName + "?card_id=" + this.props.dbfId + "&GameType=" + this.state.queryMap.gameType;
 		}
 
-		const mode = isWildCard(card) ? "RANKED_WILD" : "RANKED_STANDARD";
+		const cacheKey = genCacheKey(this);
+		const setData = (key: string, data: any) => {
+			const obj = Object.assign({}, this.state[key]);
+			obj[cacheKey] = data;
+			const newState = {};
+			newState[key] = obj;
+			this.setState(newState);
+		}
 
-		if (this.cardIsNeutral(card)) {
+		const hasNoData = (key: string): boolean => {
+			return !this.state[key][cacheKey] || isError(this.state[key][cacheKey]);
+		}
+
+		if (this.cardIsNeutral(card) && hasNoData("classDistribution")) {
 			this.queryManager.fetch(
-				buildUrl("single_card_class_distribution_by_include_count", mode),
-				(data) => this.setState({classDistribution: data})
+				buildUrl("single_card_class_distribution_by_include_count"),
+				(data) => setData("classDistribution", data)
 			);
 		}
 
-		if (this.cardHasTargetReqs(card)) {
+		if (this.cardHasTargetReqs(card) && hasNoData("popularTargets")) {
 			this.queryManager.fetch(
-				buildUrl("single_card_popular_targets", mode),
-				(data) => this.setState({popularTargets: data})
+				buildUrl("single_card_popular_targets"),
+				(data) => setData("popularTargets", data)
 			);
 		}
 
-		if (this.cardHasDiscover(card)) {
+		if (this.cardHasDiscover(card) && hasNoData("discoverChoices")) {
 			this.queryManager.fetch(
-				buildUrl("single_card_choices_by_winrate", mode),
-				(data) => this.setState({discoverChoices: data})
+				buildUrl("single_card_choices_by_winrate"),
+				(data) => setData("discoverChoices", data)
 			);
 		}
 
-		if (this.props.userIsPremium) {
+		if (this.props.userIsPremium && hasNoData("statsByTurnByOpponent")) {
 			this.queryManager.fetch(
-				buildUrl("single_card_stats_by_turn_and_opponent", mode),
-				(data) => this.setState({statsByTurnByOpponent: data})
+				buildUrl("single_card_stats_by_turn_and_opponent"),
+				(data) => setData("statsByTurnByOpponent", data)
 			);
 		}
 
-		this.queryManager.fetch(
-			buildUrl("single_card_stats_by_turn", mode),
-			(data) => this.setState({statsByTurn: data})
-		);
-		this.queryManager.fetch(
-			buildUrl("single_card_include_popularity_over_time", mode),
-			(data) => this.setState({popularityOverTime: data})
-		);
-		this.queryManager.fetch(
-			buildUrl("single_card_winrate_over_time", mode),
-			(data) => this.setState({winrateOverTime: data})
-		);
-		this.queryManager.fetch(
-			"/analytics/query/list_decks_by_win_rate?GameType=" + mode,
-			(data) => this.setState({deckData: data})
-		);
+		if (hasNoData("statsByTurn")) {
+			this.queryManager.fetch(
+				buildUrl("single_card_stats_by_turn"),
+				(data) => setData("statsByTurn", data)
+			);
+		}
+		if (hasNoData("popularityOverTime")) {
+			this.queryManager.fetch(
+				buildUrl("single_card_include_popularity_over_time"),
+				(data) => setData("popularityOverTime", data)
+			);
+		}
+		if (hasNoData("winrateOverTime")) {
+			this.queryManager.fetch(
+				buildUrl("single_card_winrate_over_time"),
+				(data) => setData("winrateOverTime", data)
+			);
+		}
+
+		if (this.state.queryMap.gameType !== "ARENA" && hasNoData("deckData")) {
+			this.queryManager.fetch(
+				"/analytics/query/list_decks_by_win_rate?GameType=" + this.state.queryMap.gameType,
+				(data) => setData("deckData", data)
+			);
+		}
 	}
 }
