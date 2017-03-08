@@ -264,14 +264,17 @@ class Deck(models.Model):
 
 		return result
 
-	def as_dbf_json(self):
+	def as_dbf_json(self, serialized=True):
 		"""Serialize the deck list for storage in Redshift"""
 		result = []
 		for include in self.includes.all():
 			result.append([include.card.dbf_id, include.count])
 
-		# separators=(',', ':') creates compact JSON encoding
-		return json.dumps(result, separators=(',', ':'))
+		if serialized:
+			# separators=(',', ':') creates compact JSON encoding
+			return json.dumps(result, separators=(',', ':'))
+		else:
+			return result
 
 
 @receiver(models.signals.post_save, sender=Deck)
