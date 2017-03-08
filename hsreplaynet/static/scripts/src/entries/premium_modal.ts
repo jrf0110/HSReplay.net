@@ -1,5 +1,9 @@
 const modal = document.getElementById("premium-modal");
 
+const openModal = (modalToOpen) => {
+	modalToOpen.style.display = "flex";
+};
+
 const closeModal = (modalToClose) => {
 	modalToClose.style.display = "none";
 };
@@ -21,8 +25,16 @@ modal.onclick = (e) => {
 	closeModal(modal);
 };
 
+let stripeLoaded = false;
+
 // inject stripe JS
 const loadStripe = () => {
+	if(stripeLoaded) {
+		return;
+	}
+
+	stripeLoaded = true;
+
 	const btn = document.getElementById("premium-modal-checkout-button");
 	if (!btn) {
 		return;
@@ -52,7 +64,12 @@ const loadStripe = () => {
 	btn.parentNode.replaceChild(script, btn);
 };
 
-window.hsreplaynet_load_premium_modal = () => loadStripe();
+window.hsreplaynet_load_premium_modal = () => {
+	// show modal
+	openModal(modal);
+	// init stripe
+	loadStripe();
+}
 
 if (modal.getAttribute("data-stripe-load") === "1") {
 	loadStripe();

@@ -6,9 +6,11 @@ export function showModal() {
 		return;
 	}
 
-	// show modal
-	modal.style.display = "flex";
+	const loadModal = window.hsreplaynet_load_premium_modal;
 
-	const loadStripe = window.hsreplaynet_load_premium_modal;
-	loadStripe();
+	if(!loadModal) {
+		return;
+	}
+
+	loadModal();
 }
