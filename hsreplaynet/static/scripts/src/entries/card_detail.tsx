@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import {image, cardArt} from "../helpers";
 import CardDetail from "../pages/CardDetail";
 
-const mockFree = location.search.indexOf("free") !== -1;
+const mockFree = document.cookie.indexOf("free-mode") !== -1;
 const premium = document.body.getAttribute("data-premium") === "1";
 
 const cardId = document.getElementById("card-info").getAttribute("data-card-id");

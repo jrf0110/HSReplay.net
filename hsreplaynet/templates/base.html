@@ -117,6 +117,21 @@
 						{% if user.is_authenticated %}
 							{% if user.is_staff %}
 								<li><a href="{% url 'admin:index' %}">Admin</a></li>
+								<li><a href="" id="free-mode">Freemode</a></li>
+								<script type="text/javascript">
+									const freeMode = document.cookie.indexOf("free-mode") !== -1;
+									if (freeMode) {
+										$("#free-mode").css("color", "red")
+									}
+									document.getElementById("free-mode").onclick = function() {
+										if (freeMode) {
+											document.cookie = "free-mode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+										}
+										else {
+											document.cookie = "free-mode=true; expires=Thu, 01 Jan 2018 00:00:00 UTC; path=/";
+										}
+									};
+								</script>
 							{% endif %}
 
 							<li{% nav_active 'my_card_stats' %}><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Card Stats</a></li>

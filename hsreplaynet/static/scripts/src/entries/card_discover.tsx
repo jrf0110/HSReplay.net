@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import CardDiscover, {ViewType} from "../pages/CardDiscover";
 import HearthstoneJSON from "hearthstonejson";
 
-const mockFree = location.search.indexOf("free") !== -1;
+const mockFree = document.cookie.indexOf("free-mode") !== -1;
 const premium = document.body.getAttribute("data-premium") === "1";
 const container = document.getElementById("card-container");
 const viewType = container.getAttribute("data-view-type");

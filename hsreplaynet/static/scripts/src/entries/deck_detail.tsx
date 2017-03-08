@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import {image, cardArt} from "../helpers";
 import DeckDetail from "../pages/DeckDetail";
 
-const mockFree = location.search.indexOf("free") !== -1;
+const mockFree = document.cookie.indexOf("free-mode") !== -1;
 const premium = document.body.getAttribute("data-premium") === "1";
 
 const deckId = +document.getElementById("deck-info").getAttribute("data-deck-id");
