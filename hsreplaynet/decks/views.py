@@ -95,7 +95,9 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 				"final_state": final_state,
 				"game_length_seconds": game_length_seconds,
 				"player_class": player_class,
-				"num_turns": num_turns
+				"num_turns": num_turns,
+				"pretty_name": replay.pretty_name,
+				"replay_url": replay.get_absolute_url()
 			}
 
 			if replay.friendly_deck.size == 30:
@@ -110,6 +112,7 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 			game_count = 0
 			player_class = None
 			total_wins = 0
+			replay_urls = []
 			for r in replay_details:
 				if player_class is None and r["player_class"]:
 					player_class = r["player_class"]
@@ -122,6 +125,7 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 				if r["game_length_seconds"]:
 					game_seconds_denom += 1
 					total_game_seconds += r["game_length_seconds"]
+				replay_urls.append([r["pretty_name"], r["replay_url"]])
 
 			win_rate = float(total_wins) / game_count
 			avg_game_length_seconds = float(total_game_seconds) / game_seconds_denom
@@ -134,7 +138,8 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 				"total_games": game_count,
 				"win_rate": round(win_rate, 2),
 				"avg_game_length_seconds": round(avg_game_length_seconds, 2),
-				"avg_num_turns": round(avg_num_turns, 2)
+				"avg_num_turns": round(avg_num_turns, 2),
+				"replays": replay_urls
 			}
 
 		return JsonResponse(result, json_dumps_params=dict(indent=4))
