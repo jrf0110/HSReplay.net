@@ -51,6 +51,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		gameType: ["RANKED_STANDARD", "RANKED_WILD"],
 		rankRange: [],
 		region: [],
+		opponentClass: [],
 		timeRange: ["LAST_30_DAYS"],
 	}
 
