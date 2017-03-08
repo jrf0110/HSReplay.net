@@ -80,6 +80,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	readonly defaultQueryMap: QueryMap = {
 		cost: "",
 		format: "",
+		filterSparse: "",
 		gameType: "RANKED_STANDARD",
 		mechanics: "",
 		playerClass: "ALL",
@@ -178,6 +179,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					this.fetchPlayed();
 				}
 			}
+
+			if(prevState.topCardsIncluded[cacheKey] !== includedCards
+				|| prevState.topCardsPlayed[cacheKey] !== playedCards) {
+				this.updateFilteredCards();
+			}
 		}
 		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
 
@@ -194,17 +200,52 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const filterKeys = Object.keys(this.filters);
 		filterKeys.forEach(key => filteredByProp[key] = []);
 		const filteredCards = [];
+		const sparseDict = this.state.queryMap.filterSparse === "true" ? this.getSparseFilterDicts() : [];
+
 		this.state.cards.forEach(card => {
 			filterKeys.forEach(x => {
-				if (!this.filter(card, x)) {
+				if (!this.filter(card, x, sparseDict)) {
 					filteredByProp[x].push(card);
 				}
 			});
-			if (!this.filter(card)) {
+			if (!this.filter(card, undefined, sparseDict)) {
 				filteredCards.push(card);
 			}
 		});
+
 		this.setState({filteredCards, filterCounts: this.filterCounts(filteredByProp as CardFilters)})
+	}
+
+	getSparseFilterDicts(): any[] {
+		// build dictionaries from the tabledata to optimize lookup time when filtering
+		const sparseDict = [];
+		if (this.props.viewType === "statistics") {
+			const cacheKey = genCacheKey(this);
+			const playedTd = this.state.topCardsPlayed[cacheKey];
+			const includedTd = this.state.topCardsIncluded[cacheKey];
+			if (!isLoading(playedTd) && !isLoading(includedTd) && !isError(playedTd) && !isError(includedTd)) {
+				sparseDict[0] = {};
+				const playedData = (playedTd as TableQueryData).series.data[this.state.queryMap.playerClass];
+				playedData.forEach(data => {
+					sparseDict[0][data.dbf_id] = data.popularity;
+				});
+				sparseDict[1] = {};
+				const includedData = (includedTd as TableQueryData).series.data[this.state.queryMap.playerClass];
+				includedData.forEach(data => {
+					sparseDict[1][data.dbf_id] = data.popularity;
+				});
+			}
+		}
+		else if (this.props.viewType === "personal") {
+			if (!isLoading(this.state.personalCardData) && !isError(this.state.personalCardData)) {
+				sparseDict[0] = {};
+				const personalCardData = (this.state.personalCardData as TableQueryData).series.data.ALL
+				personalCardData.forEach(data => {
+					sparseDict[0][data.dbf_id] = data.total_games || data.times_played;
+				});
+			}
+		}
+		return sparseDict;
 	}
 
 	componentWillReceiveProps(nextProps: CardDiscoverProps) {
@@ -584,6 +625,15 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			</ResetHeader>
 		];
 
+		if(viewType === "statistics" || viewType === "personal") {
+			filters.push(
+				<h2>Data</h2>,
+				<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["filterSparse"]} onClick={(value) => setQueryMap(this, "filterSparse", value)}>
+					<InfoboxFilter value="true">Hide sparse data</InfoboxFilter>
+				</InfoboxFilterGroup>
+			)
+		}
+
 		if (viewType === "cards" || viewType === "personal") {
 			filters.push(
 				<h2>Card class</h2>,
@@ -726,7 +776,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		);
 	}
 
-	filter(card: any, excludeFilter?: string): boolean {
+	filter(card: any, excludeFilter?: string, sparseDicts?: any[]): boolean {
 		const queryMap = this.state.queryMap;
 		if (queryMap["text"]) {
 			const text = cleanText(queryMap["text"]);
@@ -759,7 +809,23 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		}
 
+		if (viewType === "personal" && sparseDicts.length) {
+			const playedOrIncluded = sparseDicts[0][card.dbfId];
+			if (!playedOrIncluded) {
+				return true;
+			}
+		}
+
+		if (viewType === "statistics" && sparseDicts.length) {
+			const included = sparseDicts[0][card.dbfId];
+			const played = sparseDicts[1][card.dbfId];
+			if (!included || !played || +included < 0.01 || +played < 0.01) {
+				return true;
+			}
+		}
+
 		let filter = false;
+
 		Object.keys(this.filters).forEach(key => {
 			if (viewType === "statistics" && key === "playerClass") {
 				return;
