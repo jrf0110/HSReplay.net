@@ -62,7 +62,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 					padding={{top: 0, bottom: 10, left: 80, right: 80}}
 					padAngle={2}
 					innerRadius={10}
-					labels={d => this.props.loading ? null : (Math.round(100 / numGames * d.y) + "%")}
+					labels={d => this.props.loading ? null : (Math.round(1000 / numGames * d.y) / 10 + "%")}
 					events={[{
 						target: "data",
 						eventHandlers: {
