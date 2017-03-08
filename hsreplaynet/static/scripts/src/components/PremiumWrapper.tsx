@@ -12,7 +12,7 @@ interface PremiumWrapperProps extends React.ClassAttributes<PremiumWrapper> {
 
 interface PremiumWrapperState {
 	hovering?: boolean;
-	triggered?: boolean; // inferred hover
+	triggered?: PremiumWrapper[];
 	touchCount?: number;
 }
 
@@ -25,18 +25,29 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		this.state = {
 			hovering: false,
 			touchCount: 0,
+			triggered: [],
 		};
 	}
 
-	public trigger() {
-		this.setState({
-			triggered: true,
+	public trigger(wrapper: PremiumWrapper) {
+		if(wrapper == this) {
+			return;
+		}
+		this.setState((state, props) => ({
+			triggered: state.triggered.concat([wrapper]),
 			touchCount: 0,
-		});
+		}));
 	}
 
-	public release() {
-		this.setState({triggered: false});
+	public release(wrapper: PremiumWrapper) {
+		if(wrapper == this) {
+			return;
+		}
+		this.setState((state, props) => ({
+			triggered: state.triggered.filter(
+				(toRemove: PremiumWrapper) => toRemove != wrapper
+			),
+		}));
 	}
 
 	componentDidMount() {
@@ -48,6 +59,9 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 	}
 
 	componentWillUnmount() {
+		window[key].forEach((wrapper: PremiumWrapper) => {
+			wrapper.release(this);
+		});
 		window[key] = window[key].filter((component: PremiumWrapper) => component != this);
 	}
 
@@ -57,14 +71,11 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		}
 		// hover is starting or ending
 		window[key].forEach((wrapper: PremiumWrapper) => {
-			if (wrapper === this) {
-				return;
-			}
 			if (nextState.hovering) {
-				wrapper.trigger();
+				wrapper.trigger(this);
 			}
 			else {
-				wrapper.release();
+				wrapper.release(this);
 			}
 		});
 	}
@@ -82,7 +93,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		if (this.shouldAppear()) {
 			classNames.push("visible");
 		}
-		if (this.state.hovering || this.state.triggered) {
+		if (this.state.hovering || this.state.triggered.length > 0) {
 			classNames.push("hovering");
 		}
 
