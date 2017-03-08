@@ -568,6 +568,7 @@ class RedshiftStagingTrackManager(models.Manager):
 		We attempt to generate tasks in reverse of the track's normal lifecycle in order
 		to advance any in flight tracks to completion before initializing new tracks
 		"""
+		self.check_for_error_states()
 		# The state of tracks in the uploads-db might be stale
 		# Since long running queries kicked off against the cluster may have completed.
 		# So first we refresh the state of the track
@@ -639,6 +640,14 @@ class RedshiftStagingTrackManager(models.Manager):
 
 		# Nothing to do, so return empty list
 		return []
+
+	def check_for_error_states(self):
+		error_track_count = RedshiftStagingTrack.objects.filter(
+			stage__exact=RedshiftETLStage.ERROR
+		).count()
+		if error_track_count > 0:
+			msg = "There are Error Tracks. They must be resolved before ETL can continue."
+			raise RuntimeError(msg)
 
 	def refresh_track_states(self):
 		unfinished_tracks = RedshiftStagingTrack.objects.exclude(
