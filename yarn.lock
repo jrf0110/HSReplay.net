@@ -6,6 +6,10 @@
   version "1.0.30"
   resolved "https://registry.yarnpkg.com/@types/cookiejs/-/cookiejs-1.0.30.tgz#3fd9f5ecb3ccb23f6d6fe4708c308bcadab91622"
 
+"@types/google.analytics@^0.0.29":
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/@types/google.analytics/-/google.analytics-0.0.29.tgz#71ba2ece06be5e2649ce507de6c83f47bb218e64"
+
 "@types/jquery@^2.0.40":
   version "2.0.40"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-2.0.40.tgz#acdd69e29b74cdec15dc3c074bcb064bc1b87213"
