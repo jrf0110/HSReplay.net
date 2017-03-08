@@ -15,7 +15,7 @@ export default class ClassIcon extends React.Component<ClassIconProps, any> {
 		const basePath = STATIC_URL + "images/" + (this.props.small ? "64x/" : "");
 		const heroClassName = this.props.heroClassName.toLowerCase();
 		if (this.classes.indexOf(heroClassName) === -1) {
-			return <img src={basePath + "mode-icons/mode_ai.png"} className="class-icon" />;
+			return <img src={basePath + "mode-icons/mode_ai.png"} className="class-icon" title={this.props.tooltip}/>;
 		}
 		return <img
 			src={basePath + "class-icons/" + heroClassName + ".png"}

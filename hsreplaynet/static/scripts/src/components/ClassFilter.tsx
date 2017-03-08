@@ -77,7 +77,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		}
 
 		return <span className={wrapperClassNames.join(" ")} onClick={() => this.onLabelClick(className, selected)}>
-			<ClassIcon heroClassName={className} small />
+			<ClassIcon heroClassName={className} small tooltip={toTitleCase(className)} />
 			{label}
 		</span>;
 	}
