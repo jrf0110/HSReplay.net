@@ -8,7 +8,10 @@ from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import log
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.influx import get_redshift_query_average_duration_seconds
-from .processing import execute_query, get_from_redshift_cache, evict_from_cache
+from .processing import (
+	execute_query, get_from_redshift_cache, evict_from_cache,
+	get_concurrent_redshift_query_semaphore
+)
 
 
 @staff_member_required
@@ -19,6 +22,14 @@ def evict_query_from_cache(request, name):
 
 	params = query.build_full_params(request.GET)
 	evict_from_cache(params.cache_key)
+	return JsonResponse({"msg": "OK"})
+
+
+@staff_member_required
+def release_semaphore(request):
+	semaphore = get_concurrent_redshift_query_semaphore()
+	if semaphore:
+		semaphore.reset()
 	return JsonResponse({"msg": "OK"})
 
 
@@ -66,11 +77,11 @@ def _fetch_query_results(query, params):
 			triggered_refresh = True
 			# Execute the query to refresh the stale data asynchronously
 			# And then return the data we have available immediately
-			execute_query(query, params, async=True)
+			execute_query(query, params)
 		result = cached_data.response_payload
 		response = JsonResponse(result, json_dumps_params=dict(indent=4))
 	else:
-		execute_query(query, params, async=True)
+		execute_query(query, params)
 		# Nothing to return so tell the client to check back later
 		result = {"msg": "Query is processing. Check back later."}
 		response = JsonResponse(result, status=202)

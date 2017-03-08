@@ -15,6 +15,7 @@ from hsredshift.analytics.filters import GameType
 from hsredshift.analytics.queries import RedshiftCatalogue
 from hsredshift.analytics.library.base import RedshiftQueryParams
 import redis_lock
+from redis_semaphore import Semaphore
 
 
 class CachedRedshiftResult(object):
@@ -37,14 +38,30 @@ class CachedRedshiftResult(object):
 		)
 
 
-def execute_query(query, params, async=False):
-	if async:
-		_execute_query_async(query, params)
+def enqueue_query(query, params):
+	# It's safe to launch multiple attempts to execute for the same query
+	# Because the dogpile lock will only allow one to execute
+	# But we can save resources by not even launching the attempt
+	# If we see that the lock already exists
+	if not _lock_exists(params.cache_key):
+		log.info("No lock already exists for query. Will attempt to execute async.")
+
+		if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
+			# In PROD use Lambdas so the web-servers don't get overloaded
+			LAMBDA.invoke(
+				FunctionName="execute_redshift_query",
+				InvocationType="Event",  # Triggers asynchronous invocation
+				Payload=_to_lambda_payload(query, params),
+			)
+		else:
+			from hsreplaynet.utils.redis import job_queue
+			job_queue.enqueue(_do_execute_query, query, params)
 	else:
-		return _execute_query_sync(query, params)
+		msg = "An async attempt to run this query is in-flight. Will not launch another."
+		log.info(msg)
 
 
-def _execute_query_async(query, params):
+def execute_query(query, params):
 	# It's safe to launch multiple attempts to execute for the same query
 	# Because the dogpile lock will only allow one to execute
 	# But we can save resources by not even launching the attempt
@@ -74,22 +91,6 @@ def _to_lambda_payload(query, params):
 	}
 
 	return json.dumps(payload)
-
-
-def _execute_query_sync(query, params):
-	if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
-		# In PROD use Lambdas so the web-servers don't get overloaded
-		# NOTE: Lambdas cannot reach the cache until the VPCAccess
-		# configuration issues are resolved.
-		LAMBDA.invoke(
-			FunctionName="execute_redshift_query",
-			InvocationType="RequestResponse",  # Triggers synchronous invocation
-			Payload=_to_lambda_payload(query, params),
-		)
-		# Once this returns we can expect the result to be in the cache
-		return get_from_redshift_cache(params.cache_key)
-	else:
-		return _do_execute_query(query, params)
 
 
 def _do_execute_query(query, params):
@@ -308,3 +309,14 @@ def _get_eligible_deck_ids(game_type):
 		result_set = list_decks_query.as_result_set().execute(get_redshift_engine(), params)
 		_eligible_decks_cache[game_type] = [row["deck_id"] for row in result_set]
 	return _eligible_decks_cache[game_type]
+
+
+def get_concurrent_redshift_query_semaphore():
+	concurrent_redshift_query_semaphore = Semaphore(
+		get_redshift_cache_redis_client(),
+		count=settings.REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT,
+		namespace='redshift_analytics_queries',
+		stale_client_timeout=300,
+		blocking=False
+	)
+	return concurrent_redshift_query_semaphore

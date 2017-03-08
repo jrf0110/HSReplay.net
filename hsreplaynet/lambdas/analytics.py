@@ -10,9 +10,9 @@ from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.synchronization import CountDownLatch
 from hsreplaynet.analytics.processing import (
-	_do_execute_query, get_redshift_cache_redis_client
+	_do_execute_query, get_concurrent_redshift_query_semaphore
 )
-from redis_semaphore import Semaphore, NotAvailable
+from redis_semaphore import NotAvailable
 
 
 @instrumentation.lambda_handler(
@@ -140,14 +140,3 @@ def do_execute_redshift_query(query_name, supplied_params):
 			**params.supplied_filters_dict
 		)
 		return False
-
-
-def get_concurrent_redshift_query_semaphore():
-	concurrent_redshift_query_semaphore = Semaphore(
-		get_redshift_cache_redis_client(),
-		count=settings.REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT,
-		namespace='redshift_analytics_queries',
-		stale_client_timeout=300,
-		blocking=False
-	)
-	return concurrent_redshift_query_semaphore
