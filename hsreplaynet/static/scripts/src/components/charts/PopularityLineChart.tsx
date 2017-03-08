@@ -35,7 +35,7 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
 		}
 		else if (this.props.renderData) {
-			const series = toTimeSeries(this.props.renderData.series[0]);
+			const series = toTimeSeries(this.props.renderData.series.find(x => x.name === "popularity_over_time") || this.props.renderData.series[0]);
 			const metadata = getChartMetaData(series.data, undefined, true, 1);
 			metadata.yDomain = [0, this.props.maxYDomain];
 

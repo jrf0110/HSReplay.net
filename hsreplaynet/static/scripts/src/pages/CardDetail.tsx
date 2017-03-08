@@ -42,12 +42,11 @@ interface CardDetailState {
 	deckData?: TableDataMap;
 	discoverChoices?: TableDataMap;
 	popularTargets?: TableDataMap;
-	popularityOverTime?: RenderDataMap;
 	queryMap?: QueryMap,
 	showInfo?: boolean;
 	statsByTurn?: RenderDataMap;
 	statsByTurnByOpponent?: RenderDataMap;
-	winrateOverTime?: RenderDataMap;
+	statsOverTime?: RenderDataMap;
 }
 
 interface CardDetailProps extends React.ClassAttributes<CardDetail> {
@@ -82,12 +81,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			deckData: {},
 			discoverChoices: {},
 			popularTargets: {},
-			popularityOverTime: {},
 			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showInfo: false,
 			statsByTurn: {},
 			statsByTurnByOpponent: {},
-			winrateOverTime: {},
+			statsOverTime: {},
 		}
 
 		new HearthstoneJSON().getLatest((data) => {
@@ -173,8 +171,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		let content = null;
 		if (this.state.card) {
 			const set = this.state.card.set.toLowerCase();
-			if (isReady(this.state.winrateOverTime[cacheKey])) {
-				replayCount = toPrettyNumber((this.state.winrateOverTime[cacheKey] as RenderQueryData).series[0].metadata["num_data_points"]);
+			if (isReady(this.state.statsOverTime[cacheKey])) {
+				const winrateOverTime = (this.state.statsOverTime[cacheKey] as RenderQueryData).series.find(x => x.metadata.is_winrate_data);
+				replayCount = toPrettyNumber(winrateOverTime.metadata.num_data_points);
 			}
 		
 			const cardNameStyle = {
@@ -214,7 +213,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<PopularityLineChart
-									renderData={this.state.popularityOverTime[cacheKey]}
+									renderData={this.state.statsOverTime[cacheKey]}
 									widthRatio={2}
 									maxYDomain={100}
 								/>
@@ -223,7 +222,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="col-lg-6 col-md-6">
 							<div className="chart-wrapper">
 								<WinrateLineChart
-									renderData={this.state.winrateOverTime[cacheKey]}
+									renderData={this.state.statsOverTime[cacheKey]}
 									widthRatio={2}
 								/>
 							</div>
@@ -494,16 +493,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				(data) => setData("statsByTurn", data)
 			);
 		}
-		if (hasNoData("popularityOverTime")) {
+		if (hasNoData("statsOverTime")) {
 			this.queryManager.fetch(
-				buildUrl("single_card_include_popularity_over_time"),
-				(data) => setData("popularityOverTime", data)
-			);
-		}
-		if (hasNoData("winrateOverTime")) {
-			this.queryManager.fetch(
-				buildUrl("single_card_winrate_over_time"),
-				(data) => setData("winrateOverTime", data)
+				buildUrl("single_card_stats_over_time"),
+				(data) => setData("statsOverTime", data)
 			);
 		}
 

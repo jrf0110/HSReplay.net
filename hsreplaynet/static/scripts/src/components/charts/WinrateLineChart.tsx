@@ -25,7 +25,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
 		}
 		else if (this.props.renderData) {
-			const series = toTimeSeries(this.props.renderData.series[0]);
+			const series = toTimeSeries(this.props.renderData.series.find(x => x.name === "winrates_over_time") || this.props.renderData.series[0]);
 			const metadata = getChartMetaData(series.data, 50, true, 10);
 
 			const tooltip = (

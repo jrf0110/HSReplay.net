@@ -42,16 +42,15 @@ interface DeckDetailState {
 	deckData?: TableData;
 	expandWinrate?: boolean;
 	myDecks?: MyDecks;
-	popularityOverTime?: RenderData;
 	rankRange?: string;
 	selectedClasses?: FilterOption[];
 	showInfo?: boolean;
 	similarDecks?: TableData;
 	sortBy?: string;
 	sortDirection?: string;
+	statsOverTime?: RenderData;
 	tableDataAll?: TableDataCache;
 	tableDataClasses?: TableDataCache;
-	winrateOverTime?: RenderData;
 }
 
 interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
@@ -74,16 +73,15 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			deckData: "loading",
 			expandWinrate: false,
 			myDecks: null,
-			popularityOverTime: "loading",
 			rankRange: "ALL",
-			similarDecks: "loading",
-			showInfo: false,
 			selectedClasses: ["ALL"],
+			showInfo: false,
+			similarDecks: "loading",
 			sortBy: "decklist",
 			sortDirection: "ascending",
+			statsOverTime: "loading",
 			tableDataAll: {},
 			tableDataClasses: {},
-			winrateOverTime: "loading",
 		}
 
 		new HearthstoneJSON().getLatest((data) => {
@@ -308,7 +306,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
 							<PopularityLineChart
-								renderData={this.state.popularityOverTime}
+								renderData={this.state.statsOverTime}
 								widthRatio={2}
 								maxYDomain={10}
 							/>
@@ -317,7 +315,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
 							<WinrateLineChart
-								renderData={this.state.winrateOverTime}
+								renderData={this.state.statsOverTime}
 								widthRatio={2}
 							/>
 						</div>
@@ -619,18 +617,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const params = "deck_id=" + this.props.deckId + "&GameType=" + mode;
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_winrate_over_time?" + params,
-			(data) => this.setState({winrateOverTime: data})
-		);
-
-		this.queryManager.fetch(
 			"/analytics/query/single_deck_base_winrate_by_opponent_class?" + params,
 			(data) => this.setState({baseWinrates: data})
 		);
 
 		this.queryManager.fetch(
-			"/analytics/query/single_deck_popularity_over_time?" + params,
-			(data) => this.setState({popularityOverTime: data})
+			"/analytics/query/single_deck_stats_over_time?" + params,
+			(data) => this.setState({statsOverTime: data})
 		);
 
 		this.queryManager.fetch(
