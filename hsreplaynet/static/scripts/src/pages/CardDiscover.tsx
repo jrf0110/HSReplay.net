@@ -518,11 +518,15 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			const playedPopularity = " (" + (obj.playedPopularity ? toDynamicFixed(obj.playedPopularity) + "%" : "0%") + ")";
 			const includedWrData = obj.includedWinrate && winrateData(50, obj.includedWinrate, 3);
 			const playedWrData = obj.playedWinrate && winrateData(50, obj.playedWinrate, 3);
+			let url = "/cards/" + obj.card.dbfId + "/";
+			if (this.state.queryMap.gameType && this.state.queryMap.gameType !== "RANKED_STANDARD") {
+				url += "#gameType=" + this.state.queryMap.gameType;
+			}
 			rows.push(
 				<tr>
 					<td>
 						<div className="card-wrapper">
-							<a href={"/cards/" + obj.card.dbfId}>
+							<a href={url}>
 								<CardTile card={obj.card} count={1} rarityColored height={34} tooltip />
 							</a>
 						</div>

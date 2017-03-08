@@ -1,12 +1,14 @@
 import * as React from "react";
 import {TableData} from "../interfaces";
 import CardRankingTableRow from "./CardRankingTableRow";
+import {getQueryMapFromLocation} from "../QueryParser";
 
 interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> {
 	tableData: TableData;
 	dataKey: string;
 	cardData: Map<string, any>
 	numRows: number;
+	urlGameType: string;
 	clickable?: boolean;
 }
 
@@ -15,7 +17,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 		if (this.props.tableData === "error") {
 			return null;
 		}
-		
+
 		const cardRows = [];
 		if (this.props.cardData && this.props.tableData !== "loading" && this.props.tableData) {
 			const tableRows = this.props.tableData.series.data[this.props.dataKey];
@@ -28,6 +30,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 						popularity={+row["popularity"]}
 						rank={index + 1}
 						clickable={this.props.clickable}
+						urlGameType={this.props.urlGameType}
 					/>
 				);
 			})

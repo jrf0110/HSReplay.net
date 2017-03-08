@@ -387,7 +387,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		return [
 			<h3>Similar Decks</h3>,
-			<DeckList decks={decks} pageSize={5} hideTopPager compareWith={cards} />
+			<DeckList
+				decks={decks}
+				pageSize={5}
+				hideTopPager
+				compareWith={cards}
+				urlGameType={this.isWildDeck() && "RANKED_WILD"}
+			/>
 		];
 	}
 
@@ -496,9 +502,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			return null;
 		}
 		const cols = [];
+		let url = "/cards/" + card.cardObj.dbfId + "/";
+		if (this.isWildDeck()) {
+			url += "#gameType=RANKED_WILD";
+		}
 		cols.push(<td>
 			<div className="card-wrapper">
-				<a href={"/cards/" + card.cardObj.dbfId}>
+				<a href={url}>
 					<CardTile height={34} card={card.cardObj} count={card.count} rarityColored tooltip/>
 				</a>
 			</div>

@@ -3,6 +3,7 @@ import DeckTile from "./DeckTile";
 import InfoIcon from "./InfoIcon";
 import Pager from "./Pager";
 import {CardObj, DeckObj} from "../interfaces";
+import {getQueryMapFromLocation} from "../QueryParser";
 
 interface DeckListState {
 	page: number;
@@ -11,6 +12,7 @@ interface DeckListState {
 interface DeckListProps extends React.ClassAttributes<DeckList> {
 	decks: DeckObj[];
 	pageSize: number;
+	urlGameType: string;
 	hideTopPager?: boolean;
 	compareWith?: CardObj[];
 	onHeaderClicked?: (name: string) => void;
@@ -50,6 +52,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					numGames={deck.numGames}
 					winrate={deck.winrate}
 					compareWith={this.props.compareWith}
+					urlGameType={this.props.urlGameType}
 				/>
 			);
 		});

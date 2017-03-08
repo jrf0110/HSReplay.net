@@ -7,6 +7,7 @@ import {cardSorting, getDustCost, getHeroCardId, toTitleCase, toPrettyNumber} fr
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	compareWith?: CardObj[];
+	urlGameType: string;
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
@@ -56,7 +57,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 			cardIcons.push(
 				<li className={itemClassName}>
-					<CardIcon cardId={card.id} dbfId={card.dbfId} mark={markText} markStyle={markStyle}/>
+					<CardIcon cardId={card.id} dbfId={card.dbfId} mark={markText} markStyle={markStyle} urlGameType={this.props.urlGameType}/>
 				</li>
 			);
 		});

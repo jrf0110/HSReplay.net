@@ -46,7 +46,7 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, D
 			const decks = this.getDecks(deckData);
 			content = [
 				<h3>Trending now - stats of the last 24 hours</h3>,
-				<DeckList decks={decks} pageSize={9} hideTopPager />
+				<DeckList decks={decks} pageSize={9} hideTopPager urlGameType={null}/>
 			];
 		}
 

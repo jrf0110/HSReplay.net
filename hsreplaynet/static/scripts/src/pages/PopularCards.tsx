@@ -15,7 +15,8 @@ import {
 	queryMapHasChanges,
 	setLocationQueryString,
 	setQueryMap,
-	toQueryString
+	toQueryString,
+	getQueryMapDiff
 } from "../QueryParser";
 import TourManager from "../TourManager";
 
@@ -310,6 +311,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						dataKey={selectedClass}
 						numRows={this.state.numRowsVisible}
 						tableData={topCardsIncluded}
+						urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 					/>
 				</div>
 			</div>,
@@ -322,6 +324,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 						dataKey={selectedClass}
 						numRows={this.state.numRowsVisible}
 						tableData={topCardsPlayed}
+						urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 					/>
 				</div>
 			</div>

@@ -9,6 +9,7 @@ interface CardIconState {
 interface CardIconProps extends React.ClassAttributes<CardIcon> {
 	cardId: string;
 	dbfId: string;
+	urlGameType: string;
 	size?: number;
 	mark?: string;
 	markStyle?: any;
@@ -63,17 +64,22 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 				);
 			}
 
+			let url = "/cards/" + this.props.dbfId + "/";
+			if (this.props.urlGameType) {
+				url += "#gameType=" + this.props.urlGameType;
+			}
+
 			return (
-				<a href={"/cards/" + this.props.dbfId}>
-				<div
-					className="card-icon"
-					style={style}
-					onMouseEnter={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
-					onMouseLeave={() => this.setState({hovering: false})}
-				>
-					{mark}
-					{tooltip}
-				</div>
+				<a href={url}>
+					<div
+						className="card-icon"
+						style={style}
+						onMouseEnter={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
+						onMouseLeave={() => this.setState({hovering: false})}
+					>
+						{mark}
+						{tooltip}
+					</div>
 				</a>
 			);
 		}

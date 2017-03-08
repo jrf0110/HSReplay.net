@@ -12,7 +12,7 @@ import {DeckObj, TableData, GameMode, MyDecks, RankRange, Region, TimeFrame} fro
 import {cardSorting, getDustCost, toTitleCase} from "../helpers";
 import {
 	genCacheKey, QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
-	setLocationQueryString, setQueryMap, toQueryString
+	setLocationQueryString, setQueryMap, toQueryString, getQueryMapDiff
 } from "../QueryParser"
 
 interface DeckDiscoverState {
@@ -241,6 +241,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					pageSize={12}
 					sortCol={this.state.queryMap["sortBy"]}
 					sortDirection={this.state.queryMap["sortDirection"]}
+					urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 				/>
 			);
 		}
