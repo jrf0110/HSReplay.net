@@ -56,10 +56,10 @@
 				Please log in to continue.
 			</p>
 			<p>
-				<a href="{% provider_login_url 'battlenet' %}?next={{ request.path|urlencode }}%3Fpremium-modal" class="promo-button hero-button">
+				<a href="{% provider_login_url 'battlenet' %}?next={{ request.path|urlencode }}%3Fpremium-modal" class="btn promo-button hero-button">
 					Log in with Battle.net
 				</a>
-				<a href="{% url 'premium' %}?next={{ request.path|urlencode }}" class="promo-button-outline hero-button">Learn more</a>
+				<a href="{% url 'premium' %}?next={{ request.path|urlencode }}" class="btn promo-button-outline hero-button">Learn more</a>
 			</p>
 			<p class="help-block">
 				HSReplay.net does not gain access to your Battle.net email address or password.
