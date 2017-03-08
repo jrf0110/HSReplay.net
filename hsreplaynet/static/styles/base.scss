@@ -314,7 +314,6 @@ body, html {
 		align-items: center;
 		background: rgba(0, 0, 0, 0.7);
 		color: white;
-		cursor: pointer;
 		display: flex;
 		flex-direction: column;
 		height: 100%;
@@ -325,6 +324,10 @@ body, html {
 		transition: opacity 0.2s linear;
 		width: 100%;
 		z-index: 100;
+
+		h4 {
+			font-weight: bold;
+		}
 	}
 
 	.info-icon {
@@ -334,9 +337,14 @@ body, html {
 		right: 0;
 		top: 0;
 		z-index: 101;
+		cursor: help;
 	}
 
-	.premium-info:hover {
+	&.visible .premium-info {
+		cursor: pointer;
+	}
+
+	&.hovering .premium-info {
 		opacity: 1;
 	}
 }
