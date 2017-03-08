@@ -59,7 +59,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 						data: {fill: (d) => d.color || getHeroColor(d.xName), strokeWidth: 2, transition: "transform .2s ease-in-out"},
 						labels: {fill: "#FFFFFF", fontSize: 20},
 					}}
-					padding={{top: 70, bottom: 10, left: 80, right: 80}}
+					padding={{top: 0, bottom: 10, left: 80, right: 80}}
 					padAngle={2}
 					innerRadius={10}
 					labels={d => this.props.loading ? null : (Math.round(100 / numGames * d.y) + "%")}
@@ -77,7 +77,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 								}]
 							},
 							onMouseOut: () => {
-								this.setState({hoveringSlice: null})
+								this.setState({hoveringSlice: null});
 								return [{
 									mutation: () => null
 								}];

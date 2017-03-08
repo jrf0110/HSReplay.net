@@ -2794,17 +2794,17 @@ verror@1.3.6:
   dependencies:
     extsprintf "1.0.2"
 
-victory-chart@^14.0.3:
-  version "14.0.4"
-  resolved "https://registry.yarnpkg.com/victory-chart/-/victory-chart-14.0.4.tgz#c1fe2342164c1b8e9829c26634734177c39bb140"
+victory-chart@^18.0.0:
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/victory-chart/-/victory-chart-18.1.0.tgz#ec0a31b678657ebee7dea25d774f0de97d7adfb6"
   dependencies:
     d3-voronoi "^1.0.0"
     lodash "^4.12.0"
-    victory-core "^10.0.0"
+    victory-core "^14.0.3"
 
-victory-core@^10.0.0, victory-core@^10.0.2:
-  version "10.0.3"
-  resolved "https://registry.yarnpkg.com/victory-core/-/victory-core-10.0.3.tgz#1b00b0ed29873ca9aa6c06dcab7709c4cade5f40"
+victory-core@^14.0.0, victory-core@^14.0.1, victory-core@^14.0.3:
+  version "14.0.3"
+  resolved "https://registry.yarnpkg.com/victory-core/-/victory-core-14.0.3.tgz#1ba019c26884e58e5cfc3272f0ca89f1af9e6863"
   dependencies:
     d3-ease "^1.0.0"
     d3-interpolate "^1.1.1"
@@ -2813,21 +2813,21 @@ victory-core@^10.0.0, victory-core@^10.0.2:
     d3-timer "^1.0.0"
     lodash "^4.12.0"
 
-victory-pie@^7.2.0:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/victory-pie/-/victory-pie-7.2.0.tgz#dbaf84414868ebf713fb02194bf3bbff9c3afcc3"
+victory-pie@^10.2.0:
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/victory-pie/-/victory-pie-10.2.0.tgz#c8cc2ee532542e43567d3c47059502ce31e5fc42"
   dependencies:
     d3-shape "^1.0.0"
     lodash "^4.12.0"
-    victory-core "^10.0.0"
+    victory-core "^14.0.0"
 
-victory@^0.14.2:
-  version "0.14.2"
-  resolved "https://registry.yarnpkg.com/victory/-/victory-0.14.2.tgz#ee261f46cc6f690c28d40449ab10be22de5ef3f3"
+victory@^0.18.0:
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/victory/-/victory-0.18.0.tgz#a7c372bcade7ecdd473d68f75ea9b77cd3fd3fe2"
   dependencies:
-    victory-chart "^14.0.3"
-    victory-core "^10.0.2"
-    victory-pie "^7.2.0"
+    victory-chart "^18.0.0"
+    victory-core "^14.0.1"
+    victory-pie "^10.2.0"
 
 vm-browserify@0.0.4:
   version "0.0.4"
