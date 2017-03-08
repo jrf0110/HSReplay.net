@@ -1497,8 +1497,6 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_gathering_stats)
 
 	def do_gathering_stats(self):
-		self.gathering_stats_started_at = timezone.now()
-		self.stage = RedshiftETLStage.GATHERING_STATS
 		self.gathering_stats_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
@@ -1518,7 +1516,11 @@ class RedshiftStagingTrackTable(models.Model):
 			conn.execute("SET QUERY_GROUP TO '%s'" % self.gathering_stats_handle)
 			conn.execute("ANALYZE %s;" % self.staging_table)
 
-		self.launch_background_thread(self.gathering_stats_handle, etl_task_func)
+		self.launch_background_thread(
+			self.gathering_stats_handle,
+			etl_task_func,
+			stage=RedshiftETLStage.GATHERING_STATS
+		)
 
 	def get_deduplication_task(self):
 		tmpl = "Deduplicating %s for track_prefix: %s"
@@ -1526,8 +1528,6 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_deduplicate_records)
 
 	def do_deduplicate_records(self):
-		self.deduplicating_started_at = timezone.now()
-		self.stage = RedshiftETLStage.DEDUPLICATING
 		self.dedupe_query_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
@@ -1588,7 +1588,11 @@ class RedshiftStagingTrackTable(models.Model):
 				conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
 				conn.execute(sql3)
 
-		self.launch_background_thread(self.dedupe_query_handle, etl_task_func)
+		self.launch_background_thread(
+			self.dedupe_query_handle,
+			etl_task_func,
+			stage=RedshiftETLStage.DEDUPLICATING
+		)
 
 	def get_insert_task(self):
 		tmpl = "Inserting %s for track_prefix: %s"
@@ -1601,8 +1605,6 @@ class RedshiftStagingTrackTable(models.Model):
 		self.record_deduped_table_size()
 		self.record_pre_insert_prod_table_size()
 
-		self.inserting_started_at = timezone.now()
-		self.stage = RedshiftETLStage.INSERTING
 		self.insert_query_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
@@ -1642,15 +1644,17 @@ class RedshiftStagingTrackTable(models.Model):
 				conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
 				conn.execute(sql)
 
-		self.launch_background_thread(self.insert_query_handle, etl_task_func)
+		self.launch_background_thread(
+			self.insert_query_handle,
+			etl_task_func,
+			stage=RedshiftETLStage.INSERTING
+		)
 
 	def get_refresh_view_task(self):
 		task_name = "Refreshing View %s" % self.target_table
 		return RedshiftETLTask(task_name, self.do_refresh_view)
 
 	def do_refresh_view(self):
-		self.refreshing_materialized_views_started_at = timezone.now()
-		self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
 		self.refreshing_view_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
@@ -1675,7 +1679,11 @@ class RedshiftStagingTrackTable(models.Model):
 				conn.execute("SET QUERY_GROUP TO '%s'" % self.refreshing_view_handle)
 				conn.execute(sql)
 
-		self.launch_background_thread(self.refreshing_view_handle, etl_task_func)
+		self.launch_background_thread(
+			self.refreshing_view_handle,
+			etl_task_func,
+			stage=RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
+		)
 
 	def get_vacuum_task(self):
 		tmpl = "Vacuuming %s for track_prefix: %s"
@@ -1687,8 +1695,6 @@ class RedshiftStagingTrackTable(models.Model):
 		# at the start of the next lambda
 		self.record_post_insert_prod_table_size()
 
-		self.vacuuming_started_at = timezone.now()
-		self.stage = RedshiftETLStage.VACUUMING
 		self.vacuum_query_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
@@ -1709,7 +1715,11 @@ class RedshiftStagingTrackTable(models.Model):
 					"VACUUM FULL %s TO %i PERCENT;" % (self.target_table, vacuum_target)
 				)
 
-			self.launch_background_thread(self.vacuum_query_handle, etl_task_func)
+			self.launch_background_thread(
+				self.vacuum_query_handle,
+				etl_task_func,
+				stage=RedshiftETLStage.VACUUMING
+			)
 
 		else:
 			log.info("Unsorted row count is not large enough. Skipping vacuum.")
@@ -1724,8 +1734,6 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_analyze)
 
 	def do_analyze(self):
-		self.analyzing_started_at = timezone.now()
-		self.stage = RedshiftETLStage.ANALYZING
 		self.analyze_query_handle = self._make_async_query_handle()
 		self.save()
 		self.heartbeat_track_status_metrics()
@@ -1742,7 +1750,11 @@ class RedshiftStagingTrackTable(models.Model):
 			conn.execute("SET QUERY_GROUP TO '%s'" % self.analyze_query_handle)
 			conn.execute("ANALYZE %s;" % self.target_table)
 
-		self.launch_background_thread(self.analyze_query_handle, etl_task_func)
+		self.launch_background_thread(
+			self.analyze_query_handle,
+			etl_task_func,
+			stage=RedshiftETLStage.ANALYZING
+		)
 
 	def get_cleanup_task(self):
 		task_name = "Cleanup %s" % self.staging_table
@@ -1774,7 +1786,13 @@ class RedshiftStagingTrackTable(models.Model):
 		self.save()
 		self.heartbeat_track_status_metrics()
 
-	def launch_background_thread(self, handle, etl_task_func, task_complete_func=None):
+	def launch_background_thread(
+		self,
+		handle,
+		etl_task_func,
+		task_complete_func=None,
+		stage=None
+	):
 		background_thread_can_complete = Lock()
 
 		background_thread = BackgroundETLTaskThread(
@@ -1794,6 +1812,13 @@ class RedshiftStagingTrackTable(models.Model):
 			)
 			analyze_skipped = is_analyze_skipped(handle)
 			start_complete = is_complete or analyze_skipped or has_inflight_queries(handle)
+
+		if stage:
+			# We don't record that a track table has started a stage until we know
+			# That we successfully started
+			self.stage = stage
+			self.set_stage_started_at(stage, timezone.now())
+			self.save()
 
 		# Either we acquire it immediately, in which case we have signaled to the thread
 		# That it is no longer safe to perform the task_completion_func
