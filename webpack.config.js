@@ -23,23 +23,25 @@ const exportedSettings = JSON.parse(
 	spawnSync(python, manageCmd.concat(exportSettings, [influxKey]), {encoding: "utf-8"}).stdout
 );
 
-const db = exportedSettings[influxKey] ? exportedSettings[influxKey]["joust"] : undefined;
+const buildInfluxEndpoint = (db) => url.format({
+	protocol: db.SSL ? "https" : "http",
+	hostname: db.HOST,
+	port: "" + db.PORT || 8086,
+	pathname: "/write",
+	query: {
+		db: db.NAME,
+		u: db.USER,
+		p: db.PASSWORD,
+		precision: "s",
+	},
+});
+
+const joustDb = exportedSettings[influxKey] ? exportedSettings[influxKey]["joust"] : undefined;
 const settings = exportSettings.reduce((obj, current) => {
 	obj[current] = JSON.stringify(exportedSettings[current]);
 	return obj;
 }, {
-	INFLUX_DATABASE_JOUST: db ? JSON.stringify(url.format({
-			protocol: db.SSL ? "https" : "http",
-			hostname: db.HOST,
-			port: "" + db.PORT || 8086,
-			pathname: "/write",
-			query: {
-				db: db.NAME,
-				u: db.USER,
-				p: db.PASSWORD,
-				precision: "s",
-			}
-		})) : undefined
+	INFLUX_DATABASE_JOUST: joustDb ? JSON.stringify(buildInfluxEndpoint(joustDb)) : undefined,
 });
 
 module.exports = (env) => {
@@ -67,14 +69,14 @@ module.exports = (env) => {
 	// flatten the entry points for config
 	const entriesFlat = {};
 	const groups = [];
-	for(const group in entries) {
+	for (const group in entries) {
 		const values = entries[group];
-		if(typeof values === "string" || Array.isArray(values)) {
+		if (typeof values === "string" || Array.isArray(values)) {
 			entriesFlat[group] = values;
 		}
-		else if(typeof values === "object") {
+		else if (typeof values === "object") {
 			groups.push(group);
-			for(const key in values) {
+			for (const key in values) {
 				entriesFlat[key] = values[key];
 			}
 		}
