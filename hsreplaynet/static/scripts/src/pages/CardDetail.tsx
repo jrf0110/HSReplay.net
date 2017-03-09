@@ -367,13 +367,16 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				</section>
 				<section id="page-content">
 					<ul className="nav nav-tabs content-tabs">
-						<li className="active"><a data-toggle="tab" href="#turn-stats">Turn stats</a></li>
+						<li className="active"><a data-toggle="tab" href="#recommended-decks">Recommended decks</a></li>
+						<li><a data-toggle="tab" href="#turn-stats">Turn stats</a></li>
 						<li className={cardTables.length ? "" : "hidden"}><a data-toggle="tab" href="#related-cards">Related cards</a></li>
 						<li className={classDistribution ? "" : "hidden"}><a data-toggle="tab" href="#popularity">Popularity</a></li>
-						<li><a data-toggle="tab" href="#recommended-decks">Recommended decks</a></li>
 					</ul>
 					<div className="tab-content">
-						<div id="turn-stats" className="tab-pane fade in active">
+						<div id="recommended-decks" className="tab-pane fade in active">
+							{this.buildRecommendedDecks()}
+						</div>
+						<div id="turn-stats" className="tab-pane fade">
 							{turnCharts}
 						</div>
 						<div id="related-cards" className={"tab-pane fade"}>
@@ -383,9 +386,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						</div>
 						<div id="popularity" className={"tab-pane fade"}>
 							{classDistribution}
-						</div>
-						<div id="recommended-decks" className="tab-pane fade">
-							{this.buildRecommendedDecks()}
 						</div>
 					</div>
 				</section>
@@ -444,7 +444,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		decks.sort((a, b) => b.numGames - a.numGames);
 
 		return [
-			<h4>Recommended Decks</h4>,
 			<DeckList 
 				decks={decks}
 				pageSize={10}
