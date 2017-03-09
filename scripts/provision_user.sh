@@ -7,6 +7,8 @@ cat > "$ZSH_PROFILE" <<EOF
 source \$HOME/env/bin/activate
 export PATH="\$VIRTUAL_ENV/bin:\$HOME/node_modules/.bin:\$PATH"
 export PROJECT=\$HOME/hsreplay.net
+export PYTHONPATH=\$PROJECT
+export DJANGO_SETTINGS_MODULE=hsreplaynet.settings
 export HSREPLAYNET_DEBUG=1
 
 cd \$PROJECT

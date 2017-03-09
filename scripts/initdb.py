@@ -5,18 +5,18 @@ Initialize a database with the following:
 - An admin user, with the password 'admin'
 - A non-admin user, with the password 'user'
 - The default site set to localhost:8000
+- The Battle.net social application set up
 
+This script can safely be run multiple times.
 """
 
-import os; os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hsreplaynet.settings")
-import sys; sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import django; django.setup()
+from allauth.socialaccount.models import SocialApp
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.contrib.auth import get_user_model
 from django.contrib.flatpages.models import FlatPage
+from django.contrib.sites.models import Site
 from hsreplaynet.api.models import APIKey, AuthToken
-from allauth.socialaccount.models import SocialApp
 
 
 User = get_user_model()
