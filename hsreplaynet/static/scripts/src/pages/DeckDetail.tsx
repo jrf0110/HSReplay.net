@@ -482,8 +482,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const tableHeaders = [
 			{key: "decklist", text: "Card", defaultSortDirection: "ascending" as SortDirection},
-			{key: "keep_percentage", text: "Kept", infoHeader: "Kept", infoText: "Percentage the card was kept when presented during mulligan." },
 			{key: "opening_hand_win_rate", text: "Mulligan WR", infoHeader: "Mulligan Winrate", infoText: "Winrate when the card ends up in the opening hand." },
+			{key: "keep_percentage", text: "Kept", infoHeader: "Kept", infoText: "Percentage the card was kept when presented during mulligan." },
 			{key: "win_rate_when_drawn", text: "Drawn WR", infoHeader: "Drawn Winrate", infoText: "Average winrate of games where the card was drawn at any point." },
 			{key: "win_rate_when_played", text: "Played WR", infoHeader: "Played Winrate", infoText: "Average winrate of games where the card was played at any point." },
 			{key: "avg_turns_in_hand", text: "Turns held", infoHeader: "Turns held", infoText: "Average number of turn the card is held in hand."},
@@ -525,15 +525,15 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				statusIcon = <span className="glyphicon glyphicon-warning-sign" title="Low number of data points" />;
 			}
 			cols.push(
-				<td>{(+row["keep_percentage"]).toFixed(1) + "%"}</td>,
 				<td className="winrate-cell" style={{color: mulligan.color}}>
 					{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(1) + "%"}
 					{statusIcon}
 				</td>,
-					<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(1) + "%"}</td>,
-					<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(1) + "%"}</td>,
-					<td>{(+row["avg_turns_in_hand"]).toFixed(1)}</td>,
-					<td>{(+row["avg_turn_played_on"]).toFixed(1)}</td>,
+				<td>{(+row["keep_percentage"]).toFixed(1) + "%"}</td>,
+				<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(1) + "%"}</td>,
+				<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(1) + "%"}</td>,
+				<td>{(+row["avg_turns_in_hand"]).toFixed(1)}</td>,
+				<td>{(+row["avg_turn_played_on"]).toFixed(1)}</td>,
 			);
 		}
 		else {
