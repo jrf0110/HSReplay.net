@@ -268,6 +268,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</li>
 					{hdtButton}
 				</ul>
+				<PremiumWrapper isPremium={this.props.userIsPremium}>
+					<h2>Select your opponent</h2>
+					<ClassFilter
+						filters="All"
+						hideAll
+						minimal
+						multiSelect={false}
+						selectedClasses={this.state.selectedClasses}
+						selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
+					/>
+				</PremiumWrapper>
 				<PremiumWrapper
 					isPremium={this.props.userIsPremium}
 					infoHeader="Deck breakdown rank range"
@@ -282,19 +293,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				{deckData}
 			</aside>
 			<main className="container-fluid">
-				<div className="opponent-filter-wrapper">
-					<PremiumWrapper isPremium={this.props.userIsPremium}>
-						<h3>Select your opponent</h3>
-						<ClassFilter
-							filters="All"
-							hideAll
-							minimal
-							multiSelect={false}
-							selectedClasses={this.state.selectedClasses}
-							selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
-						/>
-					</PremiumWrapper>
-				</div>
 				<h3>
 					{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
 				</h3>
