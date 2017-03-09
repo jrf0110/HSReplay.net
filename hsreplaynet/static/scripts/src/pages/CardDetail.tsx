@@ -168,7 +168,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 		let classDistribution = null;
 		let replayCount = null;
-		let content = null;
+		let headerContent = null;
+		let cardTables = [];
+		let turnCharts = null;
 		if (this.state.card) {
 			const set = this.state.card.set.toLowerCase();
 			if (isReady(this.state.statsOverTime[cacheKey])) {
@@ -181,7 +183,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			}
 
 			if (!isCollectibleCard(this.state.card)) {
-				content = (
+				headerContent = (
 					<div id="message-wrapper">
 						<h3>Sorry, we currently don't have statistics for non-collectible cards.</h3>
 						<a href="/cards/">Check out our card database for card with available stats!</a>
@@ -190,7 +192,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			}
 			else {
 
-				let cardTables = [];
 				const colWidth = 12 / (+mostPopularTargets + +discoverChoices);
 
 				if (mostPopularTargets) {
@@ -208,75 +209,76 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					);
 				}
 
-				content = [
-					<div className="row">
-						<div className="col-lg-6 col-md-6">
-							<div className="chart-wrapper">
-								<PopularityLineChart
-									renderData={this.state.statsOverTime[cacheKey]}
-									widthRatio={2}
-									maxYDomain={100}
-								/>
-							</div>
-						</div>
-						<div className="col-lg-6 col-md-6">
-							<div className="chart-wrapper">
-								<WinrateLineChart
-									renderData={this.state.statsOverTime[cacheKey]}
-									widthRatio={2}
-								/>
-							</div>
+				headerContent = [
+					<div className="col-lg-6 col-md-6">
+						<div className="chart-wrapper">
+							<PopularityLineChart
+								renderData={this.state.statsOverTime[cacheKey]}
+								widthRatio={2}
+								maxYDomain={100}
+							/>
 						</div>
 					</div>,
-					<div className="row">
-						<div className="opponent-filter-wrapper">
-							<PremiumWrapper
-								isPremium={this.props.userIsPremium}
-								infoHeader="Turn data by opponent"
-								infoContent="Break down the turn played distribution and winrate by turn played even further and look at each opponent class individually!"
-							>
-								<h3>Opponent class</h3>
-								<ClassFilter
-									filters="All"
-									hideAll
-									minimal
-									multiSelect={false}
-									selectedClasses={[this.state.queryMap.opponentClass as FilterOption]}
-									selectionChanged={(selected) => this.props.userIsPremium && setQueryMap(this, "opponentClass", selected[0])}
-								/>
-							</PremiumWrapper>
+					<div className="col-lg-6 col-md-6">
+						<div className="chart-wrapper">
+							<WinrateLineChart
+								renderData={this.state.statsOverTime[cacheKey]}
+								widthRatio={2}
+							/>
 						</div>
-						<div className="col-lg-6 col-md-6">
-							<div className="chart-wrapper">
-								<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
-									<TurnPlayedBarChart
-										renderData={this.state.queryMap.opponentClass === "ALL" ? this.state.statsByTurn[cacheKey] : this.state.statsByTurnByOpponent[cacheKey]}
-										opponentClass={this.state.queryMap.opponentClass}
-										widthRatio={2}
-										premiumLocked={!this.props.userIsPremium}
+					</div>
+				]
+
+				turnCharts = (
+					<div className="container-fluid">
+						<div className="row">
+							<div className="opponent-filter-wrapper">
+								<PremiumWrapper
+									isPremium={this.props.userIsPremium}
+									infoHeader="Turn data by opponent"
+									infoContent="Break down the turn played distribution and winrate by turn played even further and look at each opponent class individually!"
+								>
+									<h3>Opponent class</h3>
+									<ClassFilter
+										filters="All"
+										hideAll
+										minimal
+										multiSelect={false}
+										selectedClasses={[this.state.queryMap.opponentClass as FilterOption]}
+										selectionChanged={(selected) => this.props.userIsPremium && setQueryMap(this, "opponentClass", selected[0])}
 									/>
 								</PremiumWrapper>
 							</div>
 						</div>
-						<div className="col-lg-6 col-md-6">
-							<div className="chart-wrapper">
-								<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
-									<WinrateByTurnLineChart
-										renderData={this.props.userIsPremium && this.state.queryMap.opponentClass === "ALL" ? this.state.statsByTurn[cacheKey] : this.state.statsByTurnByOpponent[cacheKey]}
-										opponentClass={this.state.queryMap.opponentClass}
-										widthRatio={2}
-										premiumLocked={!this.props.userIsPremium}
-									/>
-								</PremiumWrapper>
+						<div className="row">
+							<div className="col-lg-6 col-md-6">
+								<div className="chart-wrapper">
+									<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
+										<TurnPlayedBarChart
+											renderData={this.state.queryMap.opponentClass === "ALL" ? this.state.statsByTurn[cacheKey] : this.state.statsByTurnByOpponent[cacheKey]}
+											opponentClass={this.state.queryMap.opponentClass}
+											widthRatio={2}
+											premiumLocked={!this.props.userIsPremium}
+										/>
+									</PremiumWrapper>
+								</div>
+							</div>
+							<div className="col-lg-6 col-md-6">
+								<div className="chart-wrapper">
+									<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
+										<WinrateByTurnLineChart
+											renderData={this.props.userIsPremium && this.state.queryMap.opponentClass === "ALL" ? this.state.statsByTurn[cacheKey] : this.state.statsByTurnByOpponent[cacheKey]}
+											opponentClass={this.state.queryMap.opponentClass}
+											widthRatio={2}
+											premiumLocked={!this.props.userIsPremium}
+										/>
+									</PremiumWrapper>
+								</div>
 							</div>
 						</div>
-					</div>,
-					<div className="row" id="card-tables">
-						{cardTables}
-					</div>,
-					this.buildRecommendedDecks()
-				];
-				
+					</div>
+				);
+
 				if (this.cardIsNeutral() && isReady(this.state.classDistribution[cacheKey])) {
 					classDistribution = (
 						<div className="class-chart">
@@ -321,6 +323,22 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			<aside className="infobox">
 				<img className="card-image" src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"} />
 				<p>{this.getCleanFlavorText()}</p>
+				<InfoboxFilterGroup header="Mode" selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
+					<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+					<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
+				</InfoboxFilterGroup>
+				<h2>Data</h2>
+				<ul>
+					<li>
+						Based on
+						<span className="infobox-value">{replayCount && replayCount + " replays"}</span>
+					</li>
+					<li>
+						Time frame
+						<span className="infobox-value">Last 30 days</span>
+					</li>
+				</ul>
 				<h2>Info</h2>
 				<ul>
 					<li>
@@ -346,26 +364,35 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
 					</li>
 				</ul>
-				<InfoboxFilterGroup header="Mode" selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
-					<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-					<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
-				</InfoboxFilterGroup>
-				<h2>Data</h2>
-				<ul>
-					<li>
-						Based on
-						<span className="infobox-value">{replayCount && replayCount + " replays"}</span>
-					</li>
-					<li>
-						Time frame
-						<span className="infobox-value">Last 30 days</span>
-					</li>
-				</ul>
-				{classDistribution}
 			</aside>
-			<main className="container-fluid">
-				{content}
+			<main>
+				<section id="content-header">
+					{headerContent}
+				</section>
+				<section id="page-content">
+					<ul className="nav nav-tabs content-tabs">
+						<li className="active"><a data-toggle="tab" href="#turn-stats">Turn stats</a></li>
+						<li className={cardTables.length ? "" : "hidden"}><a data-toggle="tab" href="#related-cards">Related cards</a></li>
+						<li className={classDistribution ? "" : "hidden"}><a data-toggle="tab" href="#popularity">Popularity</a></li>
+						<li><a data-toggle="tab" href="#recommended-decks">Recommended decks</a></li>
+					</ul>
+					<div className="tab-content">
+						<div id="turn-stats" className="tab-pane fade in active">
+							{turnCharts}
+						</div>
+						<div id="related-cards" className={"tab-pane fade"}>
+							<div id="card-tables">
+								{cardTables}
+							</div>
+						</div>
+						<div id="popularity" className={"tab-pane fade"}>
+							{classDistribution}
+						</div>
+						<div id="recommended-decks" className="tab-pane fade">
+							{this.buildRecommendedDecks()}
+						</div>
+					</div>
+				</section>
 			</main>
 		</div>;
 	}
@@ -424,7 +451,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			<h4>Recommended Decks</h4>,
 			<DeckList 
 				decks={decks}
-				pageSize={5}
+				pageSize={10}
 				hideTopPager
 				urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 			/>

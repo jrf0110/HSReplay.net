@@ -37,6 +37,11 @@
 			max-width: 100%;
 			width: 100%;
 		}
+
+		#class-chart {
+			margin: 0 auto;
+			max-width: 450px;
+		}
 	}
 
 	>aside {
@@ -55,11 +60,6 @@
 			max-width: 100%;
 			width: 100%;
 			padding-bottom: 0;
-		}
-
-		.class-chart {
-			margin: 0 auto;
-			max-width: 300px;
 		}
 	}
 

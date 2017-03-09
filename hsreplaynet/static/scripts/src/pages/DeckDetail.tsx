@@ -292,15 +292,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</PremiumWrapper>
 				{deckData}
 			</aside>
-			<main className="container-fluid">
-				<h3>
-					{"Deck breakdown" + (!selectedClass || selectedClass === "ALL" ? "" : (" vs. " + toTitleCase(selectedClass)))}
-				</h3>
-				{replayCount}
-				<div className="row table-wrapper">
-					{this.buildTable(selectedTable, selectedClass)}
-				</div>
-				<div className="row">
+			<main>
+				<section id="content-header">
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
 							<PopularityLineChart
@@ -318,8 +311,23 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							/>
 						</div>
 					</div>
-				</div>
-				{this.buildSimilarDecks()}
+				</section>
+				<section id="page-content">
+					<ul className="nav nav-tabs content-tabs">
+						<li className="active"><a data-toggle="tab" href="#deck-breakdown">Deck breakdown</a></li>
+						<li><a data-toggle="tab" href="#similar-decks">Similar decks</a></li>
+					</ul>
+					<div className="tab-content">
+						<div id="deck-breakdown" className="tab-pane fade in active">
+							<div className="table-wrapper">
+								{this.buildTable(selectedTable, selectedClass)}
+							</div>
+						</div>
+						<div id="similar-decks" className="tab-pane fade">
+							{this.buildSimilarDecks()}
+						</div>
+					</div>
+				</section>
 			</main>
 		</div>;
 	}
@@ -382,7 +390,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		});
 
 		return [
-			<h3>Similar Decks</h3>,
 			<DeckList
 				decks={decks}
 				pageSize={10}
