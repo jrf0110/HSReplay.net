@@ -6,14 +6,14 @@ import {
 import {RenderData, RenderQueryData} from "../../interfaces";
 import {getChartMetaData} from "../../helpers";
 
-interface WinrateByTurnLineChartProps {
+interface TurnPlayedBarChartProps {
 	renderData: RenderData;
 	opponentClass?: string;
 	widthRatio?: number;
 	premiumLocked: boolean;
 }
 
-export default class WinrateByTurnLineChart extends React.Component<WinrateByTurnLineChartProps, any> {
+export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarChartProps, any> {
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
 		const renderData = this.props.premiumLocked ? this.mockData : this.props.renderData;

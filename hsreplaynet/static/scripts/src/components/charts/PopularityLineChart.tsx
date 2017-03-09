@@ -8,17 +8,17 @@ import {getChartMetaData, toTimeSeries, toDynamicFixed, sliceZeros} from "../../
 import PopularityGradient from "./gradients/PopularityGradient";
 import moment from "moment";
 
-interface CardDetailLineChartProps extends React.ClassAttributes<CardDetailLineChart>{
+interface PopularityLineChartProps extends React.ClassAttributes<PopularityLineChart>{
 	renderData: RenderData;
 	maxYDomain: 10 | 100;
 	widthRatio?: number;
 }
 
-export default class CardDetailLineChart extends React.Component<CardDetailLineChartProps, any> {
+export default class PopularityLineChart extends React.Component<PopularityLineChartProps, any> {
 	private readonly colorMin = "rgba(0, 196, 255, 1.0)";
 	private readonly colorMax = "rgba(255, 128, 0, 1.0)";
 
-	constructor(props: CardDetailLineChartProps, state: any) { super(props, state);
+	constructor(props: PopularityLineChartProps, state: any) { super(props, state);
 		this.state = {
 			cursorPos: null,
 		}
