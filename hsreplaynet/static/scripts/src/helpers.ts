@@ -313,7 +313,7 @@ export function getChartMetaData(
 				ticks.push(season.getTime() - offset);
 			}
 		} else {
-			ticks.push(minDate.getTime() - offset);
+			ticks.push(minDate.getTime());
 		}
 	}
 
