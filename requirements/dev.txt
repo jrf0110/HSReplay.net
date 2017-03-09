@@ -1,11 +1,7 @@
 # Additional requirements for development
 
--r web.txt
+-r tests.txt
 
 q
 django-sql-explorer
 django-sslserver
-flake8
-pytest-django
-selenium
-locustio

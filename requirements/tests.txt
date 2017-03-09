@@ -1,0 +1,7 @@
+-r web.txt
+
+flake8
+pytest
+pytest-django
+selenium
+tox
