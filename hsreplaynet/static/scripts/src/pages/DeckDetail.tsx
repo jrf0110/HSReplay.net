@@ -357,7 +357,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		byDistance.sort((a, b) => b.numGames - a.numGames);
 
-		byDistance.slice(0, 15).forEach(deck => {
+		byDistance.slice(0, 20).forEach(deck => {
 			const cardData = deck.cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
 			decks.push({
 				cards: cardData,
@@ -385,7 +385,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			<h3>Similar Decks</h3>,
 			<DeckList
 				decks={decks}
-				pageSize={5}
+				pageSize={10}
 				hideTopPager
 				compareWith={cards}
 				urlGameType={this.isWildDeck() && "RANKED_WILD"}
@@ -519,46 +519,15 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 			cols.push(
 				<td>{(+row["keep_percentage"]).toFixed(1) + "%"}</td>,
-			);
-			if (!this.props.userIsPremium) {
-				if (firstRow) {
-					cols.push(
-						<td colSpan={5} rowSpan={rowCount} style={{background: "rgba(0,0,0,0.1)", textAlign: "center"}}>
-							<PremiumWrapper isPremium>
-								<h1 style={{padding: "50px"}}>HearthSim Premium</h1>
-								<ul style={{listStyleType: "none", padding: 0}}>
-									<li>You miss the old Hearthstone?</li>
-									<li>The more controlled Hearthstone?</li>
-									<li>See how games unfold Hearthstone?</li>
-									<li>No face explode Hearthstone?</li>
-									<li>You hate the new Hearthstone?</li>
-									<li>The dead turn two Hearthstone?</li>
-									<li>The pirate spew Hearthstone?</li>
-									<li>Rather stay in queue Hearthstone?</li>
-									<li>This is the sweet Hearthstone</li>
-									<li>Feel like elite Hearthstone</li>
-									<li>Just beat the meta</li>
-									<li>Subscribe to HearthSim Premium</li>
-								</ul>
-								<br/>
-								<button type="button" className="btn btn-primary" onClick={() => showModal()}>Find more information here!</button>
-							</PremiumWrapper>
-						</td>
-					);
-				}
-			}
-			else {
-				cols.push(
-					<td className="winrate-cell" style={{color: mulligan.color}}>
-						{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(1) + "%"}
-						{statusIcon}
-					</td>,
+				<td className="winrate-cell" style={{color: mulligan.color}}>
+					{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(1) + "%"}
+					{statusIcon}
+				</td>,
 					<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(1) + "%"}</td>,
 					<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(1) + "%"}</td>,
 					<td>{(+row["avg_turns_in_hand"]).toFixed(1)}</td>,
 					<td>{(+row["avg_turn_played_on"]).toFixed(1)}</td>,
-				);
-			}
+			);
 		}
 		else {
 			cols.push(
