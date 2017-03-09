@@ -26,21 +26,7 @@
 			<h3>Features</h3>
 			<p>You'll receive instant access to the following features when subscribing:</p>
 			<div class="row">
-				<figure class="auto col-sm-6 col-xs-12">
-					<img src="{% static 'images/premium-promotional/numbers.png' %}" class="bordered" />
-					<figcaption>
-						<h4>Mulligan Guides</h4>
-						<p>
-							Improve your deck piloting skills with our mulligan guides.
-							See which cards are dead in your hand and make informed card adjustments.
-						</p>
-						<ul class="example-links">
-							{% if featured_deck %}
-								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Decks</a></li>
-							{% endif %}
-						</ul>
-					</figcaption>
-				</figure>
+				<div class="clearfix"></div>
 				<figure class="auto col-sm-6 col-xs-12">
 					<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" />
 					<figcaption>
@@ -51,25 +37,6 @@
 						<ul class="example-links">
 							<li><a href="{% url 'card_list' %}">Card Database</a></li>
 							<li><a href="{% url 'deck_list' %}">Deck Database</a></li>
-							{% if featured_deck %}
-								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Decks</a></li>
-							{% endif %}
-						</ul>
-					</figcaption>
-				</figure>
-				<div class="clearfix"></div>
-				<figure class="auto col-sm-6 col-xs-12">
-					<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" />
-					<figcaption>
-						<h4>Opponent Breakdown</h4>
-						<p>
-							Whether you're struggling against Paladin or want to know which card perfoms better
-							against a certain matchup, we have the data.
-						</p>
-						<ul class="example-links">
-							{% if featured_card %}
-								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Cards</a></li>
-							{% endif %}
 							{% if featured_deck %}
 								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Decks</a></li>
 							{% endif %}
@@ -87,6 +54,24 @@
 						<ul class="example-links">
 							{% if featured_card %}
 								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Cards</a></li>
+							{% endif %}
+						</ul>
+					</figcaption>
+				</figure>
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" />
+					<figcaption>
+						<h4>Opponent Breakdown</h4>
+						<p>
+							Whether you're struggling against Paladin or want to know which card perfoms better
+							against a certain matchup, we have the data.
+						</p>
+						<ul class="example-links">
+							{% if featured_card %}
+								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Cards</a></li>
+							{% endif %}
+							{% if featured_deck %}
+								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Decks</a></li>
 							{% endif %}
 						</ul>
 					</figcaption>
