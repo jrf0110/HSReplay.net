@@ -50,7 +50,7 @@ const loadStripe = () => {
 	};
 
 	const keys = [
-		"image", "name", "description", "amount", "locale", "zip-code",
+		"key", "image", "name", "description", "amount", "locale", "zip-code",
 		"billing-address", "currency", "panel-label", "shipping-address",
 		"email", "label", "allow-remember-me", "bitcoin", "alipay",
 		"alipay-reusable",
