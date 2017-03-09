@@ -81,7 +81,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryArea
-						data={series.data.map(p => {return {x: p.x, y: p.y, y0: metadata.yDomain[0]}})}
+						data={series.data.map(p => {return {x: p.x, y: p.y, _y0: metadata.yDomain[0]}})}
 						style={{data: {fill: "url(#popularity-gradient)"}}}
 						interpolation="monotoneX"
 					/>

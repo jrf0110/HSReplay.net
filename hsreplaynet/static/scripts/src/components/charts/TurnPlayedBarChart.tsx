@@ -85,7 +85,7 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 							}}
 						/>
 						<VictoryArea
-							data={series.data.map(p => {return {x: p.x, y: p.y, y0: 0}})}
+							data={series.data.map(p => {return {x: p.x, y: p.y, _y0: 0}})}
 							style={{data: {fill: "url(#turn-played-gradient)"}}}
 							interpolation="monotoneX"
 						/>

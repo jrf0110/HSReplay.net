@@ -93,7 +93,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 						}}
 					/>
 					<VictoryArea
-						data={series.data.map(p => {return {x: p.x, y: p.y, y0: 50}})}
+						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}})}
 						style={{data: {fill: "url(#winrate-by-time-gradient)"}}}
 						interpolation="monotoneX"
 					/>
