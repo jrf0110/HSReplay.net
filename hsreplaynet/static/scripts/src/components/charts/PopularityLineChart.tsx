@@ -69,7 +69,7 @@ export default class CardDetailLineChart extends React.Component<CardDetailLineC
 					<VictoryAxis
 						scale="time"
 						tickValues={metadata.seasonTicks}
-						tickFormat={tick => tick === metadata.seasonTicks[0] ? "This season" : "Last season"}
+						tickFormat={tick => moment(tick).add(1, "day").format("MMMM")}
 						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryAxis
