@@ -1,0 +1,68 @@
+.cardrender-input {
+	margin-top: 100px;
+}
+
+#cardrender-editor {
+	margin: 0 auto;
+	max-width: 950px;
+
+	#cardrender-create-form {
+		width: 35%;
+		margin-right: 0 2em;
+
+		.advanced-option {
+			// display: none;
+		}
+
+		fieldset {
+			background: #eee;
+			padding: 0 1em;
+			margin-bottom: 0.5em;
+
+			h4 {
+				margin: 0;
+				text-align: center;
+			}
+
+			input[type="text"], input[type="number"], textarea, select {
+				display: block;
+				margin: 0.2em 0 0.5em;
+				padding: 0.3em;
+				width: 100%;
+			}
+
+			.group-type {
+				text-align: center;
+			}
+		}
+
+		.h-group {
+			text-align: center;
+
+			label {
+				display: inline-block;
+				line-height: 1.5em;
+				padding: 0 0.4em;
+				width: 28%;
+			}
+		}
+	}
+
+	#cardrender-form-preview {
+		padding: 1em;
+		width: 60%;
+
+		#cardrender-form-buttons {
+			float: right;
+
+			.btn {
+				margin-left: 0.5em;
+			}
+		}
+
+		#cardrender-form-preview-image {
+			height: 768px;
+			text-align: center;
+		}
+	}
+}

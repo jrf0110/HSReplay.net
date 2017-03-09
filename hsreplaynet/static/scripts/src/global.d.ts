@@ -201,3 +201,9 @@ declare module "tether-shepherd" {
 interface Window {
 	hsreplaynet_load_premium_modal: () => void;
 }
+
+declare module "sunwell" {
+	export class Sunwell {
+		constructor(options?: any);
+	}
+}

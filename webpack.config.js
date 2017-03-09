@@ -62,6 +62,7 @@ module.exports = (env) => {
 			my_highlights: makeEntry("my_highlights"),
 			popular_cards: makeEntry("popular_cards"),
 		},
+		card_editor: makeEntry("card_editor"),
 		victory_widgets: makeEntry("victory_widgets"),
 		premium_modal: makeEntry("premium_modal"),
 		polyfills: ["babel-polyfill", "whatwg-fetch"],
@@ -111,12 +112,7 @@ module.exports = (env) => {
 							query: {
 								presets: [
 									"react",
-									[
-										"es2015",
-										{
-											modules: false,
-										},
-									],
+									["es2015", {modules: false}],
 								],
 								cacheDirectory: env.cache && path.join(".cache", "babel-loader"),
 							},
@@ -133,6 +129,7 @@ module.exports = (env) => {
 			"react-dom": "ReactDOM",
 			"jquery": "jQuery",
 			"joust": "Joust",
+			"sunwell": "Sunwell",
 		},
 		plugins: [
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),

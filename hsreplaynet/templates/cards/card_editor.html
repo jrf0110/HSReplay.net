@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+{% load static from static %}
+
+{% block title %}Card Editor{% endblock %}
+
+{% block stylesheets %}
+	{{ block.super }}
+	<script type="text/javascript" src="https://sunwell.hearthsim.net/branches/master/sunwell.js"></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'fonts/belwefs_extrabold_macroman/stylesheet.css' %}"/>
+	<link rel="stylesheet" type="text/css" href="{% static 'fonts/franklingothicfs_mediumcondensed_macroman/stylesheet.css' %}"/>
+{% endblock %}
+
+{% block fullcontent %}
+
+	<div id="cardrender-editor" data-upload-api="" data-csrf-token="{{ csrf_token }}"></div>
+	{% render_bundle "card_editor" %}
+{% endblock %}
