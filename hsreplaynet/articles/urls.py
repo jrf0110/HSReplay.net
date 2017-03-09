@@ -1,6 +1,6 @@
 from django.conf.urls import url
-from .feed import LatestArticlesFeed
 from . import views
+from .feed import LatestArticlesFeed
 
 
 detail_view = views.ArticleDetailView.as_view()

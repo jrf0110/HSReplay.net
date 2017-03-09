@@ -2,8 +2,8 @@ from collections import defaultdict
 from enum import IntEnum
 from django.db import models
 from django_intenum import IntEnumField
-from hsreplaynet.games.models import GameReplay
 from hearthstone.enums import PlayState
+from hsreplaynet.games.models import GameReplay
 
 
 class AdventureMode(IntEnum):

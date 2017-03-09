@@ -1,17 +1,19 @@
 from uuid import uuid4
 from locators import (
-	DeckDatabaseLocators, DeckDetailLocators, StripeCheckoutLocators, AccountDetailLocators
+	AccountDetailLocators, DeckDatabaseLocators, DeckDetailLocators, StripeCheckoutLocators
 )
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 
 class BasePage:
-	IMAGE_LOADED_VALIDATOR = """return arguments[0].complete &&
-								typeof arguments[0].naturalWidth != \"undefined\" &&
-								arguments[0].naturalWidth > 0"""
+	IMAGE_LOADED_VALIDATOR = """
+	return arguments[0].complete &&
+	typeof arguments[0].naturalWidth != \"undefined\" &&
+	arguments[0].naturalWidth > 0
+	"""
 
 	def __init__(self, driver):
 		self.driver = driver
@@ -19,7 +21,7 @@ class BasePage:
 	def _wait_until_clickable_then_click(self, locator):
 		element = self.driver.wait_until(locator)
 		WebDriverWait(self.driver, 10).until(
-			EC.element_to_be_clickable(locator)
+			expected_conditions.element_to_be_clickable(locator)
 		)
 		element.click()
 
@@ -35,7 +37,8 @@ class BasePage:
 
 
 class DeckDatabase(BasePage):
-	""" A Selenium Page Object For Testing
+	"""
+	A Selenium Page Object For Testing
 
 	For an introduction to the page design pattern, see:
 		http://selenium-python.readthedocs.io/page-objects.html
@@ -78,7 +81,7 @@ class DeckDatabase(BasePage):
 		# We most likely need a WaitUntil here to make sure this doesn't fail
 
 		WebDriverWait(self.driver, 10).until(
-			EC.frame_to_be_available_and_switch_to_it('stripe_checkout_app')
+			expected_conditions.frame_to_be_available_and_switch_to_it("stripe_checkout_app")
 		)
 
 		stripe_overlay = self.driver.wait_until(StripeCheckoutLocators.MODAL)
@@ -86,18 +89,18 @@ class DeckDatabase(BasePage):
 
 		for input in inputs:
 			placeholder = input.get_property("placeholder")
-			if placeholder == 'Email':
+			if placeholder == "Email":
 				input.clear()
 				input.send_keys(test_email)
-			elif placeholder == 'Card number':
+			elif placeholder == "Card number":
 				input.clear()
-				input.send_keys('4242424242424242')
-			elif placeholder == 'MM / YY':
+				input.send_keys("4242424242424242")
+			elif placeholder == "MM / YY":
 				input.clear()
-				input.send_keys('0122')
-			elif placeholder == 'CVC':
+				input.send_keys("0122")
+			elif placeholder == "CVC":
 				input.clear()
-				input.send_keys('123')
+				input.send_keys("123")
 		submit_button = stripe_overlay.find_element_by_tag_name("button")
 		submit_button.click()
 		return test_email

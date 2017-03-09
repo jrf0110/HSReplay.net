@@ -1,5 +1,5 @@
-import time
 import sys
+import time
 from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
@@ -113,13 +113,11 @@ class Command(BaseCommand):
 						raise RuntimeError(msg)
 
 					self.log(
-						"Found %i uploads... sleeping 5 seconds" % (canary_uploads.count(),)
+						"Found %i uploads... sleeping 5 seconds" % (canary_uploads.count())
 					)
 					time.sleep(5)
 
-			self.log(
-				"%s canary upload events have been found" % canary_uploads.count()
-			)
+			self.log("%s canary upload events have been found" % (canary_uploads.count()))
 
 			canary_failures = self.get_canary_failures_since(canary_period_start)
 

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from hearthstone.enums import Race, CardClass, FormatType
+from hearthstone.enums import CardClass, FormatType, Race
 from hsreplaynet.utils import log
 from .models import Archetype
 
@@ -31,11 +31,7 @@ def edit_distance(canonical_list, unclassified_deck):
 	return distance
 
 
-def classify_deck(
-	unclassified_deck,
-	player_class=CardClass.INVALID,
-	format=FormatType.FT_UNKNOWN
-):
+def classify_deck(deck, player_class=CardClass.INVALID, format=FormatType.FT_UNKNOWN):
 	""" Return an Archetype or None
 
 	Classification proceeds in two steps:
@@ -49,7 +45,7 @@ def classify_deck(
 	However, if the deck is not within at least 5 cards from an Archetype then no Archetype
 	will be assigned.
 	"""
-	log.debug("Classifying Deck With Cards: %r" % repr(unclassified_deck))
+	log.debug("Classifying Deck With Cards: %r" % (deck))
 	candidates = Archetype.objects.archetypes_for_class(player_class, format)
 
 	distances = []
@@ -61,7 +57,7 @@ def classify_deck(
 	CUTOFF_DISTANCE = 14
 	for archetype, canonical_decks in candidates.items():
 		for canonical_deck in canonical_decks:
-			dist = edit_distance(canonical_deck, unclassified_deck)
+			dist = edit_distance(canonical_deck, deck)
 			log.debug("Archetype: %s, Distance: %s" % (archetype.name, str(dist)))
 			if dist <= CUTOFF_DISTANCE:
 				distances.append((archetype, dist))

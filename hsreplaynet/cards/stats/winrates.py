@@ -1,9 +1,9 @@
-from collections import defaultdict
 import hashlib
+from collections import defaultdict
 from django.core.cache import cache
 from django.db import connection
-from hsreplaynet.utils.db import dictfetchall
 from hsreplaynet.utils.collections import defaultdict_to_vanilla_dict
+from hsreplaynet.utils.db import dictfetchall
 
 
 WINRATES_BY_ARCHETYPE_FILTER_TEMPLATE_DEPRICATED = """

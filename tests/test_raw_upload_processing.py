@@ -1,12 +1,10 @@
-import pytest
-import os
 import json
-from datetime import datetime
+import os
+import pytest
 from django.core.files.storage import default_storage
-from hsreplaynet.uploads.models import _generate_upload_key
 from hsreplaynet.api.models import APIKey, AuthToken
 from hsreplaynet.lambdas.uploads import process_raw_upload
-from hsreplaynet.uploads.models import UploadEvent
+from hsreplaynet.uploads.models import _generate_upload_key, UploadEvent
 
 
 BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -16,6 +14,8 @@ UPLOAD_SUITE = os.path.join(DATA_DIR, "hsreplaynet-tests", "uploads")
 
 class MockRawUpload(object):
 	def __init__(self, path, storage=None):
+		from datetime import datetime
+
 		self._descriptor_path = os.path.join(path, "descriptor.json")
 		self._descriptor = json.load(open(self._descriptor_path))
 

@@ -1,7 +1,7 @@
 from django.conf.urls import include, url
 from . import views
-from ..webhooks.views import WebhookCreateView, WebhookDeleteView, WebhookUpdateView
 from ..utils import UUID4_RE
+from ..webhooks.views import WebhookCreateView, WebhookDeleteView, WebhookUpdateView
 
 
 urlpatterns = [

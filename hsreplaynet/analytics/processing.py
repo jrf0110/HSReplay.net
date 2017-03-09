@@ -1,21 +1,21 @@
+import copy
 import json
 import time
-import copy
-from django.core.cache import caches
 from django.conf import settings
+from django.core.cache import caches
+from hearthstone.cardxml import load
+from hearthstone.enums import CardSet
+from redis_lock import Lock as RedisLock
+from redis_semaphore import Semaphore
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
-from hsreplaynet.utils.influx import influx_metric
+from hsredshift.analytics.filters import GameType
+from hsredshift.analytics.library.base import RedshiftQueryParams
+from hsredshift.analytics.queries import RedshiftCatalogue
+from hsreplaynet.utils import log
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils.aws.sqs import write_messages_to_queue
-from hsreplaynet.utils import log
-from hearthstone.enums import CardSet
-from hearthstone.cardxml import load
-from hsredshift.analytics.filters import GameType
-from hsredshift.analytics.queries import RedshiftCatalogue
-from hsredshift.analytics.library.base import RedshiftQueryParams
-import redis_lock
-from redis_semaphore import Semaphore
+from hsreplaynet.utils.influx import influx_metric
 
 
 class CachedRedshiftResult(object):
@@ -101,7 +101,7 @@ def _do_execute_query(query, params):
 	log.info("About to attempt acquiring lock...")
 	redis_client = get_redshift_cache_redis_client()
 
-	with redis_lock.Lock(redis_client, params.cache_key, expire=300):
+	with RedisLock(redis_client, params.cache_key, expire=300):
 		# Get a lock with a 5-minute lifetime since that's the maximum duration of a Lambda
 		# to ensure the lock is held for as long as the Python process / Lambda is running.
 		log.info("Lock acquired.")

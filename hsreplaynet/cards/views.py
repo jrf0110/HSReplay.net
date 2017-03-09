@@ -3,11 +3,10 @@ from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView
-from hsreplaynet.cards.stats.winrates import get_head_to_head_winrates
-from hsreplaynet.cards.models import Archetype
 from hsreplaynet.features.decorators import view_requires_feature_access
-from .models import Card
+from .models import Archetype, Card
 from .queries import CardCountersQueryBuilder
+from .stats.winrates import get_head_to_head_winrates
 
 
 class ArchetypesView(TemplateView):

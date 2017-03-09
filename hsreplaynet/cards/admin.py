@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Card, Deck, Include, Archetype, CanonicalDeck
+from .models import Archetype, CanonicalDeck, Card, Deck, Include
 
 
 @admin.register(Card)

@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.views.generic import TemplateView
-from .games.views import ReplayDetailView, ReplayEmbedView
 from .billing.views import PremiumDetailView
+from .games.views import ReplayDetailView, ReplayEmbedView
 
 
 urlpatterns = [

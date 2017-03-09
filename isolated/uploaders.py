@@ -12,13 +12,12 @@ Specific design considerations:
 These design considerations mean this lambda can be deployed on a different cycle than
 the rest of the hsreplaynet codebase.
 """
-import logging
+import base64
 import json
+import logging
+import random
 import boto3
 import shortuuid
-from base64 import b64decode
-from datetime import datetime
-from random import randrange
 
 
 logger = logging.getLogger()
@@ -37,7 +36,7 @@ def is_canary_upload(event):
 	if event and "query" in event and "canary" in event["query"]:
 		return True
 
-	dice_roll = randrange(0, 100)
+	dice_roll = random.randrange(0, 100)
 	if dice_roll < PERCENT_CANARY_UPLOADS:
 		return True
 
@@ -45,6 +44,7 @@ def is_canary_upload(event):
 
 
 def get_timestamp():
+	from datetime import datetime
 	return datetime.now()
 
 
@@ -76,7 +76,7 @@ def generate_log_upload_address_handler(event, context):
 	ts = get_timestamp()
 	ts_path = ts.strftime("%Y/%m/%d/%H/%M")
 
-	upload_metadata = json.loads(b64decode(event.pop("body")).decode("utf8"))
+	upload_metadata = json.loads(base64.b64decode(event.pop("body")).decode("utf8"))
 
 	if not isinstance(upload_metadata, dict):
 		raise Exception("Meta data is not a valid JSON dictionary.")

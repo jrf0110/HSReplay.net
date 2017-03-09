@@ -1,13 +1,14 @@
 import json
-import shortuuid
 from datetime import datetime
 from unittest.mock import MagicMock
 from hsreplaynet.utils import aws
-from isolated import uploaders
 
 
 def test_upload(upload_event, upload_context, monkeypatch):
 	# Control the timestamp and shortid used so we can verify the correct key generation.
+	import shortuuid
+	from isolated import uploaders
+
 	shortid = shortuuid.uuid()
 	ts = datetime.now()
 	ts_path = ts.strftime("%Y/%m/%d/%H/%M")

@@ -1,13 +1,13 @@
+import base64
 import os
 import pytest
 from django.core.management import call_command
 from django.urls import reverse
-from base64 import b64encode
-from hsreplaynet.cards.models import Deck, Archetype, CanonicalDeck
 from hearthstone.enums import CardClass, FormatType
 from selenium import webdriver
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from hsreplaynet.cards.models import Archetype, CanonicalDeck, Deck
 
 
 def pytest_addoption(parser):
@@ -144,7 +144,7 @@ def upload_event():
 		"headers": {
 			"Authorization": "Token beh7141d-c437-4bfe-995e-1b3a975094b1",
 		},
-		"body": b64encode('{"player1_rank": 5}'.encode("utf8")).decode("ascii"),
+		"body": base64.b64encode('{"player1_rank": 5}'.encode("utf8")).decode("ascii"),
 		"source_ip": "127.0.0.1",
 	}
 
@@ -190,7 +190,7 @@ def browser(full_url, django_db_blocker):
 
 		def wait_until(locator):
 			return WebDriverWait(browser, 10).until(
-				EC.presence_of_element_located(locator)
+				expected_conditions.presence_of_element_located(locator)
 			)
 		browser.wait_until = wait_until
 

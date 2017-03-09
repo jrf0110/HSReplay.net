@@ -1,8 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.shortcuts import render
-from django.views.generic import View
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.generic import View
 from .models import GameReplay
 
 

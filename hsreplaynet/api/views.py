@@ -1,17 +1,17 @@
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
-from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, RetrieveModelMixin
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.status import HTTP_201_CREATED
+from rest_framework.viewsets import GenericViewSet
 from hsreplaynet.accounts.models import AccountClaim
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.uploads.models import UploadEvent
 from . import serializers
 from .authentication import AuthTokenAuthentication, RequireAuthToken
-from .models import AuthToken, APIKey
+from .models import APIKey, AuthToken
 from .permissions import APIKeyPermission, IsOwnerOrReadOnly
 
 

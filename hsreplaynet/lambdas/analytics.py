@@ -1,18 +1,18 @@
-import time
-import logging
 import json
+import logging
+import time
 from threading import Thread
 from django.conf import settings
+from redis_semaphore import NotAvailable
 from hsredshift.analytics import queries
-from hsreplaynet.utils.aws.clients import SQS
-from hsreplaynet.utils.aws.sqs import get_or_create_queue
-from hsreplaynet.utils import instrumentation
-from hsreplaynet.utils.influx import influx_metric
-from hsreplaynet.utils.synchronization import CountDownLatch
 from hsreplaynet.analytics.processing import (
 	_do_execute_query, get_concurrent_redshift_query_semaphore
 )
-from redis_semaphore import NotAvailable
+from hsreplaynet.utils import instrumentation
+from hsreplaynet.utils.aws.clients import SQS
+from hsreplaynet.utils.aws.sqs import get_or_create_queue
+from hsreplaynet.utils.influx import influx_metric
+from hsreplaynet.utils.synchronization import CountDownLatch
 
 
 @instrumentation.lambda_handler(

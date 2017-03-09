@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Adventure, Wing, Scenario
+from .models import Adventure, Scenario, Wing
 
 
 class ScenarioInline(admin.TabularInline):

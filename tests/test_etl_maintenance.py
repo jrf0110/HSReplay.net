@@ -1,9 +1,9 @@
 from datetime import timedelta
 from unittest.mock import MagicMock
-from django.utils import timezone
 from django.conf import settings
-from hsreplaynet.uploads.models import RedshiftETLTask
+from django.utils import timezone
 from hsreplaynet.games.processing import replay_meets_recency_requirements
+from hsreplaynet.uploads.models import RedshiftETLTask
 
 
 def test_etl_task():

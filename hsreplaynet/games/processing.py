@@ -2,10 +2,10 @@ import json
 from hashlib import sha1
 from io import StringIO
 from dateutil.parser import parse as dateutil_parse
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.conf import settings
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from hearthstone import __version__ as hslog_version
@@ -15,17 +15,17 @@ from hearthstone.hslog.export import EntityTreeExporter, FriendlyPlayerExporter
 from hearthstone.hslog.parser import LogParser
 from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
-from hsreplaynet.cards.models import Card, Deck
-from hsreplaynet.utils import guess_ladder_season, log
-from hsreplaynet.utils.instrumentation import error_handler
-from hsreplaynet.utils.influx import influx_metric, influx_timer
-from hsreplaynet.uploads.models import UploadEventStatus
-from .models import (
-	GameReplay, GlobalGame, GlobalGamePlayer, PegasusAccount,
-	_generate_upload_path, ReplayAlias
-)
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
+from hsreplaynet.cards.models import Card, Deck
+from hsreplaynet.uploads.models import UploadEventStatus
+from hsreplaynet.utils import guess_ladder_season, log
+from hsreplaynet.utils.influx import influx_metric, influx_timer
+from hsreplaynet.utils.instrumentation import error_handler
+from .models import (
+	_generate_upload_path, GameReplay, GlobalGame, GlobalGamePlayer,
+	PegasusAccount, ReplayAlias
+)
 
 
 class ProcessingError(Exception):

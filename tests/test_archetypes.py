@@ -1,7 +1,7 @@
-import pytest
 import time
-from hsreplaynet.cards.models import Deck
+import pytest
 from hearthstone.enums import BnetGameType
+from hsreplaynet.cards.models import Deck
 
 freeze_mage_variation_full_deck = [
 	"CS2_031",

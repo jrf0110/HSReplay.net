@@ -5,7 +5,7 @@ from django.utils.six import string_types
 from rest_framework import serializers
 from hsreplaynet.cards.models import Deck
 from hsreplaynet.games.models import GameReplay, GlobalGame, GlobalGamePlayer
-from .models import AuthToken, APIKey
+from .models import APIKey, AuthToken
 
 
 class DeckListField(serializers.ListField):

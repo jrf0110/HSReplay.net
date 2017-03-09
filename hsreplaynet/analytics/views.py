@@ -2,15 +2,12 @@ from datetime import date
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404, HttpResponseForbidden, JsonResponse
 from django.urls import reverse
-from hsredshift.analytics import queries
-from hsredshift.analytics import filters
+from hsredshift.analytics import filters, queries
 from hsreplaynet.features.decorators import view_requires_feature_access
-from hsreplaynet.utils import log
-from hsreplaynet.utils.influx import influx_metric
-from hsreplaynet.utils.influx import get_redshift_query_average_duration_seconds
+from hsreplaynet.utils import influx, log
 from .processing import (
-	execute_query, get_from_redshift_cache, evict_from_cache,
-	get_concurrent_redshift_query_semaphore
+	evict_from_cache, execute_query, get_concurrent_redshift_query_semaphore,
+	get_from_redshift_cache
 )
 
 
@@ -96,7 +93,7 @@ def _fetch_query_results(query, params):
 		params.supplied_non_filters_dict
 	)
 
-	influx_metric(
+	influx.influx_metric(
 		"redshift_query_fetch",
 		query_fetch_metric_fields,
 		cache_hit=was_cache_hit,
@@ -125,7 +122,7 @@ def card_inventory(request, card_id):
 			"endpoint": reverse("analytics_fetch_query_results", kwargs={"name": query.name}),
 			"params": query.required_parameters
 		}
-		query_duration_millis = get_redshift_query_average_duration_seconds(query.name)
+		query_duration_millis = influx.get_redshift_query_average_duration_seconds(query.name)
 		if query_duration_millis:
 			inventory_entry["avg_query_duration_seconds"] = query_duration_millis
 

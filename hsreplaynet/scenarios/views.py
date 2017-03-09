@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import View
-from .models import Scenario
 from hsreplaynet.features.decorators import view_requires_feature_access
+from .models import Scenario
 
 
 class ScenarioListView(View):

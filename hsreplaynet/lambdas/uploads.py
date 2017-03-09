@@ -1,23 +1,23 @@
-import logging
 import json
+import logging
 from datetime import datetime
-from zlib import decompress
 from io import BytesIO
-from hsreplay.document import HSReplayDocument
 from threading import Thread
+from zlib import decompress
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from hsreplay.document import HSReplayDocument
+from hsredshift.etl.exporters import RedshiftPublishingExporter
+from hsredshift.etl.firehose import flush_exporter_to_firehose
 from hsreplaynet.api.models import APIKey, AuthToken
 from hsreplaynet.api.serializers import UploadEventSerializer
 from hsreplaynet.uploads.models import (
-	UploadEvent, RawUpload, UploadEventStatus, _generate_upload_key
+	_generate_upload_key, RawUpload, UploadEvent, UploadEventStatus
 )
 from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import LAMBDA, S3
-from hsreplaynet.utils.synchronization import CountDownLatch
 from hsreplaynet.utils.influx import influx_metric
-from hsredshift.etl.exporters import RedshiftPublishingExporter
-from hsredshift.etl.firehose import flush_exporter_to_firehose
+from hsreplaynet.utils.synchronization import CountDownLatch
 
 
 @instrumentation.lambda_handler(

@@ -2,9 +2,9 @@ import json
 import pytest
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from hearthstone.enums import PlayState
 from oauth2_provider.models import AccessToken, Grant
 from rest_framework.serializers import ValidationError
-from hearthstone.enums import PlayState
 from hsreplaynet.accounts.models import AccountClaim, User
 from hsreplaynet.api.models import AuthToken
 from hsreplaynet.api.serializers import SmartFileField

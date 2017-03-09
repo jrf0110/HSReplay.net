@@ -1,5 +1,5 @@
 from django.conf import settings
-from .clients import LAMBDA, KINESIS, S3
+from .clients import KINESIS, LAMBDA, S3
 
 
 def get_kinesis_stream_arn_from_name(name):

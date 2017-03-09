@@ -3,7 +3,7 @@ from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.urls import reverse
-from django.utils.safestring import mark_safe, mark_for_escaping
+from django.utils.safestring import mark_for_escaping, mark_safe
 from hsreplaynet.games.models import GameReplay
 
 

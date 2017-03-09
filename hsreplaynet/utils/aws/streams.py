@@ -1,9 +1,9 @@
-import time
 import logging
-from math import ceil, log, pow
+import time
+from math import ceil, log
 from django.conf import settings
 from hsreplaynet.utils.influx import get_avg_upload_processing_seconds
-from .clients import KINESIS, FIREHOSE, IAM
+from .clients import FIREHOSE, IAM, KINESIS
 
 
 logger = logging.getLogger("hsreplaynet")

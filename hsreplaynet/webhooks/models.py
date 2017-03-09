@@ -1,6 +1,5 @@
 import json
 import time
-import requests
 from uuid import uuid4
 from django.conf import settings
 from django.db import models
@@ -142,6 +141,8 @@ class WebhookTrigger(models.Model):
 		return "sha256=" + mac.hexdigest()
 
 	def deliver(self, timeout):
+		import requests
+
 		begin = time.time()
 		headers = {
 			"Content-Type": self.content_type,

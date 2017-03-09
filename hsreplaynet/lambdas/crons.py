@@ -4,12 +4,12 @@ The cron schedule for these must be setup via the AWS Web Console.
 """
 import re
 from collections import defaultdict
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from django.conf import settings
 from django.db import connections
 from django.utils.timezone import now
-from hsreplaynet.uploads.models import RawUpload, UploadEvent, RedshiftStagingTrack
-from hsreplaynet.utils import instrumentation, log, aws
+from hsreplaynet.uploads.models import RawUpload, RedshiftStagingTrack, UploadEvent
+from hsreplaynet.utils import aws, instrumentation, log
 from hsreplaynet.utils.influx import influx_metric
 
 

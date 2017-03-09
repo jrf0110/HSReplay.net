@@ -21,21 +21,16 @@ Then open the web console to start the test: http://127.0.0.1:8089
 """
 import os
 from uuid import uuid4
-from locust import HttpLocust, TaskSet, task
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from pages import DeckDatabase
 from locators import AdminLoginLocators
-from selenium.webdriver.support import expected_conditions as EC
+from locust import HttpLocust, task, TaskSet
+from pages import DeckDatabase
+from selenium import webdriver
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.ui import WebDriverWait
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hsreplaynet.settings")
 os.environ.setdefault("PROD", "1")
-
-import django  # noqa
-django.setup()
-
-from django.contrib.auth import get_user_model  # noqa
-from django.contrib.auth.models import Group  # noqa
 
 
 class PremiumSignupBehavior(TaskSet):
@@ -43,17 +38,23 @@ class PremiumSignupBehavior(TaskSet):
 		"""
 		Called when a Locust start before any task is scheduled
 		"""
+		import django
+
+		django.setup()
 		self.browser = webdriver.Chrome('/usr/local/bin/chromedriver')
 		self.browser.implicitly_wait(3)
 
 		def wait_until(locator):
 			return WebDriverWait(self.browser, 10).until(
-				EC.presence_of_element_located(locator)
+				expected_conditions.presence_of_element_located(locator)
 			)
 
 		self.browser.wait_until = wait_until
 
 	def create_test_user(self):
+		from django.contrib.auth import get_user_model
+		from django.contrib.auth.models import Group
+
 		self._username = "locust_%s" % str(uuid4())[:8]
 		self._password = self._username
 		self.user = get_user_model().objects.create(username=self._username)

@@ -1,32 +1,32 @@
-import base64
 import json
 import os
 import re
 import time
-from threading import Thread, Lock
-from uuid import uuid4
-from botocore.vendored.requests.packages.urllib3.exceptions import ReadTimeoutError
-from django.utils import timezone
+from base64 import b64decode
 from datetime import datetime, timedelta
 from enum import IntEnum
+from threading import Lock, Thread
+from uuid import uuid4
+from botocore.vendored.requests.packages.urllib3.exceptions import ReadTimeoutError
 from django.conf import settings
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
+from django.utils import timezone
 from django_intenum import IntEnumField
-from hsreplaynet.utils.fields import ShortUUIDField
-from hsreplaynet.utils import aws, log
-from hsreplaynet.utils.aws import streams
-from hsreplaynet.utils.influx import influx_timer, influx_metric
-from hsreplaynet.utils.synchronization import advisory_lock
+from psycopg2 import DatabaseError
 from sqlalchemy import create_engine, MetaData
-from sqlalchemy.sql import func, select
 from sqlalchemy.pool import NullPool
-from hsredshift.etl.models import list_staging_eligible_tables, create_staging_table
+from sqlalchemy.sql import func, select
+from hsredshift.etl.models import create_staging_table, list_staging_eligible_tables
 from hsredshift.etl.views import (
 	get_materialized_view_list, get_materialized_view_update_statement, get_view_dependencies
 )
-from psycopg2 import DatabaseError
+from hsreplaynet.utils import aws, log
+from hsreplaynet.utils.aws import streams
+from hsreplaynet.utils.fields import ShortUUIDField
+from hsreplaynet.utils.influx import influx_metric, influx_timer
+from hsreplaynet.utils.synchronization import advisory_lock
 
 
 def get_redshift_engine():
@@ -230,7 +230,7 @@ class RawUpload(object):
 	@staticmethod
 	def from_kinesis_event(kinesis_event):
 		# Kinesis returns the record bytes data base64 encoded
-		payload = base64.b64decode(kinesis_event["data"])
+		payload = b64decode(kinesis_event["data"])
 		json_str = payload.decode("utf8")
 		data = json.loads(json_str)
 

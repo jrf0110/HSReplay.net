@@ -4,8 +4,8 @@ Jinja/Django template function calls for Markdown
 Syntax example: `{% sum(1, 2, 3) %}` -> `6`
 """
 import ast
-import re
 import logging
+import re
 import markdown
 
 

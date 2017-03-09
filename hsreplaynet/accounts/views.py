@@ -1,3 +1,4 @@
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -7,7 +8,6 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, UpdateView, View
-from allauth.socialaccount.models import SocialAccount
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils import get_uuid_object_or_404, log
 from hsreplaynet.utils.influx import influx_metric

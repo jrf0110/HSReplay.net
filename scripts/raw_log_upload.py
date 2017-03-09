@@ -2,10 +2,10 @@
 This command line tool is intended to simulate HDT uploading a raw log to the web server.
 """
 import argparse
+import datetime
 import json
 import os
 import requests
-from datetime import datetime
 
 
 parser = argparse.ArgumentParser(description="Upload a raw log file.")
@@ -32,7 +32,7 @@ if args.metadata_path:
 else:
 	metadata = {
 		"build": 13740,
-		"match_start": datetime.now().isoformat()
+		"match_start": datetime.datetime.now().isoformat(),
 	}
 
 response_one = requests.post(HOST, json=metadata, headers=request_one_headers).json()

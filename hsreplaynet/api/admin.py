@@ -1,5 +1,5 @@
 from django.contrib import admin
-from hsreplaynet.utils.admin import set_user, admin_urlify as urlify
+from hsreplaynet.utils.admin import admin_urlify as urlify, set_user
 from .models import APIKey, AuthToken
 
 

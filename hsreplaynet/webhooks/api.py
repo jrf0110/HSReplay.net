@@ -1,4 +1,4 @@
-from oauth2_provider.ext.rest_framework import TokenHasResourceScope, OAuth2Authentication
+from oauth2_provider.ext.rest_framework import OAuth2Authentication, TokenHasResourceScope
 from rest_framework import serializers
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet

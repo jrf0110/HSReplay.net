@@ -3,8 +3,8 @@ from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
 from hsreplaynet.accounts.models import User
-from hsreplaynet.uploads.models import UploadEvent
 from hsreplaynet.api.models import AuthToken
+from hsreplaynet.uploads.models import UploadEvent
 
 
 class Command(BaseCommand):

@@ -10,7 +10,7 @@ Initialize a database with the following:
 This script can safely be run multiple times.
 """
 
-import django; django.setup()
+import django; django.setup()  # noqa
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib.auth import get_user_model
