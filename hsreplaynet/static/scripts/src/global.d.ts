@@ -122,6 +122,10 @@ declare module "victory" {
 	export class VictoryZoom extends React.Component<any, any> {
 		render(): JSX.Element;
 	}
+
+	export class VictoryLegend extends React.Component<any, any> {
+		render(): JSX.Element;
+	}
 }
 
 declare module "tether-shepherd" {

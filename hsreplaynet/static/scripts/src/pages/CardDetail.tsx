@@ -281,17 +281,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 				if (this.cardIsNeutral() && isReady(this.state.classDistribution[cacheKey])) {
 					classDistribution = (
-						<div className="class-chart">
+						<div id="class-chart">
 							<CardDetailPieChart
-								fixedFontSize={22}
-								fontColor="white"
-								percent
 								removeEmpty
 								renderData={this.state.classDistribution[cacheKey]}
 								scheme={getChartScheme("class")}
 								sortByValue
-								textPrecision={2}
-								title={"Class Popularity"}
+								title={"Most included by"}
 							/>
 						</div>
 					);

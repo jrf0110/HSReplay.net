@@ -336,22 +336,22 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 		return [
 			<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 				<div className="chart-wrapper">
-					<CardDetailPieChart percent title="Rarity" renderData={chartSeries.length ? {series: [chartSeries[0]]} : "loading"}/>
+					<CardDetailPieChart title="Rarity" renderData={chartSeries.length ? {series: [chartSeries[0]]} : "loading"}/>
 				</div>
 			</div>,
 			<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 				<div className="chart-wrapper">
-					<CardDetailPieChart percent title="Type" renderData={chartSeries.length ? {series: [chartSeries[1]]} : "loading"}/>
+					<CardDetailPieChart title="Type" renderData={chartSeries.length ? {series: [chartSeries[1]]} : "loading"}/>
 				</div>
 			</div>,
 			<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 				<div className="chart-wrapper">
-					<CardDetailPieChart percent title="Set" renderData={chartSeries.length ? {series: [chartSeries[2]]} : "loading"}/>
+					<CardDetailPieChart title="Set" renderData={chartSeries.length ? {series: [chartSeries[2]]} : "loading"}/>
 				</div>
 			</div>,
 			<div className="chart-column col-lg-3 col-md-3 col-sm-6 col-xs-6">
 				<div className="chart-wrapper">
-					<CardDetailPieChart percent title="Cost" renderData={chartSeries.length ? {series: [chartSeries[3]]} : "loading"}/>
+					<CardDetailPieChart title="Cost" renderData={chartSeries.length ? {series: [chartSeries[3]]} : "loading"}/>
 				</div>
 			</div>
 		];
