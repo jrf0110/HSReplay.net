@@ -10,6 +10,7 @@ import moment from "moment";
 
 interface WinrateLineChartProps extends React.ClassAttributes<WinrateLineChart> {
 	renderData: RenderData;
+	title?: string;
 	widthRatio?: number;
 }
 
@@ -116,7 +117,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
 				{content}
-				<VictoryLabel text={"Winrate - over time"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
+				<VictoryLabel text={this.props.title || "Winrate - over time"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
 	}
