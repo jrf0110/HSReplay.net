@@ -59,6 +59,7 @@ module.exports = (env) => {
 			deck_detail: makeEntry("deck_detail"),
 			deck_discover: makeEntry("deck_discover"),
 			deck_spotlight: makeEntry("deck_spotlight"),
+			my_highlights: makeEntry("my_highlights"),
 			popular_cards: makeEntry("popular_cards"),
 		},
 		victory_widgets: makeEntry("victory_widgets"),

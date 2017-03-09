@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}My Highlights{% endblock %}
+
+{% block fullcontent %}
+	<div id="my-highlights-container" data-authenticated="{{ user.is_authenticated.value }}"></div>
+	{% render_bundle "stats" %}
+	{% render_bundle "my_highlights" %}
+{% endblock %}

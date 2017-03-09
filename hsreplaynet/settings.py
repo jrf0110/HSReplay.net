@@ -86,6 +86,7 @@ INSTALLED_APPS_WEB = [
 	"hsreplaynet.decks",
 	"hsreplaynet.packs",
 	"hsreplaynet.oauth2",
+	"hsreplaynet.personal",
 ]
 
 INSTALLED_APPS = INSTALLED_APPS_CORE

@@ -1,0 +1,101 @@
+#my-highlights {
+	display: flex;
+
+	>main {
+		width: calc(100% - 300px);
+		min-height: calc(100vh - 50px);
+		display: flex;
+		flex-direction: column;
+
+		h2 {
+			border-bottom: 1px solid black;
+		}
+
+		#row-all-stats {
+			padding-top: 10px;
+			text-align: center;
+		}
+
+		.chart-wrapper {
+			margin: 0 auto;
+			max-width: 1200px;
+		}
+	}
+
+	>aside {
+	}
+
+}
+
+.card-highlight-tile {
+	background-position-x: center;
+	background-position-y: -80px;
+	background-repeat: no-repeat;
+	display: block;
+	height: 200px;
+	margin: 10px 0;
+	max-width: 380px;
+	padding: 0;
+
+	.card-info-container {
+		background: rgba(255, 255, 255, 0.4);
+		border: 2px solid black;
+		color: white;
+		text-shadow: -1px -1px 0 #000,
+			1px -1px 0 #000,
+			-1px 1px 0 #000,
+			1px 1px 0 #000;
+		height: 100%;
+		text-align: center;
+		width: 100%;
+
+		>h1 {
+			background: rgba(0, 0, 0, 0.5);
+			border-bottom: 1px solid black;
+			color: white;
+			font-size: 1.3em;
+			margin: 0;
+			padding: 10px 0;
+		}
+
+		.card-info-value {
+			font-size: 2.5em;
+			font-weight: bold;
+			padding-top: 45px;
+		}
+
+		.card-info-name {
+			font-size: 1.5em;
+			font-weight: bold;
+			padding-top: 10px;
+		}
+	}
+
+	.card-info-container:hover {
+		background: rgba(255, 255, 255, 0.2);
+	}
+}
+
+.card-highlight-tile:link, .card-highlight-tile:hover {
+	text-decoration: none;
+}
+
+#content-header {
+	#winrate-chart-wrapper {
+		max-width: 700px;
+		margin: 0 auto;
+	}
+}
+
+#page-content {
+	.content-tabs {
+		li > a {
+			text-transform: uppercase;
+		}
+	}
+}
+
+.content-tabs {
+	padding: 0 10px;
+
+}
