@@ -1,3 +1,5 @@
+SECRET_KEY = "hunter2"
+
 DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 
 DEBUG = True

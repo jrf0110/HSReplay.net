@@ -30,14 +30,10 @@ BUILD_DIR = os.path.join(BASE_DIR, "build")
 SITE_ID = 1
 ROOT_URLCONF = "hsreplaynet.urls"
 WSGI_APPLICATION = "wsgi.application"
-SECRET_KEY = "be8^qa&f2fut7_1%q@x2%nkw5u=-r6-rwj8c^+)5m-6e^!zags"
 
 
 if ENV_DEV:
 	DEBUG = True
-else:
-	# Force SECRET_KEY to None to ensure it gets imported from local settings
-	SECRET_KEY = None
 
 
 # These apps are used on both Lambda and Web
