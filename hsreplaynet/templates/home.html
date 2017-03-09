@@ -51,10 +51,10 @@
 					<li><a href="{% url 'articles_article_list' %}">Articles</a></li>
 
 					{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-						<li><a href="{% url 'card_list' %}">Cards</a></li>
-						<li><a href="{% url 'card_stats' %}">Card Stats</a></li>
-						<li><a href="{% url 'deck_spotlight' %}">Deck Spotlight</a></li>
-						<li><a href="{% url 'deck_list' %}">Deck Database</a></li>
+						<li><a href="{% url 'deck_spotlight' %}"><span class="glyphicon glyphicon-fire"></span>Trending</a></li>
+						<li><a href="{% url 'deck_list' %}"><span class="glyphicon glyphicon-th-list"></span>Decks</a></li>
+						<li><a href="{% url 'card_stats' %}"><span class="glyphicon glyphicon-stats"></span>Cards</a></li>
+						<li><a href="{% url 'card_list' %}"><span class="glyphicon glyphicon-th-large"></span>Gallery</a></li>
 					{% endif %}
 
 					{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
@@ -76,9 +76,9 @@
 						{% if user.is_staff %}
 							<li><a href="{% url 'admin:index' %}">Admin</a></li>
 						{% endif %}
-						<li><a href="{% url 'my_highlights' %}">My Highlights</a></li>
-						<li><a href="{% url 'my_card_stats' %}">My Card Stats</a></li>
-						<li><a href="{% url 'my_replays' %}">My Replays</a></li>
+						<li><a href="{% url 'my_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
+						<li><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Cards</a></li>
+						<li><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
 						<li>
 							<a href="{% url 'account_edit' %}">
 								<img src="{% static 'images/bnet.png' %}"/>

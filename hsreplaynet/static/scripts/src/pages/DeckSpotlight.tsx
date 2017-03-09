@@ -45,14 +45,15 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, D
 		else {
 			const decks = this.getDecks(deckData);
 			content = [
-				<h3>Trending now - stats of the last 24 hours</h3>,
+				<h3>Here's a selection of decks which have been rising in popularity over the last 48 hours.</h3>,
+				<h3>Try them out to see what you think!</h3>,
 				<DeckList decks={decks} pageSize={9} hideTopPager urlGameType={null}/>
 			];
 		}
 
 		return (
 			<div id="deck-spotlight">
-				<h1>Daily Deck Spotlight</h1>
+				<h1>Trending Decks</h1>
 				{content}
 				<section id="deck-db-link">
 					<h2>Can't find what you are looking for?</h2>

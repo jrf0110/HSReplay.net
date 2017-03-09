@@ -625,7 +625,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 		const filters = [
 			<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
-				{viewType === "cards" ? "Cards" : (viewType === "statistics" ? "Card statistics" : "My Card Stats")}
+				{viewType === "cards" ? "Gallery" : (viewType === "statistics" ? "Cards" : "My Cards")}
 			</ResetHeader>
 		];
 

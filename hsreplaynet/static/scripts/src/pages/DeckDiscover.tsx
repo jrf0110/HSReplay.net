@@ -273,7 +273,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
 					{backButton}
 					<ResetHeader onReset={() => this.resetFilters()} showReset={queryMapHasChanges(this.state.queryMap, this.getDefeaultQueryMap())}>
-						Deck Database
+						Decks
 					</ResetHeader>
 					<h2>Class</h2>
 					<ClassFilter 
