@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 {% load feature from features %}
 
-{% block title %}{{deck.name|default:"Unnamed Deck"}}{% endblock %}
+{% block title %}{{deck_name|default:"Unnamed Deck"}}{% endblock %}
 
 {% block meta %}
 {% include "decks/meta_tags.html" with deck=deck %}

@@ -23,10 +23,13 @@ class DeckDetailView(View):
 		if len(cards) != 30:
 			raise Http404("Invalid deck")
 
+		guessed_class = guess_class(deck)
+
 		context = {
 			"deck": deck,
 			"card_list": ",".join(str(id) for id in cards),
-			"deck_class": guess_class(deck).name,
+			"deck_class": guessed_class.name if guessed_class else "UNKNOWN",
+			"deck_name": "%s Deck" % (guessed_class.name.capitalize()) if guessed_class else "",
 		}
 
 		return render(request, self.template_name, context)
