@@ -27,7 +27,11 @@
 					{% else %}
 						<td>{{ token.creation_apikey }}</td>
 					{% endif %}
-					<td>{{ token }}</td>
+					{% if user.is_staff %}
+						<td><a href="{% url 'admin:api_authtoken_change' token %}">{{ token }}</a></td>
+					{% else %}
+						<td>{{ token }}</td>
+					{% endif %}
 					<td>{{ token.created }}</td>
 				</tr>
 			{% endfor %}
