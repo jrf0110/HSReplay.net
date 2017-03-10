@@ -6,4 +6,4 @@ from hsreplaynet.features.decorators import view_requires_feature_access
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class MyHighlightsView(LoginRequiredMixin, TemplateView):
-	template_name = "personal/my_highlights.html"
+	template_name = "highlights/my_highlights.html"

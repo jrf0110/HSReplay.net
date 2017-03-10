@@ -6,5 +6,5 @@ my_highlights = views.MyHighlightsView.as_view()
 
 
 urlpatterns = [
-	url(r"^highlights/$", my_highlights, name="my_highlights"),
+	url(r"^mine/$", my_highlights, name="my_highlights"),
 ]
