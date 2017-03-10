@@ -162,9 +162,10 @@ class FeatureInvite(models.Model):
 			from djstripe.models import Customer
 			customer, _ = Customer.get_or_create(user)
 
-			# XXX: Not try-catching the following block
-			customer.subscribe(self.subscribe_to.stripe_id)
-			redeemed = True
+			if not customer.valid_subscriptions.filter(plan=self.subscribe_to):
+				# XXX: Not try-catching the following block
+				customer.subscribe(self.subscribe_to.stripe_id)
+				redeemed = True
 
 		if redeemed:
 			# The invite is only considered redeemed if it had any effect
