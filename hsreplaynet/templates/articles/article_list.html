@@ -1,5 +1,7 @@
 {% extends "articles/base.html" %}
 
+{% block title %}Articles - {{ block.super }}{% endblock %}
+
 {% block meta %}
 <link rel="alternate" type="application/atom+xml" href="{% url 'articles_article_feed' %}"/>
 {% endblock %}
