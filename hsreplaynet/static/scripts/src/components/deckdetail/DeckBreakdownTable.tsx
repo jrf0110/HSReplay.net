@@ -1,16 +1,16 @@
 import * as React from "react";
 import CardData from "../../CardData";
-import DeckBreakdownTableRow from "./DeckBreakdownTableRow";
-import SortableTable, {SortDirection} from "../SortableTable";
-import {TableData, TableQueryData} from "../../interfaces";
 import {cardSorting, isError, isLoading} from "../../helpers";
+import {TableData, TableQueryData} from "../../interfaces";
+import SortableTable, {SortDirection} from "../SortableTable";
+import DeckBreakdownTableRow from "./DeckBreakdownTableRow";
 
 interface DeckBreakdownTableProps extends React.ClassAttributes<DeckBreakdownTable> {
 	cardData: CardData;
 	rawCardsList: string;
 	sortBy: string;
 	sortDirection: SortDirection;
-	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void; 
+	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
 	tableData: TableData;
 	dataKey: string;
 	wildDeck: boolean;
@@ -37,8 +37,8 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 				let basePlayedWinrate = 0;
 				rows = (this.props.tableData as TableQueryData).series.data[this.props.dataKey];
 				if (rows) {
-					const validRows = rows.filter(row => row);
-					validRows.forEach(row => {
+					const validRows = rows.filter((row) => row);
+					validRows.forEach((row) => {
 						baseMulliganWinrate += +row["opening_hand_win_rate"];
 						baseDrawnWinrate += +row["win_rate_when_drawn"];
 						basePlayedWinrate += +row["win_rate_when_played"];
@@ -47,10 +47,10 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 					baseDrawnWinrate /= validRows.length;
 					basePlayedWinrate /= validRows.length;
 				}
-				
+
 				const rowList = [];
-				cardList.forEach(cardObj => {
-					const row = rows && rows.find(r => r["dbf_id"] == cardObj.card.dbfId);
+				cardList.forEach((cardObj) => {
+					const row = rows && rows.find((r) => r["dbf_id"] == cardObj.card.dbfId);
 					rowList.push({row, cardObj});
 				});
 
@@ -62,7 +62,7 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 				else {
 					rowList.sort((a, b) => (+a.row[this.props.sortBy] - +b.row[this.props.sortBy]) * direction);
 				}
-				
+
 				rowList.forEach((item, index) => {
 					cardRows.push(
 						<DeckBreakdownTableRow
@@ -88,7 +88,12 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 			];
 
 			return (
-				<SortableTable sortBy={this.props.sortBy} sortDirection={this.props.sortDirection as SortDirection} onSortChanged={this.props.onSortChanged} headers={tableHeaders}>
+				<SortableTable
+					headers={tableHeaders}
+					onSortChanged={this.props.onSortChanged}
+					sortBy={this.props.sortBy}
+					sortDirection={this.props.sortDirection as SortDirection}
+				>
 					{cardRows}
 				</SortableTable>
 			);
@@ -98,7 +103,7 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 
 	getGroupedCards(cards: string[]): Map<string, number> {
 		let map = new Map<string, number>();
-		cards.forEach(c => map = map.set(c, (map.get(c) || 0) + 1));
+		cards.forEach((c) => map = map.set(c, (map.get(c) || 0) + 1));
 		return map;
 	}
 
