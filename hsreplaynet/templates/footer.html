@@ -23,3 +23,17 @@
 	Running in DEBUG mode.
 </p>
 {% endif %}
+
+<ul class="horizontal-icons">
+	{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
+	<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="social-button">
+		<span class="label">Follow us on Twitter</span>
+		{% include "snippets/twitter_button.svg" with fill="#9e9e9e" width=28 height=28 selector=".social-button" %}
+	</a></li>
+
+	{% setting 'HSREPLAY_DISCORD_URL' as discord_url %}
+	<li><a href="{{ discord_url }}" target="_blank" class="social-button">
+		<span class="label">Join our Discord server</span>
+		{% include "snippets/discord_button.svg" with fill="#9e9e9e" width=28 height=28 selector=".social-button" %}
+	</a></li>
+</ul>

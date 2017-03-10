@@ -98,18 +98,6 @@
 						{% if ft_billing.enabled %}
 							<li{% nav_active 'premium' css='active active-premium' %}><a href="{% url 'premium' %}" class="text-premium">Premium</a></li>
 						{% endif %}
-
-						{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
-						<li class="hidden-xs"><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="social-button">
-							<span class="label">Follow us on Twitter</span>
-							{% include "snippets/twitter_button.svg" with fill="white" width=22 height=22 selector=".social-button" %}
-						</a></li>
-
-						{% setting 'HSREPLAY_DISCORD_URL' as discord_url %}
-						<li class="hidden-xs"><a href="{{ discord_url }}" target="_blank" class="social-button">
-							<span class="label">Join our Discord server</span>
-							{% include "snippets/discord_button.svg" with fill="white" width=24 height=24 selector=".social-button" %}
-						</a></li>
 					</ul>
 					{% endblock %}
 
