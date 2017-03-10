@@ -41,7 +41,7 @@ def fetch_query_results(request, name):
 
 			pegasus_account = request.user.pegasusaccount_set.first()
 			if pegasus_account:
-				supplied_params = dict(request.GET)
+				supplied_params = request.GET.dict()
 				supplied_params["Region"] = pegasus_account.region.name
 				supplied_params["account_lo"] = pegasus_account.account_lo
 				personal_params = query.build_full_params(supplied_params)
