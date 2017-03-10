@@ -2,10 +2,10 @@ import * as React from "react";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
-import DeckList from "../components/DeckList";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
+import RecommendedDecksList from "../components/carddetail/RecommendedDecksList";
 import PremiumWrapper from "../components/PremiumWrapper";
 import TurnPlayedBarChart from "../components/charts/TurnPlayedBarChart";
 import WinrateByTurnLineChart from "../components/charts/WinrateByTurnLineChart";
@@ -26,6 +26,7 @@ import {
 	genCacheKey, QueryMap, getQueryMapArray, getQueryMapFromLocation, queryMapHasChanges,
 	setLocationQueryString, setQueryMap, toQueryString, getQueryMapDiff
 } from "../QueryParser"
+import CardData from "../CardData";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -36,8 +37,6 @@ interface RenderDataMap {
 }
 
 interface CardDetailState {
-	card?: any;
-	cardData?: Map<string, any>;
 	classDistribution?: RenderDataMap;
 	deckData?: TableDataMap;
 	discoverChoices?: TableDataMap;
@@ -50,8 +49,9 @@ interface CardDetailState {
 }
 
 interface CardDetailProps extends React.ClassAttributes<CardDetail> {
+	card: any;
 	cardId: string;
-	dbfId: number;
+	cardData: CardData;
 	userIsPremium: boolean;
 }
 
@@ -75,8 +75,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
 		this.state = {
-			card: null,
-			cardData: null,
 			classDistribution: {},
 			deckData: {},
 			discoverChoices: {},
@@ -87,48 +85,35 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			statsByTurnByOpponent: {},
 			statsOverTime: {},
 		}
-
-		new HearthstoneJSON().getLatest((data) => {
-			const map = new Map<string, any>();
-			let thisCard = null;
-			data.forEach(card => {
-				map.set(''+card.dbfId, card);
-				if (card.id == this.props.cardId) {
-					thisCard = card;
-				}
-			});
-			this.setState({cardData: map, card: thisCard});
-			this.fetch(thisCard);
-		});
 	}
 
 	getAllowedValues() {
 		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
 	}
 
-	cardHasTargetReqs(card?: any): boolean {
-		card = card || this.state.card;
-		if (card && card.playRequirements) {
-			return Object.keys(card.playRequirements).some(req => req.toLowerCase().indexOf("target") !== -1);
+	cardHasTargetReqs(): boolean {
+		if (this.props.card && this.props.card.playRequirements) {
+			return Object.keys(this.props.card.playRequirements).some(req => req.toLowerCase().indexOf("target") !== -1);
 		}
 		return false;
 	}
 
-	cardHasDiscover(card?: any): boolean {
-		card = card || this.state.card;
-		return card && card.text && card.text.indexOf("Discover") !== -1;
+	cardHasDiscover(): boolean {
+		return this.props.card && this.props.card.text && this.props.card.text.indexOf("Discover") !== -1;
 	}
 
 	cardIsNeutral(card?: any): boolean {
-		card = card || this.state.card;
-		return card && card.playerClass === "NEUTRAL";
+		return this.props.card && this.props.card.playerClass === "NEUTRAL";
 	}
 
 	componentDidUpdate(prevProps: CardDetailProps, prevState: CardDetailState) {
 		const cacheKey = genCacheKey(this)
 		const prevCacheKey = genCacheKey(this, prevState);
 		if (cacheKey !== prevCacheKey) {
-			this.fetch(this.state.card);
+			this.fetch();
+		}
+		if (!prevProps.cardData && this.props.cardData) {
+			this.fetch();
 		}
 		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
 	}
@@ -141,7 +126,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			mostPopularTargets = [
 				<h4>Most popular targets</h4>,
 				<CardRankingTable
-					cardData={this.state.cardData}
+					cardData={this.props.cardData}
 					numRows={8}
 					tableData={this.state.popularTargets[cacheKey]}
 					dataKey={"ALL"}
@@ -156,7 +141,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			discoverChoices = [
 				<h4>Most popular Discover choices</h4>,
 				<CardRankingTable
-					cardData={this.state.cardData}
+					cardData={this.props.cardData}
 					numRows={8}
 					tableData={this.state.discoverChoices[cacheKey]}
 					dataKey={"ALL"}
@@ -171,8 +156,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		let headerContent = null;
 		let cardTables = [];
 		let turnCharts = null;
-		if (this.state.card) {
-			const set = this.state.card.set.toLowerCase();
+		let content = null;
+		if (this.props.card) {
+			const set = this.props.card.set.toLowerCase();
 			if (isReady(this.state.statsOverTime[cacheKey])) {
 				const winrateOverTime = (this.state.statsOverTime[cacheKey] as RenderQueryData).series.find(x => x.metadata.is_winrate_data);
 				replayCount = toPrettyNumber(winrateOverTime.metadata.num_data_points);
@@ -182,11 +168,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				backgroundImage: "url(/static/images/set-icons/" + set + ".png"
 			}
 
-			if (!isCollectibleCard(this.state.card)) {
-				headerContent = (
-					<div id="message-wrapper">
+			if (!isCollectibleCard(this.props.card)) {
+				content = (
+					<div className="message-wrapper">
 						<h3>Sorry, we currently don't have statistics for non-collectible cards.</h3>
-						<a href="/cards/">Check out our card database for card with available stats!</a>
+						<a href="/cards/stats/" className="promo-button">Show available cards</a>
 					</div>
 				);
 			}
@@ -292,25 +278,73 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						</div>
 					);
 				}
+
+				let recommendedDecks = null;
+				if (this.state.queryMap.gameType === "ARENA") {
+					recommendedDecks = <h3 className="message-wrapper">No decks found.</h3>;
+				}
+				else {
+					recommendedDecks = (
+						<RecommendedDecksList
+							card={this.props.card}
+							cardData={this.props.cardData}
+							deckData={this.state.deckData[cacheKey]}
+							urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
+						/>
+					);
+				}
+
+				content = [
+					<section id="content-header">
+						{headerContent}
+					</section>,
+					<section id="page-content">
+						<ul className="nav nav-tabs content-tabs">
+							<li className="active"><a data-toggle="tab" href="#recommended-decks">Recommended decks</a></li>
+							<li><a data-toggle="tab" href="#turn-stats">Turn stats</a></li>
+							<li className={cardTables.length ? "" : "hidden"}><a data-toggle="tab" href="#related-cards">Related cards</a></li>
+							<li className={classDistribution ? "" : "hidden"}><a data-toggle="tab" href="#popularity">Popularity</a></li>
+						</ul>
+						<div className="tab-content">
+							<div id="recommended-decks" className="tab-pane fade in active">
+								{recommendedDecks}
+							</div>
+							<div id="turn-stats" className="tab-pane fade">
+								{turnCharts}
+							</div>
+							<div id="related-cards" className={"tab-pane fade"}>
+								<div id="card-tables">
+									{cardTables}
+								</div>
+							</div>
+							<div id="popularity" className={"tab-pane fade"}>
+								{classDistribution}
+							</div>
+						</div>
+					</section>
+				]
 			}
+		}
+		else {
+			content = <h3 className="message-wrapper">Loading...</h3>;
 		}
 
 		let race = null;
-		if (this.state.card && this.state.card.race) {
+		if (this.props.card && this.props.card.race) {
 			race = (
 				<li>
 					Race
-					<span className="infobox-value">{toTitleCase(this.state.card.race)}</span>
+					<span className="infobox-value">{toTitleCase(this.props.card.race)}</span>
 				</li>
 			);
 		}
 
 		let craftingCost = null;
-		if (this.state.card && this.state.card.rarity && this.state.card.rarity !== "FREE" && this.state.card.set !== "CORE") {
+		if (this.props.card && this.props.card.rarity && this.props.card.rarity !== "FREE" && this.props.card.set !== "CORE") {
 			craftingCost = (
 				<li>
 					Cost
-					<span className="infobox-value">{getDustCost(this.state.card) + " Dust"}</span>
+					<span className="infobox-value">{getDustCost(this.props.card) + " Dust"}</span>
 				</li>
 			);
 		}
@@ -339,133 +373,58 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				<ul>
 					<li>
 						Class
-						<span className="infobox-value">{this.state.card && toTitleCase(this.state.card.playerClass)}</span>
+						<span className="infobox-value">{this.props.card && toTitleCase(this.props.card.playerClass)}</span>
 					</li>
 					<li>
 						Type
-						<span className="infobox-value">{this.state.card && toTitleCase(this.state.card.type)}</span>
+						<span className="infobox-value">{this.props.card && toTitleCase(this.props.card.type)}</span>
 					</li>
 					<li>
 						Rarity
-						<span className="infobox-value">{this.state.card && toTitleCase(this.state.card.rarity)}</span>
+						<span className="infobox-value">{this.props.card && toTitleCase(this.props.card.rarity)}</span>
 					</li>
 					<li>
 						Set
-						<span className="infobox-value">{this.state.card && this.state.card.set && setNames[this.state.card.set.toLowerCase()]}</span>
+						<span className="infobox-value">{this.props.card && this.props.card.set && setNames[this.props.card.set.toLowerCase()]}</span>
 					</li>
 					{race}
 					{craftingCost}
 					<li>
 						Artist
-						<span className="infobox-value">{this.state.card && this.state.card.artist}</span>
+						<span className="infobox-value">{this.props.card && this.props.card.artist}</span>
 					</li>
 				</ul>
 			</aside>
 			<main>
-				<section id="content-header">
-					{headerContent}
-				</section>
-				<section id="page-content">
-					<ul className="nav nav-tabs content-tabs">
-						<li className="active"><a data-toggle="tab" href="#recommended-decks">Recommended decks</a></li>
-						<li><a data-toggle="tab" href="#turn-stats">Turn stats</a></li>
-						<li className={cardTables.length ? "" : "hidden"}><a data-toggle="tab" href="#related-cards">Related cards</a></li>
-						<li className={classDistribution ? "" : "hidden"}><a data-toggle="tab" href="#popularity">Popularity</a></li>
-					</ul>
-					<div className="tab-content">
-						<div id="recommended-decks" className="tab-pane fade in active">
-							{this.buildRecommendedDecks()}
-						</div>
-						<div id="turn-stats" className="tab-pane fade">
-							{turnCharts}
-						</div>
-						<div id="related-cards" className={"tab-pane fade"}>
-							<div id="card-tables">
-								{cardTables}
-							</div>
-						</div>
-						<div id="popularity" className={"tab-pane fade"}>
-							{classDistribution}
-						</div>
-					</div>
-				</section>
+				{content}
 			</main>
 		</div>;
 	}
 
 	getCleanFlavorText(): string {
-		if (!this.state.card || !this.state.card.flavor) {
+		if (!this.props.card || !this.props.card.flavor) {
 			return null;
 		}
-		return this.state.card.flavor.replace("<i>", "").replace("</i>", "");
+		return this.props.card.flavor.replace("<i>", "").replace("</i>", "");
 	}
 
-	buildRecommendedDecks(): JSX.Element[] {
-		const cacheKey = genCacheKey(this);
-		if (!isReady(this.state.deckData[cacheKey])) {
-			return null;
-		}
-
-		if(!this.state.cardData) {
-			return null;
-		}
-
-		const decks: DeckObj[] = [];
-		const data = (this.state.deckData[cacheKey] as TableQueryData).series.data;
-		Object.keys(data).forEach(playerClass => {
-			const classDecks = [];
-
-			data[playerClass].forEach(deck => {
-				const cards = JSON.parse(deck["deck_list"]);
-				if (cards.some(pair => pair[0] === this.props.dbfId)) {
-					classDecks.push({cards, deck, numGames: +deck["total_games"]});
-				}
-			})
-
-			classDecks.sort((a, b) => b.numGames - a.numGames);
-
-			classDecks.slice(0, 10).forEach(deck => {
-				const cardData = deck.cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
-				decks.push({
-					cards: cardData,
-					deckId: +deck.deck["deck_id"],
-					duration: +deck.deck["avg_game_length_seconds"],
-					numGames: +deck.deck["total_games"],
-					playerClass: playerClass,
-					winrate: +deck.deck["win_rate"]
-				});
-			});
-		});
-
-		if (!decks.length) {
-			return null;
-		}
-
-		decks.sort((a, b) => b.numGames - a.numGames);
-
-		return [
-			<DeckList 
-				decks={decks}
-				pageSize={10}
-				hideTopPager
-				urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
-			/>
-		];
+	loadingMessage(): JSX.Element {
+		return <h3 className="message-wrapper">Loading...</h3>;
 	}
-	
+
 	getBadgeColor(winrate: number) {
 		const factor = winrate > 50 ? 4 : 3;
 		const colorWinrate = 50 + Math.max(-50, Math.min(50, (factor * (winrate - 50))));
 		return getColorString(Colors.REDGREEN4, 50, colorWinrate/100);
 	}
 
-	fetch(card: any) {
-		if (!isCollectibleCard(card)) {
+	fetch() {
+		if (!this.props.card || !isCollectibleCard(this.props.card)) {
 			return;
 		}
 
 		const buildUrl = (queryName: string): string => {
-			return "/analytics/query/" + queryName + "?card_id=" + this.props.dbfId + "&GameType=" + this.state.queryMap.gameType;
+			return "/analytics/query/" + queryName + "?card_id=" + this.props.card.dbfId + "&GameType=" + this.state.queryMap.gameType;
 		}
 
 		const cacheKey = genCacheKey(this);
@@ -481,21 +440,21 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			return !this.state[key][cacheKey] || isError(this.state[key][cacheKey]);
 		}
 
-		if (this.cardIsNeutral(card) && hasNoData("classDistribution")) {
+		if (this.cardIsNeutral() && hasNoData("classDistribution")) {
 			this.queryManager.fetch(
 				buildUrl("single_card_class_distribution_by_include_count"),
 				(data) => setData("classDistribution", data)
 			);
 		}
 
-		if (this.cardHasTargetReqs(card) && hasNoData("popularTargets")) {
+		if (this.cardHasTargetReqs() && hasNoData("popularTargets")) {
 			this.queryManager.fetch(
 				buildUrl("single_card_popular_targets"),
 				(data) => setData("popularTargets", data)
 			);
 		}
 
-		if (this.cardHasDiscover(card) && hasNoData("discoverChoices")) {
+		if (this.cardHasDiscover() && hasNoData("discoverChoices")) {
 			this.queryManager.fetch(
 				buildUrl("single_card_choices_by_winrate"),
 				(data) => setData("discoverChoices", data)
