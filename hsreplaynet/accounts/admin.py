@@ -8,6 +8,8 @@ from .models import AccountClaim, AccountDeleteRequest, User
 class AuthTokenInline(admin.TabularInline):
 	model = AuthToken
 	extra = 0
+	fields = ("creation_apikey", "created", "test_data", )
+	readonly_fields = ("created", )
 	show_change_link = True
 
 
