@@ -107,6 +107,7 @@ class MockRawUpload(object):
 	def delete(self):
 		self._delete_was_called = True
 
+
 @pytest.mark.django_db
 def test_upload_regression_suite():
 	if os.path.exists(UPLOAD_SUITE):
