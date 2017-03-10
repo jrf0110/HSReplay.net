@@ -123,6 +123,9 @@ class FeatureInvite(models.Model):
 	expires = models.DateTimeField(
 		blank=True, null=True, help_text="No longer valid after this date."
 	)
+	subscribe_to = models.ForeignKey(
+		"djstripe.Plan", null=True, blank=True, help_text="Auto subscribe to this Stripe Plan"
+	)
 
 	created = models.DateTimeField(auto_now_add=True)
 	modified = models.DateTimeField(auto_now=True)
@@ -150,6 +153,14 @@ class FeatureInvite(models.Model):
 		for feature in self.features.all():
 			if feature.add_user_to_authorized_group(user):
 				redeemed = True
+
+		if self.subscribe_to:
+			from djstripe.models import Customer
+			customer, _ = Customer.get_or_create(user)
+
+			# XXX: Not try-catching the following block
+			customer.subscribe(self.subscribe_to.stripe_id)
+			redeemed = True
 
 		if redeemed:
 			# The invite is only considered redeemed if it had any effect
