@@ -1,4 +1,5 @@
 import * as React from "react";
+import CardData from "../CardData";
 import CardHighlightTile from "../components/CardHighlightTile";
 import DeckList from "../components/DeckList";
 import InfoboxFilter from "../components/InfoboxFilter";
@@ -19,7 +20,7 @@ interface MyHighlightsState {
 }
 
 interface MyHighlightsProps extends React.ClassAttributes<MyHighlights> {
-	cardData: {};
+	cardData: CardData;
 	username: string;
 }
 
@@ -38,7 +39,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, MyH
 	}
 
 	getCard(dbfId: number): any {
-		return this.props.cardData["" + (dbfId || 1720)];
+		return this.props.cardData.fromDbf(dbfId || 1720);
 	}
 
 	render(): JSX.Element {
@@ -106,7 +107,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, MyH
 					const gameTypes = Object.keys(deck.game_types);
 					if (gameTypes.indexOf("BGT_RANKED_STANDARD") !== -1 || gameTypes.indexOf("BGT_RANKED_WILD") !== -1) {
 						const cards = deck["deck_list"];
-						const deckList = cards.map(c => {return {card: this.props.cardData[''+c[0]], count: c[1]}});
+						const deckList = cards.map(c => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}});
 						decks.push({
 							cards: deckList,
 							deckId: deck.deck_id,

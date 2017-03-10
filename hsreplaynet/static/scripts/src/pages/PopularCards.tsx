@@ -1,4 +1,5 @@
 import * as React from "react";
+import CardData from "../CardData";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import CardRankingTable from "../components/CardRankingTable";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
@@ -29,7 +30,7 @@ interface PopularCardsState {
 }
 
 interface PopularCardsProps extends React.ClassAttributes<PopularCards> {
-	cardData: Map<string, any>;
+	cardData: CardData;
 	userIsPremium: boolean;
 }
 
@@ -365,7 +366,7 @@ export default class PopularCards extends React.Component<PopularCardsProps, Pop
 			const data = {rarity: {}, cardtype: {}, cardset: {}, cost: {}};
 			const totals = {rarity: 0, cardtype: 0, cardset: 0, cost: 0};
 			rows.forEach(row => {
-				const card = this.props.cardData.get(""+row["dbf_id"])
+				const card = this.props.cardData.fromDbf(row["dbf_id"]);
 				const value = +row["popularity"]
 				data["rarity"][card.rarity] = (data["rarity"][card.rarity] || 0) + value;
 				totals["rarity"] += value;

@@ -1,12 +1,14 @@
 import * as React from "react";
-import {TableData} from "../interfaces";
+import {TableData, TableQueryData} from "../interfaces";
 import CardRankingTableRow from "./CardRankingTableRow";
 import {getQueryMapFromLocation} from "../QueryParser";
+import {isLoading, isError} from "../helpers";
+import CardData from "../CardData";
 
 interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> {
 	tableData: TableData;
 	dataKey: string;
-	cardData: Map<string, any>
+	cardData: CardData;
 	numRows: number;
 	urlGameType: string;
 	clickable?: boolean;
@@ -14,16 +16,16 @@ interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> 
 
 export default class CardRankingTable extends React.Component<CardRankingTableProps, any> {
 	render(): JSX.Element {
-		if (this.props.tableData === "error") {
+		if (isError(this.props.tableData)) {
 			return null;
 		}
 
 		const cardRows = [];
-		if (this.props.cardData && this.props.tableData !== "loading" && this.props.tableData) {
-			const tableRows = this.props.tableData.series.data[this.props.dataKey];
+		if (this.props.cardData && !isLoading(this.props.tableData)) {
+			const tableRows = (this.props.tableData as TableQueryData).series.data[this.props.dataKey];
 			tableRows.sort((a, b) => +b["popularity"] - +a["popularity"]);
 			tableRows.slice(0, this.props.numRows).forEach((row, index) => {
-				const card = this.props.cardData.get(''+row["dbf_id"]);
+				const card = this.props.cardData.fromDbf(row["dbf_id"]);
 				cardRows.push(
 					<CardRankingTableRow
 						card={card}

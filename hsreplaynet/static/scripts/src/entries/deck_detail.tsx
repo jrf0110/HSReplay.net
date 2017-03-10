@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {image, cardArt} from "../helpers";
+import CardData from "../CardData";
 import DeckDetail from "../pages/DeckDetail";
 
 const mockFree = document.cookie.indexOf("free-mode") !== -1;
@@ -9,12 +9,20 @@ const premium = document.body.getAttribute("data-premium") === "1";
 const deckId = +document.getElementById("deck-info").getAttribute("data-deck-id");
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
 const deckClass = document.getElementById("deck-info").getAttribute("data-deck-class");
-ReactDOM.render(
-	<DeckDetail
-		deckId={deckId}
-		deckCards={cards}
-		deckClass={deckClass}
-		userIsPremium={premium && !mockFree}
-	/>,
-	document.getElementById("deck-container")
-);
+
+const render = (cardData: CardData) => {
+	ReactDOM.render(
+		<DeckDetail
+			cardData={cardData}
+			deckCards={cards}
+			deckClass={deckClass}
+			deckId={deckId}
+			userIsPremium={premium && !mockFree}
+		/>,
+		document.getElementById("deck-container")
+	);
+};
+
+render(null);
+
+new CardData().load(render);

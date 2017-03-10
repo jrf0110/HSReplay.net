@@ -1,9 +1,10 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import CardData from "../CardData";
 import DeckSpotlight from "../pages/DeckSpotlight";
 import HearthstoneJSON from "hearthstonejson";
 
-const render = (cardData) => {
+const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<DeckSpotlight cardData={cardData}/>,
 		document.getElementById("deck-spotlight-container")
@@ -12,12 +13,4 @@ const render = (cardData) => {
 
 render(null);
 
-const hsjson = new HearthstoneJSON();
-hsjson.getLatest((data: any[]) => {
-	const db = new Map();
-	for(let i = 0; i < data.length; i++) {
-		const card = data[i];
-		db.set(''+card.dbfId, card);
-	}
-	render(db);
-});
+new CardData().load(render);

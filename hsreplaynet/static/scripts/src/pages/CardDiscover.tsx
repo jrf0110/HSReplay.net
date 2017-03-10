@@ -1,6 +1,5 @@
 import * as React from "react";
-import CardDetailBarChart from "../components/charts/CardDetailBarChart";
-import CardDetailPieChart from "../components/charts/CardDetailPieChart";
+import CardData from "../CardData";
 import CardImage from "../components/CardImage";
 import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
@@ -50,7 +49,7 @@ interface CardDiscoverState {
 }
 
 interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
-	cardData: Map<string, any>;
+	cardData: CardData;
 	userIsPremium: boolean;
 	viewType: ViewType;
 }
@@ -251,7 +250,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	componentWillReceiveProps(nextProps: CardDiscoverProps) {
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
-			nextProps.cardData.forEach((card, id) => {
+			nextProps.cardData.all().forEach((card) => {
 				if (card.name && card.collectible && this.filters.type.indexOf(card.type) !== -1) {
 					cards.push(card);
 				}

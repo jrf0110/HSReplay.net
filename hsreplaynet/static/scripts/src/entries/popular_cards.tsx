@@ -1,12 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import PopularCards from "../pages/PopularCards";
+import CardData from "../CardData";
 import HearthstoneJSON from "hearthstonejson";
+import PopularCards from "../pages/PopularCards";
 
 const mockFree = location.search.indexOf("free") !== -1;
 const premium = document.body.getAttribute("data-premium") === "1";
 
-const render = (cardData) => {
+const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<PopularCards cardData={cardData} userIsPremium={premium && !mockFree} />,
 		document.getElementById("content-container")
@@ -15,12 +16,4 @@ const render = (cardData) => {
 
 render(null);
 
-const hsjson = new HearthstoneJSON();
-hsjson.getLatest((data: any[]) => {
-	const db = new Map();
-	for(let i = 0; i < data.length; i++) {
-		const card = data[i];
-		db.set("" + card.dbfId, card);
-	}
-	render(db);
-});
+new CardData().load(render);

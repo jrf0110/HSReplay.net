@@ -1,4 +1,5 @@
 import * as React from "react";
+import CardData from "../CardData";
 import CardSearch from "../components/CardSearch";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
@@ -26,7 +27,7 @@ interface DeckDiscoverState {
 }
 
 interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
-	cardData: Map<string, any>;
+	cardData: CardData;
 	userIsAuthenticated: boolean;
 	userIsPremium: boolean;
 }
@@ -95,7 +96,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	componentWillReceiveProps(nextProps: DeckDiscoverProps) {
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
-			nextProps.cardData.forEach((card, id) => {
+			nextProps.cardData.all().forEach((card) => {
 				if (card.name && card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1) {
 					cards.push(card);
 				}
@@ -131,13 +132,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			if (deckData && deckData !== "loading" && deckData !== "error") {
 				const deckElements = [];
 				const data = deckData.series.data;
-				const includedCards = getQueryMapArray(queryMap, "includedCards").map(id => this.props.cardData.get(id));
-				const excludedCards = getQueryMapArray(queryMap, "excludedCards").map(id => this.props.cardData.get(id));
+				const includedCards = getQueryMapArray(queryMap, "includedCards").map(dbfId => this.props.cardData.fromDbf(dbfId));
+				const excludedCards = getQueryMapArray(queryMap, "excludedCards").map(dbfId => this.props.cardData.fromDbf(dbfId));
 				Object.keys(data).forEach(key => {
 					if (selectedClass === "ALL" || selectedClass === key) {
 						data[key].forEach(deck => {
 							const cards = JSON.parse(deck["deck_list"]);
-							const deckList = cards.map(c => {return {card: this.props.cardData.get(''+c[0]), count: c[1]}});
+							const deckList = cards.map(c => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}});
 							if (!includedCards.length || includedCards.every(card => deckList.some(cardObj => cardObj.card.id === card.id))) {
 								if (!excludedCards.length || !excludedCards.some(card => deckList.some(cardObj => cardObj.card.id === card.id))) {
 									const costSum = deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
@@ -304,14 +305,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						key={"cardinclude" + this.state.cardSearchIncludeKey}
 						availableCards={this.state.cards}
 						onCardsChanged={(cards) => setQueryMap(this, "includedCards", cards.map(card => card.dbfId).join(","))}
-						selectedCards={this.props.cardData && queryMap["includedCards"] && queryMap["includedCards"].split(",").map(id => this.props.cardData.get(id))}
+						selectedCards={this.props.cardData && queryMap["includedCards"] && queryMap["includedCards"].split(",").map(dbfId => this.props.cardData.fromDbf(dbfId))}
 					/>
 					<h2>Exclude cards</h2>
 					<CardSearch
 						key={"cardexclude" + this.state.cardSearchExcludeKey}
 						availableCards={this.state.cards}
 						onCardsChanged={(cards) => setQueryMap(this, "excludedCards", cards.map(card => card.dbfId).join(","))}
-						selectedCards={this.props.cardData && queryMap["excludedCards"] && queryMap["excludedCards"].split(",").map(id => this.props.cardData.get(id))}
+						selectedCards={this.props.cardData && queryMap["excludedCards"] && queryMap["excludedCards"].split(",").map(dbfId => this.props.cardData.fromDbf(dbfId))}
 					/>
 					<h2>Personal</h2>
 					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["personal"]} onClick={(value) => setQueryMap(this, "personal", value)}>

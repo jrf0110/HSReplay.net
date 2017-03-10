@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import CardData from "../CardData";
 import DeckDiscover from "../pages/DeckDiscover";
-import HearthstoneJSON from "hearthstonejson";
 
 const mockFree = document.cookie.indexOf("free-mode") !== -1;
 const premium = document.body.getAttribute("data-premium") === "1";
@@ -9,7 +9,7 @@ const premium = document.body.getAttribute("data-premium") === "1";
 const container = document.getElementById("deck-discover-container");
 const authenticated = container.getAttribute("data-authenticated").toLowerCase() === "true";
 
-const render = (cardData) => {
+const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<DeckDiscover cardData={cardData} userIsAuthenticated={authenticated} userIsPremium={premium && !mockFree}/>,
 		container
@@ -18,12 +18,4 @@ const render = (cardData) => {
 
 render(null);
 
-const hsjson = new HearthstoneJSON();
-hsjson.getLatest((data: any[]) => {
-	const db = new Map();
-	for(let i = 0; i < data.length; i++) {
-		const card = data[i];
-		db.set(''+card.dbfId, card);
-	}
-	render(db);
-});
+new CardData().load(render);

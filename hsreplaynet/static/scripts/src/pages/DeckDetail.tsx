@@ -1,17 +1,11 @@
 import * as React from "react";
-import CardDetailBarChart from "../components/charts/CardDetailBarChart";
-import CardDetailGauge from "../components/charts/CardDetailGauge";
-import CardDetailPieChart from "../components/charts/CardDetailPieChart";
-import CardIcon from "../components/CardIcon";
+import CardData from "../CardData";
 import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
-import ClassIcon from "../components/ClassIcon";
 import DeckList from "../components/DeckList";
 import HDTButton from "../components/HDTButton";
-import HearthstoneJSON from "hearthstonejson";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
-import InfoIcon from "../components/InfoIcon";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
@@ -23,7 +17,6 @@ import {
 	cardSorting, getChartScheme, getColorString, getDustCost,
 	getHeroCardId, toPrettyNumber, toTitleCase, wildSets, winrateData
 } from "../helpers";
-import {showModal} from "../Premium";
 import {Colors} from "../Colors";
 
 interface Card {
@@ -38,7 +31,6 @@ interface TableDataCache {
 interface DeckDetailState {
 	averageDuration?: RenderData;
 	baseWinrates?: TableData;
-	cardData?: Map<string, any>;
 	deckData?: TableData;
 	expandWinrate?: boolean;
 	myDecks?: MyDecks;
@@ -54,6 +46,7 @@ interface DeckDetailState {
 }
 
 interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
+	cardData: CardData;
 	deckCards: string;
 	deckClass: string;
 	deckId: number;
@@ -69,7 +62,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		this.state = {
 			averageDuration: "loading",
 			baseWinrates: "loading",
-			cardData: null,
 			deckData: "loading",
 			expandWinrate: false,
 			myDecks: null,
@@ -83,14 +75,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			tableDataAll: {},
 			tableDataClasses: {},
 		}
-
-		new HearthstoneJSON().getLatest((data) => {
-			const map = new Map<string, any>();
-			data.forEach(card => map.set(''+card.dbfId, card));
-			this.setState({cardData: map});
-			this.fetch();
-			this.fetchMulliganGuide();
-		});
 	}
 
 	getDeckName(): string {
@@ -116,6 +100,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			if (!all || all === "error" || !byClass || byClass === "error") {
 				this.fetchMulliganGuide();
 			}
+		}
+		if (!prevProps.cardData && this.props.cardData) {
+			this.fetch();
+			this.fetchMulliganGuide();
 		}
 	}
 
@@ -155,18 +143,18 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		let dustCost = 0;
-		if (this.state.cardData) {
+		if (this.props.cardData) {
 			this.props.deckCards.split(",").forEach(id => {
-				const card = this.state.cardData.get(id);
+				const card = this.props.cardData.fromDbf(id);
 				dustCost += getDustCost(card);
 			});
 		}
 		
 		let hdtButton = null;
-		if (this.state.cardData) {
+		if (this.props.cardData) {
 			hdtButton = (
 				<HDTButton
-					card_ids={this.props.deckCards.split(",").map(dbfId => this.state.cardData.get(dbfId).id)}
+					card_ids={this.props.deckCards.split(",").map(dbfId => this.props.cardData.fromDbf(dbfId).id)}
 					class={this.props.deckClass}
 					name={this.getDeckName()}
 					sourceUrl={window.location.toString()}
@@ -337,7 +325,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			return null;
 		}
 
-		if(!this.state.cardData) {
+		if(!this.props.cardData) {
 			return null;
 		}
 		
@@ -366,7 +354,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		byDistance.sort((a, b) => b.numGames - a.numGames);
 
 		byDistance.slice(0, 20).forEach(deck => {
-			const cardData = deck.cards.map(c => {return {card: this.state.cardData.get(''+c[0]), count: c[1]}});
+			const cardData = deck.cards.map(c => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}});
 			decks.push({
 				cards: cardData,
 				deckId: +deck.deck["deck_id"],
@@ -379,7 +367,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const cards: CardObj[] = [];
 		this.props.deckCards.split(",").forEach(id => {
-			const card = this.state.cardData.get(id);
+			const card = this.props.cardData.fromDbf(id);
 			const existing = cards.find(c => c.card.dbfId === +id);
 			if (existing) {
 				existing.count += 1;
@@ -401,13 +389,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	buildChartSeries(): RenderData {
-		if (this.state.cardData && this.props.deckCards) {
+		if (this.props.cardData && this.props.deckCards) {
 			const costs = {};
 			const costValues = [0, 1, 2, 3, 4, 5, 6, 7];
 			costValues.forEach(value => costs[value] = 0);
 
 			this.props.deckCards.split(',')
-				.map(id => this.state.cardData.get(id))
+				.map(id => this.props.cardData.fromDbf(id))
 				.forEach(card => costs[Math.min(7, card.cost)] += 1);
 
 			const series = {
@@ -433,11 +421,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	buildTable(tableData: TableData, key: string): JSX.Element {
 		const cardRows = [];
-		if (this.state.cardData) {
+		if (this.props.cardData) {
 			const cardList = []
 			const rowList = [];
 			const groupedCards = this.getGroupedCards(this.props.deckCards.split(","));
-			groupedCards.forEach((count, cardId) => cardList.push({cardObj: this.state.cardData.get(cardId), count: count}));
+			groupedCards.forEach((count, dbfId) => cardList.push({cardObj: this.props.cardData.fromDbf(dbfId), count: count}));
 
 			let rows = null;
 			let mulliganAvg = 0;
@@ -553,10 +541,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	isWildDeck(): boolean {
-		if (!this.props.deckCards || !this.state.cardData) {
+		if (!this.props.deckCards || !this.props.cardData) {
 			return undefined;
 		}
-		return this.props.deckCards.split(",").map(id => this.state.cardData.get(id))
+		return this.props.deckCards.split(",").map(id => this.props.cardData.fromDbf(id))
 			.some(card => wildSets.indexOf(card.set) !== -1);
 	}
 
