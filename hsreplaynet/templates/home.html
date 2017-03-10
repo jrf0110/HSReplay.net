@@ -76,8 +76,10 @@
 						{% if user.is_staff %}
 							<li><a href="{% url 'admin:index' %}">Admin</a></li>
 						{% endif %}
-						<li><a href="{% url 'my_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
-						<li><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Cards</a></li>
+						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
+							<li><a href="{% url 'my_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
+							<li><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Cards</a></li>
+						{% endif %}
 						<li><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
 						<li>
 							<a href="{% url 'account_edit' %}">

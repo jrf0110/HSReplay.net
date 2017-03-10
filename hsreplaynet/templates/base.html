@@ -136,8 +136,10 @@
 								</script>
 							{% endif %}
 
-							<li{% nav_active 'my_highlights' %}><a href="{% url 'my_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
-							<li{% nav_active 'my_card_stats' %}><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Cards</a></li>
+							{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
+								<li{% nav_active 'my_highlights' %}><a href="{% url 'my_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
+								<li{% nav_active 'my_card_stats' %}><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Cards</a></li>
+							{% endif %}
 							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
 
 							<li{% nav_active 'account_edit' css="active" %}>
