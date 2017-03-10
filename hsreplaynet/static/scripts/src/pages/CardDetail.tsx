@@ -121,43 +121,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	render(): JSX.Element {
 		const cacheKey = genCacheKey(this);
 
-		let mostPopularTargets = null;
-		if (this.cardHasTargetReqs() && isReady(this.state.popularTargets[cacheKey])) {
-			mostPopularTargets = [
-				<h4>Most popular targets</h4>,
-				<CardRankingTable
-					cardData={this.props.cardData}
-					numRows={8}
-					tableData={this.state.popularTargets[cacheKey]}
-					dataKey={"ALL"}
-					clickable
-					urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
-				/>
-			];
-		}
-
-		let discoverChoices = null;
-		if (this.cardHasDiscover() && isReady(this.state.discoverChoices[cacheKey])) {
-			discoverChoices = [
-				<h4>Most popular Discover choices</h4>,
-				<CardRankingTable
-					cardData={this.props.cardData}
-					numRows={8}
-					tableData={this.state.discoverChoices[cacheKey]}
-					dataKey={"ALL"}
-					clickable
-					urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
-				/>
-			];
-		}
-
-		let classDistribution = null;
-		let replayCount = null;
-		let headerContent = null;
-		let cardTables = [];
-		let turnCharts = null;
 		let content = null;
+		let replayCount = null;
 		if (this.props.card) {
+
 			const set = this.props.card.set.toLowerCase();
 			if (isReady(this.state.statsOverTime[cacheKey])) {
 				const winrateOverTime = (this.state.statsOverTime[cacheKey] as RenderQueryData).series.find(x => x.metadata.is_winrate_data);
@@ -177,25 +144,82 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				);
 			}
 			else {
+				let cardStats = [];
+				let cardStatsLoading = false;
 
-				const colWidth = 12 / (+mostPopularTargets + +discoverChoices);
-
-				if (mostPopularTargets) {
-					cardTables.push(
-						<div className={"col-lg-" + colWidth + " col-md-" + colWidth}>
-							{mostPopularTargets}
-						</div>
-					);
+				if (this.cardIsNeutral()){
+					if (isReady(this.state.classDistribution[cacheKey])) {
+						cardStats.push(
+							<div id="class-chart">
+								<CardDetailPieChart
+									removeEmpty
+									renderData={this.state.classDistribution[cacheKey]}
+									scheme={getChartScheme("class")}
+									sortByValue
+									title={"Most included by"}
+								/>
+							</div>
+						);
+					}
+					else {
+						cardStatsLoading = true;
+					}
 				}
-				if (discoverChoices) {
-					cardTables.push(
-						<div className={"col-lg-" + colWidth + " col-md-" + colWidth}>
-							{discoverChoices}
-						</div>
-					);
+
+				if (this.cardHasTargetReqs()) {
+					if (isReady(this.state.popularTargets[cacheKey])) {
+						cardStats.push([
+							<h4>Most popular targets</h4>,
+							<CardRankingTable
+								cardData={this.props.cardData}
+								numRows={8}
+								tableData={this.state.popularTargets[cacheKey]}
+								dataKey={"ALL"}
+								clickable
+								urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
+							/>
+						]);
+					}
+					else {
+						cardStatsLoading = true;
+					}
 				}
 
-				headerContent = [
+				if (this.cardHasDiscover()) {
+					if (isReady(this.state.discoverChoices[cacheKey])) {
+						cardStats.push([
+							<h4>Most popular Discover choices</h4>,
+							<CardRankingTable
+								cardData={this.props.cardData}
+								numRows={8}
+								tableData={this.state.discoverChoices[cacheKey]}
+								dataKey={"ALL"}
+								clickable
+								urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
+							/>
+						]);
+					}
+					else {
+						cardStatsLoading = true;
+					}
+				}
+
+				if (cardStats.length) {
+					const colWidth = 12 / cardStats.length;
+					cardStats = cardStats.map(obj => (
+						<div className={"col-lg-" + colWidth + " col-md-" + colWidth}>
+							{obj}
+						</div>
+					));
+				}
+				else if (cardStatsLoading) {
+					cardStats.push(<h3 className="message-wrapper">Loading...</h3>);
+				}
+				else {
+					cardStats.push(<h3 className="message-wrapper">We currently don't have any specific stats for this card.</h3>);
+				}
+
+				const headerContent = [
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper">
 							<PopularityLineChart
@@ -215,7 +239,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</div>
 				]
 
-				turnCharts = (
+				const turnCharts = (
 					<div className="container-fluid">
 						<div className="row">
 							<div className="opponent-filter-wrapper">
@@ -265,20 +289,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</div>
 				);
 
-				if (this.cardIsNeutral() && isReady(this.state.classDistribution[cacheKey])) {
-					classDistribution = (
-						<div id="class-chart">
-							<CardDetailPieChart
-								removeEmpty
-								renderData={this.state.classDistribution[cacheKey]}
-								scheme={getChartScheme("class")}
-								sortByValue
-								title={"Most included by"}
-							/>
-						</div>
-					);
-				}
-
 				let recommendedDecks = null;
 				if (this.state.queryMap.gameType === "ARENA") {
 					recommendedDecks = <h3 className="message-wrapper">No decks found.</h3>;
@@ -301,9 +311,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<section id="page-content">
 						<ul className="nav nav-tabs content-tabs">
 							<li className="active"><a data-toggle="tab" href="#recommended-decks">Recommended decks</a></li>
-							<li><a data-toggle="tab" href="#turn-stats">Turn stats</a></li>
-							<li className={cardTables.length ? "" : "hidden"}><a data-toggle="tab" href="#related-cards">Related cards</a></li>
-							<li className={classDistribution ? "" : "hidden"}><a data-toggle="tab" href="#popularity">Popularity</a></li>
+							<li><a data-toggle="tab" href="#turn-stats">Turn details</a></li>
+							<li><a data-toggle="tab" href="#card-stats">Card stats</a></li>
 						</ul>
 						<div className="tab-content">
 							<div id="recommended-decks" className="tab-pane fade in active">
@@ -312,13 +321,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							<div id="turn-stats" className="tab-pane fade">
 								{turnCharts}
 							</div>
-							<div id="related-cards" className={"tab-pane fade"}>
+							<div id="card-stats" className={"tab-pane fade"}>
 								<div id="card-tables">
-									{cardTables}
+									{cardStats}
 								</div>
-							</div>
-							<div id="popularity" className={"tab-pane fade"}>
-								{classDistribution}
 							</div>
 						</div>
 					</section>
@@ -406,16 +412,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			return null;
 		}
 		return this.props.card.flavor.replace("<i>", "").replace("</i>", "");
-	}
-
-	loadingMessage(): JSX.Element {
-		return <h3 className="message-wrapper">Loading...</h3>;
-	}
-
-	getBadgeColor(winrate: number) {
-		const factor = winrate > 50 ? 4 : 3;
-		const colorWinrate = 50 + Math.max(-50, Math.min(50, (factor * (winrate - 50))));
-		return getColorString(Colors.REDGREEN4, 50, colorWinrate/100);
 	}
 
 	fetch() {
