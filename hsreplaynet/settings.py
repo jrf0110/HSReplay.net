@@ -402,7 +402,7 @@ REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE = 0
 # 'analytics' WLM Queue in Redshift which is used to process analytics queries
 # Lambdas that run analytics queries will not submit their query if the queue is already
 # fully saturated
-REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT = 20
+REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT = 10
 
 # This queue gets polled once a minute and any queries in it get executed.
 REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME = "redshift_analytics_query_queue"
