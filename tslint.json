@@ -16,13 +16,23 @@
 			true,
 			"never"
 		],
+		"jsx-no-lambda": false,
+		"jsx-no-multiline-js": false,
+		"member-access": false,
+		"member-ordering": false,
 		"no-require-imports": true,
 		"no-string-literal": false,
 		"no-unused-expression": [
 			true,
 			"allow-fast-null-checks"
 		],
-		"object-literal-sort-keys": false,
+		"ordered-import": [
+			true,
+			{
+				"import-sources-order": "any",
+				"named-imports-order": "case-insensitive"
+			}
+		],
 		"one-line": [
 			true,
 			"check-open-brace",
