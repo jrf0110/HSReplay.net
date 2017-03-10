@@ -99,7 +99,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 						}}
 					/>
 				</VictoryChart>
-			];	
+			];
 		}
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>

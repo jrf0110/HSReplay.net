@@ -26,7 +26,7 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
 		}
 		else if (renderData) {
-			const series = renderData.series.find(s => s.name === "popularity_by_turn" 
+			const series = renderData.series.find(s => s.name === "popularity_by_turn"
 				&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 
 			const metaData = getChartMetaData(series.data, undefined, false, 10);
