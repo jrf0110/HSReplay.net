@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.contrib.auth.models import Group
 from django.db import models
 from django.dispatch.dispatcher import receiver
+from django.urls import reverse
 from django.utils.timezone import now
 from django_intenum import IntEnumField
 
@@ -143,6 +144,9 @@ class FeatureInvite(models.Model):
 			return False
 
 		return True
+
+	def get_absolute_url(self):
+		return reverse("feature_invite_redeem") + "?code=%s" % (self.uuid)
 
 	def redeem_for_user(self, user):
 		if not self.is_valid:
