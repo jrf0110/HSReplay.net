@@ -117,6 +117,8 @@
 						{% if user.is_authenticated %}
 							{% if user.is_staff %}
 								<li><a href="{% url 'admin:index' %}">Admin</a></li>
+							{% endif %}
+							{% feature "freemode_toggle" as ft_freemode %}{% if ft_freemode.enabled %}
 								<li><a href="" id="free-mode">Freemode</a></li>
 								<script type="text/javascript">
 									const freeMode = document.cookie.indexOf("free-mode") !== -1;
