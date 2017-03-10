@@ -1,8 +1,10 @@
 import copy
 import json
 import time
+from datetime import datetime
 from django.conf import settings
 from django.core.cache import caches
+from django.utils import timezone
 from hearthstone.cardxml import load
 from hearthstone.enums import CardSet
 from redis_lock import Lock as RedisLock
@@ -20,21 +22,44 @@ from hsreplaynet.utils.influx import influx_metric
 
 class CachedRedshiftResult(object):
 
-	def __init__(self, response_payload, params):
-		self.response_payload = response_payload
+	def __init__(self, result_set, params, is_json=False, as_of=None):
+		self.result_set = result_set
 		self.cached_params = params
+		self.is_json = is_json
+		if as_of:
+			self.as_of = time.mktime(as_of.timetuple())
+		else:
+			self.as_of = None
 
 	def to_json_cacheable_repr(self):
 		return {
-			"response_payload": self.response_payload,
+			"result_set": self.result_set,
+			"as_of": self.as_of,
+			"is_json": self.is_json,
 			"cached_params": self.cached_params.to_json_cacheable_repr()
 		}
 
 	@classmethod
-	def from_json_cacheable_repr(cls, repr):
+	def from_json_cacheable_repr(cls, r):
+		if "result_set" in r:
+			result_data = r["result_set"]
+		else:
+			result_data = r["response_payload"]
+
+		params = RedshiftQueryParams.from_json_cacheable_repr(r["cached_params"])
+
+		is_json = r.get("is_json", False)
+
+		if "as_of" in r and r["as_of"]:
+			as_of = datetime.fromtimestamp(r["as_of"], tz=timezone.get_current_timezone())
+		else:
+			as_of = None
+
 		return CachedRedshiftResult(
-			repr["response_payload"],
-			RedshiftQueryParams.from_json_cacheable_repr(repr["cached_params"])
+			result_data,
+			params,
+			is_json,
+			as_of
 		)
 
 
@@ -122,7 +147,11 @@ def _do_execute_query(query, params):
 			exception_msg = None
 			redshift_connection = get_new_redshift_connection()
 			try:
-				response_payload = query.execute(redshift_connection, params)
+				result_set = query.as_result_set().execute(
+					redshift_connection,
+					params,
+					as_json=True
+				)
 			except Exception as e:
 				exception_raised = True
 				exception_msg = str(e)
@@ -148,7 +177,12 @@ def _do_execute_query(query, params):
 					**params.supplied_filters_dict
 				)
 
-			cached_data = CachedRedshiftResult(response_payload, params)
+			cached_data = CachedRedshiftResult(
+				result_set,
+				params,
+				is_json=True,
+				as_of=timezone.now()
+			)
 
 			get_redshift_cache().set(
 				params.cache_key,
