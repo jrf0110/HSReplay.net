@@ -2,7 +2,8 @@
 	"name": "hsreplaynet",
 	"private": true,
 	"scripts": {
-		"build": "webpack --optimize-minimize --bail"
+		"build": "webpack --optimize-minimize --bail",
+		"lint": "tslint hsreplaynet/static/scripts/src/**/* --force"
 	},
 	"dependencies": {
 		"@types/cookiejs": "^1.0.30",
