@@ -1,26 +1,26 @@
+import moment from "moment";
 import * as React from "react";
 import CardData from "../CardData";
+import { Colors } from "../Colors";
+import PopularityLineChart from "../components/charts/PopularityLineChart";
+import WinrateLineChart from "../components/charts/WinrateLineChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckBreakdownTable from "../components/deckdetail/DeckBreakdownTable";
+import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
 import HDTButton from "../components/HDTButton";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
-import PopularityLineChart from "../components/charts/PopularityLineChart";
 import PremiumWrapper from "../components/PremiumWrapper";
-import QueryManager from "../QueryManager";
-import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
-import WinrateLineChart from "../components/charts/WinrateLineChart";
-import moment from "moment";
 import {SortDirection} from "../components/SortableTable";
 import {
-	CardObj, DeckObj, MyDecks, TableData, 
-	TableRow, ChartSeries, RenderData
-} from "../interfaces";
-import {
-	getColorString, getDustCost, getHeroCardId, 
-	toPrettyNumber, toTitleCase, wildSets
+	getColorString, getDustCost, getHeroCardId,
+	toPrettyNumber, toTitleCase, wildSets,
 } from "../helpers";
-import {Colors} from "../Colors";
+import {
+	CardObj, ChartSeries, DeckObj, MyDecks,
+	RenderData, TableData, TableRow,
+} from "../interfaces";
+import QueryManager from "../QueryManager";
 
 interface TableDataCache {
 	[key: string]: TableData;
