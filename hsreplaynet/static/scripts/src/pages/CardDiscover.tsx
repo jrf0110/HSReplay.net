@@ -628,15 +628,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			</ResetHeader>
 		];
 
-		if(viewType === "statistics" || viewType === "personal") {
-			filters.push(
-				<h2>Data</h2>,
-				<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["filterSparse"]} onClick={(value) => setQueryMap(this, "filterSparse", value)}>
-					<InfoboxFilter value="true">Hide sparse data</InfoboxFilter>
-				</InfoboxFilterGroup>
-			)
-		}
-
 		if (viewType === "cards" || viewType === "personal") {
 			filters.push(
 				<h2>Card class</h2>,
@@ -695,6 +686,15 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</InfoboxFilterGroup>
 				</PremiumWrapper>
 			);
+		}
+
+		if(viewType === "statistics" || viewType === "personal") {
+			filters.push(
+				<h2>Data</h2>,
+				<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["filterSparse"]} onClick={(value) => setQueryMap(this, "filterSparse", value)}>
+					<InfoboxFilter value="true">Hide sparse data</InfoboxFilter>
+				</InfoboxFilterGroup>
+			)
 		}
 
 		filters.push(
