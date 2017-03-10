@@ -147,7 +147,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				content = (
 					<div className="message-wrapper">
 						<h3>Sorry, we currently don't have statistics for non-collectible cards.</h3>
-						<a href="/cards/stats/" className="promo-button">Show available cards</a>
+						<a href="/cards/" className="promo-button">Show available cards</a>
 					</div>
 				);
 			}

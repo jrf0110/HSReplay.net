@@ -12,13 +12,13 @@ popular_cards = views.PopularCardsView.as_view()
 
 
 urlpatterns = [
-	url(r"^$", card_list, name="card_list"),
+	url(r"^$", card_stats, name="card_stats"),
 	url(r"^archetypes/$", deck_archetypes, name="deck_archetypes"),
 	url(r"^counters/$", views.counters, name="deck_counters"),
 	url(r"^editor/", card_editor, name="card_editor"),
 	url(r"^mine/$", my_card_stats, name="my_card_stats"),
 	url(r"^popular/$", popular_cards, name="popular_cards"),
-	url(r"^stats/$", card_stats, name="card_stats"),
+	url(r"^gallery/$", card_list, name="card_list"),
 	url(r"^winrates/$", views.winrates, name="deck_winrates"),
 	url(r"^(?P<pk>\w+)/$", card_detail, name="card_detail"),
 ]
