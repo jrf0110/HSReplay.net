@@ -280,10 +280,12 @@ def _generate_permutations_for_query(query, card_db):
 				else:
 					game_type = "RANKED_STANDARD"
 
-				for deck_id in _get_eligible_deck_ids(game_type):
-					new_permutation = copy.copy(parameter_permutation)
-					new_permutation["deck_id"] = deck_id
-					result.append(new_permutation)
+				if game_type != 'ARENA':
+					# We don't pre-warm deck related queries for ARENA
+					for deck_id in _get_eligible_deck_ids(game_type):
+						new_permutation = copy.copy(parameter_permutation)
+						new_permutation["deck_id"] = deck_id
+						result.append(new_permutation)
 			elif non_filter_parameter == "account_lo":
 				# TODO: Add the ability to enumerage the account_lo values for each registered account
 				pass
