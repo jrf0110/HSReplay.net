@@ -5,6 +5,7 @@ import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
+import NoDecksMessage from "../components/NoDecksMessage";
 import Pager from "../components/Pager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
@@ -214,21 +215,15 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		else if (decks.length === 0) {
 			if (this.state.queryMap["personal"]) {
 				content = (
-					<div className="content-message">
-						<h2>None of your decks are here :(</h2><br />
-						<h3>We can fix that!</h3>
-						<p>
-							Step 1: If you haven't already, <a href="/downloads/">download Hearthstone Deck Tracker</a></p>
-							<p>Step 2: Play some games with a deck from the list and it will show up!</p><br />
-							<p><i>Protip: Every deck has a "Copy deck to HDT" button!</i></p><br />
-							<button
-								className="btn btn-default"
-								type="button"
-								onClick={() => setQueryMap(this, "personal", null)}
-							>
-								Back to the decks
-							</button>
-					</div>
+					<NoDecksMessage>
+						<button
+							className="btn btn-default"
+							type="button"
+							onClick={() => setQueryMap(this, "personal", null)}
+						>
+							Back to the decks
+						</button>
+					</NoDecksMessage>
 				);
 			}
 			else {
