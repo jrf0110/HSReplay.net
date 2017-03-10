@@ -800,13 +800,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			else if (exclude === "class" && card.playerClass !== "NEUTRAL") {
 				return true;
 			}
-			if (card.multiClassGroup && this.multiClassGroups[card.multiClassGroup].indexOf(card.playerClass) === -1) {
+			const playerClass = this.state.queryMap["playerClass"];
+			if (playerClass !== "ALL" && card.multiClassGroup && this.multiClassGroups[card.multiClassGroup].indexOf(playerClass) === -1) {
 				return true;
 			}
 			if (this.state.queryMap["gameType"] === "RANKED_STANDARD" && wildSets.indexOf(card.set) !== -1) {
 				return true;
 			}
-			const playerClass = this.state.queryMap["playerClass"];
 			if (playerClass !== "ALL" && playerClass !== card.playerClass && card.playerClass !== "NEUTRAL") {
 				return true;
 			}
