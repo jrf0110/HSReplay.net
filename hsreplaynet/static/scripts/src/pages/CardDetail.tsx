@@ -102,8 +102,16 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		return this.props.card && this.props.card.text && this.props.card.text.indexOf("Discover") !== -1;
 	}
 
-	cardIsNeutral(card?: any): boolean {
+	cardIsNeutral(): boolean {
 		return this.props.card && this.props.card.playerClass === "NEUTRAL";
+	}
+
+	componentWillReceiveProps(nextProps: CardDetailProps) {
+		if (!this.props.card && nextProps.card) {
+			if (isWildCard(nextProps.card)) {
+				setQueryMap(this, "gameType", "RANKED_WILD");
+			}
+		}
 	}
 
 	componentDidUpdate(prevProps: CardDetailProps, prevState: CardDetailState) {
@@ -112,7 +120,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		if (cacheKey !== prevCacheKey) {
 			this.fetch();
 		}
-		if (!prevProps.cardData && this.props.cardData) {
+		else if (!prevProps.cardData && this.props.cardData) {
 			this.fetch();
 		}
 		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
@@ -360,9 +368,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				<img className="card-image" src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"} />
 				<p>{this.getCleanFlavorText()}</p>
 				<InfoboxFilterGroup header="Mode" selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
-					<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+					<InfoboxFilter disabled={this.props.card && isWildCard(this.props.card)} value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
 					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-					<InfoboxFilter value="ARENA">Arena</InfoboxFilter>
+					<InfoboxFilter disabled={this.props.card && isWildCard(this.props.card)} value="ARENA">Arena</InfoboxFilter>
 				</InfoboxFilterGroup>
 				<h2>Data</h2>
 				<ul>
