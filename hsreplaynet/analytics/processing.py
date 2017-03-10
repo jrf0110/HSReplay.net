@@ -275,7 +275,7 @@ def get_queries_for_cache_warming(eligible_queries=None):
 	queries = []
 	card_db, _ = load()
 	for query in RedshiftCatalogue.instance().inventory.values():
-		if not query.is_personalized:
+		if not query.is_personalized and not query.global_query:
 			if eligible_queries is None or query.name in eligible_queries:
 				for permutation in _generate_permutations_for_query(query, card_db):
 					queries.append({
