@@ -2,6 +2,7 @@ from uuid import uuid4
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django_intenum import IntEnumField
 from hsreplaynet.games.models import Visibility
@@ -79,7 +80,10 @@ class User(AbstractUser):
 		customer, created = Customer.get_or_create(self)
 		if created:
 			return False
-		return customer.has_active_subscription()
+
+		now = timezone.now()
+		subscriptions = customer.subscriptions.filter(status="active", current_period_end__gt=now)
+		return subscriptions.count() >= 0
 
 	def delete_replays(self):
 		self.replays.update(is_deleted=True)
