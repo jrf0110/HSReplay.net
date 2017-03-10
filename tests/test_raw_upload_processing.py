@@ -107,14 +107,6 @@ class MockRawUpload(object):
 	def delete(self):
 		self._delete_was_called = True
 
-
-upload_regression_suite = pytest.mark.skipif(
-	not pytest.config.getoption("--all"),
-	reason="need --all option to run"
-)
-
-
-@upload_regression_suite
 @pytest.mark.django_db
 def test_upload_regression_suite():
 	if os.path.exists(UPLOAD_SUITE):
