@@ -159,7 +159,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, MyH
 			else {
 				return (
 					<NoDecksMessage>
-						<a className="promo-button" href="/decks/spotlight/">
+						<a className="promo-button" href="/trending/">
 							Check out the trending decks
 						</a>
 					</NoDecksMessage>

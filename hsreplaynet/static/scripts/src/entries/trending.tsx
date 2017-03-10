@@ -7,7 +7,7 @@ import HearthstoneJSON from "hearthstonejson";
 const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<DeckSpotlight cardData={cardData}/>,
-		document.getElementById("deck-spotlight-container")
+		document.getElementById("trending-container")
 	);
 };
 

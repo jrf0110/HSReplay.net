@@ -38,6 +38,7 @@ if not settings.ENV_LAMBDA:
 		# url(r"^markdownx/", include("markdownx.urls")),
 		url(r"^pages/", include("django.contrib.flatpages.urls")),
 		url(r"^personal/", include("hsreplaynet.personal.urls")),
+		url(r"^trending/", include("hsreplaynet.trending.urls")),
 		url(r"^oauth2/", include("hsreplaynet.oauth2.urls")),
 	]
 
