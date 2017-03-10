@@ -19,7 +19,7 @@
 <section id="account-billing-plan" class="box-section">
 	<h3>Premium plan</h3>
 	<div class="inner">
-		{% with customer.subscription as sub %}
+		{% with customer.valid_subscriptions.first as sub %}
 		{% if sub %}
 
 			<h4>{{ sub.plan.name }} ({{ sub.plan.human_readable_cost }})</h4>
