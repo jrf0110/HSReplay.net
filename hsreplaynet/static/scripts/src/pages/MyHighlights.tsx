@@ -97,7 +97,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, MyH
 				<CardHighlightTile card={this.getCard(max.times_played["dbf_id"])} title="Most played" value={max.times_played["times_played"] + " times"}/>,
 				<CardHighlightTile card={this.getCard(max.minions_killed["dbf_id"])} title="Most minions killed" value={max.minions_killed["minions_killed"]}/>,
 				<CardHighlightTile card={this.getCard(max.heroes_killed["dbf_id"])} title="Most heroes killed" value={max.heroes_killed["heroes_killed"]}/>,
-				<CardHighlightTile card={this.getCard(max.num_distinct_decks["dbf_id"])} title="Most versitile" value={"in " + max.num_distinct_decks["num_distinct_decks"] + " decks"}/>,
+				<CardHighlightTile card={this.getCard(max.num_distinct_decks["dbf_id"])} title="Most versatile" value={"in " + max.num_distinct_decks["num_distinct_decks"] + " decks"}/>,
 				<CardHighlightTile card={this.getCard(max.win_rate["dbf_id"])} title="Highest winrate" value={max.win_rate["win_rate"] + "%"}/>,
 			];
 
