@@ -1,7 +1,7 @@
 import * as React from "react";
 import CardData from "../CardData";
-import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import DeckBreakdownTable from "../components/deckdetail/DeckBreakdownTable";
 import DeckList from "../components/DeckList";
 import HDTButton from "../components/HDTButton";
 import InfoboxFilter from "../components/InfoboxFilter";
@@ -9,20 +9,18 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
-import SortableTable, {SortDirection} from "../components/SortableTable";
+import {SortDirection} from "../components/SortableTable";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import moment from "moment";
-import {CardObj, DeckObj, MyDecks, TableData, TableRow, ChartSeries, RenderData} from "../interfaces";
 import {
-	cardSorting, getChartScheme, getColorString, getDustCost,
-	getHeroCardId, toPrettyNumber, toTitleCase, wildSets, winrateData
+	CardObj, DeckObj, MyDecks, TableData, 
+	TableRow, ChartSeries, RenderData
+} from "../interfaces";
+import {
+	getColorString, getDustCost, getHeroCardId, 
+	toPrettyNumber, toTitleCase, wildSets
 } from "../helpers";
 import {Colors} from "../Colors";
-
-interface Card {
-	cardObj: any;
-	count: number;
-}
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -39,7 +37,7 @@ interface DeckDetailState {
 	showInfo?: boolean;
 	similarDecks?: TableData;
 	sortBy?: string;
-	sortDirection?: string;
+	sortDirection?: SortDirection;
 	statsOverTime?: RenderData;
 	tableDataAll?: TableDataCache;
 	tableDataClasses?: TableDataCache;
@@ -308,7 +306,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="tab-content">
 						<div id="deck-breakdown" className="tab-pane fade in active">
 							<div className="table-wrapper">
-								{this.buildTable(selectedTable, selectedClass)}
+								<DeckBreakdownTable
+									cardData={this.props.cardData}
+									dataKey={selectedClass}
+									onSortChanged={(sortBy: string, sortDirection: SortDirection) => this.setState({sortBy, sortDirection})}
+									rawCardsList={this.props.deckCards}
+									sortBy={this.state.sortBy}
+									sortDirection={this.state.sortDirection}
+									tableData={selectedTable}
+									wildDeck={this.isWildDeck()}
+								/>
 							</div>
 						</div>
 						<div id="similar-decks" className="tab-pane fade">
@@ -417,127 +424,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		let map = new Map<string, number>();
 		cards.forEach(c => map = map.set(c, (map.get(c) || 0) + 1));
 		return map;
-	}
-
-	buildTable(tableData: TableData, key: string): JSX.Element {
-		const cardRows = [];
-		if (this.props.cardData) {
-			const cardList = []
-			const rowList = [];
-			const groupedCards = this.getGroupedCards(this.props.deckCards.split(","));
-			groupedCards.forEach((count, dbfId) => cardList.push({cardObj: this.props.cardData.fromDbf(dbfId), count: count}));
-
-			let rows = null;
-			let mulliganAvg = 0;
-			let drawnAvg = 0;
-			let playedAvg = 0;
-			if (tableData && tableData !== "loading" && tableData !== "error") {
-				rows = tableData.series.data[key];
-				if (rows) {
-					const validRows = rows.filter(row => row);
-					validRows.forEach(row => {
-						mulliganAvg += +row["opening_hand_win_rate"];
-						drawnAvg += +row["win_rate_when_drawn"];
-						playedAvg += +row["win_rate_when_played"];
-					});
-					mulliganAvg /= validRows.length;
-					drawnAvg /= validRows.length;
-					playedAvg /= validRows.length;
-				}
-			}
-			cardList.forEach(card => {
-				const row = rows && rows.find(r => r["dbf_id"] === card.cardObj.dbfId);
-				rowList.push({row: row, card: card})
-			})
-
-			const direction = this.state.sortDirection === "ascending" ? 1 : -1;
-
-			if (this.state.sortBy === "decklist") {
-				rowList.sort((a, b) => cardSorting(a, b, direction));
-			}
-			else {
-				rowList.sort((a, b) => (+a.row[this.state.sortBy] - +b.row[this.state.sortBy]) * direction);
-			}
-			
-			rowList.forEach((item, index) => {
-				cardRows.push(this.buildCardRow(item.card, index === 0, rowList.length, item.row, key !== "ALL", mulliganAvg, drawnAvg, playedAvg));
-			});
-		}
-
-		const onSortChanged = (sortBy: string, sortDirection: SortDirection): void => {
-			this.setState({sortBy, sortDirection});
-		};
-
-		const tableHeaders = [
-			{key: "decklist", text: "Card", defaultSortDirection: "ascending" as SortDirection},
-			{key: "opening_hand_win_rate", text: "Mulligan WR", infoHeader: "Mulligan Winrate", infoText: "Winrate when the card ends up in the opening hand." },
-			{key: "keep_percentage", text: "Kept", infoHeader: "Kept", infoText: "Percentage the card was kept when presented during mulligan." },
-			{key: "win_rate_when_drawn", text: "Drawn WR", infoHeader: "Drawn Winrate", infoText: "Average winrate of games where the card was drawn at any point." },
-			{key: "win_rate_when_played", text: "Played WR", infoHeader: "Played Winrate", infoText: "Average winrate of games where the card was played at any point." },
-			{key: "avg_turns_in_hand", text: "Turns held", infoHeader: "Turns held", infoText: "Average number of turn the card is held in hand."},
-			{key: "avg_turn_played_on", text: "Turn played", infoHeader: "Turn played", infoText: "Average turn the card is played on." },
-		];
-
-		return (
-			<SortableTable sortBy={this.state.sortBy} sortDirection={this.state.sortDirection as SortDirection} onSortChanged={onSortChanged} headers={tableHeaders}>
-				{cardRows}
-			</SortableTable>
-		);
-	}
-
-	buildCardRow(
-		card: any, firstRow: boolean, rowCount: number, row: TableRow, full: boolean, mulliganWinrate: number,
-		drawnWinrate: number, playedWinrate: number
-	): JSX.Element {
-		if (!card) {
-			return null;
-		}
-		const cols = [];
-		let url = "/cards/" + card.cardObj.dbfId + "/";
-		if (this.isWildDeck()) {
-			url += "#gameType=RANKED_WILD";
-		}
-		cols.push(<td>
-			<div className="card-wrapper">
-				<a href={url}>
-					<CardTile height={34} card={card.cardObj} count={card.count} rarityColored tooltip/>
-				</a>
-			</div>
-		</td>);
-		if (row) {
-			const mulligan = winrateData(mulliganWinrate, +row["opening_hand_win_rate"], 5);
-			const drawn = winrateData(drawnWinrate, +row["win_rate_when_drawn"], 5);
-			const played =winrateData(playedWinrate, +row["win_rate_when_played"], 5);
-			let statusIcon = null;
-			if (+row["times_in_opening_hand"] < 30) {
-				statusIcon = <span className="glyphicon glyphicon-warning-sign" title="Low number of data points" />;
-			}
-			cols.push(
-				<td className="winrate-cell" style={{color: mulligan.color}}>
-					{mulligan.tendencyStr + (+row["opening_hand_win_rate"]).toFixed(1) + "%"}
-					{statusIcon}
-				</td>,
-				<td>{(+row["keep_percentage"]).toFixed(1) + "%"}</td>,
-				<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+row["win_rate_when_drawn"]).toFixed(1) + "%"}</td>,
-				<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+row["win_rate_when_played"]).toFixed(1) + "%"}</td>,
-				<td>{(+row["avg_turns_in_hand"]).toFixed(1)}</td>,
-				<td>{(+row["avg_turn_played_on"]).toFixed(1)}</td>,
-			);
-		}
-		else {
-			cols.push(
-				<td style={{whiteSpace: "pre"}}> </td>,
-				<td></td>,
-				<td></td>,
-				<td></td>,
-				<td></td>,
-				<td></td>,
-				<td></td>,
-			);
-		}
-		return <tr className="card-table-row">
-			{cols}
-		</tr>;
 	}
 
 	isWildDeck(): boolean {

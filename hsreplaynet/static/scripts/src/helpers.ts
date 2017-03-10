@@ -484,19 +484,17 @@ export function getColorString(
 }
 
 export function cardSorting(a: any, b: any, direction = 1): number {
+	if (a.cardObj !== undefined) {
+		a = a.cardObj;
+	}
 	if (a.card !== undefined) {
-		if (a.card.cardObj !== undefined) {
-			a = a.card.cardObj;
-		} else {
-			a = a.card;
-		}
+		a = a.card;
+	} 
+	if (b.cardObj !== undefined) {
+		b = b.cardObj;
 	}
 	if (b.card !== undefined) {
-		if (b.card.cardObj !== undefined) {
-			b = b.card.cardObj;
-		} else {
-			b = b.card;
-		}
+		b = b.card;
 	}
 	if (a.cost > b.cost) {
 		return direction;
