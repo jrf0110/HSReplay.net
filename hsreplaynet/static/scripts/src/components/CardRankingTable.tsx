@@ -25,7 +25,8 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 			const tableRows = (this.props.tableData as TableQueryData).series.data[this.props.dataKey];
 			tableRows.sort((a, b) => +b["popularity"] - +a["popularity"]);
 			tableRows.slice(0, this.props.numRows).forEach((row, index) => {
-				const card = this.props.cardData.fromDbf(row["dbf_id"]);
+				const isFace = +row["dbf_id"] === -1;
+				const card = this.props.cardData.fromDbf(isFace ? 39770 : row["dbf_id"]);
 				cardRows.push(
 					<CardRankingTableRow
 						card={card}
@@ -33,6 +34,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 						rank={index + 1}
 						clickable={this.props.clickable}
 						urlGameType={this.props.urlGameType}
+						customCardText={isFace ? "Opponent Hero" : undefined}
 					/>
 				);
 			})

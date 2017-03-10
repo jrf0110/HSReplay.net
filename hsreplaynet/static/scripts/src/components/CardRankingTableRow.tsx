@@ -7,6 +7,7 @@ interface CardRankingTableRowProps extends React.ClassAttributes<CardRankingTabl
 	rank: number;
 	clickable?: boolean;
 	urlGameType?: string;
+	customCardText?: string;
 }
 
 export default class CardRankingTableRow extends React.Component<CardRankingTableRowProps, any> {
@@ -14,7 +15,15 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 		if (!this.props.card) {
 			return null;
 		}
-		let cardTile = <CardTile height={34} card={this.props.card} count={1} rarityColored tooltip/>;
+		let cardTile = (
+			<CardTile
+				height={34}
+				card={this.props.card}
+				count={1}
+				rarityColored
+				customText={this.props.customCardText}
+			/>
+		);
 		if (this.props.clickable) {
 			let url = "/cards/" + this.props.card.dbfId + "/";
 			if (this.props.urlGameType) {

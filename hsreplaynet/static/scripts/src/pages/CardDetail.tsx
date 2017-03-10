@@ -181,7 +181,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							<CardRankingTable
 								cardData={this.props.cardData}
 								numRows={8}
-								tableData={this.state.popularTargets[cacheKey]}
+								tableData={this.mergeHeroes(this.state.popularTargets[cacheKey] as TableQueryData)}
 								dataKey={"ALL"}
 								clickable
 								urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
@@ -413,6 +413,25 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				{content}
 			</main>
 		</div>;
+	}
+
+	mergeHeroes(tableData: TableQueryData): TableQueryData {
+		if (!this.props.cardData) {
+			return tableData;
+		}
+		const all = [];
+		const hero = {dbf_id: -1, popularity: 0};
+		tableData.series.data.ALL.forEach((x) => {
+			const card = this.props.cardData.fromDbf(x.dbf_id);
+			if (card.type === "HERO") {
+				hero.popularity += +x.popularity;
+			}
+			else {
+				all.push(x);
+			}
+		});
+		all.push(hero);
+		return {series: {data: {ALL: all}}};
 	}
 
 	getCleanFlavorText(): string {
