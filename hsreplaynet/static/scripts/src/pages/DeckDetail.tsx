@@ -72,7 +72,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			statsOverTime: "loading",
 			tableDataAll: {},
 			tableDataClasses: {},
-		}
+		};
 	}
 
 	getDeckName(): string {
@@ -82,7 +82,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	getBadgeColor(winrate: number) {
 		const factor = winrate > 50 ? 4 : 3;
 		const colorWinrate = 50 + Math.max(-50, Math.min(50, (factor * (winrate - 50))));
-		return getColorString(Colors.REDGREEN4, 50, colorWinrate/100);
+		return getColorString(Colors.REDGREEN4, 50, colorWinrate / 100);
 	}
 
 	cacheKey(state?: DeckDetailState): string {
@@ -110,7 +110,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const allSelected = selectedClass === "ALL";
 
 		let replayCount = null;
-		const selectedTable = allSelected ? this.state.tableDataAll[this.cacheKey()] : this.state.tableDataClasses[this.cacheKey()];
+		const selectedTable = (allSelected ? this.state.tableDataAll : this.state.tableDataClasses)[this.cacheKey()];
 		if (selectedTable && selectedTable !== "loading" && selectedTable !== "error") {
 			const metadata = selectedTable.series.metadata;
 			const numGames = allSelected ? metadata["total_games"] : metadata[selectedClass]["total_games"];
@@ -121,60 +121,60 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const title = [
 			<img src={STATIC_URL + "images/class-icons/alt/" + this.props.deckClass.toLocaleLowerCase() + ".png"}/>,
-			<h1>{this.getDeckName()}</h1>
+			<h1>{this.getDeckName()}</h1>,
 		];
 
 		const winrates = [];
 		if (this.state.baseWinrates !== "loading" && this.state.baseWinrates !== "error") {
 			const data = Object.assign({}, this.state.baseWinrates.series.data);
 			const keys = Object.keys(data);
-			keys.sort((a, b) => data[a][0]["player_class"] > data[b][0]["player_class"] ? 1 : -1)
-			keys.forEach(key => {
+			keys.sort((a, b) => data[a][0]["player_class"] > data[b][0]["player_class"] ? 1 : -1);
+			keys.forEach((key) => {
 				const winrate = +data[key][0]["win_rate"];
 				winrates.push(
 					<li>
 						vs. {toTitleCase(data[key][0]["player_class"])}
 						<span className="infobox-value">{(+winrate).toFixed(1) + "%"}</span>
-					</li>
+					</li>,
 				);
 			});
 		}
 
 		let dustCost = 0;
 		if (this.props.cardData) {
-			this.props.deckCards.split(",").forEach(id => {
+			this.props.deckCards.split(",").forEach((id) => {
 				const card = this.props.cardData.fromDbf(id);
 				dustCost += getDustCost(card);
 			});
 		}
-		
+
 		let hdtButton = null;
 		if (this.props.cardData) {
 			hdtButton = (
 				<HDTButton
-					card_ids={this.props.deckCards.split(",").map(dbfId => this.props.cardData.fromDbf(dbfId).id)}
+					card_ids={this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)}
 					class={this.props.deckClass}
 					name={this.getDeckName()}
 					sourceUrl={window.location.toString()}
 				/>
 			);
 		}
-		
+
 		const deckNameStyle = {
-			backgroundImage: "url(/static/images/class-icons/" + this.props.deckClass.toLowerCase() + ".png"
-		}
-		
+			backgroundImage: "url(/static/images/class-icons/" + this.props.deckClass.toLowerCase() + ".png",
+		};
+
 		const dustCostStyle = {
-			backgroundImage: "url(/static/images/dust.png"
-		}
+			backgroundImage: "url(/static/images/dust.png",
+		};
 
 		let deckData = [];
 		if (this.state.deckData && this.state.deckData !== "loading" && this.state.deckData !== "error") {
-			const deck = this.state.deckData.series.data[this.props.deckClass].find(x => +x["deck_id"] === this.props.deckId);
+			const deck = this.state.deckData.series.data[this.props.deckClass].find((x) => +x["deck_id"] === this.props.deckId);
 			if (deck) {
 				const winrateClassNames = [];
 				let subWinrates = null;
-				
+
 				if (winrates.length) {
 					winrateClassNames.push("selectable", "expandable");
 					if (this.state.expandWinrate) {
@@ -196,25 +196,30 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							Time frame
 							<span className="infobox-value">Last 30 days</span>
 						</li>
-						<li className={winrateClassNames.join(" ")} onClick={() => this.setState({expandWinrate: !this.state.expandWinrate})}>
+						<li
+							className={winrateClassNames.join(" ")}
+							onClick={() => this.setState({expandWinrate: !this.state.expandWinrate})}
+						>
 							Winrate
 							<span className="infobox-value">{(+deck["win_rate"]).toFixed(1) + "%"}</span>
 							{subWinrates}
 						</li>
 						<li>
 							Avg. match duration
-							<span className="infobox-value">{moment.duration(+deck["avg_game_length_seconds"], "second").asMinutes().toFixed(1) + " minutes"}</span>
+							<span className="infobox-value">
+								{moment.duration(+deck["avg_game_length_seconds"], "second").asMinutes().toFixed(1) + " minutes"}
+							</span>
 						</li>
 						<li>
 							Avg. number of turns
 							<span className="infobox-value">{deck["avg_num_player_turns"]}</span>
 						</li>
-					</ul>
+					</ul>,
 				);
 			}
 		}
 
-		if(this.state.myDecks && this.state.myDecks[this.props.deckId]) {
+		if (this.state.myDecks && this.state.myDecks[this.props.deckId]) {
 			const deck = this.state.myDecks[this.props.deckId];
 			deckData.push(
 				<h2>Personal</h2>,
@@ -229,19 +234,24 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</li>
 					<li>
 						Match duration
-						<span className="infobox-value">{moment.duration(+deck["avg_game_length_seconds"], "second").asMinutes().toFixed(1) + " minutes"}</span>
+						<span className="infobox-value">
+							{moment.duration(+deck["avg_game_length_seconds"], "second").asMinutes().toFixed(1) + " minutes"}
+						</span>
 					</li>
 					<li>
 						Number of turns
 						<span className="infobox-value">{deck["avg_num_turns"]}</span>
 					</li>
-				</ul>
+				</ul>,
 			);
 		}
 
 		return <div className="deck-detail-container">
 			<aside className="infobox">
-				<img className="hero-image" src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"} />
+				<img
+					className="hero-image"
+					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
+				/>
 				<h2>Info</h2>
 				<ul>
 					<li>
@@ -271,7 +281,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					infoContent="Check out how this deck performs at higher ranks!"
 				>
 					<h2>Rank range</h2>
-					<InfoboxFilterGroup locked={!this.props.userIsPremium} selectedValue={this.state.rankRange} onClick={(value) => this.setState({rankRange: value})}>
+					<InfoboxFilterGroup
+						locked={!this.props.userIsPremium}
+						selectedValue={this.state.rankRange}
+						onClick={(value) => this.setState({rankRange: value})}
+					>
 						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
 						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 					</InfoboxFilterGroup>
@@ -337,8 +351,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		if (!this.props.deckCards || !this.props.cardData) {
 			return undefined;
 		}
-		return this.props.deckCards.split(",").map(id => this.props.cardData.fromDbf(id))
-			.some(card => wildSets.indexOf(card.set) !== -1);
+		return this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId))
+			.some((card) => wildSets.indexOf(card.set) !== -1);
 	}
 
 	fetchMulliganGuide() {
@@ -353,7 +367,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					const newState = Object.assign({}, this.state.tableDataClasses);
 					newState[cacheKey] = data;
 					this.setState({tableDataClasses: newState});
-				}
+				},
 			);
 		}
 
@@ -363,7 +377,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				const newState = Object.assign({}, this.state.tableDataAll);
 				newState[cacheKey] = data;
 				this.setState({tableDataAll: newState});
-			}
+			},
 		);
 	}
 
@@ -373,17 +387,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_base_winrate_by_opponent_class?" + params,
-			(data) => this.setState({baseWinrates: data})
+			(data) => this.setState({baseWinrates: data}),
 		);
 
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_stats_over_time?" + params,
-			(data) => this.setState({statsOverTime: data})
+			(data) => this.setState({statsOverTime: data}),
 		);
 
 		this.queryManager.fetch(
 			"/analytics/query/list_decks_by_win_rate?GameType=" + mode,
-			(data) => this.setState({deckData: data})
+			(data) => this.setState({deckData: data}),
 		);
 
 		if (!this.state.myDecks) {
