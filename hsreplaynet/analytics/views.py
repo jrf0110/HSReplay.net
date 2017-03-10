@@ -75,8 +75,18 @@ def _fetch_query_results(query, params):
 			# Execute the query to refresh the stale data asynchronously
 			# And then return the data we have available immediately
 			execute_query(query, params)
-		result = cached_data.response_payload
-		response = JsonResponse(result, json_dumps_params=dict(indent=4))
+		result_set = cached_data.result_set
+
+		if cached_data.is_json:
+			response_payload = query.to_response_payload(
+				result_set,
+				params,
+				from_result_set_json=cached_data.is_json
+			)
+		else:
+			response_payload = result_set
+
+		response = JsonResponse(response_payload, json_dumps_params=dict(indent=4))
 	else:
 		execute_query(query, params)
 		# Nothing to return so tell the client to check back later
