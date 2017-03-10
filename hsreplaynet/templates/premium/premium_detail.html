@@ -32,13 +32,13 @@
 					<figcaption>
 						<h4>More Precision</h4>
 						<p>
-							Dive deep into the meta by adjusting statistics to your rank range and the most recent.
+							Dive deep into the meta by adjusting statistics to your rank range and choosing a more fine-grained time range.
 						</p>
 						<ul class="example-links">
-							<li><a href="{% url 'card_list' %}">Card Database</a></li>
-							<li><a href="{% url 'deck_list' %}">Deck Database</a></li>
+							<li><a href="{% url 'card_stats' %}">Cards</a></li>
+							<li><a href="{% url 'deck_list' %}">Decks</a></li>
 							{% if featured_deck %}
-								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Decks</a></li>
+								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Deck</a></li>
 							{% endif %}
 						</ul>
 					</figcaption>
@@ -53,7 +53,7 @@
 						</p>
 						<ul class="example-links">
 							{% if featured_card %}
-								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Cards</a></li>
+								<li><a href="{% url 'card_details' pk=featured_card %}">Single Card</a></li>
 							{% endif %}
 						</ul>
 					</figcaption>
@@ -68,10 +68,10 @@
 						</p>
 						<ul class="example-links">
 							{% if featured_card %}
-								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Cards</a></li>
+								<li><a href="{% url 'card_details' pk=featured_card %}">Single Card</a></li>
 							{% endif %}
 							{% if featured_deck %}
-								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Decks</a></li>
+								<li><a href="{% url 'deck_details' id=featured_deck %}">Single Deck</a></li>
 							{% endif %}
 						</ul>
 					</figcaption>
