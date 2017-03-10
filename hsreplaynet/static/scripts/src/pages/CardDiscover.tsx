@@ -3,6 +3,7 @@ import CardData from "../CardData";
 import CardImage from "../components/CardImage";
 import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PremiumWrapper from "../components/PremiumWrapper";
@@ -121,7 +122,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			topCardsIncluded: {},
 			topCardsPlayed: {},
 		};
-		switch(this.props.viewType) {
+		switch (this.props.viewType) {
 			case "cards":
 				const image = new Image();
 				image.src = this.placeholderUrl;
@@ -179,7 +180,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				}
 			}
 
-			if(prevState.topCardsIncluded[cacheKey] !== includedCards
+			if (prevState.topCardsIncluded[cacheKey] !== includedCards
 				|| prevState.topCardsPlayed[cacheKey] !== playedCards) {
 				this.updateFilteredCards();
 			}
@@ -285,7 +286,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</div>,
 			];
 		}
-		else if(this.state.filteredCards && !this.state.filteredCards.length) {
+		else if (this.state.filteredCards && !this.state.filteredCards.length) {
 			content = (
 				<div className="content-message">
 					<h2>No cards found</h2>
@@ -295,9 +296,23 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 		else if (this.state.filteredCards) {
 			if (viewType === "personal") {
+				const onSortChanged = (newSortBy: string, newSortDirection: SortDirection): void => {
+					const queryMap = Object.assign({}, this.state.queryMap);
+					queryMap.sortBy = newSortBy;
+					queryMap.sortDirection = newSortDirection;
+					this.setState({queryMap});
+				};
+
 				content = [
 					<div className="table-wrapper">
-						{this.buildPersonalDataTable(personal as TableQueryData)}
+						<MyCardStatsTable
+							cards={this.state.filteredCards || []}
+							numCards={this.state.numCards}
+							onSortChanged={onSortChanged}
+							personalData={this.state.personalCardData}
+							sortBy={this.state.queryMap.sortBy}
+							sortDirection={this.state.queryMap.sortDirection as SortDirection}
+						/>
 					</div>,
 				];
 			}
@@ -408,87 +423,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</main>
 			</div>
 		);
-	}
-
-	buildPersonalDataTable(personalData: TableQueryData) {
-		const rows = [];
-		const cardObjs = [];
-		const selectedClass = this.state.queryMap["playerClass"];
-
-		this.state.filteredCards && this.state.filteredCards.forEach((card) => {
-			const personal = personalData.series.data["ALL"].find((x) => x.dbf_id === card.dbfId);
-			cardObjs.push({
-				card,
-				damageDone: personal && personal.damage_done,
-				distinctDecks: personal && personal.num_distinct_decks,
-				healingDone: personal && personal.healing_done,
-				heroesKilled: personal && personal.heroes_killed,
-				minionsKilled: personal && personal.minions_killed,
-				timesPlayed: personal && personal.times_played,
-				totalGames: personal && personal.total_games,
-				winrate: personal && personal.win_rate,
-			});
-		});
-
-		const sortDirection = this.state.queryMap["sortDirection"] as SortDirection;
-		const direction = sortDirection === "descending" ? 1 : -1;
-		const sortBy = this.state.queryMap["sortBy"];
-
-		if (sortBy === "card") {
-			cardObjs.sort((a, b) => cardSorting(a, b, -direction));
-		}
-		else {
-			cardObjs.sort((a, b) => ((b[sortBy] || 0) - (a[sortBy] || 0)) * direction);
-		}
-
-		const onSortChanged = (newSortBy: string, newSortDirection: SortDirection): void => {
-			const queryMap = Object.assign({}, this.state.queryMap);
-			queryMap.sortBy = newSortBy;
-			queryMap.sortDirection = newSortDirection;
-			this.setState({queryMap});
-		};
-
-		cardObjs.slice(0, this.state.numCards).forEach((obj) => {
-			const wrData = obj.winrate && winrateData(50, obj.winrate, 3);
-			rows.push(
-				<tr>
-					<td className="td-card">
-						<div className="card-wrapper">
-							<a href={"/cards/" + obj.card.dbfId}>
-								<CardTile card={obj.card} count={1} rarityColored height={34} tooltip />
-							</a>
-						</div>
-					</td>
-					<td>{obj.totalGames || 0}</td>
-					<td style={{color: wrData && wrData.color}}>{obj.winrate !== undefined ? (+obj.winrate).toFixed(1) : "-"}</td>
-					<td>{obj.timesPlayed || 0}</td>
-					<td>{obj.distinctDecks || "-"}</td>
-					<td>{obj.damageDone || 0}</td>
-					<td>{obj.healingDone || 0}</td>
-					<td>{obj.heroesKilled || 0}</td>
-					<td>{obj.minionsKilled || 0}</td>
-				</tr>,
-			);
-		});
-
-		const tableHeaders = [
-			{key: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
-			{key: "totalGames", text: "Total games", infoHeader: "Total games", infoText: "Number of games you played with a deck that included the card."},
-			{key: "winrate", text: "Winrate", infoHeader: "Winrate", infoText: "Winrate of decks including the card."},
-			{key: "timesPlayed", text: "Times played", infoHeader: "Times played", infoText: "Number of times you played the card."},
-			{key: "distinctDecks", text: "Distinct decks", infoHeader: "Distinct decks", infoText: "Number of distinct decks you included the card in."},
-			{key: "damageDone", text: "Damage done", infoHeader: "Damage done", infoText: "Total amount of damage the card has dealt. Does not include overkills."},
-			{key: "healingDone", text: "Healing done", infoHeader: "Healing done", infoText: "Total amount of healing the card has done. Does not include overhealing."},
-			{key: "heroesKilled", text: "Heroes killed", infoHeader: "Heroes killed", infoText: "Number of heroes the card has killed."},
-			{key: "minionsKilled", text: "Minions killed", infoHeader: "Minions killed", infoText: "Number of minions the card has killed."},
-		];
-
-		return (
-			<SortableTable sortBy={sortBy} sortDirection={sortDirection} onSortChanged={onSortChanged} headers={tableHeaders}>
-				{rows}
-			</SortableTable>
-		);
-
 	}
 
 	buildCardTable(includedData: TableQueryData, playedData: TableQueryData): JSX.Element {
@@ -730,7 +664,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		}
 
-		if(viewType === "statistics" || viewType === "personal") {
+		if (viewType === "statistics" || viewType === "personal") {
 			filters.push(
 				<h2>Data</h2>,
 				<InfoboxFilterGroup
