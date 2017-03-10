@@ -23,6 +23,17 @@
 			"allow-fast-null-checks"
 		],
 		"object-literal-sort-keys": false,
-		"switch-default": false
+		"one-line": [
+			true,
+			"check-open-brace",
+			"check-whitespace"
+		],
+		"switch-default": false,
+		"variable-name": [
+			true,
+			"check-format",
+			"allow-leading-underscore",
+			"ban-keywords"
+		]
 	}
 }
