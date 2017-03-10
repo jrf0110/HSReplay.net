@@ -53,7 +53,7 @@
 						</p>
 						<ul class="example-links">
 							{% if featured_card %}
-								<li><a href="{% url 'card_details' pk=featured_card %}">Single Card</a></li>
+								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Card</a></li>
 							{% endif %}
 						</ul>
 					</figcaption>
@@ -68,10 +68,10 @@
 						</p>
 						<ul class="example-links">
 							{% if featured_card %}
-								<li><a href="{% url 'card_details' pk=featured_card %}">Single Card</a></li>
+								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Card</a></li>
 							{% endif %}
 							{% if featured_deck %}
-								<li><a href="{% url 'deck_details' id=featured_deck %}">Single Deck</a></li>
+								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Deck</a></li>
 							{% endif %}
 						</ul>
 					</figcaption>
