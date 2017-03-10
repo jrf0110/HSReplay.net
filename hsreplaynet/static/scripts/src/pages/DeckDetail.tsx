@@ -2,16 +2,16 @@ import * as React from "react";
 import CardData from "../CardData";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckBreakdownTable from "../components/deckdetail/DeckBreakdownTable";
-import DeckList from "../components/DeckList";
 import HDTButton from "../components/HDTButton";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import PremiumWrapper from "../components/PremiumWrapper";
 import QueryManager from "../QueryManager";
-import {SortDirection} from "../components/SortableTable";
+import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import moment from "moment";
+import {SortDirection} from "../components/SortableTable";
 import {
 	CardObj, DeckObj, MyDecks, TableData, 
 	TableRow, ChartSeries, RenderData
@@ -319,111 +319,18 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							</div>
 						</div>
 						<div id="similar-decks" className="tab-pane fade">
-							{this.buildSimilarDecks()}
+							<SimilarDecksList
+								cardData={this.props.cardData}
+								playerClass={this.props.deckClass}
+								deckData={this.state.deckData}
+								rawCardList={this.props.deckCards}
+								wildDeck={this.isWildDeck()}
+							/>
 						</div>
 					</div>
 				</section>
 			</main>
 		</div>;
-	}
-
-	buildSimilarDecks(): JSX.Element[] {
-		if (!this.state.deckData || this.state.deckData === "loading" || this.state.deckData === "error") {
-			return null;
-		}
-
-		if(!this.props.cardData) {
-			return null;
-		}
-		
-		const decks: DeckObj[] = [];
-		const classDecks = this.state.deckData.series.data[this.props.deckClass];
-
-		const deckList = [];
-		this.props.deckCards.split(",").forEach(id => deckList[id] = (deckList[id] || 0) + 1);
-		
-		const byDistance = [];
-		classDecks.forEach(deck => {
-			let distance = 0;
-			const cards = JSON.parse(deck["deck_list"]);
-			cards.forEach(pair => {
-				distance += Math.abs(pair[1] - (deckList[pair[0]] || 0));
-			})
-			if (distance > 1 && distance < 3) {
-				byDistance.push({cards, deck, distance, numGames: +deck["total_games"]});
-			}
-		});
-
-		if (!byDistance.length) {
-			return null;
-		}
-
-		byDistance.sort((a, b) => b.numGames - a.numGames);
-
-		byDistance.slice(0, 20).forEach(deck => {
-			const cardData = deck.cards.map(c => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}});
-			decks.push({
-				cards: cardData,
-				deckId: +deck.deck["deck_id"],
-				duration: +deck.deck["avg_game_length_seconds"],
-				numGames: +deck.deck["total_games"],
-				playerClass: this.props.deckClass,
-				winrate: +deck.deck["win_rate"],
-			});
-		})
-
-		const cards: CardObj[] = [];
-		this.props.deckCards.split(",").forEach(id => {
-			const card = this.props.cardData.fromDbf(id);
-			const existing = cards.find(c => c.card.dbfId === +id);
-			if (existing) {
-				existing.count += 1;
-			}
-			else {
-				cards.push({card, count: 1});
-			}
-		});
-
-		return [
-			<DeckList
-				decks={decks}
-				pageSize={10}
-				hideTopPager
-				compareWith={cards}
-				urlGameType={this.isWildDeck() && "RANKED_WILD"}
-			/>
-		];
-	}
-
-	buildChartSeries(): RenderData {
-		if (this.props.cardData && this.props.deckCards) {
-			const costs = {};
-			const costValues = [0, 1, 2, 3, 4, 5, 6, 7];
-			costValues.forEach(value => costs[value] = 0);
-
-			this.props.deckCards.split(',')
-				.map(id => this.props.cardData.fromDbf(id))
-				.forEach(card => costs[Math.min(7, card.cost)] += 1);
-
-			const series = {
-				name: "Manacurve",
-				data: [],
-				metadata: {
-					chart_scheme: "cost"
-				}
-			}
-			costValues.forEach(value => {
-				series.data.push({x: ''+value, y: costs[value]});
-			})
-			return {series: [series]};
-		}
-		return "loading";
-	}
-
-	getGroupedCards(cards: string[]): Map<string, number> {
-		let map = new Map<string, number>();
-		cards.forEach(c => map = map.set(c, (map.get(c) || 0) + 1));
-		return map;
 	}
 
 	isWildDeck(): boolean {
