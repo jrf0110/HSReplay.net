@@ -1,7 +1,7 @@
 const modal = document.getElementById("premium-modal");
 
 const trackModalInteraction = (action: string, nonInteraction: boolean = false) => {
-	if (!ga) {
+	if (typeof ga !== "function") {
 		return;
 	}
 	ga("send", {
