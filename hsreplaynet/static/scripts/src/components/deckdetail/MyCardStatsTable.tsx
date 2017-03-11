@@ -6,6 +6,7 @@ import { default as SortableTable, SortDirection } from "../SortableTable";
 
 interface MyCardStatsTableProps extends React.ClassAttributes<MyCardStatsTable> {
 	cards: any[];
+	hiddenColumns?: string[];
 	numCards: number;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
 	personalData: TableData;
@@ -50,8 +51,12 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 			cardObjs.sort((a, b) => ((b[sortBy] || 0) - (a[sortBy] || 0)) * direction);
 		}
 
+		const hiddenColumns = this.props.hiddenColumns || [];
 		cardObjs.slice(0, this.props.numCards).forEach((obj) => {
 			const wrData = obj.winrate && winrateData(50, obj.winrate, 3);
+			const cell = (key: string, alt: any) => {
+				return <td className={hiddenColumns.indexOf(key) === -1 ? "" : "hidden"}>{obj[key] || alt}</td>;
+			};
 			rows.push(
 				<tr>
 					<td className="td-card">
@@ -61,14 +66,16 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 							</a>
 						</div>
 					</td>
-					<td>{obj.totalGames || 0}</td>
-					<td style={{color: wrData && wrData.color}}>{obj.winrate !== undefined ? (+obj.winrate).toFixed(1) : "-"}</td>
-					<td>{obj.timesPlayed || 0}</td>
-					<td>{obj.distinctDecks || "-"}</td>
-					<td>{obj.damageDone || 0}</td>
-					<td>{obj.healingDone || 0}</td>
-					<td>{obj.heroesKilled || 0}</td>
-					<td>{obj.minionsKilled || 0}</td>
+					{cell("totalGames", 0)}
+					<td className={hiddenColumns.indexOf("winrate") === -1 ? "" : "hidden"} style={{color: wrData && wrData.color}}>
+						{obj.winrate !== undefined ? (+obj.winrate).toFixed(1) : "-"}
+					</td>
+					{cell("timesPlayed", 0)}
+					{cell("distinctDecks", 0)}
+					{cell("damageDone", 0)}
+					{cell("healingDone", 0)}
+					{cell("heroesKilled", 0)}
+					{cell("minionsKilled", 0)}
 				</tr>,
 			);
 		});
@@ -78,7 +85,7 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 				sortBy={sortBy}
 				sortDirection={sortDirection}
 				onSortChanged={this.props.onSortChanged}
-				headers={this.tableHeaders}
+				headers={this.tableHeaders.filter((x) => hiddenColumns.indexOf(x.key) === -1)}
 			>
 				{rows}
 			</SortableTable>

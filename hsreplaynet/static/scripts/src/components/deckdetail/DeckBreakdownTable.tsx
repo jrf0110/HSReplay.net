@@ -27,9 +27,9 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 				return <h3 className="message-wrapper">Check back later.</h3>;
 			}
 			else {
-				const cardList = []
+				const cardList = [];
 				const groupedCards = this.getGroupedCards(this.props.rawCardsList.split(","));
-				groupedCards.forEach((count, dbfId) => cardList.push({card: this.props.cardData.fromDbf(dbfId), count: count}));
+				groupedCards.forEach((count, dbfId) => cardList.push({card: this.props.cardData.fromDbf(dbfId), count}));
 
 				let rows = null;
 				let baseMulliganWinrate = 0;
@@ -50,7 +50,7 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 
 				const rowList = [];
 				cardList.forEach((cardObj) => {
-					const row = rows && rows.find((r) => r["dbf_id"] == cardObj.card.dbfId);
+					const row = rows && rows.find((r) => r["dbf_id"] === cardObj.card.dbfId);
 					rowList.push({row, cardObj});
 				});
 
@@ -72,7 +72,7 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 							basePlayedWinrate={basePlayedWinrate}
 							row={item.row}
 							wildDeck={this.props.wildDeck}
-						/>
+						/>,
 					);
 				});
 			}

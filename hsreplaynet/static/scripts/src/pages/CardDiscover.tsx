@@ -272,7 +272,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if ((viewType === "personal" && isLoading(personal))
 			|| (viewType === "statistics" && (isLoading(played) || isLoading(included))) || !this.props.cardData) {
 			content = [
-				<div className="content-message">
+				<div className="message-wrapper">
 					<h2>Loading...</h2>
 				</div>,
 			];
@@ -280,7 +280,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		else if ((viewType === "personal" && isError(personal))
 			|| (viewType === "statistics" && (isError(played) || isError(included)))) {
 			content = [
-				<div className="content-message">
+				<div className="message-wrapper">
 					<h2>Something went wrong</h2>
 					Please check back later.
 				</div>,
@@ -288,7 +288,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 		else if (this.state.filteredCards && !this.state.filteredCards.length) {
 			content = (
-				<div className="content-message">
+				<div className="message-wrapper">
 					<h2>No cards found</h2>
 					<button className="btn btn-default" type="button" onClick={() => this.resetFilters()}>Reset filters</button>
 				</div>

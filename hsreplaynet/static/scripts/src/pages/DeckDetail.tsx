@@ -6,6 +6,7 @@ import PopularityLineChart from "../components/charts/PopularityLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckBreakdownTable from "../components/deckdetail/DeckBreakdownTable";
+import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
 import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
 import HDTButton from "../components/HDTButton";
 import InfoboxFilter from "../components/InfoboxFilter";
@@ -32,6 +33,9 @@ interface DeckDetailState {
 	deckData?: TableData;
 	expandWinrate?: boolean;
 	myDecks?: MyDecks;
+	personalCardData: TableData;
+	personalSortBy?: string;
+	personalSortDirection?: SortDirection;
 	rankRange?: string;
 	selectedClasses?: FilterOption[];
 	showInfo?: boolean;
@@ -63,6 +67,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			deckData: "loading",
 			expandWinrate: false,
 			myDecks: null,
+			personalCardData: "loading",
+			personalSortBy: "card",
+			personalSortDirection: "ascending",
 			rankRange: "ALL",
 			selectedClasses: ["ALL"],
 			showInfo: false,
@@ -89,7 +96,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return (state || this.state).rankRange || "ALL";
 	}
 
-	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailProps) {
+	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailState) {
 		const cacheKey = this.cacheKey();
 		const prevCacheKey = this.cacheKey(prevState);
 		if (cacheKey !== prevCacheKey) {
@@ -219,7 +226,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 		}
 
-		if (this.state.myDecks && this.state.myDecks[this.props.deckId]) {
+		let personalCardStats = null;
+		if (!this.state.myDecks) {
+			personalCardStats = <h3 className="message-wrapper">Loading...</h3>;
+		}
+		else if (this.state.myDecks[this.props.deckId]) {
 			const deck = this.state.myDecks[this.props.deckId];
 			deckData.push(
 				<h2>Personal</h2>,
@@ -244,6 +255,26 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</li>
 				</ul>,
 			);
+			personalCardStats = (
+				<MyCardStatsTable
+					cards={
+						this.props.cardData && this.props.deckCards.split(",").sort()
+							.filter((item, pos, array) => !pos || item !== array[pos - 1])
+							.map((dbfId) => this.props.cardData.fromDbf(dbfId))
+					}
+					hiddenColumns={["totalGames", "winrate", "distinctDecks"]}
+					numCards={30}
+					onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
+						this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
+					}}
+					personalData={this.state.personalCardData}
+					sortBy={this.state.personalSortBy}
+					sortDirection={this.state.personalSortDirection as SortDirection}
+				/>
+			);
+		}
+		else {
+			personalCardStats = <h3 className="message-wrapper">You have not played this deck recently.</h3>;
 		}
 
 		return <div className="deck-detail-container">
@@ -316,6 +347,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<ul className="nav nav-tabs content-tabs">
 						<li className="active"><a data-toggle="tab" href="#deck-breakdown">Deck breakdown</a></li>
 						<li><a data-toggle="tab" href="#similar-decks">Similar decks</a></li>
+						<li><a data-toggle="tab" href="#my-stats">My stats</a></li>
 					</ul>
 					<div className="tab-content">
 						<div id="deck-breakdown" className="tab-pane fade in active">
@@ -340,6 +372,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								rawCardList={this.props.deckCards}
 								wildDeck={this.isWildDeck()}
 							/>
+						</div>
+						<div id="my-stats" className="tab-pane fade">
+							<div className="table-wrapper">
+								{personalCardStats}
+							</div>
 						</div>
 					</div>
 				</section>
@@ -400,8 +437,20 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			(data) => this.setState({deckData: data}),
 		);
 
+		const fetchPersonalStats = () => {
+			this.queryManager.fetch(
+				"/analytics/query/single_account_lo_individual_card_stats_for_deck?deck_id=" + this.props.deckId,
+				(data) => this.setState({personalCardData: data}),
+			);
+		};
+
 		if (!this.state.myDecks) {
-			this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data}));
+			this.queryManager.fetch("/decks/mine/", (data) => {
+				this.setState({myDecks: data});
+				if (data[this.props.deckId]) {
+					fetchPersonalStats();
+				}
+			});
 		}
 	}
 

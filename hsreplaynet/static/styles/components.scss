@@ -29,7 +29,7 @@
 	border: 1px solid black;
 	position: relative;
 	user-select: none;
-	
+
 	>span {
 		font-size: 1.3em;
 		font-weight: bold;
@@ -51,7 +51,7 @@
 .mana-curve {
 	list-style: none;
 	padding-left: 0px;
-	
+
 	> li {
 		background: linear-gradient(transparent 60%, rgba(0,0,0,0.1) 100%);
 		float: left;
@@ -59,7 +59,7 @@
 		margin-left: 1px;
 		position: relative;
 		width: 5px;
-		
+
 		>span {
 			background: $lightblue;
 			bottom: 0;
@@ -106,14 +106,14 @@
 	>ul {
 		list-style-type: none;
 		padding-left: 0px;
-		
+
 		>li {
 			border-bottom: 1px solid $darkgrey;
 			height: 85px;
 			line-height: 34px;
 			background-position-y: -42px;
 			background-repeat: no-repeat;
-			
+
 			>a {
 				background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.7) 100px, $offwhite 256px);
 				display: block;
@@ -132,7 +132,7 @@
 						>span {
 							display: block;
 						}
-						
+
 						.deck-name {
 							background-size: contain;
 							background-repeat: no-repeat;
@@ -227,14 +227,14 @@
 					}
 				}
 			}
-			
+
 			>a:hover {
 				background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.5) 100px, #f1f2f4 256px);
 				text-decoration: none;
 			}
 		}
 		>li:nth-child(odd) {
-			
+
 			>a {
 				background: linear-gradient(to right, $offwhite 1%, rgba(255, 255, 255, 0.7) 100px, #f9f9f9 256px);
 			}
@@ -251,6 +251,14 @@
 	color: limegreen;
 }
 
+.table-wrapper {
+	overflow-x: auto;
+
+	>table {
+		min-width: 1000px;
+	}
+}
+
 .table-sortable {
 	th {
 		&.th-sortable {
@@ -265,6 +273,13 @@
 
 	.no-sort {
 		opacity: 0;
+	}
+
+	.card-wrapper {
+		margin-bottom: -7px;
+		margin-top: -7px;
+		min-width: 150px;
+		max-width: 217px;
 	}
 }
 
