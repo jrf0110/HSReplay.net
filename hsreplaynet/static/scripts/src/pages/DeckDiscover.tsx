@@ -51,9 +51,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 	private readonly allowedValues = {
 		gameType: ["RANKED_STANDARD", "RANKED_WILD"],
+		opponentClass: [],
 		rankRange: [],
 		region: [],
-		opponentClass: [],
 		timeRange: ["LAST_30_DAYS"],
 	};
 
@@ -188,8 +188,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						cards: deck.cards,
 						deckId: deck.deck_id,
 						duration: deck.avg_game_length_seconds,
-						playerClass: deck.player_class,
 						numGames: deck[numGamesField],
+						playerClass: deck.player_class,
 						winrate: deck[winrateField],
 					});
 				});
@@ -243,13 +243,15 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					decks={decks}
 					onHeaderClicked={(name: string) => {
 						if (this.state.queryMap["sortBy"] === name) {
-							setQueryMap(this, "sortDirection", this.state.queryMap["sortDirection"] === "ascending" ? "descending" : "ascending");
+							setQueryMap(
+								this, "sortDirection", this.state.queryMap["sortDirection"] === "ascending" ? "descending" : "ascending",
+							);
 						}
 						else {
-							const queryMap = Object.assign({}, this.state.queryMap);
-							queryMap["sortDirection"] = "descending";
-							queryMap["sortBy"] = name;
-							this.setState({queryMap});
+							const newQueryMap = Object.assign({}, this.state.queryMap);
+							newQueryMap["sortDirection"] = "descending";
+							newQueryMap["sortBy"] = name;
+							this.setState({queryMap: newQueryMap});
 						}
 					}}
 					pageSize={12}
@@ -285,6 +287,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		if (!this.props.userIsAuthenticated) {
 			loginLink = <a className="infobox-value" href="/account/login/?next=/decks/">Log in</a>;
 		}
+
+		const selectedCards = (key: string) => {
+			if (!this.props.cardData || !queryMap[key]) {
+				return undefined;
+			}
+			return queryMap[key].split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId));
+		};
 
 		return (
 			<div className="deck-discover">
@@ -325,14 +334,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						key={"cardinclude" + this.state.cardSearchIncludeKey}
 						availableCards={this.state.cards}
 						onCardsChanged={(cards) => setQueryMap(this, "includedCards", cards.map((card) => card.dbfId).join(","))}
-						selectedCards={this.props.cardData && queryMap["includedCards"] && queryMap["includedCards"].split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId))}
+						selectedCards={selectedCards("includedCards")}
 					/>
 					<h2>Exclude cards</h2>
 					<CardSearch
 						key={"cardexclude" + this.state.cardSearchExcludeKey}
 						availableCards={this.state.cards}
 						onCardsChanged={(cards) => setQueryMap(this, "excludedCards", cards.map((card) => card.dbfId).join(","))}
-						selectedCards={this.props.cardData && queryMap["excludedCards"] && queryMap["excludedCards"].split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId))}
+						selectedCards={selectedCards("excludedCards")}
 					/>
 					<h2>Personal</h2>
 					<InfoboxFilterGroup
@@ -391,8 +400,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<div className="alert alert-info" role="alert">
 						Decks require at least 1000 recorded games in the selected time frame to be listed.
 					</div>
-					<div className="opponent-filter-wrapper">
-					</div>
 					<button
 						className="btn btn-default pull-left visible-xs visible-sm"
 						type="button"
@@ -409,9 +416,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 	fetch() {
 		const params = {
-			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
-			RankRange: this.state.queryMap["rankRange"] || this.defaultQueryMap["rankRange"],
 			GameType: this.state.queryMap["gameType"] || this.defaultQueryMap["gameType"],
+			RankRange: this.state.queryMap["rankRange"] || this.defaultQueryMap["rankRange"],
+			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
 			// Region: this.state.queryMap["region"],
 		};
 
