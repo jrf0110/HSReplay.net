@@ -8,6 +8,8 @@ interface InfoIconState {
 interface InfoIconProps extends React.ClassAttributes<InfoIcon> {
 	content?: string | JSX.Element;
 	header?: string;
+	className?: string;
+	iconClassName?: string;
 }
 
 export default class InfoIcon extends React.Component<InfoIconProps, InfoIconState> {
@@ -26,17 +28,27 @@ export default class InfoIcon extends React.Component<InfoIconProps, InfoIconSta
 				style["margin-left"] = 0;
 			}
 
+			let className = "info-icon-text";
+			if (this.props.className) {
+				className += " " + this.props.className;
+			}
+
 			tooltip = (
-				<div className="info-icon-text" style={style} >
+				<div className={className} style={style}>
 					<h4>{this.props.header}</h4>
 					{this.props.content}
 				</div>
 			);
 		}
 
+		let iconClassName = "info-icon glyphicon glyphicon-question-sign";
+		if (this.props.iconClassName) {
+			iconClassName += " " + this.props.iconClassName;
+		}
+
 		return (
-			<div 
-				className="info-icon glyphicon glyphicon-question-sign"
+			<div
+				className={iconClassName}
 				onMouseEnter={(e) => this.setState({hovering: true, isLeft: e.clientX < 300})}
 				onMouseLeave={() => this.setState({hovering: false})}
 			>
