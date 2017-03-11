@@ -158,7 +158,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		});
 		Object.keys(heroGames).forEach((key) => {
 			const value = heroGames[key];
-			data.push({x: key, y: value, winrate: heroWins[key] / value});
+			data.push({x: key, y: value, winrate: (heroWins[key] || 0) / value});
 		});
 		data.sort((a, b) => a.y > b.y ? 1 : -1);
 		return data;
