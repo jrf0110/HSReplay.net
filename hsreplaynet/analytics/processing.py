@@ -146,12 +146,23 @@ def _do_execute_query(query, params):
 			exception_raised = False
 			exception_msg = None
 			redshift_connection = get_new_redshift_connection()
+			result_set = ''
 			try:
 				result_set = query.as_result_set().execute(
 					redshift_connection,
 					params,
-					as_json=True
+					as_json=True,
+					pretty=False
 				)
+
+				cache_ready_result = CachedRedshiftResult(
+					result_set,
+					params,
+					is_json=True,
+					as_of=timezone.now()
+				)
+
+				cache_data = cache_ready_result.to_json_cacheable_repr()
 			except Exception as e:
 				exception_raised = True
 				exception_msg = str(e)
@@ -160,9 +171,11 @@ def _do_execute_query(query, params):
 				end_ts = time.time()
 				duration_seconds = round(end_ts - start_ts, 2)
 				redshift_connection.close()
+				cache_data_size = len(result_set)
 
 				query_execute_metric_fields = {
 					"duration_seconds": duration_seconds,
+					"cache_data_size": cache_data_size,
 					"exception_message": exception_msg
 				}
 				query_execute_metric_fields.update(
@@ -177,16 +190,9 @@ def _do_execute_query(query, params):
 					**params.supplied_filters_dict
 				)
 
-			cached_data = CachedRedshiftResult(
-				result_set,
-				params,
-				is_json=True,
-				as_of=timezone.now()
-			)
-
 			get_redshift_cache().set(
 				params.cache_key,
-				cached_data.to_json_cacheable_repr(),
+				cache_data,
 				timeout=None
 			)
 
