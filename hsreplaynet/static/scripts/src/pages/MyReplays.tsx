@@ -1,3 +1,4 @@
+import {cookie} from "cookie_js";
 import * as React from "react";
 import ClassDistributionPieChart from "../components/charts/ClassDistributionPieChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
@@ -9,10 +10,9 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import Pager from "../components/Pager";
 import ResetHeader from "../components/ResetHeader";
-import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../interfaces";
-import {cookie} from "cookie_js";
-import {formatMatch, modeMatch, nameMatch, resultMatch, heroMatch, opponentMatch} from "../GameFilters"
-import {parseQuery, toQueryString, QueryMap} from "../QueryParser"
+import {formatMatch, heroMatch, modeMatch, nameMatch, opponentMatch, resultMatch} from "../GameFilters";
+import {CardArtProps, GameReplay, GlobalGamePlayer, ImageProps} from "../interfaces";
+import {parseQuery, QueryMap, toQueryString} from "../QueryParser";
 
 type ViewType = "tiles" | "list";
 
@@ -28,7 +28,7 @@ interface MyReplaysState {
 	count?: number;
 	currentLocalPage?: number;
 	gamesPages?: GamesPage;
-	next?: string,
+	next?: string;
 	pageSize?: number;
 	queryMap?: QueryMap;
 	receivedPages?: number;
@@ -52,7 +52,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			queryMap: parseQuery(document.location.hash.substr(1)),
 			receivedPages: 0,
 			showFilters: false,
-			viewType: viewType,
+			viewType,
 			working: true,
 		};
 		this.query("/api/v1/games/?username=" + encodeURIComponent(props.username));
@@ -60,22 +60,22 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 
 	protected query(url: string) {
 		this.setState({
-			working: true
+			working: true,
 		});
 		fetch(
 			url,
 			{
-				headers: new Headers({"accept": "application/json"}),
 				credentials: "same-origin",
-			}
+				headers: new Headers({accept: "application/json"}),
+			},
 		).then((response) => response.json()).then((data: any) => {
 			let games = [];
 			if (data.count) {
 				if (this.state.count && this.state.count !== data.count) {
 					this.setState({
-						receivedPages: 0,
-						gamesPages: [],
 						count: data.count,
+						gamesPages: [],
+						receivedPages: 0,
 					});
 					this.query("/api/v1/games/");
 					return;
@@ -97,9 +97,9 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				}
 			}
 			this.setState({
-				working: false,
 				count: data.count,
-				next: data.next
+				next: data.next,
+				working: false,
 			});
 		});
 	}
@@ -117,23 +117,23 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			let result = this.state.queryMap["result"];
 			let hero = this.state.queryMap["hero"];
 			let opponent = this.state.queryMap["opponent"];
-			games = games.filter(game => {
-				if(name && !nameMatch(game, name.toLowerCase())) {
+			games = games.filter((game) => {
+				if (name && !nameMatch(game, name.toLowerCase())) {
 					return false;
 				}
-				if(mode && !modeMatch(game, mode)) {
+				if (mode && !modeMatch(game, mode)) {
 					return false;
 				}
-				if(format && !formatMatch(game, format, mode)) {
+				if (format && !formatMatch(game, format, mode)) {
 					return false;
 				}
-				if(result && !resultMatch(game, result)) {
+				if (result && !resultMatch(game, result)) {
 					return false;
 				}
-				if(hero && !heroMatch(game, hero)) {
+				if (hero && !heroMatch(game, hero)) {
 					return false;
 				}
-				if(opponent && !opponentMatch(game, opponent)) {
+				if (opponent && !opponentMatch(game, opponent)) {
 					return false;
 				}
 				return true;
@@ -156,37 +156,37 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				}
 			}
 		});
-		Object.keys(heroGames).forEach(key => {
+		Object.keys(heroGames).forEach((key) => {
 			const value = heroGames[key];
-			data.push({x: key, y: value, winrate: heroWins[key]/value})
-		})
+			data.push({x: key, y: value, winrate: heroWins[key] / value});
+		});
 		data.sort((a, b) => a.y > b.y ? 1 : -1);
 		return data;
 	}
 
 	render(): JSX.Element {
 		let games = [];
-		const hasFilters = Object.keys(this.state.queryMap).some(key => {
+		const hasFilters = Object.keys(this.state.queryMap).some((key) => {
 			const value = this.state.queryMap[key];
 			return value && value.length > 0;
 		});
 
 		let page = 0;
 		const firstPage = this.state.gamesPages[page];
-		if(firstPage) {
+		if (firstPage) {
 			games = this.filterGames(firstPage);
-			//we load one more than we need so we know whether there is next page
+			// we load one more than we need so we know whether there is next page
 			while (games.length < (this.state.pageSize * (this.state.currentLocalPage + 1) + 1)) {
 				const nextPage = this.state.gamesPages[++page];
 				if (!nextPage) {
-					if (this.state.next && !this.state.working && (hasFilters || page == this.state.currentLocalPage)) {
+					if (this.state.next && !this.state.working && (hasFilters || page === this.state.currentLocalPage)) {
 						this.query(this.state.next);
 					}
 					break;
 				}
 				games = games.concat(this.filterGames(nextPage));
 			}
-			//slice off everything before the currentLocalPage
+			// slice off everything before the currentLocalPage
 			games = games.slice(this.state.pageSize * (this.state.currentLocalPage));
 		}
 
@@ -218,8 +218,9 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				message = <div>
 					<h2>No replay found</h2>
 					{!!this.state.queryMap ? <p>
-						<a href="#"
-						   onClick={(e) => {e.preventDefault(); this.setState({queryMap: {}})}}>Reset search</a>
+						<a href="#" onClick={(e) => {e.preventDefault(); this.setState({queryMap: {}}); }}>
+							Reset search
+						</a>
 					</p> : null}
 				</div>;
 			}
@@ -227,14 +228,13 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		}
 
 		const filterClassNames = ["infobox full-sm"];
-		const contentClassNames = ["replay-list"]
+		const contentClassNames = ["replay-list"];
 		if (!this.state.showFilters) {
 			filterClassNames.push("hidden-xs hidden-sm");
 		}
 		else {
 			contentClassNames.push("hidden-xs hidden-sm");
 		}
-
 
 		let next = hasNext && !this.state.working ? () => {
 			this.setState({currentLocalPage: this.state.currentLocalPage + 1});
@@ -245,7 +245,11 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		} : null;
 
 		const backButton = (
-			<button className="btn btn-primary btn-full visible-sm visible-xs" type="button" onClick={() => this.setState({showFilters: false})}>
+			<button
+				className="btn btn-primary btn-full visible-sm visible-xs"
+				type="button"
+				onClick={() => this.setState({showFilters: false})}
+			>
 				Back to replays
 			</button>
 		);
@@ -254,7 +258,10 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			<div className="my-replays-content">
 				<div className={filterClassNames.join(" ")} id="myreplays-infobox">
 					{backButton}
-					<ResetHeader onReset={() => this.setState({queryMap: {}})} showReset={toQueryString(this.state.queryMap).length > 0} >
+					<ResetHeader
+						onReset={() => this.setState({queryMap: {}})}
+						showReset={toQueryString(this.state.queryMap).length > 0}
+					>
 						My Replays
 					</ResetHeader>
 					<h2>Classes Played</h2>
@@ -276,7 +283,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						multiSelect={false}
 						selectedClasses={[(this.state.queryMap["hero"] || "ALL").toUpperCase() as FilterOption]}
 						selectionChanged={(selection) => {
-							const selected = selection.find(x => x !== "ALL") || null;
+							const selected = selection.find((x) => x !== "ALL") || null;
 							this.setState({queryMap: this.setQueryMap("hero", selected && selected.toLowerCase()), currentLocalPage: 0});
 						}}
 					/>
@@ -288,7 +295,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						multiSelect={false}
 						selectedClasses={[(this.state.queryMap["opponent"] || "ALL").toUpperCase() as FilterOption]}
 						selectionChanged={(selection) => {
-							const selected = selection.find(x => x !== "ALL") || null;
+							const selected = selection.find((x) => x !== "ALL") || null;
 							this.setState({queryMap: this.setQueryMap("opponent", selected && selected.toLowerCase()), currentLocalPage: 0});
 						}}
 					/>
@@ -298,7 +305,11 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						setQuery={(value: string) => this.setState({queryMap: this.setQueryMap("name", value), currentLocalPage: 0})}
 					/>
 					<h2>Mode</h2>
-					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["mode"]} onClick={(value) => this.setFilter("mode", value)}>
+					<InfoboxFilterGroup
+						deselectable
+						selectedValue={this.state.queryMap["mode"]}
+						onClick={(value) => this.setFilter("mode", value)}
+					>
 						<InfoboxFilter value="arena">Arena</InfoboxFilter>
 						<InfoboxFilter value="ranked">Ranked</InfoboxFilter>
 						<InfoboxFilter value="casual">Casual</InfoboxFilter>
@@ -307,12 +318,18 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						<InfoboxFilter value="adventure">Adventure</InfoboxFilter>
 					</InfoboxFilterGroup>
 					<h2>Format</h2>
-					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["format"]} onClick={(value) => this.setFilter("format", value)}>
+					<InfoboxFilterGroup
+						deselectable
+						selectedValue={this.state.queryMap["format"]} onClick={(value) => this.setFilter("format", value)}>
 						<InfoboxFilter value="standard">Standard</InfoboxFilter>
 						<InfoboxFilter value="wild">Wild</InfoboxFilter>
 					</InfoboxFilterGroup>
 					<h2>Result</h2>
-					<InfoboxFilterGroup deselectable selectedValue={this.state.queryMap["result"]} onClick={(value) => this.setFilter("result", value)}>
+					<InfoboxFilterGroup
+						deselectable
+						selectedValue={this.state.queryMap["result"]}
+						onClick={(value) => this.setFilter("result", value)}
+					>
 						<InfoboxFilter value="won">Won</InfoboxFilter>
 						<InfoboxFilter value="lost">Lost</InfoboxFilter>
 					</InfoboxFilterGroup>
@@ -320,7 +337,11 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				</div>
 				<div className={contentClassNames.join(" ")}>
 					<div className="header-buttons">
-						<button className="btn btn-default pull-left visible-xs visible-sm" type="button" onClick={() => this.setState({showFilters: true})}>
+						<button
+							className="btn btn-default pull-left visible-xs visible-sm"
+							type="button"
+							onClick={() => this.setState({showFilters: true})}
+						>
 							<span className="glyphicon glyphicon-filter"/>
 							Filters
 						</button>
@@ -359,8 +380,8 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 
 	private onPiePieceClicked(hero: string) {
 		this.setState({
+			currentLocalPage: 0,
 			queryMap: this.setQueryMap("hero", this.state.queryMap["hero"] === hero ? null : hero),
-			currentLocalPage: 0
 		});
 	}
 }
