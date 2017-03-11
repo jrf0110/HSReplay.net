@@ -68,7 +68,7 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 					</td>
 					{cell("totalGames", 0)}
 					<td className={hiddenColumns.indexOf("winrate") === -1 ? "" : "hidden"} style={{color: wrData && wrData.color}}>
-						{obj.winrate !== undefined ? (+obj.winrate).toFixed(1) : "-"}
+						{obj.winrate !== undefined ? (+obj.winrate).toFixed(1) + "%" : "-"}
 					</td>
 					{cell("timesPlayed", 0)}
 					{cell("distinctDecks", 0)}
