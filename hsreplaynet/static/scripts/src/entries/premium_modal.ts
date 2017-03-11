@@ -1,11 +1,26 @@
 const modal = document.getElementById("premium-modal");
 
+const trackModalInteraction = (action: string, nonInteraction: boolean = false) => {
+	if (!ga) {
+		return;
+	}
+	ga("send", {
+		eventType: "event",
+		eventCategory: "Modal",
+		eventAction: action,
+		evenLabel: "Premium Modal",
+		nonInteraction: nonInteraction,
+	});
+};
+
 const openModal = (modalToOpen) => {
 	modalToOpen.style.display = "flex";
+	trackModalInteraction("open");
 };
 
 const closeModal = (modalToClose) => {
 	modalToClose.style.display = "none";
+	trackModalInteraction("close");
 };
 
 // setup click on X
@@ -29,7 +44,7 @@ let stripeLoaded = false;
 
 // inject stripe JS
 const loadStripe = () => {
-	if(stripeLoaded) {
+	if (stripeLoaded) {
 		return;
 	}
 
@@ -69,8 +84,9 @@ window.hsreplaynet_load_premium_modal = () => {
 	openModal(modal);
 	// init stripe
 	loadStripe();
-}
+};
 
 if (modal.getAttribute("data-stripe-load") === "1") {
 	loadStripe();
+	trackModalInteraction("open", true);
 }
