@@ -9,8 +9,8 @@ import NoDecksMessage from "../components/NoDecksMessage";
 import Pager from "../components/Pager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
-import {cardSorting, getDustCost, toTitleCase} from "../helpers";
-import {DeckObj, GameMode, MyDecks, RankRange, Region, TableData, TimeFrame} from "../interfaces";
+import { cardSorting, getDustCost, isReady, toTitleCase } from "../helpers";
+import { DeckObj, GameMode, MyDecks, RankRange, Region, TableData, TableQueryData, TimeFrame } from "../interfaces";
 import QueryManager from "../QueryManager";
 import {
 	genCacheKey, getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, QueryMap,
@@ -122,79 +122,87 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		return totalCost >= 100 ? "control" : (totalCost >= 80 ? "midrange" : "aggro");
 	}
 
-	render(): JSX.Element {
-		const queryMap = Object.assign({}, this.state.queryMap);
-
-		const selectedClass = queryMap["playerClass"];
-		const selectedOpponent = queryMap["opponentClass"];
-		const decks: DeckObj[] = [];
-		const deckData = this.state.deckData.get(genCacheKey(this));
-		if (this.props.cardData) {
-			if (deckData && deckData !== "loading" && deckData !== "error") {
-				const deckElements = [];
-				const data = deckData.series.data;
-				const includedCards = getQueryMapArray(queryMap, "includedCards").map(
-					(dbfId) => this.props.cardData.fromDbf(dbfId));
-				const excludedCards = getQueryMapArray(queryMap, "excludedCards").map(
-					(dbfId) => this.props.cardData.fromDbf(dbfId));
-				Object.keys(data).forEach((key) => {
-					if (selectedClass === "ALL" || selectedClass === key) {
-						data[key].forEach((deck) => {
-							const cards = JSON.parse(deck["deck_list"]);
-							const deckList = cards.map((c) => {
-								return {card: this.props.cardData.fromDbf(c[0]), count: c[1]};
-							});
-							if (!includedCards.length || includedCards.every(
-									(card) => deckList.some((cardObj) => cardObj.card.id === card.id))) {
-								if (!excludedCards.length || !excludedCards.some(
-										(card) => deckList.some((cardObj) => cardObj.card.id === card.id))) {
-									const costSum = deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
-									if (!queryMap["personal"] || this.state.myDecks && this.state.myDecks[deck["deck_id"]]) {
-										deck["cards"] = deckList;
-										deck["dust_cost"] = deckList.reduce((
-											a,
-											b,
-										) => a + getDustCost(b.card) * b.count, 0);
-										deck["mana_cost"] = costSum;
-										deck["player_class"] = key;
-										deckElements.push(deck);
-									}
-								}
-							}
-						});
-					}
-				});
-
-				const winrateField = selectedOpponent === "ALL" ? "win_rate" : "win_rate_vs_" + selectedOpponent;
-				const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
-				let sortProp = queryMap["sortBy"];
-				switch (sortProp) {
-					case "winrate":
-						sortProp = winrateField;
-						break;
-					case "popularity":
-						sortProp = numGamesField;
-						break;
-					case "duration":
-						sortProp = "avg_game_length_seconds";
-						break;
-				}
-
-				const direction = queryMap["sortDirection"] === "descending" ? 1 : -1;
-				deckElements.sort((a, b) => (b[sortProp] - a[sortProp]) * direction);
-
-				deckElements.forEach((deck) => {
-					decks.push({
-						cards: deck.cards,
-						deckId: deck.deck_id,
-						duration: deck.avg_game_length_seconds,
-						numGames: deck[numGamesField],
-						playerClass: deck.player_class,
-						winrate: deck[winrateField],
-					});
-				});
+	getDeckElements(): any[] {
+		const deckElements = [];
+		const data = (this.state.deckData.get(genCacheKey(this)) as TableQueryData).series.data;
+		const filteredCards = (key: string): any[] => {
+			return getQueryMapArray(this.state.queryMap, key)
+				.map((dbfId) => this.props.cardData.fromDbf(dbfId));
+		};
+		const includedCards = filteredCards("includedCards");
+		const excludedCards = filteredCards("excludedCards");
+		const missingIncludedCards = (deckList: any[]) => {
+			return includedCards.some((card) => deckList.every((cardObj) => cardObj.card.id !== card.id));
+		};
+		const containsExcludedCards = (deckList: any[]) => {
+			return excludedCards.some((card) => deckList.some((cardObj) => cardObj.card.id === card.id));
+		};
+		Object.keys(data).forEach((key) => {
+			if (this.state.queryMap.playerClass !== "ALL" && this.state.queryMap.playerClass !== key) {
+				return;
 			}
+			const getDeckList = (cards) => cards.map((c: any[]) => {
+				return {card: this.props.cardData.fromDbf(c[0]), count: c[1]};
+			});
+			data[key].forEach((deck) => {
+				const cards = JSON.parse(deck["deck_list"]);
+				const deckList = getDeckList(cards);
+				if (missingIncludedCards(deckList) || containsExcludedCards(deckList)) {
+					return;
+				}
+				const costSum = deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
+				if (!this.state.queryMap.personal || this.state.myDecks && this.state.myDecks[deck["deck_id"]]) {
+					deck["cards"] = deckList;
+					deck["dust_cost"] = deckList.reduce((a, b) => a + getDustCost(b.card) * b.count, 0);
+					deck["mana_cost"] = costSum;
+					deck["player_class"] = key;
+					deckElements.push(deck);
+				}
+			});
+		});
+		return deckElements;
+	}
+
+	getFilteredDecks(): DeckObj[] {
+		if (!this.props.cardData) {
+			return [];
 		}
+		const decks: DeckObj[] = [];
+		const selectedOpponent = this.state.queryMap.opponentClass;
+		const winrateField = selectedOpponent === "ALL" ? "win_rate" : "win_rate_vs_" + selectedOpponent;
+		const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
+		let sortProp = this.state.queryMap.sortBy;
+		switch (sortProp) {
+			case "winrate":
+				sortProp = winrateField;
+				break;
+			case "popularity":
+				sortProp = numGamesField;
+				break;
+			case "duration":
+				sortProp = "avg_game_length_seconds";
+				break;
+		}
+		const deckElements = this.getDeckElements();
+		const direction = this.state.queryMap.sortDirection === "descending" ? 1 : -1;
+		deckElements.sort((a, b) => (b[sortProp] - a[sortProp]) * direction);
+		deckElements.forEach((deck) => {
+			decks.push({
+				cards: deck.cards,
+				deckId: deck.deck_id,
+				duration: deck.avg_game_length_seconds,
+				numGames: deck[numGamesField],
+				playerClass: deck.player_class,
+				winrate: deck[winrateField],
+			});
+		});
+		return decks;
+	}
+
+	render(): JSX.Element {
+		const queryMap = this.state.queryMap;
+		const deckData = this.state.deckData.get(genCacheKey(this));
+		const decks = isReady(deckData) ? this.getFilteredDecks() : [];
 
 		let content = null;
 		if (!deckData || deckData === "loading" || !this.props.cardData) {
