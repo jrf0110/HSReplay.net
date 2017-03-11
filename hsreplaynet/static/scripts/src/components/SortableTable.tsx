@@ -9,12 +9,13 @@ export interface TableHeader {
 	defaultSortDirection?: SortDirection;
 	infoHeader?: string;
 	infoText?: string;
+	sortable?: boolean;
 }
 
 interface SortableTableProps extends React.ClassAttributes<SortableTable> {
 	sortBy: string;
 	sortDirection: SortDirection;
-	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
+	onSortChanged?: (sortBy: string, sortDirection: SortDirection) => void;
 	headers: TableHeader[];
 }
 
@@ -52,7 +53,7 @@ export default class SortableTable extends React.Component<SortableTableProps, v
 				sortDirection = header.defaultSortDirection || "descending";
 			}
 			this.props.onSortChanged(header.key, sortDirection);
-		}
+		};
 
 		const headers = this.props.headers.map(header => {
 			let info = null;
@@ -61,10 +62,17 @@ export default class SortableTable extends React.Component<SortableTableProps, v
 					<InfoIcon header={header.infoHeader} content={header.infoText} />
 				);
 			}
+			let sort = null;
+			if (typeof header.sortable === "undefined" || header.sortable === true) {
+				sort = this.getSortIndicator(header.key);
+			}
 			return (
-				<th className="th-sortable" onClick={() => onHeaderClick(header)}>
+				<th
+					className={sort !== null ? "th-sortable" : null}
+					onClick={sort !== null && this.props.onSortChanged ? () => onHeaderClick(header) : null}
+				>
 					{header.text}
-					{this.getSortIndicator(header.key)}
+					{sort}
 					{info}
 				</th>
 			);
