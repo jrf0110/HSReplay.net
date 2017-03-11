@@ -50,6 +50,7 @@ class ApplicationListView(ApplicationBaseView, ListView):
 	Mixed view that lists both the authorized apps for the user,
 	as well as the application the user *owns*.
 	"""
+
 	template_name = "account/oauth_apps.html"
 
 	def get_context_data(self, **kwargs):

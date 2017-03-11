@@ -46,6 +46,7 @@ class MacroExtension(markdown.Extension):
 	"""
 	Macro Extension for Python-Markdown.
 	"""
+
 	def __init__(self, config):
 		self.config = {"macros": config}
 
@@ -58,6 +59,7 @@ class MacroPattern(markdown.inlinepatterns.Pattern):
 	"""
 	Matches inline macros.
 	"""
+
 	def __init__(self, pattern, config):
 		super().__init__(pattern)
 		self.config = config

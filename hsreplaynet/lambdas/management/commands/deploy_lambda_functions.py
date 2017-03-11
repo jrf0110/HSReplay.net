@@ -210,7 +210,7 @@ class Command(BaseCommand):
 
 	def wait_for_complete_deployment(self, timeout):
 		"""
-		Wait up to \a timeout seconds for the deployment to finish
+		Wait up to timeout seconds for the deployment to finish
 		to ensure that there are no more running Lambdas before we
 		exit.
 		This is achieved by checking the amount of UploadEvent with

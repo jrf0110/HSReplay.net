@@ -24,7 +24,10 @@ class RelatedReplayRecommendation:
 
 
 class RecommendationGenerator:
-	"""Subclasses should supply a reason and populate recommendations during generate()"""
+	"""
+	Subclasses should supply a reason and populate recommendations during generate()
+	"""
+
 	reason = None
 
 	def __init__(self, source_replay, max):

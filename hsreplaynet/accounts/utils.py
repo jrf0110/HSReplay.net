@@ -3,7 +3,7 @@ from hsreplaynet.utils import log
 
 def merge_users(base_user, user):
 	"""
-	Merge \a user into \a base_user
+	Merge user into base_user
 	"""
 	def do_queryset(qs, **kwargs):
 		if not kwargs:

@@ -5,7 +5,9 @@ from .models import Archetype
 
 
 def edit_distance(canonical_list, unclassified_deck):
-	"""Determines the edit distance to transform the unclassified deck into the canonical"""
+	"""
+	Determines the edit distance to transform the unclassified deck into the canonical
+	"""
 	UNREVEALED_PENALTY = .5
 	DELETE_PENALTY = 1.0
 	INSERT_PENALTY = 1.0
@@ -32,7 +34,8 @@ def edit_distance(canonical_list, unclassified_deck):
 
 
 def classify_deck(deck, player_class=CardClass.INVALID, format=FormatType.FT_UNKNOWN):
-	""" Return an Archetype or None
+	"""
+	Return an Archetype or None
 
 	Classification proceeds in two steps:
 

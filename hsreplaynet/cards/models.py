@@ -199,6 +199,7 @@ class Deck(models.Model):
 	The default sorting for cards when iterating over a deck is by
 	mana cost and then alphabetical within cards of equal cost.
 	"""
+
 	id = models.BigAutoField(primary_key=True)
 	objects = DeckManager()
 	cards = models.ManyToManyField(Card, through="Include")
@@ -319,6 +320,7 @@ class Archetype(models.Model):
 
 	E.g. 'Freeze Mage', 'Miracle Rogue', 'Pirate Warrior', 'Zoolock', 'Control Priest'
 	"""
+
 	id = models.BigAutoField(primary_key=True)
 	objects = ArchetypeManager()
 	name = models.CharField(max_length=250, blank=True)
@@ -345,12 +347,14 @@ class Archetype(models.Model):
 
 
 class CanonicalDeck(models.Model):
-	"""The CanonicalDeck for an Archetype is the list of cards that is most commonly
+	"""
+	The CanonicalDeck for an Archetype is the list of cards that is most commonly
 	associated with that Archetype.
 
 	The canonical deck for an Archetype may evolve incrementally over time and is likely to
 	evolve more rapidly when new card sets are first released.
 	"""
+
 	id = models.BigAutoField(primary_key=True)
 	archetype = models.ForeignKey(
 		Archetype,

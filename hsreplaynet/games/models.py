@@ -336,6 +336,7 @@ class GameReplay(models.Model):
 	already begun or stops spectating before it ends, then his uploaded
 	replay will have fewer turns of gameplay then Player B's replay.
 	"""
+
 	class Meta:
 		# ordering = ("global_game", )
 		# Ordering on global_game causes nasty inner joins.
@@ -535,6 +536,7 @@ class ReplayAlias(models.Model):
 	power.log is a duplicate then instead of creating an additional GameReplay, we create
 	a ReplayAlias for that ShortID which can be used to lookup the game replay.
 	"""
+
 	id = models.BigAutoField(primary_key=True)
 	shortid = ShortUUIDField("Short ID")
 	replay = models.ForeignKey(GameReplay, on_delete=models.CASCADE, related_name="aliases")

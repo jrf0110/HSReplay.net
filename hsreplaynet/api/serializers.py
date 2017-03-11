@@ -25,6 +25,7 @@ class SmartFileField(serializers.FileField):
 	A FileField which interprets a valid string as a file path.
 	Also see: serializers.FilePathField
 	"""
+
 	def to_internal_value(self, data):
 		if isinstance(data, string_types):
 			if default_storage.exists(data):

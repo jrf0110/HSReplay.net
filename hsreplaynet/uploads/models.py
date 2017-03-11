@@ -146,6 +146,7 @@ class RawUpload(object):
 	"""
 	Represents a raw upload in S3.
 	"""
+
 	DESCRIPTOR_KEY_PATTERN = r"raw/(?P<ts>[\d/]{16})/(?P<shortid>\w{22})\.descriptor.json"
 	RAW_LOG_KEY_PATTERN = r"raw/(?P<ts>[\d/]{16})/(?P<shortid>\w{22})\.\w{5,6}.log"
 	HAS_UPLOAD_KEY_PATTERN = r"uploads/(?P<ts>[\d/]{16})/(?P<shortid>\w{22})\.power.log"
@@ -328,6 +329,7 @@ class UploadEvent(models.Model):
 	The metadata captured is what was provided by the uploader.
 	The raw logs have not yet been parsed for validity.
 	"""
+
 	id = models.BigAutoField(primary_key=True)
 	shortid = ShortUUIDField("Short ID")
 	token_uuid = models.UUIDField(null=True, blank=True, db_column="token_id")
@@ -874,6 +876,7 @@ class RedshiftStagingTrack(models.Model):
 	"""
 	Represents a collection of staging tables intended for micro-batch loading into Redshift.
 	"""
+
 	id = models.BigAutoField(primary_key=True)
 	objects = RedshiftStagingTrackManager()
 	predecessor = models.ForeignKey(
@@ -1439,6 +1442,7 @@ class RedshiftStagingTrackTable(models.Model):
 	"""
 	Represents a single staging table that is part of a micro-batch loading track.
 	"""
+
 	id = models.BigAutoField(primary_key=True)
 	objects = RedshiftStagingTrackTableManager()
 	track = models.ForeignKey(

@@ -89,7 +89,7 @@ class Scenario(models.Model):
 
 	@staticmethod
 	def ai_deck_list(scenario_id):
-		""" Return the AIs card list as determined across all games played."""
+		"""Return the AIs card list as determined across all games played."""
 		deck = defaultdict(int)
 
 		# Only examine this many games to make it perform faster
@@ -114,7 +114,8 @@ class Scenario(models.Model):
 
 	@staticmethod
 	def winning_decks(scenario_id):
-		""" Returns a list like:
+		"""
+		Returns a list like:
 		[
 			{
 				"deck": <Deck>,
@@ -135,7 +136,6 @@ class Scenario(models.Model):
 		and the "fastest_wins" element is sorted in order of the wins which
 		took the least number of turns.
 		"""
-
 		complete_replays = []
 		for replay in GameReplay.objects.filter(global_game__scenario_id=scenario_id).all():
 			if replay.friendly_player.final_state == PlayState.WON:

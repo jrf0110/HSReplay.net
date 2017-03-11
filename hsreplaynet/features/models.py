@@ -40,6 +40,7 @@ class FeatureStatus(IntEnum):
 	status is the final resting status for any features that are offered for free once the
 	development is complete.
 	"""
+
 	OFF = 0
 	STAFF_ONLY = 1
 	AUTHORIZED_ONLY = 2
@@ -65,6 +66,7 @@ class Feature(models.Model):
 	managed in the usual way for new features, independently of the previous version's
 	status.
 	"""
+
 	name = models.CharField(max_length=255, null=False, unique=True)
 	description = models.TextField(blank=True)
 	created = models.DateTimeField(auto_now_add=True)
@@ -114,6 +116,7 @@ class FeatureInvite(models.Model):
 	"""
 	Represents an invitation to one or more feature tags.
 	"""
+
 	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
 	features = models.ManyToManyField(Feature, related_name="invites")
 	use_count = models.PositiveIntegerField(
