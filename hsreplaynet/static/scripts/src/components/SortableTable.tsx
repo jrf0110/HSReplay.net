@@ -20,9 +20,24 @@ interface SortableTableProps extends React.ClassAttributes<SortableTable> {
 
 export default class SortableTable extends React.Component<SortableTableProps, void> {
 	getSortIndicator(key: string): JSX.Element {
+		let classNameAsc = "glyphicon glyphicon-triangle-top";
+		let classNameDesc = "glyphicon glyphicon-triangle-bottom";
+		const classNames = ["sort-indicator"];
+
+		if (key === this.props.sortBy) {
+			classNames.push("primary");
+			if (this.props.sortDirection == "ascending") {
+				classNameAsc += " active";
+			}
+			else {
+				classNameDesc += " active";
+			}
+		}
+
 		return (
-			<span className={key === this.props.sortBy ? "" : "no-sort"}>
-				{this.props.sortDirection === "ascending" ? "▴" : "▾"}
+			<span className={classNames.join(" ")}>
+				<span className={classNameAsc}></span>
+				<span className={classNameDesc}></span>
 			</span>
 		);
 	};
