@@ -83,7 +83,7 @@ class User(AbstractUser):
 
 		now = timezone.now()
 		subscriptions = customer.subscriptions.filter(status="active", current_period_end__gt=now)
-		return subscriptions.count() >= 0
+		return subscriptions.count() > 0
 
 	def delete_replays(self):
 		self.replays.update(is_deleted=True)
