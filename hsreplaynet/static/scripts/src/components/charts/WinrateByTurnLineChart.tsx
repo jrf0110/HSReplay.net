@@ -1,11 +1,13 @@
 import * as React from "react";
 import {
-	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel, 
-	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip, VictoryScatter
+	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel,
+	VictoryLine, VictoryScatter
 } from "victory";
 import {RenderData, RenderQueryData} from "../../interfaces";
 import {getChartMetaData, toTimeSeries} from "../../helpers";
 import WinLossGradient from "./gradients/WinLossGradient";
+import {VictoryVoronoiContainer} from "victory";
+import ChartHighlighter from "./ChartHighlighter";
 
 interface WinrateByTurnLineChartProps {
 	renderData: RenderData;
@@ -35,42 +37,15 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		}
 		else if (renderData) {
 			const elements = [];
-			const series = renderData.series.find(s => s.name === "winrates_by_turn" 
+			const series = renderData.series.find(s => s.name === "winrates_by_turn"
 				&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 
 			const metaData = getChartMetaData(series.data, 50, false, 10);
-
-			let tooltips = null;
-			if (!this.props.premiumLocked) {
-				tooltips = (
-					<VictoryVoronoiTooltip
-						data={series.data}
-						labels={d => "Turn " + d.x + "\n" + d.y + "%"}
-						labelComponent={
-							<VictoryTooltip
-								cornerRadius={0}
-								pointerLength={0}
-								padding={1}
-								dx={d => d.x > metaData.xCenter ? -40 : 40}
-								dy={-12}
-								flyoutStyle={{
-									stroke: "gray",
-									fill: "rgba(255, 255, 255, 0.85)"
-								}}
-							/>
-						}
-						style={{
-							labels: {fontSize: 6, padding: 5}
-						}}
-					/>
-				);
-			}
 
 			const minAbove50 = metaData.yMinMax[0].y > 50;
 			const maxBelow50 = metaData.yMinMax[1].y < 50;
 			const isMinTick = (tick: number) => tick === metaData.yDomain[0];
 			const isMaxTick = (tick: number) => tick === metaData.yDomain[1];
-
 
 			const yTicks = [50];
 			metaData.yDomain.forEach(value => yTicks.indexOf(value) === -1 && yTicks.push(value));
@@ -90,7 +65,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 						domainPadding={{x: 5, y: 10}}
 						padding={{left: 40, top: 30, right: 20, bottom: 30}}
 						domain={{x: metaData.xDomain, y: metaData.yDomain}}
-						>
+					>
 						<VictoryAxis
 							tickCount={series.data.length}
 							tickFormat={tick => tick}
@@ -124,11 +99,6 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 								axis: {visibility: "hidden"}
 							}}
 							/>
-						<VictoryArea
-							data={series.data.map(p => {return {x: p.x, y: p.y, _y0: 50}})}
-							style={{data: {fill: "url(#winrate-by-turn-gradient)"}}}
-							interpolation="monotoneX"
-						/>
 						<VictoryLine
 							data={series.data}
 							interpolation="monotoneX"
@@ -139,7 +109,16 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 							symbol="circle"
 							size={1}
 						/>
-						{tooltips}
+						<VictoryArea
+							data={series.data.map(p => {return {x: p.x, y: p.y, _y0: 50}})}
+							style={{data: {fill: "url(#winrate-by-turn-gradient)"}}}
+							interpolation="monotoneX"
+							containerComponent={<VictoryVoronoiContainer
+								dimension="x"
+								labels={d => "Turn " + d.x + "\n" + d.y + "%"}
+								labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
+							/>}
+						/>
 					</VictoryChart>
 				</svg>
 			];

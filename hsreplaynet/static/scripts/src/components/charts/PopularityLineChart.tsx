@@ -1,12 +1,14 @@
 import * as React from "react";
 import {
 	VictoryAxis, VictoryChart, VictoryContainer, VictoryLabel, VictoryLine,
-	VictoryScatter, VictoryVoronoiTooltip, VictoryTooltip, VictoryArea
+	VictoryScatter, VictoryArea
 } from "victory";
 import {RenderData} from "../../interfaces";
 import {getChartMetaData, toTimeSeries, toDynamicFixed, sliceZeros} from "../../helpers";
 import PopularityGradient from "./gradients/PopularityGradient";
 import moment from "moment";
+import {VictoryVoronoiContainer} from "victory";
+import ChartHighlighter from "./ChartHighlighter";
 
 interface PopularityLineChartProps extends React.ClassAttributes<PopularityLineChart>{
 	renderData: RenderData;
@@ -39,18 +41,6 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 			const metadata = getChartMetaData(series.data, undefined, true, 1);
 			metadata.yDomain = [0, this.props.maxYDomain];
 
-			const tooltip = <VictoryTooltip
-				cornerRadius={0}
-				pointerLength={0}
-				padding={1}
-				dx={d => d.x > metadata.xCenter ? -40 : 40}
-				dy={-12}
-				flyoutStyle={{
-					stroke: "gray",
-					fill: "rgba(255, 255, 255, 0.85)"
-				}}
-			/>;
-
 			content = [
 				<defs>
 					<linearGradient id="popularity-gradient" x1="50%" y1="100%" x2="50%" y2="0%">
@@ -80,23 +70,20 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 						tickFormat={tick => metadata.toFixed(tick) + "%"}
 						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: d => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
-					<VictoryArea
-						data={series.data.map(p => {return {x: p.x, y: p.y, _y0: metadata.yDomain[0]}})}
-						style={{data: {fill: "url(#popularity-gradient)"}}}
-						interpolation="monotoneX"
-					/>
 					<VictoryLine
 						data={series.data}
 						interpolation="monotoneX"
 						style={{data: {strokeWidth: 1}}}
 					/>
-					<VictoryVoronoiTooltip
-						data={series.data}
-						labels={d => moment(d.x).format("YYYY-MM-DD") + "\n" + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
-						labelComponent={tooltip}
-						style={{
-							labels: {fontSize: 6, padding: 5}
-						}}
+					<VictoryArea
+						data={series.data.map(p => {return {x: p.x, y: p.y, _y0: metadata.yDomain[0]}})}
+						style={{data: {fill: "url(#popularity-gradient)"}}}
+						interpolation="monotoneX"
+						containerComponent={<VictoryVoronoiContainer
+							dimension="x"
+							labels={d => moment(d.x).format("YYYY-MM-DD") + "\n" + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
+							labelComponent={<ChartHighlighter xCenter={metadata.xCenter} />}
+						/>}
 					/>
 				</VictoryChart>
 			];

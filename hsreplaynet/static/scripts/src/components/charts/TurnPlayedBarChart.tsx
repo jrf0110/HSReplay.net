@@ -1,10 +1,12 @@
 import * as React from "react";
 import {
 	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel,
-	VictoryLine, VictoryVoronoiTooltip, VictoryTooltip, VictoryScatter
+	VictoryLine, VictoryScatter
 } from "victory";
 import {RenderData, RenderQueryData} from "../../interfaces";
 import {getChartMetaData} from "../../helpers";
+import {VictoryVoronoiContainer} from "victory";
+import ChartHighlighter from "./ChartHighlighter";
 
 interface TurnPlayedBarChartProps {
 	renderData: RenderData;
@@ -30,18 +32,6 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 				&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 
 			const metaData = getChartMetaData(series.data, undefined, false, 10);
-
-			const tooltip = <VictoryTooltip
-				cornerRadius={0}
-				pointerLength={0}
-				padding={1}
-				dx={d => d.x > metaData.xCenter ? -40 : 40}
-				dy={-12}
-				flyoutStyle={{
-					stroke: "gray",
-					fill: "rgba(255, 255, 255, 0.85)"
-				}}
-			/>;
 
 			content = [
 				<defs>
@@ -84,11 +74,6 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 								axis: {visibility: "hidden"}
 							}}
 						/>
-						<VictoryArea
-							data={series.data.map(p => {return {x: p.x, y: p.y, _y0: 0}})}
-							style={{data: {fill: "url(#turn-played-gradient)"}}}
-							interpolation="monotoneX"
-						/>
 						<VictoryLine
 							data={series.data}
 							interpolation="monotoneX"
@@ -98,13 +83,15 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 							data={series.data}
 							size={1}
 						/>
-						<VictoryVoronoiTooltip
-							data={series.data}
-							labels={d => "Turn " + d.x + "\n" + d.y + "%"}
-							labelComponent={tooltip}
-							style={{
-								labels: {fontSize: 6, padding: 5}
-							}}
+						<VictoryArea
+							data={series.data.map(p => {return {x: p.x, y: p.y, _y0: 0}})}
+							style={{data: {fill: "url(#turn-played-gradient)"}}}
+							interpolation="monotoneX"
+							containerComponent={<VictoryVoronoiContainer
+								dimension="x"
+								labels={d => "Turn " + d.x + "\n" + d.y + "%"}
+								labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
+							/>}
 						/>
 					</VictoryChart>
 				</svg>

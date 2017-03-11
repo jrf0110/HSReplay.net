@@ -23,9 +23,9 @@ export default class ChartHighlighter extends React.Component<ChartHighlighterPr
 					fill: "white",
 				}}
 				flyoutStyle={{
-					stroke: "black",
+					stroke: "white",
 					strokeWidth: 0,
-					fill: "rgba(29, 54, 87, 1)"
+					fill: "rgba(0, 0, 0, 0.8)"
 				}}
 				activateData={true}
 			/>,

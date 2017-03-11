@@ -89,7 +89,7 @@ export default class ClassAreaChartChart extends React.Component<ClassAreaChartC
 						{areas}
 					</VictoryStack>
 				</VictoryChart>
-			];	
+			];
 		}
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
