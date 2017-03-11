@@ -1,7 +1,6 @@
 import moment from "moment";
 import * as React from "react";
 import CardData from "../CardData";
-import { Colors } from "../Colors";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
@@ -14,13 +13,10 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PremiumWrapper from "../components/PremiumWrapper";
 import {SortDirection} from "../components/SortableTable";
 import {
-	getColorString, getDustCost, getHeroCardId,
-	toPrettyNumber, toTitleCase, wildSets,
+	getDustCost, getHeroCardId,
+	isReady, toPrettyNumber, toTitleCase, wildSets,
 } from "../helpers";
-import {
-	CardObj, ChartSeries, DeckObj, MyDecks,
-	RenderData, TableData, TableRow,
-} from "../interfaces";
+import {MyDecks, RenderData, TableData, TableQueryData} from "../interfaces";
 import QueryManager from "../QueryManager";
 
 interface TableDataCache {
@@ -80,16 +76,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			tableDataAll: {},
 			tableDataClasses: {},
 		};
+		this.fetchMyDecks();
 	}
 
 	getDeckName(): string {
 		return this.props.deckName || toTitleCase(this.props.deckClass) + " Deck";
-	}
-
-	getBadgeColor(winrate: number) {
-		const factor = winrate > 50 ? 4 : 3;
-		const colorWinrate = 50 + Math.max(-50, Math.min(50, (factor * (winrate - 50))));
-		return getColorString(Colors.REDGREEN4, 50, colorWinrate / 100);
 	}
 
 	cacheKey(state?: DeckDetailState): string {
@@ -97,18 +88,29 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailState) {
-		const cacheKey = this.cacheKey();
-		const prevCacheKey = this.cacheKey(prevState);
-		if (cacheKey !== prevCacheKey) {
-			let all = this.state.tableDataAll[cacheKey];
-			let byClass = this.state.tableDataClasses[cacheKey];
-			if (!all || all === "error" || !byClass || byClass === "error") {
-				this.fetchMulliganGuide();
+		if (!prevProps.cardData && this.props.cardData) {
+			this.fetchDecksList();
+		}
+		if (!isReady(prevState.deckData) && isReady(this.state.deckData) && this.hasGlobalData()) {
+			this.fetchGlobalStats();
+			this.fetchMulliganGuide();
+		}
+		if (!prevState.myDecks && this.state.myDecks) {
+			const deck = this.state.myDecks[this.props.deckId];
+			if (deck && Object.keys(deck.game_types).indexOf("BGT_ARENA") === -1) {
+				this.fetchPersonalStats();
 			}
 		}
-		if (!prevProps.cardData && this.props.cardData) {
-			this.fetch();
-			this.fetchMulliganGuide();
+		if (this.hasGlobalData()) {
+			const cacheKey = this.cacheKey();
+			const prevCacheKey = this.cacheKey(prevState);
+			if (cacheKey !== prevCacheKey) {
+				let all = this.state.tableDataAll[cacheKey];
+				let byClass = this.state.tableDataClasses[cacheKey];
+				if (!all || all === "error" || !byClass || byClass === "error") {
+					this.fetchMulliganGuide();
+				}
+			}
 		}
 	}
 
@@ -277,6 +279,32 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			personalCardStats = <h3 className="message-wrapper">You have not played this deck recently.</h3>;
 		}
 
+		let headerContent = null;
+		if (this.isArenaDeck()) {
+			headerContent = <h3 className="message-wrapper">We currently dont't have stats for arena decks.</h3>;
+		}
+		else {
+			headerContent = [
+				<div className="col-lg-6 col-md-6">
+					<div className="chart-wrapper wide">
+						<PopularityLineChart
+							renderData={this.state.statsOverTime}
+							widthRatio={2}
+							maxYDomain={10}
+						/>
+					</div>
+				</div>,
+				<div className="col-lg-6 col-md-6">
+					<div className="chart-wrapper wide">
+						<WinrateLineChart
+							renderData={this.state.statsOverTime}
+							widthRatio={2}
+						/>
+					</div>
+				</div>,
+			];
+		}
+
 		return <div className="deck-detail-container">
 			<aside className="infobox">
 				<img
@@ -325,23 +353,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</aside>
 			<main>
 				<section id="content-header">
-					<div className="col-lg-6 col-md-6">
-						<div className="chart-wrapper wide">
-							<PopularityLineChart
-								renderData={this.state.statsOverTime}
-								widthRatio={2}
-								maxYDomain={10}
-							/>
-						</div>
-					</div>
-					<div className="col-lg-6 col-md-6">
-						<div className="chart-wrapper wide">
-							<WinrateLineChart
-								renderData={this.state.statsOverTime}
-								widthRatio={2}
-							/>
-						</div>
-					</div>
+					{headerContent}
 				</section>
 				<section id="page-content">
 					<ul className="nav nav-tabs content-tabs">
@@ -392,7 +404,31 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			.some((card) => wildSets.indexOf(card.set) !== -1);
 	}
 
-	fetchMulliganGuide() {
+	hasGlobalData(): boolean {
+		if (!isReady(this.state.deckData)) {
+			return false;
+		}
+		const classDecks = (this.state.deckData as TableQueryData).series.data[this.props.deckClass];
+		return classDecks.some((x) => +x.deck_id === this.props.deckId);
+	}
+
+	isArenaDeck(): boolean {
+		if (!this.state.myDecks) {
+			return false;
+		}
+		const deck = this.state.myDecks[this.props.deckId];
+		return deck && Object.keys(deck.game_types).indexOf("BGT_ARENA") !== -1;
+	}
+
+	getGameType(): string {
+		return this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
+	}
+
+	getQueryParams(): string {
+		return "deck_id=" + this.props.deckId + "&GameType=" + this.getGameType();
+	}
+
+	fetchMulliganGuide(): void {
 		const mode = this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
 		const params = "deck_id=" + this.props.deckId + "&GameType=" + mode + "&RankRange=" + (this.state.rankRange || "ALL");
 		const cacheKey = this.cacheKey();
@@ -418,40 +454,33 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		);
 	}
 
-	fetch() {
-		const mode = this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
-		const params = "deck_id=" + this.props.deckId + "&GameType=" + mode;
-
+	fetchGlobalStats(): void {
+		const params = this.getQueryParams();
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_base_winrate_by_opponent_class?" + params,
 			(data) => this.setState({baseWinrates: data}),
 		);
-
 		this.queryManager.fetch(
 			"/analytics/query/single_deck_stats_over_time?" + params,
 			(data) => this.setState({statsOverTime: data}),
 		);
-
-		this.queryManager.fetch(
-			"/analytics/query/list_decks_by_win_rate?GameType=" + mode,
-			(data) => this.setState({deckData: data}),
-		);
-
-		const fetchPersonalStats = () => {
-			this.queryManager.fetch(
-				"/analytics/query/single_account_lo_individual_card_stats_for_deck?deck_id=" + this.props.deckId,
-				(data) => this.setState({personalCardData: data}),
-			);
-		};
-
-		if (!this.state.myDecks) {
-			this.queryManager.fetch("/decks/mine/", (data) => {
-				this.setState({myDecks: data});
-				if (data[this.props.deckId]) {
-					fetchPersonalStats();
-				}
-			});
-		}
 	}
 
+	fetchDecksList(): void {
+		this.queryManager.fetch(
+			"/analytics/query/list_decks_by_win_rate?GameType=" + this.getGameType(),
+			(data) => this.setState({deckData: data}),
+		);
+	}
+
+	fetchMyDecks(): void {
+		this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data}));
+	}
+
+	fetchPersonalStats(): void {
+		this.queryManager.fetch(
+			"/analytics/query/single_account_lo_individual_card_stats_for_deck?deck_id=" + this.props.deckId,
+			(data) => this.setState({personalCardData: data}),
+		);
+	}
 }

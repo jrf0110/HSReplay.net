@@ -1,6 +1,6 @@
 import * as React from "react";
 import CardData from "../../CardData";
-import {cardSorting, isError, isLoading} from "../../helpers";
+import { cardSorting, isError, isLoading, isReady } from "../../helpers";
 import {TableData, TableQueryData} from "../../interfaces";
 import SortableTable, {SortDirection} from "../SortableTable";
 import DeckBreakdownTableRow from "./DeckBreakdownTableRow";
@@ -20,21 +20,15 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 	render(): JSX.Element {
 		const cardRows = [];
 		if (this.props.cardData) {
-			if (isLoading(this.props.tableData)) {
-				return <h3 className="message-wrapper">Loading...</h3>;
-			}
-			else if (isError(this.props.tableData)) {
-				return <h3 className="message-wrapper">Check back later.</h3>;
-			}
-			else {
-				const cardList = [];
-				const groupedCards = this.getGroupedCards(this.props.rawCardsList.split(","));
-				groupedCards.forEach((count, dbfId) => cardList.push({card: this.props.cardData.fromDbf(dbfId), count}));
+			const cardList = [];
+			const groupedCards = this.getGroupedCards(this.props.rawCardsList.split(","));
+			groupedCards.forEach((count, dbfId) => cardList.push({card: this.props.cardData.fromDbf(dbfId), count}));
 
-				let rows = null;
-				let baseMulliganWinrate = 0;
-				let baseDrawnWinrate = 0;
-				let basePlayedWinrate = 0;
+			let rows = null;
+			let baseMulliganWinrate = 0;
+			let baseDrawnWinrate = 0;
+			let basePlayedWinrate = 0;
+			if (isReady(this.props.tableData)) {
 				rows = (this.props.tableData as TableQueryData).series.data[this.props.dataKey];
 				if (rows) {
 					const validRows = rows.filter((row) => row);
@@ -47,35 +41,35 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 					baseDrawnWinrate /= validRows.length;
 					basePlayedWinrate /= validRows.length;
 				}
-
-				const rowList = [];
-				cardList.forEach((cardObj) => {
-					const row = rows && rows.find((r) => r["dbf_id"] === cardObj.card.dbfId);
-					rowList.push({row, cardObj});
-				});
-
-				const direction = this.props.sortDirection === "ascending" ? 1 : -1;
-
-				if (this.props.sortBy === "decklist") {
-					rowList.sort((a, b) => cardSorting(a, b, direction));
-				}
-				else {
-					rowList.sort((a, b) => (+a.row[this.props.sortBy] - +b.row[this.props.sortBy]) * direction);
-				}
-
-				rowList.forEach((item, index) => {
-					cardRows.push(
-						<DeckBreakdownTableRow
-							cardObj={item.cardObj}
-							baseDrawnWinrate={baseDrawnWinrate}
-							baseMulliganWinrate={baseMulliganWinrate}
-							basePlayedWinrate={basePlayedWinrate}
-							row={item.row}
-							wildDeck={this.props.wildDeck}
-						/>,
-					);
-				});
 			}
+
+			const rowList = [];
+			cardList.forEach((cardObj) => {
+				const row = rows && rows.find((r) => r["dbf_id"] === cardObj.card.dbfId);
+				rowList.push({row, cardObj});
+			});
+
+			const direction = this.props.sortDirection === "ascending" ? 1 : -1;
+
+			if (this.props.sortBy === "decklist") {
+				rowList.sort((a, b) => cardSorting(a, b, direction));
+			}
+			else {
+				rowList.sort((a, b) => (+a.row[this.props.sortBy] - +b.row[this.props.sortBy]) * direction);
+			}
+
+			rowList.forEach((item, index) => {
+				cardRows.push(
+					<DeckBreakdownTableRow
+						cardObj={item.cardObj}
+						baseDrawnWinrate={baseDrawnWinrate}
+						baseMulliganWinrate={baseMulliganWinrate}
+						basePlayedWinrate={basePlayedWinrate}
+						row={item.row}
+						wildDeck={this.props.wildDeck}
+					/>,
+				);
+			});
 
 			const tableHeaders = [
 				{key: "decklist", text: "Card", defaultSortDirection: "ascending" as SortDirection},
