@@ -123,8 +123,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 
 	getDeckElements(): any[] {
+		if (this.state.queryMap.personal && !this.state.myDecks) {
+			return [];
+		}
 		const deckElements = [];
-		const data = (this.state.deckData.get(genCacheKey(this)) as TableQueryData).series.data;
+		const playerClass = this.state.queryMap.playerClass;
 		const filteredCards = (key: string): any[] => {
 			return getQueryMapArray(this.state.queryMap, key)
 				.map((dbfId) => this.props.cardData.fromDbf(dbfId));
@@ -137,29 +140,54 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const containsExcludedCards = (deckList: any[]) => {
 			return excludedCards.some((card) => deckList.some((cardObj) => cardObj.card.id === card.id));
 		};
-		Object.keys(data).forEach((key) => {
-			if (this.state.queryMap.playerClass !== "ALL" && this.state.queryMap.playerClass !== key) {
-				return;
-			}
-			const getDeckList = (cards) => cards.map((c: any[]) => {
-				return {card: this.props.cardData.fromDbf(c[0]), count: c[1]};
-			});
-			data[key].forEach((deck) => {
-				const cards = JSON.parse(deck["deck_list"]);
-				const deckList = getDeckList(cards);
-				if (missingIncludedCards(deckList) || containsExcludedCards(deckList)) {
+		const manaCost = (deckList: any[]) => deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
+		const dustCost = (deckList: any[]) => deckList.reduce((a, b) => a + getDustCost(b.card) * b.count, 0);
+		const cardList = (cards) => cards.map((c: any[]) => {
+			return {card: this.props.cardData.fromDbf(c[0]), count: c[1]};
+		});
+		const pushDeck = (deck: any, cards: any[]) => {
+			deck.cards = cards;
+			deck.dust_cost = dustCost(cards);
+			deck.mana_cost = manaCost(cards);
+			deckElements.push(deck);
+		};
+		if (this.state.queryMap.personal) {
+			Object.keys(this.state.myDecks).forEach((deckId) => {
+				const deck = Object.assign({}, this.state.myDecks[deckId]);
+				if (playerClass !== "ALL" && playerClass !== deck.player_class) {
 					return;
 				}
-				const costSum = deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
-				if (!this.state.queryMap.personal || this.state.myDecks && this.state.myDecks[deck["deck_id"]]) {
-					deck["cards"] = deckList;
-					deck["dust_cost"] = deckList.reduce((a, b) => a + getDustCost(b.card) * b.count, 0);
-					deck["mana_cost"] = costSum;
-					deck["player_class"] = key;
-					deckElements.push(deck);
+				const gameTypes = Object.keys(deck.game_types);
+				if (gameTypes.indexOf("BGT_ARENA") !== -1) {
+					return;
 				}
+				if (gameTypes.indexOf("BGT_" + this.state.queryMap.gameType) === -1) {
+					return;
+				}
+				const cards = cardList(deck.deck_list);
+				if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
+					return;
+				}
+				deck.win_rate *= 100;
+				pushDeck(deck, cards);
 			});
-		});
+		}
+		else {
+			const data = (this.state.deckData.get(genCacheKey(this)) as TableQueryData).series.data;
+			Object.keys(data).forEach((key) => {
+				if (playerClass !== "ALL" && playerClass !== key) {
+					return;
+				}
+				data[key].forEach((deck) => {
+					const cards = cardList(JSON.parse(deck.deck_list));
+					if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
+						return;
+					}
+					deck.player_class = key;
+					pushDeck(deck, cards);
+				});
+			});
+		}
 		return deckElements;
 	}
 
@@ -205,7 +233,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const decks = isReady(deckData) ? this.getFilteredDecks() : [];
 
 		let content = null;
-		if (!deckData || deckData === "loading" || !this.props.cardData) {
+		if (!deckData || deckData === "loading" || !this.props.cardData || queryMap.personal && !this.state.myDecks) {
 			content = (
 				<div className="content-message">
 					<h2>Loading...</h2>
