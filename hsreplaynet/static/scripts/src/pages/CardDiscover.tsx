@@ -268,7 +268,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				<div className="table-wrapper">
 					<DataInjector
 						dataManager={this.dataManager}
-						url="single_account_lo_individual_card_stats"
+						query={{url: "single_account_lo_individual_card_stats", params: {}}}
 					>
 						<TableLoading cardData={this.props.cardData}>
 							<MyCardStatsTable
@@ -286,20 +286,24 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		else if (viewType === "statistics") {
 			content.push(
 				<div className="table-wrapper">
-					<DataInjector dataManager={this.dataManager} url="card_played_popularity_report" params={this.getParams()}>
-						<DataInjector dataManager={this.dataManager} url="card_included_popularity_report" params={this.getParams()}>
-							<TableLoading cardData={this.props.cardData}>
-								<CardStatsTable
-									cards={this.state.filteredCards || []}
-									numCards={this.state.numCards}
-									onSortChanged={onSortChanged}
-									sortBy={this.state.queryMap.sortBy}
-									sortDirection={this.state.queryMap.sortDirection as SortDirection}
-									gameType={this.state.queryMap.gameType}
-									playerClass={this.state.queryMap.playerClass}
-								/>
-							</TableLoading>
-						</DataInjector>
+					<DataInjector
+						dataManager={this.dataManager}
+						query={[
+							{key: "played", url: "card_played_popularity_report", params: this.getParams()},
+							{key: "included", url: "card_included_popularity_report", params: this.getParams()},
+						]}
+					>
+						<TableLoading cardData={this.props.cardData} dataKeys={["played", "included"]}>
+							<CardStatsTable
+								cards={this.state.filteredCards || []}
+								numCards={this.state.numCards}
+								onSortChanged={onSortChanged}
+								sortBy={this.state.queryMap.sortBy}
+								sortDirection={this.state.queryMap.sortDirection as SortDirection}
+								gameType={this.state.queryMap.gameType}
+								playerClass={this.state.queryMap.playerClass}
+							/>
+						</TableLoading>
 					</DataInjector>
 				</div>,
 			);

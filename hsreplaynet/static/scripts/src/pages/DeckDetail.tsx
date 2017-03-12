@@ -138,8 +138,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<DataInjector
 					dataManager={this.dataManager}
 					fetchCondition={this.isWildDeck() !== undefined}
-					params={{gameType: this.gameType()}}
-					url="list_decks_by_win_rate"
+					query={{url: "list_decks_by_win_rate", params: {gameType: this.gameType()}}}
 				>
 					<HideLoading>
 						<DeckStats
@@ -151,8 +150,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<DataInjector
 					dataManager={this.dataManager}
 					fetchCondition={this.isWildDeck() !== undefined}
-					params={{deck_id: this.props.deckId}}
-					url="single_account_lo_individual_card_stats_for_deck"
+					query={{url: "single_account_lo_individual_card_stats_for_deck", params: {deck_id: this.props.deckId}}}
 				>
 					<HideLoading>
 						<PersonalDeckStats deckId={this.props.deckId}/>
@@ -166,8 +164,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<DataInjector
 								dataManager={this.dataManager}
 								fetchCondition={this.isWildDeck() !== undefined}
-								params={this.getParams()}
-								url="/analytics/query/single_deck_stats_over_time"
+								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
 							>
 								<ChartLoading>
 									<PopularityLineChart
@@ -183,8 +180,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<DataInjector
 								dataManager={this.dataManager}
 								fetchCondition={this.isWildDeck() !== undefined}
-								params={this.getParams()}
-								url="/analytics/query/single_deck_stats_over_time"
+								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
 							>
 								<ChartLoading>
 									<WinrateLineChart widthRatio={2} />
@@ -205,12 +201,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								<DataInjector
 									dataManager={this.dataManager}
 									fetchCondition={this.isWildDeck() !== undefined}
-									params={this.getParams(true)}
-									url={
-										this.state.selectedClasses[0] !== "ALL" && this.props.userIsPremium
-										? "single_deck_mulligan_guide_by_class"
-										: "single_deck_mulligan_guide"
-									}
+									query={{
+										params: this.getParams(),
+										url: (
+											this.state.selectedClasses[0] !== "ALL" && this.props.userIsPremium
+											? "single_deck_mulligan_guide_by_class"
+											: "single_deck_mulligan_guide"
+										),
+									}}
 								>
 									<TableLoading cardData={this.props.cardData}>
 										<DeckBreakdownTable
@@ -229,8 +227,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<DataInjector
 								dataManager={this.dataManager}
 								fetchCondition={this.isWildDeck() !== undefined}
-								params={this.getParams()}
-								url="/analytics/query/list_decks_by_win_rate"
+								query={{url: "list_decks_by_win_rate", params: this.getParams()}}
 							>
 								<TableLoading cardData={this.props.cardData}>
 									<SimilarDecksList
@@ -246,8 +243,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								<DataInjector
 									dataManager={this.dataManager}
 									fetchCondition={this.isWildDeck() !== undefined}
-									params={{deck_id: this.props.deckId, gameType: this.gameType()}}
-									url="/analytics/query/single_account_lo_individual_card_stats_for_deck"
+									query={{
+										params: {deck_id: this.props.deckId, gameType: this.gameType()},
+										url: "single_account_lo_individual_card_stats_for_deck",
+									}}
 								>
 									<TableLoading cardData={this.props.cardData}>
 										<MyCardStatsTable

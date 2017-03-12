@@ -4,19 +4,27 @@ import DataManager from "../DataManager";
 import { cloneComponent } from "../helpers";
 import { LoadingStatus } from "../interfaces";
 
+interface Data {
+	[key: string]: any;
+}
+
 interface DataInjectorState {
-	data: any;
-	retryCount: number;
-	status: number;
+	data: Data[];
+	retryCount: number[];
+	status: number[];
+}
+
+interface Query {
+	key?: string;
+	url: string;
+	params: any;
 }
 
 interface DataInjectorProps extends React.ClassAttributes<DataInjector> {
-	data?: any;
-	url: string;
+	query: Query | Query[];
 	dataManager: DataManager;
 	fetchCondition?: boolean;
 	modify?: (data: any) => any;
-	params?: {};
 }
 
 const MAX_RETRY_COUNT = 3;
@@ -30,68 +38,93 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 	constructor(props: DataInjectorProps, state: DataInjectorState) {
 		super(props, state);
 		this.state = {
-			data: null,
-			retryCount: 0,
-			status: STATUS_LOADING,
+			data: [],
+			retryCount: this.getQueryArray(props).map((query) => 0),
+			status: this.getQueryArray(props).map((query) => STATUS_LOADING),
 		};
+	}
+
+	getQueryArray(props: DataInjectorProps): Query[] {
+		if (!Array.isArray(props.query)) {
+			return [props.query];
+		}
+		return props.query;
 	}
 
 	componentDidMount() {
-		this.fetch(this.props);
+		this.getQueryArray(this.props).forEach((query, index) => {
+			this.fetch(this.props, index);
+		});
 	}
 
 	componentWillReceiveProps(nextProps: DataInjectorProps) {
-		if (nextProps.url !== this.props.url
-			|| nextProps.fetchCondition !== this.props.fetchCondition
-			|| Object.keys(this.props.params || {}).some((key) => nextProps.params[key] !== this.props.params[key])) {
-			this.setState({status: STATUS_LOADING});
-			this.fetch(nextProps);
-		}
+		const allCurrent = this.getQueryArray(this.props);
+		this.getQueryArray(nextProps).forEach((query, index) => {
+			const current = allCurrent[index];
+			if (query.url !== current.url
+				|| Object.keys(query.params || {}).some((key) => query.params[key] !== current.params[key])
+				|| nextProps.fetchCondition !== this.props.fetchCondition) {
+				const newStatus = Object.assign([], this.state.status);
+				newStatus[index] = STATUS_LOADING;
+				this.setState({status: newStatus});
+				this.fetch(nextProps, index);
+			}
+		});
 	}
 
-	fetch(props: DataInjectorProps) {
+	fetch(props: DataInjectorProps, index: number) {
 		if (props.fetchCondition === false) {
 			return;
 		}
-		this.props.dataManager.get(props.url, props.params || {})
+		const query = this.getQueryArray(props)[index];
+		this.props.dataManager.get(query.url, query.params || {})
 			.then((json) => {
-				const data = props.modify ? props.modify(json) : json;
-				this.setState({data, status: STATUS_SUCCESS});
+				const newData = Object.assign([], this.state.data);
+				const newStatus = Object.assign([], this.state.status);
+				newData[query.key || "data"] = props.modify ? props.modify(json) : json;
+				newStatus[index] = STATUS_SUCCESS;
+				this.setState({data: newData, status: newStatus});
 			}, (status) => {
 				if (status === STATUS_PROCESSING) {
-					if (this.state.retryCount < MAX_RETRY_COUNT) {
-						window.setTimeout(() => this.fetch(props), 15000);
-						this.setState({status, retryCount: this.state.retryCount + 1});
+					if (this.state.retryCount[index] < MAX_RETRY_COUNT) {
+						window.setTimeout(() => this.fetch(props, index), 15000);
+						const newStatus = Object.assign([], this.state.status);
+						const newRetryCount = Object.assign([], this.state.retryCount);
+						newStatus[index] = STATUS_PROCESSING;
+						newRetryCount[index] = newRetryCount[index] + 1;
+						this.setState({status: newStatus, retryCount: newRetryCount});
 					}
 					else {
-						this.setState({status: STATUS_TIMEOUT});
+						const newStatus = Object.assign([], this.state.status);
+						newStatus[index] = STATUS_TIMEOUT;
+						this.setState({status: newStatus});
 					}
 				}
 				else {
-					this.setState({status});
+					const newStatus = Object.assign([], this.state.status);
+					newStatus[index] = status;
+					this.setState({status: newStatus});
 				}
-			});
+			}) ;
 	}
 
 	render(): JSX.Element {
-		const getStatus = (status: number): LoadingStatus => {
-			switch (status) {
-				case STATUS_LOADING:
-					return "loading";
-				case STATUS_SUCCESS:
-					return "success";
-				case STATUS_PROCESSING:
-					return "processing";
-				default:
-					return "error";
+		const getStatus = (status: number[]): LoadingStatus => {
+			if (status.every((s) => s === STATUS_SUCCESS)) {
+				return "success";
 			}
+			if (status.some((s) => [STATUS_SUCCESS, STATUS_LOADING, STATUS_PROCESSING].indexOf(s) === -1)) {
+				return "error";
+			}
+			if (status.some((s) => s === STATUS_PROCESSING)) {
+				return "processing";
+			}
+			return "loading";
 		};
-
-		const childProps = {data: this.state.data, status: getStatus(this.state.status)};
-		if (this.props.data) {
-			childProps["data1"] = this.props.data;
-		}
-
+		const childProps = {status: getStatus(this.state.status)};
+		Object.keys(this.state.data).forEach((key) => {
+			childProps[key] = this.state.data[key];
+		});
 		return cloneComponent(this.props.children, childProps);
 	}
 }

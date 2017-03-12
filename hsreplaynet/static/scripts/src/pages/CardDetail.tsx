@@ -138,8 +138,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div id="class-chart">
 							<DataInjector
 								dataManager={this.dataManager}
-								params={this.getParams()}
-								url="single_card_class_distribution_by_include_count"
+								query={{url: "single_card_class_distribution_by_include_count", params: this.getParams()}}
 							>
 								<ChartLoading>
 									<CardDetailPieChart
@@ -159,8 +158,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<h4>Most popular targets</h4>,
 						<DataInjector
 							dataManager={this.dataManager}
-							params={this.getParams()}
-							url="single_card_popular_targets"
+							query={{url: "single_card_popular_targets", params: this.getParams()}}
 							modify={(data) => this.mergeHeroes(data)}
 						>
 							<TableLoading>
@@ -181,8 +179,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<h4>Most popular Discover choices</h4>,
 						<DataInjector
 							dataManager={this.dataManager}
-							params={this.getParams()}
-							url="single_card_choices_by_winrate"
+							query={{url: "single_card_choices_by_winrate", params: this.getParams()}}
 						>
 							<TableLoading>
 								<CardRankingTable
@@ -217,8 +214,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="chart-wrapper">
 							<DataInjector
 								dataManager={this.dataManager}
-								params={this.getParams()}
-								url="single_card_stats_over_time"
+								query={{url: "single_card_stats_over_time", params: this.getParams()}}
 							>
 								<ChartLoading>
 									<PopularityLineChart
@@ -233,8 +229,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="chart-wrapper">
 							<DataInjector
 								dataManager={this.dataManager}
-								params={this.getParams()}
-								url="single_card_stats_over_time"
+								query={{url: "single_card_stats_over_time", params: this.getParams()}}
 							>
 								<ChartLoading>
 									<WinrateLineChart
@@ -273,12 +268,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
 										<DataInjector
 											dataManager={this.dataManager}
-											url={
-												this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium
-												? "/analytics/query/single_card_stats_by_turn_and_opponent"
-												: "/analytics/query/single_card_stats_by_turn"
-											}
-											params={this.getParams()}
+											query={{
+												params: this.getParams(),
+												url: (
+													this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium
+													? "/analytics/query/single_card_stats_by_turn_and_opponent"
+													: "/analytics/query/single_card_stats_by_turn"
+												),
+											}}
 										>
 											<ChartLoading>
 												<TurnPlayedBarChart
@@ -296,12 +293,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
 										<DataInjector
 											dataManager={this.dataManager}
-											url={
-												this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium
-												? "/analytics/query/single_card_stats_by_turn_and_opponent"
-												: "/analytics/query/single_card_stats_by_turn"
-											}
-											params={this.getParams()}
+											query={{
+												params: this.getParams(),
+												url: (
+													this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium
+													? "/analytics/query/single_card_stats_by_turn_and_opponent"
+													: "/analytics/query/single_card_stats_by_turn"
+												),
+											}}
 										>
 											<ChartLoading>
 												<WinrateByTurnLineChart
@@ -326,8 +325,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					recommendedDecks = (
 						<DataInjector
 							dataManager={this.dataManager}
-							params={{GameType: this.state.queryMap.gameType}}
-							url="/analytics/query/list_decks_by_win_rate"
+							query={{url: "list_decks_by_win_rate", params: {GameType: this.state.queryMap.gameType}}}
 						>
 							<TableLoading>
 								<RecommendedDecksList
@@ -408,9 +406,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">
 							<DataInjector
 								dataManager={this.dataManager}
-								params={this.getParams()}
 								fetchCondition={!!this.props.card}
-								url="/analytics/query/single_card_stats_over_time"
+								query={{url: "single_card_stats_over_time", params: this.getParams()}}
 								modify={(data) => {
 									if (data) {
 										const series = data.series.find((x) => x.metadata.is_winrate_data);

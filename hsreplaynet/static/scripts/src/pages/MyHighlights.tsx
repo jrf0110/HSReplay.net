@@ -45,7 +45,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 						<div id="winrate-chart-wrapper">
 							<DataInjector
 								dataManager={this.dataManager}
-								url="single_account_lo_lifetime_class_performance_over_time"
+								query={{url: "single_account_lo_lifetime_class_performance_over_time", params: {}}}
 							>
 								<ChartLoading>
 									<ClassArenaChart widthRatio={2}/>
@@ -57,7 +57,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 						<div id="winrate-chart-wrapper">
 							<DataInjector
 								dataManager={this.dataManager}
-								url="single_account_lo_lifetime_class_performance_over_time"
+								query={{url: "single_account_lo_lifetime_class_performance_over_time", params: {}}}
 								modify={(data) => this.buildWinrateChartData(data)}
 							>
 								<ChartLoading>
@@ -75,26 +75,27 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 					</ul>
 					<div className="tab-content">
 						<div id="highlights" className="tab-pane fade in active">
-							<DataInjector dataManager={this.dataManager} url="single_account_lo_best_rank_by_season">
-								<DataInjector
-									dataManager={this.dataManager}
-									url="single_account_lo_individual_card_stats"
-								>
-									<TableLoading cardData={this.props.cardData}>
-										<HighlightTiles/>
-									</TableLoading>
-								</DataInjector>
+							<DataInjector
+								dataManager={this.dataManager}
+								query={[
+									{key: "cardStats", url: "single_account_lo_individual_card_stats", params: {}},
+									{key: "ranks", url: "single_account_lo_best_rank_by_season", params: {}},
+								]}
+							>
+								<TableLoading cardData={this.props.cardData} dataKeys={["cardStats", "ranks"]}>
+									<HighlightTiles/>
+								</TableLoading>
 							</DataInjector>
 						</div>
 						<div id="mostplayeddeck" className="tab-pane fade">
-							<DataInjector dataManager={this.dataManager} url="/decks/mine/">
+							<DataInjector dataManager={this.dataManager} query={{url: "/decks/mine/", params: {}}}>
 								<MyDecksLoading cardData={this.props.cardData}>
 									<MostPlayedDecks/>
 								</MyDecksLoading>
 							</DataInjector>
 						</div>
 						<div id="biggesthits" className="tab-pane fade">
-							<DataInjector dataManager={this.dataManager} url="single_account_lo_biggest_hits">
+							<DataInjector dataManager={this.dataManager} query={{url: "single_account_lo_biggest_hits", params: {}}}>
 								<TableLoading cardData={this.props.cardData}>
 									<BiggestHits/>
 								</TableLoading>

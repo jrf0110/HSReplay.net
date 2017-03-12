@@ -6,12 +6,12 @@ import SortableTable, { SortDirection } from "../SortableTable";
 
 interface CardsTableProps extends React.ClassAttributes<CardStatsTable> {
 	cards: any[];
-	data?: TableData;
-	data1?: TableData;
 	gameType: string;
 	hiddenColumns?: string[];
+	included?: TableData;
 	numCards: number;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
+	played?: TableData;
 	playerClass: string;
 	sortBy: string;
 	sortDirection: SortDirection;
@@ -24,8 +24,8 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 		const dataKey = this.props.playerClass === "NEUTRAL" ? "ALL" : this.props.playerClass;
 
 		this.props.cards.forEach((card) => {
-			const included = this.props.data.series.data[dataKey].find((x) => x.dbf_id === card.dbfId);
-			const played = this.props.data1.series.data[dataKey].find((x) => x.dbf_id === card.dbfId);
+			const included = this.props.included.series.data[dataKey].find((x) => x.dbf_id === card.dbfId);
+			const played = this.props.played.series.data[dataKey].find((x) => x.dbf_id === card.dbfId);
 			const includedCount = included && +included.count;
 			const includedDecks = included && +included.decks;
 			const includedPopularity = included && +included.popularity;

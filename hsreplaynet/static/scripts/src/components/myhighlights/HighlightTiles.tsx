@@ -5,8 +5,8 @@ import CardHighlightTile from "../CardHighlightTile";
 
 interface HighlightTilesProps extends React.ClassAttributes<HighlightTiles> {
 	cardData?: CardData;
-	data?: TableData;
-	data1?: TableData;
+	cardStats?: TableData;
+	ranks?: TableData;
 }
 
 export default class HighlightTiles extends React.Component<HighlightTilesProps, void> {
@@ -20,7 +20,7 @@ export default class HighlightTiles extends React.Component<HighlightTilesProps,
 			heroes_killed: {}, num_distinct_decks: {}, win_rate: {},
 		};
 		const maxKeys = Object.keys(max);
-		const cards = this.props.data.series.data.ALL;
+		const cards = this.props.cardStats.series.data.ALL;
 		cards.forEach((card) => {
 			maxKeys.forEach((key) => {
 				const current = max[key][key];
@@ -32,7 +32,7 @@ export default class HighlightTiles extends React.Component<HighlightTilesProps,
 		const gameCounts = {num_standard_games: 0, num_wild_games: 0};
 		const rank = {best_standard_rank: undefined, best_wild_rank: undefined};
 		const legendRank = {best_standard_legend_rank: undefined, best_wild_legend_rank: undefined};
-		const seasons = this.props.data1.series.data.ALL;
+		const seasons = this.props.ranks.series.data.ALL;
 		seasons.forEach((season) => {
 			Object.keys(gameCounts).forEach((key) => gameCounts[key] += season[key]);
 			Object.keys(rank).forEach((key) => {
