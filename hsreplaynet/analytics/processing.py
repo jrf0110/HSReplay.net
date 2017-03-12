@@ -4,9 +4,7 @@ import time
 from datetime import datetime
 from django.conf import settings
 from django.core.cache import caches
-from django.dispatch import receiver
 from django.utils import timezone
-from djstripe import signals
 from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
 from sqlalchemy import create_engine
@@ -271,12 +269,6 @@ def get_from_redshift_cache(cache_key):
 		return None
 
 
-@receiver(signals.WEBHOOK_SIGNALS["customer.subscription.created"])
-def on_premium_purchased(sender, event, **kwargs):
-	if event.customer and event.customer.subscriber:
-		warm_redshift_cache_for_user(event.customer.subscriber)
-
-
 def warm_redshift_cache_for_user(user):
 	# This should be called whenever a user becomes premium
 	pegasus_accounts = list(user.pegasusaccount_set.all())
@@ -284,6 +276,7 @@ def warm_redshift_cache_for_user(user):
 
 
 def fill_redshift_cache_warming_queue(eligible_queries=None):
+	from hsreplaynet.billing.utils import get_premium_pegasus_accounts
 	fill_global_query_queue(eligible_queries)
 	pegasus_accounts = get_premium_pegasus_accounts()
 	fill_personalized_query_queue(pegasus_accounts, eligible_queries)
@@ -304,15 +297,6 @@ def fill_personalized_query_queue(pegasus_accounts, eligible_queries=None):
 	)
 	stales_queries = filter_freshly_cached_queries(messages)
 	write_messages_to_queue(queue_name, stales_queries)
-
-
-def get_premium_pegasus_accounts():
-	result = []
-	from djstripe.models import Subscription
-	for subscription in Subscription.objects.active():
-		user = subscription.customer.subscriber
-		result.extend(list(user.pegasusaccount_set.all()))
-	return result
 
 
 def get_personalized_queries_for_cache_warming(pegasus_accounts, eligible_queries=None):
