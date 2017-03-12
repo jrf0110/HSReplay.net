@@ -276,18 +276,44 @@ def get_from_redshift_cache(cache_key):
 		return None
 
 
-def warm_redshift_cache_for_user(user):
+class PremiumUserCacheWarmingContext:
+
+	def __init__(self, user, pegasus_accounts, decks):
+		self.user = user
+		self.pegasus_accounts = pegasus_accounts
+		self.decks = decks
+
+	@classmethod
+	def from_user(cls, user):
+		decks = []
+		from hsreplaynet.games.models import GameReplay
+		qs = GameReplay.objects.live().filter(
+			user=user
+		)
+		for replay in qs.all():
+			decks.append(replay.friendly_deck)
+		pegasus_accounts = list(user.pegasusaccount_set.all())
+		result = PremiumUserCacheWarmingContext(
+			user,
+			pegasus_accounts,
+			decks
+		)
+		return result
+
+
+def warm_redshift_cache_for_user_context(context):
 	# This should be called whenever a user becomes premium
-	pegasus_accounts = list(user.pegasusaccount_set.all())
-	fill_personalized_query_queue(pegasus_accounts)
+	fill_personalized_query_queue([context])
 
 
 def fill_redshift_cache_warming_queue(eligible_queries=None):
 	run_local_warm_global_queries(eligible_queries)
 	# fill_global_query_queue(eligible_queries)
-	from hsreplaynet.billing.utils import get_premium_pegasus_accounts
-	pegasus_accounts = get_premium_pegasus_accounts()
-	fill_personalized_query_queue(pegasus_accounts, eligible_queries)
+	from hsreplaynet.billing.utils import (
+		get_premium_cache_warming_contexts_from_subscriptions
+	)
+	contexts = get_premium_cache_warming_contexts_from_subscriptions()
+	fill_personalized_query_queue(contexts, eligible_queries)
 
 
 def fill_global_query_queue(eligible_queries=None):
@@ -306,30 +332,45 @@ def run_local_warm_global_queries(eligible_queries=None):
 		execute_query(query, params, run_local=True)
 
 
-def fill_personalized_query_queue(pegasus_accounts, eligible_queries=None):
+def fill_personalized_query_queue(contexts, eligible_queries=None):
 	queue_name = settings.REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME
 	messages = get_personalized_queries_for_cache_warming(
-		pegasus_accounts,
+		contexts,
 		eligible_queries
 	)
 	stales_queries = filter_freshly_cached_queries(messages)
 	write_messages_to_queue(queue_name, stales_queries)
 
 
-def get_personalized_queries_for_cache_warming(pegasus_accounts, eligible_queries=None):
+def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None):
 	queries = []
 	for query in RedshiftCatalogue.instance().personalized_queries:
 		if eligible_queries is None or query.name in eligible_queries:
 			for permutation in query.generate_personalized_parameter_permutation_bases():
 				# Each permutation will still be missing a Region and account_lo value
-				for pegasus_account in pegasus_accounts:
-					new_permutation = copy.copy(permutation)
-					new_permutation["Region"] = pegasus_account.region.name
-					new_permutation["account_lo"] = pegasus_account.account_lo
-					queries.append({
-						"query_name": query.name,
-						"supplied_parameters": new_permutation
-					})
+				for ctx in contexts:
+					for pegasus_account in ctx.pegasus_accounts:
+						new_permutation = copy.copy(permutation)
+						new_permutation["Region"] = pegasus_account.region.name
+						new_permutation["account_lo"] = pegasus_account.account_lo
+						if "deck_id" in query.get_available_non_filter_parameters():
+							for deck in ctx.decks:
+								new_permutation_for_deck = copy.copy(new_permutation)
+								new_permutation_for_deck["deck_id"] = deck.id
+								msg = "Created Permutation: %s" % str(
+									new_permutation_for_deck
+								)
+								log.info(msg)
+								queries.append({
+									"query_name": query.name,
+									"supplied_parameters": new_permutation_for_deck
+								})
+						else:
+							log.info("Created Permutation: %s" % str(new_permutation))
+							queries.append({
+								"query_name": query.name,
+								"supplied_parameters": new_permutation
+							})
 	return queries
 
 
