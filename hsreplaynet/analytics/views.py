@@ -24,8 +24,8 @@ def evict_query_from_cache(request, name):
 
 
 @staff_member_required
-def release_semaphore(request):
-	semaphore = get_concurrent_redshift_query_queue_semaphore()
+def release_semaphore(request, name):
+	semaphore = get_concurrent_redshift_query_queue_semaphore(name)
 	if semaphore:
 		semaphore.reset()
 	return JsonResponse({"msg": "OK"})

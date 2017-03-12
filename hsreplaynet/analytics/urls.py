@@ -16,5 +16,8 @@ urlpatterns = [
 		r"^evict/(?P<name>\w+)$", views.evict_query_from_cache,
 		name="analytics_evict_from_cache"
 	),
-	url(r"^release/semaphore$", views.release_semaphore, name="analytics_release_semaphore"),
+	url(
+		r"^release/semaphore/(?P<name>\w+)$", views.release_semaphore,
+		name="analytics_release_semaphore"
+	),
 ]
