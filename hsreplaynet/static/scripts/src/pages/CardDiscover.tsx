@@ -15,7 +15,7 @@ import SortableTable, {SortDirection} from "../components/SortableTable";
 import DataManager from "../DataManager";
 import {
 	cardSorting, cleanText, setNames, toDynamicFixed, toPrettyNumber,
-	toTitleCase, wildSets, winrateData,
+	toTitleCase, wildSets, winrateData, slangToCardId,
 } from "../helpers";
 import {ChartSeries, TableData} from "../interfaces";
 import {
@@ -696,9 +696,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const queryMap = this.state.queryMap;
 		if (queryMap["text"]) {
 			const text = cleanText(queryMap["text"]);
-			if (cleanText(card.name).indexOf(text) === -1) {
-				if (!card.text || cleanText(card.text).indexOf(text) === -1) {
-					return true;
+			const slang = slangToCardId(text);
+			if (!slang || card.id !== slang) {
+				if (cleanText(card.name).indexOf(text) === -1) {
+					if (!card.text || cleanText(card.text).indexOf(text) === -1) {
+						return true;
+					}
 				}
 			}
 		}

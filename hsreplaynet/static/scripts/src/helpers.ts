@@ -564,6 +564,44 @@ export function cleanText(text: string): string {
 	return text.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 }
 
+export function slangToCardId(slang: string): string|null {
+	switch (slang.toLowerCase()) {
+		case "bgh": // Big Game Hunter
+			return "EX1_005";
+		case "bok": // Blessing of Kings
+			return "CS2_092";
+		case "dr6": // Mysterious Challenger
+			return "AT_079";
+		case "dr7": // Dr. Boom
+			return "GVG_110";
+		case "etc": // Elite Tauren Chieftain
+			return "PRO_001";
+		case "hex": // Hex
+			return "EX1_246";
+		case "yogg": // Yogg-Saron, Hope's End
+			return "OG_134";
+		case "mct": // Mind Control Tech
+			return "EX1_085";
+		case "rag": // Ragnaros the Firelord
+			return "EX1_298";
+		case "reno": // Reno Jackson
+			return "LOE_011";
+		case "shredder": // Piloted Shredder
+			return "GVG_096";
+		case "stb": // Small-Time Buccaneer
+			return "CFM_325";
+		case "swd": // Shadow: Word Death
+			return "EX1_622";
+		case "swp": // Shadow: Word Pain
+			return "CS2_234";
+		case "tbk": // The Black Knight
+			return "EX1_002";
+		case "477": // Flamewreath Faceless
+			return "OG_024";
+	}
+	return null;
+}
+
 export function toDynamicFixed(value: number, fractionDigits: number = 1) {
 	const digits = Math.min(Math.max(0, Math.floor(Math.log10(1 / value))), (7 - fractionDigits)) + fractionDigits;
 	return value.toFixed(digits);

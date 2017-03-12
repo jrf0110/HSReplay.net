@@ -1,6 +1,6 @@
 import * as React from "react";
 import CardTile from "./CardTile";
-import {cleanText} from "../helpers";
+import {cleanText, slangToCardId} from "../helpers";
 
 interface CardSearchState {
 	cardSearchText?: string;
@@ -140,7 +140,27 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 		if (!this.props.availableCards) {
 			return [];
 		}
-		return this.props.availableCards.filter(card => !this.state.cardSearchText || cleanText(card.name).indexOf(cleanText(this.state.cardSearchText)) !== -1);
+		const cleanQuery = cleanText(this.state.cardSearchText);
+		let resultSet = [];
+		let availableCards = this.props.availableCards;
+		let slang = slangToCardId(this.state.cardSearchText);
+		if (slang !== null) {
+			availableCards = availableCards.filter((card) => {
+				if (card.id === slang) {
+					resultSet.push(card);
+					return false;
+				}
+				return true;
+			});
+		}
+		const filtered = availableCards.filter((card) => {
+			if (!this.state.cardSearchText) {
+				return true;
+			}
+			return cleanText(card.name).indexOf(cleanQuery) !== -1;
+		});
+		resultSet = resultSet.concat(filtered);
+		return resultSet;
 	}
 
 	getSelectedCards(): JSX.Element[] {
