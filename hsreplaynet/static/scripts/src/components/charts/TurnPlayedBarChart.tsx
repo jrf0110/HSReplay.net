@@ -3,13 +3,13 @@ import {
 	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel,
 	VictoryLine, VictoryScatter
 } from "victory";
-import {RenderData, RenderQueryData} from "../../interfaces";
+import {RenderData} from "../../interfaces";
 import {getChartMetaData} from "../../helpers";
 import {VictoryVoronoiContainer} from "victory";
 import ChartHighlighter from "./ChartHighlighter";
 
 interface TurnPlayedBarChartProps {
-	renderData: RenderData;
+	data?: RenderData;
 	opponentClass?: string;
 	widthRatio?: number;
 	premiumLocked: boolean;
@@ -18,22 +18,14 @@ interface TurnPlayedBarChartProps {
 export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarChartProps, any> {
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
-		const renderData = this.props.premiumLocked ? this.mockData : this.props.renderData;
-		let content = null;
 
-		if (renderData === "loading") {
-			content = <VictoryLabel text={"Loading..."} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
-		}
-		else if (renderData === "error") {
-			content = <VictoryLabel text={"Please check back later"} style={{fontSize: 14}} textAnchor="middle" verticalAnchor="middle" x={width/2} y={75}/>
-		}
-		else if (renderData) {
-			const series = renderData.series.find(s => s.name === "popularity_by_turn"
-				&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
+		const renderData = this.props.premiumLocked ? this.mockData : this.props.data;
+		const series = renderData.series.find(s => s.name === "popularity_by_turn"
+			&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
+		const metaData = getChartMetaData(series.data, undefined, false, 10);
 
-			const metaData = getChartMetaData(series.data, undefined, false, 10);
-
-			content = [
+		return (
+			<svg viewBox={"0 0 " + width + " 150"}>
 				<defs>
 					<linearGradient id="turn-played-gradient" x1="50%" y1="100%" x2="50%" y2="0%">
 						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
@@ -42,7 +34,7 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 					<filter id="popularity-gaussian-blur">
 						<feGaussianBlur in="SourceGraphic" stdDeviation="2" />
 					</filter>
-				</defs>,
+				</defs>
 				<svg filter={this.props.premiumLocked && "url(#popularity-gaussian-blur)"}>
 					<VictoryChart
 						height={150}
@@ -95,18 +87,12 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 						/>
 					</VictoryChart>
 				</svg>
-			];
-		}
-
-		return (
-			<svg viewBox={"0 0 " + width + " 150"}>
-				{content}
 				<VictoryLabel text={"Popularity - by turn played"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
 	}
 
-	readonly mockData: RenderQueryData = {
+	readonly mockData: RenderData = {
 		series: [{
 			name: "popularity_by_turn",
 			data: [

@@ -22,10 +22,6 @@ export default class ClassStackedBarChart extends React.Component<ClassStackedBa
 	}
 
 	render(): JSX.Element {
-		if (!this.props.data || this.props.data === "loading" || this.props.data === "error") {
-			return null;
-		}
-
 		const bars = [];
 		const xValues = [];
 

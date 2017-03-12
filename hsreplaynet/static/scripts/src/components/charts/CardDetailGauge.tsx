@@ -1,6 +1,6 @@
 import * as React from "react";
-import {ChartSchemeData, RenderData} from "../../interfaces";
 import {VictoryContainer, VictoryLabel, VictoryPie} from "victory";
+import {ChartSchemeData, RenderData} from "../../interfaces";
 
 interface CardDetailGaugeProps extends React.ClassAttributes<CardDetailGauge> {
 	renderData: RenderData;
@@ -20,28 +20,20 @@ export default class CardDetailGauge extends React.Component<CardDetailGaugeProp
 		const offsetY = this.props.speedometer ? -75 : 0;
 		const textY = this.props.speedometer ? 250 : 400;
 
-		let content = null;
+		const series = this.props.renderData.series[0];
+		const hasData = series && series.data[0] && series.data[0].y;
+		const value = hasData ? +series.data[0].y : maxValue / 2;
 
-		if(this.props.renderData === "loading") {
-			content = <VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={(450 + offsetY) / 2} text={"Loading..."} style={{fontSize: 32}}/>
-		}
-		else if (this.props.renderData === "error") {
-			content = <VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={(450 + offsetY) / 2} text={"Please check back later"} style={{fontSize: 32}}/>
-		}
-		else if (this.props.renderData) {
-			const series = this.props.renderData.series[0];
-			const hasData = series && series.data[0] && series.data[0].y;
-			const value = hasData ? +series.data[0].y : maxValue/2;
+		const data =  [{x: "data", y: (this.props.reverse ? maxValue - value : value)}];
+		const remaining = maxValue - data[0].y;
+		data.push({x: "empty", y: remaining});
 
-			const data =  [{x: "data", y: (this.props.reverse ? maxValue - value : value)}];
-			const remaining = maxValue - data[0].y;
-			data.push({x: "empty", y: remaining});
+		const valueText = hasData ? ((this.props.reverse ? maxValue - data[0].y : data[0].y) + (percentBased ? "%" : "")) : "";
+		const color = this.props.scheme ? this.props.scheme.stroke : "rgba(0, 0, 127, 0.9)";
+		const emptyColor = this.props.scheme ? this.props.scheme.fill : "rgba(0, 0, 127, 0.5)";
 
-			const valueText = hasData ? ((this.props.reverse ? maxValue - data[0].y : data[0].y) + (percentBased ? "%" : "")) : "";
-			const color = this.props.scheme ? this.props.scheme.stroke : "rgba(0, 0, 127, 0.9)";
-			const emptyColor = this.props.scheme ? this.props.scheme.fill : "rgba(0, 0, 127, 0.5)";
-
-			content = [
+		return (
+			<svg viewBox={"0 " + offsetY + " 400 450"}>
 				<VictoryPie
 					containerComponent={<VictoryContainer title={this.props.title}/>}
 					animate={{duration: 300}}
@@ -53,18 +45,14 @@ export default class CardDetailGauge extends React.Component<CardDetailGaugeProp
 					endAngle={this.props.speedometer && this.speedometerAngle}
 					style={{
 						data: {
-							fill: d => d.xName === "empty" ? emptyColor : color,
+							fill: (d) => d.xName === "empty" ? emptyColor : color,
 						},
 					}}
 					labels={[]}
 				/>,
 				<VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={200} text={valueText} style={{fontSize: 40}}/>
-			];
-		}
-
-		return <svg viewBox={"0 " + offsetY + " 400 450"}>
-			{content}
-			<VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={textY} text={this.props.title} style={{fontSize: 40}}/>
-		</svg>;
+				<VictoryLabel textAnchor="middle" verticalAnchor="middle" x={200} y={textY} text={this.props.title} style={{fontSize: 40}}/>
+			</svg>
+		);
 	}
 }

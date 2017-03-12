@@ -1,16 +1,16 @@
+import moment from "moment";
 import * as React from "react";
 import {
-	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryGroup, VictoryLabel,
-	VictoryLine, VictoryVoronoiContainer, VictoryScatter
+	VictoryArea, VictoryAxis, VictoryChart, VictoryContainer, VictoryGroup, VictoryLabel,
+	VictoryLine, VictoryScatter, VictoryVoronoiContainer,
 } from "victory";
+import {getChartMetaData, sliceZeros, toDynamicFixed, toTimeSeries} from "../../helpers";
 import {RenderData} from "../../interfaces";
-import {getChartMetaData, toTimeSeries, toDynamicFixed, sliceZeros} from "../../helpers";
-import WinLossGradient from "./gradients/WinLossGradient";
-import moment from "moment";
 import ChartHighlighter from "./ChartHighlighter";
+import WinLossGradient from "./gradients/WinLossGradient";
 
 interface WinrateLineChartProps extends React.ClassAttributes<WinrateLineChart> {
-	renderData: RenderData;
+	data?: RenderData;
 	title?: string;
 	widthRatio?: number;
 }
@@ -19,42 +19,19 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
-		let content = null;
+		const series = toTimeSeries(this.props.data.series.find((x) => x.name === "winrates_over_time") || this.props.data.series[0]);
+		const metadata = getChartMetaData(series.data, 50, true, 10);
 
-		if (this.props.renderData === "loading") {
-			content =
-				<VictoryLabel
-					text={"Loading..."}
-					style={{fontSize: 14}}
-					textAnchor="middle"
-					verticalAnchor="middle"
-					x={width/2}
-					y={75}
-				/>
-		}
-		else if (this.props.renderData === "error") {
-			content = <VictoryLabel
-				text={"Please check back later"}
-				style={{fontSize: 14}}
-				textAnchor="middle"
-				verticalAnchor="middle"
-				x={width/2}
-				y={75}
-			/>
-		}
-		else if (this.props.renderData) {
-			const series = toTimeSeries(this.props.renderData.series.find(x => x.name === "winrates_over_time") || this.props.renderData.series[0]);
-			const metadata = getChartMetaData(series.data, 50, true, 10);
+		const minAbove50 = metadata.yMinMax[0].y > 50;
+		const maxBelow50 = metadata.yMinMax[1].y < 50;
+		const isMinTick = (tick: number) => tick === metadata.yDomain[0];
+		const isMaxTick = (tick: number) => tick === metadata.yDomain[1];
 
-			const minAbove50 = metadata.yMinMax[0].y > 50;
-			const maxBelow50 = metadata.yMinMax[1].y < 50;
-			const isMinTick = (tick: number) => tick === metadata.yDomain[0];
-			const isMaxTick = (tick: number) => tick === metadata.yDomain[1];
+		const yTicks = [50];
+		metadata.yDomain.forEach((value) => yTicks.indexOf(value) === -1 && yTicks.push(value));
 
-			const yTicks = [50];
-			metadata.yDomain.forEach(value => yTicks.indexOf(value) === -1 && yTicks.push(value));
-
-			content = [
+		return (
+			<svg viewBox={"0 0 " + width + " 150"}>
 				<defs>
 					<WinLossGradient id="winrate-by-time-gradient" metadata={metadata} />
 				</defs>,
@@ -69,14 +46,14 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					<VictoryAxis
 						scale="time"
 						tickValues={metadata.seasonTicks}
-						tickFormat={tick => moment(tick).add(1, "day").format("MMMM")}
+						tickFormat={(tick) => moment(tick).add(1, "day").format("MMMM")}
 						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryAxis
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
 						tickValues={[50].concat(metadata.yDomain)}
-						tickFormat={tick => {
+						tickFormat={(tick) => {
 							if (tick === 50) {
 								return "50%";
 							}
@@ -84,15 +61,15 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 								return "";
 							}
 							if (maxBelow50 && isMaxTick(tick)) {
-								return ""
+								return "";
 							}
-							return metadata.toFixed(tick) + "%"
+							return metadata.toFixed(tick) + "%";
 						}}
 						style={{
 							axisLabel: {fontSize: 8},
 							tickLabels: {fontSize: 8},
-							grid: {stroke: tick => tick === 50 ? "gray" : (minAbove50 && isMinTick(tick) || maxBelow50 && isMaxTick(tick) ? "transparent" : "lightgray")},
-							axis: {visibility: "hidden"}
+							grid: {stroke: (tick) => tick === 50 ? "gray" : (minAbove50 && isMinTick(tick) || maxBelow50 && isMaxTick(tick) ? "transparent" : "lightgray")},
+							axis: {visibility: "hidden"},
 						}}
 					/>
 					<VictoryLine
@@ -101,22 +78,16 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 						style={{data: {strokeWidth: 1}}}
 					/>
 					<VictoryArea
-						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}})}
+						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
 						style={{data: {fill: "url(#winrate-by-time-gradient)"}}}
 						interpolation="monotoneX"
 						containerComponent={<VictoryVoronoiContainer
 							dimension="x"
-							labels={d => moment(d.x).format("YYYY-MM-DD") + "\n" + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
+							labels={(d) => moment(d.x).format("YYYY-MM-DD") + "\n" + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
 							labelComponent={<ChartHighlighter xCenter={metadata.xCenter} />}
 						/>}
 					/>
 				</VictoryChart>
-			];
-		}
-
-		return (
-			<svg viewBox={"0 0 " + width + " 150"}>
-				{content}
 				<VictoryLabel
 					text={this.props.title || "Winrate - over time"}
 					style={{fontSize: 10}} textAnchor="start"
