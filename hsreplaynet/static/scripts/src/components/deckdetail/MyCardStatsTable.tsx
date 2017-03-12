@@ -1,32 +1,26 @@
 import * as React from "react";
-import { cardSorting, isError, isLoading, winrateData } from "../../helpers";
-import { TableData, TableQueryData } from "../../interfaces";
+import { cardSorting, winrateData } from "../../helpers";
+import { TableData } from "../../interfaces";
 import CardTile from "../CardTile";
 import { default as SortableTable, SortDirection } from "../SortableTable";
 
 interface MyCardStatsTableProps extends React.ClassAttributes<MyCardStatsTable> {
 	cards: any[];
+	data?: TableData;
 	hiddenColumns?: string[];
 	numCards: number;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
-	personalData: TableData;
 	sortBy: string;
 	sortDirection: SortDirection;
 }
 
 export default class MyCardStatsTable extends React.Component<MyCardStatsTableProps, void> {
 	render(): JSX.Element {
-		if (isLoading(this.props.personalData)) {
-			return <h3 className="message-wrapper">Loading...</h3>;
-		}
-		if (isError(this.props.personalData)) {
-			return <h3 className="message-wrapper">Please check back later.</h3>;
-		}
 		const rows = [];
 		const cardObjs = [];
 
 		this.props.cards.forEach((card) => {
-			const personal = (this.props.personalData as TableQueryData).series.data["ALL"].find((x) => x.dbf_id === card.dbfId);
+			const personal = this.props.data.series.data["ALL"].find((x) => x.dbf_id === card.dbfId);
 			cardObjs.push({
 				card,
 				damageDone: personal && personal.damage_done,
