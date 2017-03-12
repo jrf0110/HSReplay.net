@@ -357,8 +357,9 @@ def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None):
 							for deck in ctx.decks:
 								new_permutation_for_deck = copy.copy(new_permutation)
 								new_permutation_for_deck["deck_id"] = deck.id
-								msg = "Created Permutation: %s" % str(
-									new_permutation_for_deck
+								msg = "Warming: %s: %s" % (
+									str(new_permutation_for_deck),
+									str(query.name)
 								)
 								log.info(msg)
 								queries.append({
@@ -366,7 +367,11 @@ def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None):
 									"supplied_parameters": new_permutation_for_deck
 								})
 						else:
-							log.info("Created Permutation: %s" % str(new_permutation))
+							msg = "Warming: %s: %s" % (
+								str(new_permutation),
+								str(query.name)
+							)
+							log.info(msg)
 							queries.append({
 								"query_name": query.name,
 								"supplied_parameters": new_permutation

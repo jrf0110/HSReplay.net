@@ -1,4 +1,5 @@
 import json
+from hsreplaynet.utils import log
 from .clients import SQS
 
 
@@ -22,6 +23,7 @@ def write_messages_to_queue(queue_name, messages):
 
 		response = SQS.send_message_batch(QueueUrl=queue_url, Entries=entries)
 		if 'Failed' in response and len(response['Failed']):
+			log.error(json.dumps(response['Failed']))
 			raise RuntimeError(json.dumps(response['Failed']))
 
 
