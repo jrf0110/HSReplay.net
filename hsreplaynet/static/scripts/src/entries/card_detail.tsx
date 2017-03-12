@@ -16,6 +16,7 @@ const render = (cardData: CardData) => {
 			card={card}
 			cardData={cardData}
 			cardId={cardId}
+			dbfId={dbfId}
 			userIsPremium={premium && !mockFree}
 		/>,
 		document.getElementById("card-container")
