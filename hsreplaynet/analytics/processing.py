@@ -9,6 +9,7 @@ from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
+from hsredshift.analytics import queries
 from hsredshift.analytics.library.base import RedshiftQueryParams
 from hsredshift.analytics.queries import RedshiftCatalogue
 from hsreplaynet.utils import log
@@ -94,7 +95,7 @@ def enqueue_query(query, params):
 		log.info(msg)
 
 
-def execute_query(query, params):
+def execute_query(query, params, run_local=False):
 	# It's safe to launch multiple attempts to execute for the same query
 	# Because the dogpile lock will only allow one to execute
 	# But we can save resources by not even launching the attempt
@@ -102,7 +103,7 @@ def execute_query(query, params):
 	if not _lock_exists(params.cache_key):
 		log.info("No lock already exists for query. Will attempt to execute async.")
 
-		if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
+		if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA and not run_local:
 			# In PROD use Lambdas so the web-servers don't get overloaded
 			LAMBDA.invoke(
 				FunctionName="execute_redshift_query",
@@ -276,8 +277,9 @@ def warm_redshift_cache_for_user(user):
 
 
 def fill_redshift_cache_warming_queue(eligible_queries=None):
+	run_local_warm_global_queries(eligible_queries)
+	# fill_global_query_queue(eligible_queries)
 	from hsreplaynet.billing.utils import get_premium_pegasus_accounts
-	fill_global_query_queue(eligible_queries)
 	pegasus_accounts = get_premium_pegasus_accounts()
 	fill_personalized_query_queue(pegasus_accounts, eligible_queries)
 
@@ -287,6 +289,15 @@ def fill_global_query_queue(eligible_queries=None):
 	messages = get_global_queries_for_cache_warming(eligible_queries)
 	stales_queries = filter_freshly_cached_queries(messages)
 	write_messages_to_queue(queue_name, stales_queries)
+
+
+def run_local_warm_global_queries(eligible_queries=None):
+	messages = get_global_queries_for_cache_warming(eligible_queries)
+	stales_queries = filter_freshly_cached_queries(messages)
+	for msg in stales_queries:
+		query = queries.get_query(msg["query_name"])
+		params = msg["supplied_parameters"]
+		execute_query(query, params, run_local=True)
 
 
 def fill_personalized_query_queue(pegasus_accounts, eligible_queries=None):

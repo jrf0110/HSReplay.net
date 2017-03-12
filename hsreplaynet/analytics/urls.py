@@ -13,6 +13,10 @@ urlpatterns = [
 		name="analytics_fetch_query_results"
 	),
 	url(
+		r"^local/query/(?P<name>\w+)$", views.fetch_local_query_results,
+		name="analytics_fetch_local_query_results"
+	),
+	url(
 		r"^evict/(?P<name>\w+)$", views.evict_query_from_cache,
 		name="analytics_evict_from_cache"
 	),

@@ -80,7 +80,14 @@ def fetch_query_results(request, name):
 	return _fetch_query_results(query, params)
 
 
-def _fetch_query_results(query, params):
+@view_requires_feature_access("carddb")
+@condition(last_modified_func=fetch_query_result_as_of)
+def fetch_local_query_results(request, name):
+	query, params = _get_query_and_params(request, name)
+	return _fetch_query_results(query, params, run_local=True)
+
+
+def _fetch_query_results(query, params, run_local=False):
 	cached_data = get_from_redshift_cache(params.cache_key)
 	triggered_refresh = False
 	num_seconds = 0
@@ -90,7 +97,7 @@ def _fetch_query_results(query, params):
 			triggered_refresh = True
 			# Execute the query to refresh the stale data asynchronously
 			# And then return the data we have available immediately
-			execute_query(query, params)
+			execute_query(query, params, run_local)
 		result_set = cached_data.result_set
 
 		if cached_data.is_json:
@@ -105,7 +112,7 @@ def _fetch_query_results(query, params):
 
 		response = JsonResponse(response_payload, json_dumps_params=dict(indent=4))
 	else:
-		execute_query(query, params)
+		execute_query(query, params, run_local)
 		# Nothing to return so tell the client to check back later
 		result = {"msg": "Query is processing. Check back later."}
 		response = JsonResponse(result, status=202)
