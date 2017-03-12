@@ -139,31 +139,20 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					dataManager={this.dataManager}
 					fetchCondition={this.isWildDeck() !== undefined}
 					params={{gameType: this.gameType()}}
-					url="/analytics/query/list_decks_by_win_rate"
+					url="list_decks_by_win_rate"
 				>
 					<HideLoading>
 						<DeckStats
 							playerClass={this.props.deckClass}
 							deckId={this.props.deckId}
-						>
-							<DataInjector
-								dataManager={this.dataManager}
-								fetchCondition={this.isWildDeck() !== undefined}
-								params={this.getParams()}
-								url="/analytics/query/single_deck_base_winrate_by_opponent_class"
-							>
-								<HideLoading>
-									<DeckStatsWinrates/>
-								</HideLoading>
-							</DataInjector>
-						</DeckStats>
+						/>
 					</HideLoading>
 				</DataInjector>
 				<DataInjector
 					dataManager={this.dataManager}
 					fetchCondition={this.isWildDeck() !== undefined}
 					params={{deck_id: this.props.deckId}}
-					url="/analytics/query/single_account_lo_individual_card_stats_for_deck"
+					url="single_account_lo_individual_card_stats_for_deck"
 				>
 					<HideLoading>
 						<PersonalDeckStats deckId={this.props.deckId}/>

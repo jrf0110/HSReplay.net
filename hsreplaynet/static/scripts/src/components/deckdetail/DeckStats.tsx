@@ -25,15 +25,6 @@ export default class DeckStats extends React.Component<DeckStatsProps, DeckStats
 		const winrateClassNames = [];
 		let subWinrates = null;
 
-		if (this.props.children) {
-			winrateClassNames.push("selectable", "expandable");
-			if (this.state.expandWinrate) {
-				winrateClassNames.push("expanded");
-				subWinrates = (
-					<ul>{this.props.children}</ul>
-				);
-			}
-		}
 		const deck = this.props.data.series.data[this.props.playerClass].find((x) => +x["deck_id"] === this.props.deckId);
 		if (!deck) {
 			return null;
@@ -50,13 +41,9 @@ export default class DeckStats extends React.Component<DeckStatsProps, DeckStats
 						Time frame
 						<span className="infobox-value">Last 30 days</span>
 					</li>
-					<li
-						className={winrateClassNames.join(" ")}
-						onClick={() => this.setState({expandWinrate: !this.state.expandWinrate})}
-					>
+					<li>
 						Winrate
 						<span className="infobox-value">{(+deck["win_rate"]).toFixed(1) + "%"}</span>
-						{subWinrates}
 					</li>
 					<li>
 						Avg. match duration
