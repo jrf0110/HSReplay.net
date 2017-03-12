@@ -18,7 +18,7 @@ from hsreplaynet.utils.synchronization import CountDownLatch
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	memory=256,
+	memory=512,
 )
 def execute_redshift_query(event, context):
 	"""A handler that executes Redshift queries for the webserver"""
@@ -30,18 +30,29 @@ def execute_redshift_query(event, context):
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	memory = 256,
+	memory=512,
 )
 def drain_redshift_query_queue(event, context):
 	"""A cron'd handler that attempts to drain any queued query requests in SQS."""
+	logger = logging.getLogger("hsreplaynet.lambdas.drain_redshift_query_queue")
 	start_time = time.time()
 	duration = 0
+	zero_work_cycles = 0
 	# We run for 55 seconds, since the majority of queries take < 5 seconds to finish
 	# And the next scheduled invocation of this will be starting a minute after this one.
 	while duration < 55:
 		did_work = do_drain_redshift_query_queue_iteration()
 		if not did_work:
+			zero_work_cycles += 1
 			time.sleep(5)
+		else:
+			# Reset counter if we did any work
+			zero_work_cycles = 0
+
+		if zero_work_cycles >= 3:
+			# If we go 3 cycles with no work to do then exit early to save resources
+			logger.info("Went %i cycles with no work. Exiting." % zero_work_cycles)
+			break
 
 		current_time = time.time()
 		duration = current_time - start_time
