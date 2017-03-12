@@ -12,9 +12,11 @@
 			true,
 			"never-prefix"
 		],
+		"import-spacing": true,
 		"jsx-curly-spacing": [
 			true,
 			"never"
+
 		],
 		"jsx-no-lambda": false,
 		"jsx-no-multiline-js": false,
