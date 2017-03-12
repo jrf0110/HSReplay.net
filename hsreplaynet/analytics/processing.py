@@ -100,10 +100,14 @@ def execute_query(query, params, run_local=False):
 	# Because the dogpile lock will only allow one to execute
 	# But we can save resources by not even launching the attempt
 	# If we see that the lock already exists
+	if run_local:
+		from hsreplaynet.utils.redis import job_queue
+		job_queue.enqueue(_do_execute_query_work, query, params)
+
 	if not _lock_exists(params.cache_key):
 		log.info("No lock already exists for query. Will attempt to execute async.")
 
-		if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA and not run_local:
+		if settings.ENV_AWS and settings.PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA:
 			# In PROD use Lambdas so the web-servers don't get overloaded
 			LAMBDA.invoke(
 				FunctionName="execute_redshift_query",
@@ -139,82 +143,84 @@ def _do_execute_query(query, params, wlm_queue=None):
 		# Get a lock with a 5-minute lifetime since that's the maximum duration of a Lambda
 		# to ensure the lock is held for as long as the Python process / Lambda is running.
 		log.info("Lock acquired.")
+		return _do_execute_query_work(query, params, wlm_queue)
 
-		# When we enter this block it's either because we were blocking
-		# and now the value is available,
-		# or it's because we're going to do the work
-		cached_data = get_from_redshift_cache(params.cache_key)
-		if cached_data and not cached_data.cached_params.are_stale(params)[0]:
-			log.info("Up-to-date cached data exists. Exiting without running query.")
-			return cached_data
-		else:
-			log.info("Cached data missing or stale. Executing query now.")
-			# DO EXPENSIVE WORK
 
-			start_ts = time.time()
-			exception_raised = False
-			exception_msg = None
-			redshift_connection = get_new_redshift_connection()
-			result_set = ''
-			cached_data_as_of = timezone.now()
-			try:
-				result_set = query.as_result_set().execute(
-					redshift_connection,
-					params,
-					wlm_queue,
-					as_json=True,
-					pretty=False
-				)
+def _do_execute_query_work(query, params, wlm_queue=None):
+	# When we enter this block it's either because we were blocking
+	# and now the value is available,
+	# or it's because we're going to do the work
+	cached_data = get_from_redshift_cache(params.cache_key)
+	if cached_data and not cached_data.cached_params.are_stale(params)[0]:
+		log.info("Up-to-date cached data exists. Exiting without running query.")
+		return cached_data
+	else:
+		log.info("Cached data missing or stale. Executing query now.")
+		# DO EXPENSIVE WORK
+		start_ts = time.time()
+		exception_raised = False
+		exception_msg = None
+		redshift_connection = get_new_redshift_connection()
+		result_set = ''
+		cached_data_as_of = timezone.now()
+		try:
+			result_set = query.as_result_set().execute(
+				redshift_connection,
+				params,
+				wlm_queue,
+				as_json=True,
+				pretty=False
+			)
+		except Exception as e:
+			exception_raised = True
+			exception_msg = str(e)
+			raise
+		finally:
+			end_ts = time.time()
+			duration_seconds = round(end_ts - start_ts, 2)
+			redshift_connection.close()
+			cache_data_size = len(result_set)
 
-				cache_ready_result = CachedRedshiftResult(
-					result_set,
-					params,
-					is_json=True,
-					as_of=cached_data_as_of
-				)
-
-				cache_data = cache_ready_result.to_json_cacheable_repr()
-			except Exception as e:
-				exception_raised = True
-				exception_msg = str(e)
-				raise
-			finally:
-				end_ts = time.time()
-				duration_seconds = round(end_ts - start_ts, 2)
-				redshift_connection.close()
-				cache_data_size = len(result_set)
-
-				query_execute_metric_fields = {
-					"duration_seconds": duration_seconds,
-					"cache_data_size": cache_data_size,
-					"exception_message": exception_msg
-				}
-				query_execute_metric_fields.update(
-					params.supplied_non_filters_dict
-				)
-
-				influx_metric(
-					"redshift_query_execute",
-					query_execute_metric_fields,
-					exception_thrown=exception_raised,
-					query_name=query.name,
-					**params.supplied_filters_dict
-				)
-
-			get_redshift_cache().set(
-				params.cache_key,
-				cache_data,
-				timeout=None
+			query_execute_metric_fields = {
+				"duration_seconds": duration_seconds,
+				"cache_data_size": cache_data_size,
+				"exception_message": exception_msg
+			}
+			query_execute_metric_fields.update(
+				params.supplied_non_filters_dict
 			)
 
-			get_redshift_cache().set(
-				params.cache_key_as_of,
-				cache_ready_result.as_of,
-				timeout=None
+			influx_metric(
+				"redshift_query_execute",
+				query_execute_metric_fields,
+				exception_thrown=exception_raised,
+				query_name=query.name,
+				**params.supplied_filters_dict
 			)
 
-			log.info("Query finished and results have been stored in the cache.")
-			return cached_data
+		cache_ready_result = CachedRedshiftResult(
+			result_set,
+			params,
+			is_json=True,
+			as_of=cached_data_as_of
+		)
+
+		cache_data = cache_ready_result.to_json_cacheable_repr()
+
+		get_redshift_cache().set(
+			params.cache_key,
+			cache_data,
+			timeout=None
+		)
+
+		get_redshift_cache().set(
+			params.cache_key_as_of,
+			cache_ready_result.as_of,
+			timeout=None
+		)
+
+		log.info("Query finished and results have been stored in the cache.")
+		return cache_ready_result
 
 
 def evict_from_cache(params):
