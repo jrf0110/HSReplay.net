@@ -14,5 +14,6 @@ def get_premium_pegasus_accounts():
 	from djstripe.models import Subscription
 	for subscription in Subscription.objects.active():
 		user = subscription.customer.subscriber
-		result.extend(list(user.pegasusaccount_set.all()))
+		if user:
+			result.extend(list(user.pegasusaccount_set.all()))
 	return result
