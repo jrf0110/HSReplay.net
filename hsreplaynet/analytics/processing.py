@@ -51,7 +51,7 @@ class CachedRedshiftResult(object):
 		is_json = r.get("is_json", False)
 
 		if "as_of" in r and r["as_of"]:
-			as_of = datetime.fromtimestamp(r["as_of"], tz=timezone.get_current_timezone())
+			as_of = cls.ts_to_datetime(r["as_of"])
 		else:
 			as_of = None
 
@@ -61,6 +61,17 @@ class CachedRedshiftResult(object):
 			is_json,
 			as_of
 		)
+
+	@classmethod
+	def ts_to_datetime(self, ts):
+		return datetime.fromtimestamp(ts, tz=timezone.get_current_timezone())
+
+	@property
+	def as_of_datetime(self):
+		if self.as_of:
+			return self.ts_to_datetime(self.as_of)
+		else:
+			return None
 
 
 def enqueue_query(query, params):
@@ -147,6 +158,7 @@ def _do_execute_query(query, params):
 			exception_msg = None
 			redshift_connection = get_new_redshift_connection()
 			result_set = ''
+			cached_data_as_of = timezone.now()
 			try:
 				result_set = query.as_result_set().execute(
 					redshift_connection,
@@ -159,7 +171,7 @@ def _do_execute_query(query, params):
 					result_set,
 					params,
 					is_json=True,
-					as_of=timezone.now()
+					as_of=cached_data_as_of
 				)
 
 				cache_data = cache_ready_result.to_json_cacheable_repr()
@@ -196,15 +208,22 @@ def _do_execute_query(query, params):
 				timeout=None
 			)
 
+			get_redshift_cache().set(
+				params.cache_key_as_of,
+				cache_ready_result.as_of,
+				timeout=None
+			)
+
 			log.info("Query finished and results have been stored in the cache.")
 			return cached_data
 
 
-def evict_from_cache(cache_key):
-	get_redshift_cache().delete(cache_key)
+def evict_from_cache(params):
+	get_redshift_cache().delete(params.cache_key)
+	get_redshift_cache().delete(params.cache_key_as_of)
 	# Also attempt to evict any lingering locks
 	redis_client = get_redshift_cache_redis_client()
-	lock_signal_key = _get_lock_signal_key(cache_key)
+	lock_signal_key = _get_lock_signal_key(params.cache_key)
 	redis_client.delete(lock_signal_key)
 
 

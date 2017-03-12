@@ -2,12 +2,13 @@ from datetime import date
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404, HttpResponseForbidden, JsonResponse
 from django.urls import reverse
+from django.views.decorators.http import condition
 from hsredshift.analytics import filters, queries
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from .processing import (
-	evict_from_cache, execute_query, get_concurrent_redshift_query_semaphore,
-	get_from_redshift_cache
+	CachedRedshiftResult, evict_from_cache, execute_query,
+	get_concurrent_redshift_query_semaphore, get_from_redshift_cache, get_redshift_cache
 )
 
 
@@ -18,7 +19,7 @@ def evict_query_from_cache(request, name):
 		raise Http404("No query named: %s" % name)
 
 	params = query.build_full_params(request.GET)
-	evict_from_cache(params.cache_key)
+	evict_from_cache(params)
 	return JsonResponse({"msg": "OK"})
 
 
@@ -30,8 +31,16 @@ def release_semaphore(request):
 	return JsonResponse({"msg": "OK"})
 
 
-@view_requires_feature_access("carddb")
-def fetch_query_results(request, name):
+def fetch_query_result_as_of(request, name):
+	query, params = _get_query_and_params(request, name)
+	as_of_ts = get_redshift_cache().get(params.cache_key_as_of)
+	if as_of_ts:
+		return CachedRedshiftResult.ts_to_datetime(as_of_ts)
+	else:
+		return None
+
+
+def _get_query_and_params(request, name):
 	query = queries.get_query(name)
 	if not query:
 		raise Http404("No query named: %s" % name)
@@ -49,7 +58,7 @@ def fetch_query_results(request, name):
 				if not user_is_eligible_for_query(request.user, query, personal_params):
 					return HttpResponseForbidden()
 
-				return _fetch_query_results(query, personal_params)
+				return query, personal_params
 			else:
 				raise Http404("User does not have any Pegasus Accounts.")
 		else:
@@ -61,7 +70,14 @@ def fetch_query_results(request, name):
 		if not user_is_eligible_for_query(request.user, query, params):
 			return HttpResponseForbidden()
 
-		return _fetch_query_results(query, params)
+		return query, params
+
+
+@view_requires_feature_access("carddb")
+@condition(last_modified_func=fetch_query_result_as_of)
+def fetch_query_results(request, name):
+	query, params = _get_query_and_params(request, name)
+	return _fetch_query_results(query, params)
 
 
 def _fetch_query_results(query, params):
@@ -83,6 +99,7 @@ def _fetch_query_results(query, params):
 				params,
 				from_result_set_json=cached_data.is_json
 			)
+			response_payload["as_of"] = cached_data.as_of_datetime.isoformat()
 		else:
 			response_payload = result_set
 
