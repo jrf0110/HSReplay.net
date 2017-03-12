@@ -1,5 +1,6 @@
+import * as React from "react";
 import {Colors} from "./Colors";
-import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, TableData, RenderData} from "./interfaces";
+import { ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, RenderData, TableData } from "./interfaces";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -489,7 +490,7 @@ export function cardSorting(a: any, b: any, direction = 1): number {
 	}
 	if (a.card !== undefined) {
 		a = a.card;
-	} 
+	}
 	if (b.cardObj !== undefined) {
 		b = b.cardObj;
 	}
@@ -563,20 +564,15 @@ export function cleanText(text: string): string {
 	return text.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 }
 
-export function isLoading(data: TableData | RenderData) {
-	return !data || data === "loading";
-}
-
-export function isError(data: TableData | RenderData) {
-	return data === "error";
-}
-
-export function isReady(data: TableData | RenderData) {
-	return !isLoading(data) && !isError(data);
-
-}
-
 export function toDynamicFixed(value: number, fractionDigits: number = 1) {
 	const digits = Math.min(Math.max(0, Math.floor(Math.log10(1 / value))), (7 - fractionDigits)) + fractionDigits;
 	return value.toFixed(digits);
 }
+
+export function cloneComponent(component, props) {
+	const componentProps = {...component.props};
+	Object.keys(props).forEach((key) => {
+		componentProps[key] = props[key];
+	});
+	return React.cloneElement(component, componentProps);
+};

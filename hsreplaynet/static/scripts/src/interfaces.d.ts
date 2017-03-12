@@ -115,11 +115,7 @@ export interface Query {
 	avg_query_duration_seconds?: number;
 }
 
-export type FetchingState = "loading" | "error";
-
-export type TableData = TableQueryData | FetchingState;
-
-export interface TableQueryData {
+export interface TableData {
 	title?: string;
 	series: TableSeries;
 }
@@ -141,9 +137,7 @@ export interface TableRow {
 	[header: string]: string;
 }
 
-export type RenderData = RenderQueryData | FetchingState;
-
-export interface RenderQueryData {
+export interface RenderData {
 	render_as?: RenderTypes;
 	domain_x?: [number, number];
 	domain_y?: [number, number];
@@ -213,3 +207,5 @@ export type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
 export type RankRange = "ALL" | "LEGEND_ONLY" | "ONE_THROUGH_FIVE" | "SIX_THROUGH_TEN" | "ELEVEN_THROUGH_FIFTEEN" | "SIXTEEN_THROUGH_TWENTY" | "TWENTYONE_THROUGH_TWENTYFIVE" | "LEGEND_THROUGH_TEN" | "ELEVEN_THROUGH_TWENTYFIVE";
 export type Region = "ALL" | "REGION_US" | "REGION_EU" | "REGION_KR" | "REGION_CN";
 export type TimeFrame = "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS" | "CURRENT_SEASON" | "PREVIOUS_SEASON";
+
+export type LoadingStatus = "success" | "loading" | "processing" | "error";
