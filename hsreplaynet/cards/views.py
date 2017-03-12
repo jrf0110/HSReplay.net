@@ -13,11 +13,6 @@ class ArchetypesView(TemplateView):
 	template_name = "cards/deck_archetypes.html"
 
 
-@method_decorator(view_requires_feature_access("topcards"), name="dispatch")
-class PopularCardsView(TemplateView):
-	template_name = "cards/popular_cards.html"
-
-
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class CardStatsView(TemplateView):
 	template_name = "cards/card_stats.html"
