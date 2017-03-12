@@ -81,7 +81,7 @@
 							<li{% nav_active 'trending_all' %}><a href="{% url 'trending_all' %}"><span class="glyphicon glyphicon-fire"></span>Trending</a></li>
 							<li{% nav_active 'deck_list' %}><a href="{% url 'deck_list' %}"><span class="glyphicon glyphicon-th-list"></span>Decks</a></li>
 							<li{% nav_active 'card_stats' %}><a href="{% url 'card_stats' %}"><span class="glyphicon glyphicon-stats"></span>Cards</a></li>
-							<li{% nav_active 'card_list' %}><a href="{% url 'card_list' %}"><span class="glyphicon glyphicon-th-large"></span>Gallery</a></li>
+							<li{% nav_active 'card_gallery' %}><a href="{% url 'card_gallery' %}"><span class="glyphicon glyphicon-th-large"></span>Gallery</a></li>
 						{% endif %}
 
 						{% feature "archetypes" as ft_archetypes %}{% if ft_archetypes.enabled %}

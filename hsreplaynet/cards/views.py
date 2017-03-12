@@ -24,8 +24,8 @@ class MyCardStatsView(TemplateView):
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
-class CardListView(TemplateView):
-	template_name = "cards/card_list.html"
+class CardGalleryView(TemplateView):
+	template_name = "cards/card_gallery.html"
 
 
 @method_decorator(view_requires_feature_access("cardeditor"), name="dispatch")
