@@ -302,7 +302,7 @@ def run_local_warm_global_queries(eligible_queries=None):
 	stales_queries = filter_freshly_cached_queries(messages)
 	for msg in stales_queries:
 		query = queries.get_query(msg["query_name"])
-		params = msg["supplied_parameters"]
+		params = query.build_full_params(msg["supplied_parameters"])
 		execute_query(query, params, run_local=True)
 
 
