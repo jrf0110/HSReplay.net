@@ -127,6 +127,10 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				this.search["scrollTop"] -= 35;
 				break;
 			case "Enter":
+				const filteredCards = this.getFilteredCards();
+				if(!filteredCards.length) {
+					return;
+				}
 				this.addCard(this.getFilteredCards()[this.state.selectedIndex]);
 				break;
 		}
