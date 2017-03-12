@@ -24,7 +24,8 @@ def execute_redshift_query(event, context):
 	"""A handler that executes Redshift queries for the webserver"""
 	query_name = event["query_name"]
 	supplied_params = event["supplied_parameters"]
-	do_execute_redshift_query(query_name, supplied_params)
+	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
+	do_execute_redshift_query(query_name, supplied_params, queue_name)
 
 
 @instrumentation.lambda_handler(
@@ -136,7 +137,7 @@ def do_execute_redshift_query(query_name, supplied_params, queue_name):
 
 	try:
 		wlm_queue = settings.REDSHIFT_QUERY_QUEUES[queue_name]["wlm_queue"]
-		with get_concurrent_redshift_query_queue_semaphore():
+		with get_concurrent_redshift_query_queue_semaphore(queue_name):
 			_do_execute_query(query, params, wlm_queue)
 			logger.info("Query Execution Complete")
 			return True
