@@ -1,20 +1,23 @@
 import * as React from "react";
 import CardData from "../CardData";
+import CardStatsTable from "../components/carddiscover/CardStatsTable";
 import CardImage from "../components/CardImage";
 import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import DataInjector from "../components/DataInjector";
 import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
+import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import SortableTable, {SortDirection} from "../components/SortableTable";
+import DataManager from "../DataManager";
 import {
-	cardSorting, cleanText, isError, isLoading, setNames, toDynamicFixed, toPrettyNumber,
+	cardSorting, cleanText, setNames, toDynamicFixed, toPrettyNumber,
 	toTitleCase, wildSets, winrateData,
 } from "../helpers";
-import {ChartSeries, TableData, TableQueryData} from "../interfaces";
-import QueryManager from "../QueryManager";
+import {ChartSeries, TableData} from "../interfaces";
 import {
 	genCacheKey, getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, parseQuery,
 	QueryMap, queryMapHasChanges, setLocationQueryString, setQueryMap, toQueryString,
@@ -31,10 +34,6 @@ interface CardFilters {
 	type: any;
 }
 
-interface CardTableData {
-	[key: string]: TableData;
-}
-
 export type ViewType = "cards" | "statistics" | "personal";
 
 interface CardDiscoverState {
@@ -42,11 +41,8 @@ interface CardDiscoverState {
 	filteredCards: any[];
 	filterCounts: CardFilters;
 	numCards?: number;
-	personalCardData?: TableData;
 	queryMap?: QueryMap;
 	showFilters?: boolean;
-	topCardsIncluded?: CardTableData;
-	topCardsPlayed?: CardTableData;
 }
 
 interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
@@ -56,7 +52,7 @@ interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 }
 
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
-	private readonly queryManager: QueryManager = new QueryManager();
+	private readonly dataManager: DataManager = new DataManager();
 	readonly filters = {
 		cost: [0, 1, 2, 3, 4, 5, 6, 7],
 		format: ["standard"],
@@ -114,25 +110,15 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		this.state = {
 			cards: null,
 			filterCounts: null,
-			filteredCards: null,
+			filteredCards: [],
 			numCards: 24,
-			personalCardData: "loading",
 			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showFilters: false,
-			topCardsIncluded: {},
-			topCardsPlayed: {},
 		};
 		switch (this.props.viewType) {
 			case "cards":
 				const image = new Image();
 				image.src = this.placeholderUrl;
-				break;
-			case "statistics":
-				this.fetchIncluded();
-				this.fetchPlayed();
-				break;
-			case "personal":
-				this.fetchPersonal();
 				break;
 		}
 		this.filters.mechanics.sort();
@@ -167,85 +153,91 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (this.props.viewType === "statistics") {
 			const cacheKey = genCacheKey(this);
 			const prevCacheKey = genCacheKey(this, prevState);
-			const includedCards = this.state.topCardsIncluded[cacheKey];
-			const playedCards = this.state.topCardsPlayed[cacheKey];
-
 			if (cacheKey !== prevCacheKey) {
-				if (!includedCards || includedCards === "error") {
-					this.fetchIncluded();
-				}
-
-				if (!playedCards || playedCards === "error") {
-					this.fetchPlayed();
-				}
-			}
-
-			if (prevState.topCardsIncluded[cacheKey] !== includedCards
-				|| prevState.topCardsPlayed[cacheKey] !== playedCards) {
 				this.updateFilteredCards();
 			}
 		}
 		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
 
-		if (!this.state.filteredCards || prevState.queryMap !== this.state.queryMap) {
+		if (!this.state.filteredCards || prevState.queryMap !== this.state.queryMap || prevState.cards !== this.state.cards) {
 			this.updateFilteredCards();
 		}
+	}
+
+	shouldComponentUpdate(nextProps: CardDiscoverProps, nextState: CardDiscoverState) {
+		const changed = Object.keys(this.state).filter((key) => nextState[key] !== this.state[key]);
+		if (changed.length === 1 && changed[0] === "updateSparseFilters") {
+			return false;
+		}
+		return true;
 	}
 
 	updateFilteredCards(): void {
 		if (!this.state.cards) {
 			return;
 		}
+
 		const filteredByProp = {};
 		const filterKeys = Object.keys(this.filters);
 		filterKeys.forEach((key) => filteredByProp[key] = []);
 		const filteredCards = [];
-		const sparseDict = this.state.queryMap.filterSparse === "true" ? this.getSparseFilterDicts() : [];
 
-		this.state.cards.forEach((card) => {
-			filterKeys.forEach((x) => {
-				if (!this.filter(card, x, sparseDict)) {
-					filteredByProp[x].push(card);
-				}
+		(this.state.queryMap.filterSparse === "true" ? this.getSparseFilterDicts() : Promise.resolve([]))
+			.then((sparseDict) => {
+				this.state.cards.forEach((card) => {
+					filterKeys.forEach((x) => {
+						if (!this.filter(card, x, sparseDict)) {
+							filteredByProp[x].push(card);
+						}
+					});
+					if (!this.filter(card, undefined, sparseDict)) {
+						filteredCards.push(card);
+					}
+				});
+
+				this.setState({filteredCards, filterCounts: this.filterCounts(filteredByProp as CardFilters)});
 			});
-			if (!this.filter(card, undefined, sparseDict)) {
-				filteredCards.push(card);
-			}
-		});
-
-		this.setState({filteredCards, filterCounts: this.filterCounts(filteredByProp as CardFilters)});
 	}
 
-	getSparseFilterDicts(): any[] {
+	getSparseFilterDicts(): Promise<any> {
 		// build dictionaries from the tabledata to optimize lookup time when filtering
-		const sparseDict = [];
 		if (this.props.viewType === "statistics") {
-			const cacheKey = genCacheKey(this);
-			const playedTd = this.state.topCardsPlayed[cacheKey];
-			const includedTd = this.state.topCardsIncluded[cacheKey];
-			if (!isLoading(playedTd) && !isLoading(includedTd) && !isError(playedTd) && !isError(includedTd)) {
-				sparseDict[0] = {};
-				const playedData = (playedTd as TableQueryData).series.data[this.state.queryMap.playerClass];
-				playedData.forEach((data) => {
-					sparseDict[0][data.dbf_id] = data.popularity;
+			const params = this.getParams();
+			const promises = [
+				this.dataManager.get("card_played_popularity_report", params),
+				this.dataManager.get("card_included_popularity_report", params),
+			];
+			return Promise.all(promises)
+				.then((data: any[]) => {
+					const sparseDict = [];
+					sparseDict[0] = {};
+					const playedData = data[0].series.data[this.state.queryMap.playerClass];
+					playedData.forEach((card) => {
+						sparseDict[0][card.dbf_id] = card.popularity;
+					});
+					sparseDict[1] = {};
+					const includedData = data[1].series.data[this.state.queryMap.playerClass];
+					includedData.forEach((card) => {
+						sparseDict[1][card.dbf_id] = card.popularity;
+					});
+					return sparseDict;
+				}, (status) => {
+					return [];
 				});
-				sparseDict[1] = {};
-				const includedData = (includedTd as TableQueryData).series.data[this.state.queryMap.playerClass];
-				includedData.forEach((data) => {
-					sparseDict[1][data.dbf_id] = data.popularity;
-				});
-			}
 		}
 		else if (this.props.viewType === "personal") {
-			if (!isLoading(this.state.personalCardData) && !isError(this.state.personalCardData)) {
-				sparseDict[0] = {};
-				const personalCardData = (this.state.personalCardData as TableQueryData).series.data.ALL;
-				personalCardData.forEach((data) => {
-					sparseDict[0][data.dbf_id] = data.total_games || data.times_played;
+			return this.dataManager
+				.get("single_account_lo_individual_card_stats", {})
+				.then((data) => {
+					const sparseDict = {};
+					data.series.data.ALL.forEach((card) => {
+						sparseDict[card.dbf_id] = card.total_games || card.times_played;
+					});
+					return [sparseDict];
+				}, (status) => {
+					return [];
 				});
-			}
 		}
-		return sparseDict;
 	}
 
 	componentWillReceiveProps(nextProps: CardDiscoverProps) {
@@ -262,100 +254,88 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	render(): JSX.Element {
-		const cacheKey = genCacheKey(this);
-		const played = this.state.topCardsPlayed[cacheKey];
-		const included = this.state.topCardsIncluded[cacheKey];
 		const viewType = this.props.viewType;
-		const personal = this.state.personalCardData;
+		const content = [];
 
-		let content = null;
-		if ((viewType === "personal" && isLoading(personal))
-			|| (viewType === "statistics" && (isLoading(played) || isLoading(included))) || !this.props.cardData) {
-			content = [
-				<div className="message-wrapper">
-					<h2>Loading...</h2>
+		const onSortChanged = (newSortBy: string, newSortDirection: SortDirection): void => {
+			const queryMap = Object.assign({}, this.state.queryMap);
+			queryMap.sortBy = newSortBy;
+			queryMap.sortDirection = newSortDirection;
+			this.setState({queryMap});
+		};
+		if (viewType === "personal") {
+			content.push(
+				<div className="table-wrapper">
+					<DataInjector
+						dataManager={this.dataManager}
+						url="single_account_lo_individual_card_stats"
+					>
+						<TableLoading cardData={this.props.cardData}>
+							<MyCardStatsTable
+								cards={this.state.filteredCards || []}
+								numCards={this.state.numCards}
+								onSortChanged={onSortChanged}
+								sortBy={this.state.queryMap.sortBy}
+								sortDirection={this.state.queryMap.sortDirection as SortDirection}
+							/>
+						</TableLoading>
+					</DataInjector>
 				</div>,
-			];
-		}
-		else if ((viewType === "personal" && isError(personal))
-			|| (viewType === "statistics" && (isError(played) || isError(included)))) {
-			content = [
-				<div className="message-wrapper">
-					<h2>Something went wrong</h2>
-					Please check back later.
-				</div>,
-			];
-		}
-		else if (this.state.filteredCards && !this.state.filteredCards.length) {
-			content = (
-				<div className="message-wrapper">
-					<h2>No cards found</h2>
-					<button className="btn btn-default" type="button" onClick={() => this.resetFilters()}>Reset filters</button>
-				</div>
 			);
 		}
-		else if (this.state.filteredCards) {
-			if (viewType === "personal") {
-				const onSortChanged = (newSortBy: string, newSortDirection: SortDirection): void => {
-					const queryMap = Object.assign({}, this.state.queryMap);
-					queryMap.sortBy = newSortBy;
-					queryMap.sortDirection = newSortDirection;
-					this.setState({queryMap});
-				};
-
-				content = [
-					<div className="table-wrapper">
-						<MyCardStatsTable
-							cards={this.state.filteredCards || []}
-							numCards={this.state.numCards}
-							onSortChanged={onSortChanged}
-							personalData={this.state.personalCardData}
-							sortBy={this.state.queryMap.sortBy}
-							sortDirection={this.state.queryMap.sortDirection as SortDirection}
-						/>
-					</div>,
-				];
-			}
-			else if (viewType === "statistics") {
-				content = [
-					<div className="table-wrapper">
-						{this.buildCardTable(included as TableQueryData, played as TableQueryData)}
-					</div>,
-				];
-			}
-			else {
-				const tiles = [];
-				this.state.filteredCards.forEach((card) => {
-					if (tiles.length < this.state.numCards) {
-						tiles.push(
-							<CardImage
-								cardId={card.id}
-								dbfId={card.dbfId}
-								placeholder={this.placeholderUrl}
-								key={card.id}
-							/>,
-						);
-					}
-				});
-				content = [
-					<div id="card-list">
-						{tiles}
-					</div>,
-				];
-			}
-			if (this.state.filteredCards.length > this.state.numCards) {
-				content.push(
-					<div id="more-button-wrapper">
-						<button
-							type="button"
-							className="btn btn-default"
-							onClick={() => this.setState({numCards: this.state.numCards + 10})}
-						>
-							Show more...
-						</button>
-					</div>,
-				);
-			}
+		else if (viewType === "statistics") {
+			content.push(
+				<div className="table-wrapper">
+					<DataInjector dataManager={this.dataManager} url="card_played_popularity_report" params={this.getParams()}>
+						<DataInjector dataManager={this.dataManager} url="card_included_popularity_report" params={this.getParams()}>
+							<TableLoading cardData={this.props.cardData}>
+								<CardStatsTable
+									cards={this.state.filteredCards || []}
+									numCards={this.state.numCards}
+									onSortChanged={onSortChanged}
+									sortBy={this.state.queryMap.sortBy}
+									sortDirection={this.state.queryMap.sortDirection as SortDirection}
+									gameType={this.state.queryMap.gameType}
+									playerClass={this.state.queryMap.playerClass}
+								/>
+							</TableLoading>
+						</DataInjector>
+					</DataInjector>
+				</div>,
+			);
+		}
+		else {
+			const tiles = [];
+			this.state.filteredCards.forEach((card) => {
+				if (tiles.length < this.state.numCards) {
+					tiles.push(
+						<CardImage
+							cardId={card.id}
+							dbfId={card.dbfId}
+							placeholder={this.placeholderUrl}
+							key={card.id}
+						/>,
+					);
+				}
+			});
+			content.push(
+				<div id="card-list">
+					{tiles}
+				</div>,
+			);
+		}
+		if (this.state.filteredCards && this.state.filteredCards.length > this.state.numCards) {
+			content.push(
+				<div id="more-button-wrapper">
+					<button
+						type="button"
+						className="btn btn-default"
+						onClick={() => this.setState({numCards: this.state.numCards + 10})}
+					>
+						Show more...
+					</button>
+				</div>,
+			);
 		}
 
 		let search = null;
@@ -422,101 +402,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					{content}
 				</main>
 			</div>
-		);
-	}
-
-	buildCardTable(includedData: TableQueryData, playedData: TableQueryData): JSX.Element {
-		const rows = [];
-		const cardObjs = [];
-		const selectedClass = this.state.queryMap["playerClass"];
-
-		this.state.filteredCards && this.state.filteredCards.forEach((card) => {
-			const included = (
-				includedData.series.data[selectedClass === "NEUTRAL" ? "ALL" : selectedClass].find((x) => x.dbf_id === card.dbfId)
-			);
-			const played = (
-				playedData.series.data[selectedClass === "NEUTRAL" ? "ALL" : selectedClass].find((x) => x.dbf_id === card.dbfId)
-			);
-			const includedCount = included && +included.count;
-			const includedDecks = included && +included.decks;
-			const includedPopularity = included && +included.popularity;
-			const includedWinrate = included && +included.win_rate;
-			const playedPopularity = played && +played.popularity;
-			const playedWinrate = played && +played.win_rate;
-			const timesPlayed = played && +played.total;
-			cardObjs.push({
-				card, includedCount, includedDecks, includedPopularity, includedWinrate,
-				playedPopularity, playedWinrate, timesPlayed,
-			});
-		});
-
-		const sortDirection = this.state.queryMap["sortDirection"] as SortDirection;
-		const direction = sortDirection === "descending" ? 1 : -1;
-		const sortBy = this.state.queryMap["sortBy"];
-
-		if (sortBy === "card") {
-			cardObjs.sort((a, b) => cardSorting(a, b, -direction));
-		}
-		else {
-			cardObjs.sort((a, b) => ((b[sortBy] || 0) - (a[sortBy] || 0)) * direction);
-		}
-
-		const onSortChanged = (sortBy: string, sortDirection: SortDirection): void => {
-			const queryMap = Object.assign({}, this.state.queryMap);
-			queryMap.sortBy = sortBy;
-			queryMap.sortDirection = sortDirection;
-			this.setState({queryMap});
-		};
-
-		cardObjs.slice(0, this.state.numCards).forEach((obj) => {
-			const playedPopularity = " (" + (obj.playedPopularity ? toDynamicFixed(obj.playedPopularity) + "%" : "0%") + ")";
-			const includedWrData = obj.includedWinrate && winrateData(50, obj.includedWinrate, 3);
-			const playedWrData = obj.playedWinrate && winrateData(50, obj.playedWinrate, 3);
-			let url = "/cards/" + obj.card.dbfId + "/";
-			if (this.state.queryMap.gameType && this.state.queryMap.gameType !== "RANKED_STANDARD") {
-				url += "#gameType=" + this.state.queryMap.gameType;
-			}
-			rows.push(
-				<tr>
-					<td>
-						<div className="card-wrapper">
-							<a href={url}>
-								<CardTile card={obj.card} count={1} rarityColored height={34} tooltip />
-							</a>
-						</div>
-					</td>
-					<td>
-						{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}
-					</td>
-					<td>
-						{obj.includedCount ? obj.includedCount : "-"}
-					</td>
-					<td style={{color: includedWrData && includedWrData.color}}>
-						{obj.includedWinrate ? toDynamicFixed(obj.includedWinrate) + "%" : "-"}
-					</td>
-					<td>
-						{(obj.timesPlayed ? toPrettyNumber(obj.timesPlayed) : "0") + playedPopularity}
-					</td>
-					<td style={{color: playedWrData && playedWrData.color}}>
-						{obj.playedWinrate ? toDynamicFixed(obj.playedWinrate) + "%" : "-"}
-					</td>
-				</tr>,
-			);
-		});
-
-		const tableHeaders = [
-			{key: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
-			{key: "includedPopularity", text: "In % of decks", infoHeader: "Included in % of decks", infoText: "Percentage of decks that include at least one copy of the card."},
-			{key: "includedCount", text: "Copies", infoHeader: "Copies in deck", infoText: "Average number of copies in a deck."},
-			{key: "includedWinrate", text: "Deck winrate", infoHeader: "Deck Winrate", infoText: "Average winrate of decks that include this card."},
-			{key: "timesPlayed", text: "Times played", infoHeader: "Times played", infoText: "Number of times the card was played."},
-			{key: "playedWinrate", text: "Played winrate", infoHeader: "Winrate when played", infoText: "Ave winrate of matches where the card was played."},
-		];
-
-		return (
-			<SortableTable sortBy={sortBy} sortDirection={sortDirection} onSortChanged={onSortChanged} headers={tableHeaders}>
-				{rows}
-			</SortableTable>
 		);
 	}
 
@@ -897,45 +782,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		return filter;
 	}
 
-	getQueryParams(): string {
-		const params = {
-			GameType: this.state.queryMap["gameType"] || this.defaultQueryMap["gameType"],
-			RankRange: this.state.queryMap["rankRange"] || this.defaultQueryMap["rankRange"],
-			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
+	getParams(): any {
+		return {
+			GameType: this.state.queryMap.gameType || this.defaultQueryMap.gameType,
+			RankRange: this.state.queryMap.rankRange || this.defaultQueryMap.rankRange,
+			TimeRange: this.state.queryMap.timeRange || this.defaultQueryMap.timeRange,
 			// Region: this.state.queryMap["region"],
 		};
-		return toQueryString(params);
 	}
-
-	fetchIncluded() {
-		const cacheKey = genCacheKey(this);
-		this.queryManager.fetch(
-			"/analytics/query/card_included_popularity_report?" + this.getQueryParams(),
-			(data) => {
-				const topCardsIncluded = Object.assign({}, this.state.topCardsIncluded);
-				topCardsIncluded[cacheKey] = data;
-				this.setState({topCardsIncluded});
-			},
-		);
-	}
-
-	fetchPlayed() {
-		const cacheKey = genCacheKey(this);
-		this.queryManager.fetch(
-			"/analytics/query/card_played_popularity_report?" + this.getQueryParams(),
-			(data) => {
-				const topCardsPlayed = Object.assign({}, this.state.topCardsPlayed);
-				topCardsPlayed[cacheKey] = data;
-				this.setState({topCardsPlayed});
-			},
-		);
-	}
-
-	fetchPersonal() {
-		this.queryManager.fetch(
-			"/analytics/query/single_account_lo_individual_card_stats",
-			(data) => this.setState({personalCardData: data}),
-		);
-	}
-
 }
