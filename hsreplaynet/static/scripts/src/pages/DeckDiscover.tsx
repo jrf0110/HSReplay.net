@@ -9,9 +9,9 @@ import NoDecksMessage from "../components/NoDecksMessage";
 import Pager from "../components/Pager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
-import { cardSorting, getDustCost, isReady, toTitleCase } from "../helpers";
-import { DeckObj, GameMode, MyDecks, RankRange, Region, TableData, TableQueryData, TimeFrame } from "../interfaces";
-import QueryManager from "../QueryManager";
+import DataManager from "../DataManager";
+import { cardSorting, getDustCost, toTitleCase } from "../helpers";
+import { DeckObj, GameMode, RankRange, Region, TableData, TimeFrame } from "../interfaces";
 import {
 	genCacheKey, getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, QueryMap,
 	queryMapHasChanges, setLocationQueryString, setQueryMap, toQueryString,
@@ -21,8 +21,8 @@ interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
 	cardSearchIncludeKey?: number;
 	cards?: any[];
-	deckData?: Map<string, TableData>;
-	myDecks?: MyDecks;
+	filteredDecks: DeckObj[];
+	loading?: boolean;
 	queryMap?: QueryMap;
 	showFilters?: boolean;
 }
@@ -34,7 +34,7 @@ interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
-	private readonly queryManager: QueryManager = new QueryManager();
+	private readonly dataManager: DataManager = new DataManager();
 	private readonly defaultQueryMap: QueryMap = {
 		excludedCards: "",
 		gameType: "RANKED_STANDARD",
@@ -70,12 +70,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			cardSearchExcludeKey: 0,
 			cardSearchIncludeKey: 0,
 			cards: null,
-			deckData: new Map<string, TableData>(),
-			myDecks: null,
+			filteredDecks: [],
+			loading: true,
 			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showFilters: false,
 		};
-		this.fetch();
+		this.updateFilteredDecks();
 	}
 
 	getAllowedValues(): any {
@@ -83,15 +83,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 
 	componentDidUpdate(prevProps: DeckDiscoverProps, prevState: DeckDiscoverState) {
-		const cacheKey = genCacheKey(this);
-		const prevCacheKey = genCacheKey(this, prevState);
-		if (cacheKey !== prevCacheKey) {
-			const deckData = this.state.deckData.get(cacheKey);
-			if (!deckData || deckData === "error") {
-				this.fetch();
-			}
-		}
 		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
+		if (this.state.queryMap !== prevState.queryMap || this.props.cardData !== prevProps.cardData) {
+			this.updateFilteredDecks();
+		}
 	}
 
 	componentWillReceiveProps(nextProps: DeckDiscoverProps) {
@@ -122,10 +117,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		return totalCost >= 100 ? "control" : (totalCost >= 80 ? "midrange" : "aggro");
 	}
 
-	getDeckElements(): any[] {
-		if (this.state.queryMap.personal && !this.state.myDecks) {
-			return [];
-		}
+	getDeckElements(): Promise<any[]> {
 		const deckElements = [];
 		const playerClass = this.state.queryMap.playerClass;
 		const filteredCards = (key: string): any[] => {
@@ -152,50 +144,67 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			deckElements.push(deck);
 		};
 		if (this.state.queryMap.personal) {
-			Object.keys(this.state.myDecks).forEach((deckId) => {
-				const deck = Object.assign({}, this.state.myDecks[deckId]);
-				if (playerClass !== "ALL" && playerClass !== deck.player_class) {
-					return;
-				}
-				const gameTypes = Object.keys(deck.game_types);
-				if (gameTypes.indexOf("BGT_ARENA") !== -1) {
-					return;
-				}
-				if (gameTypes.indexOf("BGT_" + this.state.queryMap.gameType) === -1) {
-					return;
-				}
-				const cards = cardList(deck.deck_list);
-				if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
-					return;
-				}
-				deck.win_rate *= 100;
-				pushDeck(deck, cards);
-			});
-		}
-		else {
-			const data = (this.state.deckData.get(genCacheKey(this)) as TableQueryData).series.data;
-			Object.keys(data).forEach((key) => {
-				if (playerClass !== "ALL" && playerClass !== key) {
-					return;
-				}
-				data[key].forEach((deck) => {
-					const cards = cardList(JSON.parse(deck.deck_list));
+			if (!this.dataManager.has("/decks/mine")) {
+				this.setState({loading: true});
+			}
+			return this.dataManager.get("/decks/mine/").then(((myDecks: any[]) => {
+				Object.keys(myDecks).forEach((deckId) => {
+					const deck = Object.assign({}, myDecks[deckId]);
+					if (playerClass !== "ALL" && playerClass !== deck.player_class) {
+						return;
+					}
+					const gameTypes = Object.keys(deck.game_types);
+					if (gameTypes.indexOf("BGT_ARENA") !== -1) {
+						return;
+					}
+					if (gameTypes.indexOf("BGT_" + this.state.queryMap.gameType) === -1) {
+						return;
+					}
+					const cards = cardList(deck.deck_list);
 					if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 						return;
 					}
-					deck.player_class = key;
+					deck.win_rate *= 100;
 					pushDeck(deck, cards);
 				});
+				return deckElements;
+			}));
+		}
+		else {
+			const params = this.getParams();
+			const query = this.props.userIsPremium ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
+			if (!this.dataManager.has(query, params)) {
+				this.setState({loading: true});
+			}
+			return this.dataManager.get(query, params).then((deckData) => {
+				const newParams = this.getParams();
+				if (Object.keys(params).some((key) => params[key] !== newParams[key])) {
+					return Promise.reject("Params changed");
+				}
+
+				const data = deckData.series.data;
+				Object.keys(data).forEach((key) => {
+					if (playerClass !== "ALL" && playerClass !== key) {
+						return;
+					}
+					data[key].forEach((deck) => {
+						const cards = cardList(JSON.parse(deck.deck_list));
+						if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
+							return;
+						}
+						deck.player_class = key;
+						pushDeck(deck, cards);
+					});
+				});
+				return deckElements;
 			});
 		}
-		return deckElements;
 	}
 
-	getFilteredDecks(): DeckObj[] {
+	updateFilteredDecks(): void {
 		if (!this.props.cardData) {
-			return [];
+			return;
 		}
-		const decks: DeckObj[] = [];
 		const selectedOpponent = this.state.queryMap.opponentClass;
 		const winrateField = selectedOpponent === "ALL" ? "win_rate" : "win_rate_vs_" + selectedOpponent;
 		const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
@@ -211,44 +220,36 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				sortProp = "avg_game_length_seconds";
 				break;
 		}
-		const deckElements = this.getDeckElements();
-		const direction = this.state.queryMap.sortDirection === "descending" ? 1 : -1;
-		deckElements.sort((a, b) => (b[sortProp] - a[sortProp]) * direction);
-		deckElements.forEach((deck) => {
-			decks.push({
-				cards: deck.cards,
-				deckId: deck.deck_id,
-				duration: deck.avg_game_length_seconds,
-				numGames: deck[numGamesField],
-				playerClass: deck.player_class,
-				winrate: deck[winrateField],
+		this.getDeckElements().then(((deckElements) => {
+			const decks: DeckObj[] = [];
+			const direction = this.state.queryMap.sortDirection === "descending" ? 1 : -1;
+			deckElements.sort((a, b) => (b[sortProp] - a[sortProp]) * direction);
+			deckElements.forEach((deck) => {
+				decks.push({
+					cards: deck.cards,
+					deckId: deck.deck_id,
+					duration: deck.avg_game_length_seconds,
+					numGames: deck[numGamesField],
+					playerClass: deck.player_class,
+					winrate: deck[winrateField],
+				});
 			});
+			this.setState({filteredDecks: decks, loading: false});
+		})).catch((reason) => {
+			if (reason !== "Params changed") {
+				console.error(reason);
+			}
 		});
-		return decks;
 	}
 
 	render(): JSX.Element {
 		const queryMap = this.state.queryMap;
-		const deckData = this.state.deckData.get(genCacheKey(this));
-		const decks = isReady(deckData) ? this.getFilteredDecks() : [];
 
 		let content = null;
-		if (!deckData || deckData === "loading" || !this.props.cardData || queryMap.personal && !this.state.myDecks) {
-			content = (
-				<div className="content-message">
-					<h2>Loading...</h2>
-				</div>
-			);
+		if (this.state.loading) {
+			content = <h3 className="message-wrapper">Loading...</h3>;
 		}
-		else if (deckData === "error") {
-			content = (
-				<div className="content-message">
-					<h2>Counting cards...</h2>
-					Please check back later.
-				</div>
-			);
-		}
-		else if (decks.length === 0) {
+		else if (this.state.filteredDecks.length === 0) {
 			if (this.state.queryMap["personal"]) {
 				content = (
 					<NoDecksMessage>
@@ -276,7 +277,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		else {
 			content = (
 				<DeckList
-					decks={decks}
+					decks={this.state.filteredDecks}
 					onHeaderClicked={(name: string) => {
 						if (this.state.queryMap["sortBy"] === name) {
 							setQueryMap(
@@ -317,7 +318,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</button>
 		);
 
-		const personalDisabled = !this.props.userIsAuthenticated || !this.state.myDecks || this.state.myDecks === "error";
+		const personalDisabled = !this.props.userIsAuthenticated;
 
 		let loginLink = null;
 		if (!this.props.userIsAuthenticated) {
@@ -449,25 +450,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</div>
 		);
 	}
-
-	fetch() {
-		const params = {
+	getParams(): any {
+		return {
 			GameType: this.state.queryMap["gameType"] || this.defaultQueryMap["gameType"],
 			RankRange: this.state.queryMap["rankRange"] || this.defaultQueryMap["rankRange"],
 			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
 			// Region: this.state.queryMap["region"],
 		};
-
-		const cacheKey = genCacheKey(this);
-
-		const query = this.props.userIsPremium ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
-		this.queryManager.fetch(
-			"/analytics/query/" + query + "?" + toQueryString(params),
-			(data) => this.setState({deckData: this.state.deckData.set(cacheKey, data)}),
-		);
-
-		if (!this.state.myDecks) {
-			this.queryManager.fetch("/decks/mine/", (data) => this.setState({myDecks: data}));
-		}
 	}
 }
