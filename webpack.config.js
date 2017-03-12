@@ -19,9 +19,9 @@ const exportSettings = [
 const influxKey = "INFLUX_DATABASES";
 const python = process.env.PYTHON || "python";
 const manageCmd = [path.resolve(__dirname, "./manage.py"), "show_settings"];
-const exportedSettings = JSON.parse(
-	spawnSync(python, manageCmd.concat(exportSettings, [influxKey]), {encoding: "utf-8"}).stdout
-);
+let proc = spawnSync(python, manageCmd.concat(exportSettings, [influxKey]), {encoding: "utf-8"});
+console.log(proc.stderr);
+const exportedSettings = JSON.parse(proc.stdout);
 
 const buildInfluxEndpoint = (db) => url.format({
 	protocol: db.SSL ? "https" : "http",
