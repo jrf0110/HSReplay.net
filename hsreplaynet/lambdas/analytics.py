@@ -6,11 +6,11 @@ from django.conf import settings
 from redis_semaphore import NotAvailable
 from hsredshift.analytics import queries
 from hsreplaynet.analytics.processing import (
-	_do_execute_query, get_concurrent_redshift_query_semaphore
+	_do_execute_query, get_concurrent_redshift_query_queue_semaphore
 )
 from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import SQS
-from hsreplaynet.utils.aws.sqs import get_or_create_queue
+from hsreplaynet.utils.aws.sqs import get_messages, get_or_create_queue
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.synchronization import CountDownLatch
 
@@ -34,6 +34,22 @@ def execute_redshift_query(event, context):
 )
 def drain_redshift_query_queue(event, context):
 	"""A cron'd handler that attempts to drain any queued query requests in SQS."""
+	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
+	drain_provided_redshift_query_queue(queue_name)
+
+
+@instrumentation.lambda_handler(
+	cpu_seconds=300,
+	requires_vpc_access=True,
+	memory=512,
+)
+def drain_redshift_personalized_query_queue(event, context):
+	"""A cron'd handler that attempts to drain any queued query requests in SQS."""
+	queue_name = settings.REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME
+	drain_provided_redshift_query_queue(queue_name)
+
+
+def drain_provided_redshift_query_queue(queue_name):
 	logger = logging.getLogger("hsreplaynet.lambdas.drain_redshift_query_queue")
 	start_time = time.time()
 	duration = 0
@@ -41,7 +57,7 @@ def drain_redshift_query_queue(event, context):
 	# We run for 55 seconds, since the majority of queries take < 5 seconds to finish
 	# And the next scheduled invocation of this will be starting a minute after this one.
 	while duration < 55:
-		did_work = do_drain_redshift_query_queue_iteration()
+		did_work = do_drain_redshift_query_queue_iteration(queue_name)
 		if not did_work:
 			zero_work_cycles += 1
 			time.sleep(5)
@@ -58,33 +74,17 @@ def drain_redshift_query_queue(event, context):
 		duration = current_time - start_time
 
 
-def get_messages(max_num=10):
-	result = []
-	do_receive = True
-
-	while do_receive and len(result) < max_num:
-		response = SQS.receive_message(
-			QueueUrl=get_or_create_queue(settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME),
-			MaxNumberOfMessages=10
-		)
-		messages = response['Messages'] if 'Messages' in response else []
-		if len(messages):
-			result.extend(messages)
-		else:
-			do_receive = False
-
-	return result
-
-
-def do_drain_redshift_query_queue_iteration():
+def do_drain_redshift_query_queue_iteration(queue_name):
 	logger = logging.getLogger("hsreplaynet.lambdas.drain_redshift_query_queue")
-	semaphore = get_concurrent_redshift_query_semaphore()
+	logger.info("Queue name: %s" % queue_name)
+
+	semaphore = get_concurrent_redshift_query_queue_semaphore(queue_name)
 	available_slots = semaphore.available_count
 	logger.info("There are %i available slots" % available_slots)
 
 	# We don't bother to pull more messages than open slots for running queries
 	if available_slots:
-		messages = get_messages(available_slots)
+		messages = get_messages(queue_name, available_slots)
 
 		if messages:
 			countdown_latch = CountDownLatch(len(messages))
@@ -97,13 +97,13 @@ def do_drain_redshift_query_queue_iteration():
 					query_name = body["query_name"]
 					params = body["supplied_parameters"]
 
-					success = do_execute_redshift_query(query_name, params)
+					success = do_execute_redshift_query(query_name, params, queue_name)
 					logger.info("Do Execute Result: %s" % str(success))
 
 					if success:
 						# If we don't delete the message then it will be retried in a subsequent lambda
 						SQS.delete_message(
-							QueueUrl=get_or_create_queue(settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME),
+							QueueUrl=get_or_create_queue(queue_name),
 							ReceiptHandle=receipt
 						)
 
@@ -124,7 +124,7 @@ def do_drain_redshift_query_queue_iteration():
 		return False
 
 
-def do_execute_redshift_query(query_name, supplied_params):
+def do_execute_redshift_query(query_name, supplied_params, queue_name):
 	"""A common entry point for the actual execution of queries on Lambda"""
 	logger = logging.getLogger("hsreplaynet.lambdas.execute_redshift_query")
 
@@ -135,8 +135,9 @@ def do_execute_redshift_query(query_name, supplied_params):
 	params = query.build_full_params(supplied_params)
 
 	try:
-		with get_concurrent_redshift_query_semaphore():
-			_do_execute_query(query, params)
+		wlm_queue = settings.REDSHIFT_QUERY_QUEUES[queue_name]["wlm_queue"]
+		with get_concurrent_redshift_query_queue_semaphore():
+			_do_execute_query(query, params, wlm_queue)
 			logger.info("Query Execution Complete")
 			return True
 	except NotAvailable:

@@ -399,14 +399,23 @@ REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS = 36
 # Instead of intermittent large vacuums
 REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE = 0
 
-# This value should always match the concurrency settings for the
-# 'analytics' WLM Queue in Redshift which is used to process analytics queries
-# Lambdas that run analytics queries will not submit their query if the queue is already
-# fully saturated
-REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT = 10
-
-# This queue gets polled once a minute and any queries in it get executed.
+# These queues gets polled continuously and any queries in them get executed.
+# The concurrency should always be less than or equal to the concurrency
+# settings for the associated WLM Queue in Redshift which is used to process
+# queries for that queue. Lambdas that drain the queues will wait to submit more
+# queries once there are this many queries already in flight.
+REDSHIFT_QUERY_QUEUES = {
+	"redshift_analytics_query_queue": {
+		"concurrency": 10,
+		"wlm_queue": "analytics"
+	},
+	"redshift_personalized_query_queue": {
+		"concurrency": 10,
+		"wlm_queue": "personalized"
+	}
+}
 REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME = "redshift_analytics_query_queue"
+REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME = "redshift_personalized_query_queue"
 
 
 WEBHOOKS = {

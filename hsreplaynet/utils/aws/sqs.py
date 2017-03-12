@@ -29,3 +29,21 @@ def batches(l, n):
 	"""Yield successive n-sized chunks from l."""
 	for i in range(0, len(l), n):
 		yield l[i:i + n]
+
+
+def get_messages(queue_name, max_num=10):
+	result = []
+	do_receive = True
+
+	while do_receive and len(result) < max_num:
+		response = SQS.receive_message(
+			QueueUrl=get_or_create_queue(queue_name),
+			MaxNumberOfMessages=10
+		)
+		messages = response.get('Messages', [])
+		if len(messages):
+			result.extend(messages)
+		else:
+			do_receive = False
+
+	return result

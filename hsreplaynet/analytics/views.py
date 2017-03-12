@@ -8,7 +8,7 @@ from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from .processing import (
 	CachedRedshiftResult, evict_from_cache, execute_query,
-	get_concurrent_redshift_query_semaphore, get_from_redshift_cache, get_redshift_cache
+	get_concurrent_redshift_query_queue_semaphore, get_from_redshift_cache, get_redshift_cache
 )
 
 
@@ -25,7 +25,7 @@ def evict_query_from_cache(request, name):
 
 @staff_member_required
 def release_semaphore(request):
-	semaphore = get_concurrent_redshift_query_semaphore()
+	semaphore = get_concurrent_redshift_query_queue_semaphore()
 	if semaphore:
 		semaphore.reset()
 	return JsonResponse({"msg": "OK"})

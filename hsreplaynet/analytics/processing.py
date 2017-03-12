@@ -4,14 +4,13 @@ import time
 from datetime import datetime
 from django.conf import settings
 from django.core.cache import caches
+from django.dispatch import receiver
 from django.utils import timezone
-from hearthstone.cardxml import load
-from hearthstone.enums import CardSet
+from djstripe import signals
 from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
-from hsredshift.analytics.filters import GameType
 from hsredshift.analytics.library.base import RedshiftQueryParams
 from hsredshift.analytics.queries import RedshiftCatalogue
 from hsreplaynet.utils import log
@@ -129,7 +128,7 @@ def _to_lambda_payload(query, params):
 	return json.dumps(payload)
 
 
-def _do_execute_query(query, params):
+def _do_execute_query(query, params, wlm_queue=None):
 	# This method should always be getting executed within a Lambda context
 
 	# Distributed dog pile lock pattern
@@ -163,6 +162,7 @@ def _do_execute_query(query, params):
 				result_set = query.as_result_set().execute(
 					redshift_connection,
 					params,
+					wlm_queue,
 					as_json=True,
 					pretty=False
 				)
@@ -271,14 +271,75 @@ def get_from_redshift_cache(cache_key):
 		return None
 
 
+@receiver(signals.WEBHOOK_SIGNALS["customer.subscription.created"])
+def on_premium_purchased(sender, event, **kwargs):
+	if event.customer and event.customer.subscriber:
+		warm_redshift_cache_for_user(event.customer.subscriber)
+
+
+def warm_redshift_cache_for_user(user):
+	# This should be called whenever a user becomes premium
+	pegasus_accounts = list(user.pegasusaccount_set.all())
+	fill_personalized_query_queue(pegasus_accounts)
+
+
 def fill_redshift_cache_warming_queue(eligible_queries=None):
+	fill_global_query_queue(eligible_queries)
+	pegasus_accounts = get_premium_pegasus_accounts()
+	fill_personalized_query_queue(pegasus_accounts, eligible_queries)
+
+
+def fill_global_query_queue(eligible_queries=None):
 	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
-	messages = get_queries_for_cache_warming(eligible_queries)
+	messages = get_global_queries_for_cache_warming(eligible_queries)
 	stales_queries = filter_freshly_cached_queries(messages)
 	write_messages_to_queue(queue_name, stales_queries)
 
 
+def fill_personalized_query_queue(pegasus_accounts, eligible_queries=None):
+	queue_name = settings.REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME
+	messages = get_personalized_queries_for_cache_warming(
+		pegasus_accounts,
+		eligible_queries
+	)
+	stales_queries = filter_freshly_cached_queries(messages)
+	write_messages_to_queue(queue_name, stales_queries)
+
+
+def get_premium_pegasus_accounts():
+	result = []
+	from djstripe.models import Subscription
+	for subscription in Subscription.objects.active():
+		user = subscription.customer.subscriber
+		result.extend(list(user.pegasusaccount_set.all()))
+	return result
+
+
+def get_personalized_queries_for_cache_warming(pegasus_accounts, eligible_queries=None):
+	queries = []
+	for query in RedshiftCatalogue.instance().personalized_queries:
+		if eligible_queries is None or query.name in eligible_queries:
+			for permutation in query.generate_personalized_parameter_permutation_bases():
+				# Each permutation will still be missing a Region and account_lo value
+				for pegasus_account in pegasus_accounts:
+					new_permutation = copy.copy(permutation)
+					new_permutation["Region"] = pegasus_account.region.name
+					new_permutation["account_lo"] = pegasus_account.account_lo
+					queries.append({
+						"query_name": query.name,
+						"supplied_parameters": new_permutation
+					})
+	return queries
+
+
 def filter_freshly_cached_queries(messages):
+	if not settings.ENV_AWS:
+		# We can only reach the cache from inside AWS
+		# So we cannot take advantage of this optimization outside AWS
+		# Skipping filtering is okay as up-to-date queries will still
+		# get skipped at query execution time
+		return messages
+
 	result = []
 	for msg in messages:
 		query = RedshiftCatalogue.instance().get_query(msg["query_name"])
@@ -296,87 +357,24 @@ def filter_freshly_cached_queries(messages):
 	return result
 
 
-def get_queries_for_cache_warming(eligible_queries=None):
+def get_global_queries_for_cache_warming(eligible_queries=None):
 	queries = []
-	card_db, _ = load()
-	for query in RedshiftCatalogue.instance().inventory.values():
-		if not query.is_personalized and not query.global_query:
-			if eligible_queries is None or query.name in eligible_queries:
-				for permutation in _generate_permutations_for_query(query, card_db):
-					queries.append({
-						"query_name": query.name,
-						"supplied_parameters": permutation
-					})
+	for query in RedshiftCatalogue.instance().global_queries:
+		if eligible_queries is None or query.name in eligible_queries:
+			for permutation in query.generate_cachable_parameter_permutations():
+				queries.append({
+					"query_name": query.name,
+					"supplied_parameters": permutation
+				})
 	return queries
 
 
-def _generate_permutations_for_query(query, card_db):
-	result = []
-
-	for parameter_permutation in query.generate_supported_filter_permutations():
-		non_filter_parameters = query.get_available_non_filter_parameters()
-		if len(non_filter_parameters) == 0:
-			result.append(parameter_permutation)
-		elif len(non_filter_parameters) == 1:
-			non_filter_parameter = non_filter_parameters[0]
-			if non_filter_parameter == "card_id":
-				for id, card in card_db.items():
-					if card.collectible and query.is_valid_for_card(card.dbf_id):
-						game_type = parameter_permutation.get("GameType", "")
-						if _is_wild(card):
-							if game_type == GameType.RANKED_WILD.name:
-								new_permutation = copy.copy(parameter_permutation)
-								new_permutation["card_id"] = card.dbf_id
-								result.append(new_permutation)
-						else:
-							new_permutation = copy.copy(parameter_permutation)
-							new_permutation["card_id"] = card.dbf_id
-							result.append(new_permutation)
-
-			elif non_filter_parameter == "deck_id":
-				if "GameType" in parameter_permutation:
-					game_type = parameter_permutation["GameType"]
-				else:
-					game_type = "RANKED_STANDARD"
-
-				if game_type != 'ARENA':
-					# We don't pre-warm deck related queries for ARENA
-					for deck_id in _get_eligible_deck_ids(game_type):
-						new_permutation = copy.copy(parameter_permutation)
-						new_permutation["deck_id"] = deck_id
-						result.append(new_permutation)
-			elif non_filter_parameter == "account_lo":
-				# TODO: Add the ability to enumerage the account_lo values for each registered account
-				pass
-			else:
-				raise RuntimeError("Support for filter %s not implemented." % non_filter_parameter)
-		else:
-			raise RuntimeError("Support for multiple non filter params not implemented")
-
-	return result
-
-
-def _is_wild(card):
-	return card.card_set in (CardSet.NAXX, CardSet.GVG)
-
-
-_eligible_decks_cache = {}
-
-
-def _get_eligible_deck_ids(game_type):
-	if game_type not in _eligible_decks_cache:
-		list_decks_query = RedshiftCatalogue.instance().get_query("list_decks_by_win_rate")
-		params = list_decks_query.build_full_params(dict(GameType=game_type))
-		result_set = list_decks_query.as_result_set().execute(get_redshift_engine(), params)
-		_eligible_decks_cache[game_type] = [row["deck_id"] for row in result_set]
-	return _eligible_decks_cache[game_type]
-
-
-def get_concurrent_redshift_query_semaphore():
+def get_concurrent_redshift_query_queue_semaphore(queue_name):
+	concurrency = settings.REDSHIFT_QUERY_QUEUES[queue_name]["concurrency"]
 	concurrent_redshift_query_semaphore = Semaphore(
 		get_redshift_cache_redis_client(),
-		count=settings.REDSHIFT_ANALYTICS_QUERY_CONCURRENCY_LIMIT,
-		namespace='redshift_analytics_queries',
+		count=concurrency,
+		namespace=queue_name,
 		stale_client_timeout=300,
 		blocking=False
 	)
