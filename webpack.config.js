@@ -11,6 +11,7 @@ const _ = require("lodash");
 const exportSettings = [
 	"STATIC_URL",
 	"JOUST_STATIC_URL",
+	"SUNWELL_STATIC_URL",
 	"HEARTHSTONE_ART_URL",
 	"JOUST_RAVEN_DSN_PUBLIC",
 	"JOUST_RAVEN_ENVIRONMENT",
@@ -128,7 +129,6 @@ module.exports = (env) => {
 			"react-dom": "ReactDOM",
 			"jquery": "jQuery",
 			"joust": "Joust",
-			"sunwell": "Sunwell",
 		},
 		plugins: [
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),

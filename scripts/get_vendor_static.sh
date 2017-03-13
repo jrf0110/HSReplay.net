@@ -84,9 +84,3 @@ for font in $belwe $franklin; do
 	name="$(basename $font)"
 	wget --no-verbose "$FONTS_SOURCE/$dir"/{$name.{eot,svg,ttf,woff,woff2},stylesheet.css} -P "$FONTSDIR/$dir"
 done
-
-
-# Sunwell
-
-SUNWELL_SOURCE="https://github.com/HearthSim/Sunwell"
-git -C "$STATICDIR" clone "$SUNWELL_SOURCE"
