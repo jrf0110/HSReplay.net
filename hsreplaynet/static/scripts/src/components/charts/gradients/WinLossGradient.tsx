@@ -11,11 +11,9 @@ export default class WinLossGradient extends React.Component<WinLossGradientProp
 		const gradientStops = [];
 		if (this.props.metadata.yMinMax[1].y > 50) {
 			gradientStops.push(<stop stopColor="rgba(0, 200, 0, 0.3)" offset={0}/>);
-			gradientStops.push(<stop stopColor="rgba(0, 200, 0, 0.3)" offset={this.props.metadata.midLinePosition * 0.2}/>);
 		}
 		gradientStops.push(<stop stopColor="rgba(255, 255, 255, 0)" offset={this.props.metadata.midLinePosition}/>);
 		if (this.props.metadata.yMinMax[0].y < 50) {
-			gradientStops.push(<stop stopColor="rgba(200, 0, 0, 0.3)" offset={1 - this.props.metadata.midLinePosition * 0.2}/>);
 			gradientStops.push(<stop stopColor="rgba(200, 0, 0, 0.3)" offset={1}/>);
 		}
 		return (
