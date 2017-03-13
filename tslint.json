@@ -28,6 +28,7 @@
 			true,
 			"allow-fast-null-checks"
 		],
+		"no-unused-variable": true,
 		"ordered-imports": [
 			true,
 			{
