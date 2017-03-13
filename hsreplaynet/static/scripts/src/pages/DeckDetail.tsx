@@ -62,6 +62,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			selectedClasses: ["ALL"],
 			showInfo: false,
 			sortBy: "decklist",
+			sortDirection: "ascending",
 		};
 	}
 
