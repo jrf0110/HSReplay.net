@@ -34,7 +34,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 				);
 			});
 		}
-		return <div className="table-wrapper">
+		return (
 			<table className="table table-striped">
 				<thead>
 				<tr>
@@ -48,6 +48,6 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 					{cardRows}
 				</tbody>
 			</table>
-		</div>;
+		);
 	}
 }
