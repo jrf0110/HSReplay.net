@@ -1,7 +1,7 @@
 import * as React from "react";
 import CardData from "../../CardData";
 import { cloneComponent } from "../../helpers";
-import { LoadingStatus, TableData } from "../../interfaces";
+import { LoadingStatus } from "../../interfaces";
 
 interface TableLoadingProps extends React.ClassAttributes<TableLoading> {
 	cardData?: CardData;
