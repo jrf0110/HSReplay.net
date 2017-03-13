@@ -22,6 +22,7 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 				count={1}
 				rarityColored
 				customText={this.props.customCardText}
+				tooltip
 			/>
 		);
 		if (this.props.clickable) {
@@ -33,7 +34,7 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 				<a href={url}>
 					{cardTile}
 				</a>
-			)
+			);
 		}
 		return <tr className="card-table-row">
 			<td className="rank-cell">
