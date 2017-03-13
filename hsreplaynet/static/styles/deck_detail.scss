@@ -10,20 +10,16 @@
 		padding-top: 10px;
 		width: calc(100% - 300px);
 
-		#message-wrapper {
-			text-align: center;
-		}
-
 		@media(max-width: 768px) {
 			max-width: 100%;
 			width: 100%;
 		}
-		
+
 		>.row {
 			border-bottom: 1px solid $lightgrey;
 		}
 	}
-	
+
 	>aside {
 		.hero-image {
 			margin: 25px calc(50% - 125px);
@@ -53,7 +49,7 @@
 
 	.table-wrapper {
 		overflow-x: auto;
-		
+
 		>table {
 			min-width: 1050px;
 		}
