@@ -7,6 +7,7 @@ interface ChartLoadingProps extends React.ClassAttributes<ChartLoading> {
 	cardData?: CardData;
 	data?: RenderData;
 	status?: LoadingStatus;
+	minDataPoints?: number;
 }
 
 export default class ChartLoading extends React.Component<ChartLoadingProps, void> {
@@ -27,7 +28,7 @@ export default class ChartLoading extends React.Component<ChartLoadingProps, voi
 		if (this.props.cardData === null) {
 			return <h3 className="message-wrapper">Loading...</h3>;
 		}
-		if (this.props.data.series.length === 0 || this.props.data.series[0].data.length <= 1) {
+		if (this.props.data.series.length === 0 || this.props.data.series[0].data.length < (this.props.minDataPoints || 2)) {
 			return <h3 className="message-wrapper">No available data.</h3>;
 		}
 
