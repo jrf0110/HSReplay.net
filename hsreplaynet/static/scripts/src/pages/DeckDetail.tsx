@@ -1,4 +1,3 @@
-import moment from "moment";
 import * as React from "react";
 import CardData from "../CardData";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
@@ -7,7 +6,6 @@ import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
 import DeckBreakdownTable from "../components/deckdetail/DeckBreakdownTable";
 import DeckStats from "../components/deckdetail/DeckStats";
-import DeckStatsWinrates from "../components/deckdetail/DeckStatsWinrates";
 import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
 import PersonalDeckStats from "../components/deckdetail/PersonalDeckStats";
 import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
@@ -21,10 +19,9 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import {SortDirection} from "../components/SortableTable";
 import DataManager from "../DataManager";
 import {
-	getDustCost, getHeroCardId,
-	toPrettyNumber, toTitleCase, wildSets,
+	getDustCost, getHeroCardId, toTitleCase, wildSets,
 } from "../helpers";
-import { MyDecks, RenderData, TableData } from "../interfaces";
+import { TableData } from "../interfaces";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -83,14 +80,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				/>
 			);
 		}
-
-		const deckNameStyle = {
-			backgroundImage: "url(/static/images/class-icons/" + this.props.deckClass.toLowerCase() + ".png",
-		};
-
-		const dustCostStyle = {
-			backgroundImage: "url(/static/images/dust.png",
-		};
 
 		return <div className="deck-detail-container">
 			<aside className="infobox">

@@ -6,15 +6,14 @@ import DeckList from "../components/DeckList";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import NoDecksMessage from "../components/NoDecksMessage";
-import Pager from "../components/Pager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import { cardSorting, getDustCost, toTitleCase } from "../helpers";
-import { DeckObj, GameMode, RankRange, Region, TableData, TimeFrame } from "../interfaces";
+import { cardSorting, getDustCost } from "../helpers";
+import { DeckObj } from "../interfaces";
 import {
-	genCacheKey, getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, QueryMap,
-	queryMapHasChanges, setLocationQueryString, setQueryMap, toQueryString,
+	getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, QueryMap,
+	queryMapHasChanges, setLocationQueryString, setQueryMap,
 } from "../QueryParser";
 
 interface DeckDiscoverState {

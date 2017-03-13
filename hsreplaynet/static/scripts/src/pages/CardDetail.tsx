@@ -1,7 +1,5 @@
-import HearthstoneJSON from "hearthstonejson";
 import * as React from "react";
 import CardData from "../CardData";
-import {Colors} from "../Colors";
 import RecommendedDecksList from "../components/carddetail/RecommendedDecksList";
 import CardRankingTable from "../components/CardRankingTable";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
@@ -20,17 +18,14 @@ import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import DataManager from "../DataManager";
 import {
-	getChartScheme, getColorString, getDustCost, isCollectibleCard,
+	getChartScheme, getDustCost, isCollectibleCard,
 	isWildCard, setNames, toPrettyNumber, toTitleCase,
 } from "../helpers";
 import {
-	ChartSeries, ChartSeriesMetaData, DataPoint, DeckObj, Filter,
-	FilterData, FilterDefinition, FilterElement, KeyValuePair, Query,
 	RenderData, TableData,
 } from "../interfaces";
 import {
-	genCacheKey, getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, QueryMap,
-	queryMapHasChanges, setLocationQueryString, setQueryMap, toQueryString,
+	getQueryMapDiff, getQueryMapFromLocation, QueryMap, setLocationQueryString, setQueryMap,
 } from "../QueryParser";
 
 interface TableDataMap {
@@ -56,7 +51,6 @@ interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
 	private readonly dataManager: DataManager = new DataManager();
-	private readonly maxDecks = 20;
 	private readonly defaultQueryMap: QueryMap = {
 		gameType: "RANKED_STANDARD",
 		opponentClass: "ALL",
@@ -111,16 +105,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	render(): JSX.Element {
-		const cacheKey = genCacheKey(this);
-
 		let content = null;
 		if (this.props.card) {
-
-			const set = this.props.card.set.toLowerCase();
-			const cardNameStyle = {
-				backgroundImage: "url(/static/images/set-icons/" + set + ".png",
-			};
-
 			if (!isCollectibleCard(this.props.card)) {
 				content = (
 					<div className="message-wrapper">

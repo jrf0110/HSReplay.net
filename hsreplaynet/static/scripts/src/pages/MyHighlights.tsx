@@ -1,10 +1,8 @@
 import * as React from "react";
 import CardData from "../CardData";
-import CardHighlightTile from "../components/CardHighlightTile";
 import ClassArenaChart from "../components/charts/ClassAreaChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import DataInjector from "../components/DataInjector";
-import DeckList from "../components/DeckList";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import ChartLoading from "../components/loading/ChartLoading";
@@ -13,9 +11,8 @@ import TableLoading from "../components/loading/TableLoading";
 import BiggestHits from "../components/myhighlights/BiggestHits";
 import HighlightTiles from "../components/myhighlights/HighlightTiles";
 import MostPlayedDecks from "../components/myhighlights/MostPlayedDecks";
-import NoDecksMessage from "../components/NoDecksMessage";
 import DataManager from "../DataManager";
-import { DeckObj, MyDecks, RenderData, TableData } from "../interfaces";
+import { RenderData } from "../interfaces";
 
 interface MyHighlightsProps extends React.ClassAttributes<MyHighlights> {
 	cardData: CardData;

@@ -1,15 +1,12 @@
 import moment from "moment";
 import * as React from "react";
 import {
-	VictoryArea, VictoryAxis, VictoryChart, VictoryContainer, VictoryLabel,
-	VictoryLine, VictoryScatter, VictoryStack, VictoryTooltip, VictoryVoronoiTooltip
+	VictoryArea, VictoryAxis, VictoryChart, VictoryLabel, VictoryStack,
 } from "victory";
 import {
-	getChartMetaData, getChartScheme, getHeroColor,
-	sliceZeros, toDynamicFixed, toTimeSeries, toTitleCase
+	getChartScheme,
 } from "../../helpers";
 import {RenderData} from "../../interfaces";
-import PopularityGradient from "./gradients/PopularityGradient";
 
 interface ClassAreaChartChartProps extends React.ClassAttributes<ClassAreaChartChart>{
 	data?: RenderData;
@@ -20,7 +17,7 @@ export default class ClassAreaChartChart extends React.Component<ClassAreaChartC
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
 
-		//semi mock data
+		// semi mock data
 		const seasonTicks = [
 			new Date("2017-01-31T20:00:00").getTime(),
 			new Date("2017-02-28T20:00:00").getTime(),
@@ -39,7 +36,7 @@ export default class ClassAreaChartChart extends React.Component<ClassAreaChartC
 			"2017-02-20T00:00:00",
 			"2017-02-27T00:00:00",
 			"2017-03-06T00:00:00",
-		]
+		];
 
 		classes.sort();
 
@@ -57,7 +54,7 @@ export default class ClassAreaChartChart extends React.Component<ClassAreaChartC
 					data={series.data}
 					style={{data: {fill: classColor.fill.replace("0.7", "0.6"), stroke: "rgba(0, 0, 0, 0.1)", strokeWidth: 0.5}}}
 					interpolation="linear"
-				/>
+				/>,
 			);
 		});
 
@@ -78,7 +75,7 @@ export default class ClassAreaChartChart extends React.Component<ClassAreaChartC
 					<VictoryAxis
 						dependentAxis
 						axisLabelComponent={<VictoryLabel dx={10} />}
-						style={{axisLabel: {fontSize: 8} ,tickLabels: {fontSize: 8}, grid: {stroke: (d) => d === 1000 ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
+						style={{axisLabel: {fontSize: 8} , tickLabels: {fontSize: 8}, grid: {stroke: (d) => d === 1000 ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryStack>
 						{areas}
