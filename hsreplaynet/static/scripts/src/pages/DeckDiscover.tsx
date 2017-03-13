@@ -15,6 +15,7 @@ import {
 	getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, QueryMap,
 	queryMapHasChanges, setLocationQueryString, setQueryMap,
 } from "../QueryParser";
+import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -171,7 +172,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 		else {
 			const params = this.getParams();
-			const query = this.props.userIsPremium ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
+			const query = this.getQueryName();
 			if (!this.dataManager.has(query, params)) {
 				this.setState({loading: true});
 			}
@@ -430,6 +431,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
+					<h2>Data</h2>
+					<ul>
+						<InfoboxLastUpdated dataManager={this.dataManager} url={this.getQueryName()} params={this.getParams()}/>
+					</ul>
 					{backButton}
 				</div>
 				<div className={contentClassNames.join(" ")}>
@@ -449,6 +454,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</div>
 		);
 	}
+
+	getQueryName(): string {
+		return this.props.userIsPremium ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
+	}
+
 	getParams(): any {
 		return {
 			GameType: this.state.queryMap["gameType"] || this.defaultQueryMap["gameType"],

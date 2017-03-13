@@ -22,6 +22,7 @@ import {
 	genCacheKey, getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, parseQuery,
 	QueryMap, queryMapHasChanges, setLocationQueryString, setQueryMap, toQueryString,
 } from "../QueryParser";
+import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
 interface CardFilters {
 	cost: any;
@@ -556,6 +557,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (viewType === "statistics" || viewType === "personal") {
 			filters.push(
 				<h2>Data</h2>,
+				<ul>
+					<InfoboxLastUpdated
+						dataManager={this.dataManager}
+						url={"single_account_lo_individual_card_stats"}
+						params={{}}
+					/>
+				</ul>,
 				<InfoboxFilterGroup
 					deselectable
 					selectedValue={this.state.queryMap["filterSparse"]}

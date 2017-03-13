@@ -13,6 +13,7 @@ import HighlightTiles from "../components/myhighlights/HighlightTiles";
 import MostPlayedDecks from "../components/myhighlights/MostPlayedDecks";
 import DataManager from "../DataManager";
 import { RenderData } from "../interfaces";
+import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
 interface MyHighlightsProps extends React.ClassAttributes<MyHighlights> {
 	cardData: CardData;
@@ -35,6 +36,14 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 					<InfoboxFilter disabled value="CURRENT_SEASON">Current season</InfoboxFilter>
 					<InfoboxFilter disabled value="PREVIOUS_SEASON">Previous season</InfoboxFilter>
 				</InfoboxFilterGroup>
+				<h2>Data</h2>
+				<ul>
+					<InfoboxLastUpdated
+						dataManager={this.dataManager}
+						url={"single_account_lo_lifetime_class_performance_over_time"}
+						params={{}}
+					/>
+				</ul>
 			</aside>
 			<main>
 				<section id="content-header">

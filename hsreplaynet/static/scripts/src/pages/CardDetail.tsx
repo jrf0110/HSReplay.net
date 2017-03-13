@@ -27,6 +27,7 @@ import {
 import {
 	getQueryMapDiff, getQueryMapFromLocation, QueryMap, setLocationQueryString, setQueryMap,
 } from "../QueryParser";
+import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -406,6 +407,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</DataInjector>
 						</span>
 					</li>
+					<InfoboxLastUpdated dataManager={this.dataManager} url={"single_card_stats_over_time"} params={this.getParams()} />
 					<li>
 						Time frame
 						<span className="infobox-value">Last 30 days</span>

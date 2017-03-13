@@ -134,6 +134,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<DeckStats
 							playerClass={this.props.deckClass}
 							deckId={this.props.deckId}
+							dataManager={this.dataManager}
+							lastUpdatedUrl="single_deck_stats_over_time"
+							lastUpdatedParams={this.getParams()}
 						/>
 					</HideLoading>
 				</DataInjector>

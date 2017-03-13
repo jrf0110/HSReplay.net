@@ -4,6 +4,9 @@ import DataInjector from "../components/DataInjector";
 import TableLoading from "../components/loading/TableLoading";
 import TrendingDecksList from "../components/trending/TrendingDecksList";
 import DataManager from "../DataManager";
+import HideLoading from "../components/loading/HideLoading";
+import DataText from "../components/DataText";
+import { getAge } from "../PrettyTime";
 
 interface DeckSpotlightProps extends React.ClassAttributes<DeckSpotlight> {
 	cardData: CardData;
@@ -15,6 +18,16 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, v
 	render(): JSX.Element {
 		return (
 			<div id="deck-spotlight">
+				<span className="pull-right">
+					Last updated
+					<DataInjector
+						dataManager={this.dataManager}
+						query={{url: "trending_decks_by_popularity", params: {}}}
+						modify={(data) => data && data.as_of ? getAge(new Date(data.as_of)) : null}
+					>
+						<HideLoading><DataText /></HideLoading>
+					</DataInjector>
+				</span>
 				<h1>Trending Decks</h1>
 				<h3>Here's a selection of decks which have been rising in popularity over the last 48 hours.</h3>
 				<h3>Try them out to see what you think!</h3>
