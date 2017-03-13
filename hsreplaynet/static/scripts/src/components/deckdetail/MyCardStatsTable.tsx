@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cardSorting, winrateData } from "../../helpers";
+import { cardObjSorting, cardSorting, winrateData } from "../../helpers";
 import { TableData } from "../../interfaces";
 import CardTile from "../CardTile";
 import { default as SortableTable, SortDirection } from "../SortableTable";
@@ -42,7 +42,7 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 			cardObjs.sort((a, b) => cardSorting(a, b, -direction));
 		}
 		else {
-			cardObjs.sort((a, b) => ((b[sortBy] || 0) - (a[sortBy] || 0)) * direction);
+			cardObjs.sort((a, b) => cardObjSorting(a, b, sortBy, direction));
 		}
 
 		const hiddenColumns = this.props.hiddenColumns || [];

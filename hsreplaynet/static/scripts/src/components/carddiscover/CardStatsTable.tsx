@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cardSorting, toDynamicFixed, toPrettyNumber, winrateData } from "../../helpers";
+import { cardObjSorting, cardSorting, toDynamicFixed, toPrettyNumber, winrateData } from "../../helpers";
 import { TableData } from "../../interfaces";
 import CardTile from "../CardTile";
 import SortableTable, { SortDirection } from "../SortableTable";
@@ -47,7 +47,7 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 			cardObjs.sort((a, b) => cardSorting(a, b, -direction));
 		}
 		else {
-			cardObjs.sort((a, b) => ((b[sortBy] || 0) - (a[sortBy] || 0)) * direction);
+			cardObjs.sort((a, b) => cardObjSorting(a, b, sortBy, direction));
 		}
 
 		cardObjs.slice(0, this.props.numCards).forEach((obj) => {

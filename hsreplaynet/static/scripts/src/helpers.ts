@@ -512,6 +512,15 @@ export function cardSorting(a: any, b: any, direction = 1): number {
 	return 0;
 }
 
+export function cardObjSorting(a: any, b: any, prop: string, direction: number): number {
+	const aVal = a[prop] || 0;
+	const bVal = b[prop] || 0;
+	if (aVal === bVal) {
+		return a.card.name > b.card.name ? -direction : direction;
+	}
+	return (bVal - aVal) * direction;
+}
+
 export function getHeroCardId(playerClass: string, skin: boolean) {
 	// Heroes sorted by X in their cardId (HERO_0X)
 	const sorted = [
