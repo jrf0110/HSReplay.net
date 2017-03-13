@@ -1,5 +1,6 @@
 import * as React from "react";
-import InfoIcon from "../components/InfoIcon";
+import InfoIcon from "./InfoIcon";
+import SortIndicator from "./SortIndicator";
 
 export type SortDirection = "ascending" | "descending";
 
@@ -20,29 +21,6 @@ interface SortableTableProps extends React.ClassAttributes<SortableTable> {
 }
 
 export default class SortableTable extends React.Component<SortableTableProps, void> {
-	getSortIndicator(key: string): JSX.Element {
-		let classNameAsc = "glyphicon glyphicon-triangle-top";
-		let classNameDesc = "glyphicon glyphicon-triangle-bottom";
-		const classNames = ["sort-indicator"];
-
-		if (key === this.props.sortBy) {
-			classNames.push("primary");
-			if (this.props.sortDirection == "ascending") {
-				classNameAsc += " active";
-			}
-			else {
-				classNameDesc += " active";
-			}
-		}
-
-		return (
-			<span className={classNames.join(" ")}>
-				<span className={classNameAsc}></span>
-				<span className={classNameDesc}></span>
-			</span>
-		);
-	};
-
 	render(): JSX.Element {
 		const onHeaderClick = (header: TableHeader) => {
 			let sortDirection: SortDirection;
@@ -64,7 +42,9 @@ export default class SortableTable extends React.Component<SortableTableProps, v
 			}
 			let sort = null;
 			if (typeof header.sortable === "undefined" || header.sortable === true) {
-				sort = this.getSortIndicator(header.key);
+				sort = <SortIndicator
+					direction={header.key === this.props.sortBy ? this.props.sortDirection : null}
+				/>;
 			}
 			return (
 				<th
