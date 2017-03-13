@@ -28,7 +28,7 @@ export default class InfoIcon extends React.Component<InfoIconProps, InfoIconSta
 				style["margin-left"] = 0;
 			}
 
-			let className = "info-icon-text";
+			let className = "info-icon-tooltip";
 			if (this.props.className) {
 				className += " " + this.props.className;
 			}
@@ -36,7 +36,7 @@ export default class InfoIcon extends React.Component<InfoIconProps, InfoIconSta
 			tooltip = (
 				<div className={className} style={style}>
 					<h4>{this.props.header}</h4>
-					{this.props.content}
+					<p>{this.props.content}</p>
 				</div>
 			);
 		}
