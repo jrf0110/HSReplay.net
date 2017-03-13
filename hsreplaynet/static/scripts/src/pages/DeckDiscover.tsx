@@ -293,7 +293,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					}}
 					pageSize={12}
 					sortCol={this.state.queryMap["sortBy"]}
-					sortDirection={this.state.queryMap["sortDirection"]}
+					sortDirection={this.state.queryMap["sortDirection"] as "ascending"|"descending"}
 					urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 				/>
 			);

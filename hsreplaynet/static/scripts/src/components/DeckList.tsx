@@ -2,6 +2,8 @@ import * as React from "react";
 import DeckTile from "./DeckTile";
 import InfoIcon from "./InfoIcon";
 import Pager from "./Pager";
+import SortIndicator from "./SortIndicator";
+import {SortDirection} from "./SortableTable";
 import {CardObj, DeckObj} from "../interfaces";
 import {getQueryMapFromLocation} from "../QueryParser";
 
@@ -17,7 +19,7 @@ interface DeckListProps extends React.ClassAttributes<DeckList> {
 	compareWith?: CardObj[];
 	onHeaderClicked?: (name: string) => void;
 	sortCol?: string;
-	sortDirection?: string;
+	sortDirection?: SortDirection;
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -80,13 +82,14 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 				</div>
 			);
 		};
-		
+
 		const sortIndicator = (name: string): JSX.Element => {
-			return (
-				<span className={name === this.props.sortCol ? "" : "no-sort"}>
-					{this.props.sortDirection === "ascending" ? "▴" : "▾"}
-				</span>
-			);
+			if(!this.props.onHeaderClicked) {
+				return null;
+			}
+			return <SortIndicator
+				direction={name === this.props.sortCol ? this.props.sortDirection : null}
+			/>;
 		}
 
 		const headerSortable = this.props.onHeaderClicked ? "header-sortable " : "";
