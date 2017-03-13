@@ -195,7 +195,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 									dataManager={this.dataManager}
 									fetchCondition={this.isWildDeck() !== undefined}
 									query={{
-										params: this.getParams(),
+										params: this.getParams(true),
 										url: (
 											this.state.selectedClasses[0] !== "ALL" && this.props.userIsPremium
 											? "single_deck_mulligan_guide_by_class"
