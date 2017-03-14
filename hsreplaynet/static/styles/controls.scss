@@ -146,8 +146,13 @@
 			}
 
 			.selected .card-tile {
-				box-shadow: rgba(0, 0, 127, 0.1) 30px 30px 30px;
-				color: $lighterblue;
+				.card-fade-countbox {
+					background: linear-gradient(65deg, $lightcyan 0%, $lightcyan calc(100% - 120px),transparent calc(100% - 50px), transparent 100%);
+				}
+
+				.card-fade-no-countbox {
+					background: linear-gradient(65deg, $lightcyan 0%, $lightcyan calc(100% - 96px), transparent calc(100% - 26px), transparent 100%);
+				}
 			}
 		}
 	}
