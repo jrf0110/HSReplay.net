@@ -1,20 +1,25 @@
 .info-icon {
 	color: $aqua;
+}
+
+.tooltip-wrapper {
+	cursor: help;
+	display: inline;
 	position: relative;
 	text-align: left;
-	cursor: help;
 
-	.info-icon-tooltip {
-		color: white;
+	.hsreplay-tooltip {
 		background-color: rgba(0, 0, 0, 0.95);
-		border: 1px rgba(255, 255, 255, 0.25) solid;
 		border-radius: 4px;
+		border: 1px rgba(255, 255, 255, 0.25) solid;
+		color: white;
 		font-family: "Noto Sans", sans-serif;
 		font-size: 14px;
-		margin: 15px 0 0 -250px;
+		margin-top: 10px;
 		min-width: 250px;
 		padding: 8px 8px;
 		position: absolute;
+		top: 100%;
 		z-index: 1000;
 
 		> h4 {
@@ -25,9 +30,18 @@
 		}
 
 		> p {
+			font-weight: normal;
+			line-height: 1.3em;
 			margin: 0;
 			padding: 0;
-			line-height: 1.3em;
+		}
+	}
+
+	&.simple-tooltip {
+		cursor: inherit;
+
+		.hsreplay-tooltip {
+			min-width: unset;
 		}
 	}
 }
