@@ -5,12 +5,17 @@ import { LoadingStatus } from "../../interfaces";
 
 interface TableLoadingProps extends React.ClassAttributes<TableLoading> {
 	cardData?: CardData;
-	status?: LoadingStatus;
+	customMessage?: string;
 	dataKeys?: string[];
+	status?: LoadingStatus;
 }
 
 export default class TableLoading extends React.Component<TableLoadingProps, void> {
 	render(): JSX.Element {
+		if (this.props.customMessage) {
+			return <h3 className="message-wrapper">{this.props.customMessage}</h3>;
+		}
+
 		switch (this.props.status) {
 			case "loading":
 				return <h3 className="message-wrapper">Loading...</h3>;

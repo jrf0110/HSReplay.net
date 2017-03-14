@@ -29,6 +29,7 @@ interface TableDataCache {
 
 interface DeckDetailState {
 	expandWinrate?: boolean;
+	hasPeronalData?: boolean;
 	personalSortBy?: string;
 	personalSortDirection?: SortDirection;
 	rankRange?: string;
@@ -54,6 +55,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		super(props, state);
 		this.state = {
 			expandWinrate: false,
+			hasPeronalData: undefined,
 			personalSortBy: "card",
 			rankRange: "ALL",
 			selectedClasses: ["ALL"],
@@ -61,6 +63,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			sortBy: "decklist",
 			sortDirection: "ascending",
 		};
+
+		this.dataManager.get("/decks/mine/", {}).then((data) => {
+			this.setState({hasPeronalData: data && data[this.props.deckId] !== undefined});
+		});
 	}
 
 	render(): JSX.Element {
@@ -235,13 +241,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<div className="table-wrapper">
 								<DataInjector
 									dataManager={this.dataManager}
-									fetchCondition={this.isWildDeck() !== undefined}
+									fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
 									query={{
 										params: {deck_id: this.props.deckId, gameType: this.gameType()},
 										url: "single_account_lo_individual_card_stats_for_deck",
 									}}
 								>
-									<TableLoading cardData={this.props.cardData}>
+									<TableLoading
+										cardData={this.props.cardData}
+										customMessage={this.state.hasPeronalData === false ? "You have not played this deck recently." : null}
+									>
 										<MyCardStatsTable
 											cards={
 												this.props.cardData && this.props.deckCards.split(",").sort()
