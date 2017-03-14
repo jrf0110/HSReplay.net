@@ -1,5 +1,5 @@
 import * as React from "react";
-import {getHeroColor, toTitleCase} from "../helpers";
+import {toTitleCase} from "../helpers";
 import ClassIcon from "./ClassIcon";
 
 export type FilterOption = "ALL" | "DRUID" | "HUNTER" | "MAGE"
@@ -22,14 +22,14 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 	private readonly classes: FilterOption[] = [
 		"DRUID", "HUNTER", "MAGE",
 		"PALADIN", "PRIEST", "ROGUE",
-		"SHAMAN", "WARLOCK", "WARRIOR"
+		"SHAMAN", "WARLOCK", "WARRIOR",
 	];
 
 	private readonly presets = new Map<FilterPreset, FilterOption[]>([
 		["All", ["ALL"].concat(this.classes) as FilterOption[]],
 		["AllNeutral", ["ALL"].concat(this.classes).concat(["NEUTRAL"]) as FilterOption[]],
 		["Neutral", this.classes.concat(["NEUTRAL"]) as FilterOption[]],
-		["ClassesOnly", this.classes]
+		["ClassesOnly", this.classes],
 	]);
 
 	constructor(props: ClassFilterProps) {
@@ -43,7 +43,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 
 	render(): JSX.Element {
 		const filters = [];
-		this.getAvailableFilters().forEach(key => {
+		this.getAvailableFilters().forEach((key) => {
 			if (this.props.hideAll && key === "ALL") {
 				return;
 			}
@@ -76,10 +76,12 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 			label = <div className={labelClassNames.join(" ")}>{toTitleCase(className)}</div>;
 		}
 
-		return <span className={wrapperClassNames.join(" ")} onClick={() => this.onLabelClick(className, selected)}>
-			<ClassIcon heroClassName={className} small tooltip={toTitleCase(className)} />
-			{label}
-		</span>;
+		return (
+			<span className={wrapperClassNames.join(" ")} onClick={() => this.onLabelClick(className, selected)}>
+				<ClassIcon heroClassName={className} small tooltip/>
+				{label}
+			</span>
+		);
 	}
 
 	onLabelClick(className: FilterOption, selected: boolean) {
@@ -88,14 +90,14 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		}
 		let newSelected = this.props.selectedClasses;
 
-		const clickedLastSelected = newSelected.length == 1 && newSelected[0] === className;
+		const clickedLastSelected = newSelected.length === 1 && newSelected[0] === className;
 
-		if(this.props.multiSelect) {
+		if (this.props.multiSelect) {
 			if (clickedLastSelected) {
 				newSelected = this.getAvailableFilters();
 			}
 			else if (selected) {
-				newSelected = newSelected.filter(x => x !== className);
+				newSelected = newSelected.filter((x) => x !== className);
 			}
 			else {
 				newSelected.push(className);
@@ -106,7 +108,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 				newSelected = ["ALL"];
 			}
 			else {
-				newSelected = [className]
+				newSelected = [className];
 			}
 		}
 		this.props.selectionChanged(newSelected);
