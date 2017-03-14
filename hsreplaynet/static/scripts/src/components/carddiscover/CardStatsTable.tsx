@@ -92,7 +92,7 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 			{key: "includedCount", text: "Copies", infoHeader: "Copies in deck", infoText: "Average number of copies in a deck."},
 			{key: "includedWinrate", text: "Deck winrate", infoHeader: "Deck Winrate", infoText: "Average winrate of decks that include this card."},
 			{key: "timesPlayed", text: "Times played", infoHeader: "Times played", infoText: "Number of times the card was played."},
-			{key: "playedWinrate", text: "Played winrate", infoHeader: "Winrate when played", infoText: "Ave winrate of matches where the card was played."},
+			{key: "playedWinrate", text: "Played winrate", infoHeader: "Winrate when played", infoText: "Average winrate of matches where the card was played."},
 		];
 
 		return (
