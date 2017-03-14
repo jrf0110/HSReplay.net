@@ -1,11 +1,12 @@
 import * as React from "react";
 import CardTile from "../CardTile";
 import {TableRow} from "../../interfaces";
-import {winrateData} from "../../helpers";
+import { winrateData } from "../../helpers";
+import Tooltip from "../Tooltip";
 
 interface CardObj {
 	card: any;
-	count: number
+	count: number;
 }
 
 interface DeckBreakdownTableRowProps extends React.ClassAttributes<DeckBreakdownTableRow> {
@@ -40,7 +41,11 @@ export default class DeckBreakdownTableRow extends React.Component<DeckBreakdown
 			const played = winrateData(this.props.basePlayedWinrate, +this.props.row["win_rate_when_played"], 5);
 			let statusIcon = null;
 			if (+this.props.row["times_in_opening_hand"] < 30) {
-				statusIcon = <span className="glyphicon glyphicon-warning-sign" title="Low number of data points" />;
+				statusIcon = (
+					<Tooltip header="Low amount of data" content="This value may not be entirely accurate.">
+						<span className="glyphicon glyphicon-warning-sign" />
+					</Tooltip>
+				);
 			}
 			cols.push(
 				<td className="winrate-cell" style={{color: mulligan.color}}>
@@ -48,8 +53,12 @@ export default class DeckBreakdownTableRow extends React.Component<DeckBreakdown
 					{statusIcon}
 				</td>,
 				<td>{(+this.props.row["keep_percentage"]).toFixed(1) + "%"}</td>,
-				<td className="winrate-cell" style={{color: drawn.color}}>{drawn.tendencyStr + (+this.props.row["win_rate_when_drawn"]).toFixed(1) + "%"}</td>,
-				<td className="winrate-cell" style={{color: played.color}}>{played.tendencyStr + (+this.props.row["win_rate_when_played"]).toFixed(1) + "%"}</td>,
+				<td className="winrate-cell" style={{color: drawn.color}}>
+					{drawn.tendencyStr + (+this.props.row["win_rate_when_drawn"]).toFixed(1) + "%"}
+				</td>,
+				<td className="winrate-cell" style={{color: played.color}}>
+					{played.tendencyStr + (+this.props.row["win_rate_when_played"]).toFixed(1) + "%"}
+				</td>,
 				<td>{(+this.props.row["avg_turns_in_hand"]).toFixed(1)}</td>,
 				<td>{(+this.props.row["avg_turn_played_on"]).toFixed(1)}</td>,
 			);
