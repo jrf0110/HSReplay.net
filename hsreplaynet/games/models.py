@@ -22,6 +22,16 @@ def generate_upload_path(instance, filename):
 	return _generate_upload_path(ts, instance.shortid)
 
 
+REGIONS = {
+	BnetRegion.REGION_UNKNOWN: "Unknown region",
+	BnetRegion.REGION_US: "North America (US)",
+	BnetRegion.REGION_EU: "Europe (EU)",
+	BnetRegion.REGION_KR: "Korea (KR)",
+	BnetRegion.REGION_CN: "China (CN)",
+	BnetRegion.REGION_TW: "South East Asia (SEA)",
+}
+
+
 class PegasusAccount(models.Model):
 	id = models.BigAutoField(primary_key=True)
 
@@ -46,7 +56,8 @@ class PegasusAccount(models.Model):
 		unique_together = ("account_hi", "account_lo")
 
 	def __str__(self):
-		return self.battletag
+		region = REGIONS.get(self.region, "Dev. region")
+		return "%s - %s" % (self.battletag, region)
 
 
 class GlobalGame(models.Model):
