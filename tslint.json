@@ -28,7 +28,10 @@
 			true,
 			"allow-fast-null-checks"
 		],
-		"no-unused-variable": true,
+		"no-unused-variable": [
+			true,
+			"react"
+		],
 		"ordered-imports": [
 			true,
 			{
