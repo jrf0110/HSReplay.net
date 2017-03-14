@@ -72,20 +72,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	render(): JSX.Element {
 		let dustCost = 0;
-		let hdtButton = null;
 		if (this.props.cardData) {
 			this.props.deckCards.split(",").forEach((id) => {
 				const card = this.props.cardData.fromDbf(id);
 				dustCost += getDustCost(card);
 			});
-			hdtButton = (
-				<HDTButton
-					card_ids={this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)}
-					class={this.props.deckClass}
-					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
-					sourceUrl={window.location.toString()}
-				/>
-			);
 		}
 
 		return <div className="deck-detail-container">
@@ -93,6 +84,15 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<img
 					className="hero-image"
 					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
+				/>
+				<HDTButton
+					card_ids={
+						this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)
+					}
+					class={this.props.deckClass}
+					disabled={!this.props.cardData}
+					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
+					sourceUrl={window.location.toString()}
 				/>
 				<h2>Info</h2>
 				<ul>
@@ -104,7 +104,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						Cost
 						<span className="infobox-value">{dustCost && dustCost + " Dust"}</span>
 					</li>
-					{hdtButton}
 				</ul>
 				<PremiumWrapper isPremium={this.props.userIsPremium}>
 					<h2>Select your opponent</h2>

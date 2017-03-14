@@ -1,17 +1,19 @@
 import * as React from "react";
 import Clipboard from "clipboard";
-import {toTitleCase} from "../helpers";
+import { toTitleCase } from "../helpers";
+import Tooltip from "./Tooltip";
 
 interface HDTButtonState {
 	copied?: boolean;
 }
 
 interface HDTButtonProps extends React.ClassAttributes<HDTButton> {
-	name: string;
-	class: string;
 	card_ids: string[];
-	sourceUrl: string;
+	class: string;
+	disabled?: boolean;
 	id?: number;
+	name: string;
+	sourceUrl: string;
 }
 
 export default class HDTButton extends React.Component<HDTButtonProps, HDTButtonState> {
@@ -22,27 +24,42 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 		super(props, state);
 		this.state = {
 			copied: false,
-		}
+		};
 	}
 
 	render() {
-		const textClassNames = ["infobox-value"];
+		const classNames = ["hdt-button hidden-xs"];
 		if (this.state.copied) {
-			textClassNames.push("highlight");
+			classNames.push("highlight");
 		}
+		if (this.props.disabled) {
+			classNames.push("disabled");
+		}
+
+
+		const tooltipContent = (
+			<p>
+				<br/>
+				1. Open HDT and press CTRL-V in the main window
+				<br/><br/>
+				2. You're done! You can now save the deck or directly export it to Hearthstone.
+			</p>
+		);
+
 		return (
-			<li className="hdt-button selectable hidden-xs" id={"copy-deck-" + (this.props.id || 1)}>
-				Export
-				<span className={textClassNames.join(" ")}>
-					{this.state.copied ? "Press Ctrl-V in HDT" : "Copy deck to HDT"}
-				</span>
-			</li>
+			<div className={classNames.join(" ")}>
+				<Tooltip header="After you click:" content={tooltipContent} centered>
+					<span id={"copy-deck-" + (this.props.id || 1)}>
+						{this.state.copied ? "Copied to clipboard" : "Copy deck to HDT"}
+					</span>
+				</Tooltip>
+			</div>
 		);
 	}
 
 	componentDidMount(): void {
 		this.clipboard = new Clipboard("#copy-deck-" + (this.props.id || 1), {
-			text: (elem): string => this.getDeckJson()
+			text: (elem): string => this.getDeckJson(),
 		});
 		this.clipboard.on("success", () => {
 			this.setState({copied: true});
@@ -61,9 +78,9 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 
 	getDeckJson(): string {
 		return JSON.stringify({
-			name: this.props.name,
-			class: toTitleCase(this.props.class),
 			card_ids: this.props.card_ids,
+			class: toTitleCase(this.props.class),
+			name: this.props.name,
 			sourceUrl: this.props.sourceUrl
 		});
 	}

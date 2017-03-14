@@ -287,9 +287,37 @@
 	}
 }
 
-.hdt-button >.highlight::before {
-	content: "✔ ";
-	color: limegreen;
+.hdt-button {
+	cursor: pointer;
+	font-weight: bold;
+	padding-bottom: 20px;
+	text-align: center;
+
+	.tooltip-wrapper {
+		cursor: inherit;
+	}
+
+	span {
+		background-image: url("/static/images/hdt_icon.png");
+		background-position: right;
+		background-repeat: no-repeat;
+		background-size: contain;
+		color: $lighterblue;
+		padding: 5px 35px 5px 0;
+	}
+
+	&.highlight {
+		span::before {
+			content: "✔ ";
+			color: limegreen;
+		}
+	}
+
+	&.disabled {
+		span {
+			color: $darkgrey;
+		}
+	}
 }
 
 .table-wrapper {
