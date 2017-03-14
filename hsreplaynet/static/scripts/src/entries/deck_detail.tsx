@@ -5,6 +5,7 @@ import DeckDetail from "../pages/DeckDetail";
 
 const mockFree = document.cookie.indexOf("free-mode") !== -1;
 const premium = document.body.getAttribute("data-premium") === "1";
+const authenticated = !!document.body.getAttribute("data-username");
 
 const deckId = +document.getElementById("deck-info").getAttribute("data-deck-id");
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
@@ -18,8 +19,9 @@ const render = (cardData: CardData) => {
 			deckClass={deckClass}
 			deckId={deckId}
 			userIsPremium={premium && !mockFree}
+			userIsAuthenticated={authenticated}
 		/>,
-		document.getElementById("deck-container")
+		document.getElementById("deck-container"),
 	);
 };
 

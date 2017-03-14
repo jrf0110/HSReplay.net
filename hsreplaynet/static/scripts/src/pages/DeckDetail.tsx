@@ -45,6 +45,7 @@ interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
 	deckClass: string;
 	deckId: number;
 	deckName?: string;
+	userIsAuthenticated: boolean;
 	userIsPremium: boolean;
 }
 
@@ -238,41 +239,60 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							</DataInjector>
 						</div>
 						<div id="my-stats" className="tab-pane fade">
-							<div className="table-wrapper">
-								<DataInjector
-									dataManager={this.dataManager}
-									fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
-									query={{
-										params: {deck_id: this.props.deckId, gameType: this.gameType()},
-										url: "single_account_lo_individual_card_stats_for_deck",
-									}}
-								>
-									<TableLoading
-										cardData={this.props.cardData}
-										customMessage={this.state.hasPeronalData === false ? "You have not played this deck recently." : null}
-									>
-										<MyCardStatsTable
-											cards={
-												this.props.cardData && this.props.deckCards.split(",").sort()
-													.filter((item, pos, array) => !pos || item !== array[pos - 1])
-													.map((dbfId) => this.props.cardData.fromDbf(dbfId))
-											}
-											hiddenColumns={["totalGames", "winrate", "distinctDecks"]}
-											numCards={30}
-											onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
-												this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
-											}}
-											sortBy={this.state.personalSortBy}
-											sortDirection={this.state.personalSortDirection as SortDirection}
-										/>
-									</TableLoading>
-								</DataInjector>
-							</div>
+							{this.getMyStats()}
 						</div>
 					</div>
 				</section>
 			</main>
 		</div>;
+	}
+
+	getMyStats(): JSX.Element {
+		if (!this.props.userIsAuthenticated) {
+			return (
+				<div className="account-login login-bnet">
+					<p>You play this deck? Want to see card statistics based on your games?</p>
+					<p className="login-button">
+						<a className="btn promo-button hero-button" href={`/account/battlenet/login/?next=/decks/${this.props.deckId}/`}>
+							Log in with battle.net
+						</a>
+					</p>
+					<p className="help-block"><i>We are only able to include games recorded by Hearthstone Deck Tracker.</i></p>
+				</div>
+			);
+		}
+		return (
+			<div className="table-wrapper">
+				<DataInjector
+					dataManager={this.dataManager}
+					fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
+					query={{
+						params: {deck_id: this.props.deckId, gameType: this.gameType()},
+						url: "single_account_lo_individual_card_stats_for_deck",
+					}}
+				>
+					<TableLoading
+						cardData={this.props.cardData}
+						customMessage={this.state.hasPeronalData === false ? "You have not played this deck recently." : null}
+					>
+						<MyCardStatsTable
+							cards={
+								this.props.cardData && this.props.deckCards.split(",").sort()
+									.filter((item, pos, array) => !pos || item !== array[pos - 1])
+									.map((dbfId) => this.props.cardData.fromDbf(dbfId))
+							}
+							hiddenColumns={["totalGames", "winrate", "distinctDecks"]}
+							numCards={30}
+							onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
+								this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
+							}}
+							sortBy={this.state.personalSortBy}
+							sortDirection={this.state.personalSortDirection as SortDirection}
+						/>
+					</TableLoading>
+				</DataInjector>
+			</div>
+		);
 	}
 
 	isWildDeck(): boolean {
