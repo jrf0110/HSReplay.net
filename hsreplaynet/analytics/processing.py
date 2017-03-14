@@ -1,10 +1,12 @@
 import copy
 import json
 import time
-from datetime import datetime
+from collections import defaultdict
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.cache import caches
 from django.utils import timezone
+from hearthstone.enums import BnetGameType
 from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
 from sqlalchemy import create_engine
@@ -285,13 +287,17 @@ class PremiumUserCacheWarmingContext:
 
 	@classmethod
 	def from_user(cls, user):
-		decks = []
+		decks = defaultdict(set)
 		from hsreplaynet.games.models import GameReplay
+		time_horizon = timezone.now() - timedelta(days=30)
 		qs = GameReplay.objects.live().filter(
-			user=user
+			user=user,
+			global_game__match_start__gte=time_horizon
 		)
+
 		for replay in qs.all():
-			decks.append(replay.friendly_deck)
+			if replay.friendly_deck.size == 30:
+				decks[replay.friendly_deck].add(replay.global_game.game_type)
 		pegasus_accounts = list(user.pegasusaccount_set.all())
 		result = PremiumUserCacheWarmingContext(
 			user,
@@ -342,6 +348,13 @@ def fill_personalized_query_queue(contexts, eligible_queries=None):
 	write_messages_to_queue(queue_name, stales_queries)
 
 
+def _permutation_matches_game_types(perm, game_types):
+	gt = perm.get("GameType", None)
+	is_w = gt == 'RANKED_WILD' and BnetGameType.BGT_RANKED_WILD in game_types
+	is_s = gt == 'RANKED_STANDARD' and BnetGameType.BGT_RANKED_STANDARD in game_types
+	return is_w or is_s
+
+
 def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None):
 	queries = []
 	for query in RedshiftCatalogue.instance().personalized_queries:
@@ -354,18 +367,19 @@ def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None):
 						new_permutation["Region"] = pegasus_account.region.name
 						new_permutation["account_lo"] = pegasus_account.account_lo
 						if "deck_id" in query.get_available_non_filter_parameters():
-							for deck in ctx.decks:
-								new_permutation_for_deck = copy.copy(new_permutation)
-								new_permutation_for_deck["deck_id"] = deck.id
-								msg = "Warming: %s: %s" % (
-									str(new_permutation_for_deck),
-									str(query.name)
-								)
-								log.info(msg)
-								queries.append({
-									"query_name": query.name,
-									"supplied_parameters": new_permutation_for_deck
-								})
+							for deck, gts in ctx.decks.items():
+								if _permutation_matches_game_types(new_permutation, gts):
+									new_permutation_for_deck = copy.copy(new_permutation)
+									new_permutation_for_deck["deck_id"] = deck.id
+									msg = "Warming: %s: %s" % (
+										str(new_permutation_for_deck),
+										str(query.name)
+									)
+									log.info(msg)
+									queries.append({
+										"query_name": query.name,
+										"supplied_parameters": new_permutation_for_deck
+									})
 						else:
 							msg = "Warming: %s: %s" % (
 								str(new_permutation),
