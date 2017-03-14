@@ -52,6 +52,10 @@ interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 	viewType: ViewType;
 }
 
+const PLACEHOLDER_MINION = STATIC_URL + "images/loading_minion.png";
+const PLACEHOLDER_SPELL = STATIC_URL + "images/loading_spell.png";
+const PLACEHOLDER_WEAPON = STATIC_URL + "images/loading_weapon.png";
+
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
 	private readonly dataManager: DataManager = new DataManager();
 	readonly filters = {
@@ -73,7 +77,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		JADE_LOTUS: ["DRUID", "ROGUE", "SHAMAN"],
 		KABAL: ["MAGE", "PRIEST", "WARLOCK"],
 	};
-	readonly placeholderUrl = STATIC_URL + "images/cardback_placeholder_kabal.png";
 	readonly defaultQueryMap: QueryMap = {
 		cost: "",
 		filterSparse: "",
@@ -118,8 +121,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		};
 		switch (this.props.viewType) {
 			case "cards":
-				const image = new Image();
-				image.src = this.placeholderUrl;
+				const minion = new Image();
+				minion.src = PLACEHOLDER_MINION;
+				const spell = new Image();
+				spell.src = PLACEHOLDER_SPELL;
+				const weapon = new Image();
+				weapon.src = PLACEHOLDER_WEAPON;
 				break;
 		}
 		this.filters.mechanics.sort();
@@ -317,7 +324,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						<CardImage
 							cardId={card.id}
 							dbfId={card.dbfId}
-							placeholder={this.placeholderUrl}
+							placeholder={this.getCardPlaceholder(card)}
 							key={card.id}
 						/>,
 					);
@@ -408,6 +415,17 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</main>
 			</div>
 		);
+	}
+
+	getCardPlaceholder(card: any): string {
+		switch (card.type) {
+			case "WEAPON":
+				return PLACEHOLDER_WEAPON;
+			case "SPELL":
+				return PLACEHOLDER_SPELL;
+			default:
+				return PLACEHOLDER_MINION;
+		}
 	}
 
 	filterCounts(cardFilters: CardFilters) : CardFilters {
