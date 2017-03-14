@@ -4,6 +4,7 @@ import DataInjector from "./DataInjector";
 import DataText from "./DataText";
 import DataManager from "../DataManager";
 import { getAge } from "../PrettyTime";
+import Tooltip from "./Tooltip";
 
 interface InfoboxLastUpdatedProps extends React.ClassAttributes<InfoboxLastUpdated> {
 	dataManager: DataManager;
@@ -17,13 +18,18 @@ export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdat
 			<li>
 				Last updated
 				<span className="infobox-value">
-					<DataInjector
-						dataManager={this.props.dataManager}
-						query={{url: this.props.url, params: this.props.params}}
-						modify={(data) => data && data.as_of ? getAge(new Date(data.as_of)) : null}
+					<Tooltip
+						header="Last updated"
+						content="We try to keep the data as up to date as possible. Pages get updated as fresh data becomes available."
 					>
-						<HideLoading><DataText /></HideLoading>
-					</DataInjector>
+						<DataInjector
+							dataManager={this.props.dataManager}
+							query={{url: this.props.url, params: this.props.params}}
+							modify={(data) => data && data.as_of ? getAge(new Date(data.as_of)) : null}
+						>
+							<HideLoading><DataText /></HideLoading>
+						</DataInjector>
+					</Tooltip>
 				</span>
 			</li>
 		);
