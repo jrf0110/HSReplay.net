@@ -6,6 +6,7 @@ interface TooltipState {
 }
 
 interface TooltipProps extends React.ClassAttributes<Tooltip> {
+	centered?: boolean;
 	className?: string;
 	content?: string | JSX.Element;
 	header?: string;
@@ -23,14 +24,23 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 	render(): JSX.Element {
 		let tooltip = null;
 		if (this.state.hovering) {
-			const style = {};
-			const left = this.state.clientX < window.innerWidth / 2;
-			style[left ? "left" : "right"] = 0;
-
+			const tooltipClassNames = ["hsreplay-tooltip"];
+			if (this.props.centered) {
+				tooltipClassNames.push("centered");
+			}
+			else {
+				const left = this.state.clientX < window.innerWidth / 2;
+				if (left) {
+					tooltipClassNames.push("left");
+				}
+				else {
+					tooltipClassNames.push("right");
+				}
+			}
 			const content = [];
 			this.props.header && content.push(<h4>{this.props.header}</h4>);
 			this.props.content && content.push(<p>{this.props.content}</p>);
-			tooltip = <div className="hsreplay-tooltip" style={style}>{content}</div>;
+			tooltip = <div className={tooltipClassNames.join(" ")}>{content}</div>;
 		}
 
 		let classNames = ["tooltip-wrapper"];
