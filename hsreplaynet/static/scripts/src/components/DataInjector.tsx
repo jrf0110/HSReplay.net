@@ -58,18 +58,20 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 	}
 
 	componentWillReceiveProps(nextProps: DataInjectorProps) {
+		const newStatus = Object.assign([], this.state.status);
+		const queue = [];
 		const allCurrent = this.getQueryArray(this.props);
 		this.getQueryArray(nextProps).forEach((query, index) => {
 			const current = allCurrent[index];
 			if (query.url !== current.url
 				|| Object.keys(query.params || {}).some((key) => query.params[key] !== current.params[key])
 				|| nextProps.fetchCondition !== this.props.fetchCondition) {
-				const newStatus = Object.assign([], this.state.status);
 				newStatus[index] = STATUS_LOADING;
-				this.setState({status: newStatus});
-				this.fetch(nextProps, index);
+				queue.push(index);
 			}
 		});
+		this.setState({status: newStatus});
+		queue.forEach((index) => this.fetch(nextProps, index));
 	}
 
 	fetch(props: DataInjectorProps, index: number) {
