@@ -22,6 +22,7 @@ import {
 	getDustCost, getHeroCardId, toTitleCase, wildSets,
 } from "../helpers";
 import { TableData } from "../interfaces";
+import UserData from "../UserData";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -45,8 +46,7 @@ interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
 	deckClass: string;
 	deckId: number;
 	deckName?: string;
-	userIsAuthenticated: boolean;
-	userIsPremium: boolean;
+	user: UserData;
 }
 
 export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
@@ -65,7 +65,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			sortDirection: "ascending",
 		};
 
-		if (this.props.userIsAuthenticated) {
+		if (this.props.user.isAuthenticated()) {
 			this.dataManager.get("/decks/mine/", {}).then((data) => {
 				this.setState({hasPeronalData: data && data[this.props.deckId] !== undefined});
 			});
@@ -81,7 +81,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			});
 		}
 
-		const premiumMulligan = this.state.selectedClasses[0] !== "ALL" && this.props.userIsAuthenticated;
+		const premiumMulligan = this.state.selectedClasses[0] !== "ALL" && this.props.user.isAuthenticated();
 
 		return <div className="deck-detail-container">
 			<aside className="infobox">
@@ -109,7 +109,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<span className="infobox-value">{dustCost && dustCost + " Dust"}</span>
 					</li>
 				</ul>
-				<PremiumWrapper isPremium={this.props.userIsPremium}>
+				<PremiumWrapper isPremium={this.props.user.isPremium()}>
 					<h2>Select your opponent</h2>
 					<ClassFilter
 						filters="All"
@@ -117,17 +117,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						minimal
 						multiSelect={false}
 						selectedClasses={this.state.selectedClasses}
-						selectionChanged={(selected) => this.props.userIsPremium && this.setState({selectedClasses: selected})}
+						selectionChanged={(selected) => this.props.user.isPremium() && this.setState({selectedClasses: selected})}
 					/>
 				</PremiumWrapper>
 				<PremiumWrapper
-					isPremium={this.props.userIsPremium}
+					isPremium={this.props.user.isPremium()}
 					infoHeader="Deck breakdown rank range"
 					infoContent="Check out how this deck performs at higher ranks!"
 				>
 					<h2>Rank range</h2>
 					<InfoboxFilterGroup
-						locked={!this.props.userIsPremium}
+						locked={!this.props.user.isPremium()}
 						selectedValue={this.state.rankRange}
 						onClick={(value) => this.setState({rankRange: value})}
 					>
@@ -260,7 +260,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	getMyStats(): JSX.Element {
-		if (!this.props.userIsAuthenticated) {
+		if (!this.props.user.isAuthenticated()) {
 			return (
 				<div className="account-login login-bnet">
 					<p>You play this deck? Want to see card statistics based on your games?</p>
