@@ -23,6 +23,7 @@ import {
 	QueryMap, queryMapHasChanges, setLocationQueryString, setQueryMap, toQueryString,
 } from "../QueryParser";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
+import UserData from "../UserData";
 
 interface CardFilters {
 	cost: any;
@@ -48,7 +49,7 @@ interface CardDiscoverState {
 
 interface CardDiscoverProps extends React.ClassAttributes<CardDiscover> {
 	cardData: CardData;
-	userIsPremium: boolean;
+	user: UserData;
 	viewType: ViewType;
 }
 
@@ -133,7 +134,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	getAllowedValues(): any {
-		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
+		return this.props.user.isPremium() ? this.allowedValuesPremium : this.allowedValues;
 	}
 
 	onSearchScroll(): void {
@@ -544,13 +545,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</InfoboxFilterGroup>,
 				modeFilter,
 				<PremiumWrapper
-					isPremium={this.props.userIsPremium}
+					isPremium={this.props.user.isPremium()}
 					infoHeader="Time frame"
 					infoContent="Get the most recent data on what cards are hot right now!"
 				>
 					<InfoboxFilterGroup
 						header="Time frame"
-						locked={!this.props.userIsPremium}
+						locked={!this.props.user.isPremium()}
 						selectedValue={this.state.queryMap["timeRange"]}
 						onClick={(value) => setQueryMap(this, "timeRange", value)}
 					>
@@ -561,13 +562,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</InfoboxFilterGroup>
 				</PremiumWrapper>,
 				<PremiumWrapper
-					isPremium={this.props.userIsPremium}
+					isPremium={this.props.user.isPremium()}
 					infoHeader="Rank range"
 					infoContent="Check out what cards get played on the higher ranks!"
 				>
 					<InfoboxFilterGroup
 						header="Rank range"
-						locked={!this.props.userIsPremium}
+						locked={!this.props.user.isPremium()}
 						selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}
 					>
 						<InfoboxFilter disabled={this.state.queryMap["gameType"] === "ARENA"} value="LEGEND_THROUGH_TEN">
