@@ -306,6 +306,14 @@
 
 	.tooltip-wrapper {
 		cursor: inherit;
+
+		li {
+			border: none;
+
+			&:first-child {
+				border: none;
+			}
+		}
 	}
 
 	span {
