@@ -13,7 +13,7 @@
 		>.row {
 			border-bottom: 1px solid $lightgrey;
 		}
-			
+
 		>.row:nth-child(even) {
 			background: rgb(249, 249, 249);
 		}
@@ -37,6 +37,12 @@
 		#class-chart {
 			margin: 0 auto;
 			max-width: 450px;
+		}
+
+		#turn-stats {
+			.premium-wrapper {
+				padding-bottom: 2em;
+			}
 		}
 	}
 

@@ -250,58 +250,48 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="container-fluid">
 						<div className="row">
 							<div className="opponent-filter-wrapper">
-								<PremiumWrapper
-									isPremium={this.props.user.isPremium()}
-									infoHeader="Turn data by opponent"
-									infoContent="Break down the turn played distribution and winrate by turn played even further and look at each opponent class individually!"
-								>
-									<h3>Opponent class</h3>
-									<ClassFilter
-										filters="All"
-										hideAll
-										minimal
-										multiSelect={false}
-										selectedClasses={[this.state.queryMap.opponentClass as FilterOption]}
-										selectionChanged={(selected) => this.props.user.isPremium() && setQueryMap(this, "opponentClass", selected[0])}
-									/>
-								</PremiumWrapper>
+								<h3>Opponent class</h3>
+								<ClassFilter
+									filters="All"
+									hideAll
+									minimal
+									multiSelect={false}
+									selectedClasses={[this.state.queryMap.opponentClass as FilterOption]}
+									selectionChanged={(selected) => this.props.user.isPremium() && setQueryMap(this, "opponentClass", selected[0])}
+								/>
 							</div>
 						</div>
 						<div className="row">
 							<div className="col-lg-6 col-md-6">
 								<div className="chart-wrapper">
-									<PremiumWrapper isPremium={this.props.user.isPremium()} iconStyle={{display: "none"}}>
-										<DataInjector
-											dataManager={this.dataManager}
-											query={turnStatsQuery}
-										>
-											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
-												<TurnPlayedBarChart
-													opponentClass={this.state.queryMap.opponentClass}
-													widthRatio={2}
-													premiumLocked={!this.props.user.isPremium()}
-												/>
-											</ChartLoading>
-										</DataInjector>
-									</PremiumWrapper>
+									<DataInjector
+										dataManager={this.dataManager}
+										query={turnStatsQuery}
+									>
+										<ChartLoading noDataCondition={turnStatsNoDataCondition}>
+											<TurnPlayedBarChart
+												opponentClass={this.state.queryMap.opponentClass}
+												widthRatio={2}
+												premiumLocked={!this.props.user.isPremium()}
+											/>
+										</ChartLoading>
+									</DataInjector>
 								</div>
 							</div>
 							<div className="col-lg-6 col-md-6">
 								<div className="chart-wrapper">
-									<PremiumWrapper isPremium={this.props.user.isPremium()} iconStyle={{display: "none"}}>
-										<DataInjector
-											dataManager={this.dataManager}
-											query={turnStatsQuery}
-										>
-											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
-												<WinrateByTurnLineChart
-													opponentClass={this.state.queryMap.opponentClass}
-													widthRatio={2}
-													premiumLocked={!this.props.user.isPremium()}
-												/>
-											</ChartLoading>
-										</DataInjector>
-									</PremiumWrapper>
+									<DataInjector
+										dataManager={this.dataManager}
+										query={turnStatsQuery}
+									>
+										<ChartLoading noDataCondition={turnStatsNoDataCondition}>
+											<WinrateByTurnLineChart
+												opponentClass={this.state.queryMap.opponentClass}
+												widthRatio={2}
+												premiumLocked={!this.props.user.isPremium()}
+											/>
+										</ChartLoading>
+									</DataInjector>
 								</div>
 							</div>
 						</div>
@@ -344,7 +334,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								{recommendedDecks}
 							</div>
 							<div id="turn-stats" className="tab-pane fade">
-								{turnCharts}
+								<PremiumWrapper
+									isPremium={this.props.user.isPremium()}
+									infoHeader="Turn played statistics"
+									infoContent="Understand when the card is played and how effective that is, based on turn and opponent."
+									iconStyle={{display: "none"}}
+								>
+									{turnCharts}
+								</PremiumWrapper>
 							</div>
 							<div id="card-stats" className={"tab-pane fade"}>
 								<div id="card-tables">
