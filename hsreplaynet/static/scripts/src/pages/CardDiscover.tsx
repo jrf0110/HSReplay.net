@@ -236,7 +236,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 		else if (this.props.viewType === "personal") {
 			return this.dataManager
-				.get("single_account_lo_individual_card_stats", {})
+				.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => {
 					const sparseDict = {};
 					data.series.data.ALL.forEach((card) => {
@@ -290,12 +290,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 
 		if (viewType === "personal") {
-			const params = {GameType: this.state.queryMap.gameType || this.defaultQueryMap.gameType};
 			content.push(
 				<div className="table-wrapper">
 					<DataInjector
 						dataManager={this.dataManager}
-						query={{params, url: "single_account_lo_individual_card_stats"}}
+						query={{params: this.getPersonalParams(), url: "single_account_lo_individual_card_stats"}}
 					>
 						<TableLoading cardData={this.props.cardData}>
 							<MyCardStatsTable
@@ -309,7 +308,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</DataInjector>
 				</div>,
 			);
-			if (showMoreButton && this.dataManager.has("single_account_lo_individual_card_stats", params)) {
+			if (showMoreButton && this.dataManager.has("single_account_lo_individual_card_stats", this.getPersonalParams())) {
 				content.push(showMoreButton);
 			}
 		}
@@ -610,7 +609,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<InfoboxLastUpdated
 						dataManager={this.dataManager}
 						url={"single_account_lo_individual_card_stats"}
-						params={{}}
+						params={this.getPersonalParams()}
 					/>
 					{timeFrame}
 				</ul>,
@@ -853,6 +852,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			RankRange: this.state.queryMap.rankRange || this.defaultQueryMap.rankRange,
 			TimeRange: this.state.queryMap.timeRange || this.defaultQueryMap.timeRange,
 			// Region: this.state.queryMap["region"],
+		};
+	}
+
+	getPersonalParams(): any {
+		return {
+			GameType: this.state.queryMap.gameType || this.defaultQueryMap.gameType,
 		};
 	}
 }
