@@ -136,7 +136,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<DataInjector
 					dataManager={this.dataManager}
 					fetchCondition={this.isWildDeck() !== undefined}
-					query={{url: "list_decks_by_win_rate", params: {gameType: this.gameType()}}}
+					query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType()}}}
 				>
 					<HideLoading>
 						<DeckStats
@@ -228,7 +228,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<DataInjector
 								dataManager={this.dataManager}
 								fetchCondition={this.isWildDeck() !== undefined}
-								query={{url: "list_decks_by_win_rate", params: this.getParams()}}
+								query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType()}}}
 							>
 								<TableLoading cardData={this.props.cardData}>
 									<SimilarDecksList
