@@ -32,15 +32,13 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 		let basePlayedWinrate = 0;
 		rows = this.props.mulliganData.series.data[this.props.dataKey];
 
-		if (rows) {
-			const validRows = rows.filter((row) => row);
-			validRows.forEach((row) => {
-				baseDrawnWinrate += +row["win_rate_when_drawn"];
-				basePlayedWinrate += +row["win_rate_when_played"];
-			});
-			baseDrawnWinrate /= validRows.length;
-			basePlayedWinrate /= validRows.length;
-		}
+		const validRows = rows.filter((row) => row);
+		validRows.forEach((row) => {
+			baseDrawnWinrate += +row["win_rate_when_drawn"];
+			basePlayedWinrate += +row["win_rate_when_played"];
+		});
+		baseDrawnWinrate /= validRows.length;
+		basePlayedWinrate /= validRows.length;
 
 		const rowList = [];
 		cardList.forEach((cardObj) => {
