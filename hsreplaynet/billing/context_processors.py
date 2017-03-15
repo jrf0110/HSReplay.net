@@ -3,10 +3,9 @@ Context processors for billing/premium purposes
 """
 from django.conf import settings
 from djstripe.models import Plan
+from djstripe.settings import STRIPE_LIVE_MODE
 
 
-# `STRIPE_DEBUG` is set if DEBUG is on *and* we are using a test mode pubkey
-STRIPE_LIVE_MODE = settings.STRIPE_PUBLIC_KEY.startswith("pk_live_")
 STRIPE_DEBUG = not STRIPE_LIVE_MODE and settings.DEBUG
 
 
