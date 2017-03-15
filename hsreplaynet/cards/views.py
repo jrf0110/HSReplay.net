@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
@@ -19,7 +20,7 @@ class CardStatsView(TemplateView):
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
-class MyCardStatsView(TemplateView):
+class MyCardStatsView(LoginRequiredMixin, TemplateView):
 	template_name = "cards/my_card_stats.html"
 
 
