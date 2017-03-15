@@ -79,6 +79,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		KABAL: ["MAGE", "PRIEST", "WARLOCK"],
 	};
 	readonly defaultQueryMap: QueryMap = {
+		account: "-",
 		cost: "",
 		filterSparse: "",
 		format: "",
@@ -112,6 +113,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
 		super(props, state);
+		const account = props.user.getAccounts()[0];
+		if (account) {
+			this.defaultQueryMap.account = account.region + "-" + account.lo;
+		}
 		this.state = {
 			cards: null,
 			filterCounts: null,
@@ -489,6 +494,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const queryMap = Object.assign({}, this.defaultQueryMap);
 		queryMap.sortBy = this.state.queryMap.sortBy;
 		queryMap.sortDirection = this.state.queryMap.sortDirection;
+		queryMap.account = this.state.queryMap.account;
 		return queryMap;
 	}
 
@@ -600,6 +606,28 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<span className="infobox-value">Last 30 days</span>
 				</li>
 			);
+		}
+
+		if (viewType === "personal" && this.props.user.getAccounts().length > 0) {
+			const accounts = [];
+			this.props.user.getAccounts().forEach((acc ) => {
+				accounts.push(
+					<InfoboxFilter value={acc.region + "-" + acc.lo}>
+						{acc.display}
+					</InfoboxFilter>,
+				);
+			});
+			if (accounts.length) {
+				filters.push(
+					<InfoboxFilterGroup
+						header="Accounts"
+						selectedValue={this.state.queryMap.account}
+						onClick={(value) => setQueryMap(this, "account", value)}
+					>
+						{accounts}
+					</InfoboxFilterGroup>,
+				);
+			}
 		}
 
 		if (viewType === "statistics" || viewType === "personal") {
@@ -856,8 +884,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	getPersonalParams(): any {
+		const getRegion = (acc: string) => acc && acc.split("-")[0];
+		const getLo = (acc: string) => acc && acc.split("-")[1];
 		return {
 			GameType: this.state.queryMap.gameType || this.defaultQueryMap.gameType,
+			Region: getRegion(this.state.queryMap.account) || getRegion(this.defaultQueryMap.account),
+			account_lo: getLo(this.state.queryMap.account) || getLo(this.defaultQueryMap.account),
 		};
 	}
 }
