@@ -346,7 +346,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<button
 						type="button"
 						className="btn btn-default"
-						onClick={() => this.setState({numCards: this.state.numCards + 10})}
+						onClick={() => this.setState({numCards: this.state.numCards + 20})}
 					>
 						Show more...
 					</button>
