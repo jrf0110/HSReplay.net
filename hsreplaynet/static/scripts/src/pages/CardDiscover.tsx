@@ -273,17 +273,21 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			this.setState({queryMap});
 		};
 
-		const showMoreButton = (
-			<div id="more-button-wrapper">
-				<button
-					type="button"
-					className="btn btn-default"
-					onClick={() => this.setState({numCards: this.state.numCards + 20})}
-				>
-					Show more...
-				</button>
-			</div>
-		);
+		let showMoreButton = null;
+
+		if (this.state.filteredCards.length > this.state.numCards) {
+			showMoreButton = (
+				<div id="more-button-wrapper">
+					<button
+						type="button"
+						className="btn btn-default"
+						onClick={() => this.setState({numCards: this.state.numCards + 20})}
+					>
+						Show more...
+					</button>
+				</div>
+			);
+		}
 
 		if (viewType === "personal") {
 			const params = {GameType: this.state.queryMap.gameType || this.defaultQueryMap.gameType};
@@ -305,7 +309,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</DataInjector>
 				</div>,
 			);
-			if (this.dataManager.has("single_account_lo_individual_card_stats", params)) {
+			if (showMoreButton && this.dataManager.has("single_account_lo_individual_card_stats", params)) {
 				content.push(showMoreButton);
 			}
 		}
@@ -333,7 +337,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</DataInjector>
 				</div>,
 			);
-			if (this.dataManager.has("card_played_popularity_report", this.getParams())
+			if (showMoreButton && this.dataManager.has("card_played_popularity_report", this.getParams())
 				&& this.dataManager.has("card_included_popularity_report", this.getParams())) {
 				content.push(showMoreButton);
 			}
@@ -357,7 +361,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					{tiles}
 				</div>,
 			);
-			if (this.state.filteredCards.length > this.state.numCards) {
+			if (showMoreButton) {
 				content.push(showMoreButton);
 			}
 		}
