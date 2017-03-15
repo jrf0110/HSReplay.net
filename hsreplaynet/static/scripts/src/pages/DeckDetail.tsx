@@ -153,7 +153,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<DataInjector
 					dataManager={this.dataManager}
 					fetchCondition={this.isWildDeck() !== undefined}
-					query={{url: "single_account_lo_individual_card_stats_for_deck", params: {deck_id: this.props.deckId}}}
+					query={{url: "/decks/mine/", params: {}}}
 				>
 					<HideLoading>
 						<PersonalDeckStats deckId={this.props.deckId}/>
