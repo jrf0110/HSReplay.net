@@ -1,5 +1,4 @@
 import * as React from "react";
-import CardData from "../CardData";
 import DataManager from "../DataManager";
 import { cloneComponent } from "../helpers";
 import { LoadingStatus } from "../interfaces";
@@ -27,6 +26,7 @@ interface DataInjectorProps extends React.ClassAttributes<DataInjector> {
 	modify?: (data: any) => any;
 }
 
+const DEFAULT_DATA_KEY = "data";
 const MAX_RETRY_COUNT = 3;
 const RETRY_DELAY = 15000;
 const STATUS_LOADING = 0;
@@ -81,13 +81,13 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 			.then((json) => {
 				const newData = Object.assign([], this.state.data);
 				const newStatus = Object.assign([], this.state.status);
-				newData[query.key || "data"] = props.modify ? props.modify(json) : json;
+				newData[query.key || DEFAULT_DATA_KEY] = props.modify ? props.modify(json) : json;
 				newStatus[index] = STATUS_SUCCESS;
 				this.setState({data: newData, status: newStatus});
 			}, (status) => {
 				if (status === STATUS_PROCESSING) {
 					if (this.state.retryCount[index] < MAX_RETRY_COUNT) {
-						window.setTimeout(() => this.fetch(props, index), 15000);
+						window.setTimeout(() => this.fetch(props, index), RETRY_DELAY);
 						const newStatus = Object.assign([], this.state.status);
 						const newRetryCount = Object.assign([], this.state.retryCount);
 						newStatus[index] = STATUS_PROCESSING;
@@ -122,7 +122,8 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 			return "loading";
 		};
 		const childProps = {status: getStatus(this.state.status)};
-		Object.keys(this.state.data).forEach((key) => {
+		this.getQueryArray(this.props).forEach((query) => {
+			const key = query.key || DEFAULT_DATA_KEY;
 			childProps[key] = this.state.data[key];
 		});
 		return cloneComponent(this.props.children, childProps);
