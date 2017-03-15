@@ -276,7 +276,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				<div className="table-wrapper">
 					<DataInjector
 						dataManager={this.dataManager}
-						query={{url: "single_account_lo_individual_card_stats", params: {}}}
+						query={{
+							params: {GameType: this.state.queryMap.gameType || this.defaultQueryMap.gameType},
+							url: "single_account_lo_individual_card_stats",
+						}}
 					>
 						<TableLoading cardData={this.props.cardData}>
 							<MyCardStatsTable
@@ -491,6 +494,22 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			</ResetHeader>,
 		];
 
+		const modeFilter = (
+				<section id="mode-filter">
+					<InfoboxFilterGroup
+						header="Mode"
+						selectedValue={this.state.queryMap["gameType"]}
+						onClick={(value) => setQueryMap(this, "gameType", value)}
+					>
+						<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+						<InfoboxFilter disabled={this.state.queryMap["rankRange"] === "LEGEND_THROUGH_TEN"} value="ARENA">
+							Arena
+						</InfoboxFilter>
+					</InfoboxFilterGroup>
+				</section>
+		);
+
 		if (viewType === "cards" || viewType === "personal") {
 			filters.push(
 				<h2>Card class</h2>,
@@ -523,19 +542,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<InfoboxFilter value="neutral">Class cards only</InfoboxFilter>
 					<InfoboxFilter value="class">Neutral cards only</InfoboxFilter>
 				</InfoboxFilterGroup>,
-				<section id="mode-filter">
-					<InfoboxFilterGroup
-						header="Mode"
-						selectedValue={this.state.queryMap["gameType"]}
-						onClick={(value) => setQueryMap(this, "gameType", value)}
-					>
-						<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-						<InfoboxFilter disabled={this.state.queryMap["rankRange"] === "LEGEND_THROUGH_TEN"} value="ARENA">
-							Arena
-						</InfoboxFilter>
-					</InfoboxFilterGroup>
-				</section>,
+				modeFilter,
 				<PremiumWrapper
 					isPremium={this.props.userIsPremium}
 					infoHeader="Time frame"
@@ -570,6 +577,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</InfoboxFilterGroup>
 				</PremiumWrapper>,
 			);
+		}
+
+		if (viewType === "personal") {
+			filters.push(modeFilter);
 		}
 
 		if (viewType === "statistics" || viewType === "personal") {
