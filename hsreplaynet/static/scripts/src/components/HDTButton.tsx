@@ -37,12 +37,10 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 		}
 
 		const tooltipContent = (
-			<p>
-				<br/>
-				1. Open HDT and press CTRL-V in the main window.
-				<br/><br/>
-				2. You're done! You can now save the deck or directly export it to Hearthstone.
-			</p>
+			<ol>
+				<li>Open HDT and press CTRL-V in the main window.</li>
+				<li>You're done! You can now save the deck or directly export it to Hearthstone.</li>
+			</ol>
 		);
 
 		return (
