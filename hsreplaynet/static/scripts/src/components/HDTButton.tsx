@@ -9,7 +9,7 @@ interface HDTButtonState {
 
 interface HDTButtonProps extends React.ClassAttributes<HDTButton> {
 	card_ids: string[];
-	class: string;
+	deckClass: string;
 	disabled?: boolean;
 	id?: number;
 	name: string;
@@ -78,7 +78,7 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 	getDeckJson(): string {
 		return JSON.stringify({
 			card_ids: this.props.card_ids,
-			class: toTitleCase(this.props.class),
+			class: toTitleCase(this.props.deckClass),
 			name: this.props.name,
 			sourceUrl: this.props.sourceUrl,
 		});

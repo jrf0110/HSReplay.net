@@ -99,7 +99,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					card_ids={
 						this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)
 					}
-					class={this.props.deckClass}
+					deckClass={this.props.deckClass}
 					disabled={!this.props.cardData}
 					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
 					sourceUrl={window.location.toString()}

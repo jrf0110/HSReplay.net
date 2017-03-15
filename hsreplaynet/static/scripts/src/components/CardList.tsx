@@ -9,7 +9,7 @@ interface CardListProps extends React.ClassAttributes<CardList> {
 	cardHeight?: number;
 	rarityColored?: boolean;
 	name: string;
-	class: string;
+	deckClass?: string;
 	showButton?: boolean;
 	id?: number;
 	clickable?: boolean;
@@ -42,15 +42,15 @@ export default class CardList extends React.Component<CardListProps, any> {
 			}
 			cardTiles.push(tile);
 		});
-		
+
 		return (
 			<ul className="card-list">
 				{cardTiles}
-				{this.props.showButton && cardTiles.length > 0 && this.props.class ?
+				{this.props.showButton && cardTiles.length > 0 && this.props.deckClass ?
 					<HDTButton
 						card_ids={this.props.cards}
 						name={this.props.name}
-						class={this.props.class}
+						deckClass={this.props.deckClass}
 						sourceUrl={window.location.toString()}
 						id={this.props.id}
 				/> : null}

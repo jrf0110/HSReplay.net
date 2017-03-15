@@ -205,7 +205,6 @@ export default class ArchetypeClient extends React.Component<ArchetypeClientProp
 				cardDb={this.props.cardData}
 				cards={archetype.representative_deck.card_ids}
 				name={archetype.name}
-				class=""
 			/>
 		</div>;
 	}

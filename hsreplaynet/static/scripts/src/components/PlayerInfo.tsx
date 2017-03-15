@@ -92,13 +92,13 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					</a>
 				);
 				if(this.state.showOpponentDeck) {
-					const className = this.toTitleCase(this.state.game.opposing_player.hero_class_name);
+					const deckClass = this.toTitleCase(this.state.game.opposing_player.hero_class_name);
 					opponentDeck.push(
 						<CardList
 							cardDb={this.state.db}
 							cards={this.state.game.opposing_deck.cards}
-							class={className}
-							name={this.state.game.opposing_player.name + "'s " + className}
+							deckClass={deckClass}
+							name={this.state.game.opposing_player.name + "'s " + deckClass}
 							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
 							id={1}
 							clickable={this.props.featureCardDb}
@@ -113,13 +113,13 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					</a>
 				);
 				if(this.state.showPlayerDeck) {
-					const className = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
+					const deckClass = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
 					playerDeck.push(
 						<CardList
 							cardDb={this.state.db}
 							cards={this.state.game.friendly_deck.cards}
-							class={className}
-							name={this.state.game.friendly_player.name + "'s " + className}
+							deckClass={deckClass}
+							name={this.state.game.friendly_player.name + "'s " + deckClass}
 							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
 							id={2}
 							clickable={this.props.featureCardDb}
