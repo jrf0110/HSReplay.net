@@ -228,6 +228,23 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</div>,
 				];
 
+				const turnStatsQuery = {
+					params: this.getParams(),
+					url: (
+						this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium
+						? "/analytics/query/single_card_stats_by_turn_and_opponent"
+						: "/analytics/query/single_card_stats_by_turn"
+					),
+				};
+
+				const turnStatsNoDataCondition = (data: RenderData): boolean => {
+					if (this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium) {
+						const selectedSeries = data.series.find((s) => s.metadata.opponent_class === this.state.queryMap.opponentClass);
+						return !selectedSeries || selectedSeries.data.length < 2;
+					}
+					return data.series[0].data.length < 2;
+				};
+
 				const turnCharts = (
 					<div className="container-fluid">
 						<div className="row">
@@ -255,16 +272,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
 										<DataInjector
 											dataManager={this.dataManager}
-											query={{
-												params: this.getParams(),
-												url: (
-													this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium
-													? "/analytics/query/single_card_stats_by_turn_and_opponent"
-													: "/analytics/query/single_card_stats_by_turn"
-												),
-											}}
+											query={turnStatsQuery}
 										>
-											<ChartLoading>
+											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
 												<TurnPlayedBarChart
 													opponentClass={this.state.queryMap.opponentClass}
 													widthRatio={2}
@@ -280,16 +290,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
 										<DataInjector
 											dataManager={this.dataManager}
-											query={{
-												params: this.getParams(),
-												url: (
-													this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium
-													? "/analytics/query/single_card_stats_by_turn_and_opponent"
-													: "/analytics/query/single_card_stats_by_turn"
-												),
-											}}
+											query={turnStatsQuery}
 										>
-											<ChartLoading>
+											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
 												<WinrateByTurnLineChart
 													opponentClass={this.state.queryMap.opponentClass}
 													widthRatio={2}

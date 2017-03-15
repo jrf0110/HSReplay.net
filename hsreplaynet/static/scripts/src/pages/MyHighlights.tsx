@@ -53,7 +53,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 								dataManager={this.dataManager}
 								query={{url: "single_account_lo_lifetime_class_performance_over_time", params: {}}}
 							>
-								<ChartLoading minDataPoints={1}>
+								<ChartLoading noDataCondition={(data) => data.series[0].data.length < 1}>
 									<ClassArenaChart widthRatio={2}/>
 								</ChartLoading>
 							</DataInjector>
