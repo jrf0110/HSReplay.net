@@ -4,6 +4,7 @@ from django.http import Http404, HttpResponseForbidden, JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import condition
 from hsredshift.analytics import filters, queries
+from hsredshift.analytics.filters import Region
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from .processing import (
@@ -47,20 +48,35 @@ def _get_query_and_params(request, name):
 
 	if query.is_personalized:
 		if request.user and not request.user.is_fake:
+			supplied_params = request.GET.dict()
 
-			pegasus_account = request.user.pegasusaccount_set.first()
-			if pegasus_account:
-				supplied_params = request.GET.dict()
-				supplied_params["Region"] = pegasus_account.region.name
-				supplied_params["account_lo"] = pegasus_account.account_lo
-				personal_params = query.build_full_params(supplied_params)
+			if "Region" not in supplied_params:
+				default_pegasus_account = request.user.pegasusaccount_set.first()
 
-				if not user_is_eligible_for_query(request.user, query, personal_params):
+				if default_pegasus_account:
+					supplied_params["Region"] = default_pegasus_account.region.name
+					supplied_params["account_lo"] = default_pegasus_account.account_lo
+				else:
+					raise Http404("User does not have any Pegasus Accounts.")
+			else:
+				user_owns_pegasus_account = request.user.pegasusaccount_set.filter(
+					region__exact=int(supplied_params["Region"]),
+					account_lo__exact=int(supplied_params["account_lo"])
+				).exists()
+				if not user_owns_pegasus_account:
 					return HttpResponseForbidden()
 
-				return query, personal_params
-			else:
-				raise Http404("User does not have any Pegasus Accounts.")
+			if supplied_params["Region"].isdigit():
+				region_member = Region.from_int(int(supplied_params["Region"]))
+				supplied_params["Region"] = region_member.name
+
+			personal_params = query.build_full_params(supplied_params)
+
+			if not user_is_eligible_for_query(request.user, query, personal_params):
+				return HttpResponseForbidden()
+
+			return query, personal_params
+
 		else:
 			# Anonymous or Fake Users Can Never Request Personal Stats
 			return HttpResponseForbidden()
@@ -175,6 +191,7 @@ def _attempt_fetch_query_response_payload(query, params, run_local=False):
 	query_fetch_metric_fields.update(
 		params.supplied_non_filters_dict
 	)
+
 
 	influx.influx_metric(
 		"redshift_query_fetch",
