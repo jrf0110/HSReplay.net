@@ -15,11 +15,13 @@
 	{% block javascript %}{% endblock %}
 	{% block adsense %}{% endblock %}
 	{% endblock %}
+	{% block userdata %}
+	<script type="text/javascript">
+	_userdata = {{ userdata|default:"{}"|safe }}
+	</script>
+	{% endblock %}
 </head>
 <body{% if user.is_authenticated %} data-username="{{user.username}}"{% if premium %} data-premium="1"{% endif %}{% endif %}>
-	{% block metadata %}
-	<script type="text/javascript">_userdata = {{ userdata|default:"{}"|safe }}</script>
-	{% endblock %}
 
 	{% block body %}
 	{% endblock %}
