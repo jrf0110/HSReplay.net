@@ -1,11 +1,18 @@
-export interface UserDataProps {
-	accounts: any[];
+interface UserDataProps {
+	accounts: Account[];
 	battletag: string;
 	card_art_url: string;
 	groups: string[];
 	is_authenticated: boolean;
 	premium: boolean;
 	username: string;
+}
+
+interface Account {
+	display: string;
+	battletag: string;
+	region: number;
+	lo: number;
 }
 
 export default class UserData {
@@ -26,6 +33,13 @@ export default class UserData {
 
 	isAuthenticated(): boolean {
 		return this._userData && this._userData.is_authenticated;
+	}
+
+	getAccounts(): Account[] {
+		if (!this._userData) {
+			return [];
+		}
+		return this._userData.accounts;
 	}
 
 }
