@@ -3,14 +3,43 @@
 {% block title %}Choose a username{% endblock %}
 
 {% block content %}
+	{% with request.session.socialaccount_sociallogin.account as account %}
 	<h2>Sign up</h2>
-	<p>
-		Your Battle.net account does not appear to have a battletag yet.
-		You get to choose your own username!
-	</p>
-	<form action="" method="POST">
+	<hr/>
+	<form method="POST" action="">
 		{% csrf_token %}
-		{{ form.as_p }}
+		{% if account.extra_data.battletag %}
+			<p>
+				<input type="hidden" name="username" value="{{ account.extra_data.battletag }}"/>
+				Signing up with <strong>{{ account.extra_data.battletag|default:"Battle.net" }}</strong>.
+				<em>(You can change this later.)</em>
+			</p>
+		{% else %}
+			<p class="form-group{% if form.username.errors %} has-error{% endif %}">
+				<label>Username
+					<input type="text" name="username" minlength="4" maxlength="16" id="id_username" class="form-control"/>
+				</label>
+				{% if form.username.errors %}<small class="help-inline">{{ form.username.errors.0 }}</small>{% endif %}
+				<small class="form-text text-muted">
+					Your Battle.net account does not appear to have a battletag yet.
+					You get to choose your own username!
+				</small>
+			</p>
+		{% endif %}
+
+		<p class="form-group{% if form.email.errors %} has-error{% endif %}">
+			<label>E-mail
+				<input type="email" name="email" minlength="5" maxlength="16" placeholder="alice@example.org" id="id_email" class="form-control"/>
+			</label>
+			{% if form.email.errors %}<small class="help-inline">{{ form.email.errors.0 }}</small>{% endif %}
+			<small class="form-text text-muted">Used to recover your account and for occasional product updates. No spam! Your email is private and never shared with third parties.</small>
+		</p>
+
+		<p class="form-group">
+			<label><input type="checkbox" required/> I agree to the <a href="{% url 'terms_of_service' %}">Terms of Service</a></label>.
+		</p>
+
 		<input type="submit" value="Sign up" class="btn btn-primary"/>
 	</form>
+	{% endwith %}
 {% endblock %}

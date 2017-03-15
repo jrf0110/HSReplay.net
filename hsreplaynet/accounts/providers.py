@@ -3,13 +3,20 @@ from hsreplaynet.utils import log
 from hsreplaynet.utils.influx import influx_write_payload
 
 
+ALWAYS_CAPTURE_EMAILS = True
+
+
 class BattleNetAdapter(DefaultSocialAccountAdapter):
 	def is_auto_signup_allowed(self, request, sociallogin):
 		# Force users to pick a username if they don't have a battletag
 		battletag = sociallogin.account.extra_data.get("battletag")
 		if not battletag:
 			return False
-		return super().is_auto_signup_allowed(request, sociallogin)
+
+		if ALWAYS_CAPTURE_EMAILS:
+			return False
+		else:
+			return super().is_auto_signup_allowed(request, sociallogin)
 
 	def authentication_error(self, request, provider_id, error, exception, extra_context):
 		# Triggered upon social network login failure.
