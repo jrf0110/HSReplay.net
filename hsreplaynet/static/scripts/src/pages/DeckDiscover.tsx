@@ -16,6 +16,7 @@ import {
 	queryMapHasChanges, setLocationQueryString, setQueryMap,
 } from "../QueryParser";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
+import UserData from "../UserData";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -31,6 +32,7 @@ interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
 	cardData: CardData;
 	userIsAuthenticated: boolean;
 	userIsPremium: boolean;
+	user: UserData;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -143,7 +145,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			deck.mana_cost = manaCost(cards);
 			deckElements.push(deck);
 		};
-		if (this.state.queryMap.personal && this.props.userIsAuthenticated) {
+		if (this.state.queryMap.personal && this.props.user.hasFeature("profiles")) {
 			if (!this.dataManager.has("/decks/mine")) {
 				this.setState({loading: true});
 			}
@@ -250,7 +252,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			content = <h3 className="message-wrapper">Loading...</h3>;
 		}
 		else if (this.state.filteredDecks.length === 0) {
-			if (this.state.queryMap["personal"]) {
+			if (this.state.queryMap["personal"] && this.props.user.hasFeature("profiles")) {
 				content = (
 					<NoDecksMessage>
 						<button
@@ -318,11 +320,25 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			</button>
 		);
 
-		const personalDisabled = !this.props.userIsAuthenticated;
-
-		let loginLink = null;
-		if (!this.props.userIsAuthenticated) {
-			loginLink = <a className="infobox-value" href="/account/login/?next=/decks/">Log in</a>;
+		let personalFilters = null;
+		if (this.props.user.hasFeature("profiles")) {
+			let loginLink = null;
+			if (!this.props.userIsAuthenticated) {
+				loginLink = <a className="infobox-value" href="/account/login/?next=/decks/">Log in</a>;
+			}
+			personalFilters = [
+				<h2>Personal</h2>,
+				<InfoboxFilterGroup
+					deselectable
+					selectedValue={this.state.queryMap["personal"]}
+					onClick={(value) => setQueryMap(this, "personal", value)}
+				>
+					<InfoboxFilter value="true" disabled={!this.props.userIsAuthenticated}>
+						I have played (last 30 days)
+						{loginLink}
+					</InfoboxFilter>
+				</InfoboxFilterGroup>,
+			];
 		}
 
 		const selectedCards = (key: string) => {
@@ -380,17 +396,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						onCardsChanged={(cards) => setQueryMap(this, "excludedCards", cards.map((card) => card.dbfId).join(","))}
 						selectedCards={selectedCards("excludedCards")}
 					/>
-					<h2>Personal</h2>
-					<InfoboxFilterGroup
-						deselectable
-						selectedValue={this.state.queryMap["personal"]}
-						onClick={(value) => setQueryMap(this, "personal", value)}
-					>
-						<InfoboxFilter value="true" disabled={personalDisabled}>
-							I have played (last 30 days)
-							{loginLink}
-						</InfoboxFilter>
-					</InfoboxFilterGroup>
+					{personalFilters}
 					<h2>Mode</h2>
 					<InfoboxFilterGroup
 						selectedValue={this.state.queryMap["gameType"]}
