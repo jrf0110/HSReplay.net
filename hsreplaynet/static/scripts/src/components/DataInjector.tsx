@@ -57,14 +57,23 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 		});
 	}
 
+	paramsChanged(current: Query, next: Query) {
+		const nextKeys = Object.keys(next.params);
+		const currentKeys = Object.keys(current.params);
+		if (nextKeys.length !== currentKeys.length) {
+			return true;
+		}
+		return nextKeys.some((key) => currentKeys.indexOf(key) === -1
+			|| next.params[key] !== current.params[key]);
+	}
+
 	componentWillReceiveProps(nextProps: DataInjectorProps) {
 		const newStatus = Object.assign([], this.state.status);
 		const queue = [];
 		const allCurrent = this.getQueryArray(this.props);
 		this.getQueryArray(nextProps).forEach((query, index) => {
 			const current = allCurrent[index];
-			if (query.url !== current.url
-				|| Object.keys(query.params || {}).some((key) => query.params[key] !== current.params[key])
+			if (query.url !== current.url || current.key !== query.key || this.paramsChanged(current, query)
 				|| nextProps.fetchCondition !== this.props.fetchCondition) {
 				newStatus[index] = STATUS_LOADING;
 				queue.push(index);
