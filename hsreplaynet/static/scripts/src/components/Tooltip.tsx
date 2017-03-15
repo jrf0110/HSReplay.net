@@ -39,7 +39,14 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			}
 			const content = [];
 			this.props.header && content.push(<h4>{this.props.header}</h4>);
-			this.props.content && content.push(<p>{this.props.content}</p>);
+			if(this.props.content) {
+				if(typeof this.props.content === "string") {
+					content.push(<p>{this.props.content}</p>);
+				}
+				else {
+					content.push(this.props.content);
+				}
+			}
 			tooltip = <div className={tooltipClassNames.join(" ")}>{content}</div>;
 		}
 
