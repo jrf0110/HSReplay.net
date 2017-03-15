@@ -143,7 +143,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			deck.mana_cost = manaCost(cards);
 			deckElements.push(deck);
 		};
-		if (this.state.queryMap.personal) {
+		if (this.state.queryMap.personal && this.props.userIsAuthenticated) {
 			if (!this.dataManager.has("/decks/mine")) {
 				this.setState({loading: true});
 			}

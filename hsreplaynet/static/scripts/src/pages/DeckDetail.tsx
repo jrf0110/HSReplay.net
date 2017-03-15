@@ -65,9 +65,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			sortDirection: "ascending",
 		};
 
-		this.dataManager.get("/decks/mine/", {}).then((data) => {
-			this.setState({hasPeronalData: data && data[this.props.deckId] !== undefined});
-		});
+		if (this.props.userIsAuthenticated) {
+			this.dataManager.get("/decks/mine/", {}).then((data) => {
+				this.setState({hasPeronalData: data && data[this.props.deckId] !== undefined});
+			});
+		}
 	}
 
 	render(): JSX.Element {
