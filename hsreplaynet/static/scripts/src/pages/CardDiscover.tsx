@@ -579,8 +579,15 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		}
 
+		let timeFrame = null;
 		if (viewType === "personal") {
 			filters.push(modeFilter);
+			timeFrame = (
+				<li>
+					Time frame
+					<span className="infobox-value">Last 30 days</span>
+				</li>
+			);
 		}
 
 		if (viewType === "statistics" || viewType === "personal") {
@@ -592,6 +599,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						url={"single_account_lo_individual_card_stats"}
 						params={{}}
 					/>
+					{timeFrame}
 				</ul>,
 				<InfoboxFilterGroup
 					deselectable
