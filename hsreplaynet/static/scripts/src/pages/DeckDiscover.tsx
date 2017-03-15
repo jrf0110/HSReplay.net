@@ -30,8 +30,6 @@ interface DeckDiscoverState {
 
 interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
 	cardData: CardData;
-	userIsAuthenticated: boolean;
-	userIsPremium: boolean;
 	user: UserData;
 }
 
@@ -81,7 +79,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 
 	getAllowedValues(): any {
-		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
+		return this.props.user.isPremium() ? this.allowedValuesPremium : this.allowedValues;
 	}
 
 	componentDidUpdate(prevProps: DeckDiscoverProps, prevState: DeckDiscoverState) {
@@ -323,7 +321,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		let personalFilters = null;
 		if (this.props.user.hasFeature("profiles")) {
 			let loginLink = null;
-			if (!this.props.userIsAuthenticated) {
+			if (!this.props.user.isAuthenticated()) {
 				loginLink = <a className="infobox-value" href="/account/login/?next=/decks/">Log in</a>;
 			}
 			personalFilters = [
@@ -333,7 +331,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					selectedValue={this.state.queryMap["personal"]}
 					onClick={(value) => setQueryMap(this, "personal", value)}
 				>
-					<InfoboxFilter value="true" disabled={!this.props.userIsAuthenticated}>
+					<InfoboxFilter value="true" disabled={!this.props.user.isAuthenticated()}>
 						I have played (last 30 days)
 						{loginLink}
 					</InfoboxFilter>
@@ -368,7 +366,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 					/>
 					<PremiumWrapper
-						isPremium={this.props.userIsPremium}
+						isPremium={this.props.user.isPremium()}
 						infoHeader="Winrate by opponent"
 						infoContent="See at a glance how various decks perform against a specific class!"
 					>
@@ -379,7 +377,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							minimal
 							multiSelect={false}
 							selectedClasses={[queryMap["opponentClass"] as FilterOption]}
-							selectionChanged={(selected) => this.props.userIsPremium && setQueryMap(this, "opponentClass", selected[0])}
+							selectionChanged={(selected) => this.props.user.isPremium() && setQueryMap(this, "opponentClass", selected[0])}
 						/>
 					</PremiumWrapper>
 					<h2>Include cards</h2>
@@ -406,13 +404,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						<InfoboxFilter value="RANKED_WILD">Wild</InfoboxFilter>
 					</InfoboxFilterGroup>
 					<PremiumWrapper
-						isPremium={this.props.userIsPremium}
+						isPremium={this.props.user.isPremium()}
 						infoHeader="Time frame"
 						infoContent="Want to see what decks are hot right now? Look at data from a time frame of your choosing!"
 					>
 						<h2>Time frame</h2>
 						<InfoboxFilterGroup
-							locked={!this.props.userIsPremium}
+							locked={!this.props.user.isPremium()}
 							selectedValue={this.state.queryMap["timeRange"]}
 							onClick={(value) => setQueryMap(this, "timeRange", value)}
 						>
@@ -423,13 +421,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
 					<PremiumWrapper
-						isPremium={this.props.userIsPremium}
+						isPremium={this.props.user.isPremium()}
 						infoHeader="Rank range"
 						infoContent="Ready to climb the ladder? Check out how decks perform in the higher ranks!"
 					>
 						<h2>Rank range</h2>
 						<InfoboxFilterGroup
-							locked={!this.props.userIsPremium}
+							locked={!this.props.user.isPremium()}
 							selectedValue={this.state.queryMap["rankRange"]}
 							onClick={(value) => setQueryMap(this, "rankRange", value)}
 						>
@@ -462,7 +460,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 
 	getQueryName(): string {
-		return this.props.userIsPremium ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
+		return this.props.user.isPremium() ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
 	}
 
 	getParams(): any {
