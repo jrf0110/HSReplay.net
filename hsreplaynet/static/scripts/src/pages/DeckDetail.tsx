@@ -81,6 +81,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			});
 		}
 
+		const premiumMulligan = this.state.selectedClasses[0] !== "ALL" && this.props.userIsAuthenticated;
+
 		return <div className="deck-detail-container">
 			<aside className="infobox">
 				<img
@@ -202,19 +204,28 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								<DataInjector
 									dataManager={this.dataManager}
 									fetchCondition={this.isWildDeck() !== undefined}
-									query={{
-										params: this.getParams(true),
-										url: (
-											this.state.selectedClasses[0] !== "ALL" && this.props.userIsPremium
-											? "single_deck_mulligan_guide_by_class"
-											: "single_deck_mulligan_guide"
-										),
-									}}
+									query={[
+										{
+											key: "mulliganData",
+											params: this.getParams(true),
+											url: premiumMulligan ? "single_deck_mulligan_guide_by_class" : "single_deck_mulligan_guide",
+										},
+										{
+											key: premiumMulligan ? "opponentWinrateData" : "winrateData",
+											params: {GameType: this.gameType(), deck_id: premiumMulligan ? this.props.deckId : null},
+											url: premiumMulligan ? "single_deck_base_winrate_by_opponent_class" : "list_decks_by_win_rate",
+										},
+									]}
 								>
-									<TableLoading cardData={this.props.cardData}>
+									<TableLoading
+										cardData={this.props.cardData}
+										dataKeys={["mulliganData", premiumMulligan ? "opponentWinrateData" : "winrateData"]}
+									>
 										<DeckBreakdownTable
 											dataKey={this.state.selectedClasses[0]}
+											deckId={this.props.deckId}
 											onSortChanged={(sortBy: string, sortDirection: SortDirection) => this.setState({sortBy, sortDirection})}
+											playerClass={this.props.deckClass}
 											rawCardsList={this.props.deckCards}
 											sortBy={this.state.sortBy}
 											sortDirection={this.state.sortDirection}

@@ -7,13 +7,17 @@ import DeckBreakdownTableRow from "./DeckBreakdownTableRow";
 
 interface DeckBreakdownTableProps extends React.ClassAttributes<DeckBreakdownTable> {
 	cardData?: CardData;
-	data?: TableData;
 	dataKey: string;
+	deckId: number;
+	mulliganData?: TableData;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
+	playerClass: string;
 	rawCardsList: string;
 	sortBy: string;
 	sortDirection: SortDirection;
 	wildDeck: boolean;
+	opponentWinrateData?: TableData;
+	winrateData?: TableData;
 }
 
 export default class DeckBreakdownTable extends React.Component<DeckBreakdownTableProps, void> {
@@ -24,19 +28,16 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 		groupedCards.forEach((count, dbfId) => cardList.push({card: this.props.cardData.fromDbf(dbfId), count}));
 
 		let rows = null;
-		let baseMulliganWinrate = 0;
 		let baseDrawnWinrate = 0;
 		let basePlayedWinrate = 0;
-		rows = this.props.data.series.data[this.props.dataKey];
+		rows = this.props.mulliganData.series.data[this.props.dataKey];
 
 		if (rows) {
 			const validRows = rows.filter((row) => row);
 			validRows.forEach((row) => {
-				baseMulliganWinrate += +row["opening_hand_win_rate"];
 				baseDrawnWinrate += +row["win_rate_when_drawn"];
 				basePlayedWinrate += +row["win_rate_when_played"];
 			});
-			baseMulliganWinrate /= validRows.length;
 			baseDrawnWinrate /= validRows.length;
 			basePlayedWinrate /= validRows.length;
 		}
@@ -56,12 +57,24 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 			rowList.sort((a, b) => (+a.row[this.props.sortBy] - +b.row[this.props.sortBy]) * direction);
 		}
 
+		let baseWinrate = 50;
+		if (this.props.winrateData) {
+			const deck = this.props.winrateData.series.data[this.props.playerClass]
+				.find((x) => +x.deck_id === this.props.deckId);
+			if (deck) {
+				baseWinrate = +deck.win_rate;
+			}
+		}
+		else if (this.props.opponentWinrateData) {
+			baseWinrate = +this.props.opponentWinrateData.series.data[this.props.dataKey][0].win_rate;
+		}
+
 		rowList.forEach((item, index) => {
 			cardRows.push(
 				<DeckBreakdownTableRow
 					cardObj={item.cardObj}
 					baseDrawnWinrate={baseDrawnWinrate}
-					baseMulliganWinrate={baseMulliganWinrate}
+					baseMulliganWinrate={baseWinrate}
 					basePlayedWinrate={basePlayedWinrate}
 					row={item.row}
 					wildDeck={this.props.wildDeck}
