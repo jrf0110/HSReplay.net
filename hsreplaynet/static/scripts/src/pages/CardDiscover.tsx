@@ -272,15 +272,26 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			queryMap.sortDirection = newSortDirection;
 			this.setState({queryMap});
 		};
+
+		const showMoreButton = (
+			<div id="more-button-wrapper">
+				<button
+					type="button"
+					className="btn btn-default"
+					onClick={() => this.setState({numCards: this.state.numCards + 20})}
+				>
+					Show more...
+				</button>
+			</div>
+		);
+
 		if (viewType === "personal") {
+			const params = {GameType: this.state.queryMap.gameType || this.defaultQueryMap.gameType};
 			content.push(
 				<div className="table-wrapper">
 					<DataInjector
 						dataManager={this.dataManager}
-						query={{
-							params: {GameType: this.state.queryMap.gameType || this.defaultQueryMap.gameType},
-							url: "single_account_lo_individual_card_stats",
-						}}
+						query={{params, url: "single_account_lo_individual_card_stats"}}
 					>
 						<TableLoading cardData={this.props.cardData}>
 							<MyCardStatsTable
@@ -294,6 +305,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</DataInjector>
 				</div>,
 			);
+			if (this.dataManager.has("single_account_lo_individual_card_stats", params)) {
+				content.push(showMoreButton);
+			}
 		}
 		else if (viewType === "statistics") {
 			content.push(
@@ -319,6 +333,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</DataInjector>
 				</div>,
 			);
+			if (this.dataManager.has("card_played_popularity_report", this.getParams())
+				&& this.dataManager.has("card_included_popularity_report", this.getParams())) {
+				content.push(showMoreButton);
+			}
 		}
 		else {
 			const tiles = [];
@@ -339,19 +357,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					{tiles}
 				</div>,
 			);
-		}
-		if (this.state.filteredCards && this.state.filteredCards.length > this.state.numCards) {
-			content.push(
-				<div id="more-button-wrapper">
-					<button
-						type="button"
-						className="btn btn-default"
-						onClick={() => this.setState({numCards: this.state.numCards + 20})}
-					>
-						Show more...
-					</button>
-				</div>,
-			);
+			if (this.state.filteredCards.length > this.state.numCards) {
+				content.push(showMoreButton);
+			}
 		}
 
 		let search = null;
