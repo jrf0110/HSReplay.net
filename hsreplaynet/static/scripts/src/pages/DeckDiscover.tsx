@@ -9,7 +9,7 @@ import NoDecksMessage from "../components/NoDecksMessage";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import { cardSorting, getDustCost } from "../helpers";
+import { cardSorting, getDustCost, wildSets } from "../helpers";
 import { DeckObj } from "../interfaces";
 import {
 	getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, QueryMap,
@@ -346,6 +346,21 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			return queryMap[key].split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId));
 		};
 
+		let filteredCards = Array.isArray(this.state.cards) ? this.state.cards : [];
+		const gameType = this.state.queryMap.gameType;
+		if (gameType.endsWith("_STANDARD")) {
+			filteredCards = filteredCards.filter((card) => {
+				return wildSets.indexOf(card.set) === -1;
+			})
+		}
+		const playerClass = this.state.queryMap.playerClass;
+		if (playerClass !== "ALL") {
+			filteredCards = filteredCards.filter((card) => {
+				const cardClass = card.cardClass;
+				return cardClass === "NEUTRAL" || cardClass === playerClass;
+			})
+		}
+
 		return (
 			<div className="deck-discover">
 				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
@@ -383,14 +398,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<h2>Include cards</h2>
 					<CardSearch
 						key={"cardinclude" + this.state.cardSearchIncludeKey}
-						availableCards={this.state.cards}
+						availableCards={filteredCards}
 						onCardsChanged={(cards) => setQueryMap(this, "includedCards", cards.map((card) => card.dbfId).join(","))}
 						selectedCards={selectedCards("includedCards")}
 					/>
 					<h2>Exclude cards</h2>
 					<CardSearch
 						key={"cardexclude" + this.state.cardSearchExcludeKey}
-						availableCards={this.state.cards}
+						availableCards={filteredCards}
 						onCardsChanged={(cards) => setQueryMap(this, "excludedCards", cards.map((card) => card.dbfId).join(","))}
 						selectedCards={selectedCards("excludedCards")}
 					/>
