@@ -82,6 +82,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		const premiumMulligan = this.state.selectedClasses[0] !== "ALL" && this.props.user.isAuthenticated();
+		let myStatsHeader =  null;
+		let myStatsContent = null;
+		if (this.props.user.hasFeature("profiles")) {
+			myStatsHeader = <li><a data-toggle="tab" href="#my-stats">My stats</a></li>;
+			myStatsContent = <div id="my-stats" className="tab-pane fade">{this.getMyStats()}</div>;
+		}
 
 		return <div className="deck-detail-container">
 			<aside className="infobox">
@@ -196,7 +202,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<ul className="nav nav-tabs content-tabs">
 						<li className="active"><a data-toggle="tab" href="#deck-breakdown">Deck breakdown</a></li>
 						<li><a data-toggle="tab" href="#similar-decks">Similar decks</a></li>
-						<li><a data-toggle="tab" href="#my-stats">My stats</a></li>
+						{myStatsHeader}
 					</ul>
 					<div className="tab-content">
 						<div id="deck-breakdown" className="tab-pane fade in active">
@@ -250,9 +256,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</TableLoading>
 							</DataInjector>
 						</div>
-						<div id="my-stats" className="tab-pane fade">
-							{this.getMyStats()}
-						</div>
+						{myStatsContent}
 					</div>
 				</section>
 			</main>
