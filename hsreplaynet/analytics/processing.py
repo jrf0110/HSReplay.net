@@ -442,7 +442,6 @@ def warm_redshift_cache_for_user_context(context):
 
 def fill_redshift_cache_warming_queue(eligible_queries=None):
 	run_local_warm_global_queries(eligible_queries)
-	# fill_global_query_queue(eligible_queries)
 	from hsreplaynet.billing.utils import (
 		get_premium_cache_warming_contexts_from_subscriptions
 	)
@@ -459,8 +458,11 @@ def fill_global_query_queue(eligible_queries=None):
 
 def run_local_warm_global_queries(eligible_queries=None):
 	messages = get_global_queries_for_cache_warming(eligible_queries)
-	stales_queries = filter_freshly_cached_queries(messages)
-	for msg in stales_queries:
+	log.info("Generated %i global query permutations for cache warming." % len(messages))
+	stale_queries = filter_freshly_cached_queries(messages)
+	msg = "%i permutations remain after filtering fresh queries" % len(stale_queries)
+	log.info(msg)
+	for msg in stale_queries:
 		query = queries.get_query(msg["query_name"])
 		params = query.build_full_params(msg["supplied_parameters"])
 		execute_query(query, params, run_local=True)
@@ -472,8 +474,11 @@ def fill_personalized_query_queue(contexts, eligible_queries=None):
 		contexts,
 		eligible_queries
 	)
-	stales_queries = filter_freshly_cached_queries(messages)
-	write_messages_to_queue(queue_name, stales_queries)
+	log.info("Generated %i personalized permutations for cache warming." % len(messages))
+	stale_queries = filter_freshly_cached_queries(messages)
+	msg = "%i personalized perms remain after filtering fresh queries" % len(stale_queries)
+	log.info(msg)
+	write_messages_to_queue(queue_name, stale_queries)
 
 
 def _permutation_matches_game_types(perm, game_types):
@@ -486,7 +491,8 @@ def _permutation_matches_game_types(perm, game_types):
 def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None):
 	queries = []
 	for query in RedshiftCatalogue.instance().personalized_queries:
-		if eligible_queries is None or query.name in eligible_queries:
+		is_eligible = eligible_queries is None or query.name in eligible_queries
+		if query.cache_warming_enabled and is_eligible:
 			for permutation in query.generate_personalized_parameter_permutation_bases():
 				# Each permutation will still be missing a Region and account_lo value
 				for ctx in contexts:
@@ -549,7 +555,8 @@ def filter_freshly_cached_queries(messages):
 def get_global_queries_for_cache_warming(eligible_queries=None):
 	queries = []
 	for query in RedshiftCatalogue.instance().global_queries:
-		if eligible_queries is None or query.name in eligible_queries:
+		is_eligible = eligible_queries is None or query.name in eligible_queries
+		if query.cache_warming_enabled and is_eligible:
 			for permutation in query.generate_cachable_parameter_permutations():
 				queries.append({
 					"query_name": query.name,
