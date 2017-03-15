@@ -158,7 +158,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</DataInjector>
 				<DataInjector
 					dataManager={this.dataManager}
-					fetchCondition={this.isWildDeck() !== undefined}
+					fetchCondition={this.props.user.hasFeature("profiles") && this.isWildDeck() !== undefined}
 					query={{url: "/decks/mine/", params: {}}}
 				>
 					<HideLoading>
