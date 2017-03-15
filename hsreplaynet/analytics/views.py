@@ -34,6 +34,9 @@ def release_semaphore(request, name):
 
 def fetch_query_result_as_of(request, name):
 	query, params = _get_query_and_params(request, name)
+	if isinstance(query, HttpResponseForbidden):
+		return None
+
 	as_of_ts = get_redshift_cache().get(params.cache_key_as_of)
 	if as_of_ts:
 		return CachedRedshiftResult.ts_to_datetime(as_of_ts)
@@ -64,7 +67,7 @@ def _get_query_and_params(request, name):
 					account_lo__exact=int(supplied_params["account_lo"])
 				).exists()
 				if not user_owns_pegasus_account:
-					return HttpResponseForbidden()
+					return HttpResponseForbidden(), None
 
 			if supplied_params["Region"].isdigit():
 				region_member = Region.from_int(int(supplied_params["Region"]))
@@ -73,18 +76,18 @@ def _get_query_and_params(request, name):
 			personal_params = query.build_full_params(supplied_params)
 
 			if not user_is_eligible_for_query(request.user, query, personal_params):
-				return HttpResponseForbidden()
+				return HttpResponseForbidden(), None
 
 			return query, personal_params
 
 		else:
 			# Anonymous or Fake Users Can Never Request Personal Stats
-			return HttpResponseForbidden()
+			return HttpResponseForbidden(), None
 	else:
 
 		params = query.build_full_params(request.GET)
 		if not user_is_eligible_for_query(request.user, query, params):
-			return HttpResponseForbidden()
+			return HttpResponseForbidden(), None
 
 		return query, params
 
@@ -93,6 +96,9 @@ def _get_query_and_params(request, name):
 @condition(last_modified_func=fetch_query_result_as_of)
 def fetch_query_results(request, name):
 	query, params = _get_query_and_params(request, name)
+	if isinstance(query, HttpResponseForbidden):
+		return query
+
 	return _fetch_query_results(query, params)
 
 
