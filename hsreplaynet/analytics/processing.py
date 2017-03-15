@@ -14,7 +14,7 @@ from sqlalchemy.pool import NullPool
 from hsredshift.analytics import queries
 from hsredshift.analytics.library.base import RedshiftQueryParams
 from hsredshift.analytics.queries import RedshiftCatalogue
-from hsreplaynet.utils import log
+from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils.aws.sqs import write_messages_to_queue
 from hsreplaynet.utils.influx import influx_metric
@@ -143,6 +143,22 @@ class CachedRedshiftResult(object):
 			)
 		else:
 			log.info("Using the response payload already available in the cache")
+
+		staleness = (timezone.now() - self.as_of_datetime).total_seconds()
+		query_fetch_metric_fields = {
+			"count": 1,
+			"staleness": int(staleness)
+		}
+		query_fetch_metric_fields.update(
+			self.cached_params.supplied_non_filters_dict
+		)
+
+		influx.influx_metric(
+			"redshift_response_payload_staleness",
+			query_fetch_metric_fields,
+			query_name=self.cached_params._query.name,
+			**self.cached_params.supplied_filters_dict
+		)
 		return self.response_payload
 
 	def create_from_global_data(self, params):

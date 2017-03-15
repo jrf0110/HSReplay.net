@@ -192,7 +192,6 @@ def _attempt_fetch_query_response_payload(query, params, run_local=False):
 		params.supplied_non_filters_dict
 	)
 
-
 	influx.influx_metric(
 		"redshift_query_fetch",
 		query_fetch_metric_fields,
