@@ -579,6 +579,10 @@ export function slangToCardId(slang: string): string|null {
 			return "EX1_005";
 		case "bok": // Blessing of Kings
 			return "CS2_092";
+		case "bom": // Blessing of Might
+			return "CS2_087e";
+		case "coh": // Circle of Healing
+			return "EX1_621";
 		case "dr6": // Mysterious Challenger
 			return "AT_079";
 		case "dr7": // Dr. Boom
@@ -589,8 +593,14 @@ export function slangToCardId(slang: string): string|null {
 			return "EX1_246";
 		case "yogg": // Yogg-Saron, Hope's End
 			return "OG_134";
+		case "kc": // Kill Command
+			return "EX1_539";
 		case "mct": // Mind Control Tech
 			return "EX1_085";
+		case "poly": // Polymorph
+			return "CS2_022";
+		case "prep": // Preparation
+			return "EX1_145";
 		case "rag": // Ragnaros the Firelord
 			return "EX1_298";
 		case "reno": // Reno Jackson
