@@ -1,22 +1,23 @@
 import * as React from "react";
-import CardList from "./CardList"
-import {GameReplay, GlobalGamePlayer} from "../interfaces"
+import CardList from "./CardList";
+import {GameReplay, GlobalGamePlayer} from "../interfaces";
 import HearthstoneJSON from "hearthstonejson";
+import UserData from "../UserData";
 
 interface PlayerInfoProps extends React.ClassAttributes<PlayerInfo> {
-	gameId: string;
-	playerName: string;
-	opponentName: string;
 	build: number;
-	featureCardDb: boolean;
+	gameId: string;
+	opponentName: string;
+	playerName: string;
+	user: UserData;
 }
 
 interface PlayerInfoState {
+	db?: Map<string, any>;
+	game?: GameReplay;
+	loadingDb?: boolean;
 	showOpponentDeck?: boolean;
 	showPlayerDeck?: boolean;
-	db?: Map<string, any>;
-	loadingDb?: boolean;
-	game?: GameReplay;
 }
 
 export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerInfoState> {
@@ -24,11 +25,11 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	constructor(props: PlayerInfoProps, context: any) {
 		super(props, context);
 		this.state = {
-			showPlayerDeck: false,
-			showOpponentDeck: false,
-			loadingDb: false,
 			db: null,
-			game: null
+			game: null,
+			loadingDb: false,
+			showOpponentDeck: false,
+			showPlayerDeck: false,
 		};
 		if (this.props.build) {
 			this.loadDb();
@@ -45,18 +46,18 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 		let build = this.props.build || this.state.game && this.state.game.global_game.build;
 		if (!build) {
 			if (this.state.game) {
-				this.setState({loadingDb: true})
+				this.setState({loadingDb: true});
 				new HearthstoneJSON().getLatest((cards) => this.buildDb(cards));
 			}
 			return;
 		}
-		this.setState({loadingDb: true})
+		this.setState({loadingDb: true});
 		new HearthstoneJSON().get(build, (cards) => this.buildDb(cards));
 	}
 
 	private buildDb(cards: any) {
 		let map = new Map<string, any>();
-		cards.forEach(card => map = map.set(card.id, card));
+		cards.forEach((card) => map = map.set(card.id, card));
 		this.setState({db: map, loadingDb: false});
 	}
 
@@ -67,7 +68,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 			return response.json();
 		}).then((json: any) => {
 			this.setState({
-				game: json
+				game: json,
 			});
 		}).then(() => {
 			if (!this.state.db && !this.state.loadingDb) {
@@ -77,21 +78,24 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	}
 
 	render(): JSX.Element {
-		let opponentClass = null;;
+		let opponentClass = null; ;
 		let playerClass = null;
 		let playerDeck = [];
 		let opponentDeck = [];
 
 		if (this.state.game) {
 			playerClass = this.buildPlayerClass(this.state.game.friendly_player);
-			opponentClass = this.buildPlayerClass(this.state.game.opposing_player)
+			opponentClass = this.buildPlayerClass(this.state.game.opposing_player);
 			if (this.state.game.opposing_deck.cards) {
 				opponentDeck.push(
-					<a className={opponentClass.join(" ")} onClick={() => this.setState({showOpponentDeck: !this.state.showOpponentDeck})}>
+					<a
+						className={opponentClass.join(" ")}
+						onClick={() => this.setState({showOpponentDeck: !this.state.showOpponentDeck})}
+					>
 						{this.state.showOpponentDeck ? "Hide" : "Show"} deck
-					</a>
+					</a>,
 				);
-				if(this.state.showOpponentDeck) {
+				if (this.state.showOpponentDeck) {
 					const deckClass = this.toTitleCase(this.state.game.opposing_player.hero_class_name);
 					opponentDeck.push(
 						<CardList
@@ -101,8 +105,8 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							name={this.state.game.opposing_player.name + "'s " + deckClass}
 							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
 							id={1}
-							clickable={this.props.featureCardDb}
-							/>
+							clickable={this.props.user.hasFeature("carddb")}
+						/>,
 					);
 				}
 			}
@@ -110,9 +114,9 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 				playerDeck.push(
 					<a className={playerClass.join(" ")} onClick={() => this.setState({showPlayerDeck: !this.state.showPlayerDeck})}>
 						{this.state.showPlayerDeck ? "Hide" : "Show"} deck
-					</a>
+					</a>,
 				);
-				if(this.state.showPlayerDeck) {
+				if (this.state.showPlayerDeck) {
 					const deckClass = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
 					playerDeck.push(
 						<CardList
@@ -122,8 +126,8 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							name={this.state.game.friendly_player.name + "'s " + deckClass}
 							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
 							id={2}
-							clickable={this.props.featureCardDb}
-						/>
+							clickable={this.props.user.hasFeature("carddb")}
+						/>,
 					);
 				}
 			}
@@ -152,10 +156,10 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 			return playerClass;
 		}
 		if (player.is_ai) {
-			playerClass.push("player-ai")
+			playerClass.push("player-ai");
 		}
 		if (player.is_first) {
-			playerClass.push("first-player")
+			playerClass.push("first-player");
 		}
 		return playerClass;
 	}

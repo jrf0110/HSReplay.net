@@ -11,6 +11,7 @@ import VisibilityDropdown from "../components/VisibilityDropdown";
 import {Visibility} from "../interfaces";
 import DeleteReplayButton from "../components/DeleteReplayButton";
 import PlayerInfo from "../components/PlayerInfo";
+import UserData from "../UserData";
 
 // add Django CSRF token to jQuery.ajax
 jQueryCSRF.init();
@@ -108,6 +109,7 @@ if (deleteTarget) {
 
 // Player info
 const playerInfo = document.getElementById("infobox-players-container");
+const user = new UserData();
 if (playerInfo) {
 	const gameId = playerInfo.getAttribute("data-game-id");
 	const playerName = playerInfo.getAttribute("data-player-name");
@@ -116,7 +118,7 @@ if (playerInfo) {
 	const featureCardDb = playerInfo.getAttribute("data-feature-carddb") === "1";
 	ReactDOM.render(
 		<PlayerInfo gameId={gameId} playerName={playerName} opponentName={opponentName}
-					build={build} featureCardDb={featureCardDb}/>,
+					build={build} user={user}/>,
 		playerInfo
 	);
 }
