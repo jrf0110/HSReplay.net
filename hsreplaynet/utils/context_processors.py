@@ -16,5 +16,13 @@ def userdata(request):
 		data["username"] = request.user.username
 		data["battletag"] = request.user.battletag
 		data["premium"] = request.user.is_premium
+		data["accounts"] = []
+		for acc in request.user.pegasusaccount_set.all():
+			data["accounts"].append({
+				"lo": acc.account_lo,
+				"battletag": acc.battletag,
+				"region": acc.region,
+				"display": str(acc),
+			})
 
 	return {"userdata": json.dumps(data, cls=DjangoJSONEncoder)}
