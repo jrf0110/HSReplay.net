@@ -124,7 +124,7 @@
 								</script>
 							{% endif %}
 
-							{% feature "carddb" as ft_profiles %}{% if ft_profiles.enabled %}
+							{% feature "profiles" as ft_profiles %}{% if ft_profiles.enabled %}
 								<li{% nav_active 'profile_highlights' %}><a href="{% url 'profile_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
 							{% endif %}
 							{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
