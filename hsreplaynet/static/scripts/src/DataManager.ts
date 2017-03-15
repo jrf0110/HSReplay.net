@@ -6,7 +6,13 @@ export default class DataManager {
 
 	private genCacheKey(url: string, params: any): string {
 		const paramStrings = [];
-		Object.keys(params).forEach((key) => paramStrings.push(key + params[key]));
+		Object.keys(params).forEach((key) => {
+			const value = params[key];
+			if (value !== undefined && value !== null) {
+				paramStrings.push(key + value);
+			}
+		});
+
 		return url + paramStrings.sort().join("");
 	}
 
