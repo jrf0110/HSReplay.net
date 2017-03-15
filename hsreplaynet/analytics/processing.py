@@ -22,7 +22,14 @@ from hsreplaynet.utils.influx import influx_metric
 
 class CachedRedshiftResult(object):
 
-	def __init__(self, result_set, params, is_json=False, as_of=None):
+	def __init__(
+		self,
+		result_set,
+		params,
+		is_json=False,
+		as_of=None,
+		response_payload=None
+	):
 		self.result_set = result_set
 		self.cached_params = params
 		self.is_json = is_json
@@ -31,20 +38,23 @@ class CachedRedshiftResult(object):
 		else:
 			self.as_of = None
 
+		self.response_payload = response_payload
+		self._global_cache_data = None
+
 	def to_json_cacheable_repr(self):
-		return {
+		cacheable_repr = {
 			"result_set": self.result_set,
+			"response_payload": self.response_payload,
 			"as_of": self.as_of,
 			"is_json": self.is_json,
 			"cached_params": self.cached_params.to_json_cacheable_repr()
 		}
+		return cacheable_repr
 
 	@classmethod
 	def from_json_cacheable_repr(cls, r):
-		if "result_set" in r:
-			result_data = r["result_set"]
-		else:
-			result_data = r["response_payload"]
+		result_set = r["result_set"]
+		response_payload = r.get("response_payload", None)
 
 		params = RedshiftQueryParams.from_json_cacheable_repr(r["cached_params"])
 
@@ -56,10 +66,11 @@ class CachedRedshiftResult(object):
 			as_of = None
 
 		return CachedRedshiftResult(
-			result_data,
+			result_set,
 			params,
 			is_json,
-			as_of
+			as_of,
+			response_payload
 		)
 
 	@classmethod
@@ -72,6 +83,100 @@ class CachedRedshiftResult(object):
 			return self.ts_to_datetime(self.as_of)
 		else:
 			return None
+
+	@property
+	def global_cache_data(self):
+		if not self.cached_params._query.global_query:
+			raise RuntimeError("Cannot access global data for non global query")
+
+		if not self._global_cache_data:
+			self._global_cache_data = get_from_redshift_cache(
+				self.cached_params.global_cache_key
+			)
+		return self._global_cache_data
+
+	def to_response_payload(self, refresh_from_global=False):
+		msg = "response_payload requested. refresh_from_global=%s" % refresh_from_global
+		log.info(msg)
+
+		if not self.response_payload or refresh_from_global:
+			log.info("Constructing response_payload")
+
+			if self.cached_params._query.global_query:
+				log.info("Using global query logic")
+				# This block implements generating response_payloads
+				# By using the global cached data.
+
+				response_payload = self.cached_params._query.to_response_payload(
+					self.global_cache_data.result_set,
+					self.global_cache_data.cached_params,
+					from_result_set_json=self.is_json
+				)
+				self.as_of = self.global_cache_data.as_of
+				self.cached_params = self.global_cache_data.cached_params
+
+			else:
+				log.info("Using non global query logic")
+				# This block does it for non global queries
+				# For non global queries the result_set will be set on this
+				# object, so we can use self.result_set directly
+				response_payload = self.cached_params._query.to_response_payload(
+					self.result_set,
+					self.cached_params,
+					from_result_set_json=self.is_json
+				)
+
+			response_payload["as_of"] = self.as_of_datetime.isoformat()
+			self.response_payload = response_payload
+
+			# We must update the cache here now that we have a response payload
+			get_redshift_cache().set(
+				self.cached_params.cache_key,
+				self.to_json_cacheable_repr(),
+				timeout=None
+			)
+
+			get_redshift_cache().set(
+				self.cached_params.cache_key_as_of,
+				self.as_of,
+				timeout=None
+			)
+		else:
+			log.info("Using the response payload already available in the cache")
+		return self.response_payload
+
+	def create_from_global_data(self, params):
+		response_payload = self.cached_params._query.to_response_payload(
+			self.result_set,
+			params,
+			from_result_set_json=self.is_json
+		)
+		response_payload["as_of"] = self.as_of_datetime.isoformat()
+
+		cache_ready_result = CachedRedshiftResult(
+			None,
+			params,
+			is_json=True,
+			as_of=self.as_of_datetime,
+			response_payload=response_payload
+		)
+
+		get_redshift_cache().set(
+			params.cache_key,
+			cache_ready_result.to_json_cacheable_repr(),
+			timeout=None
+		)
+
+		get_redshift_cache().set(
+			params.cache_key_as_of,
+			cache_ready_result.as_of,
+			timeout=None
+		)
+		return cache_ready_result
+
+	def has_fresh_global_data(self, params):
+		is_stale, num_seconds = self.global_cache_data.cached_params.are_stale(params)
+		return not is_stale
 
 
 def enqueue_query(query, params):
@@ -200,18 +305,41 @@ def _do_execute_query_work(query, params, wlm_queue=None):
 				**params.supplied_filters_dict
 			)
 
-		cache_ready_result = CachedRedshiftResult(
-			result_set,
-			params,
-			is_json=True,
-			as_of=cached_data_as_of
-		)
+		if query.global_query:
+			# For global queries don't set the result set on the object directly
+			# Because it can be large, we cache it separately so we don't have to
+			# load it every time we access the object
+			cache_ready_result = CachedRedshiftResult(
+				None,
+				params,
+				is_json=True,
+				as_of=cached_data_as_of
+			)
 
-		cache_data = cache_ready_result.to_json_cacheable_repr()
+			cache_ready_global_result = CachedRedshiftResult(
+				result_set,
+				params,
+				is_json=True,
+				as_of=cached_data_as_of
+			)
+
+			get_redshift_cache().set(
+				params.global_cache_key,
+				cache_ready_global_result.to_json_cacheable_repr(),
+				timeout=None
+			)
+
+		else:
+			cache_ready_result = CachedRedshiftResult(
+				result_set,
+				params,
+				is_json=True,
+				as_of=cached_data_as_of
+			)
 
 		get_redshift_cache().set(
 			params.cache_key,
-			cache_data,
+			cache_ready_result.to_json_cacheable_repr(),
 			timeout=None
 		)
 

@@ -83,39 +83,88 @@ def fetch_query_results(request, name):
 @view_requires_feature_access("carddb")
 @condition(last_modified_func=fetch_query_result_as_of)
 def fetch_local_query_results(request, name):
+	# This end point is intended only for administrator use.
+	# It provides an entry point to force a query to be run locally
+	# and by-pass all of the in-flight short circuits.
+	# This can be critical in case a query is failing on Lambda, and
+	# repeated attempts to run it on lambda are causing it's in-flight status
+	# to always be true.
 	query, params = _get_query_and_params(request, name)
 	return _fetch_query_results(query, params, run_local=True)
 
 
-def _fetch_query_results(query, params, run_local=False):
+def _attempt_fetch_query_response_payload(query, params, run_local=False):
+	log.info("Fetching data for query: %s" % query.name)
+	log.info("Query params are: %s" % params.cache_key)
+
 	cached_data = get_from_redshift_cache(params.cache_key)
 	triggered_refresh = False
 	num_seconds = 0
+	response_payload = None
 	if cached_data:
+		log.info("A record was found in the cache")
 		is_stale, num_seconds = cached_data.cached_params.are_stale(params)
 		if is_stale:
-			triggered_refresh = True
-			# Execute the query to refresh the stale data asynchronously
-			# And then return the data we have available immediately
-			execute_query(query, params, run_local)
-		result_set = cached_data.result_set
-
-		if cached_data.is_json:
-			response_payload = query.to_response_payload(
-				result_set,
-				params,
-				from_result_set_json=cached_data.is_json
-			)
-			response_payload["as_of"] = cached_data.as_of_datetime.isoformat()
+			log.info("The cached data is stale.")
+			if not query.global_query:
+				log.info("The requested query is not a global query.")
+				log.info("Scheduling data refresh and returning stale data.")
+				triggered_refresh = True
+				# Execute the query to refresh the stale data asynchronously
+				# And then return the data we have available immediately
+				execute_query(query, params, run_local)
+				response_payload = cached_data.to_response_payload()
+			else:
+				# This is a global query, so either:
+				# 1) We have up-to-date global data,
+				# in which case we can just update the specific data and serve it.
+				# 2) Or we have stale global data,
+				# in which case we have to schedule a refresh of the global data.
+				log.info("The requested query is a global query.")
+				if cached_data.has_fresh_global_data(params):
+					log.info("The cached data is stale, but there is fresh global data")
+					log.info("We will refresh the cached data using the fresh global data")
+					# We are in scenario #1
+					# to_response_payload() will ensure that fresh specific data
+					# is generated from the global data.
+					response_payload = cached_data.to_response_payload(
+						refresh_from_global=True
+					)
+				else:
+					log.info("The cached data is stale, and so is the global data")
+					log.info("We will return stale data and schedule a refresh.")
+					# We are in scenario #2
+					triggered_refresh = True
+					# Execute the query to refresh the stale data asynchronously
+					# And then return the stale data we have available immediately
+					execute_query(query, params, run_local)
+					response_payload = cached_data.to_response_payload()
 		else:
-			response_payload = result_set
-
-		response = JsonResponse(response_payload, json_dumps_params=dict(indent=4))
+			# The cached data is fresh, so we can serve that.
+			response_payload = cached_data.to_response_payload()
 	else:
-		execute_query(query, params, run_local)
-		# Nothing to return so tell the client to check back later
-		result = {"msg": "Query is processing. Check back later."}
-		response = JsonResponse(result, status=202)
+		log.info("There is nothing in the cache.")
+
+		if query.global_query:
+			log.info("Will check for global data.")
+
+			cached_global_data = get_from_redshift_cache(params.global_cache_key)
+			if cached_global_data:
+				log.info("Will create a cache record from global data")
+				cached_data = cached_global_data.create_from_global_data(params)
+				response_payload = cached_data.to_response_payload()
+			else:
+				log.info("No global data in cache. Will return 202.")
+				# We have nothing stored in the cache
+				# So we schedule the query and we return None
+				# Which will cause the client to be told to check back later
+				execute_query(query, params, run_local)
+				response_payload = None
+
+		else:
+			log.info("Requested query is not global. Will return 202")
+			execute_query(query, params, run_local)
+			response_payload = None
 
 	was_cache_hit = str(bool(cached_data))
 	log.info("Query: %s Cache Hit: %s" % (query.name, was_cache_hit))
@@ -135,6 +184,22 @@ def _fetch_query_results(query, params, run_local=False):
 		triggered_refresh=triggered_refresh,
 		**params.supplied_filters_dict
 	)
+
+	return response_payload
+
+
+def _fetch_query_results(query, params, run_local=False):
+	response_payload = _attempt_fetch_query_response_payload(
+		query,
+		params,
+		run_local
+	)
+
+	if response_payload:
+		response = JsonResponse(response_payload, json_dumps_params=dict(indent=4))
+	else:
+		result = {"msg": "Query is processing. Check back later."}
+		response = JsonResponse(result, status=202)
 
 	return response
 
