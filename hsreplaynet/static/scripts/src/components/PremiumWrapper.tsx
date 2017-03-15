@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import InfoIcon from "./InfoIcon";
 import {showModal} from "../Premium";
 
@@ -30,22 +29,22 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 	}
 
 	public trigger(wrapper: PremiumWrapper) {
-		if(wrapper == this) {
+		if (wrapper === this) {
 			return;
 		}
 		this.setState((state, props) => ({
-			triggered: state.triggered.concat([wrapper]),
 			touchCount: 0,
+			triggered: state.triggered.concat([wrapper]),
 		}));
 	}
 
 	public release(wrapper: PremiumWrapper) {
-		if(wrapper == this) {
+		if (wrapper === this) {
 			return;
 		}
 		this.setState((state, props) => ({
 			triggered: state.triggered.filter(
-				(toRemove: PremiumWrapper) => toRemove != wrapper
+				(toRemove: PremiumWrapper) => toRemove !== wrapper
 			),
 		}));
 	}
@@ -62,7 +61,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		window[key].forEach((wrapper: PremiumWrapper) => {
 			wrapper.release(this);
 		});
-		window[key] = window[key].filter((component: PremiumWrapper) => component != this);
+		window[key] = window[key].filter((component: PremiumWrapper) => component !== this);
 	}
 
 	componentWillUpdate(nextProps: PremiumWrapperProps, nextState: PremiumWrapperState) {
@@ -103,10 +102,10 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 				onTouchStart={() => this.setState({hovering: true, touchCount: this.state.touchCount + 1})}
 				onTouchCancel={() => this.setState({hovering: false})}
 				onClick={(e) => {
-					if(!this.shouldAppear()) {
+					if (!this.shouldAppear()) {
 						return;
 					}
-					if(this.state.touchCount % 2 === 1) {
+					if (this.state.touchCount % 2 === 1) {
 						return;
 					}
 					showModal();
