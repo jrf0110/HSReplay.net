@@ -72,7 +72,7 @@
 						{% endif %}
 						<li><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
 						<li>
-							<a href="{% url 'account_edit' %}">
+							<a href="{% url 'account_edit' %}"{% if premium %} class="text-premium"{% endif %}>
 								<img src="{% static 'images/bnet.png' %}"/>
 								<span>{{ user.username }}</span>
 							</a>

@@ -134,8 +134,13 @@
 							{% endif %}
 							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
 
-							<li{% nav_active 'account_edit' css="active" %}>
-								<a href="{% url 'account_edit' %}">
+							{% if premium %}
+								<li{% nav_active 'account_edit' css="active active-premium" %}>
+									<a href="{% url 'account_edit' %}" class="text-premium">
+							{% else %}
+								<li{% nav_active 'account_edit' css="active" %}>
+									<a href="{% url 'account_edit' %}">
+							{% endif %}
 									<span class="custom-icon" style="background-image: url('{% static 'images/bnet.png' %}')"></span>
 									{{ user.username }}
 								</a>
