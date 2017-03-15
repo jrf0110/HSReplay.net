@@ -80,9 +80,7 @@ INSTALLED_APPS_WEB = [
 	"hsreplaynet.articles",
 	"hsreplaynet.billing",
 	"hsreplaynet.decks",
-	"hsreplaynet.highlights",
 	"hsreplaynet.packs",
-	"hsreplaynet.trending",
 	"hsreplaynet.oauth2",
 ]
 

@@ -78,7 +78,7 @@
 					{% block navlinks %}
 					<ul class="nav navbar-nav">
 						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-							<li{% nav_active 'trending_all' %}><a href="{% url 'trending_all' %}"><span class="glyphicon glyphicon-fire"></span>Trending</a></li>
+							<li{% nav_active 'trending_decks' %}><a href="{% url 'trending_decks' %}"><span class="glyphicon glyphicon-fire"></span>Trending</a></li>
 							<li{% nav_active 'deck_list' %}><a href="{% url 'deck_list' %}"><span class="glyphicon glyphicon-th-list"></span>Decks</a></li>
 							<li{% nav_active 'card_stats' %}><a href="{% url 'card_stats' %}"><span class="glyphicon glyphicon-stats"></span>Cards</a></li>
 							<li{% nav_active 'card_gallery' %}><a href="{% url 'card_gallery' %}"><span class="glyphicon glyphicon-th-large"></span>Gallery</a></li>
@@ -125,7 +125,7 @@
 							{% endif %}
 
 							{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-								<li{% nav_active 'my_highlights' %}><a href="{% url 'my_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
+								<li{% nav_active 'profile_highlights' %}><a href="{% url 'profile_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
 								<li{% nav_active 'my_card_stats' %}><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Cards</a></li>
 							{% endif %}
 							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
