@@ -25,4 +25,8 @@ def userdata(request):
 				"display": str(acc),
 			})
 
+		data["groups"] = []
+		for group in request.user.groups.all():
+			data["groups"].append(group.name.replace(":preview", ""))
+
 	return {"userdata": json.dumps(data, cls=DjangoJSONEncoder)}

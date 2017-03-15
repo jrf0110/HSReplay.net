@@ -124,8 +124,10 @@
 								</script>
 							{% endif %}
 
-							{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
+							{% feature "carddb" as ft_profiles %}{% if ft_profiles.enabled %}
 								<li{% nav_active 'profile_highlights' %}><a href="{% url 'profile_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
+							{% endif %}
+							{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
 								<li{% nav_active 'my_card_stats' %}><a href="{% url 'my_card_stats' %}"><span class="glyphicon glyphicon-stats"></span>My Cards</a></li>
 							{% endif %}
 							<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
