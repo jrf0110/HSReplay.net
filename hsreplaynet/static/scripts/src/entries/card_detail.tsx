@@ -2,12 +2,11 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import CardDetail from "../pages/CardDetail";
-
-const mockFree = document.cookie.indexOf("free-mode") !== -1;
-const premium = document.body.getAttribute("data-premium") === "1";
+import UserData from "../UserData";
 
 const cardId = document.getElementById("card-info").getAttribute("data-card-id");
 const dbfId = +document.getElementById("card-info").getAttribute("data-dbf-id");
+const user = new UserData();
 
 const render = (cardData: CardData) => {
 	const card = cardData && cardData.fromDbf(dbfId);
@@ -17,11 +16,11 @@ const render = (cardData: CardData) => {
 			cardData={cardData}
 			cardId={cardId}
 			dbfId={dbfId}
-			userIsPremium={premium && !mockFree}
+			user={user}
 		/>,
-		document.getElementById("card-container")
+		document.getElementById("card-container"),
 	);
-}
+};
 
 render(null);
 

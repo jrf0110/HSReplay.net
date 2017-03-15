@@ -28,6 +28,7 @@ import {
 	getQueryMapDiff, getQueryMapFromLocation, QueryMap, setLocationQueryString, setQueryMap,
 } from "../QueryParser";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
+import UserData from "../UserData";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -47,7 +48,7 @@ interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 	cardData: CardData;
 	cardId: string;
 	dbfId: number;
-	userIsPremium: boolean;
+	user: UserData;
 }
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
@@ -75,7 +76,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	getAllowedValues() {
-		return this.props.userIsPremium ? this.allowedValuesPremium : this.allowedValues;
+		return this.props.user.isPremium() ? this.allowedValuesPremium : this.allowedValues;
 	}
 
 	cardHasTargetReqs(): boolean {
@@ -231,14 +232,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				const turnStatsQuery = {
 					params: this.getParams(),
 					url: (
-						this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium
+						this.state.queryMap.opponentClass !== "ALL" && this.props.user.isPremium()
 						? "/analytics/query/single_card_stats_by_turn_and_opponent"
 						: "/analytics/query/single_card_stats_by_turn"
 					),
 				};
 
 				const turnStatsNoDataCondition = (data: RenderData): boolean => {
-					if (this.state.queryMap.opponentClass !== "ALL" && this.props.userIsPremium) {
+					if (this.state.queryMap.opponentClass !== "ALL" && this.props.user.isPremium()) {
 						const selectedSeries = data.series.find((s) => s.metadata.opponent_class === this.state.queryMap.opponentClass);
 						return !selectedSeries || selectedSeries.data.length < 2;
 					}
@@ -250,7 +251,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="row">
 							<div className="opponent-filter-wrapper">
 								<PremiumWrapper
-									isPremium={this.props.userIsPremium}
+									isPremium={this.props.user.isPremium()}
 									infoHeader="Turn data by opponent"
 									infoContent="Break down the turn played distribution and winrate by turn played even further and look at each opponent class individually!"
 								>
@@ -261,7 +262,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										minimal
 										multiSelect={false}
 										selectedClasses={[this.state.queryMap.opponentClass as FilterOption]}
-										selectionChanged={(selected) => this.props.userIsPremium && setQueryMap(this, "opponentClass", selected[0])}
+										selectionChanged={(selected) => this.props.user.isPremium() && setQueryMap(this, "opponentClass", selected[0])}
 									/>
 								</PremiumWrapper>
 							</div>
@@ -269,7 +270,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="row">
 							<div className="col-lg-6 col-md-6">
 								<div className="chart-wrapper">
-									<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
+									<PremiumWrapper isPremium={this.props.user.isPremium()} iconStyle={{display: "none"}}>
 										<DataInjector
 											dataManager={this.dataManager}
 											query={turnStatsQuery}
@@ -278,7 +279,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 												<TurnPlayedBarChart
 													opponentClass={this.state.queryMap.opponentClass}
 													widthRatio={2}
-													premiumLocked={!this.props.userIsPremium}
+													premiumLocked={!this.props.user.isPremium()}
 												/>
 											</ChartLoading>
 										</DataInjector>
@@ -287,7 +288,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</div>
 							<div className="col-lg-6 col-md-6">
 								<div className="chart-wrapper">
-									<PremiumWrapper isPremium={this.props.userIsPremium} iconStyle={{display: "none"}}>
+									<PremiumWrapper isPremium={this.props.user.isPremium()} iconStyle={{display: "none"}}>
 										<DataInjector
 											dataManager={this.dataManager}
 											query={turnStatsQuery}
@@ -296,7 +297,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 												<WinrateByTurnLineChart
 													opponentClass={this.state.queryMap.opponentClass}
 													widthRatio={2}
-													premiumLocked={!this.props.userIsPremium}
+													premiumLocked={!this.props.user.isPremium()}
 												/>
 											</ChartLoading>
 										</DataInjector>
