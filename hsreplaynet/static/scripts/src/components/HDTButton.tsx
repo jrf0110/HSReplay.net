@@ -36,11 +36,10 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 			classNames.push("disabled");
 		}
 
-
 		const tooltipContent = (
 			<p>
 				<br/>
-				1. Open HDT and press CTRL-V in the main window
+				1. Open HDT and press CTRL-V in the main window.
 				<br/><br/>
 				2. You're done! You can now save the deck or directly export it to Hearthstone.
 			</p>
@@ -81,7 +80,7 @@ export default class HDTButton extends React.Component<HDTButtonProps, HDTButton
 			card_ids: this.props.card_ids,
 			class: toTitleCase(this.props.class),
 			name: this.props.name,
-			sourceUrl: this.props.sourceUrl
+			sourceUrl: this.props.sourceUrl,
 		});
 	}
 }
