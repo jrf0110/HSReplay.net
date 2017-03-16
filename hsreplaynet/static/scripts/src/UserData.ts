@@ -39,7 +39,7 @@ export default class UserData {
 		if (!this._userData) {
 			return [];
 		}
-		return this._userData.accounts;
+		return this._userData.accounts || [];
 	}
 
 }
