@@ -19,8 +19,17 @@
 				HearthSim Premium enables loads of cool new features and filters on the site.
 				You get to improve your gameplay and support the continued development of HSReplay.net and
 				Hearthstone Deck Tracker at the same time!
-				{% if user.is_authenticated %}<a href="{% url 'premium' %}" target="_blank">Learn more…</a>{% endif %}
+				{% if user.is_authenticated %}
+					<a href="{% url 'premium' %}" target="_blank">Learn more…</a>
+				{% endif %}
 			</p>
+
+			<div class="thumbnails">
+				<img src="{% static 'images/premium-promotional/mycards.png' %}" class="bordered" alt="My Cards" />
+				<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" alt="Rank Range & Time Frame" />
+				<img src="{% static 'images/premium-promotional/charts.png' %}" class="bordered" alt="Winrate by turn" />
+				<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" alt="Opponent class selector" />
+			</div>
 
 			{% if user.is_authenticated %}
 				<form method="POST" action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}">

@@ -341,6 +341,28 @@ body, html {
 		label {
 			width: 100%;
 		}
+
+		.thumbnails {
+			height: 4em;
+			margin: 1.5em 0;
+			display: flex;
+			flex-flow: row nowrap;
+			justify-content: space-around;
+			align-items: center;
+
+			> * {
+				object-fit: cover;
+				flex: 1;
+				margin: 0 4px;
+				height: 100%;
+			}
+		}
+
+		img {
+			&.bordered {
+				border: solid 1px $blue;
+			}
+		}
 	}
 
 	.promo-button, .promo-button-outline {
