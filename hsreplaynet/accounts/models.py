@@ -77,6 +77,10 @@ class User(AbstractUser):
 		if premium_override is not None:
 			return premium_override
 
+		if not getattr(settings, "STRIPE_SECRET_KEY", ""):
+			# Override to false if we don't have a Stripe secret key to avoid unnecessary errors.
+			return False
+
 		customer, created = Customer.get_or_create(self)
 		if created:
 			return False
