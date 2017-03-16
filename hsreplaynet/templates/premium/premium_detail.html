@@ -144,11 +144,11 @@
 					{% if user.is_authenticated %}
 						<p>Please choose your plan:</p>
 						<div class="btn-group" data-toggle="buttons" role="radiogroup">
-							<label class="btn btn-default active">
+							<label class="btn btn-default active" id="plan-{{ monthly_plan.stripe_id }}">
 								<h4>{{ monthly_plan.human_readable_cost|default:"1 month" }}</h4>
-								<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}" required>
+								<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}" required checked>
 							</label>
-							<label class="btn btn-default">
+							<label class="btn btn-default" id="plan-{{ semiannual_plan.stripe_id }}">
 								<h4>{{ semiannual_plan.human_readable_cost|default:"6 months" }}</h4>
 								<input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" required>
 							</label>
