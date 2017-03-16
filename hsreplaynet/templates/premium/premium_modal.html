@@ -54,6 +54,7 @@
 						{% else %}
 							<p class="text-center">{% include "premium/checkout_button.html" with id="premium-modal-checkout-button" %}</p>
 						{% endif %}
+						<p class="text-center">By signing up you agree to our <a href="{% url 'terms_of_service' %}" target="_blank">Terms of Service</a>.</p>
 					</form>
 				{% else %}
 					<p class="text-center">
