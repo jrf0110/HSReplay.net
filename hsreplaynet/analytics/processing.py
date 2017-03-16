@@ -109,11 +109,10 @@ class CachedRedshiftResult(object):
 
 				response_payload = self.cached_params._query.to_response_payload(
 					self.global_cache_data.result_set,
-					self.global_cache_data.cached_params,
+					self.cached_params,
 					from_result_set_json=self.is_json
 				)
 				self.as_of = self.global_cache_data.as_of
-				self.cached_params = self.global_cache_data.cached_params
 
 			else:
 				log.info("Using non global query logic")
