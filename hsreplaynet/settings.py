@@ -319,10 +319,6 @@ HSTRACKER_DOWNLOAD_URL = "https://hsdecktracker.net/hstracker/download/?%s" % (H
 INFLUX_ENABLED = True
 UPLOAD_USER_AGENT_BLACKLIST = ()
 
-# Stripe plans
-MONTHLY_PLAN_ID = "hearthsim-pro-monthly"
-SEMIANNUAL_PLAN_ID = "hearthsim-pro-semiannual"
-
 # WARNING: To change this it must also be updated in isolated.uploaders.py
 S3_RAW_LOG_UPLOAD_BUCKET = "hsreplaynet-uploads"
 

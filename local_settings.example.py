@@ -24,6 +24,9 @@ DATABASES = {
 STRIPE_LIVE_MODE = False
 STRIPE_TEST_SECRET_KEY = "sk_test_"
 
+MONTHLY_PLAN_ID = "hearthsim-pro-monthly"
+SEMIANNUAL_PLAN_ID = "hearthsim-pro-semiannual"
+
 
 INFLUX_DATABASES = {
 	"hsreplaynet": {
