@@ -30,6 +30,7 @@ interface TableDataCache {
 
 interface DeckDetailState {
 	expandWinrate?: boolean;
+	hasData?: boolean;
 	hasPeronalData?: boolean;
 	personalSortBy?: string;
 	personalSortDirection?: SortDirection;
@@ -56,6 +57,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		super(props, state);
 		this.state = {
 			expandWinrate: false,
+			hasData: undefined,
 			hasPeronalData: undefined,
 			personalSortBy: "card",
 			rankRange: "ALL",
@@ -70,6 +72,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				this.setState({hasPeronalData: data && data[this.props.deckId] !== undefined});
 			});
 		}
+
+		this.dataManager.get("list_decks_by_win_rate", {GameType: this.gameType()}).then((data) => {
+			this.setState({
+				hasData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
+			});
+		});
 	}
 
 	render(): JSX.Element {
@@ -143,7 +151,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</PremiumWrapper>
 				<DataInjector
 					dataManager={this.dataManager}
-					fetchCondition={this.isWildDeck() !== undefined}
+					fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 					query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType()}}}
 				>
 					<HideLoading>
@@ -172,7 +180,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<div className="chart-wrapper wide">
 							<DataInjector
 								dataManager={this.dataManager}
-								fetchCondition={this.isWildDeck() !== undefined}
+								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
 							>
 								<ChartLoading>
@@ -188,7 +196,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<div className="chart-wrapper wide">
 							<DataInjector
 								dataManager={this.dataManager}
-								fetchCondition={this.isWildDeck() !== undefined}
+								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
 							>
 								<ChartLoading>
@@ -209,7 +217,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<div className="table-wrapper">
 								<DataInjector
 									dataManager={this.dataManager}
-									fetchCondition={this.isWildDeck() !== undefined}
+									fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 									query={[
 										{
 											key: "mulliganData",
@@ -226,6 +234,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 									<TableLoading
 										cardData={this.props.cardData}
 										dataKeys={["mulliganData", premiumMulligan ? "opponentWinrateData" : "winrateData"]}
+										customMessage={this.state.hasData === false ? "No available data" : undefined}
 									>
 										<DeckBreakdownTable
 											dataKey={this.state.selectedClasses[0]}
@@ -244,10 +253,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<div id="similar-decks" className="tab-pane fade">
 							<DataInjector
 								dataManager={this.dataManager}
-								fetchCondition={this.isWildDeck() !== undefined}
+								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 								query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType()}}}
 							>
-								<TableLoading cardData={this.props.cardData}>
+								<TableLoading
+									cardData={this.props.cardData}
+									customMessage={this.state.hasData === false ? "No available data" : undefined}
+								>
 									<SimilarDecksList
 										playerClass={this.props.deckClass}
 										rawCardList={this.props.deckCards}
