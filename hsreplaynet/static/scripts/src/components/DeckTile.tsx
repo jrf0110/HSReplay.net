@@ -28,7 +28,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			const card = obj.card;
 			dustCost += getDustCost(card) * obj.count;
 
-			const markText = obj.count ? (card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count) : null;
+			let markText = obj.count ? (card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count) : null;
 			const markStyle = {
 				color: "#f4d442",
 				fontSize: "1em",
@@ -38,16 +38,19 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 			let itemClassName = null;
 			if (this.props.compareWith) {
+				const comparisonCard = this.props.compareWith.find((c) => c.card.id === card.id);
 				if (obj.count === 0) {
 					itemClassName = "removed";
+					markText = "" + -comparisonCard.count;
 				}
 				else {
-					const comparisonCard = this.props.compareWith.find((c) => c.card.id === card.id);
 					if (!comparisonCard || comparisonCard.count < obj.count) {
 						itemClassName = "added";
+						markText = "+" + (obj.count - (comparisonCard ? comparisonCard.count : 0));
 					}
 					else if (comparisonCard.count > obj.count) {
 						itemClassName = "reduced";
+						markText = "" + (obj.count - comparisonCard.count);
 					}
 					else {
 						itemClassName = "unchanged";
