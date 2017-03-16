@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from djstripe.models import Customer
 from hsreplaynet.api.admin import AuthToken
 from hsreplaynet.utils.admin import admin_urlify as urlify
 from .models import AccountClaim, AccountDeleteRequest, User
@@ -13,6 +14,17 @@ class AuthTokenInline(admin.TabularInline):
 	show_change_link = True
 
 
+class StripeCustomerInline(admin.TabularInline):
+	model = Customer
+	extra = 0
+	show_change_link = True
+	# raw_id_fields = ("default_source", )
+	fields = readonly_fields = (
+		"stripe_id", "livemode", "stripe_timestamp", "account_balance", "currency",
+		"default_source",
+	)
+
+
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
 	change_form_template = "loginas/change_form.html"
@@ -21,7 +33,7 @@ class UserAdmin(BaseUserAdmin):
 		"username", "date_joined", "last_login", "is_fake", "default_replay_visibility"
 	)
 	list_filter = BaseUserAdmin.list_filter + ("is_fake", "default_replay_visibility")
-	inlines = (AuthTokenInline, )
+	inlines = (AuthTokenInline, StripeCustomerInline)
 
 
 @admin.register(AccountClaim)
