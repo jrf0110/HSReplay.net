@@ -136,10 +136,10 @@
 
 							{% if premium %}
 								<li{% nav_active 'account_edit' css="active active-premium" %}>
-									<a href="{% url 'account_edit' %}" class="text-premium">
+									<a href="{% url 'account_edit' %}" class="text-premium" id="you">
 							{% else %}
 								<li{% nav_active 'account_edit' css="active" %}>
-									<a href="{% url 'account_edit' %}">
+									<a href="{% url 'account_edit' %}" id="you">
 							{% endif %}
 									<span class="custom-icon" style="background-image: url('{% static 'images/bnet.png' %}')"></span>
 									{{ user.username }}
