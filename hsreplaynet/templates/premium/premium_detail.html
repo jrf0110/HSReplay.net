@@ -1,21 +1,39 @@
-{% extends "flatpages/default.html" %}
+{% extends "base.html" %}
 {% load static from static %}
 {% load feature from features %}
 {% load setting from web_extras %}
+{% load render_bundle from webpack_loader %}
 
 {% block title %}
-	HSReplay.net Premium
+	HearthSim Premium
 {% endblock %}
 
 {% block fullcontent %}
 {% feature "billing" as billing %}
 
 <article id="premium-upgrade-page">
+
 	<header id="opener">
 		<div class="container">
-			<h2>HSReplay.net <span>Premium</span></h2>
-			<p class="tagline">Support us &amp; access extra features.</p>
-			<p>Subscribe for just $4.99/month.</p>
+			<h2>HearthSim <span>Premium</span></h2>
+			<p class="tagline">Advanced Statistics for Hearthstone</p>
+			{% if premium %}
+				<p class="tagline awesome"><span class="glyphicon glyphicon-ok"></span> Thank you for supporting us!</p>
+				{% if billing.enabled %}
+					<p>
+						<a href="{% url 'billing_methods' %}" class="promo-button-outline">Billing</a>
+					</p>
+				{% endif %}
+			{% else %}
+				{% if not billing.read_only %}
+					<p><a href="#go" class="promo-button-outline text-premium">Get Premium</a></p>
+					{% with monthly_plan.human_readable_cost as monthly_cost %}
+						{% if monthly_cost %}<p>Subscribe for {{ monthly_cost }}.</p>{% endif %}
+					{% endwith %}
+				{% else %}
+					<p><span class="promo-button-outline">Not available</span></p>
+				{% endif %}
+			{% endif %}
 		</div>
 	</header>
 
@@ -24,79 +42,48 @@
 		{% setting "FEATURED_DECK_ID" as featured_deck %}
 		<div class="container">
 			<h3>Features</h3>
-			<p>You'll receive instant access to the following features when subscribing:</p>
+			<p>You'll receive access to the following features once you subscribe:</p>
 			<div class="row">
 				<div class="clearfix"></div>
-				<figure class="auto col-sm-12 col-xs-12">
+				<figure class="auto col-sm-6 col-xs-12">
 					<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" />
 					<figcaption>
-						<h4>More Precision</h4>
+						<h4>Time & Rank Filters</h4>
 						<p>
-							Dive deep into the meta by adjusting statistics to your rank range and choosing a more fine-grained time range.
+							Benefit from new filters to dive deep into the meta: Vew the most recent global statistics
+							and only show your rank range.
 						</p>
-						<ul class="example-links">
-							<li><a href="{% url 'card_stats' %}">Cards</a></li>
-							<li><a href="{% url 'deck_list' %}">Decks</a></li>
-							{% if featured_deck %}
-								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Deck</a></li>
-							{% endif %}
-						</ul>
 					</figcaption>
 				</figure>
-				<figure class="auto col-sm-12 col-xs-12">
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/mycards.png' %}" class="bordered" />
+					<figcaption>
+						<h4>My Cards</h4>
+						<p>
+							Discover the card you personally have the highest winrate with across all your replays—or
+							just find the cards with which you've killed the most opponent heroes!
+						</p>
+					</figcaption>
+				</figure>
+				<figure class="auto col-sm-6 col-xs-12">
 					<img src="{% static 'images/premium-promotional/charts.png' %}" class="bordered" />
 					<figcaption>
-						<h4>Power Spikes</h4>
+						<h4>Turn Details</h4>
 						<p>
-							Your new deck feels a bit weak in the late game?
-							Choose a card and see how effective it is at various stages in the game.
+							The new deck you built feels a bit weak in the late game?
+							Choose any card and see how effective it is at various stages in the game or when this card
+							is usually played.
 						</p>
-						<ul class="example-links">
-							{% if featured_card %}
-								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Card</a></li>
-							{% endif %}
-						</ul>
 					</figcaption>
 				</figure>
-				<figure class="auto col-sm-12 col-xs-12">
+				<figure class="auto col-sm-6 col-xs-12">
 					<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" />
 					<figcaption>
-						<h4>Opponent Breakdown</h4>
+						<h4>Matchup Selectors</h4>
 						<p>
-							Whether you're struggling against Paladin or want to know which card perfoms better
-							against a certain matchup, we have the data.
+							Whether you want to find a new deck targeted at Priest or want to know which card
+							perfoms better against a certain class, we know the matchups.
 						</p>
-						<ul class="example-links">
-							{% if featured_card %}
-								<li><a href="{% url 'card_detail' pk=featured_card %}">Single Card</a></li>
-							{% endif %}
-							{% if featured_deck %}
-								<li><a href="{% url 'deck_detail' id=featured_deck %}">Single Deck</a></li>
-							{% endif %}
-						</ul>
-					</figcaption>
-				</figure>
-			</div>
-			<div class="single-row"><hr /><h4>Further more…</h4><hr /></div>
-			<div class="row">
-				<figure class="auto col-sm-6 col-xs-12">
-					<img src="{% static 'images/premium-promotional/data.png' %}" />
-					<figcaption>
-						<h4>We Trust our Data</h4>
-						<p>
-							Our statistics are backed by millions of games per week across all ranks and game modes.
-							This gives us enough data to update all our pages multiple times a week.
-						</p>
-					</figcaption>
-				</figure>
-				<figure class="auto col-sm-6 col-xs-12">
-					<img src="{% static 'images/hearthsim_logo.png' %}" class="logo" />
-					<figcaption>
-						<h4>Support HearthSim</h4>
-						<p>
-							Your subscription directly supports HearthSim. We are the team behind HSReplay.net, Hearthstone Deck Tracker and a lot more.
-						</p>
-						<p><a href="#hearthsim">Learn more&hellip;</a></p>
 					</figcaption>
 				</figure>
 				<figure class="col-sm-6 col-sm-offset-3 col-xs-12">
@@ -108,8 +95,86 @@
 					</figcaption>
 				</figure>
 			</div>
+			<div class="single-row"><hr /><h4>Further more…</h4><hr /></div>
+			<div class="row">
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/data.png' %}" />
+					<figcaption>
+						<h4>We Trust our Data</h4>
+						<p>
+							Our statistics are backed by millions of games per week across all ranks and game modes.
+							That's why we update all our statistics multiple times a week.
+						</p>
+					</figcaption>
+				</figure>
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/hearthsim_logo.png' %}" class="logo" />
+					<figcaption>
+						<h4>Support HearthSim</h4>
+						<p>
+							Your subscription directly supports HearthSim. We are the team behind Hearthstone Deck Tracker, HSReplay.net and a lot more Hearthstone tools.
+						</p>
+					</figcaption>
+				</figure>
+			</div>
 		</div>
 	</section>
+
+	{% if not premium and billing.enabled and not billing.read_only %}
+	<section id="go" class="promo">
+		<div class="container">
+			<h3 class="text-center">Ready to go Premium?</h3>
+			<form method="POST" action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}">
+				{% csrf_token %}
+				<div class="form-group text-center">
+					{% if user.is_authenticated %}
+						<p>Please choose your plan:</p>
+						<div class="btn-group active"  data-toggle="buttons" role="radiogroup">
+							<label class="btn btn-default">
+								<h4>{{ monthly_plan.human_readable_cost|default:"1 month" }}</h4>
+								<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}" required>
+							</label>
+							<label class="btn btn-default">
+								<h4>{{ semiannual_plan.human_readable_cost|default:"6 months" }}</h4>
+								<input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" required>
+							</label>
+						</div>
+					{% endif %}
+				</div>
+				{% if user.is_authenticated %}
+					<div class="form-group">
+						{% if user.default_payment_method %}
+							<p class="text-center">
+								<button
+										class="promo-button text-premium"
+										type="submit"
+										disabled
+								>Subscribe now</button>
+							</p>
+							<p class="text-center">Using {{ user.default_payment_method|default:"MasterCard ** 1234" }}</p>
+						{% else %}
+							<p class="text-center">
+								{% include "premium/checkout_button.html" with label="Sign me up!" %}
+							</p>
+							<script type="text/javascript">
+								var button = document.getElementById("premium-checkout-button");
+								window.hsreplaynet_load_stripe(button);
+							</script>
+						{% endif %}
+						<p class="text-center">By signing up you agree to our <a href="{% url 'terms_of_service' %}">Terms of Service</a>.</p>
+					</div>
+					<p class="help-block text-center">
+						Plans will renew automatically but can be cancelled anytime in your <a href="{% url 'billing_methods' %}">billing settings</a>.
+					</p>
+				{% else %}
+					<p class="text-center">
+						{% include "login_button.html" with next="/premium#go" %}
+					</p>
+				{% endif %}
+			</form>
+		</div>
+	</section>
+	{% endif %}
 </article>
 
 {% endblock %}

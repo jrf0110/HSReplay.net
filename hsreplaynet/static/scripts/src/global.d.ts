@@ -201,6 +201,7 @@ declare module "tether-shepherd" {
 
 interface Window {
 	hsreplaynet_load_premium_modal: () => void;
+	hsreplaynet_load_stripe: (targetElement: any) => void;
 }
 
 declare module "sunwell" {

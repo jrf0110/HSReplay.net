@@ -43,22 +43,17 @@ modal.onclick = (e) => {
 let stripeLoaded = false;
 
 // inject stripe JS
-const loadStripe = () => {
+const loadStripe = (targetElement) => {
 	if (stripeLoaded) {
 		return;
 	}
 
 	stripeLoaded = true;
 
-	const btn = document.getElementById("premium-modal-checkout-button");
-	if (!btn) {
-		return;
-	}
-
 	const script = document.createElement("script");
 
 	const transfer = (key: string) => {
-		const attrib = btn.getAttribute(key);
+		const attrib = targetElement.getAttribute(key);
 		if (attrib) {
 			script.setAttribute(key, attrib);
 		}
@@ -76,17 +71,30 @@ const loadStripe = () => {
 	script.src = "https://checkout.stripe.com/checkout.js";
 	script.className = "stripe-button";
 
-	btn.parentNode.replaceChild(script, btn);
+	targetElement.parentNode.replaceChild(script, targetElement);
+};
+
+window.hsreplaynet_load_stripe = (targetElement) => {
+	loadStripe(targetElement);
 };
 
 window.hsreplaynet_load_premium_modal = () => {
 	// show modal
 	openModal(modal);
+	// find button
+	const modalButton = document.getElementById("premium-modal-checkout-button");
+	if (!modalButton) {
+		return;
+	}
 	// init stripe
-	loadStripe();
+	loadStripe(modalButton);
 };
 
 if (modal.getAttribute("data-stripe-load") === "1") {
-	loadStripe();
-	trackModalInteraction("open", true);
+	// find button
+	const modalButton = document.getElementById("premium-modal-checkout-button");
+	if (modalButton) {
+		loadStripe(modalButton);
+		trackModalInteraction("open", true);
+	}
 }

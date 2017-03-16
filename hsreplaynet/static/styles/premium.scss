@@ -51,6 +51,22 @@
 
 		.tagline {
 			font-size: 1.5em;
+			margin-bottom: 1.5em;
+		}
+
+		.awesome {
+			color: #00ae00;
+		}
+
+		.promo-button-outline {
+			color: white;
+			border-color: white;
+			text-transform: uppercase;
+
+			&.text-premium {
+				color: $premium;
+				border-color: $premium;
+			}
 		}
 	}
 
@@ -184,38 +200,6 @@
 		padding: 3em 0;
 	}
 
-	ul.example-links {
-		justify-self:  flex-end;
-		padding-left: 0;
-
-		> li {
-			display: inline-block;
-			font-size: 0.95em;
-
-			&:first-child:before, &:first-child:last-child:before {
-				content: 'Available for: ';
-			}
-
-			&:after {
-				content: ', ';
-			}
-
-			&:nth-last-child(2):after {
-				content: '';
-			}
-
-			&:last-child{
-				&:before {
-					content: ' and ';
-				}
-
-				&:after {
-					content: '.';
-				}
-			}
-		}
-	}
-
 	.card {
 		color: black;
 		background-color: white;
@@ -239,6 +223,27 @@
 		p {
 			margin-left: 1em;
 			margin-right: 1em;
+		}
+	}
+
+	h4 {
+		font-weight: bold;
+	}
+
+	.form-group {
+		margin: 2em 0;
+	}
+
+	.btn-group {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+
+		.btn {
+			flex-basis: 0;
+			flex-grow: 0;
+			flex-shrink: 1;
+			padding: 1em 2em;
 		}
 	}
 }
@@ -296,5 +301,21 @@
 
 	&.hovering .premium-info {
 		opacity: 1;
+	}
+}
+
+.promo-button.text-premium {
+	color: black;
+	background-color: $premium;
+	border-color: $premium;
+
+	&:hover {
+		border-color: $premium;
+		color: $premium;
+		background-color: $offwhite;
+	}
+
+	&:disabled {
+		cursor: not-allowed;
 	}
 }
