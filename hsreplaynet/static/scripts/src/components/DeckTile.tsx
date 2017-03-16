@@ -3,7 +3,7 @@ import CardIcon from "./CardIcon";
 import ManaCurve from "./ManaCurve";
 import moment from "moment";
 import {CardObj, DeckObj} from "../interfaces";
-import {cardSorting, getDustCost, getHeroCardId, toTitleCase, toPrettyNumber} from "../helpers";
+import {cardSorting, getDustCost, getHeroCardId, toPrettyNumber, toTitleCase} from "../helpers";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	compareWith?: CardObj[];
@@ -11,29 +11,29 @@ interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
-	
+
 	render(): JSX.Element {
 		const cards = this.props.cards || [];
 		const cardIcons = [];
 		let dustCost = 0;
 
 		if (this.props.compareWith) {
-			const removed = this.props.compareWith.filter(c1 => cards.every(c2 => c2.card.id !== c1.card.id));
-			removed.forEach(c => cards.push({card: c.card, count: 0}));
+			const removed = this.props.compareWith.filter((c1) => cards.every((c2) => c2.card.id !== c1.card.id));
+			removed.forEach((c) => cards.push({card: c.card, count: 0}));
 		}
 
-		cards.sort(cardSorting)
+		cards.sort(cardSorting);
 
-		cards.forEach(obj => {
+		cards.forEach((obj) => {
 			const card = obj.card;
 			dustCost += getDustCost(card) * obj.count;
-			
+
 			const markText = obj.count ? (card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count) : null;
 			const markStyle = {
 				color: "#f4d442",
 				fontSize: "1em",
 				right: 0,
-				top: 0
+				top: 0,
 			};
 
 			let itemClassName = null;
@@ -42,9 +42,9 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 					itemClassName = "removed";
 				}
 				else {
-					const comparisonCard = this.props.compareWith.find(c => c.card.id === card.id);
+					const comparisonCard = this.props.compareWith.find((c) => c.card.id === card.id);
 					if (!comparisonCard || comparisonCard.count < obj.count) {
-						itemClassName = "added"
+						itemClassName = "added";
 					}
 					else if (comparisonCard.count > obj.count) {
 						itemClassName = "reduced";
@@ -57,8 +57,14 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 			cardIcons.push(
 				<li className={itemClassName}>
-					<CardIcon cardId={card.id} dbfId={card.dbfId} mark={markText} markStyle={markStyle} urlGameType={this.props.urlGameType}/>
-				</li>
+					<CardIcon
+						cardId={card.id}
+						dbfId={card.dbfId}
+						mark={markText}
+						markStyle={markStyle}
+						urlGameType={this.props.urlGameType}
+					/>
+				</li>,
 			);
 		});
 
@@ -69,9 +75,14 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 		const dustCostStyle = {
 			backgroundImage: "url(/static/images/dust.png"
 		};
-		
+
 		return (
-			<li style={{backgroundImage: "url(https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.playerClass, true) + ".jpg"}}>
+			<li
+				style={{
+					backgroundImage: "url(https://art.hearthstonejson.com/v1/256x/"
+						+ getHeroCardId(this.props.playerClass, true) + ".jpg"
+				}}
+			>
 				<a href={"/decks/" + this.props.deckId}>
 					<div>
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
