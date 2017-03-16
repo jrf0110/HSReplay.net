@@ -19,7 +19,7 @@
 	</p>
 
 	<p class="login-button">
-		{% include 'login_button.html' %}
+		{% include 'login_button.html' with next=request.get_full_path %}
 	</p>
 
 	<p class="help-block">
