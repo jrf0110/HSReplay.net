@@ -5,7 +5,7 @@
 <a
 	{# This is to support login with battle.net on local dev #}
 	{% if vagrant %}
-		href="https://localhost:8443{% provider_login_url 'battlenet' next=next  %}"
+		href="https://localhost:8443{% provider_login_url 'battlenet' next=next %}"
 	{% else %}
 		href="{% provider_login_url 'battlenet' next=next %}"
 	{% endif %}
