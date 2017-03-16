@@ -56,6 +56,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	private readonly defaultQueryMap: QueryMap = {
 		gameType: "RANKED_STANDARD",
 		opponentClass: "ALL",
+		tab: "recommended-decks",
 	};
 
 	private readonly allowedValues = {
@@ -319,21 +320,38 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					);
 				}
 
+				const tabHeader = (key: string, title: string) => {
+					return (
+						<li
+							className={this.state.queryMap.tab === key ? "active" : undefined}
+							onClick={() => setQueryMap(this, "tab", key)}
+						>
+							<a data-toggle="tab" href={"#" + key}>
+								{title}
+							</a>
+						</li>
+					);
+				};
+
+				const tabClassName = (key: string) => {
+					return "tab-pane fade" + (key === this.state.queryMap.tab ? " in active" : "");
+				};
+
 				content = [
 					<section id="content-header">
 						{headerContent}
 					</section>,
 					<section id="page-content">
 						<ul className="nav nav-tabs content-tabs">
-							<li className="active"><a data-toggle="tab" href="#recommended-decks">Recommended decks</a></li>
-							<li><a data-toggle="tab" href="#turn-stats">Turn details</a></li>
-							<li><a data-toggle="tab" href="#card-stats">Card stats</a></li>
+							{tabHeader("recommended-decks", "Recommended decks")}
+							{tabHeader("turn-stats", "Turn details")}
+							{tabHeader("card-stats", "Card stats")}
 						</ul>
 						<div className="tab-content">
-							<div id="recommended-decks" className="tab-pane fade in active">
+							<div id="recommended-decks" className={tabClassName("recommended-decks")}>
 								{recommendedDecks}
 							</div>
-							<div id="turn-stats" className="tab-pane fade">
+							<div id="turn-stats" className={tabClassName("turn-stats")}>
 								<PremiumWrapper
 									isPremium={this.props.user.isPremium()}
 									infoHeader="Turn played statistics"
@@ -343,7 +361,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									{turnCharts}
 								</PremiumWrapper>
 							</div>
-							<div id="card-stats" className={"tab-pane fade"}>
+							<div id="card-stats" className={tabClassName("card-stats")}>
 								<div id="card-tables">
 									{cardStats}
 								</div>
@@ -380,10 +398,19 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 		return <div className="card-detail-container">
 			<aside className="infobox">
-				<img className="card-image" src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"} />
+				<img
+					className="card-image"
+					src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"}
+				/>
 				<p>{this.getCleanFlavorText()}</p>
-				<InfoboxFilterGroup header="Mode" selectedValue={this.state.queryMap["gameType"]} onClick={(value) => setQueryMap(this, "gameType", value)}>
-					<InfoboxFilter disabled={this.props.card && isWildCard(this.props.card)} value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+				<InfoboxFilterGroup
+					header="Mode"
+					selectedValue={this.state.queryMap["gameType"]}
+					onClick={(value) => setQueryMap(this, "gameType", value)}
+				>
+					<InfoboxFilter disabled={this.props.card && isWildCard(this.props.card)} value="RANKED_STANDARD">
+						Ranked Standard
+					</InfoboxFilter>
 					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
 					<InfoboxFilter disabled={this.props.card && isWildCard(this.props.card)} value="ARENA">Arena</InfoboxFilter>
 				</InfoboxFilterGroup>
