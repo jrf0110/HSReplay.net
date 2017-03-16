@@ -1,13 +1,15 @@
 import * as React from "react";
 import CardTile from "./CardTile";
+import { winrateData } from "../helpers";
 
 interface CardRankingTableRowProps extends React.ClassAttributes<CardRankingTableRow> {
 	card: any;
+	clickable?: boolean;
+	customCardText?: string;
 	popularity: number;
 	rank: number;
-	clickable?: boolean;
 	urlGameType?: string;
-	customCardText?: string;
+	winrate?: number;
 }
 
 export default class CardRankingTableRow extends React.Component<CardRankingTableRowProps, any> {
@@ -36,6 +38,15 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 				</a>
 			);
 		}
+
+		let winrateCell = null;
+		if (this.props.winrate !== undefined) {
+			const wrData = winrateData(50, this.props.winrate, 2);
+			winrateCell = (
+				<td style={{color: wrData.color}}>{this.props.winrate + "%"}</td>
+			);
+		}
+
 		return <tr className="card-table-row">
 			<td className="rank-cell">
 				{"#" + this.props.rank}
@@ -48,6 +59,7 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 			<td style={{lineHeight: "19px", fontWeight: "bold"}}>
 				{this.getPopularity()}
 			</td>
+			{winrateCell}
 		</tr>;
 	}
 

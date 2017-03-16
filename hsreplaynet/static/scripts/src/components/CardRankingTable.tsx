@@ -16,6 +16,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 	render(): JSX.Element {
 		const cardRows = [];
 		const tableRows = this.props.data.series.data[this.props.dataKey];
+		const hasWinrate = tableRows[0] && tableRows[0].win_rate;
 		tableRows.sort((a, b) => +b.popularity - +a.popularity);
 		tableRows.slice(0, this.props.numRows).forEach((row, index) => {
 			const isFace = +row.dbf_id === -1;
@@ -23,14 +24,16 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 			cardRows.push(
 				<CardRankingTableRow
 					card={card}
+					clickable={this.props.clickable}
+					customCardText={isFace ? "Opponent Hero" : undefined}
 					popularity={+row.popularity}
 					rank={index + 1}
-					clickable={this.props.clickable}
 					urlGameType={this.props.urlGameType}
-					customCardText={isFace ? "Opponent Hero" : undefined}
+					winrate={hasWinrate ? +row.win_rate : undefined}
 				/>,
 			);
 		});
+
 		return (
 			<table className="table table-striped">
 				<thead>
@@ -38,6 +41,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 					<th>Rank</th>
 					<th>Card</th>
 					<th>Popularity</th>
+					{hasWinrate ? <th>Winrate</th> : null}
 				</tr>
 				</thead>
 				<tbody>
