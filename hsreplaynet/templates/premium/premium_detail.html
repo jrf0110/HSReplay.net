@@ -16,15 +16,15 @@
 	<header id="opener">
 		<div class="container">
 			<h2>HearthSim <span>Premium</span></h2>
-			<p class="tagline">Advanced Statistics for Hearthstone</p>
 			{% if premium %}
-				<p class="tagline awesome"><span class="glyphicon glyphicon-ok"></span> Thank you for supporting us!</p>
-				{% if billing.enabled %}
-					<p>
-						<a href="{% url 'billing_methods' %}" class="promo-button-outline">Billing</a>
-					</p>
-				{% endif %}
+				<p class="tagline text-premium">
+					<span class="glyphicon glyphicon-ok"></span> You've subscribed. Thanks for your support!
+				</p>
+				<p>
+					<a href="{% url 'billing_methods' %}" class="promo-button-outline">Billing settings</a>
+				</p>
 			{% else %}
+				<p class="tagline">Advanced Statistics for Hearthstone</p>
 				{% if not billing.read_only %}
 					<p><a href="#go" class="promo-button-outline text-premium">Get Premium</a></p>
 					{% with monthly_plan.human_readable_cost as monthly_cost %}
@@ -42,11 +42,19 @@
 		{% setting "FEATURED_DECK_ID" as featured_deck %}
 		<div class="container">
 			<h3>Features</h3>
-			<p>You'll receive access to the following features once you subscribe:</p>
+			<p>
+				{% if premium %}
+				You now have access to the following features:
+				{% else %}
+				You'll have access to the following features once you subscribe:
+				{% endif %}
+			</p>
 			<div class="row">
 				<div class="clearfix"></div>
 				<figure class="auto col-sm-6 col-xs-12">
-					<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" />
+					{% if premium %}<a href="{% url 'card_stats' %}">{% endif %}
+						<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" />
+					{% if premium %}</a>{% endif %}
 					<figcaption>
 						<h4>Time & Rank Filters</h4>
 						<p>
@@ -56,7 +64,9 @@
 					</figcaption>
 				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
-					<img src="{% static 'images/premium-promotional/mycards.png' %}" class="bordered" />
+					{% if premium %}<a href="{% url 'my_card_stats' %}">{% endif %}
+						<img src="{% static 'images/premium-promotional/mycards.png' %}" class="bordered" />
+					{% if premium %}</a>{% endif %}
 					<figcaption>
 						<h4>My Cards</h4>
 						<p>
@@ -66,7 +76,9 @@
 					</figcaption>
 				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
-					<img src="{% static 'images/premium-promotional/charts.png' %}" class="bordered" />
+					{% if premium and featured_card %}<a href="{% url 'card_detail' pk=featured_card %}">{% endif %}
+						<img src="{% static 'images/premium-promotional/charts.png' %}" class="bordered" />
+					{% if premium and featured_card %}</a>{% endif %}
 					<figcaption>
 						<h4>Turn Details</h4>
 						<p>
@@ -77,7 +89,9 @@
 					</figcaption>
 				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
-					<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" />
+					{% if premium %}<a href="{% url 'deck_list' %}">{% endif %}
+						<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" />
+					{% if premium %}</a>{% endif %}
 					<figcaption>
 						<h4>Matchup Selectors</h4>
 						<p>
@@ -151,7 +165,7 @@
 										disabled
 								>Subscribe now</button>
 							</p>
-							<p class="text-center">Using {{ user.default_payment_method|default:"MasterCard ** 1234" }}</p>
+							<p class="text-center">Using {{ user.default_payment_method }}</p>
 						{% else %}
 							<p class="text-center">
 								{% include "premium/checkout_button.html" with label="Sign me up!" %}
