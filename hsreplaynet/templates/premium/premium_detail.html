@@ -53,7 +53,7 @@
 				<div class="clearfix"></div>
 				<figure class="auto col-sm-6 col-xs-12">
 					{% if premium %}<a href="{% url 'card_stats' %}">{% endif %}
-						<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" />
+						<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" alt="Rank Range & Time Frame" />
 					{% if premium %}</a>{% endif %}
 					<figcaption>
 						<h4>Time & Rank Filters</h4>
@@ -65,7 +65,7 @@
 				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
 					{% if premium %}<a href="{% url 'my_card_stats' %}">{% endif %}
-						<img src="{% static 'images/premium-promotional/mycards.png' %}" class="bordered" />
+						<img src="{% static 'images/premium-promotional/mycards.png' %}" class="bordered" alt="My Cards" />
 					{% if premium %}</a>{% endif %}
 					<figcaption>
 						<h4>My Cards</h4>
@@ -77,7 +77,7 @@
 				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
 					{% if premium and featured_card %}<a href="{% url 'card_detail' pk=featured_card %}">{% endif %}
-						<img src="{% static 'images/premium-promotional/charts.png' %}" class="bordered" />
+						<img src="{% static 'images/premium-promotional/charts.png' %}" class="bordered" alt="Winrate by turn" />
 					{% if premium and featured_card %}</a>{% endif %}
 					<figcaption>
 						<h4>Turn Details</h4>
@@ -90,7 +90,7 @@
 				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
 					{% if premium %}<a href="{% url 'deck_list' %}">{% endif %}
-						<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" />
+						<img src="{% static 'images/premium-promotional/classes.png' %}" class="bordered" alt="Opponent class selector" />
 					{% if premium %}</a>{% endif %}
 					<figcaption>
 						<h4>Matchup Selectors</h4>
