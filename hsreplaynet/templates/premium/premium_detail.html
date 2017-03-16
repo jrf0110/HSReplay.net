@@ -129,8 +129,8 @@
 				<div class="form-group text-center">
 					{% if user.is_authenticated %}
 						<p>Please choose your plan:</p>
-						<div class="btn-group active"  data-toggle="buttons" role="radiogroup">
-							<label class="btn btn-default">
+						<div class="btn-group" data-toggle="buttons" role="radiogroup">
+							<label class="btn btn-default active">
 								<h4>{{ monthly_plan.human_readable_cost|default:"1 month" }}</h4>
 								<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}" required>
 							</label>
