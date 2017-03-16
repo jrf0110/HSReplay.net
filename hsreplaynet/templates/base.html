@@ -147,9 +147,7 @@
 							</li>
 						{% else %}
 							<li class="button-container">
-								<a href="{% provider_login_url "battlenet" %}" class="promo-button">
-									Log in with Battle.net
-								</a>
+								{% include "login_button.html" with class="promo-button" next=request.get_full_path %}
 							</li>
 						{% endif %}
 					</ul>
