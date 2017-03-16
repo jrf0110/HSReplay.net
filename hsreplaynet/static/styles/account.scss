@@ -87,12 +87,6 @@ h2 {
 	margin: 5em auto;
 	width: 325px;
 
-	&.account-login {
-		label[for="id_login"], label[for="id_password"] {
-			display: none;
-		}
-	}
-
 	&.account-signup {
 		label[for="id_username"],
 		label[for="id_email"],

@@ -27,10 +27,31 @@
 	</p>
 </div>
 
-{% if debug %}
+{% if debug or "with-password" in request.GET %}
 
-<h1>(Debug only)</h1>
+<hr/>
 
-{{ block.super }}
+<div class="account-block account-login">
+<p>
+Not using Battle.net? Sign in with your username and password here.
+</p>
+
+<form method="POST" action="" class="form-group">
+	{% csrf_token %}
+
+	{% if form.errors %}
+		<ul class="alert alert-danger">{% for f, error in form.errors.items %}{{ error }}{% endfor %}</ul>
+	{% endif %}
+
+	<label>Username <input type="text" name="login" maxlength="150" id="id_username" class="form-control"/></label>
+	<label>Password <input type="password" name="password" id="id_password" class="form-control"/></label>
+
+	<p>
+		<button type="submit" class="btn btn-primary">Log in</button>
+	</p>
+</form>
+
+</div>
+
 {% endif %}
 {% endblock %}
