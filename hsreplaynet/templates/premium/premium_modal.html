@@ -32,28 +32,34 @@
 			</div>
 
 			{% if user.is_authenticated %}
-				<form method="POST" action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}">
-					{% csrf_token %}
-					<div class="radio">
-						<label>
-							<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}" checked />
-							{{ monthly_plan.human_readable_cost|default:"1 month" }}
-						</label>
-					</div>
-					<div class="radio">
-						<label>
-							<input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" />
-							{{ semiannual_plan.human_readable_cost|default:"6 months" }}
-						</label>
-					</div>
-					{% if user.default_payment_method %}
-						<p>
-							Subscribe with {{ user.default_payment_method }}
-						</p>
-					{% else %}
-						<p class="text-center">{% include "premium/checkout_button.html" with id="premium-modal-checkout-button" %}</p>
-					{% endif %}
-				</form>
+				{% if not billing.read_only %}
+					<form method="POST" action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}">
+						{% csrf_token %}
+						<div class="radio">
+							<label>
+								<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}" checked />
+								{{ monthly_plan.human_readable_cost|default:"1 month" }}
+							</label>
+						</div>
+						<div class="radio">
+							<label>
+								<input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" />
+								{{ semiannual_plan.human_readable_cost|default:"6 months" }}
+							</label>
+						</div>
+						{% if user.default_payment_method %}
+							<p>
+								Subscribe with {{ user.default_payment_method }}
+							</p>
+						{% else %}
+							<p class="text-center">{% include "premium/checkout_button.html" with id="premium-modal-checkout-button" %}</p>
+						{% endif %}
+					</form>
+				{% else %}
+					<p class="text-center">
+						<span class="btn promo-button-outline hero-button disabled">Not available</span>
+					</p>
+				{% endif %}
 			{% else %}
 				<p>
 					Please log in to continue.
