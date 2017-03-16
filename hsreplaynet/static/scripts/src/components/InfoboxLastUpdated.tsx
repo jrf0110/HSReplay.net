@@ -27,7 +27,7 @@ export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdat
 							query={{url: this.props.url, params: this.props.params}}
 							modify={(data) => data && data.as_of ? getAge(new Date(data.as_of)) : null}
 						>
-							<HideLoading><DataText /></HideLoading>
+							<HideLoading><DataText p={false} /></HideLoading>
 						</DataInjector>
 					</Tooltip>
 				</span>
