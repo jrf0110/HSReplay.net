@@ -65,7 +65,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			sortDirection: "ascending",
 		};
 
-		if (this.props.user.isAuthenticated()) {
+		if (this.props.user.hasFeature("profiles")) {
 			this.dataManager.get("/decks/mine/", {}).then((data) => {
 				this.setState({hasPeronalData: data && data[this.props.deckId] !== undefined});
 			});
