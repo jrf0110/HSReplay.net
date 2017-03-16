@@ -1,14 +1,28 @@
 {% extends "base.html" %}
+{% load static from static %}
+{% load feature from features %}
 {% load render_bundle from webpack_loader %}
 
 {% block title %}My Cards{% endblock %}
 
 {% block fullcontent %}
-	{% if premium %}
-		<div id="card-container" data-view-type="personal"></div>
-		{% render_bundle "stats" %}
-		{% render_bundle "card_discover" %}
-	{% else %}
-		{% include "premium/premium_ad.html" %}
-	{% endif %}
+{% feature "billing" as billing %}
+{% if premium %}
+	<div id="card-container" data-view-type="personal"></div>
+	{% render_bundle "stats" %}
+	{% render_bundle "card_discover" %}
+{% else %}
+	<div class="premium-promo">
+		<img src="{% static 'images/premium-promotional/mycards_full.png' %}" class="premium-background" />
+		<div class="card">
+			<div class="container text-center">
+				<h2><span class="text-premium">Premium</span> only</h2>
+				<p class="big">View your card statistics across your replays right here.</p>
+				{% if billing %}
+					<p><a href="{% url 'premium' %}" class="promo-button">Learn more</a></p>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endif %}
 {% endblock %}

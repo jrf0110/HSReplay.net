@@ -315,3 +315,37 @@
 		cursor: not-allowed;
 	}
 }
+
+.premium-promo {
+	margin: 1em 0;
+	padding: calc(50vh - 250px) 0;
+	position: relative;
+
+	.card {
+		color: white;
+		background-color: $blue;
+		padding: 2em;
+		margin: 0 auto;
+
+		h2 {
+			font-weight: bold;
+		}
+
+
+		p.big {
+			margin-bottom: 1em;
+			font-size: 1.2em;
+		}
+	}
+
+	.premium-background {
+		position: absolute;
+		top: 0;
+		left: 0;
+		filter: blur(4px);
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		z-index: -1;
+	}
+}
