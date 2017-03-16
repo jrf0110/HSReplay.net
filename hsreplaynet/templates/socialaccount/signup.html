@@ -28,7 +28,7 @@
 		{% endif %}
 
 		<p class="form-group{% if form.email.errors %} has-error{% endif %}">
-			<label>E-mail
+			<label>Email address
 				<input type="email" name="email" minlength="5" maxlength="16" placeholder="alice@example.org" id="id_email" class="form-control"/>
 			</label>
 			{% if form.email.errors %}<small class="help-inline">{{ form.email.errors.0 }}</small>{% endif %}
