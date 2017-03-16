@@ -39,8 +39,8 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			}
 			const content = [];
 			this.props.header && content.push(<h4>{this.props.header}</h4>);
-			if(this.props.content) {
-				if(typeof this.props.content === "string") {
+			if (this.props.content) {
+				if (typeof this.props.content === "string") {
 					content.push(<p>{this.props.content}</p>);
 				}
 				else {
@@ -64,8 +64,8 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 				onMouseEnter={(e) => this.setState({hovering: true, clientX: e.clientX})}
 				onMouseLeave={() => this.setState({hovering: false})}
 			>
-				{tooltip}
 				{this.props.children}
+				{tooltip}
 			</div>
 		);
 	}
