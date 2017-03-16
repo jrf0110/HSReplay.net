@@ -631,13 +631,17 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 
 		if (viewType === "statistics" || viewType === "personal") {
+			const lastUpdatedUrl = viewType === "statistics"
+				? "card_played_popularity_report"
+				: "single_account_lo_individual_card_stats";
+			const lastUpdatedParams = viewType === "statistics" ? this.getParams() : this.getPersonalParams();
 			filters.push(
 				<h2>Data</h2>,
 				<ul>
 					<InfoboxLastUpdated
 						dataManager={this.dataManager}
-						url={"single_account_lo_individual_card_stats"}
-						params={this.getPersonalParams()}
+						url={lastUpdatedUrl}
+						params={lastUpdatedParams}
 					/>
 					{timeFrame}
 				</ul>,
