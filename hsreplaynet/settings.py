@@ -18,7 +18,6 @@ from django.urls import reverse_lazy
 HOSTNAME = platform.node()
 ENV_LIVE = HOSTNAME.endswith("hsreplay.net")
 ENV_LAMBDA = bool(os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
-ENV_LOADTEST = bool(os.environ.get("LOADTEST"))
 ENV_AWS = ENV_LIVE or ENV_LAMBDA
 ENV_DEV = bool(os.environ.get("HSREPLAYNET_DEBUG"))
 ENV_VAGRANT = bool(os.environ.get("ENV_VAGRANT"))
@@ -85,12 +84,8 @@ INSTALLED_APPS_WEB = [
 ]
 
 INSTALLED_APPS = INSTALLED_APPS_CORE
-if not ENV_LAMBDA and not ENV_LOADTEST:
+if not ENV_LAMBDA:
 	INSTALLED_APPS += INSTALLED_APPS_WEB
-
-if ENV_LOADTEST:
-	# We need djstripe in order to be able to cleanly delete load test users
-	INSTALLED_APPS.append("djstripe")
 
 MIDDLEWARE = [
 	"django.contrib.sessions.middleware.SessionMiddleware",

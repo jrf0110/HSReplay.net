@@ -1,12 +1,7 @@
 import base64
-import os
 import pytest
 from django.core.management import call_command
-from django.urls import reverse
 from hearthstone.enums import CardClass, FormatType
-from selenium import webdriver
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import WebDriverWait
 from hsreplaynet.cards.models import Archetype, CanonicalDeck, Deck
 
 
@@ -163,46 +158,3 @@ def s3_create_object_event():
 			}
 		}]
 	}
-
-
-@pytest.yield_fixture(scope="session")
-def full_url():
-	HOST = pytest.config.getoption("--host")
-
-	def resolver(page_name):
-		return HOST + reverse(page_name)
-
-	yield resolver
-
-
-@pytest.mark.django_db
-@pytest.yield_fixture(scope="session")
-def browser(full_url, django_db_blocker):
-	with django_db_blocker.unblock():
-
-		_username = os.environ.get("SELENIUM_USERNAME", None)
-		_password = os.environ.get("SELENIUM_PASSWORD", None)
-		if not _username or not _password:
-			raise ValueError("Missing env variables SELENIUM_USER or SELENIUM_PASSWORD")
-
-		browser = webdriver.Chrome('/usr/local/bin/chromedriver')
-		browser.implicitly_wait(3)
-
-		def wait_until(locator):
-			return WebDriverWait(browser, 10).until(
-				expected_conditions.presence_of_element_located(locator)
-			)
-		browser.wait_until = wait_until
-
-		browser.get(full_url("admin:login"))
-		username = browser.find_element_by_id("id_username")
-		password = browser.find_element_by_id("id_password")
-		username.clear()
-		password.clear()
-		username.send_keys(_username)
-		password.send_keys(_password)
-		password.submit()
-
-		yield browser
-
-		browser.quit()
