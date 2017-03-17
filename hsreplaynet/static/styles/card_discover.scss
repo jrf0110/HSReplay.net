@@ -50,7 +50,7 @@
 
 			>li {
 				&.mana-crystal {
-					filter: saturate(0) opacity(0.9);
+					filter: saturate(0) opacity(0.6);
 					height: 28px;
 					width: 28px;
 					border: 0;
@@ -58,7 +58,7 @@
 
 					&.selected {
 						background: transparent;
-						filter: saturate(1) opacity(1);
+						filter: saturate(1) opacity(1) brightness(1.2);
 					}
 					&.selected::before {
 						content: "";
@@ -95,7 +95,7 @@
 
 			>li:hover {
 				&.mana-crystal {
-					filter: brightness(1.2);
+					filter: brightness(1.3);
 					text-decoration: none;
 					background: transparent;
 				}
