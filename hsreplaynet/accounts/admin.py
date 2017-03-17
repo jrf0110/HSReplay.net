@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from djstripe.models import Customer
 from hsreplaynet.api.admin import AuthToken
+from hsreplaynet.games.models import PegasusAccount
 from hsreplaynet.utils.admin import admin_urlify as urlify
 from .models import AccountClaim, AccountDeleteRequest, User
 
@@ -15,11 +16,17 @@ class AuthTokenInline(admin.TabularInline):
 	show_change_link = True
 
 
+class PegasusAccountInline(admin.TabularInline):
+	model = PegasusAccount
+	extra = 0
+	readonly_fields = ("account_hi", "account_lo")
+
+
 class SocialAccountInline(admin.TabularInline):
 	model = SocialAccount
 	extra = 0
-	show_change_link = True
 	readonly_fields = ("provider", "uid", "extra_data")
+	show_change_link = True
 
 
 class StripeCustomerInline(admin.TabularInline):
@@ -41,7 +48,9 @@ class UserAdmin(BaseUserAdmin):
 		"username", "date_joined", "last_login", "is_fake", "default_replay_visibility"
 	)
 	list_filter = BaseUserAdmin.list_filter + ("is_fake", "default_replay_visibility")
-	inlines = (SocialAccountInline, AuthTokenInline, StripeCustomerInline)
+	inlines = (
+		SocialAccountInline, PegasusAccountInline, AuthTokenInline, StripeCustomerInline
+	)
 
 
 @admin.register(AccountClaim)
