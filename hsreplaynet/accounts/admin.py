@@ -1,3 +1,4 @@
+from allauth.socialaccount.models import SocialAccount
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from djstripe.models import Customer
@@ -12,6 +13,13 @@ class AuthTokenInline(admin.TabularInline):
 	fields = ("creation_apikey", "created", "test_data", )
 	readonly_fields = ("created", )
 	show_change_link = True
+
+
+class SocialAccountInline(admin.TabularInline):
+	model = SocialAccount
+	extra = 0
+	show_change_link = True
+	readonly_fields = ("provider", "uid", "extra_data")
 
 
 class StripeCustomerInline(admin.TabularInline):
@@ -33,7 +41,7 @@ class UserAdmin(BaseUserAdmin):
 		"username", "date_joined", "last_login", "is_fake", "default_replay_visibility"
 	)
 	list_filter = BaseUserAdmin.list_filter + ("is_fake", "default_replay_visibility")
-	inlines = (AuthTokenInline, StripeCustomerInline)
+	inlines = (SocialAccountInline, AuthTokenInline, StripeCustomerInline)
 
 
 @admin.register(AccountClaim)
