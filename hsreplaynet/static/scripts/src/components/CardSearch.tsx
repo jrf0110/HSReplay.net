@@ -10,7 +10,7 @@ interface CardSearchState {
 }
 
 interface CardSearchProps extends React.ClassAttributes<CardSearch> {
-	availableCards: any[]
+	availableCards: any[];
 	onCardsChanged: (cards: any[]) => void;
 	selectedCards: any[];
 }
@@ -22,30 +22,27 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 	constructor(props: CardSearchProps, state: CardSearchState) {
 		super(props, state);
 		this.state = {
-			cardSearchText: "",
-			cardSearchHasFocus: false,
 			cardSearchCount: this.defaultCardCount,
+			cardSearchHasFocus: false,
+			cardSearchText: "",
 			selectedIndex: 0,
-		}
+		};
 	}
 
 	render(): JSX.Element {
-		const searchLostFocus = () => {
-			this.setState({cardSearchHasFocus: false});
-		}
-
 		const cards = [];
 		const matches = this.getFilteredCards();
 		matches.slice(0, this.state.cardSearchCount).forEach((card, index) => {
 			const selected = this.state.selectedIndex === index;
 			cards.push(
-				<li key={card.id}
-					onMouseEnter={() => this.setState({selectedIndex: index})}
+				<li
 					className={selected ? "selected" : undefined}
+					key={card.id}
 					onMouseDown={() => this.addCard(card)}
+					onMouseEnter={() => this.setState({selectedIndex: index})}
 				>
 					<CardTile card={card} count={1} height={34} rarityColored tooltip/>
-				</li>
+				</li>,
 			);
 		});
 
@@ -53,7 +50,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			cards.push(
 				<li>
 					<div className="search-message">No cards found</div>
-				</li>
+				</li>,
 			);
 		}
 
@@ -63,7 +60,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 					this.setState({cardSearchCount: this.state.cardSearchCount + this.defaultCardCount});
 				}
 			}
-		}
+		};
 
 		let cardSearchResults = null;
 		if (this.state.cardSearchHasFocus && cards.length && this.state.cardSearchText.length) {
@@ -110,7 +107,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 	onKeyDown(event: React.KeyboardEvent<HTMLInputElement>, numCards: number): void {
 		switch (event.key) {
 			case "ArrowDown":
-				if(!this.search) {
+				if (!this.search) {
 					return;
 				}
 				this.setState({selectedIndex: Math.min(numCards - 1, this.state.selectedIndex + 1)});
@@ -120,7 +117,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				this.search["scrollTop"] += 35;
 				break;
 			case "ArrowUp":
-				if(!this.search) {
+				if (!this.search) {
 					return;
 				}
 				this.setState({selectedIndex: Math.max(0, this.state.selectedIndex - 1)});
@@ -128,7 +125,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				break;
 			case "Enter":
 				const filteredCards = this.getFilteredCards();
-				if(!filteredCards.length) {
+				if (!filteredCards.length) {
 					return;
 				}
 				this.addCard(this.getFilteredCards()[this.state.selectedIndex]);
@@ -168,16 +165,16 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			return null;
 		}
 		const selectedCards = [];
-		this.props.selectedCards.forEach(card => {
+		this.props.selectedCards.forEach((card) => {
 			const removeCard = () => {
-				const newSelectedCards = this.props.selectedCards.filter(x => x !== card);
-				this.props.onCardsChanged(newSelectedCards)
+				const newSelectedCards = this.props.selectedCards.filter((x) => x !== card);
+				this.props.onCardsChanged(newSelectedCards);
 			};
 			selectedCards.push(
 				<li onClick={removeCard}>
 					<div className="glyphicon glyphicon-remove" />
 					<CardTile card={card} count={1} height={34} rarityColored tooltip />
-				</li>
+				</li>,
 			);
 		});
 		return selectedCards;
