@@ -94,7 +94,7 @@ class GlobalGamePlayerAdmin(admin.ModelAdmin):
 		"__str__", "account_lo", urlify("hero"), "is_first",
 		"rank", "stars", "legend_rank", "final_state"
 	)
-	list_filter = ("rank", "is_ai", "is_first", "hero_premium", "final_state", "player_id")
+	list_filter = ("is_ai", "is_first", "hero_premium", "final_state", "player_id")
 	raw_id_fields = ("game", "hero", "deck_list", "pegasus_account")
 	search_fields = ("name", "real_name")
 	show_full_result_count = False
