@@ -42,6 +42,7 @@ interface CardDiscoverState {
 	cards?: any[];
 	filteredCards: any[];
 	filterCounts: CardFilters;
+	hasPersonalData: boolean;
 	numCards?: number;
 	queryMap?: QueryMap;
 	showFilters?: boolean;
@@ -121,6 +122,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			cards: null,
 			filterCounts: null,
 			filteredCards: [],
+			hasPersonalData: false,
 			numCards: 24,
 			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showFilters: false,
@@ -136,6 +138,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				break;
 		}
 		this.filters.mechanics.sort();
+
+		if (this.props.viewType === "personal") {
+			this.dataManager.get("single_account_lo_individual_card_stats", this.getPersonalParams())
+				.then((data) => this.setState({hasPersonalData: data && data.series.data.ALL.length > 0}));
+		}
 	}
 
 	getAllowedValues(): any {
@@ -313,7 +320,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</DataInjector>
 				</div>,
 			);
-			if (showMoreButton && this.dataManager.has("single_account_lo_individual_card_stats", this.getPersonalParams())) {
+			if (showMoreButton && this.state.hasPersonalData) {
 				content.push(showMoreButton);
 			}
 		}
