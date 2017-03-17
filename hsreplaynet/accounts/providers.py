@@ -1,6 +1,6 @@
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from hsreplaynet.utils import log
-from hsreplaynet.utils.influx import influx_write_payload
+from hsreplaynet.utils.influx import influx_metric
 
 
 ALWAYS_CAPTURE_EMAILS = True
@@ -23,15 +23,8 @@ class BattleNetAdapter(DefaultSocialAccountAdapter):
 		log.error("[%s] Authentication error: %r (exception=%r)", provider_id, error, exception)
 		# Write the error details to Influx
 		region = request.GET.get("region", "us")
-		payload = {
-			"measurement": "hsreplaynet_socialauth_error",
-			"tags": {
-				"provider_id": provider_id,
-				"error": error,
-				"region": region,
-			},
-			"fields": {
-				"exception": str(exception),
-			}
-		}
-		influx_write_payload([payload])
+		influx_metric(
+			"hsreplaynet_socialauth_error",
+			{"count": 1, "exception": str(exception)},
+			provider_id=provider_id, error=error, region=region,
+		)
