@@ -1,8 +1,7 @@
 import moment from "moment";
 import * as React from "react";
 import {
-	VictoryArea, VictoryAxis, VictoryChart, VictoryContainer, VictoryGroup, VictoryLabel,
-	VictoryLine, VictoryScatter, VictoryVoronoiContainer,
+	VictoryArea, VictoryAxis, VictoryChart, VictoryLabel, VictoryVoronoiContainer,
 } from "victory";
 import {getChartMetaData, sliceZeros, toDynamicFixed, toTimeSeries} from "../../helpers";
 import {RenderData} from "../../interfaces";
@@ -41,7 +40,11 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					domainPadding={{x: 0, y: 10}}
 					padding={{left: 40, top: 30, right: 20, bottom: 30}}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
-					containerComponent={<VictoryContainer title="" />}
+					containerComponent={<VictoryVoronoiContainer
+						dimension="x"
+						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
+						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} />}
+					/>}
 				>
 					<VictoryAxis
 						scale="time"
@@ -72,20 +75,10 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 							axis: {visibility: "hidden"},
 						}}
 					/>
-					<VictoryLine
-						data={series.data}
-						interpolation="monotoneX"
-						style={{data: {strokeWidth: 1}}}
-					/>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
-						style={{data: {fill: "url(#winrate-by-time-gradient)"}}}
+						style={{data: {fill: "url(#winrate-by-time-gradient)", stroke: "black", strokeWidth: 0.3}}}
 						interpolation="monotoneX"
-						containerComponent={<VictoryVoronoiContainer
-							dimension="x"
-							labels={(d) => moment(d.x).format("YYYY-MM-DD") + "\n" + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
-							labelComponent={<ChartHighlighter xCenter={metadata.xCenter} />}
-						/>}
 					/>
 				</VictoryChart>
 				<VictoryLabel
