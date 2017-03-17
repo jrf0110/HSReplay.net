@@ -73,18 +73,31 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			);
 		}
 
+		let clear = null;
+		if (this.state.cardSearchText) {
+			clear = (
+				<span
+					className="glyphicon glyphicon-remove form-control-feedback"
+					onClick={() => this.setState({cardSearchText: ""})}
+				/>
+			);
+		}
+
 		return (
 			<div className="card-search search-wrapper">
-				<input
-					className="form-control"
-					type="search"
-					placeholder="Search..."
-					onFocus={() => this.setState({cardSearchHasFocus: true})}
-					onBlur={() => this.setState({cardSearchHasFocus: false})}
-					value={this.state.cardSearchText}
-					onChange={(e) => this.setState({cardSearchText: e.target["value"]})}
-					onKeyDown={(e) => this.onKeyDown(e, cards.length)}
-				/>
+				<div className="form-group has-feedback">
+					<input
+						className="form-control"
+						type="search"
+						placeholder="Search..."
+						onFocus={() => this.setState({cardSearchHasFocus: true})}
+						onBlur={() => this.setState({cardSearchHasFocus: false})}
+						value={this.state.cardSearchText}
+						onChange={(e) => this.setState({cardSearchText: e.target["value"]})}
+						onKeyDown={(e) => this.onKeyDown(e, cards.length)}
+					/>
+					{clear}
+				</div>
 				{cardSearchResults}
 				<ul>
 					{this.getSelectedCards()}

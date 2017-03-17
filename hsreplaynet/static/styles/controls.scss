@@ -160,6 +160,16 @@ label>input {
 			}
 		}
 	}
+
+	.glyphicon-remove {
+		cursor: pointer;
+		color: lightgray;
+		pointer-events: auto;
+	}
+
+	.glyphicon-remove:hover {
+		color: $red;
+	}
 }
 
 .class-icon-label-wrapper {
