@@ -33,7 +33,11 @@ export default class TableLoading extends React.Component<TableLoadingProps, voi
 			return <h3 className="message-wrapper">Loading...</h3>;
 		}
 
-		const noData = (this.props.dataKeys || ["data"]).some((key) => this.props[key].length === 0);
+		const noData = (this.props.dataKeys || ["data"]).some((key) => {
+			const data = this.props[key].series.data;
+			const keys = Object.keys(data);
+			return keys.length === 0 || data[keys[0]].length === 0;
+		});
 		if (noData) {
 			return <h3 className="message-wrapper">No available data.</h3>;
 		}
