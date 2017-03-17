@@ -2,6 +2,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from djstripe.models import Customer
+from hsreplaynet.admin.paginators import EstimatedCountPaginator
 from hsreplaynet.api.admin import AuthToken
 from hsreplaynet.games.models import PegasusAccount
 from hsreplaynet.utils.admin import admin_urlify as urlify
@@ -51,6 +52,7 @@ class UserAdmin(BaseUserAdmin):
 	inlines = (
 		SocialAccountInline, PegasusAccountInline, AuthTokenInline, StripeCustomerInline
 	)
+	paginator = EstimatedCountPaginator
 
 
 @admin.register(AccountClaim)

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from hsreplaynet.admin.paginators import EstimatedCountPaginator
 from hsreplaynet.utils.admin import admin_urlify as urlify, set_user
 from .models import APIKey, AuthToken
 
@@ -11,6 +12,8 @@ class AuthTokenAdmin(admin.ModelAdmin):
 	list_filter = ("test_data", )
 	raw_id_fields = ("user", )
 	search_fields = ("key", "user__username")
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator
 
 
 @admin.register(APIKey)
@@ -20,3 +23,5 @@ class APIKeyAdmin(admin.ModelAdmin):
 	list_filter = ("enabled", )
 	exclude = ("tokens", )
 	readonly_fields = ("api_key", )
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator

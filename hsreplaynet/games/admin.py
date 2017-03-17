@@ -1,4 +1,5 @@
 from django.contrib import admin
+from hsreplaynet.admin.paginators import EstimatedCountPaginator
 from hsreplaynet.uploads.models import UploadEvent
 from hsreplaynet.uploads.processing import queue_upload_event_for_reprocessing
 from hsreplaynet.utils.admin import admin_urlify as urlify, set_user
@@ -53,6 +54,8 @@ class GameReplayAdmin(admin.ModelAdmin):
 	)
 	readonly_fields = ("shortid", "upload_event", "opponent_revealed_deck")
 	search_fields = ("shortid", "global_game__players__name", "user__username")
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
@@ -76,6 +79,8 @@ class GlobalGameAdmin(admin.ModelAdmin):
 	readonly_fields = ("digest", )
 	search_fields = ("replays__shortid", "players__name")
 	inlines = (GlobalGamePlayerInline, GameReplayInline)
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
@@ -92,6 +97,8 @@ class GlobalGamePlayerAdmin(admin.ModelAdmin):
 	list_filter = ("rank", "is_ai", "is_first", "hero_premium", "final_state", "player_id")
 	raw_id_fields = ("game", "hero", "deck_list", "pegasus_account")
 	search_fields = ("name", "real_name")
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator
 
 
 @admin.register(PegasusAccount)
@@ -103,3 +110,5 @@ class PegasusAccountAdmin(admin.ModelAdmin):
 	raw_id_fields = ("user", )
 	search_fields = ("battletag", )
 	readonly_fields = ("created", "modified")
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator

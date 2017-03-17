@@ -1,4 +1,5 @@
 from django.contrib import admin
+from hsreplaynet.admin.paginators import EstimatedCountPaginator
 from hsreplaynet.utils.admin import admin_urlify as urlify
 from .models import UploadEvent
 from .processing import queue_upload_events_for_reprocessing
@@ -21,6 +22,7 @@ class UploadEventAdmin(admin.ModelAdmin):
 	readonly_fields = ("created", "processing_logs")
 	search_fields = ("shortid", )
 	show_full_result_count = False
+	paginator = EstimatedCountPaginator
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
