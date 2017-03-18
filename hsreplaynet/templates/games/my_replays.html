@@ -5,7 +5,7 @@
 {% block title %}My Replays{% endblock %}
 
 {% block fullcontent %}
-<div class="content replay-listing">
+<div class="content replay-listing {% if not replays %}no-replays{% endif %}">
 {% if not replays %}
 	{% if not user.email %}
 		<p class="alert alert-warning">
@@ -13,17 +13,28 @@
 			<strong><a href="{% url 'account_email' %}">Set up an email address</a></strong>.
 		</p>
 	{% endif %}
+
 	<section id="play-some-hearthstone">
 		<h1>Play a few games!</h1>
 		<p>Your replays will appear here once you've uploaded them using Hearthstone Deck Tracker.</p>
 		<p><a href="{% url 'downloads' %}" class="promo-button">Download HDT</a></p>
 	</section>
+
 	<section id="claim-account">
 		<p>
-			Make sure to claim your account from HDT in <code>Options → Replays</code>.
-			<a href="{% static 'images/claim-account.jpg' %}">
-				<img src="{% static 'images/claim-account.png' %}"/>
-			</a>
+			Make sure to <strong>claim your account</strong> from HDT in <code>Options → Replays</code>.
+		</p>
+
+		<a href="{% static 'images/claim-account.png' %}" class="claim-account-screenshot">
+			<img src="{% static 'images/claim-account.jpg' %}"/>
+		</a>
+	</section>
+
+	<section id="need-help">
+		<h2>Need help?</h2>
+		<p>
+			Join our community on <strong><a href="https://discord.gg/hearthsim" target="_blank">Discord</a></strong>.<br/>
+			Chat with the devs, give feedback and suggestions!
 		</p>
 	</section>
 {% else %}

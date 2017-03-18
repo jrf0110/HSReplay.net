@@ -371,25 +371,21 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 
 /* Styling for empty section */
 
-#play-some-hearthstone, #claim-account {
+.replay-listing.no-replays {
+	margin: 8em auto 4em;
 	text-align: center;
-}
 
-#play-some-hearthstone {
-	margin-top: 8em;
-}
+	#claim-account {
+		margin: 5em;
 
-#claim-account {
-	margin: 5em 0;
-
-	a {
-		display: block;
-		margin: 1em auto;
-		width: 275px;
-
-		img {
-			border: 1px solid black;
+		.claim-account-screenshot {
+			display: block;
+			margin: 1em auto;
 			width: 275px;
+
+			img {
+				width: 275px;
+			}
 		}
 	}
 }
