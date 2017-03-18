@@ -236,7 +236,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			});
 			this.setState({filteredDecks: decks, loading: false});
 		})).catch((reason) => {
-			if (reason !== "Params changed") {
+			if (reason !== "Params changed" && reason !== 202) {
 				console.error(reason);
 			}
 		});
