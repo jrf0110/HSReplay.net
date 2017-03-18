@@ -72,12 +72,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				this.setState({hasPeronalData: data && data[this.props.deckId] !== undefined});
 			});
 		}
+	}
 
-		this.dataManager.get("list_decks_by_win_rate", {GameType: this.gameType()}).then((data) => {
-			this.setState({
-				hasData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
+	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailState) {
+		if (!prevProps.cardData && this.props.cardData) {
+			this.dataManager.get("list_decks_by_win_rate", {GameType: this.gameType()}).then((data) => {
+				this.setState({
+					hasData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
+				});
 			});
-		});
+		}
 	}
 
 	render(): JSX.Element {
