@@ -30,11 +30,14 @@ class BattleNetAdapter(DefaultSocialAccountAdapter):
 		)
 
 	def new_user(self, request, sociallogin):
+		battletag = sociallogin.account.extra_data.get("battletag")
 		influx_metric(
 			"hsreplaynet_socialauth_signup",
 			{"count": 1},
 			provider=sociallogin.account.provider,
 			region=sociallogin.account.extra_data.get("region", "unknown"),
-			has_battletag=bool(sociallogin.account.extra_data.get("battletag"))
+			has_battletag=bool(battletag),
 		)
-		return super().new_user(request, sociallogin)
+		ret = super().new_user(request, sociallogin)
+		ret.battletag = battletag
+		return ret
