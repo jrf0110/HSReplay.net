@@ -2,16 +2,16 @@
 {% load static from static %}
 
 <button
-		disabled
-		id="{{ id|default:"premium-checkout-button" }}"
-		class="btn"
-		data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
-		data-image="{% static 'images/hsreplay-thumbnail.png' %}"
-		data-name="HearthSim Pro"
-		{% if user.email %}data-email="{{ user.email }}"{% endif %}
-		data-locale="auto"
-		data-description="Sign up for HearthSim Pro"
-		data-label="{{ label|default:"Sign me up!" }}"
-		data-panel-label="Subscribe"
-		data-allow-remember-me="false"
+	disabled
+	id="{{ id|default:"premium-checkout-button" }}"
+	class="btn"
+	data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
+	data-image="{% static 'images/hsreplay-thumbnail.png' %}"
+	data-name="HearthSim Premium"
+	{% if user.email %}data-email="{{ user.email }}"{% endif %}
+	data-locale="auto"
+	data-description="Sign up for HearthSim Premium"
+	data-label="{{ label|default:"Sign me up!" }}"
+	data-panel-label="Subscribe"
+	data-allow-remember-me="false"
 >{{ label|default:"Subscribe" }}</button>
