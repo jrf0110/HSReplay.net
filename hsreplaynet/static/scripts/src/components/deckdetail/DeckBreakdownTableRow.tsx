@@ -31,7 +31,7 @@ export default class DeckBreakdownTableRow extends React.Component<DeckBreakdown
 		cols.push(<td>
 			<div className="card-wrapper">
 				<a href={url}>
-					<CardTile height={34} card={this.props.cardObj.card} count={this.props.cardObj.count} rarityColored tooltip/>
+					<CardTile height={34} card={this.props.cardObj.card} count={this.props.cardObj.count} rarityColored />
 				</a>
 			</div>
 		</td>);

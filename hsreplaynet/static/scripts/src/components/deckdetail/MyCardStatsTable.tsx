@@ -56,7 +56,7 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 					<td className="td-card">
 						<div className="card-wrapper">
 							<a href={"/cards/" + obj.card.dbfId}>
-								<CardTile card={obj.card} count={1} rarityColored height={34} tooltip />
+								<CardTile card={obj.card} count={1} rarityColored height={34} />
 							</a>
 						</div>
 					</td>

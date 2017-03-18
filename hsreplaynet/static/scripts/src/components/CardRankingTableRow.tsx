@@ -24,7 +24,7 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 				count={1}
 				rarityColored
 				customText={this.props.customCardText}
-				tooltip={["HERO", "HERO_POWER"].indexOf(this.props.card.type) === -1}
+				disableTooltip={["HERO", "HERO_POWER"].indexOf(this.props.card.type) !== -1}
 			/>
 		);
 		if (this.props.clickable) {

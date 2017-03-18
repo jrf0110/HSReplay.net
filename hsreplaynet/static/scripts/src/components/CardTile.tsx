@@ -3,11 +3,11 @@ import * as React from "react";
 interface CardTileProps extends React.ClassAttributes<CardTile> {
 	card: any;
 	count: number;
-	height?: number;
-	rarityColored?: boolean;
-	hideGem?: boolean;
 	customText?: string;
-	tooltip?: boolean;
+	disableTooltip?: boolean;
+	height?: number;
+	hideGem?: boolean;
+	rarityColored?: boolean;
 }
 
 interface CardTileState {
@@ -23,7 +23,7 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 			clientX: 0,
 			clientY: 0,
 			hovering: false,
-		}
+		};
 	}
 
 	public render(): JSX.Element {
@@ -40,12 +40,12 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 		let nameStyle = {fontSize: this.props.height / baseHeight * 0.9 + "em", width: "calc(100% - " + ((showCountBox ? countWidth : 0) + 4) + "px)"};
 
 		let imageWidth = this.props.height / baseHeight * baseImageWidth;
-		let imageRight = showCountBox ? (this.props.height / baseHeight * baseCountWidth - 2) + "px" : "0"
+		let imageRight = showCountBox ? (this.props.height / baseHeight * baseCountWidth - 2) + "px" : "0";
 		let imageStyle = {width: imageWidth + "px", right: imageRight};
 
 		let countBox = null;
 		if (showCountBox) {
-			let singleLegendary = this.props.card.rarity === "LEGENDARY" && this.props.count == 1;
+			let singleLegendary = this.props.card.rarity === "LEGENDARY" && this.props.count === 1;
 			let countboxStyle = {width: countWidth + "px"};
 			let countStyle = {fontSize: this.props.height / baseHeight * 1.15 + "em", top: singleLegendary ? "-2px" : 0};
 
@@ -72,7 +72,7 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 		}
 
 		let tooltip = null;
-		if (this.props.tooltip && this.state.hovering) {
+		if (!this.props.disableTooltip && this.state.hovering) {
 			const imageStyle = {
 				top: Math.max(0, this.state.clientY - 350) + "px",
 			};

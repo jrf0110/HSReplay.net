@@ -63,7 +63,7 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 					<td>
 						<div className="card-wrapper">
 							<a href={url}>
-								<CardTile card={obj.card} count={1} rarityColored height={34} tooltip />
+								<CardTile card={obj.card} count={1} rarityColored height={34} />
 							</a>
 						</div>
 					</td>
