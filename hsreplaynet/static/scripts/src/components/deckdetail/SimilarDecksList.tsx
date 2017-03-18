@@ -21,16 +21,20 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 		const byDistance = [];
 
 		const classDecks = this.props.data.series.data[this.props.playerClass];
-		classDecks.forEach((deck) => {
-			let distance = 0;
-			const cards = JSON.parse(deck["deck_list"]);
-			cards.forEach((pair) => {
-				distance += Math.abs(pair[1] - (deckList[pair[0]] || 0));
+		let maxDistance = 3;
+		while (maxDistance < 6 && byDistance.length < 20) {
+			classDecks.forEach((deck) => {
+				let distance = 0;
+				const cards = JSON.parse(deck["deck_list"]);
+				cards.forEach((pair) => {
+					distance += Math.abs(pair[1] - (deckList[pair[0]] || 0));
+				});
+				if (distance > 1 && distance < maxDistance) {
+					byDistance.push({cards, deck, distance, numGames: +deck["total_games"]});
+				}
 			});
-			if (distance > 1 && distance < 3) {
-				byDistance.push({cards, deck, distance, numGames: +deck["total_games"]});
-			}
-		});
+			maxDistance++;
+		}
 
 		if (!byDistance.length) {
 			return <h3 className="message-wrapper">No decks found.</h3>;
