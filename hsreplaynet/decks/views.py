@@ -1,3 +1,4 @@
+import string
 from collections import defaultdict
 from datetime import timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -7,10 +8,14 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, View
 from hearthstone.enums import CardClass, PlayState
+from shortuuid.main import string_to_int
 from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.cards.models import Archetype, Deck
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.games.models import GameReplay
+
+
+ALPHABET = string.ascii_letters + string.digits
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
@@ -18,7 +23,11 @@ class DeckDetailView(View):
 	template_name = "decks/deck_detail.html"
 
 	def get(self, request, id):
-		deck = get_object_or_404(Deck, id=id)
+		if id.isdigit():
+			deck = get_object_or_404(Deck, id=id)
+		else:
+			digest = hex(string_to_int(id, ALPHABET))[2:]
+			deck = get_object_or_404(Deck, digest=digest)
 		cards = deck.card_dbf_id_list()
 		if len(cards) != 30:
 			raise Http404("Invalid deck")
