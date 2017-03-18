@@ -21,26 +21,29 @@ export default class CardList extends React.Component<CardListProps, any> {
 			return null;
 		}
 		if (!this.props.cardDb) {
-			return <div>Loading...</div>
+			return <div>Loading...</div>;
 		}
 
 		const cardHeight = this.props.cardHeight ? this.props.cardHeight : 34;
 		const counts = {};
-		this.props.cards.forEach(id => counts[id] = (counts[id] || 0) + 1);
+		this.props.cards.forEach((id) => counts[id] = (counts[id] || 0) + 1);
 
-		const cards = Object.keys(counts).map(id => this.props.cardDb.get(id));
+		const cards = Object.keys(counts).map((id) => this.props.cardDb.get(id));
 		cards.sort(cardSorting);
 
 		const cardTiles = [];
-		cards.forEach(card => {
-			if (!card) {
-				return;
+		cards.forEach((card) => {
+			if (card) {
+				cardTiles.push(
+					<CardTile
+						card={card}
+						count={counts[card.id]}
+						height={cardHeight}
+						rarityColored={this.props.rarityColored}
+						noLink={!this.props.clickable}
+					/>,
+				);
 			}
-			let tile = <CardTile card={card} count={counts[card.id]} height={cardHeight} rarityColored={this.props.rarityColored} />;
-			if (this.props.clickable) {
-				tile = <a href={"/cards/" + card.dbfId + "/"}>{tile}</a>
-			}
-			cardTiles.push(tile);
 		});
 
 		return (

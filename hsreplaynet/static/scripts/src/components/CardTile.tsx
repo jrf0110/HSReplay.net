@@ -8,6 +8,8 @@ interface CardTileProps extends React.ClassAttributes<CardTile> {
 	height?: number;
 	hideGem?: boolean;
 	rarityColored?: boolean;
+	noLink?: boolean;
+	urlGameType?: string;
 }
 
 interface CardTileState {
@@ -94,22 +96,32 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 			);
 		}
 
+		let url = null;
+		if (!this.props.noLink) {
+			url = `/cards/${this.props.card.dbfId}/`;
+			if (this.props.urlGameType) {
+				url += "#gameType=" + this.props.urlGameType;
+			}
+		}
+
 		return (
-			<div
-				className="card-tile"
-				style={tileStyle}
-				onMouseMove={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
-				onMouseLeave={() => this.setState({hovering: false})}
-			>
-				{tooltip}
-				{gem}
-				<div className="card-frame">
-					<img className="card-asset" src={"https://art.hearthstonejson.com/v1/tiles/" + this.props.card.id + ".png"} style={imageStyle}/>
-					{countBox}
-					<span className={"card-fade-" + (showCountBox ? "countbox" : "no-countbox")} />
-					<span className="card-name" style={nameStyle}>{this.props.customText || this.props.card.name}</span>
+			<a href={url}>
+				<div
+					className="card-tile"
+					style={tileStyle}
+					onMouseMove={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
+					onMouseLeave={() => this.setState({hovering: false})}
+				>
+					{tooltip}
+					{gem}
+					<div className="card-frame">
+						<img className="card-asset" src={"https://art.hearthstonejson.com/v1/tiles/" + this.props.card.id + ".png"} style={imageStyle}/>
+						{countBox}
+						<span className={"card-fade-" + (showCountBox ? "countbox" : "no-countbox")} />
+						<span className="card-name" style={nameStyle}>{this.props.customText || this.props.card.name}</span>
+					</div>
 				</div>
-			</div>
+			</a>
 		);
 	}
 }

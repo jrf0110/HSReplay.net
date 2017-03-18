@@ -41,7 +41,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 					onMouseDown={() => this.addCard(card)}
 					onMouseEnter={() => this.setState({selectedIndex: index})}
 				>
-					<CardTile card={card} count={1} height={34} rarityColored />
+					<CardTile card={card} count={1} height={34} rarityColored noLink/>
 				</li>,
 			);
 		});
@@ -186,7 +186,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			selectedCards.push(
 				<li onClick={removeCard}>
 					<div className="glyphicon glyphicon-remove" />
-					<CardTile card={card} count={1} height={34} rarityColored />
+					<CardTile card={card} count={1} height={34} rarityColored noLink />
 				</li>,
 			);
 		});

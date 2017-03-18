@@ -155,7 +155,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									cardData={this.props.cardData}
 									numRows={8}
 									dataKey={"ALL"}
-									clickable
 									urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 								/>
 							</TableLoading>
@@ -175,7 +174,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									cardData={this.props.cardData}
 									numRows={8}
 									dataKey={"ALL"}
-									clickable
 									urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
 								/>
 							</TableLoading>

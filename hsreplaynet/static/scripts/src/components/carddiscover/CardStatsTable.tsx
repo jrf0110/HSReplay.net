@@ -54,17 +54,12 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 			const playedPopularity = " (" + (obj.playedPopularity ? toDynamicFixed(obj.playedPopularity) + "%" : "0%") + ")";
 			const includedWrData = obj.includedWinrate && winrateData(50, obj.includedWinrate, 3);
 			const playedWrData = obj.playedWinrate && winrateData(50, obj.playedWinrate, 3);
-			let url = "/cards/" + obj.card.dbfId + "/";
-			if (this.props.gameType !== "RANKED_STANDARD") {
-				url += "#gameType=" + this.props.gameType;
-			}
+			const urlGameType = this.props.gameType !== "RANKED_STANDARD" ? this.props.gameType : undefined;
 			rows.push(
 				<tr>
 					<td>
 						<div className="card-wrapper">
-							<a href={url}>
-								<CardTile card={obj.card} count={1} rarityColored height={34} />
-							</a>
+							<CardTile card={obj.card} count={1} rarityColored height={34} urlGameType={urlGameType}/>
 						</div>
 					</td>
 					<td>

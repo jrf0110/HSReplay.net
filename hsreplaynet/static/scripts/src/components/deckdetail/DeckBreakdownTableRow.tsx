@@ -24,15 +24,15 @@ export default class DeckBreakdownTableRow extends React.Component<DeckBreakdown
 			return null;
 		}
 		const cols = [];
-		let url = "/cards/" + this.props.cardObj.card.dbfId + "/";
-		if (this.props.wildDeck) {
-			url += "#gameType=RANKED_WILD";
-		}
 		cols.push(<td>
 			<div className="card-wrapper">
-				<a href={url}>
-					<CardTile height={34} card={this.props.cardObj.card} count={this.props.cardObj.count} rarityColored />
-				</a>
+				<CardTile
+					height={34}
+					card={this.props.cardObj.card}
+					count={this.props.cardObj.count}
+					rarityColored
+					urlGameType={this.props.wildDeck && "RANKED_WILD"}
+				/>
 			</div>
 		</td>);
 		const mulligan = winrateData(this.props.baseMulliganWinrate, +this.props.row["opening_hand_win_rate"], 5);

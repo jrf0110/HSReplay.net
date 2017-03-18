@@ -2,7 +2,6 @@ import * as React from "react";
 import CardData from "../CardData";
 import CardStatsTable from "../components/carddiscover/CardStatsTable";
 import CardImage from "../components/CardImage";
-import CardTile from "../components/CardTile";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
 import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";

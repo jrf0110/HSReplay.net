@@ -9,7 +9,6 @@ interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> 
 	cardData: CardData;
 	numRows: number;
 	urlGameType: string;
-	clickable?: boolean;
 }
 
 export default class CardRankingTable extends React.Component<CardRankingTableProps, any> {
@@ -24,7 +23,6 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 			cardRows.push(
 				<CardRankingTableRow
 					card={card}
-					clickable={this.props.clickable}
 					customCardText={isFace ? "Opponent Hero" : undefined}
 					popularity={+row.popularity}
 					rank={index + 1}

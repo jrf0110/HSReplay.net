@@ -4,7 +4,6 @@ import { winrateData } from "../helpers";
 
 interface CardRankingTableRowProps extends React.ClassAttributes<CardRankingTableRow> {
 	card: any;
-	clickable?: boolean;
 	customCardText?: string;
 	popularity: number;
 	rank: number;
@@ -25,19 +24,9 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 				rarityColored
 				customText={this.props.customCardText}
 				disableTooltip={["HERO", "HERO_POWER"].indexOf(this.props.card.type) !== -1}
+				urlGameType={this.props.urlGameType}
 			/>
 		);
-		if (this.props.clickable) {
-			let url = "/cards/" + this.props.card.dbfId + "/";
-			if (this.props.urlGameType) {
-				url += "#gameType=" + this.props.urlGameType;
-			}
-			cardTile = (
-				<a href={url}>
-					{cardTile}
-				</a>
-			);
-		}
 
 		let winrateCell = null;
 		if (this.props.winrate !== undefined) {
