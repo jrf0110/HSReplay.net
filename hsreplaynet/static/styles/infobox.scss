@@ -8,7 +8,9 @@
 	flex-grow: 1;
 
 	a, a:hover, a:active {
-		cursor: pointer;
+		&.infobox-value {
+			cursor: pointer;
+		}
 
 		&:not(.btn) {
 			color: $lighterblue;
