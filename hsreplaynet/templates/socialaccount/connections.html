@@ -68,13 +68,26 @@
 			before connecting another account.
 		</p>
 
-		{% get_providers as socialaccount_providers %}
+		<form method="GET" action="{% provider_login_url 'battlenet' %}">
+			<input type="hidden" name="process" value="connect"/>
+
+			<p>
+				<label for="id_region">Region</label>
+				<select name="region" id="id_region" class="sm">
+					<option value="us">North America (US)</option>
+					<option value="eu">Europe (EU)</option>
+					<option value="kr">Korea (KR)</option>
+					<option value="sea">South East Asia (SEA)</option>
+					<option value="tw">Taiwan (TW)</option>
+					<option value="cn">China (CN)</option>
+				</select>
+				</label>
+			</p>
+
+			<p>
+				<button type="submit" class="btn btn-primary">Connect a Battle.net account</button>
+			</p>
 		<p>
-			<a class="socialaccount_provider {{ provider.id }} btn btn-success"
-			   href="{% provider_login_url "battlenet" process="connect" %}">
-				Connect a Battle.net account
-			</a>
-		</p>
 	</div>
 </section>
 
