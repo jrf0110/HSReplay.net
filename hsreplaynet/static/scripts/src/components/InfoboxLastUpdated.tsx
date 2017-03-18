@@ -8,6 +8,7 @@ import Tooltip from "./Tooltip";
 
 interface InfoboxLastUpdatedProps extends React.ClassAttributes<InfoboxLastUpdated> {
 	dataManager: DataManager;
+	fetchCondition?: boolean;
 	params: any;
 	url: string;
 }
@@ -24,6 +25,7 @@ export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdat
 					>
 						<DataInjector
 							dataManager={this.props.dataManager}
+							fetchCondition={this.props.fetchCondition}
 							query={{url: this.props.url, params: this.props.params}}
 							modify={(data) => data && data.as_of ? getAge(new Date(data.as_of)) : null}
 						>

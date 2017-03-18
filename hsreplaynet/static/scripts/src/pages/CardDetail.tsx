@@ -419,7 +419,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">
 							<DataInjector
 								dataManager={this.dataManager}
-								fetchCondition={!!this.props.card}
+								fetchCondition={!!this.props.card && isCollectibleCard(this.props.card)}
 								query={{url: "single_card_stats_over_time", params: this.getParams()}}
 								modify={(data) => {
 									if (data) {
@@ -433,7 +433,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</DataInjector>
 						</span>
 					</li>
-					<InfoboxLastUpdated dataManager={this.dataManager} url={"single_card_stats_over_time"} params={this.getParams()} />
+					<InfoboxLastUpdated
+						dataManager={this.dataManager}
+						fetchCondition={!!this.props.card && isCollectibleCard(this.props.card)}
+						url={"single_card_stats_over_time"}
+						params={this.getParams()}
+					/>
 					<li>
 						Time frame
 						<span className="infobox-value">Last 30 days</span>

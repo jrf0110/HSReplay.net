@@ -288,7 +288,7 @@ export function isWildCard(card: any) {
 }
 
 export function isCollectibleCard(card: any) {
-	return card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1;
+	return !!card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1;
 }
 
 export function getChartMetaData(
