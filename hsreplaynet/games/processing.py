@@ -283,7 +283,7 @@ def handle_upload_event_exception(e, upload_event):
 		return UploadEventStatus.VALIDATION_ERROR, True
 	elif isinstance(e, ReplayAlreadyExists):
 		upload_event.game = e.game
-		return UploadEventStatus.SERVER_ERROR, True
+		return UploadEventStatus.SERVER_ERROR, False
 	else:
 		return UploadEventStatus.SERVER_ERROR, True
 
@@ -306,6 +306,14 @@ def process_upload_event(upload_event):
 		upload_event.error = str(e)
 		upload_event.traceback = format_exc()
 		upload_event.status, reraise = handle_upload_event_exception(e, upload_event)
+		metric_fields = {"count": 1}
+		if upload_event.game:
+			metric_fields["shortid"] = str(upload_event.game.shortid)
+		influx_metric(
+			"upload_event_exception",
+			metric_fields,
+			error=upload_event.status.name.lower()
+		)
 		upload_event.save()
 		if reraise:
 			raise
