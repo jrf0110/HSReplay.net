@@ -38,7 +38,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					height={150}
 					width={width}
 					domainPadding={{x: 0, y: 10}}
-					padding={{left: 40, top: 30, right: 20, bottom: 30}}
+					padding={{left: 40, top: 10, right: 20, bottom: 30}}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
 					containerComponent={<VictoryVoronoiContainer
 						dimension="x"
@@ -54,7 +54,8 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					/>
 					<VictoryAxis
 						dependentAxis
-						axisLabelComponent={<VictoryLabel dx={10} />}
+						label={"Winrate"}
+						axisLabelComponent={<VictoryLabel dy={-1} dx={20} />}
 						tickValues={[50].concat(metadata.yDomain)}
 						tickFormat={(tick) => {
 							if (tick === 50) {
@@ -81,11 +82,6 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 						interpolation="monotoneX"
 					/>
 				</VictoryChart>
-				<VictoryLabel
-					text={this.props.title || "Winrate - over time"}
-					style={{fontSize: 10}} textAnchor="start"
-					verticalAnchor="start" x={0} y={10}
-				/>
 			</svg>
 		);
 	}

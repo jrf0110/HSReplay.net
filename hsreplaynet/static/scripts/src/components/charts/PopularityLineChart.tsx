@@ -38,7 +38,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 					width={width}
 					domainPadding={{x: 0, y: 10}}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
-					padding={{left: 40, top: 30, right: 20, bottom: 30}}
+					padding={{left: 40, top: 10, right: 20, bottom: 30}}
 					containerComponent={<VictoryVoronoiContainer
 						dimension="x"
 						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
@@ -54,7 +54,8 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 					<VictoryAxis
 						dependentAxis
 						scale="sqrt"
-						axisLabelComponent={<VictoryLabel dx={10} />}
+						label={"Popularity"}
+						axisLabelComponent={<VictoryLabel dy={-1} dx={20} />}
 						tickValues={this.props.maxYDomain === 10 ? [0, 0.5, 2, 5, 10] : [0, 5, 20, 50, 100]}
 						tickFormat={(tick) => metadata.toFixed(tick) + "%"}
 						style={{axisLabel: {fontSize: 8} , tickLabels: {fontSize: 8}, grid: {stroke: (d) => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
@@ -65,7 +66,6 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 						interpolation="monotoneX"
 					/>
 				</VictoryChart>
-				<VictoryLabel text={"Popularity - over time"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
 	}

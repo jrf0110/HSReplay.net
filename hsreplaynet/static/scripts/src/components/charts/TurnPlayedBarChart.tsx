@@ -42,9 +42,10 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 						containerComponent={<VictoryContainer title={""}/>}
 						domainPadding={[5, 5]}
 						domain={{x: metaData.xDomain, y: [0, metaData.yDomain[1]]}}
-						padding={{left: 40, top: 30, right: 20, bottom: 30}}
+						padding={{left: 40, top: 10, right: 20, bottom: 40}}
 						>
 						<VictoryAxis
+							label="Turn"
 							tickCount={series.data.length}
 							tickFormat={tick => tick}
 							style={{
@@ -56,7 +57,8 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 						/>
 						<VictoryAxis
 							dependentAxis
-							axisLabelComponent={<VictoryLabel dx={10} />}
+							label={"Popularity"}
+							axisLabelComponent={<VictoryLabel dy={-1} dx={30} />}
 							tickValues={[0, metaData.yCenter, metaData.yDomain[1]]}
 							tickFormat={tick => Math.round(+tick) + " %"}
 							style={{
@@ -87,7 +89,6 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 						/>
 					</VictoryChart>
 				</svg>
-				<VictoryLabel text={"Popularity - by turn played"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 			</svg>
 		);
 	}

@@ -4,7 +4,7 @@ import {
 	VictoryLine, VictoryScatter,
 } from "victory";
 import {VictoryVoronoiContainer} from "victory";
-import {getChartMetaData, toTimeSeries} from "../../helpers";
+import {getChartMetaData} from "../../helpers";
 import {RenderData} from "../../interfaces";
 import ChartHighlighter from "./ChartHighlighter";
 import WinLossGradient from "./gradients/WinLossGradient";
@@ -55,12 +55,13 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					width={width}
 					containerComponent={<VictoryContainer title={""}/>}
 					domainPadding={{x: 5, y: 10}}
-					padding={{left: 40, top: 30, right: 20, bottom: 30}}
+					padding={{left: 40, top: 10, right: 20, bottom: 40}}
 					domain={{x: metaData.xDomain, y: metaData.yDomain}}
 				>
 					<VictoryAxis
 						tickCount={series.data.length}
 						tickFormat={(tick) => tick}
+						label="Turn"
 						style={{
 							axisLabel: {fontSize: 8},
 							tickLabels: {fontSize: 8},
@@ -70,7 +71,8 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					/>
 					<VictoryAxis
 						dependentAxis
-						axisLabelComponent={<VictoryLabel dx={10} />}
+						label="Winrate"
+						axisLabelComponent={<VictoryLabel dy={-1} dx={30} />}
 						tickValues={yTicks}
 						tickFormat={(tick) => {
 							if (tick === 50) {
@@ -113,7 +115,6 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					/>
 				</VictoryChart>
 			</svg>
-			<VictoryLabel text={"Winrate - by turn played"} style={{fontSize: 10}} textAnchor="start" verticalAnchor="start" x={0} y={10}/>
 		</svg>;
 	}
 
