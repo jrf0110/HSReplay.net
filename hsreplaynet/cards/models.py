@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import connection, models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
+from django.utils.text import slugify
 from django_intenum import IntEnumField
 from hearthstone import enums
 from shortuuid.main import string_to_int
@@ -101,6 +102,10 @@ class Card(models.Model):
 
 	def __str__(self):
 		return self.name
+
+	@property
+	def slug(self):
+		return slugify(self.name)
 
 	def get_absolute_url(self):
 		return reverse("card_detail", kwargs={"pk": self.dbf_id})
