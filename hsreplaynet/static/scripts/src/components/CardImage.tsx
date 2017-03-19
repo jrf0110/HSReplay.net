@@ -1,12 +1,12 @@
 import * as React from "react";
+import { getCardUrl } from "../helpers";
 
 interface CardImageState {
 	url: string;
 }
 
 interface CardImageProps extends React.ClassAttributes<CardImage> {
-	cardId: string;
-	dbfId: string;
+	card: any;
 	placeholder: string;
 }
 
@@ -20,7 +20,7 @@ export default class CardImage extends React.Component<CardImageProps, CardImage
 	}
 
 	fetchImage() {
-		const url = "https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"
+		const url = "https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.card.id + ".png";
 		const image = new Image();
 		image.onload = () => this.setState({url});
 		image.src = url;
@@ -28,7 +28,7 @@ export default class CardImage extends React.Component<CardImageProps, CardImage
 
 	render(): JSX.Element {
 		return (
-			<a className="card-image" href={"/cards/" + this.props.dbfId}>
+			<a className="card-image" href={getCardUrl(this.props.card)}>
 				<img src={this.state.url} height={350}/>
 			</a>
 		);

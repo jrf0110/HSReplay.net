@@ -1,4 +1,5 @@
 import * as React from "react";
+import { getCardUrl } from "../helpers";
 
 interface CardTileProps extends React.ClassAttributes<CardTile> {
 	card: any;
@@ -98,7 +99,7 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 
 		let url = null;
 		if (!this.props.noLink) {
-			url = `/cards/${this.props.card.dbfId}/`;
+			url = getCardUrl(this.props.card);
 			if (this.props.urlGameType) {
 				url += "#gameType=" + this.props.urlGameType;
 			}

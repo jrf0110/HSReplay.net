@@ -358,8 +358,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				if (tiles.length < this.state.numCards) {
 					tiles.push(
 						<CardImage
-							cardId={card.id}
-							dbfId={card.dbfId}
+							card={card}
 							placeholder={this.getCardPlaceholder(card)}
 							key={card.id}
 						/>,

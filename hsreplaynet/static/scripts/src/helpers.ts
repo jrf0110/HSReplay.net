@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Colors} from "./Colors";
-import { ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, RenderData, TableData } from "./interfaces";
+import { ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint } from "./interfaces";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -633,3 +633,10 @@ export function cloneComponent(component, props) {
 	});
 	return React.cloneElement(component, componentProps);
 };
+
+export function getCardUrl(card: any) {
+	let slug = card.name.replace(/[^\w\s-]/g, "")
+		.trim().toLowerCase()
+		.replace(/[-\s]+/g, "-");
+	return `/cards/${card.dbfId}/${slug}/`;
+}

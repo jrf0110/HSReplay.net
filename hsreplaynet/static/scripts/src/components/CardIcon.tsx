@@ -1,4 +1,5 @@
 import * as React from "react";
+import { getCardUrl } from "../helpers";
 
 interface CardIconState {
 	clientX?: number;
@@ -7,8 +8,7 @@ interface CardIconState {
 }
 
 interface CardIconProps extends React.ClassAttributes<CardIcon> {
-	cardId: string;
-	dbfId: string;
+	card: any;
 	urlGameType: string;
 	size?: number;
 	mark?: string;
@@ -26,14 +26,14 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 			clientX: 0,
 			clientY: 0,
 			hovering: false,
-		}
+		};
 	}
 
 	render(): JSX.Element {
-		if (this.props.cardId) {
+		if (this.props.card) {
 			const size = this.props.size || this.baseSize;
 			const style = {
-				backgroundImage: "url(https://art.hearthstonejson.com/v1/tiles/" + this.props.cardId + ".png)",
+				backgroundImage: "url(https://art.hearthstonejson.com/v1/tiles/" + this.props.card.id + ".png)",
 				backgroundPositionX: this.baseOffset * (size / this.baseSize) + "px",
 				backgroundSize: this.baseBackgroundWidth * (size / this.baseSize) + "px " + (size - 2) + "px",
 				height: size + "px",
@@ -48,7 +48,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 			let tooltip = null;
 			if (this.state.hovering) {
 				const imageStyle = {
-					bottom: Math.min(this.state.clientY - 350, 0)
+					bottom: Math.min(this.state.clientY - 350, 0),
 				};
 				const left = this.state.clientX < window.innerWidth / 2;
 				imageStyle[left ? "left" : "right"] = "40px";
@@ -57,14 +57,14 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 						<img
 							className="card-image"
 							height={350}
-							src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"}
+							src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.card.id + ".png"}
 							style={imageStyle}
 							onMouseEnter={() => this.setState({hovering: false})}
 						/>
 				);
 			}
 
-			let url = "/cards/" + this.props.dbfId + "/";
+			let url = getCardUrl(this.props.card);
 			if (this.props.urlGameType) {
 				url += "#gameType=" + this.props.urlGameType;
 			}
