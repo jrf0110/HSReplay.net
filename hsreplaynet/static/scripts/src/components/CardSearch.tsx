@@ -11,6 +11,7 @@ interface CardSearchState {
 
 interface CardSearchProps extends React.ClassAttributes<CardSearch> {
 	availableCards: any[];
+	id: string;
 	onCardsChanged: (cards: any[]) => void;
 	selectedCards: any[];
 }
@@ -87,6 +88,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			<div className="card-search search-wrapper">
 				<div className="form-group has-feedback">
 					<input
+						id={this.props.id}
 						className="form-control"
 						type="search"
 						placeholder="Search..."

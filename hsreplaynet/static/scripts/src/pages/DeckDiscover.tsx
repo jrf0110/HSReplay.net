@@ -397,6 +397,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</PremiumWrapper>
 					<h2>Include cards</h2>
 					<CardSearch
+						id="card-search-include"
 						key={"cardinclude" + this.state.cardSearchIncludeKey}
 						availableCards={filteredCards}
 						onCardsChanged={(cards) => setQueryMap(this, "includedCards", cards.map((card) => card.dbfId).join(","))}
@@ -404,6 +405,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					/>
 					<h2>Exclude cards</h2>
 					<CardSearch
+						id="card-search-exclude"
 						key={"cardexclude" + this.state.cardSearchExcludeKey}
 						availableCards={filteredCards}
 						onCardsChanged={(cards) => setQueryMap(this, "excludedCards", cards.map((card) => card.dbfId).join(","))}
