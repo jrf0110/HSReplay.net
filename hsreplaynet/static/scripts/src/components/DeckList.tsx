@@ -5,7 +5,6 @@ import Pager from "./Pager";
 import SortIndicator from "./SortIndicator";
 import {SortDirection} from "./SortableTable";
 import {CardObj, DeckObj} from "../interfaces";
-import {getQueryMapFromLocation} from "../QueryParser";
 
 interface DeckListState {
 	page: number;
@@ -27,7 +26,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 		super(props, state);
 		this.state = {
 			page: 0,
-		}
+		};
 	}
 
 	componentWillReceiveProps(nextProps: DeckListProps) {
@@ -43,8 +42,8 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 		const deckCount = this.props.decks.length;
 
 		const deckTiles = [];
-		const visibleDecks = this.props.decks.slice(pageOffset, nextPageOffset)
-		visibleDecks.forEach(deck => {
+		const visibleDecks = this.props.decks.slice(pageOffset, nextPageOffset);
+		visibleDecks.forEach((deck) => {
 			deckTiles.push(
 				<DeckTile
 					cards={deck.cards}
@@ -55,7 +54,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					winrate={deck.winrate}
 					compareWith={this.props.compareWith}
 					urlGameType={this.props.urlGameType}
-				/>
+				/>,
 			);
 		});
 
@@ -84,13 +83,13 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 		};
 
 		const sortIndicator = (name: string): JSX.Element => {
-			if(!this.props.onHeaderClicked) {
+			if (!this.props.onHeaderClicked) {
 				return null;
 			}
 			return <SortIndicator
 				direction={name === this.props.sortCol ? this.props.sortDirection : null}
 			/>;
-		}
+		};
 
 		const headerSortable = this.props.onHeaderClicked ? "header-sortable " : "";
 		const onClick = (key: string) => this.props.onHeaderClicked && this.props.onHeaderClicked(key);
@@ -126,7 +125,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 						<InfoIcon header="Match curve" content="Distribution of card costs for the deck." />
 					</div>
 					<div className="col-lg-6 col-md-7 col-sm-8 hidden-xs">
-						Cards
+						{this.props.compareWith ? "Changes" : "Cards"}
 					</div>
 				</div>
 				<ul>

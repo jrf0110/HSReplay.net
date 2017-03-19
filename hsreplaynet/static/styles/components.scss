@@ -219,7 +219,7 @@
 							min-width: 15px;
 
 							&.unchanged {
-								filter: grayscale(100%);
+								display: none;
 							}
 
 							&.added {
