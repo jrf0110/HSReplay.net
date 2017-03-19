@@ -18,32 +18,35 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 		const deckList = {};
 		dbfIds.forEach((dbfId) => deckList[dbfId] = (deckList[dbfId] || 0) + 1);
 
-		const byDistance = [];
+		let byDistance = [];
 
 		const classDecks = this.props.data.series.data[this.props.playerClass];
-		let maxDistance = 3;
-		while (maxDistance < 6 && byDistance.length < 20) {
-			classDecks.forEach((deck) => {
-				let distance = 0;
-				const cards = JSON.parse(deck["deck_list"]);
-				cards.forEach((pair) => {
-					distance += Math.abs(pair[1] - (deckList[pair[0]] || 0));
-				});
-				if (distance > 1 && distance < maxDistance) {
-					byDistance.push({cards, deck, distance, numGames: +deck["total_games"]});
-				}
+
+		// The distance here is the count of removed AND added cards.
+		// So a distance of 12 corresponds to 6 changed cards.
+		classDecks.forEach((deck) => {
+			let distance = 0;
+			const cards = JSON.parse(deck["deck_list"]);
+			const removed = Object.assign({}, deckList);
+			cards.forEach((dbfIdCountPair) => {
+				distance += Math.abs(dbfIdCountPair[1] - (deckList[dbfIdCountPair[0]] || 0));
+				delete removed[dbfIdCountPair[0]];
 			});
-			maxDistance++;
-		}
+			Object.keys(removed).forEach((dbfId) => distance += removed[dbfId]);
+			if (distance > 1 && distance <= 12) {
+				byDistance.push({cards, deck, distance, numGames: +deck["total_games"]});
+			}
+		});
 
 		if (!byDistance.length) {
 			return <h3 className="message-wrapper">No decks found.</h3>;
 		}
 
-		byDistance.sort((a, b) => b.numGames - a.numGames);
+		byDistance.sort((a, b) => a.distance - b.distance);
+		byDistance = byDistance.slice(0, 20).sort((a, b) => b.numGames - a.numGames);
 
 		const decks: DeckObj[] = [];
-		byDistance.slice(0, 20).forEach((deck) => {
+		byDistance.forEach((deck) => {
 			const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
 			decks.push({
 				cards: cardData,
