@@ -28,19 +28,20 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		const width = 150 * (this.props.widthRatio || 3);
 		const renderData = this.props.premiumLocked ? this.mockData : this.props.data;
 
-		const elements = [];
 		const series = renderData.series.find((s) => s.name === "winrates_by_turn"
 			&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 
+		const yDomain: [number, number] = [Number.MAX_SAFE_INTEGER, 0];
+		renderData.series.filter((s) => s.name === "winrates_by_turn").forEach((s) => {
+			const metaData = getChartMetaData(s.data, 50, false, 10);
+			yDomain[0] = Math.min(metaData.yDomain[0], yDomain[0]);
+			yDomain[1] = Math.max(metaData.yDomain[1], yDomain[1]);
+		});
+
 		const metaData = getChartMetaData(series.data, 50, false, 10);
 
-		const minAbove50 = metaData.yMinMax[0].y > 50;
-		const maxBelow50 = metaData.yMinMax[1].y < 50;
-		const isMinTick = (tick: number) => tick === metaData.yDomain[0];
-		const isMaxTick = (tick: number) => tick === metaData.yDomain[1];
-
 		const yTicks = [50];
-		metaData.yDomain.forEach((value) => yTicks.indexOf(value) === -1 && yTicks.push(value));
+		yDomain.forEach((value) => yTicks.indexOf(value) === -1 && yTicks.push(value));
 
 		return <svg viewBox={"0 0 " + width + " 150"}>
 			<defs>
@@ -56,7 +57,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					containerComponent={<VictoryContainer title={""}/>}
 					domainPadding={{x: 5, y: 10}}
 					padding={{left: 40, top: 10, right: 20, bottom: 40}}
-					domain={{x: metaData.xDomain, y: metaData.yDomain}}
+					domain={{x: metaData.xDomain, y: yDomain}}
 				>
 					<VictoryAxis
 						tickCount={series.data.length}
@@ -78,21 +79,15 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 							if (tick === 50) {
 								return "50%";
 							}
-							if (minAbove50 && isMinTick(tick)) {
-								return "";
-							}
-							if (maxBelow50 && isMaxTick(tick)) {
-								return "";
-							}
 							return metaData.toFixed(tick) + "%";
 						}}
 						style={{
+							axis: {visibility:  "hidden"},
 							axisLabel: {fontSize: 8},
+							grid: {stroke: (tick) => tick === 50 ? "gray" : "lightgray"},
 							tickLabels: {fontSize: 8},
-							grid: {stroke: (tick) => tick === 50 ? "gray" : (minAbove50 && isMinTick(tick) || maxBelow50 && isMaxTick(tick) ? "transparent" : "lightgray")},
-							axis: {visibility: "hidden"},
 						}}
-						/>
+					/>
 					<VictoryLine
 						data={series.data}
 						interpolation="monotoneX"
