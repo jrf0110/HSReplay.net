@@ -53,7 +53,7 @@ def _get_query_and_params(request, name):
 	supplied_params = request.GET.dict()
 	if "deck_id" in supplied_params and not supplied_params["deck_id"].isdigit():
 		# We got sent a shortid, so we need to translate it into a deck_id int
-		deck = Deck.objects.get_by_shortid(id)
+		deck = Deck.objects.get_by_shortid(supplied_params["deck_id"])
 		supplied_params["deck_id"] = str(deck.id)
 
 	if query.is_personalized:
