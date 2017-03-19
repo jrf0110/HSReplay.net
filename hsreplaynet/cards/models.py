@@ -108,7 +108,7 @@ class Card(models.Model):
 		return slugify(self.name)
 
 	def get_absolute_url(self):
-		return reverse("card_detail", kwargs={"pk": self.dbf_id})
+		return reverse("card_detail", kwargs={"pk": self.dbf_id, "slug": self.slug})
 
 	def update_from_cardxml(self, cardxml, save=False):
 		for k in dir(cardxml):

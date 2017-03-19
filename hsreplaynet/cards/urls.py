@@ -18,5 +18,5 @@ urlpatterns = [
 	url(r"^mine/$", my_card_stats, name="my_card_stats"),
 	url(r"^gallery/$", card_gallery, name="card_gallery"),
 	url(r"^winrates/$", views.winrates, name="deck_winrates"),
-	url(r"^(?P<pk>\w+)/$", card_detail, name="card_detail"),
+	url(r"^(?P<pk>\w+)/(?P<slug>\w+)?", card_detail, name="card_detail"),
 ]
