@@ -1,12 +1,14 @@
 import hashlib
 import json
 import random
+import string
 from django.conf import settings
 from django.db import connection, models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django_intenum import IntEnumField
 from hearthstone import enums
+from shortuuid.main import string_to_int
 
 
 class CardManager(models.Manager):
@@ -183,6 +185,11 @@ class DeckManager(models.Manager):
 		if archetype:
 			deck.archetype = archetype
 			deck.save()
+
+	def get_by_shortid(self, shortid):
+		ALPHABET = string.ascii_letters + string.digits
+		digest = hex(string_to_int(shortid, ALPHABET))[2:]
+		return Deck.objects.get(digest=digest)
 
 
 def generate_digest_from_deck_list(id_list):

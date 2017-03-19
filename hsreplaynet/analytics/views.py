@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.views.decorators.http import condition
 from hsredshift.analytics import filters, queries
 from hsredshift.analytics.filters import Region
+from hsreplaynet.cards.models import Deck
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from .processing import (
@@ -49,9 +50,14 @@ def _get_query_and_params(request, name):
 	if not query:
 		raise Http404("No query named: %s" % name)
 
+	supplied_params = request.GET.dict()
+	if "deck_id" in supplied_params and not supplied_params["deck_id"].isdigit():
+		# We got sent a shortid, so we need to translate it into a deck_id int
+		deck = Deck.objects.get_by_shortid(id)
+		supplied_params["deck_id"] = str(deck.id)
+
 	if query.is_personalized:
 		if request.user and not request.user.is_fake:
-			supplied_params = request.GET.dict()
 
 			if "Region" not in supplied_params:
 				default_pegasus_account = request.user.pegasusaccount_set.first()
@@ -85,7 +91,7 @@ def _get_query_and_params(request, name):
 			return HttpResponseForbidden(), None
 	else:
 
-		params = query.build_full_params(request.GET)
+		params = query.build_full_params(supplied_params)
 		if not user_is_eligible_for_query(request.user, query, params):
 			return HttpResponseForbidden(), None
 
