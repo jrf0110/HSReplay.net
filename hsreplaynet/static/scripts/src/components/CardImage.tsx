@@ -29,7 +29,7 @@ export default class CardImage extends React.Component<CardImageProps, CardImage
 	render(): JSX.Element {
 		return (
 			<a className="card-image" href={getCardUrl(this.props.card)}>
-				<img src={this.state.url} height={350}/>
+				<img src={this.state.url} height={350} alt={this.props.card.name}/>
 			</a>
 		);
 	}
