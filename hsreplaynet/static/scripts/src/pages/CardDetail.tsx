@@ -29,6 +29,7 @@ import {
 } from "../QueryParser";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
+import InfoIcon from "../components/InfoIcon";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -210,6 +211,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									/>
 								</ChartLoading>
 							</DataInjector>
+							<InfoIcon
+								header="Popularity over time"
+								content="Percentage of decks that include at least one copy of this card."
+							/>
 						</div>
 					</div>,
 					<div className="col-lg-6 col-md-6">
@@ -224,6 +229,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									/>
 								</ChartLoading>
 							</DataInjector>
+							<InfoIcon
+								header="Winrate over time"
+								content="Winrate of decks that include at least one copy of this card."
+							/>
 						</div>
 					</div>,
 				];
@@ -275,6 +284,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											/>
 										</ChartLoading>
 									</DataInjector>
+									<InfoIcon
+										header="Popularity by turn"
+										content="Percentage of the time this card is played on a given turn."
+									/>
 								</div>
 							</div>
 							<div className="col-lg-6 col-md-6">
@@ -291,6 +304,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											/>
 										</ChartLoading>
 									</DataInjector>
+									<InfoIcon
+										header="Winrate by turn"
+										content="Percentage of games won when this card is played on a given turn."
+									/>
 								</div>
 							</div>
 						</div>
@@ -337,6 +354,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 				content = [
 					<section id="content-header">
+						<h1>{this.props.card && this.props.card.name} - Statistics</h1>
 						{headerContent}
 					</section>,
 					<section id="page-content">
