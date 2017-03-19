@@ -12,6 +12,11 @@
 {% endblock stylesheets %}
 
 {% block opengraph %}
+	{% if canonical_url %}
+		<link rel="canonical" href="{{ canonical_url }}" />
+		<meta property="og:url" content="{{ canonical_url }}" />
+	{% endif %}
+
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="HSReplay.net" />
 	<meta property="og:locale" content="en_US" />

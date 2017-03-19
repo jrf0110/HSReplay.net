@@ -30,3 +30,16 @@ def userdata(request):
 			data["groups"].append(group.name.replace(":preview", ""))
 
 	return {"userdata": json.dumps(data, cls=DjangoJSONEncoder)}
+
+
+def canonical_url(request):
+	"""
+	If the canonical_url attribute is set on the request object,
+	returns the corresponding absolute URL.
+	"""
+
+	context = {}
+	url = getattr(request, "canonical_url", "")
+	if url:
+		context["canonical_url"] = request.build_absolute_uri(url)
+	return context

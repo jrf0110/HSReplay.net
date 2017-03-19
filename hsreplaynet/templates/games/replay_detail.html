@@ -19,11 +19,9 @@
 	{{ block.super }}
 	<meta property="og:title" content="{{ title }}" />
 	<meta property="og:description" content="{{ description }}" />
-	<meta property="og:url" content="{{ canonical_url }}" />
 	<meta property="og:image" content="{% static_absolute 'images/hsreplay-thumbnail.png' %}" />
 	<meta property="og:image:width" content="400" />
 	<meta property="og:image:height" content="400" />
-	<link rel="canonical" href="{{ canonical_url }}" />
 	<meta name="date" content="{{ replay.global_game.match_start|date:"c" }}">
 	<meta name="description" content="{{ description }}" />
 	{% if twitter_card == "player" %}

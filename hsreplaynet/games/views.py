@@ -27,11 +27,10 @@ class ReplayDetailView(View):
 		replay.views += 1
 		replay.save()
 
-		baseurl = "%s://%s" % (request.scheme, request.get_host())
+		request.canonical_url = replay.get_absolute_url()
 		context = {
 			"replay": replay,
 			"title": replay.pretty_name_spoilerfree,
-			"canonical_url": baseurl + replay.get_absolute_url(),
 			"players": replay.global_game.players.all(),
 			"twitter_card": request.GET.get("twitter_card", "summary")
 		}
