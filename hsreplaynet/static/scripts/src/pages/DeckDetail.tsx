@@ -45,7 +45,7 @@ interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
 	cardData: CardData;
 	deckCards: string;
 	deckClass: string;
-	deckId: number;
+	deckId: string;
 	deckName?: string;
 	user: UserData;
 }

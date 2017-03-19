@@ -22,7 +22,7 @@ export default class TrendingDecksList extends React.Component<TrendingDecksList
 			const deckList = cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
 			decks.push({
 				cards: deckList,
-				deckId: +deck["deck_id"],
+				deckId: deck["deck_id"],
 				duration: +deck["avg_game_length_seconds"],
 				numGames: +deck["total_games"],
 				playerClass: key,

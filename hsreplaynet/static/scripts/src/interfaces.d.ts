@@ -187,7 +187,7 @@ export interface ChartMetaData {
 
 export interface DeckObj {
 	cards: CardObj[];
-	deckId: number;
+	deckId: string;
 	playerClass: string;
 	numGames: number;
 	winrate: number;
@@ -200,7 +200,7 @@ export interface CardObj {
 }
 
 export interface MyDecks {
-	[deckId: number]: any;
+	[deckId: string]: any;
 }
 
 export type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";

@@ -12,7 +12,7 @@ interface DeckStatsState {
 interface DeckStatsProps extends React.ClassAttributes<DeckStats> {
 	data?: TableData;
 	dataManager: DataManager;
-	deckId?: number;
+	deckId?: string;
 	lastUpdatedParams: string;
 	lastUpdatedUrl: string;
 	playerClass: string;
@@ -30,7 +30,7 @@ export default class DeckStats extends React.Component<DeckStatsProps, DeckStats
 		const winrateClassNames = [];
 		let subWinrates = null;
 
-		const deck = this.props.data.series.data[this.props.playerClass].find((x) => +x["deck_id"] === this.props.deckId);
+		const deck = this.props.data.series.data[this.props.playerClass].find((x) => x.deck_id === this.props.deckId);
 		if (!deck) {
 			return null;
 		}

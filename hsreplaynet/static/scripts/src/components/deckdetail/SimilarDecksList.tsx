@@ -47,7 +47,7 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 			const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
 			decks.push({
 				cards: cardData,
-				deckId: +deck.deck["deck_id"],
+				deckId: deck.deck["deck_id"],
 				duration: +deck.deck["avg_game_length_seconds"],
 				numGames: +deck.deck["total_games"],
 				playerClass: this.props.playerClass,

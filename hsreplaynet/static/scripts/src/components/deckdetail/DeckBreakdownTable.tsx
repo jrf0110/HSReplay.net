@@ -8,7 +8,7 @@ import DeckBreakdownTableRow from "./DeckBreakdownTableRow";
 interface DeckBreakdownTableProps extends React.ClassAttributes<DeckBreakdownTable> {
 	cardData?: CardData;
 	dataKey: string;
-	deckId: number;
+	deckId: string;
 	mulliganData?: TableData;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
 	playerClass: string;
@@ -58,7 +58,7 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 		let baseWinrate = 50;
 		if (this.props.winrateData) {
 			const deck = this.props.winrateData.series.data[this.props.playerClass]
-				.find((x) => +x.deck_id === this.props.deckId);
+				.find((x) => x.deck_id === this.props.deckId);
 			if (deck) {
 				baseWinrate = +deck.win_rate;
 			}

@@ -4,7 +4,7 @@ import { MyDecks } from "../../interfaces";
 
 interface PersonalStatsProps extends React.ClassAttributes<PersonalDeckStats> {
 	data?: MyDecks;
-	deckId: number;
+	deckId: string;
 }
 
 export default class PersonalDeckStats extends React.Component<PersonalStatsProps, void> {
