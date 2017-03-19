@@ -9,7 +9,10 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django_intenum import IntEnumField
 from hearthstone import enums
-from shortuuid.main import string_to_int
+from shortuuid.main import int_to_string, string_to_int
+
+
+ALPHABET = string.ascii_letters + string.digits
 
 
 class CardManager(models.Manager):
@@ -192,7 +195,6 @@ class DeckManager(models.Manager):
 			deck.save()
 
 	def get_by_shortid(self, shortid):
-		ALPHABET = string.ascii_letters + string.digits
 		digest = hex(string_to_int(shortid, ALPHABET))[2:]
 		return Deck.objects.get(digest=digest)
 
@@ -235,6 +237,10 @@ class Deck(models.Model):
 		alpha_sorted = sorted(self.cards.all(), key=lambda c: c.name)
 		mana_sorted = sorted(alpha_sorted, key=lambda c: c.cost)
 		return mana_sorted.__iter__()
+
+	@property
+	def shortid(self):
+		return int_to_string(int(self.digest, 16), ALPHABET)
 
 	@property
 	def all_includes(self):
