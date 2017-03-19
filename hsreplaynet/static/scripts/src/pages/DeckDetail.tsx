@@ -23,6 +23,7 @@ import {
 } from "../helpers";
 import { TableData } from "../interfaces";
 import UserData from "../UserData";
+import InfoIcon from "../components/InfoIcon";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -194,6 +195,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 									/>
 								</ChartLoading>
 							</DataInjector>
+							<InfoIcon
+								header="Popularity over time"
+								content="Percentage of games played with this deck."
+							/>
 						</div>
 					</div>
 					<div className="col-lg-6 col-md-6">
@@ -207,6 +212,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 									<WinrateLineChart widthRatio={2} />
 								</ChartLoading>
 							</DataInjector>
+							<InfoIcon
+								header="Winrate over time"
+								content="Percentage of games won with this deck."
+							/>
 						</div>
 					</div>
 				</section>

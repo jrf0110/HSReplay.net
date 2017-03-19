@@ -18,6 +18,16 @@
 		>.row {
 			border-bottom: 1px solid $lightgrey;
 		}
+
+		.chart-wrapper > .info-icon {
+			color: $blue;
+			font-size: 1em;
+			left: 3%;
+			padding: 0;
+			position: absolute;
+			right: unset;
+			top: 5%;
+		}
 	}
 
 	>aside {
