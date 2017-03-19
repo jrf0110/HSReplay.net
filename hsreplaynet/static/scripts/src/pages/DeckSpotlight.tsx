@@ -36,7 +36,6 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, v
 				</span>
 				<h1>Trending Decks</h1>
 				<h3>Here's a selection of decks which have been rising in popularity over the last 48 hours.</h3>
-				<h3>Try them out to see what you think!</h3>
 				<DataInjector dataManager={this.dataManager} query={{url: "trending_decks_by_popularity", params: {}}}>
 					<TableLoading cardData={this.props.cardData}>
 						<TrendingDecksList />
