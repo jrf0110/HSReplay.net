@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, View
@@ -18,13 +18,14 @@ class DeckDetailView(View):
 	template_name = "decks/deck_detail.html"
 
 	def get(self, request, id):
-		if id.isdigit():
-			deck = get_object_or_404(Deck, id=id)
-		else:
+		try:
 			deck = Deck.objects.get_by_shortid(id)
+		except Deck.DoesNotExist:
+			raise Http404("Deck does not exist.")
+
 		cards = deck.card_dbf_id_list()
 		if len(cards) != 30:
-			raise Http404("Invalid deck")
+			raise Http404("Deck list is too small.")
 
 		guessed_class = guess_class(deck)
 
