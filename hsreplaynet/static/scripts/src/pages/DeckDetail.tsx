@@ -24,6 +24,7 @@ import {
 import { TableData } from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
+import ManaCurve from "../components/ManaCurve";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -86,10 +87,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	render(): JSX.Element {
+		const cards = [];
 		let dustCost = 0;
 		if (this.props.cardData) {
 			this.props.deckCards.split(",").forEach((id) => {
 				const card = this.props.cardData.fromDbf(id);
+				const cardObj = cards.find((obj) => obj.card.id === card.id) || cards[cards.push({card, count: 0}) - 1];
+				cardObj.count++;
 				dustCost += getDustCost(card);
 			});
 		}
@@ -108,6 +112,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					className="hero-image"
 					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
 				/>
+				<div>
+					<ManaCurve cards={cards}/>
+				</div>
 				<HDTButton
 					card_ids={
 						this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)

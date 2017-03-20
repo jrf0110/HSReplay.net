@@ -11,15 +11,19 @@ export default class ManaCurve extends React.Component<ManaCurveProps, any> {
 		const bars = [];
 		const costs = [0, 0, 0, 0, 0, 0, 0, 0];
 
-		(this.props.cards || []).forEach(cardObj => costs[Math.min(cardObj.card.cost, 7)] += cardObj.count);
+		(this.props.cards || []).forEach((cardObj) => costs[Math.min(cardObj.card.cost, 7)] += cardObj.count);
 
 		const maxCost = Math.max.apply(Math, costs) || 1;
-		
-		costs.forEach(cost => {
+
+		costs.forEach((cost, index) => {
 			bars.push(
 				<li>
-					<span style={{height: (100 * cost / maxCost) + "%"}} />
-				</li>
+					<span
+						style={{height: (100 * cost / maxCost) + "%"}}
+						data-count={cost || ""}
+						data-cost={index === 7 ? "7+" : index}
+					/>
+				</li>,
 			);
 		});
 
