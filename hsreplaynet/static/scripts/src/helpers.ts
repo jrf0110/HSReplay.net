@@ -616,6 +616,7 @@ export function slangToCardId(slang: string): string|null {
 		case "tbk": // The Black Knight
 			return "EX1_002";
 		case "477": // Flamewreath Faceless
+		case "4mana77":
 			return "OG_024";
 	}
 	return null;
