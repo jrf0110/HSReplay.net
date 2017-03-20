@@ -399,7 +399,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							/>
 						</PremiumWrapper>
 					</section>
-					<section className="include-cards-filter">
+					<section id="include-cards-filter">
 						<h2>Include cards</h2>
 						<CardSearch
 							id="card-search-include"
