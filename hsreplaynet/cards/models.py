@@ -195,7 +195,7 @@ class DeckManager(models.Manager):
 			deck.save()
 
 	def get_by_shortid(self, shortid):
-		digest = hex(string_to_int(shortid, ALPHABET))[2:]
+		digest = hex(string_to_int(shortid, ALPHABET))[2:].rjust(32, "0")
 		return Deck.objects.get(digest=digest)
 
 
