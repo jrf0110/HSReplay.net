@@ -455,7 +455,7 @@ def warm_redshift_cache_for_user_context(context):
 
 
 def fill_redshift_cache_warming_queue(eligible_queries=None):
-	run_local_warm_global_queries(eligible_queries)
+	run_local_warm_queries(eligible_queries)
 	from hsreplaynet.billing.utils import (
 		get_premium_cache_warming_contexts_from_subscriptions
 	)
@@ -465,13 +465,13 @@ def fill_redshift_cache_warming_queue(eligible_queries=None):
 
 def fill_global_query_queue(eligible_queries=None):
 	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
-	messages = get_global_queries_for_cache_warming(eligible_queries)
+	messages = get_queries_for_cache_warming(eligible_queries)
 	stales_queries = filter_freshly_cached_queries(messages)
 	write_messages_to_queue(queue_name, stales_queries)
 
 
-def run_local_warm_global_queries(eligible_queries=None):
-	messages = get_global_queries_for_cache_warming(eligible_queries)
+def run_local_warm_queries(eligible_queries=None):
+	messages = get_queries_for_cache_warming(eligible_queries)
 	log.info("Generated %i global query permutations for cache warming." % len(messages))
 	stale_queries = filter_freshly_cached_queries(messages)
 	msg = "%i permutations remain after filtering fresh queries" % len(stale_queries)
@@ -566,11 +566,11 @@ def filter_freshly_cached_queries(messages):
 	return result
 
 
-def get_global_queries_for_cache_warming(eligible_queries=None):
+def get_queries_for_cache_warming(eligible_queries=None):
 	queries = []
-	for query in RedshiftCatalogue.instance().global_queries:
+	for query in RedshiftCatalogue.instance().cache_warm_eligible_queries:
 		is_eligible = eligible_queries is None or query.name in eligible_queries
-		if query.cache_warming_enabled and is_eligible:
+		if is_eligible:
 			for permutation in query.generate_cachable_parameter_permutations():
 				queries.append({
 					"query_name": query.name,
