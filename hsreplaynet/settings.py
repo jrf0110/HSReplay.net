@@ -297,7 +297,7 @@ MARKDOWNX_MARKDOWN_EXTENSIONS = [
 if ENV_DEV:
 	INSTALLED_APPS += [
 		"debug_toolbar",
-		"explorer",
+		# "explorer",
 	]
 	MIDDLEWARE += [
 		"debug_toolbar.middleware.DebugToolbarMiddleware",

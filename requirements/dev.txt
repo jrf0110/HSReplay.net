@@ -3,5 +3,4 @@
 -r tests.txt
 
 q
-django-sql-explorer
 django-sslserver

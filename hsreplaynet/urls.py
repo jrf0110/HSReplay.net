@@ -47,6 +47,6 @@ if settings.DEBUG:
 
 	urlpatterns += [
 		url(r"^__debug__/", include(debug_toolbar.urls)),
-		url(r"^admin/_/explorer/", include("explorer.urls")),
+		# url(r"^admin/_/explorer/", include("explorer.urls")),
 	]
 	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
