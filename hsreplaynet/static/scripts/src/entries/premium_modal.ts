@@ -6,9 +6,8 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false) 
 	}
 	ga("send", {
 		hitType: "event",
-		eventCategory: "Modal",
+		eventCategory: "Premium Modal",
 		eventAction: action,
-		evenLabel: "Premium Modal",
 		nonInteraction: nonInteraction,
 	});
 };
