@@ -1,17 +1,15 @@
-{% load setting from web_extras %}
 {% load static from static %}
 
 <button
 	disabled
+	role="button"
+	type="button"
+	class="promo-button text-premium wait checkout-button"
 	id="{{ id|default:"premium-checkout-button" }}"
-	class="btn"
-	data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
-	data-image="{% static 'images/hsreplay-thumbnail.png' %}"
-	data-name="HearthSim Premium"
-	{% if user.email %}data-email="{{ user.email }}"{% endif %}
-	data-locale="auto"
-	data-description="Sign up for HearthSim Premium"
-	data-label="{{ label|default:"Sign me up!" }}"
-	data-panel-label="Subscribe"
-	data-allow-remember-me="false"
->{{ label|default:"Subscribe" }}</button>
+	{% if plan %}
+	data-plan="{{ plan.stripe_id }}"
+	data-amount="{{ plan.amount_in_cents }}"
+	data-currency="{{ plan.currency }}"
+	data-description="{{ plan.human_readable_cost }}"
+	{% endif %}
+>{% if plan %}{{ label|default:plan.human_readable_cost }}{% else %}{{ label|default:"Sign me up!"}}{% endif %}</button>

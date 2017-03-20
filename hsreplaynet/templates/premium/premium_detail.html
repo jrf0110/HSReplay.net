@@ -138,19 +138,35 @@
 	<section id="go" class="promo">
 		<div class="container">
 			<h3 class="text-center">Ready to go Premium?</h3>
-			<form method="POST" action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}">
-				{% csrf_token %}
+				{% include "premium/checkout_form_open.html" %}
 				<div class="form-group text-center">
 					{% if user.is_authenticated %}
 						<p>Please choose your plan:</p>
 						<div class="btn-group" data-toggle="buttons" role="radiogroup">
 							<label class="btn btn-default active" id="plan-{{ monthly_plan.stripe_id }}">
-								<h4>{{ monthly_plan.human_readable_cost|default:"1 month" }}</h4>
-								<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}" required checked>
+								<h4>{{ monthly_plan.human_readable_cost }}</h4>
+								<input
+										type="radio"
+										name="plan"
+										value="{{ monthly_plan.stripe_id }}"
+										data-amount="{{ monthly_plan.amount_in_cents }}"
+										data-currency="{{ monthly_plan.currency }}"
+										data-description="{{ monthly_plan.human_readable_cost }}"
+										required
+										checked
+								>
 							</label>
 							<label class="btn btn-default" id="plan-{{ semiannual_plan.stripe_id }}">
-								<h4>{{ semiannual_plan.human_readable_cost|default:"6 months" }}</h4>
-								<input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" required>
+								<h4>{{ semiannual_plan.human_readable_cost }}</h4>
+								<input
+										type="radio"
+										name="plan"
+										value="{{ semiannual_plan.stripe_id }}"
+										data-amount="{{ semiannual_plan.amount_in_cents }}"
+										data-currency="{{ semiannual_plan.currency }}"
+										data-description="{{ semiannual_plan.human_readable_cost }}"
+										required
+								>
 							</label>
 						</div>
 					{% endif %}
@@ -159,16 +175,13 @@
 					<div class="form-group">
 						{% if user.default_payment_method %}
 							<p class="text-center">
-								<button
-										class="promo-button text-premium"
-										type="submit"
-										disabled
+								<button class="promo-button text-premium" type="submit" disabled
 								>Subscribe now</button>
 							</p>
 							<p class="text-center">Using {{ user.default_payment_method }}</p>
 						{% else %}
 							<p class="text-center">
-								{% include "premium/checkout_button.html" with label="Sign me up!" %}
+								{% include "premium/checkout_button.html" with id="premium-checkout-button" label="Sign me up!" %}
 							</p>
 							<script type="text/javascript">
 								var button = document.getElementById("premium-checkout-button");
@@ -185,6 +198,7 @@
 						{% include "login_button.html" with next="/premium#go" %}
 					</p>
 				{% endif %}
+				{% include "premium/checkout_form_close.html" %}
 			</form>
 		</div>
 	</section>

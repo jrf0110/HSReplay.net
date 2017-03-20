@@ -1,0 +1,16 @@
+{% load setting from web_extras %}
+{% load static from static %}
+
+<form
+	id="{{ id|default:"checkout-form"}}"
+	method="post"
+	action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}"
+	data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
+	data-image="{% static 'images/hsreplay-thumbnail.png' %}"
+	data-name="HearthSim Premium"
+	data-locale="auto"
+	data-panel-label="Subscribe for {% verbatim %}{{amount}}{% endverbatim %}"
+	data-allow-remember-me="false"
+	{% if user.email %}data-email="{{ user.email }}"{% endif %}
+>
+{% csrf_token %}

@@ -1,7 +1,6 @@
 {% load static from static %}
 {% load provider_login_url from socialaccount %}
 {% load feature from features %}
-{% load setting from web_extras %}
 {% load render_bundle from webpack_loader %}
 
 {% feature "billing" as billing %}
@@ -33,32 +32,19 @@
 
 			{% if user.is_authenticated %}
 				{% if not billing.read_only %}
-					<form method="POST" action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}">
-						{% csrf_token %}
-						<div class="radio">
-							<label>
-								<input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}" checked />
-								{{ monthly_plan.human_readable_cost|default:"1 month" }}
-							</label>
-						</div>
-						<div class="radio">
-							<label>
-								<input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" />
-								{{ semiannual_plan.human_readable_cost|default:"6 months" }}
-							</label>
-						</div>
-						{% if user.default_payment_method %}
-							<p>
-								Subscribe with {{ user.default_payment_method }}
-							</p>
-						{% else %}
-							<p class="text-center">{% include "premium/checkout_button.html" with id="premium-modal-checkout-button" %}</p>
-						{% endif %}
-						<small class="help-block text-center">
-							By signing up you agree to our <a href="{% url 'terms_of_service' %}" target="_blank">Terms of Service</a>.<br/>
-							Subscriptions renew automatically and can be cancelled at any time.
-						</small>
-					</form>
+					{% include "premium/checkout_form_open.html" with id="premium-modal-checkout-form" %}
+					{% if user.default_payment_method %}
+						<p>
+							Subscribe with {{ user.default_payment_method }}
+						</p>
+					{% else %}
+						<p class="text-center">{% include "premium/checkout_buttons.html" %}</p>
+					{% endif %}
+					<small class="help-block text-center">
+						By signing up you agree to our <a href="{% url 'terms_of_service' %}" target="_blank">Terms of Service</a>.<br/>
+						Subscriptions renew automatically and can be cancelled at any time.
+					</small>
+					{% include "premium/checkout_form_close.html" %}
 				{% else %}
 					<p class="text-center">
 						<span class="btn promo-button-outline hero-button disabled">Not available</span>

@@ -305,7 +305,7 @@
 	background-color: $premium;
 	border-color: $premium;
 
-	&:hover {
+	&:hover:not(:disabled) {
 		border-color: $premium;
 		color: $premium;
 		background-color: $offwhite;
@@ -313,6 +313,11 @@
 
 	&:disabled {
 		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	&.wait, &:disabled.wait {
+		cursor: wait;
 	}
 }
 
