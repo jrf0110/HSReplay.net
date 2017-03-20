@@ -218,14 +218,13 @@ def enqueue_query(query, params):
 
 
 def execute_query(query, params, run_local=False):
+	if run_local:
+		return _do_execute_query_work(query, params)
+
 	# It's safe to launch multiple attempts to execute for the same query
 	# Because the dogpile lock will only allow one to execute
 	# But we can save resources by not even launching the attempt
 	# If we see that the lock already exists
-	if run_local:
-		from hsreplaynet.utils.redis import job_queue
-		job_queue.enqueue(_do_execute_query_work, query, params)
-
 	if not _lock_exists(params.cache_key):
 		log.info("No lock already exists for query. Will attempt to execute async.")
 
