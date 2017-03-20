@@ -351,14 +351,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		if (gameType.endsWith("_STANDARD")) {
 			filteredCards = filteredCards.filter((card) => {
 				return wildSets.indexOf(card.set) === -1;
-			})
+			});
 		}
 		const playerClass = this.state.queryMap.playerClass;
 		if (playerClass !== "ALL") {
 			filteredCards = filteredCards.filter((card) => {
 				const cardClass = card.cardClass;
 				return cardClass === "NEUTRAL" || cardClass === playerClass;
-			})
+			});
 		}
 
 		return (
@@ -371,91 +371,107 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					>
 						Decks
 					</ResetHeader>
-					<h2>Class</h2>
-					<ClassFilter
-						filters="All"
-						hideAll
-						minimal
-						multiSelect={false}
-						selectedClasses={[queryMap["playerClass"] as FilterOption]}
-						selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
-					/>
-					<PremiumWrapper
-						isPremium={this.props.user.isPremium()}
-						infoHeader="Winrate by opponent"
-						infoContent="See at a glance how various decks perform against a specific class!"
-					>
-						<h2>Opponent class</h2>
+					<section id="player-class-filter">
+						<h2>Class</h2>
 						<ClassFilter
 							filters="All"
 							hideAll
 							minimal
 							multiSelect={false}
-							selectedClasses={[queryMap["opponentClass"] as FilterOption]}
-							selectionChanged={(selected) => this.props.user.isPremium() && setQueryMap(this, "opponentClass", selected[0])}
+							selectedClasses={[queryMap["playerClass"] as FilterOption]}
+							selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 						/>
-					</PremiumWrapper>
-					<h2>Include cards</h2>
-					<CardSearch
-						id="card-search-include"
-						key={"cardinclude" + this.state.cardSearchIncludeKey}
-						availableCards={filteredCards}
-						onCardsChanged={(cards) => setQueryMap(this, "includedCards", cards.map((card) => card.dbfId).join(","))}
-						selectedCards={selectedCards("includedCards")}
-					/>
-					<h2>Exclude cards</h2>
-					<CardSearch
-						id="card-search-exclude"
-						key={"cardexclude" + this.state.cardSearchExcludeKey}
-						availableCards={filteredCards}
-						onCardsChanged={(cards) => setQueryMap(this, "excludedCards", cards.map((card) => card.dbfId).join(","))}
-						selectedCards={selectedCards("excludedCards")}
-					/>
+					</section>
+					<section id="opponent-class-filter">
+						<PremiumWrapper
+							isPremium={this.props.user.isPremium()}
+							infoHeader="Winrate by opponent"
+							infoContent="See at a glance how various decks perform against a specific class!"
+						>
+							<h2>Opponent class</h2>
+							<ClassFilter
+								filters="All"
+								hideAll
+								minimal
+								multiSelect={false}
+								selectedClasses={[queryMap["opponentClass"] as FilterOption]}
+								selectionChanged={(selected) => this.props.user.isPremium() && setQueryMap(this, "opponentClass", selected[0])}
+							/>
+						</PremiumWrapper>
+					</section>
+					<section className="include-cards-filter">
+						<h2>Include cards</h2>
+						<CardSearch
+							id="card-search-include"
+							key={"cardinclude" + this.state.cardSearchIncludeKey}
+							availableCards={filteredCards}
+							onCardsChanged={(cards) => setQueryMap(this, "includedCards", cards.map((card) => card.dbfId).join(","))}
+							selectedCards={selectedCards("includedCards")}
+						/>
+					</section>
+					<section id="exclude-cards-filter">
+						<h2>Exclude cards</h2>
+						<CardSearch
+							id="card-search-exclude"
+							key={"cardexclude" + this.state.cardSearchExcludeKey}
+							availableCards={filteredCards}
+							onCardsChanged={(cards) => setQueryMap(this, "excludedCards", cards.map((card) => card.dbfId).join(","))}
+							selectedCards={selectedCards("excludedCards")}
+						/>
+					</section>
 					{personalFilters}
-					<h2>Mode</h2>
-					<InfoboxFilterGroup
-						selectedValue={this.state.queryMap["gameType"]}
-						onClick={(value) => setQueryMap(this, "gameType", value)}
-					>
-						<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-					</InfoboxFilterGroup>
-					<PremiumWrapper
-						isPremium={this.props.user.isPremium()}
-						infoHeader="Time frame"
-						infoContent="Want to see what decks are hot right now? Look at data from a time frame of your choosing!"
-					>
-						<h2>Time frame</h2>
+					<section id="game-mode-filter">
+						<h2>Mode</h2>
 						<InfoboxFilterGroup
-							locked={!this.props.user.isPremium()}
-							selectedValue={this.state.queryMap["timeRange"]}
-							onClick={(value) => setQueryMap(this, "timeRange", value)}
+							selectedValue={this.state.queryMap["gameType"]}
+							onClick={(value) => setQueryMap(this, "gameType", value)}
 						>
-							<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
-							<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
-							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
-							<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+							<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+							<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
 						</InfoboxFilterGroup>
-					</PremiumWrapper>
-					<PremiumWrapper
-						isPremium={this.props.user.isPremium()}
-						infoHeader="Rank range"
-						infoContent="Ready to climb the ladder? Check out how decks perform in the higher ranks!"
-					>
-						<h2>Rank range</h2>
-						<InfoboxFilterGroup
-							locked={!this.props.user.isPremium()}
-							selectedValue={this.state.queryMap["rankRange"]}
-							onClick={(value) => setQueryMap(this, "rankRange", value)}
+					</section>
+					<section id="time-frame-filter">
+						<PremiumWrapper
+							isPremium={this.props.user.isPremium()}
+							infoHeader="Time frame"
+							infoContent="Want to see what decks are hot right now? Look at data from a time frame of your choosing!"
 						>
-							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-						</InfoboxFilterGroup>
-					</PremiumWrapper>
-					<h2>Data</h2>
-					<ul>
-						<InfoboxLastUpdated dataManager={this.dataManager} url={this.getQueryName()} params={this.getParams()}/>
-					</ul>
+							<h2>Time frame</h2>
+							<InfoboxFilterGroup
+								locked={!this.props.user.isPremium()}
+								selectedValue={this.state.queryMap["timeRange"]}
+								onClick={(value) => setQueryMap(this, "timeRange", value)}
+							>
+								<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
+								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+								<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+								<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+							</InfoboxFilterGroup>
+						</PremiumWrapper>
+					</section>
+					<section id="rank-range-filter">
+						<PremiumWrapper
+							isPremium={this.props.user.isPremium()}
+							infoHeader="Rank range"
+							infoContent="Ready to climb the ladder? Check out how decks perform in the higher ranks!"
+						>
+							<h2>Rank range</h2>
+							<InfoboxFilterGroup
+								locked={!this.props.user.isPremium()}
+								selectedValue={this.state.queryMap["rankRange"]}
+								onClick={(value) => setQueryMap(this, "rankRange", value)}
+							>
+								<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+								<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+							</InfoboxFilterGroup>
+						</PremiumWrapper>
+					</section>
+					<section id="side-bar-data">
+						<h2>Data</h2>
+						<ul>
+							<InfoboxLastUpdated dataManager={this.dataManager} url={this.getQueryName()} params={this.getParams()}/>
+						</ul>
+					</section>
 					{backButton}
 				</div>
 				<div className={contentClassNames.join(" ")}>
