@@ -41,9 +41,9 @@ def acquire_redshift_lock(lock_ids):
 		raise ValueError("lock_ids cannot be None")
 
 	if len(lock_ids) == 1:
-		command = 'SELECT pg_try_advisory_lock(%i);' % lock_ids[0]
+		command = "SELECT pg_try_advisory_lock(%i);" % lock_ids[0]
 	elif len(lock_ids) == 2:
-		command = 'SELECT pg_try_advisory_lock(%i, %i);' % (lock_ids[0], lock_ids[1])
+		command = "SELECT pg_try_advisory_lock(%i, %i);" % (lock_ids[0], lock_ids[1])
 	else:
 		raise ValueError("lock_ids must have either 1 bigint or 2 ints")
 
@@ -64,9 +64,9 @@ def release_redshift_lock(lock_ids):
 		raise ValueError("lock_id cannot be None")
 
 	if len(lock_ids) == 1:
-		command = 'SELECT pg_advisory_unlock(%i);' % lock_ids[0]
+		command = "SELECT pg_advisory_unlock(%i);" % lock_ids[0]
 	elif len(lock_ids) == 2:
-		command = 'SELECT pg_advisory_unlock(%i, %i);' % (lock_ids[0], lock_ids[1])
+		command = "SELECT pg_advisory_unlock(%i, %i);" % (lock_ids[0], lock_ids[1])
 	else:
 		raise ValueError("lock_ids must have either 1 bigint or 2 ints")
 

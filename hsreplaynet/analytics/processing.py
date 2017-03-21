@@ -22,14 +22,7 @@ from hsreplaynet.utils.influx import influx_metric
 
 class CachedRedshiftResult(object):
 
-	def __init__(
-		self,
-		result_set,
-		params,
-		is_json=False,
-		as_of=None,
-		response_payload=None
-	):
+	def __init__(self, result_set, params, is_json=False, as_of=None, response_payload=None):
 		self.result_set = result_set
 		self.cached_params = params
 		self.is_json = is_json
@@ -282,7 +275,7 @@ def _do_execute_query_work(query, params, wlm_queue=None):
 		exception_raised = False
 		exception_msg = None
 		redshift_connection = get_new_redshift_connection()
-		result_set = ''
+		result_set = ""
 		cached_data_as_of = timezone.now()
 		try:
 			result_set = query.as_result_set().execute(
@@ -388,7 +381,7 @@ def _lock_exists(cache_key):
 
 
 def get_redshift_cache():
-	return caches['redshift']
+	return caches["redshift"]
 
 
 def get_redshift_cache_redis_client():
@@ -497,8 +490,8 @@ def fill_personalized_query_queue(contexts, eligible_queries=None):
 
 def _permutation_matches_game_types(perm, game_types):
 	gt = perm.get("GameType", None)
-	is_w = gt == 'RANKED_WILD' and BnetGameType.BGT_RANKED_WILD in game_types
-	is_s = gt == 'RANKED_STANDARD' and BnetGameType.BGT_RANKED_STANDARD in game_types
+	is_w = gt == "RANKED_WILD" and BnetGameType.BGT_RANKED_WILD in game_types
+	is_s = gt == "RANKED_STANDARD" and BnetGameType.BGT_RANKED_STANDARD in game_types
 	return is_w or is_s
 
 

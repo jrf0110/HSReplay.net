@@ -48,7 +48,7 @@ class UploadEventsRouter(object):
 	def db_for_write(self, model, **hints):
 		uploads_db = getattr(settings, "UPLOADS_DB", None)
 
-		if model._meta.app_label == 'uploads' and uploads_db and uploads_db in settings.DATABASES:
+		if model._meta.app_label == "uploads" and uploads_db and uploads_db in settings.DATABASES:
 			return uploads_db
 		else:
 			return "default"

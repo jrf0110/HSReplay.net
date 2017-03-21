@@ -3,7 +3,7 @@ django.setup()
 
 from hsreplaynet.cards.models import Card # noqa
 
-card_names = ['Gang Up', 'Vanish', 'Coldlight Oracle']
+card_names = ["Gang Up", "Vanish", "Coldlight Oracle"]
 game_type = "bgt_ranked_standard"
 player_class = "rogue"
 max_rank = 20

@@ -438,7 +438,7 @@ class UploadEvent(models.Model):
 
 	def get_admin_url(self):
 		return reverse(
-			'admin:%s_%s_change' % (self._meta.app_label, self._meta.model_name),
+			"admin:%s_%s_change" % (self._meta.app_label, self._meta.model_name),
 			args=[self.id]
 		)
 
@@ -1498,7 +1498,7 @@ class RedshiftStagingTrackTable(models.Model):
 	@property
 	def firehose_stream_is_active(self):
 		description = streams.get_delivery_stream_description(self.firehose_stream)
-		return description['DeliveryStreamStatus'] == 'ACTIVE'
+		return description["DeliveryStreamStatus"] == "ACTIVE"
 
 	@property
 	def pre_insert_table_name(self):
@@ -1558,7 +1558,7 @@ class RedshiftStagingTrackTable(models.Model):
 			# Don't attempt deduplication if there is nothing in the staging table
 			if self.final_staging_table_size:
 				pre_table_name = self.pre_insert_table_name
-				game_id_val = "id" if self.target_table == 'game' else "game_id"
+				game_id_val = "id" if self.target_table == "game" else "game_id"
 				column_names = ", ".join([c.name for c in table_obj.columns])
 
 				template1 = """
@@ -1641,7 +1641,7 @@ class RedshiftStagingTrackTable(models.Model):
 
 			if self.final_staging_table_size:
 				# Don't attempt to insert if there is nothing in the staging table
-				game_id_val = "id" if self.target_table == 'game' else "game_id"
+				game_id_val = "id" if self.target_table == "game" else "game_id"
 				pre_staging_table_name = self.pre_insert_table_name
 
 				sql = template.format(

@@ -53,7 +53,7 @@ def adunit(slot, responsive=True):
 	if responsive:
 		attributes["data-ad-format"] = "auto"
 	attrlist = " ".join('%s="%s"' % (k, v) for k, v in attributes.items())
-	html = '<ins %s></ins>' % (attrlist)
+	html = "<ins %s></ins>" % (attrlist)
 	return mark_safe(html)
 
 

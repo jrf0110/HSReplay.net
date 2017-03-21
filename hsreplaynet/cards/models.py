@@ -290,8 +290,8 @@ class Deck(models.Model):
 			result.append([include.card.dbf_id, include.count])
 
 		if serialized:
-			# separators=(',', ':') creates compact JSON encoding
-			return json.dumps(result, separators=(',', ':'))
+			# separators=(",", ":") creates compact JSON encoding
+			return json.dumps(result, separators=(",", ":"))
 		else:
 			return result
 
@@ -348,12 +348,12 @@ class Archetype(models.Model):
 		if as_of is None:
 			canonicals = self.canonical_decks.filter(
 				format=format,
-			).order_by('-created').prefetch_related("deck__includes").all()
+			).order_by("-created").prefetch_related("deck__includes").all()
 		else:
 			canonicals = self.canonical_decks.filter(
 				format=format,
 				created__lte=as_of
-			).order_by('-created').prefetch_related("deck__includes").all()
+			).order_by("-created").prefetch_related("deck__includes").all()
 
 		if canonicals:
 			return [c.deck for c in canonicals]

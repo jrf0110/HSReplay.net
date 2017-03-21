@@ -35,7 +35,7 @@ def reap_upload_events_asof(year, month, day, hour):
 	success_reaping_delay = settings.SUCCESSFUL_UPLOAD_EVENT_REAPING_DELAY_DAYS
 	nonsuccess_reaping_delay = settings.UNSUCCESSFUL_UPLOAD_EVENT_REAPING_DELAY_DAYS
 
-	cursor = connections['uploads'].cursor()
+	cursor = connections["uploads"].cursor()
 	args = (year, month, day, hour, success_reaping_delay, nonsuccess_reaping_delay,)
 	# Note: this stored proc will only delete the DB records
 	# The objects in S3 will age out naturally after 90 days

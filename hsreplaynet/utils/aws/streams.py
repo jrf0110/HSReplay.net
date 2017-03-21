@@ -255,7 +255,7 @@ def split_shards(stream_name):
 		combined_hash_key = starting_hash_key + ending_hash_key
 		logger.info("The combined hash key: %s", combined_hash_key)
 
-		split_point_hash_key = '{:.0f}'.format((combined_hash_key / 2))
+		split_point_hash_key = "{:.0f}".format((combined_hash_key / 2))
 		logger.info("Shard split point hash key: %s", split_point_hash_key)
 
 		KINESIS.split_shard(
@@ -329,9 +329,9 @@ def prepare_shards_for_merging(shards):
 
 def get_firehose_role_arn():
 	role = IAM.get_role(
-		RoleName='redshift_firehose_role'
+		RoleName="redshift_firehose_role"
 	)
-	return role['Role']['Arn']
+	return role["Role"]["Arn"]
 
 
 def get_redshift_cluster_jdbc_url():
@@ -343,22 +343,22 @@ def create_firehose_stream(stream_name, table_name):
 	return FIREHOSE.create_delivery_stream(
 		DeliveryStreamName=stream_name,
 		RedshiftDestinationConfiguration={
-			'RoleARN': get_firehose_role_arn(),
-			'ClusterJDBCURL': get_redshift_cluster_jdbc_url(),
-			'CopyCommand': {
-				'DataTableName': table_name,
-				'CopyOptions': 'GZIP COMPUPDATE OFF STATUPDATE OFF'
+			"RoleARN": get_firehose_role_arn(),
+			"ClusterJDBCURL": get_redshift_cluster_jdbc_url(),
+			"CopyCommand": {
+				"DataTableName": table_name,
+				"CopyOptions": "GZIP COMPUPDATE OFF STATUPDATE OFF"
 			},
-			'Username': settings.REDSHIFT_USER,
-			'Password': settings.REDSHIFT_PASSWORD,
-			'S3Configuration': {
-				'RoleARN': get_firehose_role_arn(),
-				'BucketARN': 'arn:aws:s3:::%s' % settings.REDSHIFT_STAGING_BUCKET,
-				'BufferingHints': {
-					'SizeInMBs': settings.REDSHIFT_STAGING_BUFFER_SIZE_MB,
-					'IntervalInSeconds': settings.REDSHIFT_STAGING_BUFFER_INTERVAL_SECONDS
+			"Username": settings.REDSHIFT_USER,
+			"Password": settings.REDSHIFT_PASSWORD,
+			"S3Configuration": {
+				"RoleARN": get_firehose_role_arn(),
+				"BucketARN": "arn:aws:s3:::%s" % (settings.REDSHIFT_STAGING_BUCKET),
+				"BufferingHints": {
+					"SizeInMBs": settings.REDSHIFT_STAGING_BUFFER_SIZE_MB,
+					"IntervalInSeconds": settings.REDSHIFT_STAGING_BUFFER_INTERVAL_SECONDS
 				},
-				'CompressionFormat': 'GZIP'
+				"CompressionFormat": "GZIP"
 			}
 		}
 	)
@@ -377,4 +377,4 @@ def get_delivery_stream_description(stream_name):
 	if not stream_info:
 		raise ValueError("%s is not an existing stream name" % stream_name)
 
-	return stream_info['DeliveryStreamDescription']
+	return stream_info["DeliveryStreamDescription"]

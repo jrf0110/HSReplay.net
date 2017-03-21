@@ -93,8 +93,8 @@ def do_drain_redshift_query_queue_iteration(queue_name):
 			def redshift_query_runner(message):
 				query_name = None
 				try:
-					receipt = message['ReceiptHandle']
-					body = json.loads(message['Body'])
+					receipt = message["ReceiptHandle"]
+					body = json.loads(message["Body"])
 					query_name = body["query_name"]
 					params = body["supplied_parameters"]
 

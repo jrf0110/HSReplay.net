@@ -62,7 +62,7 @@ def canonical_decks(request):
 			"player_class_name": CardClass(archetype.player_class).name
 		}
 
-		canonical_deck = archetype.canonical_decks.order_by('-created').first()
+		canonical_deck = archetype.canonical_decks.order_by("-created").first()
 		if canonical_deck:
 			record["representative_deck"] = {
 				"card_ids": canonical_deck.deck.card_id_list(),

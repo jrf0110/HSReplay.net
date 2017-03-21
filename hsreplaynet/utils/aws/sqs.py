@@ -18,13 +18,13 @@ def write_messages_to_queue(queue_name, messages):
 		for id, message in enumerate(batch):
 			entries.append({
 				"Id": str(id),
-				"MessageBody": json.dumps(message, separators=(',', ':'))
+				"MessageBody": json.dumps(message, separators=(",", ":"))
 			})
 
 		response = SQS.send_message_batch(QueueUrl=queue_url, Entries=entries)
-		if 'Failed' in response and len(response['Failed']):
-			log.error(json.dumps(response['Failed']))
-			raise RuntimeError(json.dumps(response['Failed']))
+		if "Failed" in response and len(response["Failed"]):
+			log.error(json.dumps(response["Failed"]))
+			raise RuntimeError(json.dumps(response["Failed"]))
 
 
 def batches(l, n):
@@ -42,7 +42,7 @@ def get_messages(queue_name, max_num=10):
 			QueueUrl=get_or_create_queue(queue_name),
 			MaxNumberOfMessages=10
 		)
-		messages = response.get('Messages', [])
+		messages = response.get("Messages", [])
 		if len(messages):
 			result.extend(messages)
 		else:

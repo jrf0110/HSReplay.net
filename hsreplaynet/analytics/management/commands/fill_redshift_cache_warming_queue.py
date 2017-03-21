@@ -6,9 +6,9 @@ class Command(BaseCommand):
 
 	def add_arguments(self, parser):
 		parser.add_argument(
-			'-q',
-			'--queries',
-			nargs='*',
+			"-q",
+			"--queries",
+			nargs="*",
 			help="The list of queries to cache warm"
 		)
 

@@ -49,9 +49,7 @@ class Command(BaseCommand):
 
 		artifact_obj = options["artifact"]
 		artifact_bucket = settings.AWS_LAMBDA_ARTIFACTS_BUCKET
-		self.output(
-			"Using code at S3 path: %r/%r" % (artifact_bucket, artifact_obj)
-		)
+		self.output("Using code at S3 path: %r/%r" % (artifact_bucket, artifact_obj))
 
 		for descriptor in descriptors:
 			self.output("About to deploy: %s" % (descriptor["name"]))
@@ -78,12 +76,8 @@ class Command(BaseCommand):
 							Timeout=descriptor["cpu_seconds"],
 							MemorySize=descriptor["memory"],
 							VpcConfig={
-								'SubnetIds': [
-									settings.AWS_PROD_PRIVATE_SUBNET,
-								],
-								'SecurityGroupIds': [
-									settings.AWS_PROD_SECURITY_GROUP_ID,
-								]
+								"SubnetIds": [settings.AWS_PROD_PRIVATE_SUBNET],
+								"SecurityGroupIds": [settings.AWS_PROD_SECURITY_GROUP_ID],
 							},
 						)
 					else:
@@ -115,12 +109,8 @@ class Command(BaseCommand):
 							"S3Key": artifact_obj,
 						},
 						VpcConfig={
-							'SubnetIds': [
-								settings.AWS_PROD_PRIVATE_SUBNET,
-							],
-							'SecurityGroupIds': [
-								settings.AWS_PROD_SECURITY_GROUP_ID,
-							]
+							"SubnetIds": [settings.AWS_PROD_PRIVATE_SUBNET],
+							"SecurityGroupIds": [settings.AWS_PROD_SECURITY_GROUP_ID],
 						},
 						Timeout=descriptor["cpu_seconds"],
 						MemorySize=descriptor["memory"],
@@ -188,7 +178,7 @@ class Command(BaseCommand):
 
 					if not update_existing_mapping_success:
 						# We didn't find an existing mapping to update, so we still must create one
-						self.output("Creating new mapping for event source: %s" % target_event_source)
+						self.output("Creating new mapping for event source: %s" % (target_event_source))
 						LAMBDA.create_event_source_mapping(
 							EventSourceArn=target_event_source,
 							FunctionName=descriptor["name"],
@@ -197,7 +187,7 @@ class Command(BaseCommand):
 						)
 				else:
 					# No mappings currently exist, so we need to create a new mapping
-					self.output("Creating new mapping for event source: %s" % target_event_source)
+					self.output("Creating new mapping for event source: %s" % (target_event_source))
 					LAMBDA.create_event_source_mapping(
 						EventSourceArn=target_event_source,
 						FunctionName=descriptor["name"],
