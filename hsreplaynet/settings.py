@@ -433,9 +433,13 @@ except ImportError as e:
 if __name__ == "__main__":
 	# Invoke `python settings.py` to get a JSON dump of all settings
 	import json
+	import sys
 
-	print(json.dumps({
-		k: v for k, v in globals().items() if (
-			k.isupper() and not k.startswith("_") and not k.endswith("_URL")
-		)
-	}, sort_keys=True, indent="\t"))
+	settings = {k: v for k, v in globals().items() if (
+		k.isupper() and not k.startswith("_") and not k.endswith("_URL")
+	)}
+
+	if len(sys.argv) > 1:
+		settings = {k: v for k, v in settings.items() if k in sys.argv[1:]}
+
+	print(json.dumps(settings, sort_keys=True, indent="\t"))

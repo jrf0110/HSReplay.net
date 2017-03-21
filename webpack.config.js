@@ -19,8 +19,8 @@ const exportSettings = [
 ];
 const influxKey = "INFLUX_DATABASES";
 const python = process.env.PYTHON || "python";
-const manageCmd = [path.resolve(__dirname, "./manage.py"), "show_settings"];
-let proc = spawnSync(python, manageCmd.concat(exportSettings, [influxKey]), {encoding: "utf-8"});
+const settingsCmd = [path.resolve(__dirname, "hsreplaynet/settings.py")];
+let proc = spawnSync(python, settingsCmd.concat(exportSettings, [influxKey]), {encoding: "utf-8"});
 console.log(proc.stderr);
 const exportedSettings = JSON.parse(proc.stdout);
 
