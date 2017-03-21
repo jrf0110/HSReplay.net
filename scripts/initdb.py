@@ -76,6 +76,7 @@ def main():
 	apikey = create_default_api_key()
 	create_or_update_user("admin", "admin", apikey, admin=True)
 	create_or_update_user("user", "user", apikey)
+	create_default_flatpage("/about/contact/", "Contact Us")
 	create_default_flatpage("/about/privacy/", "Privacy Policy")
 	create_default_flatpage("/about/tos/", "Terms of Service")
 	create_socialapp()
