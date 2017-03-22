@@ -11,7 +11,7 @@ echo "Starting Django server"
 python "$PROJECT/manage.py" runserver 0.0.0.0:8000 &
 
 echo "Starting webpack watcher"
-webpack -d \
+PYTHONPATH="$PROJECT" webpack -d \
 	--devtool cheap-module-eval-source-map \
 	--env.cache \
 	--config "$PROJECT/webpack.config.js" \
