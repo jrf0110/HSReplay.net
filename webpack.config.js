@@ -24,6 +24,15 @@ let proc = spawnSync(python, settingsCmd.concat(exportSettings, [influxKey]), {e
 console.log(proc.stderr);
 const exportedSettings = JSON.parse(proc.stdout);
 
+// verify exported settings are actually available
+for(let key in exportSettings) {
+	const setting = exportSettings[key];
+	const value = exportedSettings[setting];
+	if(typeof value === "undefined") {
+		throw new Error("Unknown setting " + setting);
+	}
+}
+
 const buildInfluxEndpoint = (db) => url.format({
 	protocol: db.SSL ? "https" : "http",
 	hostname: db.HOST,
