@@ -436,7 +436,7 @@ if __name__ == "__main__":
 	import sys
 
 	settings = {k: v for k, v in globals().items() if (
-		k.isupper() and not k.startswith("_") and not k.endswith("_URL")
+		k.isupper() and not k.startswith("_") and v.__class__.__name__ != "__proxy__"
 	)}
 
 	if len(sys.argv) > 1:
