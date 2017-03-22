@@ -15,24 +15,25 @@ export default class CheckoutProcess {
 		}
 		let resolved = false;
 		this.promise = new Promise((resolve, reject) => {
+			const dollars = options.amount ? options.amount / 100 : null;
 			options = Object.assign({}, options, {
 				token: (token: StripeTokenResponse): void => {
 					resolved = true;
 					resolve(token);
-					this.trackInteraction("subscribe");
+					this.trackInteraction("subscribe", dollars);
 				},
 				opened: () => {
 					if (this.onstart) {
 						this.onstart();
 					}
-					this.trackInteraction("open");
+					this.trackInteraction("open", dollars);
 				},
 				closed: () => {
 					if (resolved) {
 						return;
 					}
 					reject();
-					this.trackInteraction("close");
+					this.trackInteraction("close", dollars);
 				},
 			});
 			this.handler.open(options);
