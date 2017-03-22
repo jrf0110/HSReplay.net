@@ -555,7 +555,7 @@ window.onload = function () {
 		// bodyLineHeight: 55,
 		bodyBaseline: "hanging",
 		// bodyFontOffset: {x: 0, y: 0},
-		assetFolder: SUNWELL_STATIC_URL + "assets/",
+		assetFolder: SUNWELL_URL + "assets/",
 		cacheSkeleton: true,
 		debug: false,
 	});
