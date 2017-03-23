@@ -1,6 +1,4 @@
 import {MetricsBackend, Point} from "./MetricsBackend";
-import $ from "jquery";
-
 
 export default class BatchingMiddleware implements MetricsBackend {
 	private backend: MetricsBackend;
@@ -28,7 +26,7 @@ export default class BatchingMiddleware implements MetricsBackend {
 			return;
 		}
 		this.interval = window.setInterval(() => this._consume(), this.timeout);
-		$(window).on("beforeunload", () => {
+		window.addEventListener("beforeunload", () => {
 			if (this.finalCallback) {
 				this.finalCallback();
 			}

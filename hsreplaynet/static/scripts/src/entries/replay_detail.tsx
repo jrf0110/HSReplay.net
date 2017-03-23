@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import $ from "jquery";
 import ShareGameDialog from "../components/ShareGameDialog";
 import JoustEmbedder from "../JoustEmbedder";
 import MetricsReporter from "../metrics/MetricsReporter";
@@ -54,7 +53,7 @@ let shared = {};
 function renderShareDialog() {
 	ReactDOM.render(
 		<ShareGameDialog
-			url={$("#share-game-dialog").data("url")}
+			url={document.getElementById("share-game-dialog").getAttribute("data-url")}
 			showLinkToTurn={true}
 			showPreservePerspective={false}
 			turn={embedder.turn}
