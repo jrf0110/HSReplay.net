@@ -7,6 +7,7 @@ interface DeleteReplayButtonProps extends React.ClassAttributes<DeleteReplayButt
 }
 
 interface DeleteReplayButtonState {
+	deleted?: boolean;
 	working?: boolean;
 }
 
@@ -14,6 +15,7 @@ export default class DeleteReplayButton extends React.Component<DeleteReplayButt
 	constructor(props: DeleteReplayButtonProps, context: any) {
 		super(props, context);
 		this.state = {
+			deleted: false,
 			working: false,
 		};
 	}
@@ -21,15 +23,15 @@ export default class DeleteReplayButton extends React.Component<DeleteReplayButt
 	render(): JSX.Element {
 		return <button
 			className="btn btn-danger btn-xs"
-			disabled={this.state.working}
+			disabled={this.state.deleted || this.state.working}
 			onClick={() => this.onRequestDelete()}
 		>
-			{this.state.working ? "Deleting…" : "Delete"}
+			{this.state.deleted ? "Deleted" : this.state.working ? "Deleting…" : "Delete"}
 		</button>;
 	}
 
 	protected onRequestDelete() {
-		if (this.state.working) {
+		if (this.state.working || this.state.deleted) {
 			return;
 		}
 		if (!confirm("Are you sure you would like to remove this replay?")) {
@@ -50,6 +52,7 @@ export default class DeleteReplayButton extends React.Component<DeleteReplayButt
 			if (this.props.done) {
 				this.props.done();
 			}
+			this.setState({deleted: true});
 		}).catch((err) => {
 			alert("Replay could not be deleted.");
 		}).then(() => {
