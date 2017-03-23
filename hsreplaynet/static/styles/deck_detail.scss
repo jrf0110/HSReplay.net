@@ -23,6 +23,9 @@
 			color: $blue;
 			font-size: 1em;
 			left: 3%;
+			@media(min-width: 1336px) {
+				left: calc(50% - 350px);
+			}
 			padding: 0;
 			position: absolute;
 			right: unset;
