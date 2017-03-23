@@ -62,10 +62,10 @@
 					{% csrf_token %}
 
 					<p>
-						<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.name }} &ndash; ${{ monthly_plan.amount|floatformat }}/month</label>
+						<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.name }} &ndash; {{ monthly_plan.human_readable_cost }}</label>
 					</p>
 					<p>
-						<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked> {{ semiannual_plan.name }} &ndash; ${{ semiannual_plan.amount|floatformat }}/6 months</label>
+						<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked> {{ semiannual_plan.name }} &ndash; {{ semiannual_plan.human_readable_cost}}</label>
 					</p>
 
 					<button type="submit" name="subscribe" class="btn btn-primary">Subscribe now</button>
