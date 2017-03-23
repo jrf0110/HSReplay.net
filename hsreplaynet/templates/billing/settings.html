@@ -80,6 +80,17 @@
 			{% endif %}
 
 		{% endif %}
+
+		{% if customer.coupon %}
+			<p class="alert alert-info">
+				You have an active coupon for <strong>{{ customer.coupon.human_readable }}</strong>.
+				{% if sub %}
+					It will automatically be redeemed on your next payment cycle.
+				{% else %}
+					The amount will be deducted from your next purchase.
+				{% endif %}
+			</p>
+		{% endif %}
 		{% endwith %}
 
 		{% if stripe_debug %}
