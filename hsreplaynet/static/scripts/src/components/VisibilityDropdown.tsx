@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as $ from "jquery";
 import {Visibility} from "../interfaces";
-
+import {fetchCSRF} from "../helpers";
 
 interface VisibilityDropdownProps extends React.ClassAttributes<PrivacyDropdown> {
 	initial: Visibility;
@@ -9,8 +9,8 @@ interface VisibilityDropdownProps extends React.ClassAttributes<PrivacyDropdown>
 }
 
 interface VisibilityDropdownState {
-	selected?: Visibility;
 	previous?: Visibility;
+	selected?: Visibility;
 	working?: boolean;
 }
 
@@ -19,16 +19,16 @@ export default class PrivacyDropdown extends React.Component<VisibilityDropdownP
 	constructor(props: VisibilityDropdownProps, context: any) {
 		super(props, context);
 		this.state = {
-			selected: props.initial,
 			previous: props.initial,
+			selected: props.initial,
 			working: false,
 		};
 	}
 
 	render(): JSX.Element {
 		let options = {
-			"Public": Visibility.Public,
-			"Unlisted": Visibility.Unlisted,
+			Public: Visibility.Public,
+			Unlisted: Visibility.Unlisted,
 		};
 
 		return <select
@@ -38,29 +38,27 @@ export default class PrivacyDropdown extends React.Component<VisibilityDropdownP
 				}
 				let selected = e.target.value;
 				this.setState({
-					selected: selected,
-					working: true,
+					selected,
 				});
-				$.ajax("/api/v1/games/" + this.props.shortid + "/", {
+				const headers = new Headers();
+				headers.set("content-type", "application/json");
+				fetchCSRF("/api/v1/games/" + this.props.shortid + "/", {
+					body: JSON.stringify({visibility: selected}),
+					credentials: "same-origin",
+					headers,
 					method: "PATCH",
-					dataType: "json",
-					data: {visibility: selected},
 				})
-				.done(() => this.setState({previous: this.state.selected}))
-				.fail((x) => {
-					let error = "Could not change replay visibility.";
-					if(x.responseText) {
-						try {
-							let response = JSON.parse(x.responseText);
-							error += "\n\n" + response.detail;
-						}
-						catch(e) {
-						}
+				.then((response: Response) => {
+					const statusCode = response.status;
+					if(statusCode !== 200 && statusCode !== 204) {
+						throw new Error("Unexpected status code " + statusCode + ", expected 200 or 204");
 					}
-					alert(error);
-					this.setState({selected: this.state.previous});
+					this.setState({previous: this.state.selected})
 				})
-				.always(() => this.setState({working: false}));
+				.catch(() => {
+					alert("Could not change replay visibility.");
+				})
+				.then(() => this.setState({working: false}));
 			}}
 			value={"" + (+this.state.selected)}
 			disabled={this.state.working}
