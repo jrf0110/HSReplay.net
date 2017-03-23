@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as $ from "jquery";
 import {Visibility} from "../interfaces";
 import {fetchCSRF} from "../helpers";
 
@@ -62,8 +61,6 @@ export default class PrivacyDropdown extends React.Component<VisibilityDropdownP
 			}}
 			value={"" + (+this.state.selected)}
 			disabled={this.state.working}
-		>{$.map(options, (value: Visibility, key: string) => {
-			return <option value={"" + (+value)}>{key}</option>;
-		})}</select>;
+		>{Object.keys(options).map((key: string) => <option value={"" + (+options[key])}>{key}</option>)}</select>;
 	}
 }
