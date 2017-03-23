@@ -1,7 +1,5 @@
 import * as React from "react";
-import * as $ from "jquery";
-import {Visibility} from "../interfaces";
-
+import {fetchCSRF} from "../helpers";
 
 interface DeleteReplayButtonProps extends React.ClassAttributes<DeleteReplayButton> {
 	shortid: string;
@@ -24,34 +22,38 @@ export default class DeleteReplayButton extends React.Component<DeleteReplayButt
 		return <button
 			className="btn btn-danger btn-xs"
 			disabled={this.state.working}
-			onClick={() => {
-				if (this.state.working) {
-					return;
-				}
-				if (!confirm("Are you sure you would like to remove this replay?")) {
-					return;
-				}
-				this.setState({working: true});
-				$.ajax("/api/v1/games/" + this.props.shortid + "/", {
-					method: "DELETE",
-					dataType: "json",
-				})
-				.done(() => this.props.done && this.props.done())
-				.fail((x) => {
-					let error = "Could not delete replay.";
-					if(x.responseText) {
-						try {
-							let response = JSON.parse(x.responseText);
-							error += "\n\n" + response.detail;
-						}
-						catch(e) {
-						}
-					}
-					alert(error);
-					this.setState({working: false});
-				});
-			}}>
+			onClick={() => this.onRequestDelete()}
+		>
 			{this.state.working ? "Deleting…" : "Delete"}
-		</button>
+		</button>;
+	}
+
+	protected onRequestDelete() {
+		if (this.state.working) {
+			return;
+		}
+		if (!confirm("Are you sure you would like to remove this replay?")) {
+			return;
+		}
+		this.setState({working: true});
+		const headers = new Headers();
+		headers.set("content-type", "application/json");
+		fetchCSRF("/api/v1/games/" + this.props.shortid + "/", {
+			credentials: "same-origin",
+			method: "DELETE",
+			headers,
+		}).then((response: Response) => {
+			const statusCode = response.status;
+			if (statusCode !== 200 && statusCode !== 204 && statusCode !== 404) {
+				throw new Error("Unexpected status code " + statusCode + ", expected 200, 204 or 404");
+			}
+			if (this.props.done) {
+				this.props.done();
+			}
+		}).catch((err) => {
+			alert("Replay could not be deleted.");
+		}).then(() => {
+			this.setState({working: false});
+		});
 	}
 }
