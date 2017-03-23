@@ -6,15 +6,11 @@ import JoustEmbedder from "../JoustEmbedder";
 import MetricsReporter from "../metrics/MetricsReporter";
 import BatchingMiddleware from "../metrics/BatchingMiddleware";
 import InfluxMetricsBackend from "../metrics/InfluxMetricsBackend";
-import jQueryCSRF from "../jQueryCSRF";
 import VisibilityDropdown from "../components/VisibilityDropdown";
 import {Visibility} from "../interfaces";
 import DeleteReplayButton from "../components/DeleteReplayButton";
 import PlayerInfo from "../components/PlayerInfo";
 import UserData from "../UserData";
-
-// add Django CSRF token to jQuery.ajax
-jQueryCSRF.init();
 
 // shortid
 let shortid = document.getElementById("replay-infobox").getAttribute("data-shortid");
