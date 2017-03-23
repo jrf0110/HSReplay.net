@@ -153,9 +153,9 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			return [];
 		}
 		const cleanQuery = cleanText(this.state.cardSearchText);
-		let resultSet = [];
+		const resultSet = [];
 		let availableCards = this.props.availableCards;
-		let slang = slangToCardId(this.state.cardSearchText);
+		const slang = slangToCardId(cleanQuery);
 		if (slang !== null) {
 			availableCards = availableCards.filter((card) => {
 				if (card.id === slang) {
@@ -171,8 +171,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			}
 			return cleanText(card.name).indexOf(cleanQuery) !== -1;
 		});
-		resultSet = resultSet.concat(filtered);
-		return resultSet;
+		return resultSet.concat(filtered);
 	}
 
 	getSelectedCards(): JSX.Element[] {
