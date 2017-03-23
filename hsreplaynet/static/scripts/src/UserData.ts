@@ -35,6 +35,10 @@ export default class UserData {
 		return this._userData && this._userData.is_authenticated;
 	}
 
+	getUsername(): string|null {
+		return this._userData ? this._userData.username : null;
+	}
+
 	getAccounts(): Account[] {
 		if (!this._userData) {
 			return [];
