@@ -39,9 +39,10 @@ export type ViewType = "cards" | "statistics" | "personal";
 
 interface CardDiscoverState {
 	cards?: any[];
-	filteredCards: any[];
-	filterCounts: CardFilters;
-	hasPersonalData: boolean;
+	filteredCards?: any[];
+	filterCounts?: CardFilters;
+	hasPersonalData?: boolean;
+	hasStatisticsData?: boolean;
 	numCards?: number;
 	queryMap?: QueryMap;
 	showFilters?: boolean;
@@ -122,6 +123,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			filterCounts: null,
 			filteredCards: [],
 			hasPersonalData: false,
+			hasStatisticsData: false,
 			numCards: 24,
 			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showFilters: false,
@@ -141,6 +143,21 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (this.props.viewType === "personal") {
 			this.dataManager.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => this.setState({hasPersonalData: data && data.series.data.ALL.length > 0}));
+		}
+		else if (this.props.viewType === "statistics") {
+			let played = false;
+			let included = false;
+			const updateHasData = () => played && included && this.setState({hasStatisticsData: true});
+			this.dataManager.get("card_played_popularity_report", this.getParams())
+				.then((data) => {
+					played = true;
+					updateHasData();
+				});
+			this.dataManager.get("card_included_popularity_report", this.getParams())
+				.then((data) => {
+					included = true;
+					updateHasData();
+				});
 		}
 	}
 
@@ -347,8 +364,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</DataInjector>
 				</div>,
 			);
-			if (showMoreButton && this.dataManager.has("card_played_popularity_report", this.getParams())
-				&& this.dataManager.has("card_included_popularity_report", this.getParams())) {
+			if (showMoreButton && this.state.hasStatisticsData) {
 				content.push(showMoreButton);
 			}
 		}
