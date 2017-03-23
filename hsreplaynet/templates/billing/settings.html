@@ -39,7 +39,12 @@
 
 				<form method="POST" action="{% url 'premium_cancel' %}" class="premium-plan-form">
 					{% csrf_token %}
-					<button {% if billing.read_only %}disabled{% endif %} type="submit" name="cancel" class="btn btn-danger">Cancel subscription</button>
+					<button
+						{% if billing.read_only %}disabled{% endif %} type="submit" name="cancel" class="btn btn-danger"
+						onclick="return confirm('Your subscription will remain available until {{ sub.current_period_end|date:'F d, Y' }}. Proceed?')
+					">
+						Cancel subscription
+					</button>
 					{% if stripe_debug %}<p><label><input type="checkbox" name="immediate"/> Immediate (debug)</label></p>{% endif %}
 				</form>
 
