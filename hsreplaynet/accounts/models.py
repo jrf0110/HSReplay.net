@@ -1,5 +1,6 @@
 from uuid import uuid4
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -65,6 +66,7 @@ class User(AbstractUser):
 	)
 	exclude_from_statistics = models.BooleanField(default=False)
 	joust_autoplay = models.BooleanField(default=True)
+	settings = JSONField(default={})
 
 	@cached_property
 	def is_premium(self):
