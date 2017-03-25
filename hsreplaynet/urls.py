@@ -36,7 +36,6 @@ if not settings.ENV_LAMBDA:
 		url(r"^downloads/", DownloadsView.as_view(), name="downloads"),
 		url(r"^features/", include("hsreplaynet.features.urls")),
 		url(r"^profile/", include("hsreplaynet.profiles.urls")),
-		# url(r"^markdownx/", include("markdownx.urls")),
 		url(r"^pages/", include("django.contrib.flatpages.urls")),
 		url(r"^oauth2/", include("hsreplaynet.oauth2.urls")),
 	]

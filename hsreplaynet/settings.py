@@ -73,7 +73,6 @@ INSTALLED_APPS_WEB = [
 	"django_rq",
 	"django_rq_dashboard",
 	"loginas",
-	"markdownx",
 	"webpack_loader",
 	"hsreplaynet.admin",
 	"hsreplaynet.articles",
@@ -281,7 +280,7 @@ OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2.Application"
 
 # Markdown
 
-MARKDOWNX_MARKDOWN_EXTENSIONS = [
+MARKDOWN_EXTENSIONS = [
 	"markdown.extensions.attr_list",
 	"markdown.extensions.nl2br",
 	"markdown.extensions.sane_lists",
