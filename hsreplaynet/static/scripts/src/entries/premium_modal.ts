@@ -14,12 +14,22 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false) 
 	});
 };
 
+let modalIsOpen = null;
+
 const openModal = (modalToOpen) => {
+	if (modalIsOpen === true) {
+		return;
+	}
+	modalIsOpen = true;
 	modalToOpen.style.display = "flex";
 	trackModalInteraction("open");
 };
 
 const closeModal = (modalToClose) => {
+	if (modalIsOpen === false) {
+		return;
+	}
+	modalIsOpen = false;
 	modalToClose.style.display = "none";
 	trackModalInteraction("close");
 };
@@ -41,6 +51,13 @@ const setupModal = (modal) => {
 		e.preventDefault();
 		closeModal(modal);
 	};
+
+	// setup escape button
+	document.addEventListener("keypress", (event) => {
+		if (event.keyCode === 27) {
+			closeModal(modal);
+		}
+	});
 };
 
 setupModal(modal);
@@ -277,6 +294,7 @@ if (modal.getAttribute("data-stripe-load") === "1") {
 	const modalForm = document.getElementById("premium-modal-checkout-form") as HTMLFormElement;
 	if (modalForm) {
 		setupCheckout(modalForm);
+		modalIsOpen = true;
 		trackModalInteraction("open", true);
 	}
 }
