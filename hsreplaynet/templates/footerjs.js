@@ -16,6 +16,9 @@
 	m.parentNode.insertBefore(a, m)
 })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga");
 ga("create", "{{ gua }}", "auto");
+if(typeof _userdata === "object" && typeof _userdata.userid !== "undefined") {
+	ga("set", "userId", _userdata.userid);
+}
 ga("send", "pageview", {
 	page: location.pathname + location.search.replace(/((state)|(code))=\w+\&?/, "").replace(/^\?$/, "") + location.hash
 });
