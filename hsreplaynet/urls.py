@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.conf.urls import include, url
-from django.views.generic import TemplateView
 from .billing.views import PremiumDetailView
 from .games.views import ReplayDetailView, ReplayEmbedView
+from .views import DownloadsView, HomeView
 
 
 urlpatterns = [
-	url(r"^$", TemplateView.as_view(template_name="home.html"), name="home"),
+	url(r"^$", HomeView.as_view(), name="home"),
 	url(r"^api/", include("hsreplaynet.api.urls")),
 	url(r"^analytics/", include("hsreplaynet.analytics.urls")),
 	url(r"^cards/", include("hsreplaynet.cards.urls")),
@@ -22,7 +22,6 @@ urlpatterns = [
 if not settings.ENV_LAMBDA:
 	from django.contrib.flatpages.views import flatpage
 	# These pages are not registered on Lambda as they are not needed there
-	downloads = TemplateView.as_view(template_name="downloads.html")
 	urlpatterns += [
 		url(r"^admin/", include("hsreplaynet.admin.urls")),
 		url(r"^articles/", include("hsreplaynet.articles.urls")),
@@ -34,7 +33,7 @@ if not settings.ENV_LAMBDA:
 		url(r"^about/privacy/$", flatpage, {"url": "/about/privacy/"}, name="privacy_policy"),
 		url(r"^about/tos/$", flatpage, {"url": "/about/tos/"}, name="terms_of_service"),
 		url(r"^decks/", include("hsreplaynet.decks.urls")),
-		url(r"^downloads/", downloads, name="downloads"),
+		url(r"^downloads/", DownloadsView.as_view(), name="downloads"),
 		url(r"^features/", include("hsreplaynet.features.urls")),
 		url(r"^profile/", include("hsreplaynet.profiles.urls")),
 		# url(r"^markdownx/", include("markdownx.urls")),
