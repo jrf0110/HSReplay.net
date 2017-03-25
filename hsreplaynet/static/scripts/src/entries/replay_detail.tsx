@@ -127,7 +127,7 @@ ReactDOM.render(
 	embedder.launcher ?
 		<button className="btn btn-primary btn-full visible-xs" type="button" onClick={() => {
 		first = false;
-		container.className = "";
+		container.classList.remove("hidden-xs");
 		embedder.launcher.fullscreen(true);
 	}}>
 			Enter Replay
@@ -149,8 +149,6 @@ if (style["display"] == "none") {
 	embedder.launcher.startPaused(true);
 }
 
-const initialClassName = container.className;
-
 embedder.launcher.onFullscreen((fullscreen: boolean): void => {
 	if (fullscreen) {
 		if (wasPlaying) {
@@ -161,7 +159,7 @@ embedder.launcher.onFullscreen((fullscreen: boolean): void => {
 		// leave fullscreen
 		wasPlaying = embedder.launcher.playing;
 		embedder.launcher.pause();
-		container.className = initialClassName;
+		container.classList.add("hidden-xs");
 	}
 });
 
