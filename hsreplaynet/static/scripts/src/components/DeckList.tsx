@@ -100,29 +100,29 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 				<div className="clearfix" />
 				<div className="row header-row">
 					<div className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"} onClick={() => onClick("dust_cost")}>
-						Deck/Cost
+						Deck / Cost
 						{sortIndicator("dust_cost")}
-						<InfoIcon header="Crafting cost" content="Total amount of dust required to craft the deck."/>
+						<InfoIcon header="Crafting Cost" content="Total amount of dust required to craft the deck."/>
 					</div>
 					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => onClick("winrate")}>
 						Winrate
 						{sortIndicator("winrate")}
-						<InfoIcon header="Winrate" content="Average recorded winrate for the deck." />
+						<InfoIcon header="Winrate" content="Percentage of games won by the deck." />
 					</div>
 					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => onClick("popularity")}>
 						Games
 						{sortIndicator("popularity")}
-						<InfoIcon header="Games played" content="Number of recorded games for the deck." />
+						<InfoIcon header="Games Played" content="Number of recorded games where the deck is played." />
 					</div>
 					<div className={headerSortable + "header-center col-lg-1 col-md-1 hidden-sm hidden-xs"} onClick={() => onClick("duration")}>
 						Duration
 						{sortIndicator("duration")}
-						<InfoIcon header="Match duration" content="Average duration a match with the deck takes." />
+						<InfoIcon header="Game Duration" content="How long a game takes on average when the deck is played." />
 					</div>
 					<div className={headerSortable + "header-center col-lg-1 hidden-md hidden-sm hidden-xs"} onClick={() => onClick("mana_cost")}>
 						Mana
 						{sortIndicator("mana_cost")}
-						<InfoIcon header="Match curve" content="Distribution of card costs for the deck." />
+						<InfoIcon header="Mana Curve" content="Distribution of card costs for the deck." />
 					</div>
 					<div className="col-lg-6 col-md-7 col-sm-8 hidden-xs">
 						{this.props.compareWith ? "Changes" : "Cards"}
