@@ -98,6 +98,7 @@ MIDDLEWARE = [
 	"django.middleware.gzip.GZipMiddleware",
 	"hsreplaynet.utils.middleware.DoNotTrackMiddleware",
 	"hsreplaynet.utils.middleware.SetRemoteAddrFromForwardedFor",
+	"hsreplaynet.utils.middleware.MetaTagsMiddleware",
 ]
 
 

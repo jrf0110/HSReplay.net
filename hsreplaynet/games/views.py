@@ -1,6 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import Http404
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import View
 from .models import GameReplay
@@ -28,11 +30,33 @@ class ReplayDetailView(View):
 		replay.save()
 
 		request.canonical_url = replay.get_absolute_url()
+		description = replay.generate_description()
+
+		twitter_card = request.GET.get("twitter_card", "summary")
+		if twitter_card not in ("summary", "player"):
+			twitter_card = "summary"
+
+		request.meta_tags.append(
+			{"name": "description", "content": description},
+			{"name": "date", "content": replay.global_game.match_start.isoformat()},
+			{"property": "og:title", "content": replay.pretty_name_spoilerfree},
+			{"property": "og:description", "content": description},
+			{"name": "twitter:card", "content": twitter_card},
+		)
+
+		if twitter_card == "player":
+			thumbnail = request.build_absolute_uri(static("images/joust-thumbnail.png"))
+			embed_url = reverse("games_replay_embed", kwargs={"id": replay.shortid})
+			request.meta_tags.append(
+				{"name": "twitter:player", "content": request.build_absolute_uri(embed_url)},
+				{"name": "twitter:player:width", "content": 640},
+				{"name": "twitter:player:height", "content": 360},
+				{"name": "twitter:image", "content": thumbnail},
+			)
+
 		context = {
 			"replay": replay,
-			"title": replay.pretty_name_spoilerfree,
 			"players": replay.global_game.players.all(),
-			"twitter_card": request.GET.get("twitter_card", "summary")
 		}
 		return render(request, self.template_name, context)
 

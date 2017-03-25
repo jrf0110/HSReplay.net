@@ -11,25 +11,6 @@
 	<link href="{% static 'styles/main.css' %}" rel="stylesheet"/>
 {% endblock stylesheets %}
 
-{% block opengraph %}
-	{% if canonical_url %}
-		<link rel="canonical" href="{{ canonical_url }}" />
-		<meta property="og:url" content="{{ canonical_url }}" />
-	{% endif %}
-
-	<meta property="og:type" content="website" />
-	<meta property="og:site_name" content="HSReplay.net" />
-	<meta property="og:locale" content="en_US" />
-	{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
-	{% if twitter_handle %}
-		<meta name="twitter:site" content="@{{ twitter_handle }}" />
-	{% endif %}
-	{% setting 'HSREPLAY_FACEBOOK_APP_ID' as facebook_app_id %}
-	{% if facebook_app_id %}
-		<meta property="fb:app_id" content="{{ facebook_app_id }}" />
-	{% endif %}
-{% endblock %}
-
 {% block javascript %}
 <script type="text/javascript" src="{% static 'vendor/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>

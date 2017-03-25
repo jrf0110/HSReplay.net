@@ -4,10 +4,6 @@
 
 {% block title %}{{deck_name|default:"Unnamed Deck"}}{% endblock %}
 
-{% block meta %}
-{% include "decks/meta_tags.html" with deck=deck %}
-{% endblock %}
-
 {% block fullcontent %}
 	<div id="deck-info"
 		data-deck-id="{{ deck.shortid }}"

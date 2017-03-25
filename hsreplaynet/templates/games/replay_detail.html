@@ -14,29 +14,6 @@
 	{% comment %}Disable error reporting since it conflicts with Joust's Sentry{% endcomment %}
 {% endblock %}
 
-{% block meta %}
-{% with replay.generate_description as description %}
-	{{ block.super }}
-	<meta property="og:title" content="{{ title }}" />
-	<meta property="og:description" content="{{ description }}" />
-	<meta property="og:image" content="{% static_absolute 'images/hsreplay-thumbnail.png' %}" />
-	<meta property="og:image:width" content="400" />
-	<meta property="og:image:height" content="400" />
-	<meta name="date" content="{{ replay.global_game.match_start|date:"c" }}">
-	<meta name="description" content="{{ description }}" />
-	{% if twitter_card == "player" %}
-		<meta name="twitter:card" content="player" />
-		<meta name="twitter:player" content="{% url 'games_replay_embed' replay.shortid %}" />
-		<meta name="twitter:player:width" content="640" />
-		<meta name="twitter:player:height" content="360" />
-		<meta name="twitter:player:image" content="{% static_absolute 'images/joust-thumbnail.png' %}" />
-	{% elif twitter_card == "summary" %}
-		<meta name="twitter:card" content="summary" />
-	{% endif %}
-	<meta name="twitter:title" content="{{ title }}" />
-{% endwith %}
-{% endblock %}
-
 {% block title %}{{ title }}{% endblock title %}
 
 {% block fullcontent %}

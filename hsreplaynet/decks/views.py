@@ -28,12 +28,22 @@ class DeckDetailView(View):
 			raise Http404("Deck list is too small.")
 
 		guessed_class = guess_class(deck)
+		deck_name = "%s Deck" % (guessed_class.name.capitalize()) if guessed_class else ""
+
+		if guessed_class:
+			deck_url = request.build_absolute_uri(deck.get_absolute_url())
+			request.meta_tags.append(
+				{"property": "x-hearthstone:deck", "content": deck_name},
+				# {"property": "x-hearthstone:deck:hero", "content": hero},
+				{"property": "x-hearthstone:deck:cards", "content": ",".join(deck.card_id_list())},
+				{"property": "x-hearthstone:deck:url", "content": deck_url},
+			)
 
 		context = {
 			"deck": deck,
 			"card_list": ",".join(str(id) for id in cards),
 			"deck_class": guessed_class.name if guessed_class else "UNKNOWN",
-			"deck_name": "%s Deck" % (guessed_class.name.capitalize()) if guessed_class else "",
+			"deck_name": deck_name,
 		}
 
 		return render(request, self.template_name, context)

@@ -3,6 +3,9 @@ Miscellaneous middleware objects
 https://docs.djangoproject.com/en/1.10/topics/http/middleware/
 """
 
+from django.conf import settings
+from .html import HTMLTagList
+
 
 class DoNotTrackMiddleware:
 	HEADER = "HTTP_DNT"
@@ -21,6 +24,30 @@ class DoNotTrackMiddleware:
 		if self.HEADER in request.META:
 			response["DNT"] = request.META[self.HEADER]
 
+		return response
+
+
+class MetaTagsMiddleware:
+	def __init__(self, get_response):
+		self.get_response = get_response
+
+	def __call__(self, request):
+		request.meta_tags = HTMLTagList("meta", [
+			{"name": "viewport", "content": "width=device-width, initial-scale=1"},
+			{"property": "og:type", "content": "website"},
+			{"property": "og:site_name", "content": "HSReplay.net"},
+			{"property": "og:locale", "content": "en_US"},
+		])
+
+		twitter_handle = getattr(settings, "HSREPLAY_TWITTER_HANDLE", "")
+		if twitter_handle:
+			request.meta_tags.append({"name": "twitter:site", "content": "@" + twitter_handle})
+
+		facebook_app_id = getattr(settings, "HSREPLAY_FACEBOOK_APP_ID", "")
+		if facebook_app_id:
+			request.meta_tags.append({"name": "fb:app_id", "content": facebook_app_id})
+
+		response = self.get_response(request)
 		return response
 
 
