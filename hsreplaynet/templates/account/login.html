@@ -62,7 +62,7 @@ Not using Battle.net? Sign in with your username and password here.
 		<ul class="alert alert-danger">{% for f, error in form.errors.items %}{{ error }}{% endfor %}</ul>
 	{% endif %}
 
-	<label>Username <input type="text" name="login" maxlength="150" id="id_username" class="form-control"/></label>
+	<label>Username <input type="text" name="login" maxlength="150" id="id_username" class="form-control" autofocus/></label>
 	<label>Password <input type="password" name="password" id="id_password" class="form-control"/></label>
 
 	<p>
