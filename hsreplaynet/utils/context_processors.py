@@ -13,9 +13,16 @@ def userdata(request):
 		"card_art_url": settings.HEARTHSTONE_ART_URL,
 	}
 	if is_authenticated:
+		data["userid"] = request.user.pk
 		data["username"] = request.user.username
 		data["battletag"] = request.user.battletag
-		data["premium"] = request.user.is_premium
+
+		if request.user.is_premium:
+			data["premium"] = True
+
+		if request.user.is_staff:
+			data["staff"] = True
+
 		data["accounts"] = []
 		for acc in request.user.pegasusaccount_set.all():
 			data["accounts"].append({
