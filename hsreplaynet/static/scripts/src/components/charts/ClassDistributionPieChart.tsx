@@ -33,7 +33,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 		const total = this.state.hoveringSlice ? this.state.hoveringSlice.y : numGames;
 		text += " game" + (!this.props.loading && total === 1 ? "" : "s");
 		if (this.props.loading) {
-			text += " [Loading...]"
+			text += " [Loading…]"
 		}
 		else if (numGames) {
 			let winrate = 0;

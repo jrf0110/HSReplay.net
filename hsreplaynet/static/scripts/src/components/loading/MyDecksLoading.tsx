@@ -13,11 +13,11 @@ export default class MyDecksLoading extends React.Component<MyDecksLoadingProps,
 	render(): JSX.Element {
 		switch (this.props.status) {
 			case "loading":
-				return <h3 className="message-wrapper">Loading...</h3>;
+				return <h3 className="message-wrapper">Loading…</h3>;
 			case "processing":
 				return (
 					<div className="message-wrapper">
-						<h3>Loading...</h3>
+						<h3>Loading…</h3>
 						<p><i>This may take a few seconds</i></p>
 					</div>
 				);
@@ -25,7 +25,7 @@ export default class MyDecksLoading extends React.Component<MyDecksLoadingProps,
 				return <h3 className="message-wrapper">Please check back later</h3>;
 		}
 		if (this.props.cardData === null) {
-			return <h3 className="message-wrapper">Loading...</h3>;
+			return <h3 className="message-wrapper">Loading…</h3>;
 		}
 		if (Object.keys(this.props.data).length === 0) {
 			return <h3 className="message-wrapper">No available data.</h3>;

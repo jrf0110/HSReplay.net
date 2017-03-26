@@ -29,11 +29,11 @@ export default class ChartLoading extends React.Component<ChartLoadingProps, voi
 	getLoadingMessage(): JSX.Element {
 		switch (this.props.status) {
 			case "loading":
-				return <h3 className="chart-message-wrapper">Loading...</h3>;
+				return <h3 className="chart-message-wrapper">Loading…</h3>;
 			case "processing":
 				return (
 					<div className="chart-message-wrapper">
-						<h3>Loading...</h3>
+						<h3>Loading…</h3>
 						<p><i>This may take a few seconds</i></p>
 					</div>
 				);
@@ -41,7 +41,7 @@ export default class ChartLoading extends React.Component<ChartLoadingProps, voi
 				return <h3 className="chart-message-wrapper">Please check back later</h3>;
 		}
 		if (this.props.cardData === null) {
-			return <h3 className="chart-message-wrapper">Loading...</h3>;
+			return <h3 className="chart-message-wrapper">Loading…</h3>;
 		}
 
 		const noDataCondition = this.props.noDataCondition || ((data) => data.series[0].data.length < 2);

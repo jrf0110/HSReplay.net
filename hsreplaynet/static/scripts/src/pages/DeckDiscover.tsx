@@ -247,7 +247,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 		let content = null;
 		if (this.state.loading) {
-			content = <h3 className="message-wrapper">Loading...</h3>;
+			content = <h3 className="message-wrapper">Loading…</h3>;
 		}
 		else if (this.state.filteredDecks.length === 0) {
 			if (this.state.queryMap["personal"] && this.props.user.hasFeature("profiles")) {

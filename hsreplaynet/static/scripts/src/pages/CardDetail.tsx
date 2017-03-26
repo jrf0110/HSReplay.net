@@ -191,7 +191,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					));
 				}
 				else if (cardStatsLoading) {
-					cardStats.push(<h3 className="message-wrapper">Loading...</h3>);
+					cardStats.push(<h3 className="message-wrapper">Loading…</h3>);
 				}
 				else {
 					cardStats.push(<h3 className="message-wrapper">We currently don't have any specific stats for this card.</h3>);
@@ -388,7 +388,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			}
 		}
 		else {
-			content = <h3 className="message-wrapper">Loading...</h3>;
+			content = <h3 className="message-wrapper">Loading…</h3>;
 		}
 
 		let race = null;

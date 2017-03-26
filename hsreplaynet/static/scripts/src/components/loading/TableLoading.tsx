@@ -18,11 +18,11 @@ export default class TableLoading extends React.Component<TableLoadingProps, voi
 
 		switch (this.props.status) {
 			case "loading":
-				return <h3 className="message-wrapper">Loading...</h3>;
+				return <h3 className="message-wrapper">Loading…</h3>;
 			case "processing":
 				return (
 					<div className="message-wrapper">
-						<h3>Loading...</h3>
+						<h3>Loading…</h3>
 						<p><i>This may take a few seconds</i></p>
 					</div>
 				);
@@ -30,7 +30,7 @@ export default class TableLoading extends React.Component<TableLoadingProps, voi
 				return <h3 className="message-wrapper">Please check back later</h3>;
 		}
 		if (this.props.cardData === null) {
-			return <h3 className="message-wrapper">Loading...</h3>;
+			return <h3 className="message-wrapper">Loading…</h3>;
 		}
 
 		const noData = (this.props.dataKeys || ["data"]).some((key) => {
