@@ -536,7 +536,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const modeFilter = (
 				<section id="mode-filter">
 					<InfoboxFilterGroup
-						header="Mode"
+						header="Game Mode"
 						selectedValue={this.state.queryMap["gameType"]}
 						onClick={(value) => setQueryMap(this, "gameType", value)}
 					>
@@ -551,7 +551,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 		if (viewType === "cards" || viewType === "personal") {
 			filters.push(
-				<h2>Card class</h2>,
+				<h2>Class</h2>,
 				<ClassFilter
 					filters="AllNeutral"
 					hideAll
@@ -584,11 +584,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				modeFilter,
 				<PremiumWrapper
 					isPremium={this.props.user.isPremium()}
-					infoHeader="Time frame"
-					infoContent="Get the most recent data on what cards are hot right now!"
+					infoHeader="Time Frame"
+					infoContent="Get the most recent data on which cards are hot right now!"
 				>
 					<InfoboxFilterGroup
-						header="Time frame"
+						header="Time Frame"
 						locked={!this.props.user.isPremium()}
 						selectedValue={this.state.queryMap["timeRange"]}
 						onClick={(value) => setQueryMap(this, "timeRange", value)}
@@ -601,11 +601,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</PremiumWrapper>,
 				<PremiumWrapper
 					isPremium={this.props.user.isPremium()}
-					infoHeader="Rank range"
-					infoContent="Check out what cards get played on the higher ranks!"
+					infoHeader="Rank Range"
+					infoContent="Check out which cards are played at certain rank ranges on the ranked ladder!"
 				>
 					<InfoboxFilterGroup
-						header="Rank range"
+						header="Rank Range"
 						locked={!this.props.user.isPremium()}
 						selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}
 					>

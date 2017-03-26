@@ -372,7 +372,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						Decks
 					</ResetHeader>
 					<section id="player-class-filter">
-						<h2>Class</h2>
+						<h2>Player Class</h2>
 						<ClassFilter
 							filters="All"
 							hideAll
@@ -400,7 +400,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						</PremiumWrapper>
 					</section>
 					<section id="include-cards-filter">
-						<h2>Include cards</h2>
+						<h2>Included Cards</h2>
 						<CardSearch
 							id="card-search-include"
 							key={"cardinclude" + this.state.cardSearchIncludeKey}
@@ -410,7 +410,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						/>
 					</section>
 					<section id="exclude-cards-filter">
-						<h2>Exclude cards</h2>
+						<h2>Excluded Cards</h2>
 						<CardSearch
 							id="card-search-exclude"
 							key={"cardexclude" + this.state.cardSearchExcludeKey}
@@ -421,7 +421,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					{personalFilters}
 					<section id="game-mode-filter">
-						<h2>Mode</h2>
+						<h2>Game Mode</h2>
 						<InfoboxFilterGroup
 							selectedValue={this.state.queryMap["gameType"]}
 							onClick={(value) => setQueryMap(this, "gameType", value)}
@@ -433,8 +433,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<section id="time-frame-filter">
 						<PremiumWrapper
 							isPremium={this.props.user.isPremium()}
-							infoHeader="Time frame"
-							infoContent="Want to see what decks are hot right now? Look at data from a time frame of your choosing!"
+							infoHeader="Time Frame"
+							infoContent="Want to see which decks are hot right now? Look at data from a time frame of your choosing!"
 						>
 							<h2>Time frame</h2>
 							<InfoboxFilterGroup
@@ -452,8 +452,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<section id="rank-range-filter">
 						<PremiumWrapper
 							isPremium={this.props.user.isPremium()}
-							infoHeader="Rank range"
-							infoContent="Ready to climb the ladder? Check out how decks perform in the higher ranks!"
+							infoHeader="Rank Range"
+							infoContent="Ready to climb the ladder? Check out how decks perform at certain rank ranges!"
 						>
 							<h2>Rank range</h2>
 							<InfoboxFilterGroup
