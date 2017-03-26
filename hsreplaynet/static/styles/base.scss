@@ -250,12 +250,13 @@ body, html {
 
 	ul.inner {
 		background-color: $blue;
-		box-shadow: #aaa 2px 2px 3px;
+		border: solid white 1px;
 		color: white;
 		list-style: none;
 		margin: 1em auto;
 		padding: 1em;
-		width: 300px;
+		width: 400px;
+		max-width: 100%;
 	}
 }
 
