@@ -124,7 +124,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
 					sourceUrl={window.location.toString()}
 				/>
-				<h2>Info</h2>
+				<h2>Deck</h2>
 				<ul>
 					<li>
 						Class

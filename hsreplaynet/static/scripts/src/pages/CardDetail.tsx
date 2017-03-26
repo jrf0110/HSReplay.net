@@ -420,7 +420,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				/>
 				<p>{this.getCleanFlavorText()}</p>
 				<InfoboxFilterGroup
-					header="Mode"
+					header="Game Mode"
 					selectedValue={this.state.queryMap["gameType"]}
 					onClick={(value) => setQueryMap(this, "gameType", value)}
 				>
@@ -462,7 +462,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">Last 30 days</span>
 					</li>
 				</ul>
-				<h2>Info</h2>
+				<h2>Card</h2>
 				<ul>
 					<li>
 						Class
