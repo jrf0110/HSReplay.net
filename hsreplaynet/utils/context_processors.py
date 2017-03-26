@@ -3,6 +3,7 @@ Context processors for billing/premium purposes
 """
 import json
 from django.conf import settings
+from django.contrib.messages import get_messages
 from django.core.serializers.json import DjangoJSONEncoder
 
 
@@ -12,6 +13,12 @@ def userdata(request):
 		"is_authenticated": is_authenticated,
 		"card_art_url": settings.HEARTHSTONE_ART_URL,
 	}
+
+	storage = get_messages(request)
+	data["messages"] = [{
+		"level": m.level_tag, "tags": m.extra_tags, "text": m.message
+	} for m in storage]
+
 	if is_authenticated:
 		data["userid"] = request.user.pk
 		data["username"] = request.user.username
