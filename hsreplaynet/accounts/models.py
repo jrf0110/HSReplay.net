@@ -69,9 +69,14 @@ class User(AbstractUser):
 	settings = JSONField(default={})
 
 	@cached_property
+	def stripe_customer(self):
+		from djstripe.models import Customer
+		customer, created = Customer.get_or_create(self)
+		return customer
+
+	@cached_property
 	def is_premium(self):
 		from django.conf import settings
-		from djstripe.models import Customer
 
 		# The PREMIUM_OVERRIDE setting allows forcing a True or False for all users
 		# This is especially useful if no Stripe API key is available
@@ -83,11 +88,8 @@ class User(AbstractUser):
 			# Override to false if we don't have a Stripe secret key to avoid unnecessary errors.
 			return False
 
-		customer, created = Customer.get_or_create(self)
-		if created:
-			return False
-
 		now = timezone.now()
+		customer = self.stripe_customer
 		subscriptions = customer.subscriptions.filter(status="active", current_period_end__gt=now)
 		return subscriptions.count() > 0
 

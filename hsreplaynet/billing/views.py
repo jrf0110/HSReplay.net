@@ -8,17 +8,18 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, View
-from djstripe.models import Customer, StripeCard
+from djstripe.models import StripeCard
 from stripe.error import CardError, InvalidRequestError
 from hsreplaynet.features.decorators import view_requires_feature_access
 
 
 class PaymentsMixin:
 	def get_customer(self):
+		"""
+		Returns the user's Stripe customer object, or None for logged out users.
+		"""
 		if self.request.user.is_authenticated:
-			# The Stripe customer model corresponding to the user
-			customer, _ = Customer.get_or_create(self.request.user)
-			return customer
+			return self.request.user.stripe_customer
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -151,7 +152,7 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 	success_url = reverse_lazy("billing_methods")
 
 	def handle_form(self, request):
-		customer, _ = Customer.get_or_create(request.user)
+		customer = request.user.stripe_customer
 
 		if not customer.subscription:
 			# The customer is not subscribed
@@ -195,7 +196,7 @@ class UpdateCardView(LoginRequiredMixin, View):
 			return False
 
 		# `customer` is the StripeCustomer instance matching the current user
-		customer, _ = Customer.get_or_create(request.user)
+		customer = request.user.stripe_customer
 		sources = customer.sources.all()
 		try:
 			# Get the payment method matching the stripe id, scoped to the customer
@@ -220,7 +221,7 @@ class UpdateCardView(LoginRequiredMixin, View):
 			stripe_customer = customer.api_retrieve()
 			stripe_customer.default_source = card.stripe_id
 			stripe_customer.save()
-			Customer.sync_from_stripe_data(stripe_customer)
+			customer.__class__.sync_from_stripe_data(stripe_customer)
 
 		return True
 
