@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django_intenum import IntEnumField
 from hsreplaynet.games.models import Visibility
@@ -87,8 +88,10 @@ class User(AbstractUser):
 			# Override to false if we don't have a Stripe secret key to avoid unnecessary errors.
 			return False
 
+		now = timezone.now()
 		customer = self.stripe_customer
-		return customer.active_subscriptions.count() > 0
+		subscriptions = customer.subscriptions.filter(status="active", current_period_end__gt=now)
+		return subscriptions.count() > 0
 
 	def delete_replays(self):
 		self.replays.update(is_deleted=True)
