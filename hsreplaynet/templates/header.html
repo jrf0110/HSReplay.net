@@ -1,0 +1,101 @@
+{% load static %}
+{% load socialaccount %}
+{% load web_extras %}
+{% load feature from features %}
+
+<div class="navbar navbar-hsreplay">
+	<div class="navbar-header">
+		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</button>
+		<a class="navbar-brand" href="/">
+			<img src="{% static 'images/logo.png' %}" id="navbar-logo" alt="HSReplay"/>
+			<h1>HSReplay.net</h1>
+		</a>
+	</div>
+
+	<div class="container-fluid">
+		<nav class="collapse navbar-collapse" id="navbar-collapse">
+			{% with request.resolver_match.url_name as urlname %}
+				{% block navlinks %}
+					<ul class="nav navbar-nav">
+						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
+							<li{% nav_active 'trending_decks' %}><a href="{% url 'trending_decks' %}"><span class="glyphicon glyphicon-fire"></span>Trending</a></li>
+							<li{% nav_active 'deck_list' %}><a href="{% url 'deck_list' %}"><span class="glyphicon glyphicon-th-list"></span>Decks</a></li>
+							<li{% nav_active 'card_stats' %}><a href="{% url 'card_stats' %}"><span class="glyphicon glyphicon-stats"></span>Cards</a></li>
+							<li{% nav_active 'card_gallery' %}><a href="{% url 'card_gallery' %}"><span class="glyphicon glyphicon-th-large"></span>Gallery</a></li>
+						{% endif %}
+
+						{% feature "archetypes" as ft_archetypes %}{% if ft_archetypes.enabled %}
+							<li{% nav_active 'deck_archetypes' %}><a href="{% url 'deck_archetypes' %}">Archetypes</a></li>
+						{% endif %}
+
+						{% feature "scenarios" as ft_scenarios %}{% if ft_scenarios.enabled %}
+							<li{% nav_active 'scenario_list_view' %}><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
+						{% endif %}
+
+						<li{% nav_active 'articles_article_list' %}><a href="{% url 'articles_article_list' %}"><span class="glyphicon glyphicons-article"></span>Articles</a></li>
+
+						{% if ft_carddb.enabled %}
+							<li{% nav_active 'premium' css='active active-premium' %}><a href="{% url 'premium' %}" class="text-premium">Premium</a></li>
+						{% endif %}
+					</ul>
+				{% endblock %}
+
+				<ul class="nav navbar-nav navbar-right">
+					{% if user.is_authenticated %}
+						{% if user.is_staff %}
+							<li><a href="{% url 'admin:index' %}">Admin</a></li>
+						{% endif %}
+						{% feature "freemode_toggle" as ft_freemode %}{% if ft_freemode.enabled %}
+							<li><a href="" id="free-mode">Freemode</a></li>
+							<script type="text/javascript">
+								const freeMode = document.cookie.indexOf("free-mode") !== -1;
+								if (freeMode) {
+									$("#free-mode").css("color", "red")
+								}
+								document.getElementById("free-mode").onclick = function() {
+									if (freeMode) {
+										document.cookie = "free-mode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+									}
+									else {
+										document.cookie = "free-mode=true; expires=Thu, 01 Jan 2018 00:00:00 UTC; path=/";
+									}
+								};
+							</script>
+						{% endif %}
+
+						{% feature "profiles" as ft_profiles %}{% if ft_profiles.enabled %}
+							<li{% nav_active 'profile_highlights' %}><a href="{% url 'profile_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
+						{% endif %}
+						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
+							<li{% nav_active 'my_card_stats' css='active active-premium' %}>
+								<a href="{% url 'my_card_stats' %}" class="text-premium"><span class="glyphicon glyphicon-stats"></span>My Cards</a>
+							</li>
+						{% endif %}
+						<li{% nav_active 'my_replays' %}><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
+
+						{% if premium %}
+							<li{% nav_active 'account_edit' css="active active-premium" %}>
+								<a href="{% url 'account_edit' %}" class="text-premium" id="you">
+									{% else %}
+							<li{% nav_active 'account_edit' css="active" %}>
+							<a href="{% url 'account_edit' %}" id="you">
+						{% endif %}
+					<span class="custom-icon" style="background-image: url('{% static 'images/bnet.png' %}')"></span>
+					{{ user.username }}
+					</a>
+					</li>
+					{% else %}
+						<li class="button-container">
+							{% include "login_button.html" with class="promo-button" next=request.get_full_path %}
+						</li>
+					{% endif %}
+				</ul>
+			{% endwith %}
+		</nav>
+	</div>
+</div>

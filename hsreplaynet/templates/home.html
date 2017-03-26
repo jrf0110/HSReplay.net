@@ -8,75 +8,18 @@
 {% block error_reporting %}
 {% endblock %}
 
-{% block header %}
+{% block javascript %}
+{{ block.super }}
 {% get_featured_game as featured_game %}
 {% if featured_game %}
 	<script type="text/javascript">
 		{% include "joust_include.js" with featured_game=featured_game %}
 	</script>
 {% endif %}
-<div class="navbar navbar-hsreplay navbar-home">
-	<div class="navbar-inner">
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" href="/">
-				<img src="{% static 'images/logo.png' %}" id="navbar-logo" alt="HSReplay"/>
-			</a>
-		</div>
-		<div class="container-fluid">
-			<nav class="collapse navbar-collapse" id="navbar-collapse">
-				{% block navlinks %}
-				<ul class="nav navbar-nav">
-					<li><a href="#features">Features</a></li>
-					<li><a href="#faq">FAQ</a></li>
-					<li><a href="{% url 'downloads' %}">Download</a></li>
-					<li><a href="{% url 'articles_article_list' %}">Articles</a></li>
+{% endblock %}
 
-					{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-						<li><a href="{% url 'trending_decks' %}"><span class="glyphicon glyphicon-fire"></span>Trending</a></li>
-						<li><a href="{% url 'deck_list' %}"><span class="glyphicon glyphicon-th-list"></span>Decks</a></li>
-						<li><a href="{% url 'card_stats' %}"><span class="glyphicon glyphicon-stats"></span>Cards</a></li>
-						<li><a href="{% url 'card_gallery' %}"><span class="glyphicon glyphicon-th-large"></span>Gallery</a></li>
-					{% endif %}
-				</ul>
-				{% endblock %}
-
-				<ul class="nav navbar-nav navbar-right">
-					{% if user.is_authenticated %}
-						{% if user.is_staff %}
-							<li><a href="{% url 'admin:index' %}">Admin</a></li>
-						{% endif %}
-						{% feature "profiles" as ft_profiles %}{% if ft_profiles.enabled %}
-							<li><a href="{% url 'profile_highlights' %}"><span class="glyphicon glyphicon-star"></span>My Highlights</a></li>
-						{% endif %}
-						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-							<li><a href="{% url 'my_card_stats' %}" class="text-premium"><span class="glyphicon glyphicon-stats"></span>My Cards</a></li>
-						{% endif %}
-						<li><a href="{% url 'my_replays' %}"><span class="glyphicon glyphicon-play"></span>My Replays</a></li>
-						<li>
-							<a href="{% url 'account_edit' %}"{% if premium %} class="text-premium"{% endif %} id="you">
-								<img src="{% static 'images/bnet.png' %}"/>
-								<span>{{ user.username }}</span>
-							</a>
-						</li>
-					{% else %}
-						<li>
-							<a href="{% url 'account_login' %}">
-								<img src="{% static 'images/bnet.png' %}"/>
-								Log in
-							</a>
-						</li>
-					{% endif %}
-				</ul>
-			</nav>
-		</div>
-	</div>
-</div>
+{% block header %}
+{% include "header.html" %}
 {% endblock %}
 
 {% block content %}
@@ -109,6 +52,18 @@
 			{% endif %}
 		</div>
 	</header>
+
+	<nav class="navbar navbar-default">
+		<div class="container">
+			<nav class="collapse navbar-collapse" id="navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li><a href="#features">Features</a></li>
+					<li><a href="#how-it-works">How it works</a></li>
+					<li><a href="#faq">FAQ</a></li>
+				</ul>
+			</nav>
+		</div>
+	</nav>
 
 	<article id="demo">
 		<div class="container">
