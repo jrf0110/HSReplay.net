@@ -72,6 +72,21 @@ class DeleteAccountView(LoginRequiredMixin, TemplateView):
 	template_name = "account/delete.html"
 	success_url = reverse_lazy("home")
 
+	def can_delete(self):
+		customer = self.request.user.stripe_customer
+		subscriptions = customer.active_subscriptions.filter(cancel_at_period_end=False)
+		if subscriptions.count():
+			# If the user has any active subscriptions that they did not cancel,
+			# we prevent them from deleting their account in order to ensure
+			# they confirm the cancellation of their subscription.
+			return False
+		return True
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context["can_delete"] = self.can_delete()
+		return context
+
 	def post(self, request):
 		if not request.POST.get("delete_confirm"):
 			return redirect("account_delete")

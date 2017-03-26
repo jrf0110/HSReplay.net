@@ -21,6 +21,15 @@
 			Maybe we can fix it. <a href="mailto:help@hsreplay.net">Shoot us an email</a>!
 		</p>
 
+		{% if user.is_premium %}
+			<p class="alert alert-danger">
+				You currently have a <strong>HearthSim Premium</strong> subscription running.
+				Before deleting your account, please <a href="{% url 'billing_methods' %}">cancel your subscription</a>.
+				Note that you can cancel your subscription without deleting your account.
+			</p>
+		{% endif %}
+
+		{% if can_delete %}
 		<form action="" method="post" onsubmit="return confirm('Are you *really* sure?')">
 			{% csrf_token %}
 			<p>
@@ -48,6 +57,7 @@
 				<input type="submit" class="btn btn-danger" value="Confirm"/>
 			</p>
 		</form>
+		{% endif %}
 
 		</div>
 
