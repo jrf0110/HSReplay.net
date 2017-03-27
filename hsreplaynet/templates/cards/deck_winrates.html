@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% load feature from features %}
 
-{% block title %}Win Rates{% endblock %}
-
 {% block fullcontent %}
 {% feature "winrates" as ft_winrates %}
 {% if ft_winrates.enabled %}

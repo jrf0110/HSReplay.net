@@ -21,6 +21,11 @@ class ArticleDetailView(DetailView):
 
 		return qs
 
+	def get_object(self, *args, **kwargs):
+		obj = super().get_object(*args, **kwargs)
+		self.request.head.title = obj.title
+		return obj
+
 
 class ArticleListView(ListView):
 	model = Article
@@ -43,6 +48,7 @@ class ArticleListView(ListView):
 
 	def get(self, request):
 		feed_url = reverse("articles_article_feed")
+		request.head.title = "Articles"
 		request.head.add_link(
 			rel="alternate",
 			type="application/atom+xml",

@@ -11,9 +11,9 @@ class HomeView(TemplateView):
 
 	def get(self, request):
 		thumbnail = static("images/hsreplay-thumbnail.png")
+		request.head.title = "Watch and share your Hearthstone replays!"
 		request.head.add_meta(
 			{"name": "description", "content": SITE_DESCRIPTION},
-			{"property": "og:title", "content": "HSReplay.net"},
 			{"property": "og:description", "content": SITE_DESCRIPTION},
 			{"property": "og:image", "content": request.build_absolute_uri(thumbnail)},
 			{"property": "og:image:width", "content": 400},
@@ -25,6 +25,7 @@ class HomeView(TemplateView):
 
 class DownloadsView(RequestMetaMixin, TemplateView):
 	template_name = "downloads.html"
+	title = "Downloads"
 	stylesheets = (
 		"https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css",
 	)

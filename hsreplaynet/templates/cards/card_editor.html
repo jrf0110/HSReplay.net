@@ -2,8 +2,6 @@
 {% load render_bundle from webpack_loader %}
 {% load static from static %}
 
-{% block title %}Card Editor{% endblock %}
-
 {% block fullcontent %}
 	<div id="cardrender-editor" data-upload-api="" data-csrf-token="{{ csrf_token }}"></div>
 	{% render_bundle "card_editor" %}

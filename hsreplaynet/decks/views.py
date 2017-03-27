@@ -11,6 +11,7 @@ from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.cards.models import Archetype, Deck
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.games.models import GameReplay
+from hsreplaynet.utils.html import RequestMetaMixin
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
@@ -29,6 +30,7 @@ class DeckDetailView(View):
 
 		guessed_class = guess_class(deck)
 		deck_name = "%s Deck" % (guessed_class.name.capitalize()) if guessed_class else ""
+		request.head.title = deck_name
 
 		if guessed_class:
 			deck_url = request.build_absolute_uri(deck.get_absolute_url())
@@ -50,13 +52,15 @@ class DeckDetailView(View):
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
-class DeckListView(TemplateView):
+class DeckListView(RequestMetaMixin, TemplateView):
 	template_name = "decks/deck_list.html"
+	title = "Decks"
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
-class TrendingDecksView(TemplateView):
+class TrendingDecksView(RequestMetaMixin, TemplateView):
 	template_name = "decks/trending.html"
+	title = "Trending Decks"
 
 
 def canonical_decks(request):

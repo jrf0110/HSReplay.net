@@ -2,8 +2,6 @@
 {% load static %}
 {% load render_bundle from webpack_loader %}
 
-{% block title %}My Replays{% endblock %}
-
 {% block fullcontent %}
 <div class="content replay-listing {% if not replays %}no-replays{% endif %}">
 {% if not replays %}

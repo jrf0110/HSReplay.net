@@ -6,6 +6,7 @@ from django.views.generic import ListView, UpdateView, View
 from oauth2_provider.generators import generate_client_secret
 from oauth2_provider.models import AccessToken
 from oauth2_provider.views import AuthorizationView as BaseAuthorizationView
+from hsreplaynet.utils.html import RequestMetaMixin
 from .models import Application
 
 
@@ -33,7 +34,7 @@ class AuthorizationView(BaseAuthorizationView):
 		return super().get_login_url()
 
 
-class ApplicationBaseView(LoginRequiredMixin, View):
+class ApplicationBaseView(LoginRequiredMixin, RequestMetaMixin, View):
 	model = Application
 
 	def get_queryset(self):
@@ -43,6 +44,7 @@ class ApplicationBaseView(LoginRequiredMixin, View):
 class ApplicationUpdateView(ApplicationBaseView, UpdateView):
 	template_name = "oauth2/application_update.html"
 	fields = ("name", "description", "homepage", "redirect_uris")
+	title = "Your OAuth Application"
 
 
 class ApplicationListView(ApplicationBaseView, ListView):
@@ -52,6 +54,7 @@ class ApplicationListView(ApplicationBaseView, ListView):
 	"""
 
 	template_name = "account/oauth_apps.html"
+	title = "OAuth Applications"
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% load render_bundle from webpack_loader %}
 
-{% block title %}Trending{% endblock %}
-
 {% block fullcontent %}
 	<div id="trending-container"></div>
 	{% render_bundle "stats" %}

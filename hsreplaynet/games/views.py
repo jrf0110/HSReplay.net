@@ -15,6 +15,7 @@ class MyReplaysView(LoginRequiredMixin, View):
 	def get(self, request):
 		replays = GameReplay.objects.live().filter(user=request.user).count()
 		context = {"replays": replays}
+		request.head.title = "My Replays"
 		return render(request, self.template_name, context)
 
 
@@ -37,10 +38,10 @@ class ReplayDetailView(View):
 		if twitter_card not in ("summary", "player"):
 			twitter_card = "summary"
 
+		request.head.title = replay.pretty_name_spoilerfree
 		request.head.add_meta(
 			{"name": "description", "content": description},
 			{"name": "date", "content": replay.global_game.match_start.isoformat()},
-			{"property": "og:title", "content": replay.pretty_name_spoilerfree},
 			{"property": "og:description", "content": description},
 			{"name": "twitter:card", "content": twitter_card},
 		)

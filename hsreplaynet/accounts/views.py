@@ -10,24 +10,27 @@ from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, UpdateView, View
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils import get_uuid_object_or_404, log
+from hsreplaynet.utils.html import RequestMetaMixin
 from hsreplaynet.utils.influx import influx_metric
 from .models import AccountClaim, AccountDeleteRequest, User
 
 
-class EditAccountView(LoginRequiredMixin, UpdateView):
+class EditAccountView(LoginRequiredMixin, RequestMetaMixin, UpdateView):
 	template_name = "account/edit.html"
 	model = User
 	fields = [
 		"default_replay_visibility", "joust_autoplay", "locale", "exclude_from_statistics"
 	]
 	success_url = "/account/"
+	title = "Account settings"
 
 	def get_object(self, queryset=None):
 		return self.request.user
 
 
-class APIAccountView(LoginRequiredMixin, View):
+class APIAccountView(LoginRequiredMixin, RequestMetaMixin, View):
 	template_name = "account/api.html"
+	title = "API access"
 
 	def get(self, request):
 		context = {
@@ -68,9 +71,10 @@ class ClaimAccountView(LoginRequiredMixin, View):
 		return redirect(self.get_redirect_url(request))
 
 
-class DeleteAccountView(LoginRequiredMixin, TemplateView):
+class DeleteAccountView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "account/delete.html"
 	success_url = reverse_lazy("home")
+	title = "Delete account"
 
 	def can_delete(self):
 		customer = self.request.user.stripe_customer

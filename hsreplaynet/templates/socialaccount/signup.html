@@ -1,7 +1,5 @@
 {% extends "account/signup.html" %}
 
-{% block title %}Choose a username{% endblock %}
-
 {% block content %}
 	{% with request.session.socialaccount_sociallogin.account as account %}
 	<h2>Sign up</h2>

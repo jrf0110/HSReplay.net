@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from . import views
 
 
-billing_settings = views.BillingSettingsView.as_view()
+billing_settings = views.BillingView.as_view()
 update_card = views.UpdateCardView.as_view()
 subscribe = views.SubscribeView.as_view()
 cancel_subscription = views.CancelSubscriptionView.as_view()

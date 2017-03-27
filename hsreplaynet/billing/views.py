@@ -11,6 +11,7 @@ from django.views.generic import TemplateView, View
 from djstripe.models import StripeCard
 from stripe.error import CardError, InvalidRequestError
 from hsreplaynet.features.decorators import view_requires_feature_access
+from hsreplaynet.utils.html import RequestMetaMixin
 
 
 class PaymentsMixin:
@@ -37,9 +38,10 @@ class PaymentsMixin:
 		return context
 
 
-class BillingSettingsView(LoginRequiredMixin, PaymentsMixin, TemplateView):
+class BillingView(LoginRequiredMixin, RequestMetaMixin, PaymentsMixin, TemplateView):
 	template_name = "billing/settings.html"
 	success_url = reverse_lazy("billing_methods")
+	title = "Billing"
 
 
 class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
@@ -231,5 +233,6 @@ class UpdateCardView(LoginRequiredMixin, View):
 
 
 @method_decorator(view_requires_feature_access("billing"), name="dispatch")
-class PremiumDetailView(TemplateView):
+class PremiumDetailView(RequestMetaMixin, TemplateView):
 	template_name = "premium/premium_detail.html"
+	title = "HearthSim Premium"

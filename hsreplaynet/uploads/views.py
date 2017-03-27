@@ -21,4 +21,6 @@ class UploadDetailView(View):
 			if upload.game:
 				return HttpResponseRedirect(upload.game.get_absolute_url())
 
+		request.head.title = "Uploading replay..."
+
 		return render(request, "uploads/processing.html", {"upload": upload})

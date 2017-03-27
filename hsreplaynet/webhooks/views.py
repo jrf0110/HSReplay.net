@@ -1,26 +1,30 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, UpdateView
+from hsreplaynet.utils.html import RequestMetaMixin
 from .models import Webhook
 
 
-class WebhookFormView(LoginRequiredMixin):
+class WebhookFormMixin(LoginRequiredMixin, RequestMetaMixin):
 	model = Webhook
 	template_name = "webhooks/detail.html"
 	fields = ["url", "secret", "is_active"]
 	success_url = reverse_lazy("account_api")
 
 
-class WebhookCreateView(WebhookFormView, CreateView):
+class WebhookCreateView(WebhookFormMixin, CreateView):
+	title = "Create a webhook"
+
 	def form_valid(self, form):
 		form.instance.creator = self.request.user
 		form.instance.user = self.request.user
 		return super().form_valid(form)
 
 
-class WebhookUpdateView(WebhookFormView, UpdateView):
+class WebhookUpdateView(WebhookFormMixin, UpdateView):
 	context_object_name = "webhook"
 	triggers_limit = 25
+	title = "Update a webhook"
 
 	def get_queryset(self):
 		qs = super().get_queryset()
@@ -32,7 +36,7 @@ class WebhookUpdateView(WebhookFormView, UpdateView):
 		return context
 
 
-class WebhookDeleteView(WebhookFormView, DeleteView):
+class WebhookDeleteView(WebhookFormMixin, DeleteView):
 	def get_queryset(self):
 		qs = super().get_queryset()
 		return qs.filter(user=self.request.user, is_deleted=False)

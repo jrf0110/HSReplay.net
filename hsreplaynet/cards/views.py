@@ -11,28 +11,33 @@ from .queries import CardCountersQueryBuilder
 from .stats.winrates import get_head_to_head_winrates
 
 
-class ArchetypesView(TemplateView):
+class ArchetypesView(RequestMetaMixin, TemplateView):
 	template_name = "cards/deck_archetypes.html"
+	title = "Archetypes"
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
-class CardStatsView(TemplateView):
+class CardStatsView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_stats.html"
+	title = "Cards"
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
-class MyCardStatsView(LoginRequiredMixin, TemplateView):
+class MyCardStatsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "cards/my_card_stats.html"
+	title = "My Cards"
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
-class CardGalleryView(TemplateView):
+class CardGalleryView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_gallery.html"
+	title = "Card Gallery"
 
 
 @method_decorator(view_requires_feature_access("cardeditor"), name="dispatch")
 class CardEditorView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_editor.html"
+	title = "Card Editor"
 	stylesheets = (
 		"fonts/belwefs_extrabold_macroman/stylesheet.css",
 		"fonts/franklingothicfs_mediumcondensed_macroman/stylesheet.css",
@@ -61,6 +66,7 @@ class CardDetailView(DetailView):
 			raise Http404("No card found matching the query.")
 
 		self.request.head.set_canonical_url(obj.get_absolute_url())
+		self.request.head.title = obj.name
 
 		return obj
 
