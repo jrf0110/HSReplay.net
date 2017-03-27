@@ -36,7 +36,7 @@ class ReplayDetailView(View):
 		if twitter_card not in ("summary", "player"):
 			twitter_card = "summary"
 
-		request.meta_tags.append(
+		request.head.add_meta(
 			{"name": "description", "content": description},
 			{"name": "date", "content": replay.global_game.match_start.isoformat()},
 			{"property": "og:title", "content": replay.pretty_name_spoilerfree},
@@ -47,7 +47,7 @@ class ReplayDetailView(View):
 		if twitter_card == "player":
 			thumbnail = request.build_absolute_uri(static("images/joust-thumbnail.png"))
 			embed_url = reverse("games_replay_embed", kwargs={"id": replay.shortid})
-			request.meta_tags.append(
+			request.head.add_meta(
 				{"name": "twitter:player", "content": request.build_absolute_uri(embed_url)},
 				{"name": "twitter:player:width", "content": 640},
 				{"name": "twitter:player:height", "content": 360},

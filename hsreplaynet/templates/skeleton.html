@@ -12,7 +12,7 @@
 		<link rel="canonical" href="{{ canonical_url }}"/>
 		<meta property="og:url" content="{{ canonical_url }}"/>
 	{% endif %}
-	{{ request.meta_tags|safe }}
+	{{ request.head|safe }}
 
 	{% block stylesheets %}{% endblock %}
 	{% block javascript %}{% endblock %}

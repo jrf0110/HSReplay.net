@@ -10,7 +10,7 @@ class HomeView(TemplateView):
 
 	def get(self, request):
 		thumbnail = static("images/hsreplay-thumbnail.png")
-		request.meta_tags.append(
+		request.head.add_meta(
 			{"name": "description", "content": SITE_DESCRIPTION},
 			{"property": "og:title", "content": "HSReplay.net"},
 			{"property": "og:description", "content": SITE_DESCRIPTION},

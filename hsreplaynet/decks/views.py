@@ -32,7 +32,7 @@ class DeckDetailView(View):
 
 		if guessed_class:
 			deck_url = request.build_absolute_uri(deck.get_absolute_url())
-			request.meta_tags.append(
+			request.head.add_meta(
 				{"property": "x-hearthstone:deck", "content": deck_name},
 				{"property": "x-hearthstone:deck:hero", "content": guessed_class.default_hero},
 				{"property": "x-hearthstone:deck:cards", "content": ",".join(deck.card_id_list())},
