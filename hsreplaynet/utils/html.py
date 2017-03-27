@@ -37,7 +37,9 @@ class HTMLHead:
 		self.base_title = "HSReplay.net"
 		self.title = ""
 		self.canonical_url = ""
+		# self.favicon = ""
 
+		self.favicon = "images/favicon.ico"
 		self.add_stylesheets(
 			"vendor/bootstrap/css/bootstrap.min.css",
 			"styles/main.css",
@@ -59,6 +61,11 @@ class HTMLHead:
 			tags.append(HTMLTag("meta", attrs={"property": "og:title", "content": title}))
 
 		tags += self._meta_tags
+
+		if self.favicon:
+			url = static(self.favicon)
+			tags.append(HTMLTag("link", attrs={"rel": "icon", "type": "image/png", "href": url}))
+
 		tags += self._link_tags
 
 		if self.canonical_url:
