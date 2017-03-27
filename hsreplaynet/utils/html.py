@@ -34,7 +34,7 @@ class HTMLHead:
 		self._link_tags = []
 		self.request = request
 		self.charset = "utf-8"
-		self.base_title = ""
+		self.base_title = "HSReplay.net"
 		self.title = ""
 		self.canonical_url = ""
 
@@ -53,6 +53,11 @@ class HTMLHead:
 		if self.charset:
 			tags.append(HTMLTag("meta", attrs={"charset": "utf-8"}))
 
+		title = self.get_title()
+		if title:
+			tags.append(HTMLTag("title", content=title))
+			tags.append(HTMLTag("meta", attrs={"property": "og:title", "content": title}))
+
 		tags += self._meta_tags
 		tags += self._link_tags
 
@@ -61,6 +66,18 @@ class HTMLHead:
 			tags.append(HTMLTag("link", attrs={"rel": "canonical", "href": self.canonical_url}))
 
 		return tags
+
+	def get_title(self):
+		title_parts = []
+		if self.title:
+			title_parts.append(self.title)
+		if self.base_title:
+			title_parts.append(self.base_title)
+
+		if title_parts:
+			return " - ".join(title_parts)
+		else:
+			return ""
 
 	def add_link(self, **attrs):
 		self._link_tags.append(HTMLTag("link", attrs=attrs))
