@@ -28,12 +28,19 @@ class HTMLHead:
 		self._meta_tags = []
 		self.canonical_url = ""
 		self.request = request
+		self.charset = "utf-8"
 
 	def __str__(self):
 		return "".join(str(tag) for tag in self.get_tags())
 
 	def get_tags(self):
-		tags = list(self._meta_tags)
+		tags = []
+
+		if self.charset:
+			tags.append(HTMLTag("meta", attrs={"charset": "utf-8"}))
+
+		tags += self._meta_tags
+
 		if self.canonical_url:
 			tags.append(HTMLTag("meta", attrs={"property": "og:url", "content": self.canonical_url}))
 			tags.append(HTMLTag("link", attrs={"rel": "canonical", "href": self.canonical_url}))
