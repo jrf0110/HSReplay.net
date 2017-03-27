@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block fullcontent %}
+<style type="text/css">{% include "games/svg-paths-shim.css" with svg="/static/svg-paths.svg" %}</style>
 <div class="flex-container" id="replay-container">
 	{% with replay.global_game as gg %}
 	<aside id="replay-infobox" class="infobox" data-shortid="{{ replay.shortid }}">
