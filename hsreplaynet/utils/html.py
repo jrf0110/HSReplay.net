@@ -26,14 +26,23 @@ class HTMLTag:
 class HTMLHead:
 	def __init__(self, request):
 		self._meta_tags = []
+		self.canonical_url = ""
 		self.request = request
 
 	def __str__(self):
 		return "".join(str(tag) for tag in self.get_tags())
 
 	def get_tags(self):
-		return self._meta_tags
+		tags = list(self._meta_tags)
+		if self.canonical_url:
+			tags.append(HTMLTag("meta", attrs={"property": "og:url", "content": self.canonical_url}))
+			tags.append(HTMLTag("link", attrs={"rel": "canonical", "href": self.canonical_url}))
+
+		return tags
 
 	def add_meta(self, *tags):
 		for attrs in tags:
 			self._meta_tags.append(HTMLTag("meta", attrs=attrs))
+
+	def set_canonical_url(self, url):
+		self.canonical_url = self.request.build_absolute_uri(url)

@@ -8,10 +8,6 @@
 	<title>{% block title %}HSReplay.net{% endblock title %}</title>
 	<link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
 
-	{% if canonical_url %}
-		<link rel="canonical" href="{{ canonical_url }}"/>
-		<meta property="og:url" content="{{ canonical_url }}"/>
-	{% endif %}
 	{{ request.head|safe }}
 
 	{% block stylesheets %}{% endblock %}

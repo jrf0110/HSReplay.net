@@ -29,7 +29,7 @@ class ReplayDetailView(View):
 		replay.views += 1
 		replay.save()
 
-		request.canonical_url = replay.get_absolute_url()
+		request.head.set_canonical_url(replay.get_absolute_url())
 		description = replay.generate_description()
 
 		twitter_card = request.GET.get("twitter_card", "summary")
