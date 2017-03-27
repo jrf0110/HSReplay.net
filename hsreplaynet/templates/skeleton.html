@@ -23,7 +23,7 @@
 
 	{% block userdata %}
 		<script type="application/json" id="userdata">{{ userdata|json }}</script>
-		<script type="text/javascript">_userdata = JSON.parse(document.getElementById("userdata").innerHTML);</script>
+		<script type="text/javascript">_userdata = JSON.parse(document.getElementById("userdata").textContent);</script>
 	{% endblock %}
 
 	{% block body %}
