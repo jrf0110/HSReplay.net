@@ -1,3 +1,5 @@
+/* The following shim fixes card texture clipping in Firefox.
+See bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1075457 */
 .card div.visuals .inhand-minion {
 	clip-path: url({{svg}}#inhand-minion-clip);
 	-webkit-clip-path: ellipse(36% 47% at 50% 50%);

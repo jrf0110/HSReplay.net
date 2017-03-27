@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import Http404
@@ -42,6 +43,12 @@ class ReplayDetailView(View):
 			{"property": "og:title", "content": replay.pretty_name_spoilerfree},
 			{"property": "og:description", "content": description},
 			{"name": "twitter:card", "content": twitter_card},
+		)
+
+		request.head.add_stylesheets(
+			settings.JOUST_STATIC_URL + "joust.css",
+			"fonts/belwefs_extrabold_macroman/stylesheet.css",
+			"fonts/franklingothicfs_mediumcondensed_macroman/stylesheet.css",
 		)
 
 		if twitter_card == "player":

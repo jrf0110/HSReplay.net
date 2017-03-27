@@ -4,14 +4,7 @@
 
 {% block title %}Card Editor{% endblock %}
 
-{% block stylesheets %}
-	{{ block.super }}
-	<link rel="stylesheet" type="text/css" href="{% static 'fonts/belwefs_extrabold_macroman/stylesheet.css' %}"/>
-	<link rel="stylesheet" type="text/css" href="{% static 'fonts/franklingothicfs_mediumcondensed_macroman/stylesheet.css' %}"/>
-{% endblock %}
-
 {% block fullcontent %}
-
 	<div id="cardrender-editor" data-upload-api="" data-csrf-token="{{ csrf_token }}"></div>
 	{% render_bundle "card_editor" %}
 {% endblock %}

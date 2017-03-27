@@ -1,5 +1,6 @@
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.views.generic import TemplateView
+from .utils.html import StylesheetMixin
 
 
 SITE_DESCRIPTION = "Watch and share Hearthstone replays directly from your web browser!"
@@ -22,5 +23,8 @@ class HomeView(TemplateView):
 		return super().get(request)
 
 
-class DownloadsView(TemplateView):
+class DownloadsView(StylesheetMixin, TemplateView):
 	template_name = "downloads.html"
+	stylesheets = (
+		"https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css",
+	)

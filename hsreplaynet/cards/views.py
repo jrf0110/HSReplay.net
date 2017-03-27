@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView
 from hsreplaynet.features.decorators import view_requires_feature_access
+from hsreplaynet.utils.html import StylesheetMixin
 from .models import Archetype, Card
 from .queries import CardCountersQueryBuilder
 from .stats.winrates import get_head_to_head_winrates
@@ -30,8 +31,12 @@ class CardGalleryView(TemplateView):
 
 
 @method_decorator(view_requires_feature_access("cardeditor"), name="dispatch")
-class CardEditorView(TemplateView):
+class CardEditorView(StylesheetMixin, TemplateView):
 	template_name = "cards/card_editor.html"
+	stylesheets = (
+		"fonts/belwefs_extrabold_macroman/stylesheet.css",
+		"fonts/franklingothicfs_mediumcondensed_macroman/stylesheet.css",
+	)
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")

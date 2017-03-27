@@ -34,6 +34,12 @@ class HTMLHead:
 		self.title = ""
 		self.canonical_url = ""
 
+		self.add_stylesheets(
+			"vendor/bootstrap/css/bootstrap.min.css",
+			"styles/main.css",
+			"https://fonts.googleapis.com/css?family=Noto+Sans:400,700",
+		)
+
 	def __str__(self):
 		return "".join(str(tag) for tag in self.get_tags())
 
@@ -67,3 +73,10 @@ class HTMLHead:
 
 	def set_canonical_url(self, url):
 		self.canonical_url = self.request.build_absolute_uri(url)
+
+
+class StylesheetMixin:
+	def get(self, request, *args, **kwargs):
+		if hasattr(self, "stylesheets"):
+			self.request.head.add_stylesheets(*self.stylesheets)
+		return super().get(request, *args, **kwargs)
