@@ -55,6 +55,8 @@ class CardDetailView(DetailView):
 		except queryset.model.DoesNotExist:
 			raise Http404("No card found matching the query.")
 
+		self.request.head.set_canonical_url(obj.get_absolute_url())
+
 		return obj
 
 
