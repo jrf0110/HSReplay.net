@@ -96,8 +96,10 @@ class HTMLHead:
 		self.canonical_url = self.request.build_absolute_uri(url)
 
 
-class StylesheetMixin:
+class RequestMetaMixin:
 	def get(self, request, *args, **kwargs):
 		if hasattr(self, "stylesheets"):
 			self.request.head.add_stylesheets(*self.stylesheets)
+		if hasattr(self, "title"):
+			self.request.head.title = self.title
 		return super().get(request, *args, **kwargs)
