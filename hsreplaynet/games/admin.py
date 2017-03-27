@@ -96,7 +96,7 @@ class GlobalGamePlayerAdmin(admin.ModelAdmin):
 	)
 	list_filter = ("is_ai", "is_first", "hero_premium", "final_state", "player_id")
 	raw_id_fields = ("game", "hero", "deck_list", "pegasus_account")
-	search_fields = ("name", "real_name")
+	search_fields = ("name", )
 	show_full_result_count = False
 	paginator = EstimatedCountPaginator
 
