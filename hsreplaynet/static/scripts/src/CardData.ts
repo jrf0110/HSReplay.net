@@ -10,7 +10,7 @@ export default class CardData {
 
 	public load(cb: (cardData: CardData) => void) {
 		const hsjson = new HearthstoneJSON();
-		hsjson.getLatest((data: any[]) => {
+		hsjson.getLatest().then((data: any[]) => {
 			data.forEach(card => {
 				this.modify && this.modify(card);
 				this.byDbfId[card.dbfId] = card;

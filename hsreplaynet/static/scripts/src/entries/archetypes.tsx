@@ -13,7 +13,7 @@ const render = (cardData) => {
 render(null);
 
 const hsjson = new HearthstoneJSON();
-hsjson.getLatest((data: any[]) => {
+hsjson.getLatest().then((data: any[]) => {
 	const db = new Map();
 	for(let i = 0; i < data.length; i++) {
 		const card = data[i];

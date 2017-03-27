@@ -81,9 +81,6 @@ export default class JoustEmbedder {
 		launcher.cardArt((cardId: string) => cardArt(cardId));
 
 		// setup metadata
-		launcher.metadataSource((build, locale) => {
-			return HEARTHSTONEJSON_URL.replace(/%\(build\)s/, "" + build).replace(/%\(locale\)s/, locale);
-		});
 		if (typeof launcher.selectedLocale !== "undefined" && !launcher.selectedLocale) {
 			launcher.locale(this.locale);
 		}

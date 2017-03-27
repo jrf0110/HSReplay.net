@@ -47,12 +47,12 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 		if (!build) {
 			if (this.state.game) {
 				this.setState({loadingDb: true});
-				new HearthstoneJSON().getLatest((cards) => this.buildDb(cards));
+				new HearthstoneJSON().getLatest().then((cards) => this.buildDb(cards));
 			}
 			return;
 		}
 		this.setState({loadingDb: true});
-		new HearthstoneJSON().get(build, (cards) => this.buildDb(cards));
+		new HearthstoneJSON().get(build).then((cards) => this.buildDb(cards));
 	}
 
 	private buildDb(cards: any) {
