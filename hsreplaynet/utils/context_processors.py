@@ -1,10 +1,8 @@
 """
 Context processors for billing/premium purposes
 """
-import json
 from django.conf import settings
 from django.contrib.messages import get_messages
-from django.core.serializers.json import DjangoJSONEncoder
 
 
 def userdata(request):
@@ -43,7 +41,7 @@ def userdata(request):
 		for group in request.user.groups.all():
 			data["groups"].append(group.name.replace(":preview", ""))
 
-	return {"userdata": json.dumps(data, cls=DjangoJSONEncoder)}
+	return {"userdata": data}
 
 
 def canonical_url(request):

@@ -1,4 +1,5 @@
 {% load static %}
+{% load json from web_extras %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +22,7 @@
 <body{% if user.is_authenticated %} data-username="{{user.username}}"{% if premium %} data-premium="1"{% endif %}{% endif %}>
 
 	{% block userdata %}
-		<script type="application/json" id="userdata">{{ userdata|default:"{}"|safe }}</script>
+		<script type="application/json" id="userdata">{{ userdata|json }}</script>
 		<script type="text/javascript">_userdata = JSON.parse(document.getElementById("userdata").innerHTML);</script>
 	{% endblock %}
 
