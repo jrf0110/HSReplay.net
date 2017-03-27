@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from .models import Article
@@ -39,3 +40,13 @@ class ArticleListView(ListView):
 			qs = qs.filter(draft=False)
 
 		return qs
+
+	def get(self, request):
+		feed_url = reverse("articles_article_feed")
+		request.head.add_link(
+			rel="alternate",
+			type="application/atom+xml",
+			href=feed_url,
+			title="HSReplay.net Articles"
+		)
+		return super().get(request)
