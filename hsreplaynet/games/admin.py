@@ -46,8 +46,8 @@ class GameReplayAdmin(admin.ModelAdmin):
 		"build", "client_handle", "views", "replay_xml", "upload_event"
 	)
 	list_filter = (
-		"global_game__game_type", "hsreplay_version", "visibility",
-		"won", "spectator_mode", "disconnected", "reconnecting", "is_deleted"
+		"visibility", "won", "spectator_mode", "disconnected",
+		"reconnecting", "is_deleted"
 	)
 	raw_id_fields = (
 		"upload_token", "user", "global_game"
