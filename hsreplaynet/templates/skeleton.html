@@ -19,7 +19,7 @@
 	{% block adsense %}{% endblock %}
 	{% endblock %}
 </head>
-<body{% if user.is_authenticated %} data-username="{{user.username}}"{% if premium %} data-premium="1"{% endif %}{% endif %}>
+<body>
 
 	{% block userdata %}
 		<script type="application/json" id="userdata">{{ userdata|json }}</script>

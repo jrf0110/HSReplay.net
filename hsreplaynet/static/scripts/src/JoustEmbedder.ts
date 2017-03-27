@@ -6,6 +6,7 @@ import {cardArt, joustAsset} from "./helpers";
 import BatchingMiddleware from "./metrics/BatchingMiddleware";
 import InfluxMetricsBackend from "./metrics/InfluxMetricsBackend";
 import MetricsReporter from "./metrics/MetricsReporter";
+import UserData from "./UserData";
 
 export default class JoustEmbedder {
 	public turn: number = null;
@@ -53,7 +54,8 @@ export default class JoustEmbedder {
 				release,
 				environment: JOUST_RAVEN_ENVIRONMENT || "development",
 			}).install();
-			let username = document.body.getAttribute("data-username");
+			const userdata = new UserData();
+			const username = userdata.getUsername();
 			if (username) {
 				raven.setUserContext({username});
 			}
