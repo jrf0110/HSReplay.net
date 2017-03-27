@@ -17,10 +17,8 @@ interface Account {
 
 export default class UserData {
 	private _userData: UserDataProps;
-	private _mockFree: boolean;
 	constructor() {
 		this._userData = Object.assign({}, window["_userdata"]);
-		this._mockFree = document.cookie.indexOf("free-mode") !== -1;
 	}
 
 	hasFeature(feature: string): boolean {
@@ -28,7 +26,7 @@ export default class UserData {
 	}
 
 	isPremium(): boolean {
-		return this._userData && this._userData.premium && !this._mockFree;
+		return this._userData && this._userData.premium;
 	}
 
 	isAuthenticated(): boolean {

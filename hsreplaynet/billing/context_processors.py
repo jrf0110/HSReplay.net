@@ -12,6 +12,10 @@ STRIPE_DEBUG = not STRIPE_LIVE_MODE and settings.DEBUG
 def premium(request):
 	is_premium = request.user.is_authenticated and request.user.is_premium
 	plans = Plan.objects.filter(livemode=STRIPE_LIVE_MODE)
+
+	if is_premium and request.COOKIES.get("free-mode") == "true":
+		is_premium = False
+
 	return {
 		"premium": is_premium,
 		"show_premium_modal": not is_premium and "premium-modal" in request.GET,
