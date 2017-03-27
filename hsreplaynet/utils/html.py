@@ -16,7 +16,11 @@ class HTMLTag:
 		attrs = self.render_attributes()
 		if attrs:
 			tag += " " + attrs
-		return "<%s/>" % (tag)
+
+		if self.content is not None:
+			return "<%s>%s</%s>" % (tag, escape(self.content), self.tag_name)
+		else:
+			return "<%s/>" % (tag)
 
 	def render_attributes(self):
 		if not self.attrs:
