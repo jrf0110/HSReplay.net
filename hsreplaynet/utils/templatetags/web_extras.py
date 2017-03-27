@@ -1,3 +1,4 @@
+import json
 import re
 from django import template
 from django.conf import settings
@@ -8,6 +9,26 @@ from hsreplaynet.games.models import GameReplay
 
 
 register = template.Library()
+
+
+@register.filter(name="json", is_safe=True)
+def _json(data):
+	"""
+	Output the json encoding of its argument.
+	This will escape all the HTML/XML special characters with their unicode
+	escapes, so it is safe to be output anywhere except for inside a tag
+	attribute.
+	If the output needs to be put in an attribute, entitize the output of this
+	filter.
+	"""
+	json_str = json.dumps(data)
+
+	# Escape all the XML/HTML special characters.
+	escapes = ["<", ">", "&"]
+	for c in escapes:
+		json_str = json_str.replace(c, r"\u%04x" % (ord(c)))
+
+	return mark_safe(json_str)
 
 
 @register.simple_tag
