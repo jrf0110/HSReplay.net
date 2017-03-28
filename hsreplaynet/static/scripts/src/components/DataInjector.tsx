@@ -122,15 +122,15 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 	render(): JSX.Element {
 		const getStatus = (status: number[]): LoadingStatus => {
 			if (status.every((s) => s === STATUS_SUCCESS)) {
-				return "success";
+				return LoadingStatus.SUCCESS;
 			}
 			if (status.some((s) => [STATUS_SUCCESS, STATUS_LOADING, STATUS_PROCESSING].indexOf(s) === -1)) {
-				return "error";
+				return LoadingStatus.ERROR;
 			}
 			if (status.some((s) => s === STATUS_PROCESSING)) {
-				return "processing";
+				return LoadingStatus.PROCESSING;
 			}
-			return "loading";
+			return LoadingStatus.LOADING;
 		};
 		const childProps = {status: getStatus(this.state.status)};
 		this.getQueryArray(this.props).forEach((query) => {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import CardData from "../../CardData";
-import { cloneComponent } from "../../helpers";
-import { LoadingStatus } from "../../interfaces";
+import {cloneComponent} from "../../helpers";
+import {LoadingStatus} from "../../interfaces";
 
 interface HideLoadingProps extends React.ClassAttributes<HideLoading> {
 	cardData?: CardData;
@@ -11,7 +11,7 @@ interface HideLoadingProps extends React.ClassAttributes<HideLoading> {
 
 export default class HideLoading extends React.Component<HideLoadingProps, void> {
 	render(): JSX.Element {
-		if (this.props.status !== "success" || this.props.cardData === null) {
+		if (this.props.status !== LoadingStatus.SUCCESS || this.props.cardData === null) {
 			return null;
 		}
 		return cloneComponent(this.props.children, this.props);

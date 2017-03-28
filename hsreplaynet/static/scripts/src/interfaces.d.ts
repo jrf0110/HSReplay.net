@@ -1,6 +1,5 @@
 import {PlayState} from "./hearthstone";
 
-
 export interface User {
 	id: number;
 	username: string;
@@ -208,4 +207,9 @@ export type RankRange = "ALL" | "LEGEND_ONLY" | "ONE_THROUGH_FIVE" | "SIX_THROUG
 export type Region = "ALL" | "REGION_US" | "REGION_EU" | "REGION_KR" | "REGION_CN";
 export type TimeFrame = "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS" | "CURRENT_SEASON" | "PREVIOUS_SEASON";
 
-export type LoadingStatus = "success" | "loading" | "processing" | "error";
+export const enum LoadingStatus {
+	SUCCESS,
+	LOADING,
+	PROCESSING,
+	ERROR,
+}

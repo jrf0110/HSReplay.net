@@ -1,7 +1,7 @@
 import * as React from "react";
 import CardData from "../../CardData";
-import { cloneComponent } from "../../helpers";
-import { LoadingStatus, RenderData } from "../../interfaces";
+import {cloneComponent} from "../../helpers";
+import {LoadingStatus, RenderData} from "../../interfaces";
 
 interface ChartLoadingProps extends React.ClassAttributes<ChartLoading> {
 	cardData?: CardData;
@@ -18,7 +18,7 @@ export default class ChartLoading extends React.Component<ChartLoadingProps, voi
 		if (loadingMessage) {
 			return (
 				<div className="chart-wrapper">
-					<svg viewBox={"0 0 " + width + " 150"}/>
+					<svg viewBox={"0 0 " + width + " 150"} />
 					{loadingMessage}
 				</div>
 			);
@@ -28,17 +28,17 @@ export default class ChartLoading extends React.Component<ChartLoadingProps, voi
 
 	getLoadingMessage(): JSX.Element {
 		switch (this.props.status) {
-			case "loading":
+			case LoadingStatus.LOADING:
 				return <h3 className="chart-message-wrapper">Loading…</h3>;
-			case "processing":
+			case LoadingStatus.PROCESSING:
 				return (
 					<div className="chart-message-wrapper">
 						<h3>Loading…</h3>
 						<p><i>This may take a few seconds</i></p>
 					</div>
 				);
-			case "error":
-				return <h3 className="chart-message-wrapper">Please check back later</h3>;
+			case LoadingStatus.ERROR:
+				return <h3 className="chart-message-wrapper">Something went wrong</h3>;
 		}
 		if (this.props.cardData === null) {
 			return <h3 className="chart-message-wrapper">Loading…</h3>;

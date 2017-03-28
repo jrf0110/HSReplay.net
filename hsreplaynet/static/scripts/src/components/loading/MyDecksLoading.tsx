@@ -1,7 +1,7 @@
 import * as React from "react";
 import CardData from "../../CardData";
-import { cloneComponent } from "../../helpers";
-import { LoadingStatus, TableData } from "../../interfaces";
+import {cloneComponent} from "../../helpers";
+import {LoadingStatus} from "../../interfaces";
 
 interface MyDecksLoadingProps extends React.ClassAttributes<MyDecksLoading> {
 	cardData?: CardData;
@@ -12,16 +12,16 @@ interface MyDecksLoadingProps extends React.ClassAttributes<MyDecksLoading> {
 export default class MyDecksLoading extends React.Component<MyDecksLoadingProps, void> {
 	render(): JSX.Element {
 		switch (this.props.status) {
-			case "loading":
+			case LoadingStatus.LOADING:
 				return <h3 className="message-wrapper">Loading…</h3>;
-			case "processing":
+			case LoadingStatus.PROCESSING:
 				return (
 					<div className="message-wrapper">
 						<h3>Loading…</h3>
 						<p><i>This may take a few seconds</i></p>
 					</div>
 				);
-			case "error":
+			case LoadingStatus.ERROR:
 				return <h3 className="message-wrapper">Please check back later</h3>;
 		}
 		if (this.props.cardData === null) {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import CardData from "../../CardData";
-import { cloneComponent } from "../../helpers";
-import { LoadingStatus } from "../../interfaces";
+import {cloneComponent} from "../../helpers";
+import {LoadingStatus} from "../../interfaces";
 
 interface TableLoadingProps extends React.ClassAttributes<TableLoading> {
 	cardData?: CardData;
@@ -17,16 +17,16 @@ export default class TableLoading extends React.Component<TableLoadingProps, voi
 		}
 
 		switch (this.props.status) {
-			case "loading":
+			case LoadingStatus.LOADING:
 				return <h3 className="message-wrapper">Loading…</h3>;
-			case "processing":
+			case LoadingStatus.PROCESSING:
 				return (
 					<div className="message-wrapper">
 						<h3>Loading…</h3>
 						<p><i>This may take a few seconds</i></p>
 					</div>
 				);
-			case "error":
+			case LoadingStatus.ERROR:
 				return <h3 className="message-wrapper">Please check back later</h3>;
 		}
 		if (this.props.cardData === null) {
