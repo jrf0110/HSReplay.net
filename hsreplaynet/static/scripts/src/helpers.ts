@@ -1,6 +1,7 @@
 import * as React from "react";
 import {Colors} from "./Colors";
 import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint} from "./interfaces";
+import {CardData as CardMeta} from "hearthstonejson";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -541,9 +542,43 @@ export function getHeroCardId(playerClass: string, skin: boolean) {
 	return "HERO_0" + heroId;
 }
 
-export function getDustCost(card: any) {
-	// TODO take adventures etc into account
-	if (!card || card.set === "CORE") {
+export function isWild(set: string) {
+	return ["NAXX", "GVG"].indexOf(set) !== -1;
+}
+
+export function isAdventure(set: string) {
+	return ["NAXX", "BRM", "LOE", "KARA"].indexOf(set) !== -1;
+}
+
+export function isCraftableSet(set: string) {
+	// basic cards (CORE) can never be crafted
+	if (set === "CORE") {
+		return false;
+	}
+
+	// cards from active adventures cannot be crafted
+	if (isAdventure(set) && !isWild(set)) {
+		return false;
+	}
+
+	// everything else can be crafted
+	return true;
+}
+
+export function getDustCost(card: CardMeta | CardMeta[]): number {
+	if (!card) {
+		return 0;
+	}
+
+	if (Array.isArray(card)) {
+		return card.reduce((cost, card) => cost + getDustCost(card), 0);
+	}
+
+	const set = card.set;
+	const adventures = ["NAXX", "BRM", "LOE", "KARA"];
+	const rotatedAdventures = ["NAXX"];
+
+	if (!isCraftableSet(set)) {
 		return 0;
 	}
 
