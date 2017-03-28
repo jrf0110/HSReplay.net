@@ -22,7 +22,7 @@ def userdata(request):
 		data["username"] = request.user.username
 		data["battletag"] = request.user.battletag
 
-		if request.user.is_premium:
+		if request.user.is_premium and not request.COOKIES.get("free-mode") == "true":
 			data["premium"] = True
 
 		if request.user.is_staff:
