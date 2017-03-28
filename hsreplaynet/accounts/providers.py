@@ -39,5 +39,5 @@ class BattleNetAdapter(DefaultSocialAccountAdapter):
 			has_battletag=bool(battletag),
 		)
 		ret = super().new_user(request, sociallogin)
-		ret.battletag = battletag
+		ret.battletag = battletag or ""
 		return ret
