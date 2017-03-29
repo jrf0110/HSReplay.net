@@ -223,7 +223,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		this.getDeckElements().then(((deckElements) => {
 			const decks: DeckObj[] = [];
 			const direction = this.state.queryMap.sortDirection === "descending" ? 1 : -1;
-			deckElements.sort((a, b) => (b[sortProp] - a[sortProp]) * direction);
+			deckElements.sort((a, b) => {
+				const x = +a[sortProp];
+				const y = +b[sortProp];
+				if(x !== y) {
+					return (b[sortProp] - a[sortProp]) * direction;
+				}
+				return a["deck_id"].localeCompare(b["deck_id"]) * direction;
+			});
 			deckElements.forEach((deck) => {
 				decks.push({
 					cards: deck.cards,
