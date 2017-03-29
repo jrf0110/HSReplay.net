@@ -45,7 +45,7 @@ let endpoint = INFLUX_DATABASE_JOUST;
 if (endpoint) {
 	metrics = new MetricsReporter(
 		new BatchingMiddleware(new InfluxMetricsBackend(endpoint)),
-		(series: string): string => "hsreplaynet_" + series
+		(series: string): string => "hsreplaynet_" + series,
 	);
 }
 let shared = {};
@@ -71,7 +71,7 @@ function renderShareDialog() {
 				shared[network] = true;
 			}}
 		/>,
-		document.getElementById("share-game-dialog")
+		document.getElementById("share-game-dialog"),
 	);
 }
 
@@ -86,8 +86,11 @@ let visibilityTarget = document.getElementById("replay-visibility");
 if (visibilityTarget) {
 	let status = +visibilityTarget.getAttribute("data-selected") as Visibility;
 	ReactDOM.render(
-		<VisibilityDropdown initial={status} shortid={shortid} />,
-		visibilityTarget
+		<VisibilityDropdown
+			initial={status}
+			shortid={shortid}
+		/>,
+		visibilityTarget,
 	);
 }
 
@@ -96,9 +99,10 @@ let deleteTarget = document.getElementById("replay-delete");
 if (deleteTarget) {
 	let redirect = deleteTarget.getAttribute("data-redirect");
 	ReactDOM.render(
-		<DeleteReplayButton shortid={shortid}
-							done={() => window.location.href = redirect} />,
-		deleteTarget
+		<DeleteReplayButton
+			shortid={shortid}
+			done={() => window.location.href = redirect} />,
+		deleteTarget,
 	);
 }
 
@@ -112,9 +116,14 @@ if (playerInfo) {
 	const build = +playerInfo.getAttribute("data-build");
 	const featureCardDb = playerInfo.getAttribute("data-feature-carddb") === "1";
 	ReactDOM.render(
-		<PlayerInfo gameId={gameId} playerName={playerName} opponentName={opponentName}
-					build={build} user={user}/>,
-		playerInfo
+		<PlayerInfo
+			gameId={gameId}
+			playerName={playerName}
+			opponentName={opponentName}
+			build={build}
+			user={user}
+		/>,
+		playerInfo,
 	);
 }
 
@@ -126,10 +135,10 @@ const toggleButton = document.getElementById("replay-toggle-container");
 ReactDOM.render(
 	embedder.launcher ?
 		<button className="btn btn-primary btn-full visible-xs" type="button" onClick={() => {
-		first = false;
-		container.classList.remove("hidden-xs");
-		embedder.launcher.fullscreen(true);
-	}}>
+			first = false;
+			container.classList.remove("hidden-xs");
+			embedder.launcher.fullscreen(true);
+		}}>
 			Enter Replay
 		</button> :
 		<button className="btn btn-danger btn-full visible-xs" type="button" onClick={() => {
@@ -141,7 +150,7 @@ ReactDOM.render(
 		}}>
 			Something went wrong…
 		</button>,
-	toggleButton
+	toggleButton,
 );
 
 const style = typeof window.getComputedStyle === "function" ? window.getComputedStyle(container) : {};
