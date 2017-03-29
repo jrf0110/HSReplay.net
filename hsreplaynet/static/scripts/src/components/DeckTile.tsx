@@ -24,7 +24,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 		cards.sort(cardSorting);
 
-		cards.forEach((obj) => {
+		cards.forEach((obj, index: number) => {
 			const card = obj.card;
 			dustCost += getDustCost(card) * obj.count;
 
@@ -59,7 +59,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			}
 
 			cardIcons.push(
-				<li className={itemClassName}>
+				<li className={itemClassName} key={this.props.compareWith ? index : obj.count + "x " + card.id}>
 					<CardIcon
 						card={card}
 						mark={markText}
