@@ -30,8 +30,9 @@ The full backend stack is written in Python 3.
 * Database: [PostgreSQL (RDS)](https://aws.amazon.com/rds/postgresql/)
 * Hosting: [Amazon Web Services](https://aws.amazon.com/)
 * Analytics: [InfluxDB](https://influxdata.com/)
-* Exception tracking: [Sentry](https://getsentry.com/)
+* Exception tracking: [Sentry](https://sentry.io/)
 * CI: [Jenkins](https://jenkins.io/)
+* Payments: [Stripe](https://stripe.com/)
 
 Replays are processed on [Amazon Lambda](https://aws.amazon.com/lambda/details/)
 using the Python 2.7 runtime.
