@@ -86,7 +86,11 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 		if (this.state.game) {
 			playerClass = this.buildPlayerClass(this.state.game.friendly_player);
 			opponentClass = this.buildPlayerClass(this.state.game.opposing_player);
-			if (this.state.game.opposing_deck.cards) {
+			if (
+				this.state.game.opposing_deck &&
+				Array.isArray(this.state.game.opposing_deck.cards) &&
+				this.state.game.opposing_deck.cards.length > 0
+			) {
 				opponentDeck.push(
 					<a
 						className={opponentClass.join(" ")}
@@ -110,7 +114,11 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					);
 				}
 			}
-			if (this.state.game.friendly_deck.cards) {
+			if (
+				this.state.game.friendly_deck &&
+				Array.isArray(this.state.game.friendly_deck.cards) &&
+				this.state.game.friendly_deck.cards.length > 0
+			) {
 				playerDeck.push(
 					<a className={playerClass.join(" ")} onClick={() => this.setState({showPlayerDeck: !this.state.showPlayerDeck})}>
 						{this.state.showPlayerDeck ? "Hide" : "Show"} deck
