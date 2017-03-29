@@ -127,6 +127,15 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 			messages.error(self.request, "Your card was declined. You have not been charged.")
 			return False
 
+		if customer.coupon:
+			# HACK: If the customer has a coupon attached and the coupon is
+			# now redeemed, a customer.discount webhook does not fire.
+			# We force a customer resync to prevent this.
+			data = customer.api_retrieve()
+			customer.__class__.sync_from_stripe_data(data)
+
+		return True
+
 	def get_success_url(self):
 		success_url = self.request.GET.get("next", "")
 		if success_url and is_safe_url(success_url):
