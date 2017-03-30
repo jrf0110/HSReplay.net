@@ -24,11 +24,7 @@ import {
 import {
 	RenderData, TableData,
 } from "../interfaces";
-import {
-	getQueryMapDiff, getQueryMapFromLocation, QueryMap, setLocationQueryString, setQueryMap,
-} from "../QueryParser";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
-import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
 
 interface TableDataMap {
@@ -40,7 +36,6 @@ interface RenderDataMap {
 }
 
 interface CardDetailState {
-	queryMap?: QueryMap;
 	showInfo?: boolean;
 }
 
@@ -49,36 +44,24 @@ interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 	cardData: CardData;
 	cardId: string;
 	dbfId: number;
-	user: UserData;
+	premium?: boolean;
+	gameType?: string;
+	customGameType?: string;
+	setGameType?: (gameType: string) => void;
+	opponentClass?: string;
+	setOpponentClass?: (opponentClass: string) => void;
+	tab?: string;
+	setTab?: (tab: string) => void;
 }
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
 	private readonly dataManager: DataManager = new DataManager();
-	private readonly defaultQueryMap: QueryMap = {
-		gameType: "RANKED_STANDARD",
-		opponentClass: "ALL",
-		tab: "recommended-decks",
-	};
-
-	private readonly allowedValues = {
-		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
-		opponentClass: [],
-	};
-
-	private readonly allowedValuesPremium = {
-		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
-	};
 
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
 		this.state = {
-			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showInfo: false,
 		};
-	}
-
-	getAllowedValues() {
-		return this.props.user.isPremium() ? this.allowedValuesPremium : this.allowedValues;
 	}
 
 	cardHasTargetReqs(): boolean {
@@ -99,13 +82,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	componentWillReceiveProps(nextProps: CardDetailProps) {
 		if (!this.props.card && nextProps.card) {
 			if (isWildCard(nextProps.card)) {
-				setQueryMap(this, "gameType", "RANKED_WILD");
+				this.props.setGameType("RANKED_WILD");
 			}
 		}
-	}
-
-	componentDidUpdate(prevProps: CardDetailProps, prevState: CardDetailState) {
-		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
 	}
 
 	render(): JSX.Element {
@@ -156,7 +135,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									cardData={this.props.cardData}
 									numRows={8}
 									dataKey={"ALL"}
-									urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
+									urlGameType={this.props.customGameType}
 								/>
 							</TableLoading>
 						</DataInjector>,
@@ -175,7 +154,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									cardData={this.props.cardData}
 									numRows={8}
 									dataKey={"ALL"}
-									urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
+									urlGameType={this.props.customGameType}
 								/>
 							</TableLoading>
 						</DataInjector>,
@@ -240,15 +219,15 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				const turnStatsQuery = {
 					params: this.getParams(),
 					url: (
-						this.state.queryMap.opponentClass !== "ALL" && this.props.user.isPremium()
+						this.props.opponentClass !== "ALL" && this.props.premium
 						? "/analytics/query/single_card_stats_by_turn_and_opponent"
 						: "/analytics/query/single_card_stats_by_turn"
 					),
 				};
 
 				const turnStatsNoDataCondition = (data: RenderData): boolean => {
-					if (this.state.queryMap.opponentClass !== "ALL" && this.props.user.isPremium()) {
-						const selectedSeries = data.series.find((s) => s.metadata.opponent_class === this.state.queryMap.opponentClass);
+					if (this.props.opponentClass !== "ALL" && this.props.premium) {
+						const selectedSeries = data.series.find((s) => s.metadata.opponent_class === this.props.opponentClass);
 						return !selectedSeries || selectedSeries.data.length < 2;
 					}
 					return data.series[0].data.length < 2;
@@ -264,8 +243,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									hideAll
 									minimal
 									multiSelect={false}
-									selectedClasses={[this.state.queryMap.opponentClass as FilterOption]}
-									selectionChanged={(selected) => this.props.user.isPremium() && setQueryMap(this, "opponentClass", selected[0])}
+									selectedClasses={[this.props.opponentClass as FilterOption]}
+									selectionChanged={(selected) => this.props.premium && this.props.setOpponentClass(selected[0])}
 								/>
 							</div>
 						</div>
@@ -278,9 +257,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									>
 										<ChartLoading noDataCondition={turnStatsNoDataCondition}>
 											<TurnPlayedBarChart
-												opponentClass={this.state.queryMap.opponentClass}
+												opponentClass={this.props.opponentClass}
 												widthRatio={2}
-												premiumLocked={!this.props.user.isPremium()}
+												premiumLocked={!this.props.premium}
 											/>
 										</ChartLoading>
 									</DataInjector>
@@ -298,9 +277,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									>
 										<ChartLoading noDataCondition={turnStatsNoDataCondition}>
 											<WinrateByTurnLineChart
-												opponentClass={this.state.queryMap.opponentClass}
+												opponentClass={this.props.opponentClass}
 												widthRatio={2}
-												premiumLocked={!this.props.user.isPremium()}
+												premiumLocked={!this.props.premium}
 											/>
 										</ChartLoading>
 									</DataInjector>
@@ -315,20 +294,20 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				);
 
 				let recommendedDecks = null;
-				if (this.state.queryMap.gameType === "ARENA") {
+				if (this.props.gameType === "ARENA") {
 					recommendedDecks = <h3 className="message-wrapper">No decks found.</h3>;
 				}
 				else {
 					recommendedDecks = (
 						<DataInjector
 							dataManager={this.dataManager}
-							query={{url: "list_decks_by_win_rate", params: {GameType: this.state.queryMap.gameType}}}
+							query={{url: "list_decks_by_win_rate", params: {GameType: this.props.gameType}}}
 						>
 							<TableLoading>
 								<RecommendedDecksList
 									card={this.props.card}
 									cardData={this.props.cardData}
-									urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
+									urlGameType={this.props.customGameType}
 								/>
 							</TableLoading>
 						</DataInjector>
@@ -338,8 +317,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				const tabHeader = (key: string, title: string) => {
 					return (
 						<li
-							className={this.state.queryMap.tab === key ? "active" : undefined}
-							onClick={() => setQueryMap(this, "tab", key)}
+							className={this.props.tab === key ? "active" : undefined}
+							onClick={() => this.props.setTab(key)}
 						>
 							<a data-toggle="tab" href={"#" + key}>
 								{title}
@@ -349,7 +328,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				};
 
 				const tabClassName = (key: string) => {
-					return "tab-pane fade" + (key === this.state.queryMap.tab ? " in active" : "");
+					return "tab-pane fade" + (key === this.props.tab ? " in active" : "");
 				};
 
 				content = [
@@ -369,7 +348,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</div>
 							<div id="turn-stats" className={tabClassName("turn-stats")}>
 								<PremiumWrapper
-									isPremium={this.props.user.isPremium()}
+									isPremium={this.props.premium}
 									infoHeader="Turn played statistics"
 									infoContent="Understand when the card is played and how effective that is, based on turn and opponent."
 									iconStyle={{display: "none"}}
@@ -421,8 +400,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				<p>{this.getCleanFlavorText()}</p>
 				<InfoboxFilterGroup
 					header="Game Mode"
-					selectedValue={this.state.queryMap["gameType"]}
-					onClick={(value) => setQueryMap(this, "gameType", value)}
+					selectedValue={this.props.gameType}
+					onClick={(value) => this.props.setGameType(value)}
 				>
 					<InfoboxFilter disabled={this.props.card && isWildCard(this.props.card)} value="RANKED_STANDARD">
 						Ranked Standard
@@ -524,7 +503,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 	getParams(): any {
 		return {
-			GameType: this.state.queryMap.gameType,
+			GameType: this.props.gameType,
 			card_id: this.props.dbfId,
 		};
 	}
