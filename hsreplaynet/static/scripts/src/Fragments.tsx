@@ -41,12 +41,15 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 
 		const values = Object.assign({}, this.props.defaults, this.state.map);
 		for (let key in values) {
+			const suffix = capitalize(key);
 			// prepare the callback
 			const callback = (value: any) => this.onChange(key, value);
-			const callbackKey = "set" + capitalize(key);
+			const callbackKey = "set" + suffix;
 			// assign the props
 			props[key] = values[key];
 			props[callbackKey] = callback;
+			props["default" + suffix] = this.props.defaults[key];
+			props["custom" + suffix] = typeof this.state.map[key] !== "undefined" ? this.state.map : null;
 		}
 
 		props = Object.assign({}, props, {
