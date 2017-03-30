@@ -4,14 +4,13 @@ import ClassDistributionPieChart from "../components/charts/ClassDistributionPie
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import GameHistoryList from "../components/gamehistory/GameHistoryList";
 import GameHistorySearch from "../components/gamehistory/GameHistorySearch";
-import GameHistorySelectFilter from "../components/gamehistory/GameHistorySelectFilter";
 import GameHistoryTable from "../components/gamehistory/GameHistoryTable";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import Pager from "../components/Pager";
 import ResetHeader from "../components/ResetHeader";
 import {formatMatch, heroMatch, modeMatch, nameMatch, opponentMatch, resultMatch} from "../GameFilters";
-import {CardArtProps, GameReplay, GlobalGamePlayer, ImageProps} from "../interfaces";
+import {CardArtProps, GameReplay, ImageProps} from "../interfaces";
 
 type ViewType = "tiles" | "list";
 
