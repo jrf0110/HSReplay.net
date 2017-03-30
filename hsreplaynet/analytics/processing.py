@@ -5,6 +5,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.cache import caches
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 from hearthstone.enums import BnetGameType
 from redis_lock import Lock as RedisLock
@@ -21,7 +22,6 @@ from hsreplaynet.utils.influx import influx_metric
 
 
 class CachedRedshiftResult(object):
-
 	def __init__(self, result_set, params, is_json=False, as_of=None, response_payload=None):
 		self.result_set = result_set
 		self.cached_params = params
@@ -53,10 +53,9 @@ class CachedRedshiftResult(object):
 
 		is_json = r.get("is_json", False)
 
-		if "as_of" in r and r["as_of"]:
-			as_of = cls.ts_to_datetime(r["as_of"])
-		else:
-			as_of = None
+		as_of = r.get("as_of") or None
+		if as_of:
+			as_of = cls.ts_to_datetime(as_of)
 
 		return CachedRedshiftResult(
 			result_set,
@@ -74,8 +73,6 @@ class CachedRedshiftResult(object):
 	def as_of_datetime(self):
 		if self.as_of:
 			return self.ts_to_datetime(self.as_of)
-		else:
-			return None
 
 	@property
 	def global_cache_data(self):
@@ -99,11 +96,12 @@ class CachedRedshiftResult(object):
 				log.info("Using global query logic")
 				# This block implements generating response_payloads
 				# By using the global cached data.
+				result_set = self.global_cache_data.result_set
+				if self.is_json:
+					result_set = json.loads(result_set)
 
 				response_payload = self.cached_params._query.to_response_payload(
-					self.global_cache_data.result_set,
-					self.cached_params,
-					from_result_set_json=self.is_json
+					result_set, self.cached_params
 				)
 				self.as_of = self.global_cache_data.as_of
 
@@ -112,10 +110,12 @@ class CachedRedshiftResult(object):
 				# This block does it for non global queries
 				# For non global queries the result_set will be set on this
 				# object, so we can use self.result_set directly
+				result_set = self.result_set
+				if self.is_json:
+					result_set = json.loads(result_set)
+
 				response_payload = self.cached_params._query.to_response_payload(
-					self.result_set,
-					self.cached_params,
-					from_result_set_json=self.is_json
+					result_set, self.cached_params
 				)
 
 			response_payload["as_of"] = self.as_of_datetime.isoformat()
@@ -154,10 +154,11 @@ class CachedRedshiftResult(object):
 		return self.response_payload
 
 	def create_from_global_data(self, params):
+		result_set = self.result_set
+		if self.is_json:
+			result_set = json.loads(result_set)
 		response_payload = self.cached_params._query.to_response_payload(
-			self.result_set,
-			params,
-			from_result_set_json=self.is_json
+			result_set, params
 		)
 		response_payload["as_of"] = self.as_of_datetime.isoformat()
 
@@ -279,12 +280,9 @@ def _do_execute_query_work(query, params, wlm_queue=None):
 		cached_data_as_of = timezone.now()
 		try:
 			result_set = query.as_result_set().execute(
-				redshift_connection,
-				params,
-				wlm_queue,
-				as_json=True,
-				pretty=False
+				redshift_connection, params, wlm_queue,
 			)
+			result_set = json.dumps(result_set, cls=DjangoJSONEncoder)
 		except Exception as e:
 			exception_raised = True
 			exception_msg = str(e)
