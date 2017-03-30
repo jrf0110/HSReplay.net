@@ -7,6 +7,8 @@ interface FragmentMap {
 
 interface FragmentProps extends React.ClassAttributes<Fragments> {
 	defaults: FragmentMap;
+	debounce?: string | string[];
+	delay?: number;
 }
 
 interface FragmentState {
@@ -19,9 +21,10 @@ interface FragmentState {
  */
 export default class Fragments extends React.Component<FragmentProps, FragmentState> {
 
-	private listener: any;
+	private listener: any | null;
 	private revision: number;
 	private lastSeen: number;
+	private timeout: any | null;
 
 	constructor(props: FragmentProps, context: any) {
 		super(props, context);
@@ -29,6 +32,7 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 		this.listener = null;
 		this.revision = 0;
 		this.lastSeen = 0;
+		this.timeout = null;
 	}
 
 	render(): any {
@@ -74,11 +78,40 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 	}
 
 	componentDidUpdate(prevProps: FragmentProps, prevState: FragmentState) {
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+		}
+
+		if (this.props.debounce) {
+			let debounce = this.props.debounce;
+			if (!Array.isArray(debounce)) {
+				debounce = [debounce];
+			}
+			for (let i in debounce) {
+				const key = debounce[i];
+				if (prevState.map[key] === this.state.map[key]) {
+					continue;
+				}
+				const delay = typeof this.props.delay === "number" ? this.props.delay : 100;
+				this.timeout = setTimeout(() => this.commitFragment(), delay);
+				return;
+			}
+		}
+
+		this.commitFragment();
+	}
+
+	commitFragment() {
+		if (this.timeout) {
+			clearTimeout(this.timeout);
+			this.timeout = null;
+		}
 		this.setFragment(this.state.map);
 	}
 
 	componentDidMount() {
 		this.loadHash();
+		this.commitFragment();
 		this.listener = window.addEventListener("hashchange", () => {
 			if (this.lastSeen < this.revision) {
 				this.lastSeen = this.revision;
@@ -115,9 +148,6 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 	setFragment(map: FragmentMap): void {
 		const parts = [];
 		for (let key in map) {
-			if (key) {
-
-			}
 			parts[parts.length] = encodeURIComponent(key) + "=" + encodeURIComponent(map[key]);
 		}
 
@@ -125,6 +155,10 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 
 		if (parts.length) {
 			hash = "#" + parts.join("&");
+		}
+		else if (!document.location.hash) {
+			// don't write empty placeholder to empty hash
+			return;
 		}
 
 		if (hash === document.location.hash) {

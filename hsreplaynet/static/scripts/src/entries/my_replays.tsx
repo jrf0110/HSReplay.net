@@ -29,6 +29,7 @@ ReactDOM.render(
 			hero: "ALL",
 			opponent: "ALL",
 		}}
+		debounce={"name"}
 	>
 		<MyReplays
 			image={image}
