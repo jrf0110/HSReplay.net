@@ -8,6 +8,7 @@ interface FragmentMap {
 interface FragmentProps extends React.ClassAttributes<Fragments> {
 	defaults: FragmentMap;
 	debounce?: string | string[];
+	immutable?: string | string[];
 	delay?: number;
 	keepDefaults?: boolean;
 }
@@ -62,6 +63,10 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 	}
 
 	onChange(key: string, value: any): void {
+		if (this.isImmutable(key)) {
+			return;
+		}
+
 		const defaultValue = this.props.defaults[key];
 
 		if (typeof defaultValue === "undefined") {
@@ -83,6 +88,14 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 		}
 
 		this.setState({map});
+	}
+
+	isImmutable(key: string): boolean {
+		let keys = this.props.immutable;
+		if (!Array.isArray(keys)) {
+			keys = [keys];
+		}
+		return keys.indexOf(key) !== -1;
 	}
 
 	componentDidUpdate(prevProps: FragmentProps, prevState: FragmentState) {
@@ -135,7 +148,13 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 	}
 
 	loadHash(): void {
-		this.setState({map: Object.assign({}, this.getFragment())});
+		let map = Object.assign({}, this.getFragment());
+		for (let key in map) {
+			if (this.isImmutable(key)) {
+				delete map[key];
+			}
+		}
+		this.setState({map: map});
 	}
 
 	getFragment(): FragmentMap {
