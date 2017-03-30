@@ -9,6 +9,7 @@ interface FragmentProps extends React.ClassAttributes<Fragments> {
 	defaults: FragmentMap;
 	debounce?: string | string[];
 	delay?: number;
+	keepDefaults?: boolean;
 }
 
 interface FragmentState {
@@ -66,6 +67,10 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 		if (typeof defaultValue === "undefined") {
 			console.error(`Attempted to change undefined fragment key "${key}"`);
 			return;
+		}
+
+		if (!this.props.keepDefaults && value === defaultValue) {
+			value = null;
 		}
 
 		let map = {};
