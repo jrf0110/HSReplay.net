@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import {image, cardArt} from "../helpers";
 import MyReplays from "../pages/MyReplays";
 import UserData from "../UserData";
+import Fragments from "../Fragments";
 
 const user = new UserData();
 let username = user.getUsername();
@@ -19,10 +20,21 @@ for (let part of parts) {
 }
 
 ReactDOM.render(
-	<MyReplays
-		image={image}
-		cardArt={cardArt}
-		username={username}
-	/>,
-	document.getElementById("my-games-container")
+	<Fragments
+		defaults={{
+			name: "",
+			mode: "",
+			format: "",
+			result: "",
+			hero: "ALL",
+			opponent: "ALL",
+		}}
+	>
+		<MyReplays
+			image={image}
+			cardArt={cardArt}
+			username={username}
+		/>
+	</Fragments>,
+	document.getElementById("my-games-container"),
 );
