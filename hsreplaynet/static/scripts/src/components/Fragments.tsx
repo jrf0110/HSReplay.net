@@ -169,11 +169,11 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			return;
 		}
 
-		document.location.hash = fragments;
+		document.location.replace(fragments);
 
 		if (!hasData && typeof history !== "undefined") {
 			// hide the hash in the url if supported
-			history.pushState("", document.title, window.location.pathname + window.location.search);
+			history.replaceState("", document.title, window.location.pathname + window.location.search);
 		}
 	}
 
