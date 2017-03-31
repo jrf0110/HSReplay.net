@@ -155,7 +155,10 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 		};
 
 		const headerSortable = isSortable ? "header-sortable " : "";
-		const onClick = (name: string) => {
+		const onClick = (name: string, e?) => {
+			if(e) {
+				e.preventDefault();
+			}
 			if (this.props.sortBy === name) {
 				this.props.setSortDirection(this.props.sortDirection === "ascending" ? "descending" : "ascending");
 			}
@@ -170,27 +173,27 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 				{!this.props.hideTopPager && pager(true)}
 				<div className="clearfix" />
 				<div className="row header-row">
-					<div className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"} onClick={() => onClick("dust")}>
+					<div className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"} onClick={(e) => onClick("dust", e)}>
 						Deck / Cost
 						{sortIndicator("dust")}
 						<InfoIcon header="Crafting Cost" content="Total amount of dust required to craft the deck."/>
 					</div>
-					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => onClick("winrate")}>
+					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={(e) => onClick("winrate", e)}>
 						Winrate
 						{sortIndicator("winrate")}
 						<InfoIcon header="Winrate" content="Percentage of games won by the deck." />
 					</div>
-					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={() => onClick("popularity")}>
+					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={(e) => onClick("popularity", e)}>
 						Games
 						{sortIndicator("popularity")}
 						<InfoIcon header="Games Played" content="Number of recorded games where the deck is played." />
 					</div>
-					<div className={headerSortable + "header-center col-lg-1 col-md-1 hidden-sm hidden-xs"} onClick={() => onClick("duration")}>
+					<div className={headerSortable + "header-center col-lg-1 col-md-1 hidden-sm hidden-xs"} onClick={(e) => onClick("duration", e)}>
 						Duration
 						{sortIndicator("duration")}
 						<InfoIcon header="Game Duration" content="How long a game takes on average when the deck is played." />
 					</div>
-					<div className={headerSortable + "header-center col-lg-1 hidden-md hidden-sm hidden-xs"} onClick={() => onClick("mana")}>
+					<div className={headerSortable + "header-center col-lg-1 hidden-md hidden-sm hidden-xs"} onClick={(e) => onClick("mana", e)}>
 						Mana
 						{sortIndicator("mana")}
 						<InfoIcon header="Mana Curve" content="Distribution of card costs for the deck." />
