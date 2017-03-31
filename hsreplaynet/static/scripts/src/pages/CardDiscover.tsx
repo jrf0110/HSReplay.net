@@ -311,7 +311,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						className="btn btn-default"
 						onClick={() => this.setState({numCards: this.state.numCards + 20})}
 					>
-						Show more...
+						Show more…
 					</button>
 				</div>
 			);
@@ -408,7 +408,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<div className="form-group has-feedback">
 						<input
 							autoFocus
-							placeholder="Search..."
+							placeholder="Search…"
 							type="search"
 							className="form-control"
 							value={this.state.queryMap["text"]}

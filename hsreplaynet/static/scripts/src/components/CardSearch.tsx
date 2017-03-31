@@ -91,7 +91,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 						id={this.props.id}
 						className="form-control"
 						type="search"
-						placeholder="Search..."
+						placeholder="Search…"
 						onFocus={() => this.setState({cardSearchHasFocus: true})}
 						onBlur={() => this.setState({cardSearchHasFocus: false})}
 						value={this.state.cardSearchText}
