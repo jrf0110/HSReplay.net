@@ -27,13 +27,13 @@ interface DeckDiscoverState {
 interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<DeckDiscover> {
 	cardData: CardData;
 	user: UserData;
-	excludedCards?: string;
-	setExcludedCards?: (excludedCards: string) => void;
+	excludedCards?: string[];
+	setExcludedCards?: (excludedCards: string[]) => void;
 	gameType?: string;
 	customGameType?: string;
 	setGameType?: (gameType: string) => void;
-	includedCards?: string;
-	setIncludedCards?: (includedCards: string) => void;
+	includedCards?: string[];
+	setIncludedCards?: (includedCards: string[]) => void;
 	opponentClass?: FilterOption;
 	setOpponentClass?: (opponentClass: string) => void;
 	personal?: string;
@@ -102,7 +102,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const deckElements = [];
 		const playerClass = this.props.playerClass;
 		const filteredCards = (key: string): any[] => {
-			const array = this.props[key].split(",") || [];
+			const array = this.props[key] || [];
 			if(array.length == 1 && !array[0]) {
 				return [];
 			}
@@ -300,7 +300,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			if (!this.props.cardData || !this.props[key]) {
 				return undefined;
 			}
-			return this.props[key].split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId));
+			return this.props[key].map((dbfId) => this.props.cardData.fromDbf(dbfId));
 		};
 
 		let filteredCards = Array.isArray(this.state.cards) ? this.state.cards : [];
@@ -362,7 +362,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							id="card-search-include"
 							key={"cardinclude" + this.state.cardSearchIncludeKey}
 							availableCards={filteredCards}
-							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId).join(","))}
+							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
 							selectedCards={selectedCards("includedCards")}
 						/>
 					</section>
@@ -372,7 +372,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							id="card-search-exclude"
 							key={"cardexclude" + this.state.cardSearchExcludeKey}
 							availableCards={filteredCards}
-							onCardsChanged={(cards) => this.props.setExcludedCards(cards.map((card) => card.dbfId).join(","))}
+							onCardsChanged={(cards) => this.props.setExcludedCards(cards.map((card) => card.dbfId))}
 							selectedCards={selectedCards("excludedCards")}
 						/>
 					</section>

@@ -6,6 +6,10 @@ interface FragmentMap {
 	[key: string]: any;
 }
 
+interface InternalFragmentMap {
+	[key: string]: string;
+}
+
 interface FragmentsProps extends React.ClassAttributes<Fragments> {
 	defaults: FragmentMap;
 	debounce?: string | string[];
@@ -15,8 +19,8 @@ interface FragmentsProps extends React.ClassAttributes<Fragments> {
 }
 
 interface FragmentsState {
-	childProps: FragmentMap;
-	intermediate: FragmentMap;
+	childProps: InternalFragmentMap;
+	intermediate: InternalFragmentMap;
 }
 
 /**
@@ -88,7 +92,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		}
 
 		if (debounce) {
-			const intermediate = Object.assign({}, this.state.intermediate, {[key]: value});
+			const intermediate = Object.assign({}, this.state.intermediate, {[key]: this.stringify(key, value)});
 			this.setState({intermediate});
 			if (this.timeout) {
 				clearTimeout(this.timeout);
@@ -108,7 +112,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 					delete newProps[key];
 				}
 				else {
-					newProps = Object.assign(newProps, prevState.childProps, {[key]: value});
+					newProps = Object.assign(newProps, prevState.childProps, {[key]: this.stringify(key, value)});
 				}
 				return {
 					childProps: newProps,
@@ -119,6 +123,16 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 	}
 
 	cast(key: string, value: any): any {
+		if (Array.isArray(this.props.defaults[key])) {
+			if (!value) {
+				value = [];
+			}
+			if (typeof value === "string") {
+				value = value.split(",");
+			}
+			return value;
+		}
+
 		switch (typeof this.props.defaults[key]) {
 			case "number":
 				value = +value;
@@ -128,6 +142,16 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 				break;
 		}
 		return value;
+	}
+
+	stringify(key: string, value: any): string {
+		if (Array.isArray(this.props.defaults[key])) {
+			if (Array.isArray(value)) {
+				value = value.join(",");
+			}
+		}
+
+		return "" + value;
 	}
 
 	isDebounced(key: string): boolean {

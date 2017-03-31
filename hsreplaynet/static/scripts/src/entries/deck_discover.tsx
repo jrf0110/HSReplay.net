@@ -12,9 +12,9 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				excludedCards: "",
+				excludedCards: [],
 				gameType: "RANKED_STANDARD",
-				includedCards: "",
+				includedCards: [],
 				opponentClass: "ALL",
 				personal: "",
 				playerClass: "ALL",
