@@ -13,7 +13,7 @@ influxdb==4.0.0
 lxml==3.7.3
 psycopg2==2.7
 python-dateutil==2.6.0
-pytz==2016.10
+pytz==2017.2
 raven==6.0.0
 shortuuid==0.5.0
 wheel==0.29.0
