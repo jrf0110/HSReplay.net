@@ -1,11 +1,12 @@
 import * as React from "react";
+import * as _ from "lodash";
 import {capitalize} from "../helpers";
 
 interface FragmentMap {
 	[key: string]: any;
 }
 
-interface FragmentProps extends React.ClassAttributes<Fragments> {
+interface FragmentsProps extends React.ClassAttributes<Fragments> {
 	defaults: FragmentMap;
 	debounce?: string | string[];
 	immutable?: string | string[];
@@ -13,81 +14,104 @@ interface FragmentProps extends React.ClassAttributes<Fragments> {
 	keepDefaults?: boolean;
 }
 
-interface FragmentState {
-	map: FragmentMap;
+interface FragmentsState {
+	childProps: FragmentMap;
+	intermediate: FragmentMap;
 }
 
 /**
  * This component maps url fragments (such as index.html#a=1&b=2) to it's child's props.
  * A default key pageNumber:1 will result in the props pageNumber:1 and setPageNumber:(newPageNumber).
  */
-export default class Fragments extends React.Component<FragmentProps, FragmentState> {
+export default class Fragments extends React.Component<FragmentsProps, FragmentsState> {
 
 	private listener: any | null;
-	private revision: number;
-	private lastSeen: number;
 	private timeout: any | null;
 
-	constructor(props: FragmentProps, context: any) {
+	constructor(props: FragmentsProps, context: any) {
 		super(props, context);
-		this.state = {map: {}};
+		this.state = {
+			childProps: this.getParts(), // populate with initial url parts
+			intermediate: {},
+		};
 		this.listener = null;
-		this.revision = 0;
-		this.lastSeen = 0;
 		this.timeout = null;
 	}
 
 	render(): any {
-
 		let props = {};
 
-		const values = Object.assign({}, this.props.defaults, this.state.map);
+		const values = Object.assign({}, this.props.defaults, this.state.childProps);
 		for (let key in values) {
 			const suffix = capitalize(key);
 			// prepare the callback
 			const callback = (value: any) => this.onChange(key, value);
 			const callbackKey = "set" + suffix;
 			// assign the props
-			props[key] = values[key];
+			props[key] = typeof this.state.intermediate[key] !== "undefined" ? this.state.intermediate[key] : values[key];
 			props[callbackKey] = callback;
 			props["default" + suffix] = this.props.defaults[key];
-			props["custom" + suffix] = typeof this.state.map[key] !== "undefined" ? this.state.map : null;
+			props["custom" + suffix] = typeof this.state.childProps[key] !== "undefined" ? this.state.childProps[key] : null;
 		}
 
 		props = Object.assign({}, props, {
-			canBeReset: Object.keys(this.state.map).length > 0,
-			reset: () => this.setState({map: {}}),
+			canBeReset: Object.keys(this.state.childProps).length > 0,
+			reset: () => this.setState({childProps: {}}),
 		});
 
 		return React.cloneElement(this.props.children as any, props);
 	}
 
-	onChange(key: string, value: any): void {
-		if (this.isImmutable(key)) {
-			return;
-		}
-
-		const defaultValue = this.props.defaults[key];
-
-		if (typeof defaultValue === "undefined") {
+	onChange(key: string, value: any, debounce?: boolean): void {
+		if (!this.isValidKey(key)) {
 			console.error(`Attempted to change undefined fragment key "${key}"`);
 			return;
 		}
 
-		if (!this.props.keepDefaults && value === defaultValue) {
+		if (this.isImmutable(key)) {
+			return;
+		}
+
+		if (typeof debounce === "undefined") {
+			debounce = this.isDebounced(key);
+		}
+
+		if (!this.props.keepDefaults && value === this.props.defaults[key]) {
 			value = null;
 		}
 
-		let map = {};
-		if (!value) {
-			map = Object.assign(map, this.state.map);
-			delete map[key];
+		if (debounce) {
+			const intermediate = Object.assign({}, this.state.intermediate, {[key]: value});
+			this.setState({intermediate});
+			if (this.timeout) {
+				clearTimeout(this.timeout);
+			}
+			this.timeout = setTimeout(() => {
+				this.timeout = null;
+				for (let key in this.state.intermediate) {
+					this.onChange(key, this.state.intermediate[key], false);
+				}
+			}, this.props.delay || 100);
 		}
 		else {
-			map = Object.assign(map, this.state.map, {[key]: value});
+			let map = {};
+			if (!value) {
+				map = Object.assign(map, this.state.childProps);
+				delete map[key];
+			}
+			else {
+				map = Object.assign(map, this.state.childProps, {[key]: value});
+			}
+			this.setState({childProps: map, intermediate: {}});
 		}
+	}
 
-		this.setState({map});
+	isDebounced(key: string): boolean {
+		let keys = this.props.debounce;
+		if (!Array.isArray(keys)) {
+			keys = [keys];
+		}
+		return keys.indexOf(key) !== -1;
 	}
 
 	isImmutable(key: string): boolean {
@@ -98,48 +122,10 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 		return keys.indexOf(key) !== -1;
 	}
 
-	componentDidUpdate(prevProps: FragmentProps, prevState: FragmentState) {
-		if (this.timeout) {
-			clearTimeout(this.timeout);
-		}
-
-		if (this.props.debounce) {
-			let debounce = this.props.debounce;
-			if (!Array.isArray(debounce)) {
-				debounce = [debounce];
-			}
-			for (let i in debounce) {
-				const key = debounce[i];
-				if (prevState.map[key] === this.state.map[key]) {
-					continue;
-				}
-				const delay = typeof this.props.delay === "number" ? this.props.delay : 100;
-				this.timeout = setTimeout(() => this.commitFragment(), delay);
-				return;
-			}
-		}
-
-		this.commitFragment();
-	}
-
-	commitFragment() {
-		if (this.timeout) {
-			clearTimeout(this.timeout);
-			this.timeout = null;
-		}
-		this.setFragment(this.state.map);
-	}
-
 	componentDidMount() {
-		this.loadHash();
-		this.commitFragment();
 		this.listener = window.addEventListener("hashchange", () => {
-			if (this.lastSeen < this.revision) {
-				this.lastSeen = this.revision;
-				return;
-			}
-			this.loadHash();
-		}, false);
+			this.setState({childProps: this.getParts()})
+		});
 	}
 
 	componentWillUnmount() {
@@ -147,58 +133,105 @@ export default class Fragments extends React.Component<FragmentProps, FragmentSt
 		this.listener = null;
 	}
 
-	loadHash(): void {
-		let map = Object.assign({}, this.getFragment());
-		for (let key in map) {
-			if (this.isImmutable(key)) {
-				delete map[key];
-			}
-		}
-		this.setState({map: map});
+	shouldComponentUpdate(nextProps: FragmentsProps, nextState: FragmentsState) {
+		return !_.isEqual(nextProps, this.props) || !_.isEqual(nextState, this.state);
 	}
 
-	getFragment(): FragmentMap {
-		let fragment = document.location.hash;
+	componentDidUpdate(prevProps: FragmentsProps, prevState: FragmentsState) {
+		const parts = Object.assign({}, Fragments.parseFragmentString(document.location.hash));
+
+		// find ones that we're added or changed
+		for (let key of Object.keys(this.state.childProps)) {
+			const value = this.state.childProps[key];
+			if (value) {
+				parts[key] = value;
+			}
+			else {
+				delete parts[key];
+			}
+		}
+
+		// find ones that were removed
+		for (let key of Object.keys(prevState.childProps)) {
+			if (typeof this.state.childProps[key] === "undefined" && typeof parts[key] !== "undefined") {
+				delete parts[key];
+			}
+		}
+
+		const hasData = Object.keys(parts).length > 0;
+		const fragments = Fragments.encodeFragmentString(parts);
+
+		if (fragments === document.location.hash) {
+			return;
+		}
+
+		if (!hasData && !document.location.hash) {
+			return;
+		}
+
+		document.location.hash = fragments;
+
+		if (!hasData && typeof history !== "undefined") {
+			// hide the hash in the url if supported
+			history.pushState("", document.title, window.location.pathname + window.location.search);
+		}
+	}
+
+	isValidKey(key: string): boolean {
+		return typeof this.props.defaults[key] !== "undefined";
+	}
+
+	getPart(key: string): string {
+		if (!this.isValidKey(key)) {
+			console.error(`Refusing to return fragment part "${key}"`);
+			return;
+		}
+		const parts = Fragments.parseFragmentString(document.location.hash);
+		return parts[key];
+	}
+
+	// returns the parts of the fragment that are relevant
+	getParts(): FragmentMap {
+		const parts = Fragments.parseFragmentString(document.location.hash);
+		const map = {};
+		for (let key of Object.keys(parts)) {
+			if (!this.isValidKey(key)) {
+				continue;
+			}
+			if (this.isImmutable(key)) {
+				continue;
+			}
+			map[key] = parts[key];
+		}
+		return map;
+	}
+
+	static parseFragmentString(fragment: string): FragmentMap {
 		const result = {};
 		if (fragment.startsWith("#") && fragment.indexOf("=") !== -1) {
 			fragment = fragment.substr(1);
-			fragment.split("&").forEach((part) => {
+			for (let part of fragment.split("&")) {
 				const atoms = part.split("=");
 				const key = decodeURIComponent(atoms[0]);
 				const value = decodeURIComponent(atoms.slice(1).join(""));
 				result[key] = value;
-			});
+			}
 		}
 		return result;
 	}
 
-	setFragment(map: FragmentMap): void {
+	static encodeFragmentString(map: FragmentMap): string {
+		let fragment = "#_";
+
 		const parts = [];
 		for (let key in map) {
-			parts[parts.length] = encodeURIComponent(key) + "=" + encodeURIComponent(map[key]);
+			parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(map[key]));
 		}
-
-		let hash = "#_";
 
 		if (parts.length) {
-			hash = "#" + parts.join("&");
-		}
-		else if (!document.location.hash) {
-			// don't write empty placeholder to empty hash
-			return;
+			fragment = "#" + parts.join("&");
 		}
 
-		if (hash === document.location.hash) {
-			return;
-		}
-
-		this.revision++;
-
-		document.location.hash = hash;
-
-		if (!parts.length && typeof history !== "undefined") {
-			// hide the hash in the url if supported
-			history.pushState("", document.title, window.location.pathname + window.location.search);
-		}
+		return fragment;
 	}
 }
