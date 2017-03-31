@@ -9,12 +9,8 @@ import NoDecksMessage from "../components/NoDecksMessage";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import { cardSorting, getDustCost, wildSets } from "../helpers";
-import { DeckObj } from "../interfaces";
-import {
-	getQueryMapArray, getQueryMapDiff, getQueryMapFromLocation, QueryMap,
-	queryMapHasChanges, setLocationQueryString, setQueryMap,
-} from "../QueryParser";
+import {cardSorting, getDustCost, wildSets} from "../helpers";
+import {DeckObj, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 
@@ -24,45 +20,39 @@ interface DeckDiscoverState {
 	cards?: any[];
 	filteredDecks: DeckObj[];
 	loading?: boolean;
-	queryMap?: QueryMap;
 	showFilters?: boolean;
 }
 
-interface DeckDiscoverProps extends React.ClassAttributes<DeckDiscover> {
+interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<DeckDiscover> {
 	cardData: CardData;
 	user: UserData;
+	excludedCards?: string;
+	setExcludedCards?: (excludedCards: string) => void;
+	gameType?: string;
+	customGameType?: string;
+	setGameType?: (gameType: string) => void;
+	includedCards?: string;
+	setIncludedCards?: (includedCards: string) => void;
+	opponentClass?: FilterOption;
+	setOpponentClass?: (opponentClass: string) => void;
+	personal?: string;
+	setPersonal?: (personal: string) => void;
+	playerClass?: FilterOption;
+	setPlayerClass?: (playerClass: string) => void;
+	rankRange?: string;
+	setRankRange?: (rankRange: string) => void;
+	region?: string;
+	setRegion?: (region: string) => void;
+	sortBy?: string;
+	setSortBy?: (sortBy: string) => void;
+	sortDirection?: "ascending" | "descending";
+	setSortDirection?: (sortDirection: string) => void;
+	timeRange?: string;
+	setTimeRange?: (timeRange: string) => void;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
 	private readonly dataManager: DataManager = new DataManager();
-	private readonly defaultQueryMap: QueryMap = {
-		excludedCards: "",
-		gameType: "RANKED_STANDARD",
-		includedCards: "",
-		opponentClass: "ALL",
-		personal: "",
-		playerClass: "ALL",
-		rankRange: "ALL",
-		region: "ALL",
-		sortBy: "popularity",
-		sortDirection: "descending",
-		timeRange: "LAST_30_DAYS",
-	};
-
-	private readonly allowedValues = {
-		gameType: ["RANKED_STANDARD", "RANKED_WILD"],
-		opponentClass: [],
-		rankRange: [],
-		region: [],
-		timeRange: ["LAST_30_DAYS"],
-	};
-
-	private readonly allowedValuesPremium = {
-		gameType: ["RANKED_STANDARD", "RANKED_WILD"],
-		rankRange: ["LEGEND_THROUGH_TEN"],
-		region: [],
-		timeRange: ["CURRENT_SEASON", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_30_DAYS"],
-	};
 
 	constructor(props: DeckDiscoverProps, state: DeckDiscoverState) {
 		super(props, state);
@@ -72,19 +62,26 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			cards: null,
 			filteredDecks: [],
 			loading: true,
-			queryMap: getQueryMapFromLocation(this.defaultQueryMap, this.getAllowedValues()),
 			showFilters: false,
 		};
 		this.updateFilteredDecks();
 	}
 
-	getAllowedValues(): any {
-		return this.props.user.isPremium() ? this.allowedValuesPremium : this.allowedValues;
-	}
-
 	componentDidUpdate(prevProps: DeckDiscoverProps, prevState: DeckDiscoverState) {
-		setLocationQueryString(this.state.queryMap, this.defaultQueryMap);
-		if (this.state.queryMap !== prevState.queryMap || this.props.cardData !== prevProps.cardData) {
+		if (
+			this.props.excludedCards !== prevProps.excludedCards ||
+			this.props.gameType !== prevProps.gameType ||
+			this.props.includedCards !== prevProps.includedCards ||
+			this.props.opponentClass !== prevProps.opponentClass ||
+			this.props.personal !== prevProps.personal ||
+			this.props.playerClass !== prevProps.playerClass ||
+			this.props.rankRange !== prevProps.rankRange ||
+			this.props.region !== prevProps.region ||
+			this.props.timeRange !== prevProps.timeRange ||
+			this.props.cardData !== prevProps.cardData ||
+			this.props.sortBy !== prevProps.sortBy ||
+			this.props.sortDirection !== prevProps.sortDirection
+		) {
 			this.updateFilteredDecks();
 		}
 	}
@@ -102,27 +99,19 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 	}
 
-	getDefeaultQueryMap(): QueryMap {
-		const queryMap = Object.assign({}, this.defaultQueryMap);
-		queryMap.sortBy = this.state.queryMap.sortBy;
-		queryMap.sortDirection = this.state.queryMap.sortDirection;
-		return queryMap;
-	}
-
-	resetFilters(): void {
-		this.setState({queryMap: this.getDefeaultQueryMap()});
-	}
-
 	getDeckType(totalCost: number): string {
 		return totalCost >= 100 ? "control" : (totalCost >= 80 ? "midrange" : "aggro");
 	}
 
 	getDeckElements(): Promise<any[]> {
 		const deckElements = [];
-		const playerClass = this.state.queryMap.playerClass;
+		const playerClass = this.props.playerClass;
 		const filteredCards = (key: string): any[] => {
-			return getQueryMapArray(this.state.queryMap, key)
-				.map((dbfId) => this.props.cardData.fromDbf(dbfId));
+			const array = this.props[key].split(",") || [];
+			if(array.length == 1 && !array[0]) {
+				return [];
+			}
+			return array.map((dbfId) => this.props.cardData.fromDbf(dbfId));
 		};
 		const includedCards = filteredCards("includedCards");
 		const excludedCards = filteredCards("excludedCards");
@@ -143,7 +132,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			deck.mana_cost = manaCost(cards);
 			deckElements.push(deck);
 		};
-		if (this.state.queryMap.personal && this.props.user.hasFeature("profiles")) {
+		if (this.props.personal && this.props.user.hasFeature("profiles")) {
 			if (!this.dataManager.has("/decks/mine")) {
 				this.setState({loading: true});
 			}
@@ -157,7 +146,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					if (gameTypes.indexOf("BGT_ARENA") !== -1) {
 						return;
 					}
-					if (gameTypes.indexOf("BGT_" + this.state.queryMap.gameType) === -1) {
+					if (gameTypes.indexOf("BGT_" + this.props.gameType) === -1) {
 						return;
 					}
 					const cards = cardList(deck.deck_list);
@@ -205,10 +194,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		if (!this.props.cardData) {
 			return;
 		}
-		const selectedOpponent = this.state.queryMap.opponentClass;
+		const selectedOpponent = this.props.opponentClass;
 		const winrateField = selectedOpponent === "ALL" ? "win_rate" : "win_rate_vs_" + selectedOpponent;
 		const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
-		let sortProp = this.state.queryMap.sortBy;
+		let sortProp = this.props.sortBy;
 		switch (sortProp) {
 			case "winrate":
 				sortProp = winrateField;
@@ -222,11 +211,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 		this.getDeckElements().then(((deckElements) => {
 			const decks: DeckObj[] = [];
-			const direction = this.state.queryMap.sortDirection === "descending" ? 1 : -1;
+			const direction = this.props.sortDirection === "descending" ? 1 : -1;
 			deckElements.sort((a, b) => {
 				const x = +a[sortProp];
 				const y = +b[sortProp];
-				if(x !== y) {
+				if (x !== y) {
 					return (b[sortProp] - a[sortProp]) * direction;
 				}
 				return a["deck_id"].localeCompare(b["deck_id"]) * direction;
@@ -250,20 +239,18 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 
 	render(): JSX.Element {
-		const queryMap = this.state.queryMap;
-
 		let content = null;
 		if (this.state.loading) {
 			content = <h3 className="message-wrapper">Loading…</h3>;
 		}
 		else if (this.state.filteredDecks.length === 0) {
-			if (this.state.queryMap["personal"] && this.props.user.hasFeature("profiles")) {
+			if (this.props.personal && this.props.user.hasFeature("profiles")) {
 				content = (
 					<NoDecksMessage>
 						<button
 							className="btn btn-default"
 							type="button"
-							onClick={() => setQueryMap(this, "personal", null)}
+							onClick={() => this.props.setPersonal(null)}
 						>
 							Back to the decks
 						</button>
@@ -274,7 +261,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				content = (
 					<div className="content-message">
 						<h2>No decks found</h2>
-						<button className="btn btn-default" type="button" onClick={() => this.resetFilters()}>
+						<button className="btn btn-default" type="button" onClick={() => this.props.reset()}>
 							Reset filters
 						</button>
 					</div>
@@ -286,22 +273,18 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				<DeckList
 					decks={this.state.filteredDecks}
 					onHeaderClicked={(name: string) => {
-						if (this.state.queryMap["sortBy"] === name) {
-							setQueryMap(
-								this, "sortDirection", this.state.queryMap["sortDirection"] === "ascending" ? "descending" : "ascending",
-							);
+						if (this.props.sortBy === name) {
+							this.props.setSortDirection(this.props.sortDirection === "ascending" ? "descending" : "ascending");
 						}
 						else {
-							const newQueryMap = Object.assign({}, this.state.queryMap);
-							newQueryMap["sortDirection"] = "descending";
-							newQueryMap["sortBy"] = name;
-							this.setState({queryMap: newQueryMap});
+							this.props.setSortDirection("descending");
+							this.props.setSortBy(name);
 						}
 					}}
 					pageSize={12}
-					sortCol={this.state.queryMap["sortBy"]}
-					sortDirection={this.state.queryMap["sortDirection"] as "ascending"|"descending"}
-					urlGameType={getQueryMapDiff(this.state.queryMap, this.defaultQueryMap).gameType}
+					sortCol={this.props.sortBy}
+					sortDirection={this.props.sortDirection}
+					urlGameType={this.props.customGameType}
 				/>
 			);
 		}
@@ -335,8 +318,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				<h2>Personal</h2>,
 				<InfoboxFilterGroup
 					deselectable
-					selectedValue={this.state.queryMap["personal"]}
-					onClick={(value) => setQueryMap(this, "personal", value)}
+					selectedValue={this.props.personal}
+					onClick={(value) => this.props.setPersonal(value)}
 				>
 					<InfoboxFilter value="true" disabled={!this.props.user.isAuthenticated()}>
 						I have played (last 30 days)
@@ -347,20 +330,20 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 
 		const selectedCards = (key: string) => {
-			if (!this.props.cardData || !queryMap[key]) {
+			if (!this.props.cardData || !this.props[key]) {
 				return undefined;
 			}
-			return queryMap[key].split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId));
+			return this.props[key].split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId));
 		};
 
 		let filteredCards = Array.isArray(this.state.cards) ? this.state.cards : [];
-		const gameType = this.state.queryMap.gameType;
+		const gameType = this.props.gameType;
 		if (gameType.endsWith("_STANDARD")) {
 			filteredCards = filteredCards.filter((card) => {
 				return wildSets.indexOf(card.set) === -1;
 			});
 		}
-		const playerClass = this.state.queryMap.playerClass;
+		const playerClass = this.props.playerClass;
 		if (playerClass !== "ALL") {
 			filteredCards = filteredCards.filter((card) => {
 				const cardClass = card.cardClass;
@@ -373,8 +356,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
 					{backButton}
 					<ResetHeader
-						onReset={() => this.resetFilters()}
-						showReset={queryMapHasChanges(this.state.queryMap, this.getDefeaultQueryMap())}
+						onReset={() => this.props.reset()}
+						showReset={this.props.canBeReset}
 					>
 						Decks
 					</ResetHeader>
@@ -385,8 +368,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							hideAll
 							minimal
 							multiSelect={false}
-							selectedClasses={[queryMap["playerClass"] as FilterOption]}
-							selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
+							selectedClasses={[this.props.playerClass as FilterOption]}
+							selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
 						/>
 					</section>
 					<section id="opponent-class-filter">
@@ -401,8 +384,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								hideAll
 								minimal
 								multiSelect={false}
-								selectedClasses={[queryMap["opponentClass"] as FilterOption]}
-								selectionChanged={(selected) => this.props.user.isPremium() && setQueryMap(this, "opponentClass", selected[0])}
+								selectedClasses={[this.props.opponentClass]}
+								selectionChanged={(selected) => this.props.setOpponentClass(selected[0])}
 							/>
 						</PremiumWrapper>
 					</section>
@@ -412,7 +395,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							id="card-search-include"
 							key={"cardinclude" + this.state.cardSearchIncludeKey}
 							availableCards={filteredCards}
-							onCardsChanged={(cards) => setQueryMap(this, "includedCards", cards.map((card) => card.dbfId).join(","))}
+							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId).join(","))}
 							selectedCards={selectedCards("includedCards")}
 						/>
 					</section>
@@ -422,7 +405,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							id="card-search-exclude"
 							key={"cardexclude" + this.state.cardSearchExcludeKey}
 							availableCards={filteredCards}
-							onCardsChanged={(cards) => setQueryMap(this, "excludedCards", cards.map((card) => card.dbfId).join(","))}
+							onCardsChanged={(cards) => this.props.setExcludedCards(cards.map((card) => card.dbfId).join(","))}
 							selectedCards={selectedCards("excludedCards")}
 						/>
 					</section>
@@ -430,8 +413,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<section id="game-mode-filter">
 						<h2>Game Mode</h2>
 						<InfoboxFilterGroup
-							selectedValue={this.state.queryMap["gameType"]}
-							onClick={(value) => setQueryMap(this, "gameType", value)}
+							selectedValue={this.props.gameType}
+							onClick={(value) => this.props.setGameType(value)}
 						>
 							<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
 							<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
@@ -446,8 +429,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							<h2>Time frame</h2>
 							<InfoboxFilterGroup
 								locked={!this.props.user.isPremium()}
-								selectedValue={this.state.queryMap["timeRange"]}
-								onClick={(value) => setQueryMap(this, "timeRange", value)}
+								selectedValue={this.props.timeRange}
+								onClick={(value) => this.props.setTimeRange(value)}
 							>
 								<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
 								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
@@ -465,8 +448,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							<h2>Rank range</h2>
 							<InfoboxFilterGroup
 								locked={!this.props.user.isPremium()}
-								selectedValue={this.state.queryMap["rankRange"]}
-								onClick={(value) => setQueryMap(this, "rankRange", value)}
+								selectedValue={this.props.rankRange}
+								onClick={(value) => this.props.setRankRange(value)}
 							>
 								<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
 								<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
@@ -476,7 +459,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<section id="side-bar-data">
 						<h2>Data</h2>
 						<ul>
-							<InfoboxLastUpdated dataManager={this.dataManager} url={this.getQueryName()} params={this.getParams()}/>
+							<InfoboxLastUpdated dataManager={this.dataManager} url={this.getQueryName()}
+												params={this.getParams()} />
 						</ul>
 					</section>
 					{backButton}
@@ -505,10 +489,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 	getParams(): any {
 		return {
-			GameType: this.state.queryMap["gameType"] || this.defaultQueryMap["gameType"],
-			RankRange: this.state.queryMap["rankRange"] || this.defaultQueryMap["rankRange"],
-			TimeRange: this.state.queryMap["timeRange"] || this.defaultQueryMap["timeRange"],
-			// Region: this.state.queryMap["region"],
+			GameType: this.props.gameType,
+			RankRange: this.props.rankRange,
+			TimeRange: this.props.timeRange,
+			// Region: this.props.region,
 		};
 	}
 }

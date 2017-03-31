@@ -3,16 +3,34 @@ import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import DeckDiscover from "../pages/DeckDiscover";
 import UserData from "../UserData";
+import Fragments from "../Fragments";
 
 const container = document.getElementById("deck-discover-container");
-const userData = new UserData();
+const user = new UserData();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
-		<DeckDiscover
-			cardData={cardData}
-			user={userData}
-		/>,
+		<Fragments
+			defaults={{
+				excludedCards: "",
+				gameType: "RANKED_STANDARD",
+				includedCards: "",
+				opponentClass: "ALL",
+				personal: "",
+				playerClass: "ALL",
+				rankRange: "ALL",
+				region: "ALL",
+				sortBy: "popularity",
+				sortDirection: "descending",
+				timeRange: "LAST_30_DAYS",
+			}}
+			immutable={!user.isPremium() ? ["timeRange", "opponentClass", "rankRange"] : null}
+		>
+			<DeckDiscover
+				cardData={cardData}
+				user={user}
+			/>
+		</Fragments>,
 		container,
 	);
 };
