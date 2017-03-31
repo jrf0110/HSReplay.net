@@ -605,6 +605,23 @@ export function getDustCost(card: CardMeta | CardMeta[]): number {
 	return 0;
 }
 
+export function getManaCost(card: CardMeta | CardMeta[]) : number {
+	if (!card) {
+		return 0;
+	}
+
+	const cardCountProxy = card as any;
+	if (cardCountProxy.count) {
+		return getManaCost(cardCountProxy.card) * cardCountProxy.count;
+	}
+
+	if (Array.isArray(card)) {
+		return card.reduce((cost, card) => cost + getManaCost(card), 0);
+	}
+
+	return +card.cost;
+}
+
 export function winrateData(baseWinrate: number, winrate: number, deltaFactor: number) {
 	const winrateDelta = winrate - baseWinrate;
 	const colorWinrate = 50 + Math.max(-50, Math.min(50, (deltaFactor * winrateDelta)));
