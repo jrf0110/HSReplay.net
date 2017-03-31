@@ -18,7 +18,7 @@ const render = (cardData: CardData) => {
 				opponentClass: "ALL",
 				tab: "recommended-decks",
 			}}
-			immutable={user.isPremium ? "opponentClass" : null}
+			immutable={!user.isPremium() ? "opponentClass" : null}
 		>
 			<CardDetail
 				card={card}
