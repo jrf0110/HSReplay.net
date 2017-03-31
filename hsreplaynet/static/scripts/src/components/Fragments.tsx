@@ -101,15 +101,20 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			}, this.props.delay || 100);
 		}
 		else {
-			let map = {};
-			if (!value) {
-				map = Object.assign(map, this.state.childProps);
-				delete map[key];
-			}
-			else {
-				map = Object.assign(map, this.state.childProps, {[key]: value});
-			}
-			this.setState({childProps: map, intermediate: {}});
+			this.setState((prevState: FragmentsState) => {
+				let newProps = {};
+				if (!value) {
+					newProps = Object.assign(newProps, prevState.childProps);
+					delete newProps[key];
+				}
+				else {
+					newProps = Object.assign(newProps, prevState.childProps, {[key]: value});
+				}
+				return {
+					childProps: newProps,
+					intermediate: {},
+				};
+			});
 		}
 	}
 
