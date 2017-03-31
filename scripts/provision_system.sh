@@ -23,7 +23,7 @@ apt-get dist-upgrade -qy
 apt-get install -qy \
 	zsh curl git htop tree unzip vim \
 	python3 python3-dev python3-venv \
-	gcc g++ libxml2 libxml2-dev libxslt1-dev \
+	gcc g++ libxml2 libxml2-dev libxslt1-dev libssl-dev \
 	nodejs yarn \
 	supervisor influxdb \
 	python-dev libffi-dev

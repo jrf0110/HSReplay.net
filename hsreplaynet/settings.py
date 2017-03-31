@@ -307,6 +307,7 @@ if ENV_DEV:
 if ENV_VAGRANT:
 	INSTALLED_APPS += [
 		"sslserver",
+		"django_extensions",
 	]
 
 

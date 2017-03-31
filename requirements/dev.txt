@@ -4,3 +4,9 @@
 
 q
 django-sslserver
+
+# runserver_plus and its dependencies
+django-extensions
+pyOpenSSL
+Watchdog
+Werkzeug
