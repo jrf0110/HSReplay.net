@@ -82,20 +82,23 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 				break;
 		}
 
-		const direction = this.props.sortDirection === "ascending" ? 1 : -1;
 		const decks = this.props.decks.slice(0);
-		decks.sort((a: DeckObj, b: DeckObj) => {
-			let x = +a[sortProp];
-			let y = +b[sortProp];
-			if (cacheProp !== null) {
-				x = +this.cache[a.deckId][cacheProp];
-				y = +this.cache[b.deckId][cacheProp];
-			}
-			if (x !== y) {
-				return (x - y) * direction;
-			}
-			return a.deckId.localeCompare(b.deckId) * direction;
-		});
+
+		if(sortProp) {
+			const direction = this.props.sortDirection === "ascending" ? 1 : -1;
+			decks.sort((a: DeckObj, b: DeckObj) => {
+				let x = +a[sortProp];
+				let y = +b[sortProp];
+				if (cacheProp !== null) {
+					x = +this.cache[a.deckId][cacheProp];
+					y = +this.cache[b.deckId][cacheProp];
+				}
+				if (x !== y) {
+					return (x - y) * direction;
+				}
+				return a.deckId.localeCompare(b.deckId) * direction;
+			});
+		}
 
 		const deckTiles = [];
 		const visibleDecks = decks.slice(pageOffset, nextPageOffset);
