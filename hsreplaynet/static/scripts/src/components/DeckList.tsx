@@ -31,7 +31,13 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 	}
 
 	componentWillReceiveProps(nextProps: DeckListProps) {
-		if (nextProps.decks !== this.props.decks || nextProps.pageSize !== this.props.pageSize && this.props.setPage) {
+		if (
+			this.props.setPage && (
+				nextProps.decks !== this.props.decks ||
+				nextProps.pageSize !== this.props.pageSize ||
+				nextProps.sortBy !== this.props.sortBy ||
+				nextProps.sortDirection !== this.props.sortDirection
+			)) {
 			this.props.setPage(1);
 		}
 		this.cacheDecks(nextProps.decks);
