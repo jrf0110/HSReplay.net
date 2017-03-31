@@ -244,6 +244,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					defaults={{
 						sortBy: "popularity",
 						sortDirection: "descending",
+						page: 1,
 					}}
 				>
 					<DeckList

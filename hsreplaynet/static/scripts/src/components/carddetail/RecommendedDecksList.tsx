@@ -46,6 +46,7 @@ export default class RecommendedDecksList extends React.Component<RecommendedDec
 				defaults={{
 					sortBy: "popularity",
 					sortDirection: "descending",
+					page: 1,
 				}}
 			>
 				<DeckList

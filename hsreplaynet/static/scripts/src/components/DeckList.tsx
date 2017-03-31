@@ -7,10 +7,6 @@ import {SortDirection} from "./SortableTable";
 import {CardObj, DeckObj, FragmentChildProps} from "../interfaces";
 import {getDustCost, getManaCost} from "../helpers";
 
-interface DeckListState {
-	page: number;
-}
-
 interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckList> {
 	decks: DeckObj[];
 	pageSize: number;
@@ -21,23 +17,22 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	setSortBy?: (sortBy: string) => void;
 	sortDirection?: SortDirection;
 	setSortDirection?: (sortDirection: SortDirection) => void;
+	page?: number;
+	setPage?: (page: number) => void;
 }
 
-export default class DeckList extends React.Component<DeckListProps, DeckListState> {
+export default class DeckList extends React.Component<DeckListProps, void> {
 	private cache: any;
 
-	constructor(props: DeckListProps, state: DeckListState) {
-		super(props, state);
-		this.state = {
-			page: 0,
-		};
+	constructor(props: DeckListProps, context) {
+		super(props, context);
 		this.cache = {};
 		this.cacheDecks(props.decks);
 	}
 
 	componentWillReceiveProps(nextProps: DeckListProps) {
-		if (nextProps.decks !== this.props.decks || nextProps.pageSize !== this.props.pageSize) {
-			this.setState({page: 0});
+		if (nextProps.decks !== this.props.decks || nextProps.pageSize !== this.props.pageSize && this.props.setPage) {
+			this.props.setPage(1);
 		}
 		this.cacheDecks(nextProps.decks);
 	}
@@ -57,7 +52,8 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 	}
 
 	render(): JSX.Element {
-		const pageOffset = this.state.page * this.props.pageSize;
+		const currentPage = typeof this.props.page !== "undefined" ? this.props.page : 1;
+		const pageOffset = (currentPage - 1) * this.props.pageSize;
 		const nextPageOffset = pageOffset + this.props.pageSize;
 		const deckCount = this.props.decks.length;
 
@@ -119,19 +115,19 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 		});
 
 		let next = null;
-		if (deckCount > nextPageOffset) {
-			next = () => this.setState({page: this.state.page + 1});
+		if (deckCount > nextPageOffset && typeof this.props.setPage === "function") {
+			next = () => this.props.setPage(currentPage + 1);
 		}
 
 		let prev = null;
-		if (this.state.page > 0) {
-			prev = () => this.setState({page: this.state.page - 1});
+		if (currentPage > 1 && typeof this.props.setPage === "function") {
+			prev = () => this.props.setPage(currentPage - 1);
 		}
 
 		const min = pageOffset + 1;
 		const max = Math.min(pageOffset + this.props.pageSize, deckCount);
 		const pager = (top) => {
-			if (this.props.decks.length <= this.props.pageSize) {
+			if (this.props.decks.length <= this.props.pageSize || !this.props.setPage) {
 				return null;
 			}
 			return (
