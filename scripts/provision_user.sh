@@ -10,6 +10,7 @@ export PROJECT=\$HOME/hsreplay.net
 export PYTHONPATH=\$PROJECT
 export DJANGO_SETTINGS_MODULE=hsreplaynet.settings
 export HSREPLAYNET_DEBUG=1
+export ENV_VAGRANT=1
 
 cd \$PROJECT
 EOF
