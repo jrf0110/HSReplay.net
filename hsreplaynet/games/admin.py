@@ -80,6 +80,7 @@ class GlobalGameAdmin(admin.ModelAdmin):
 	search_fields = ("replays__shortid", "players__name")
 	inlines = (GlobalGamePlayerInline, GameReplayInline)
 	show_full_result_count = False
+	ordering = None
 	paginator = EstimatedCountPaginator
 
 	def get_queryset(self, request):

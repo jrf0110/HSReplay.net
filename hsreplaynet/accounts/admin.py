@@ -52,6 +52,7 @@ class UserAdmin(BaseUserAdmin):
 	inlines = (
 		SocialAccountInline, PegasusAccountInline, AuthTokenInline, StripeCustomerInline
 	)
+	ordering = None
 	paginator = EstimatedCountPaginator
 
 
