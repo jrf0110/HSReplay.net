@@ -213,3 +213,8 @@ export const enum LoadingStatus {
 	PROCESSING,
 	ERROR,
 }
+
+export interface FragmentChildProps {
+	canBeReset?: boolean;
+	reset?: () => void;
+}
