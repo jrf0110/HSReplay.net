@@ -2,6 +2,7 @@ import * as React from "react";
 import CardData from "../../CardData";
 import {CardObj, DeckObj, TableData} from "../../interfaces";
 import DeckList from "../DeckList";
+import Fragments from "../Fragments";
 
 interface SimilarDecksListProps extends React.ClassAttributes<SimilarDecksList> {
 	cardData?: CardData;
@@ -71,13 +72,20 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 		});
 
 		return (
-			<DeckList
-				decks={decks}
-				pageSize={10}
-				hideTopPager
-				compareWith={cards}
-				urlGameType={this.props.wildDeck && "RANKED_WILD"}
-			/>
+			<Fragments
+				defaults={{
+					sortBy: "popularity",
+					sortDirection: "descending",
+				}}
+			>
+				<DeckList
+					decks={decks}
+					pageSize={10}
+					hideTopPager
+					compareWith={cards}
+					urlGameType={this.props.wildDeck && "RANKED_WILD"}
+				/>
+			</Fragments>
 		);
 	}
 }
