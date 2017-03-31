@@ -111,10 +111,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const includedCards = filteredCards("includedCards");
 		const excludedCards = filteredCards("excludedCards");
 		const missingIncludedCards = (deckList: any[]) => {
-			return includedCards.some((card) => deckList.every((cardObj) => cardObj.card.id !== card.id));
+			return includedCards.some((card) => card && deckList.every((cardObj) => cardObj && cardObj.card.id !== card.id));
 		};
 		const containsExcludedCards = (deckList: any[]) => {
-			return excludedCards.some((card) => deckList.some((cardObj) => cardObj.card.id === card.id));
+			return excludedCards.some((card) => card && deckList.some((cardObj) => cardObj.card.id === card.id));
 		};
 		const cardList = (cards) => cards.map((c: any[]) => {
 			return {card: this.props.cardData.fromDbf(c[0]), count: c[1]};
@@ -300,7 +300,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			if (!this.props.cardData || !this.props[key]) {
 				return undefined;
 			}
-			return this.props[key].map((dbfId) => this.props.cardData.fromDbf(dbfId));
+			let cards = this.props[key].map((dbfId) => this.props.cardData.fromDbf(dbfId));
+			cards = cards.filter((card) => !!card);
+			return cards;
 		};
 
 		let filteredCards = Array.isArray(this.state.cards) ? this.state.cards : [];
