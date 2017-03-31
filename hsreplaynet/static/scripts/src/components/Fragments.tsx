@@ -151,6 +151,10 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			}
 		}
 
+		if (!value) {
+			return "";
+		}
+
 		return "" + value;
 	}
 
