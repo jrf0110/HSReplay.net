@@ -1,5 +1,5 @@
 import * as React from "react";
-import {capitalize} from "./helpers";
+import {capitalize} from "../helpers";
 
 interface FragmentMap {
 	[key: string]: any;

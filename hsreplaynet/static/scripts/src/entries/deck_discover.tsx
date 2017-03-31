@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import DeckDiscover from "../pages/DeckDiscover";
 import UserData from "../UserData";
-import Fragments from "../Fragments";
+import Fragments from "../components/Fragments";
 
 const container = document.getElementById("deck-discover-container");
 const user = new UserData();

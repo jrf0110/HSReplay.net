@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import {image, cardArt} from "../helpers";
 import MyReplays from "../pages/MyReplays";
 import UserData from "../UserData";
-import Fragments from "../Fragments";
+import Fragments from "../components/Fragments";
 
 const user = new UserData();
 let username = user.getUsername();

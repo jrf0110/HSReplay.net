@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import CardDetail from "../pages/CardDetail";
 import UserData from "../UserData";
-import Fragments from "../Fragments";
+import Fragments from "../components/Fragments";
 
 const cardId = document.getElementById("card-info").getAttribute("data-card-id");
 const dbfId = +document.getElementById("card-info").getAttribute("data-dbf-id");
