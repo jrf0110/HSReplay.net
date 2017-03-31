@@ -48,10 +48,17 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			const callback = (value: any) => this.onChange(key, value);
 			const callbackKey = "set" + suffix;
 			// assign the props
-			props[key] = typeof this.state.intermediate[key] !== "undefined" ? this.state.intermediate[key] : values[key];
+			props[key] = this.cast(
+				key,
+				typeof this.state.intermediate[key] !== "undefined"
+					? this.state.intermediate[key]
+					: values[key],
+			);
 			props[callbackKey] = callback;
-			props["default" + suffix] = this.props.defaults[key];
-			props["custom" + suffix] = typeof this.state.childProps[key] !== "undefined" ? this.state.childProps[key] : null;
+			props["default" + suffix] = this.cast(key, this.props.defaults[key]);
+			props["custom" + suffix] = typeof this.state.childProps[key] !== "undefined"
+				? this.cast(key, this.state.childProps[key])
+				: null;
 		}
 
 		props = Object.assign({}, props, {
@@ -104,6 +111,18 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			}
 			this.setState({childProps: map, intermediate: {}});
 		}
+	}
+
+	cast(key: string, value: any): any {
+		switch (typeof this.props.defaults[key]) {
+			case "number":
+				value = +value;
+				break;
+			case "string":
+				value = "" + value;
+				break;
+		}
+		return value;
 	}
 
 	isDebounced(key: string): boolean {
