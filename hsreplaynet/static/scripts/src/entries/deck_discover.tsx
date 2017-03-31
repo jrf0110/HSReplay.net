@@ -20,8 +20,6 @@ const render = (cardData: CardData) => {
 				playerClass: "ALL",
 				rankRange: "ALL",
 				region: "ALL",
-				sortBy: "popularity",
-				sortDirection: "descending",
 				timeRange: "LAST_30_DAYS",
 			}}
 			immutable={!user.isPremium() ? ["timeRange", "opponentClass", "rankRange"] : null}

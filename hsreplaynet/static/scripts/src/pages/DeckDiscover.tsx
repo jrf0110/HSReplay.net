@@ -13,6 +13,7 @@ import {cardSorting, getDustCost, wildSets} from "../helpers";
 import {DeckObj, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
+import Fragments from "../components/Fragments";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -43,10 +44,6 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setRankRange?: (rankRange: string) => void;
 	region?: string;
 	setRegion?: (region: string) => void;
-	sortBy?: string;
-	setSortBy?: (sortBy: string) => void;
-	sortDirection?: "ascending" | "descending";
-	setSortDirection?: (sortDirection: string) => void;
 	timeRange?: string;
 	setTimeRange?: (timeRange: string) => void;
 }
@@ -78,9 +75,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.props.rankRange !== prevProps.rankRange ||
 			this.props.region !== prevProps.region ||
 			this.props.timeRange !== prevProps.timeRange ||
-			this.props.cardData !== prevProps.cardData ||
-			this.props.sortBy !== prevProps.sortBy ||
-			this.props.sortDirection !== prevProps.sortDirection
+			this.props.cardData !== prevProps.cardData
 		) {
 			this.updateFilteredDecks();
 		}
@@ -121,15 +116,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const containsExcludedCards = (deckList: any[]) => {
 			return excludedCards.some((card) => deckList.some((cardObj) => cardObj.card.id === card.id));
 		};
-		const manaCost = (deckList: any[]) => deckList.reduce((a, b) => a + b.card.cost * b.count, 0);
-		const dustCost = (deckList: any[]) => deckList.reduce((a, b) => a + getDustCost(b.card) * b.count, 0);
 		const cardList = (cards) => cards.map((c: any[]) => {
 			return {card: this.props.cardData.fromDbf(c[0]), count: c[1]};
 		});
 		const pushDeck = (deck: any, cards: any[]) => {
 			deck.cards = cards;
-			deck.dust_cost = dustCost(cards);
-			deck.mana_cost = manaCost(cards);
 			deckElements.push(deck);
 		};
 		if (this.props.personal && this.props.user.hasFeature("profiles")) {
@@ -197,29 +188,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const selectedOpponent = this.props.opponentClass;
 		const winrateField = selectedOpponent === "ALL" ? "win_rate" : "win_rate_vs_" + selectedOpponent;
 		const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
-		let sortProp = this.props.sortBy;
-		switch (sortProp) {
-			case "winrate":
-				sortProp = winrateField;
-				break;
-			case "popularity":
-				sortProp = numGamesField;
-				break;
-			case "duration":
-				sortProp = "avg_game_length_seconds";
-				break;
-		}
 		this.getDeckElements().then(((deckElements) => {
 			const decks: DeckObj[] = [];
-			const direction = this.props.sortDirection === "descending" ? 1 : -1;
-			deckElements.sort((a, b) => {
-				const x = +a[sortProp];
-				const y = +b[sortProp];
-				if (x !== y) {
-					return (b[sortProp] - a[sortProp]) * direction;
-				}
-				return a["deck_id"].localeCompare(b["deck_id"]) * direction;
-			});
 			deckElements.forEach((deck) => {
 				decks.push({
 					cards: deck.cards,
@@ -270,22 +240,18 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 		else {
 			content = (
-				<DeckList
-					decks={this.state.filteredDecks}
-					onHeaderClicked={(name: string) => {
-						if (this.props.sortBy === name) {
-							this.props.setSortDirection(this.props.sortDirection === "ascending" ? "descending" : "ascending");
-						}
-						else {
-							this.props.setSortDirection("descending");
-							this.props.setSortBy(name);
-						}
+				<Fragments
+					defaults={{
+						sortBy: "popularity",
+						sortDirection: "descending",
 					}}
-					pageSize={12}
-					sortCol={this.props.sortBy}
-					sortDirection={this.props.sortDirection}
-					urlGameType={this.props.customGameType}
-				/>
+				>
+					<DeckList
+						decks={this.state.filteredDecks}
+						pageSize={12}
+						urlGameType={this.props.customGameType}
+					/>
+				</Fragments>
 			);
 		}
 

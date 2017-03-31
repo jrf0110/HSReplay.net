@@ -6,6 +6,7 @@ import {CardObj, DeckObj} from "../interfaces";
 import {cardSorting, getDustCost, getHeroCardId, toPrettyNumber, toTitleCase} from "../helpers";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
+	dustCost?: number;
 	compareWith?: CardObj[];
 	urlGameType: string;
 }
@@ -15,7 +16,6 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 	render(): JSX.Element {
 		const cards = this.props.cards || [];
 		const cardIcons = [];
-		let dustCost = 0;
 
 		if (this.props.compareWith) {
 			const removed = this.props.compareWith.filter((c1) => cards.every((c2) => c2.card.id !== c1.card.id));
@@ -26,8 +26,6 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 		cards.forEach((obj, index: number) => {
 			const card = obj.card;
-			dustCost += getDustCost(card) * obj.count;
-
 			let markText = obj.count ? (card.rarity === "LEGENDARY" ? "★" : obj.count > 1 && "x" + obj.count) : null;
 			const markStyle = {
 				color: "#f4d442",
@@ -74,6 +72,8 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			backgroundImage: "url(/static/images/64x/class-icons/" + this.props.playerClass.toLowerCase() + ".png",
 		};
 
+		const dustCost = typeof this.props.dustCost === "number" ? this.props.dustCost : null;
+
 		const dustCostStyle = {
 			backgroundImage: "url(/static/images/dust.png",
 		};
@@ -89,7 +89,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 					<div>
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							<span className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.playerClass)}</span>
-							<span className="dust-cost" style={dustCostStyle}>{dustCost}</span>
+							{dustCost !== null ? <span className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span> : null}
 						</div>
 						<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3">
 							<span className="win-rate">{(+this.props.winrate).toFixed(1)}%</span>
