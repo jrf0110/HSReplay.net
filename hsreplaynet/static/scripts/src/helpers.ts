@@ -574,6 +574,11 @@ export function getDustCost(card: CardMeta | CardMeta[]): number {
 		return 0;
 	}
 
+	const cardCountProxy = card as any;
+	if (cardCountProxy.count) {
+		return getDustCost(cardCountProxy.card) * cardCountProxy.count;
+	}
+
 	if (Array.isArray(card)) {
 		return card.reduce((cost, card) => cost + getDustCost(card), 0);
 	}
