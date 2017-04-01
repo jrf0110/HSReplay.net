@@ -6,7 +6,7 @@ interface PremiumWrapperProps extends React.ClassAttributes<PremiumWrapper> {
 	isPremium?: boolean;
 	iconStyle?: any;
 	infoHeader?: string;
-	infoContent?: string;
+	infoContent?: string | JSX.Element;
 }
 
 interface PremiumWrapperState {
