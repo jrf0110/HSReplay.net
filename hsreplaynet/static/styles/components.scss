@@ -120,11 +120,13 @@
 
 .deck-list {
 
-	.paging {
-		padding-bottom: 10px;
+	.pagination {
+		margin: 20px 0 0 0;
+	}
 
-		>span {
-			padding-right: 5px;
+	.paging-top {
+		.pagination {
+			margin: 0;
 		}
 	}
 
@@ -438,4 +440,85 @@
 	text-align: center;
 	top: 0;
 	width: 100%;
+}
+
+.pagination {
+	> li {
+		&.active > a {
+			&, &:focus, &:hover {
+				color: white;
+				background-color: $blue;
+				border-color: $blue;
+			}
+		}
+
+		> a, > span {
+			margin-left: 6px;
+			margin-right: 6px;
+			text-align: center;
+			font-weight: bold;
+
+			&.fixed-width {
+				width: 45px;
+			}
+
+			&.weight-normal {
+				font-weight: normal;
+			}
+
+			.glyphicon {
+
+				&:first-child {
+					margin-right: 5px;
+				}
+
+				&:last-child {
+					margin-left: 5px;
+				}
+			}
+		}
+
+		&:first-child {
+			> a, > span {
+				border-radius: 0;
+				margin-left: 0;
+			}
+		}
+
+		&:last-child {
+			> a, > span {
+				border-radius: 0;
+				margin-right: 0;
+			}
+		}
+
+		> a {
+			color: black;
+
+			&:hover, &:focus {
+				color: black;
+			}
+		}
+
+		> span {
+			background-color: #eee;
+			color: #aaa;
+			cursor: not-allowed;
+
+			&, &:hover {
+				color: #aaa;
+			}
+		}
+
+		> span.transparent-background {
+			color: black;
+			cursor: default;
+
+			&, &:hover {
+				color: black;
+				background-color: transparent;
+				border: none;
+			}
+		}
+	}
 }

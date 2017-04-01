@@ -240,14 +240,6 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			contentClassNames.push("hidden-xs hidden-sm");
 		}
 
-		let next = hasNext && !this.state.working ? () => {
-			this.setState({currentLocalPage: this.state.currentLocalPage + 1});
-		} : null;
-
-		let previous = this.state.currentLocalPage > 0 ? () => {
-			this.setState({currentLocalPage: this.state.currentLocalPage - 1});
-		} : null;
-
 		const backButton = (
 			<button
 				className="btn btn-primary btn-full visible-sm visible-xs"
@@ -256,6 +248,14 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			>
 				Back to replays
 			</button>
+		);
+
+		const pager = (
+			<Pager
+				currentPage={this.state.currentLocalPage + 1}
+				setCurrentPage={(page: number) => this.setState({currentLocalPage: page - 1})}
+				pageCount={Math.ceil(games.length / this.state.pageSize)}
+			/>
 		);
 
 		return (
@@ -358,7 +358,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 							Filters
 						</button>
 						<div className="pull-right">
-							<Pager next={next} previous={previous} />
+							{pager}
 						</div>
 						<div className="clearfix" />
 					</div>
@@ -366,7 +366,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						{content}
 					</div>
 					<div className="pull-right">
-						<Pager next={next} previous={previous} />
+						{pager}
 					</div>
 				</div>
 			</div>
