@@ -1,14 +1,22 @@
 import * as React from "react";
 
+export type TooltipContent = string | JSX.Element;
+
+export interface ClickTouch<T> {
+	click: T;
+	touch: T;
+}
+
 interface TooltipState {
 	hovering?: boolean;
 	clientX?: number;
+	isTouchDevice: boolean;
 }
 
 interface TooltipProps extends React.ClassAttributes<Tooltip> {
 	centered?: boolean;
 	className?: string;
-	content?: string | JSX.Element;
+	content?: TooltipContent | ClickTouch<TooltipContent>;
 	header?: string;
 	simple?: boolean;
 }
@@ -18,6 +26,7 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 		super(props, state);
 		this.state = {
 			hovering: false,
+			isTouchDevice: false,
 		};
 	}
 
@@ -40,11 +49,12 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			const content = [];
 			this.props.header && content.push(<h4>{this.props.header}</h4>);
 			if (this.props.content) {
-				if (typeof this.props.content === "string") {
-					content.push(<p>{this.props.content}</p>);
+				const selectedContent = this.getSelectedContent();
+				if (typeof selectedContent === "string") {
+					content.push(<p>{selectedContent}</p>);
 				}
 				else {
-					content.push(this.props.content);
+					content.push(selectedContent);
 				}
 			}
 			tooltip = <div className={tooltipClassNames.join(" ")}>{content}</div>;
@@ -58,15 +68,31 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			classNames.push("simple-tooltip");
 		}
 
+		const cancel = () => this.setState({hovering: false});
+
 		return (
 			<div
 				className={classNames.join(" ")}
 				onMouseOver={(e) => this.setState({hovering: true, clientX: e.clientX})}
-				onMouseOut={() => this.setState({hovering: false})}
+				onMouseOut={cancel}
+				onTouchStart={() => this.setState({isTouchDevice: true})}
 			>
 				{this.props.children}
 				{tooltip}
 			</div>
 		);
+	}
+
+	protected getSelectedContent(): TooltipContent {
+		if(typeof this.props.content !== "object") {
+			return this.props.content;
+		}
+
+		if(!this.props.content.hasOwnProperty("click") && !this.props.content.hasOwnProperty("touch")) {
+			return this.props.content as TooltipContent;
+		}
+
+		// switch based on type
+		return this.props.content[this.state.isTouchDevice ? "touch" : "click"];
 	}
 }

@@ -1,12 +1,13 @@
 import * as React from "react";
 import InfoIcon from "./InfoIcon";
 import {showModal} from "../Premium";
+import {ClickTouch, TooltipContent} from "./Tooltip";
 
 interface PremiumWrapperProps extends React.ClassAttributes<PremiumWrapper> {
 	isPremium?: boolean;
 	iconStyle?: any;
 	infoHeader?: string;
-	infoContent?: string | JSX.Element;
+	infoContent?: TooltipContent | ClickTouch<TooltipContent>;
 }
 
 interface PremiumWrapperState {
