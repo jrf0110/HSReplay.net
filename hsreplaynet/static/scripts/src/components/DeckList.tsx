@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import DeckTile from "./DeckTile";
 import InfoIcon from "./InfoIcon";
 import Pager from "./Pager";
@@ -33,7 +34,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 	componentWillReceiveProps(nextProps: DeckListProps) {
 		if (
 			this.props.setPage && (
-				nextProps.decks !== this.props.decks ||
+				!_.isEqual(nextProps.decks, this.props.decks) ||
 				nextProps.pageSize !== this.props.pageSize ||
 				nextProps.sortBy !== this.props.sortBy ||
 				nextProps.sortDirection !== this.props.sortDirection
