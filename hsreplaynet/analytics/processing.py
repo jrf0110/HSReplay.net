@@ -22,10 +22,9 @@ from hsreplaynet.utils.influx import influx_metric
 
 
 class CachedRedshiftResult(object):
-	def __init__(self, result_set, params, is_json=False, as_of=None, response_payload=None):
+	def __init__(self, result_set, params, as_of=None, response_payload=None):
 		self.result_set = result_set
 		self.cached_params = params
-		self.is_json = is_json
 		if as_of:
 			self.as_of = time.mktime(as_of.timetuple())
 		else:
@@ -39,7 +38,6 @@ class CachedRedshiftResult(object):
 			"result_set": self.result_set,
 			"response_payload": self.response_payload,
 			"as_of": self.as_of,
-			"is_json": self.is_json,
 			"cached_params": self.cached_params.to_json_cacheable_repr()
 		}
 		return cacheable_repr
@@ -51,8 +49,6 @@ class CachedRedshiftResult(object):
 
 		params = RedshiftQueryParams.from_json_cacheable_repr(r["cached_params"])
 
-		is_json = r.get("is_json", False)
-
 		as_of = r.get("as_of") or None
 		if as_of:
 			as_of = cls.ts_to_datetime(as_of)
@@ -60,7 +56,6 @@ class CachedRedshiftResult(object):
 		return CachedRedshiftResult(
 			result_set,
 			params,
-			is_json,
 			as_of,
 			response_payload
 		)
@@ -96,9 +91,7 @@ class CachedRedshiftResult(object):
 				log.info("Using global query logic")
 				# This block implements generating response_payloads
 				# By using the global cached data.
-				result_set = self.global_cache_data.result_set
-				if self.is_json:
-					result_set = json.loads(result_set)
+				result_set = json.loads(self.global_cache_data.result_set)
 
 				response_payload = self.cached_params._query.to_response_payload(
 					result_set, self.cached_params
@@ -110,9 +103,7 @@ class CachedRedshiftResult(object):
 				# This block does it for non global queries
 				# For non global queries the result_set will be set on this
 				# object, so we can use self.result_set directly
-				result_set = self.result_set
-				if self.is_json:
-					result_set = json.loads(result_set)
+				result_set = json.loads(self.result_set)
 
 				response_payload = self.cached_params._query.to_response_payload(
 					result_set, self.cached_params
@@ -154,9 +145,7 @@ class CachedRedshiftResult(object):
 		return self.response_payload
 
 	def create_from_global_data(self, params):
-		result_set = self.result_set
-		if self.is_json:
-			result_set = json.loads(result_set)
+		result_set = json.loads(self.result_set)
 		response_payload = self.cached_params._query.to_response_payload(
 			result_set, params
 		)
@@ -165,7 +154,6 @@ class CachedRedshiftResult(object):
 		cache_ready_result = CachedRedshiftResult(
 			None,
 			params,
-			is_json=True,
 			as_of=self.as_of_datetime,
 			response_payload=response_payload
 		)
@@ -317,14 +305,12 @@ def _do_execute_query_work(query, params, wlm_queue=None):
 			cache_ready_result = CachedRedshiftResult(
 				None,
 				params,
-				is_json=True,
 				as_of=cached_data_as_of
 			)
 
 			cache_ready_global_result = CachedRedshiftResult(
 				result_set,
 				params,
-				is_json=True,
 				as_of=cached_data_as_of
 			)
 
@@ -338,7 +324,6 @@ def _do_execute_query_work(query, params, wlm_queue=None):
 			cache_ready_result = CachedRedshiftResult(
 				result_set,
 				params,
-				is_json=True,
 				as_of=cached_data_as_of
 			)
 
