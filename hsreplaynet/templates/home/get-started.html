@@ -1,0 +1,38 @@
+<article id="get-started">
+	<div class="container">
+		<h2 class="text-center">Get started</h2>
+		<ul class="row home-steps">
+			<li class="col-md-4">
+				<h3>Step 1</h3>
+				<p>
+					<a href="{% url 'downloads' %}" class="promo-button-outline text-uppercase">
+						Download Deck Tracker
+					</a>
+				</p>
+				<p>The tracker runs while you're in Hearthstone.</p>
+			</li>
+			<li class="col-md-4">
+				<h3>Step 2</h3>
+				<p>
+					<a
+							href="https://battle.net/account/download/?show=hearthstone&style=hearthstone"
+							class="promo-button-outline text-uppercase"
+					>
+						Play Hearthstone
+					</a>
+				</p>
+				<p>Your games will be uploaded as you play them.</p>
+			</li>
+			<li class="col-md-4">
+				<h3>Step 3</h3>
+				{% if user.is_authenticated %}
+					<p><a href="{% url 'my_replays' %}" class="promo-button text-uppercase">View replays</a></p>
+					<p>Share your craziest plays!</p>
+				{% else %}
+					<p>{% include 'login_button.html' %}</p>
+					<p>Sign in to view your games.</p>
+				{% endif %}
+			</li>
+		</ul>
+	</div>
+</article>

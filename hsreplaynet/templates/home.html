@@ -26,8 +26,8 @@
 <div id="joust-lightbox">
 	<div id="joust-promo-container"></div>
 </div>
-<div id="home">
-	<header id="promo" class="promo">
+<div id="home" class="apply-promo">
+	<header id="promo">
 		<div class="container">
 			<img src="{% static 'images/logo.png' %}" id="logo" alt="HSReplay"/>
 			<h1>HSReplay.net</h1>
@@ -53,18 +53,6 @@
 		</div>
 	</header>
 
-	<nav class="navbar navbar-default">
-		<div class="container">
-			<nav class="collapse navbar-collapse" id="navbar-collapse">
-				<ul class="nav navbar-nav">
-					<li><a href="#features">Features</a></li>
-					<li><a href="#how-it-works">How it works</a></li>
-					<li><a href="#faq">FAQ</a></li>
-				</ul>
-			</nav>
-		</div>
-	</nav>
-
 	<article id="demo">
 		<div class="container">
 			<div class="row">
@@ -84,30 +72,70 @@
 		</div>
 	</article>
 
-	<article id="features" class="promo">
+	<article id="features">
 		<div class="container">
 			<div class="row">
-				<div class="col-md-8 col-md-offset-2 col-xs-12 col-xs-offset-0">
+				<div class="col-lg-6">
 					<figure class="front-feature">
-						<img src="{% static 'images/front-feat-history.jpg' %}" alt="Match history" height="120" width="190"/>
+						<img src="{% static 'images/home-promotional/feature-history.jpg' %}" alt="Monthly statistics" height="120" width="120"/>
+						<figcaption>
+							<h2>Track your games</h2>
+							<p>A clear game history, filterable by game type, class, opponent and more.</p>
+							<p>Follow your climb to legend with wins and losses visible at one glance.</p>
+						</figcaption>
+						<div class="clearfix"></div>
+					</figure>
+
+					<figure class="front-feature">
+						<img src="{% static 'images/home-promotional/feature-crazy.png' %}" alt="Match history" height="120" width="120"/>
 						<figcaption>
 							<h2>Share your craziest moments</h2>
-							<p>
-								Your games are live on the site as soon as they finish.
-								Find your best play and easily link it to all your friends.
-							</p>
+							<p>Never miss another clutch top deck or epic fatigue battle.</p>
+							<p>Share replays instantly once you've finished the game!</p>
 						</figcaption>
 						<div class="clearfix"></div>
 					</figure>
 
-					<figure class="front-feature flip">
-						<img src="{% static 'images/front-feat-stats.jpg' %}" alt="Monthly statistics" height="120" width="190"/>
+					<figure class="front-feature">
+						<img src="{% static 'images/home-promotional/feature-crazy.png' %}" alt="Match history" height="120" width="120"/>
 						<figcaption>
-							<h2>Analyze your gameplay</h2>
+							<h2>Review your games</h2>
+							<p>Enter your opponent's perspective by swapping sides at any time.</p>
+						</figcaption>
+						<div class="clearfix"></div>
+					</figure>
+				</div>
+				<div class="col-lg-6">
+					<figure class="front-feature">
+						<img src="{% static 'images/home-promotional/feature-stats.jpg' %}" alt="Monthly statistics" height="120" width="120"/>
+						<figcaption>
+							<h2>Dive into the meta</h2>
+							<p>See what's played</p>
+							<p>Import any deck into Hearthstone Deck Tracker with one click.</p>
 							<p>
-								A clear game history, filterable per season, game type and more.
-								Follow your progress to legend with wins and losses visible at a glance.
+								<a href="{% url 'deck_list' %}" class="btn btn-danger">Decks</a>
+								<a href="{% url 'deck_list' %}" class="btn btn-danger">Cards</a>
 							</p>
+						</figcaption>
+						<div class="clearfix"></div>
+					</figure>
+
+					<figure class="front-feature">
+						<img src="{% static 'images/home-promotional/feature-history.jpg' %}" alt="Monthly statistics" height="120" width="120"/>
+						<figcaption>
+							<h2>See what's trending</h2>
+							<p>
+
+							</p>
+						</figcaption>
+						<div class="clearfix"></div>
+					</figure>
+
+					<figure class="front-feature">
+						<img src="{% static 'images/home-promotional/feature-crazy.png' %}" alt="Match history" height="120" width="120"/>
+						<figcaption>
+							<h2>Personal Statistics</h2>
+							<p>Enter your opponent's perspective by swapping sides at any time.</p>
 						</figcaption>
 						<div class="clearfix"></div>
 					</figure>
@@ -116,63 +144,8 @@
 		</div>
 	</article>
 
-	<article id="how-it-works">
-		<div class="container">
-			<h2 class="text-center">How it works</h2>
-			<ul class="row home-steps">
-				<li class="col-sm-6">
-					<h3>Step 1:</h3>
-					<p><a href="{% url 'downloads' %}" class="promo-button-outline text-uppercase">Download Deck Tracker</a></p>
-					<p>Hearthstone Deck Tracker runs while you're in Hearthstone.<br />
-					It will automatically upload your matches as you play them.</p>
-				</li>
-				<li class="col-sm-6">
-					<h3>Step 2:</h3>
-					<p><a href="https://battle.net/account/download/?show=hearthstone&style=hearthstone" class="promo-button-outline text-uppercase">Play Hearthstone</a></p>
-					<p>Your full match history will always stay private.<br />
-					Share individual games with your friends and show off your craziest plays!</p>
-				</li>
-			</ul>
-		</div>
-	</article>
+	{% include "home/get-started.html" %}
 
-	<article class="text-center promo">
-		{% if user.is_authenticated %}
-			<h2>You're all set!</h2>
-			<p class="front-pad"><a href="{% url 'my_replays' %}" class="promo-button hero-button">View your replays</a></p>
-		{% else %}
-			<h2>Let's get started:</h2>
-			<div class="front-pad">{% include 'login_button.html' %}</div>
-		{% endif %}
-	</article>
-
-	<article id="faq">
-		<div class="container">
-			<h2>Frequently Asked Questions</h2>
-			<div class="row">
-				<div class="col-lg-6 col-xs-12">
-					<dl>
-						<dt>How do I sign in?</dt>
-						<dd>Click on the "Log in with Battle.net" button and we'll send you to Battle.net. HSReplay.net does not have access to your password.</dd>
-						<dt>Do I need to sign in?</dt>
-						<dd>Not at all! Just <a href="{% url 'downloads' %}">download Hearthstone Deck Tracker</a> and use it to upload and share your replays. You can then connect your replays to your Battle.net account at any time.</dd>
-						<dt>How do I share a replay?</dt>
-						<dd>Simply send the link to your friends. You can also use the "Share" dialog on the replay page, where you can even set the specific turn to link to.</dd>
-					</dl>
-				</div>
-				<div class="col-lg-6 col-xs-12">
-					{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
-					<dl>
-						<dt>How do you know which cards the opponent was holding in his hand?</dt>
-						<dd>Once a card is played from hand we can deduce when that card was drawn, discovered or created in any other way.</dd>
-						<dt>Where can I get the latest news about HSReplay.net?</dt>
-						<dd>Follow us <a href="https://twitter.com/{{ twitter_handle }}">@{{ twitter_handle }}</a> and subscribe to <a href="https://www.reddit.com/r/hsreplay">/r/hsreplay</a>.</dd>
-						<dt>Can you show me statistics about my winrates/decks/matchups…</dt>
-						<dd>Stay tuned!</dd>
-					</dl>
-				</div>
-			</div>
-		</div>
-	</article>
+	{% include "home/faq.html" %}
 </div>
 {% endblock %}
