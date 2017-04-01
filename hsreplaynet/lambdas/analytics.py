@@ -4,9 +4,9 @@ import time
 from threading import Thread
 from django.conf import settings
 from redis_semaphore import NotAvailable
-from hsredshift.analytics import queries
 from hsreplaynet.analytics.processing import (
-	_do_execute_query, get_concurrent_redshift_query_queue_semaphore
+	_do_execute_query, get_concurrent_redshift_query_queue_semaphore,
+	get_redshift_catalogue
 )
 from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import SQS
@@ -18,7 +18,7 @@ from hsreplaynet.utils.synchronization import CountDownLatch
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	memory=1536,
+	memory=512,
 )
 def execute_redshift_query(event, context):
 	"""A handler that executes Redshift queries for the webserver"""
@@ -31,7 +31,7 @@ def execute_redshift_query(event, context):
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	memory=1536,
+	memory=512,
 )
 def drain_redshift_query_queue(event, context):
 	"""A cron'd handler that attempts to drain any queued query requests in SQS."""
@@ -132,13 +132,13 @@ def do_execute_redshift_query(query_name, supplied_params, queue_name):
 	logger.info("Query Name: %s" % query_name)
 	logger.info("Query Params: %s" % supplied_params)
 
-	query = queries.get_query(query_name)
-	params = query.build_full_params(supplied_params)
+	query = get_redshift_catalogue().get_query(query_name)
+	parameterized_query = query.build_full_params(supplied_params)
 
 	try:
 		wlm_queue = settings.REDSHIFT_QUERY_QUEUES[queue_name]["wlm_queue"]
 		with get_concurrent_redshift_query_queue_semaphore(queue_name):
-			_do_execute_query(query, params, wlm_queue)
+			_do_execute_query(parameterized_query, wlm_queue)
 			logger.info("Query Execution Complete")
 			return True
 	except NotAvailable:
@@ -147,11 +147,11 @@ def do_execute_redshift_query(query_name, supplied_params, queue_name):
 		metric_fields = {
 			"count": 1
 		}
-		metric_fields.update(params.supplied_non_filters_dict)
+		metric_fields.update(parameterized_query.supplied_non_filters_dict)
 		influx_metric(
 			"redshift_query_lambda_execution_concurrency_exceeded",
 			metric_fields,
 			query_name=query_name,
-			**params.supplied_filters_dict
+			**parameterized_query.supplied_filters_dict
 		)
 		return False

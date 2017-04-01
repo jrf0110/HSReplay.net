@@ -126,24 +126,3 @@ def get_current_lambda_average_duration_millis(lambda_name, lookback_hours=1):
 	full_query = raw_query % (metric_name, lookback_hours)
 	result = influx.query(full_query).raw
 	return round(result["series"][0]["values"][0][1])
-
-
-def get_redshift_query_average_duration_seconds(query_name, lookback_hours=1):
-	try:
-		raw_query = """
-			select mean(value) from redshift_query_duration
-			where exception_thrown = 'False'
-			and "query" = '%s'
-			and time > now() - %sh
-		"""
-		full_query = raw_query % (query_name, lookback_hours)
-
-		result = influx.query(full_query).raw
-		if "series" in result:
-			return round(result["series"][0]["values"][0][1], 2)
-		else:
-			# This could fail if the series doesn't exist yet, e.g. the first time the query is run
-			return None
-	except:
-		# Don't let Influx being down ever bring down analytics serving
-		return None
