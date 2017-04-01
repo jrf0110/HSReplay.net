@@ -22,11 +22,19 @@
 			{% with request.resolver_match.url_name as urlname %}
 				{% block navlinks %}
 					<ul class="nav navbar-nav">
+						<li{% nav_active 'articles_article_list' %}>
+							<a href="{% url 'articles_article_list' %}"><span class="glyphicon glyphicon-comment"></span>Articles</a>
+						</li>
+
 						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
 							<li{% nav_active 'trending_decks' %}><a href="{% url 'trending_decks' %}"><span class="glyphicon glyphicon-fire"></span>Trending</a></li>
 							<li{% nav_active 'deck_list' %}><a href="{% url 'deck_list' %}"><span class="glyphicon glyphicon-th-list"></span>Decks</a></li>
 							<li{% nav_active 'card_stats' %}><a href="{% url 'card_stats' %}"><span class="glyphicon glyphicon-stats"></span>Cards</a></li>
 							<li{% nav_active 'card_gallery' %}><a href="{% url 'card_gallery' %}"><span class="glyphicon glyphicon-th-large"></span>Gallery</a></li>
+						{% endif %}
+
+						{% if ft_carddb.enabled %}
+							<li{% nav_active 'premium' css='active active-premium' %}><a href="{% url 'premium' %}" class="text-premium">Premium</a></li>
 						{% endif %}
 
 						{% feature "archetypes" as ft_archetypes %}{% if ft_archetypes.enabled %}
@@ -35,12 +43,6 @@
 
 						{% feature "scenarios" as ft_scenarios %}{% if ft_scenarios.enabled %}
 							<li{% nav_active 'scenario_list_view' %}><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
-						{% endif %}
-
-						<li{% nav_active 'articles_article_list' %}><a href="{% url 'articles_article_list' %}"><span class="glyphicon glyphicons-article"></span>Articles</a></li>
-
-						{% if ft_carddb.enabled %}
-							<li{% nav_active 'premium' css='active active-premium' %}><a href="{% url 'premium' %}" class="text-premium">Premium</a></li>
 						{% endif %}
 					</ul>
 				{% endblock %}
