@@ -13,7 +13,7 @@ interface ClassFilterProps extends React.ClassAttributes<ClassFilter> {
 	filters: FilterOption[] | FilterPreset;
 	hideAll?: boolean;
 	minimal?: boolean;
-	multiSelect: boolean;
+	multiSelect?: boolean;
 	selectedClasses: FilterOption[];
 	selectionChanged: (selected: FilterOption[]) => void;
 }
@@ -56,7 +56,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 	}
 
 	buildIcon(className: FilterOption, selected: boolean): JSX.Element {
-		const isSelected = selected || this.props.selectedClasses.indexOf("ALL") !== -1;
+		const isSelected = selected || this.props.selectedClasses.indexOf("ALL") !== -1 || !this.props.selectedClasses.length;
 		const wrapperClassNames = ["class-icon-label-wrapper"];
 		if (this.props.disabled || !isSelected) {
 			wrapperClassNames.push("deselected");
@@ -66,7 +66,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		}
 		let label = null;
 		if (!this.props.minimal) {
-			const labelClassNames = ["class-label hidden-xs "];
+			const labelClassNames = ["class-label", "hidden-xs"];
 			if (this.props.disabled || !isSelected) {
 				labelClassNames.push("deselected");
 			}
@@ -77,30 +77,40 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		}
 
 		return (
-			<span className={wrapperClassNames.join(" ")} onClick={() => this.onLabelClick(className, selected)}>
+			<span className={wrapperClassNames.join(" ")} onClick={(e) => {
+				const add = e.ctrlKey || e.metaKey || e.button != 0;
+				this.onLabelClick(className, selected, add);
+			}}>
 				<ClassIcon heroClassName={className} small tooltip/>
 				{label}
 			</span>
 		);
 	}
 
-	onLabelClick(className: FilterOption, selected: boolean) {
+	onLabelClick(className: FilterOption, selected: boolean, modifier?: boolean) {
 		if (this.props.disabled) {
 			return;
 		}
-		let newSelected = this.props.selectedClasses;
+		let newSelected = this.props.selectedClasses.slice(0);
 
 		const clickedLastSelected = newSelected.length === 1 && newSelected[0] === className;
 
 		if (this.props.multiSelect) {
-			if (clickedLastSelected) {
-				newSelected = this.getAvailableFilters();
-			}
-			else if (selected) {
-				newSelected = newSelected.filter((x) => x !== className);
+			if (modifier) {
+				if (selected) {
+					newSelected = newSelected.filter((x) => x !== className);
+				}
+				else {
+					newSelected.push(className);
+				}
 			}
 			else {
-				newSelected.push(className);
+				if (clickedLastSelected) {
+					newSelected = [];
+				}
+				else {
+					newSelected = [className];
+				}
 			}
 		}
 		else {

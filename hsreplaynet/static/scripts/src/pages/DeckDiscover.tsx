@@ -337,7 +337,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							filters="All"
 							hideAll
 							minimal
-							multiSelect={false}
 							selectedClasses={[this.props.playerClass as FilterOption]}
 							selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
 						/>
@@ -353,7 +352,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								filters="All"
 								hideAll
 								minimal
-								multiSelect={false}
 								selectedClasses={[this.props.opponentClass]}
 								selectionChanged={(selected) => this.props.setOpponentClass(selected[0])}
 							/>

@@ -141,7 +141,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						filters="All"
 						hideAll
 						minimal
-						multiSelect={false}
 						selectedClasses={this.state.selectedClasses}
 						selectionChanged={(selected) => this.props.user.isPremium() && this.setState({selectedClasses: selected})}
 					/>

@@ -556,7 +556,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					filters="AllNeutral"
 					hideAll
 					minimal
-					multiSelect={false}
 					selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
 					selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 				/>,
@@ -569,7 +568,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					filters="All"
 					hideAll
 					minimal
-					multiSelect={false}
 					selectedClasses={[this.state.queryMap["playerClass"] as FilterOption]}
 					selectionChanged={(selected) => setQueryMap(this, "playerClass", selected[0])}
 				/>,

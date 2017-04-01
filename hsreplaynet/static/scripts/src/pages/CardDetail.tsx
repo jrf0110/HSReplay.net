@@ -242,7 +242,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									filters="All"
 									hideAll
 									minimal
-									multiSelect={false}
 									selectedClasses={[this.props.opponentClass as FilterOption]}
 									selectionChanged={(selected) => this.props.premium && this.props.setOpponentClass(selected[0])}
 								/>

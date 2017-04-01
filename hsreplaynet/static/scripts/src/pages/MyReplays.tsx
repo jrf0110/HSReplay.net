@@ -285,7 +285,6 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						filters="All"
 						hideAll
 						minimal
-						multiSelect={false}
 						selectedClasses={[(this.props.hero).toUpperCase() as FilterOption]}
 						selectionChanged={(selection) => {
 							const selected = selection.find((x) => x !== "ALL") || null;
@@ -300,7 +299,6 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 						filters="All"
 						hideAll
 						minimal
-						multiSelect={false}
 						selectedClasses={[(this.props.opponent).toUpperCase() as FilterOption]}
 						selectionChanged={(selection) => {
 							const selected = selection.find((x) => x !== "ALL") || null;
