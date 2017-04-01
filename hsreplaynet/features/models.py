@@ -130,11 +130,14 @@ class FeatureInvite(models.Model):
 	subscribe_to = models.ForeignKey(
 		"djstripe.Plan", null=True, blank=True, help_text="Auto subscribe to this Stripe Plan"
 	)
+	coupon = models.CharField(max_length=500, blank=True, help_text="Redeem a Stripe Coupon")
 
 	created = models.DateTimeField(auto_now_add=True)
 	modified = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
+		if self.coupon:
+			return "Coupon for %r" % (self.coupon)
 		features = self.features.all()
 		return "Invitation to %s" % (", ".join(str(f) for f in features))
 
@@ -156,10 +159,10 @@ class FeatureInvite(models.Model):
 			self.delete()
 			raise FeatureError("Invitation is no longer valid.")
 
-		redeemed = False
+		redeemed = 0
 		for feature in self.features.all():
 			if feature.add_user_to_authorized_group(user):
-				redeemed = True
+				redeemed += 1
 
 		if self.subscribe_to:
 			customer = user.stripe_customer
@@ -167,7 +170,12 @@ class FeatureInvite(models.Model):
 			if not customer.valid_subscriptions.filter(plan=self.subscribe_to):
 				# XXX: Not try-catching the following block
 				customer.subscribe(self.subscribe_to.stripe_id)
-				redeemed = True
+				redeemed += 1
+
+		if self.coupon:
+			r = self.redeem_coupon(user)
+			if r:
+				redeemed += 1
 
 		if redeemed:
 			# The invite is only considered redeemed if it had any effect
@@ -176,6 +184,28 @@ class FeatureInvite(models.Model):
 
 		if not self.is_valid:
 			self.delete()
+
+	def redeem_coupon(self, user):
+		from djstripe.models import Coupon
+
+		if not self.coupon:
+			return False
+
+		try:
+			coupon = Coupon.objects.get(stripe_id=self.coupon)
+		except Coupon.DoesNotExist:
+			return False
+
+		customer = user.stripe_customer
+		if customer.coupon == coupon:
+			return False
+
+		try:
+			customer.add_coupon(coupon)
+		except Exception:
+			return False
+
+		return True
 
 
 @receiver(models.signals.post_save, sender=Feature)

@@ -10,6 +10,8 @@ class FeatureAdmin(admin.ModelAdmin):
 
 @admin.register(FeatureInvite)
 class FeatureInviteAdmin(admin.ModelAdmin):
-	list_display = ("__str__", "uuid", "use_count", "max_uses", "expires", "created")
+	list_display = (
+		"__str__", "uuid", "use_count", "use_count", "max_uses", "expires", "created"
+	)
 	list_filter = ("features", )
 	readonly_fields = ("use_count", )
