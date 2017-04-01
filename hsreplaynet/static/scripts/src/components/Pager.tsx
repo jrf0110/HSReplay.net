@@ -15,7 +15,7 @@ interface PagerProps extends React.ClassAttributes<Pager> {
 export default class Pager extends React.Component<PagerProps, void> {
 
 	render(): JSX.Element {
-		if (this.props.pageCount <= 1) {
+		if (typeof this.props.pageCount === "number" && this.props.pageCount <= 1) {
 			return null;
 		}
 
@@ -41,12 +41,12 @@ export default class Pager extends React.Component<PagerProps, void> {
 			this.props.setCurrentPage(pageNumber);
 		};
 
-		const previous = +safeCurrentPage - 1;
-		const next = +safeCurrentPage + 1;
+		const previous = safeCurrentPage - 1;
+		const next = safeCurrentPage + 1;
 
 		const action = (targetPage: number, children: any, additionalProps?: any) => {
 			const min = 1;
-			const max = this.props.pageCount;
+			const max = this.props.pageCount || null;
 
 			let type = "span";
 
@@ -54,7 +54,7 @@ export default class Pager extends React.Component<PagerProps, void> {
 				className: "weight-normal",
 			}, additionalProps);
 
-			if (targetPage >= min && targetPage <= max) {
+			if (targetPage >= min && (max === null || targetPage <= max)) {
 				type = "a";
 				props["href"] = "#page=" + targetPage;
 				props["onClick"] = makeOnClick(targetPage);
@@ -102,9 +102,11 @@ export default class Pager extends React.Component<PagerProps, void> {
 						</li>
 					);
 				})}
-				{<li className="hidden-lg">
-					<span className="transparent-background weight-normal">{safeCurrentPage + " / " + this.props.pageCount}</span>
-				</li>}
+				{typeof this.props.pageCount === "number" && this.props.pageCount ? <li className="hidden-lg">
+					<span className="transparent-background weight-normal">
+						{safeCurrentPage + " / " + this.props.pageCount}
+					</span>
+				</li> : null}
 				{
 					action(next, [
 						<span className="hidden-lg">Next</span>,
@@ -116,17 +118,25 @@ export default class Pager extends React.Component<PagerProps, void> {
 	}
 
 	protected getCurrentPage(): number {
-		const currentPage = +this.props.currentPage;
+		let currentPage = +this.props.currentPage;
 		if (isNaN(currentPage)) {
 			return 1;
 		}
-		return Math.min(Math.max(currentPage, 1), this.props.pageCount);
+		currentPage = Math.max(currentPage, 1);
+		if (isNaN(+this.props.pageCount) || !this.props.pageCount) {
+			return currentPage;
+		}
+		return Math.min(currentPage, this.props.pageCount);
 	}
 
 	protected getPagesToShow(): number[] {
 		const min = 1;
-		const max = this.props.pageCount;
+		const max = this.props.pageCount || null;
 		const range = 2;
+
+		if (max === null) {
+			return [];
+		}
 
 		let pivot = Math.min(
 			Math.max(this.getCurrentPage(), min + 2 * range + 1),
