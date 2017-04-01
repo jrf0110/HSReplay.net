@@ -5,7 +5,6 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.cache import caches
-from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 from hearthstone.enums import BnetGameType
 from redis_lock import Lock as RedisLock
@@ -270,7 +269,6 @@ def _do_execute_query_work(query, params, wlm_queue=None):
 			result_set = query.as_result_set().execute(
 				redshift_connection, params, wlm_queue,
 			)
-			result_set = json.dumps(result_set, cls=DjangoJSONEncoder)
 		except Exception as e:
 			exception_raised = True
 			exception_msg = str(e)
