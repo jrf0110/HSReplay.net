@@ -91,7 +91,7 @@
 					{{ user.username }}
 					</a>
 					</li>
-					{% else %}
+					{% elif not hide_login %}
 						<li class="button-container">
 							{% include "login_button.html" with class="promo-button" next=request.get_full_path %}
 						</li>

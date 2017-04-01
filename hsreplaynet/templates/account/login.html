@@ -2,8 +2,12 @@
 
 {% load i18n %}
 {% load account socialaccount %}
-{% block content %}
 
+{% block header %}
+{% include "navigation.html" with hide_login=True %}
+{% endblock %}
+
+{% block content %}
 <div class="account-login login-bnet">
 	{% if oauth2_client %}
 	<div class="account-login-oauth2-client">
