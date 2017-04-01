@@ -68,7 +68,7 @@ export default class Pager extends React.Component<PagerProps, void> {
 				{
 					action(previous, [
 						<span className="glyphicon glyphicon-arrow-left"></span>,
-						<span className="hidden-lg">Previous</span>,
+						<span className="hidden-lg space-left">Previous</span>,
 					], {title: "Previous page"})
 				}
 				{pages.map((page: Page) => {
@@ -78,7 +78,7 @@ export default class Pager extends React.Component<PagerProps, void> {
 					const pageNumber = page.number;
 
 					if (page.skip) {
-						content = <span className="transparent-background fixed-width weight-normal">…</span>;
+						content = <span className="transparent-background fixed-width">…</span>;
 					}
 					else {
 						content = (
@@ -103,13 +103,13 @@ export default class Pager extends React.Component<PagerProps, void> {
 					);
 				})}
 				{typeof this.props.pageCount === "number" && this.props.pageCount ? <li className="hidden-lg">
-					<span className="transparent-background weight-normal">
+					<span className="transparent-background">
 						{safeCurrentPage + " / " + this.props.pageCount}
 					</span>
 				</li> : null}
 				{
 					action(next, [
-						<span className="hidden-lg">Next</span>,
+						<span className="hidden-lg space-right">Next</span>,
 						<span className="glyphicon glyphicon-arrow-right"></span>,
 					], {title: "Next page"})
 				}

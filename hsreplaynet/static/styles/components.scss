@@ -447,8 +447,8 @@
 		&.active > a {
 			&, &:focus, &:hover {
 				color: white;
-				background-color: $blue;
-				border-color: $blue;
+				background-color: $lighterblue;
+				border-color: $lighterblue;
 			}
 		}
 
@@ -456,25 +456,20 @@
 			margin-left: 6px;
 			margin-right: 6px;
 			text-align: center;
-			font-weight: bold;
+			background-color: #f9f9f9;
 
 			&.fixed-width {
 				width: 45px;
+				padding-left: 0;
+				padding-right: 0;
 			}
 
-			&.weight-normal {
-				font-weight: normal;
+			.space-right {
+				margin-right: 5px;
 			}
 
-			.glyphicon {
-
-				&:first-child {
-					margin-right: 5px;
-				}
-
-				&:last-child {
-					margin-left: 5px;
-				}
+			.space-left {
+				margin-left: 5px;
 			}
 		}
 
@@ -494,9 +489,12 @@
 
 		> a {
 			color: black;
+			border-color: black;
 
 			&:hover, &:focus {
-				color: black;
+				color: white;
+				border-color: $lightblue;
+				background-color: $lightblue;
 			}
 		}
 
