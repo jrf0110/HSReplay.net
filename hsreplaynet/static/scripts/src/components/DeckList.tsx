@@ -20,6 +20,7 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	setSortDirection?: (sortDirection: SortDirection) => void;
 	page?: number;
 	setPage?: (page: number) => void;
+	helpMessage?: string;
 }
 
 export default class DeckList extends React.Component<DeckListProps, void> {
@@ -171,6 +172,12 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 
 		return (
 			<div className="deck-list">
+				{this.props.helpMessage ? (
+					<p className="help-block pull-left">
+						<span className="visible-sm-inline">&nbsp;</span>
+						{this.props.helpMessage}
+					</p>
+				) : null}
 				{!this.props.hideTopPager && pager(true)}
 				<div className="clearfix" />
 				<div className="row header-row">

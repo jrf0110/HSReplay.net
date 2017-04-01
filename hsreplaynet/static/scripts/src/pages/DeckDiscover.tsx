@@ -251,6 +251,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						decks={this.state.filteredDecks}
 						pageSize={12}
 						urlGameType={this.props.customGameType}
+						helpMessage="Decks require at least 1000 recorded games in the selected time frame to be listed."
 					/>
 				</Fragments>
 			);
@@ -435,9 +436,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					{backButton}
 				</div>
 				<div className={contentClassNames.join(" ")}>
-					<span className="pull-left col-xs-12 col-sm-12 col-md-6 col-lg-8" id="min-games-message">
-						Decks require at least 1000 recorded games in the selected time frame to be listed.
-					</span>
 					<button
 						className="btn btn-default pull-left visible-xs visible-sm"
 						type="button"
