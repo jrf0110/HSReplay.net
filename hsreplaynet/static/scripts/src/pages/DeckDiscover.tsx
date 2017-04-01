@@ -339,12 +339,15 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							<InfoIcon
 								className="pull-right"
 								header="Player Class Restriction"
-								content={
-									<p>
-										Only show decks for specific classes.
-										Hold <kbd>Ctrl</kbd> to select multiple classes.
-									</p>
-								}
+								content={{
+									click: (
+										<p>
+												Only show decks for specific classes.&nbsp;
+												<span>Hold <kbd>Ctrl</kbd> to select multiple classes.</span>
+										</p>
+									),
+									touch: "Only show decks for specific classes.",
+								}}
 							/>
 						</h2>
 						<ClassFilter
