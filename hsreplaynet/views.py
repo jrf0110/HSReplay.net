@@ -11,7 +11,8 @@ class HomeView(TemplateView):
 
 	def get(self, request):
 		thumbnail = static("images/hsreplay-thumbnail.png")
-		request.head.title = "Watch and share your Hearthstone replays!"
+		request.head.base_title = ""
+		request.head.title = "HSReplay.net: Share your Hearthstone games!"
 		request.head.add_meta(
 			{"name": "description", "content": SITE_DESCRIPTION},
 			{"property": "og:description", "content": SITE_DESCRIPTION},
