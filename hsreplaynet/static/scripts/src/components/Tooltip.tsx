@@ -61,8 +61,8 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 		return (
 			<div
 				className={classNames.join(" ")}
-				onMouseEnter={(e) => this.setState({hovering: true, clientX: e.clientX})}
-				onMouseLeave={() => this.setState({hovering: false})}
+				onMouseOver={(e) => this.setState({hovering: true, clientX: e.clientX})}
+				onMouseOut={() => this.setState({hovering: false})}
 			>
 				{this.props.children}
 				{tooltip}
