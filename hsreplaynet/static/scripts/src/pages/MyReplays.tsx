@@ -63,7 +63,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			viewType,
 			working: true,
 		};
-		this.query("/api/v1/games/?username=" + encodeURIComponent(props.username));
+		this.query("https://hsreplay.net/api/v1/games/?username=" + encodeURIComponent(props.username));
 	}
 
 	protected query(url: string) {
@@ -73,7 +73,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 		fetch(
 			url,
 			{
-				credentials: "same-origin",
+				credentials: "include",
 				headers: new Headers({accept: "application/json"}),
 			},
 		).then((response) => response.json()).then((data: any) => {
@@ -82,7 +82,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				if (this.state.count && this.state.count !== data.count) {
 					this.setState({
 						count: data.count,
-						gamesPages: [],
+						gamesPages: {},
 						receivedPages: 0,
 					});
 					this.query("/api/v1/games/");
@@ -254,7 +254,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			<Pager
 				currentPage={this.state.currentLocalPage + 1}
 				setCurrentPage={(page: number) => this.setState({currentLocalPage: page - 1})}
-				pageCount={Math.ceil(games.length / this.state.pageSize)}
+				pageCount={this.state.next ? null : Object.keys(this.state.gamesPages).length}
 			/>
 		);
 
