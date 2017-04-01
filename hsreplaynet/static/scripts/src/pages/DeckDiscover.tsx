@@ -364,10 +364,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							isPremium={this.props.user.isPremium()}
 							infoHeader="Winrate by Opponent"
 							infoContent={
-								<div>
-									<p>See how various decks perform against a specific class at a glance!</p>
-									<p>Only single classes at this time.</p>
-								</div>
+								<p>
+									See how various decks perform against a specific class at a glance!
+									Only single classes at this time.
+								</p>
 							}>
 							<h2>Opponent class</h2>
 							<ClassFilter
