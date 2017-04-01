@@ -359,9 +359,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<section id="opponent-class-filter">
 						<PremiumWrapper
 							isPremium={this.props.user.isPremium()}
-							infoHeader="Winrate by opponent"
-							infoContent="See at a glance how various decks perform against a specific class!"
-						>
+							infoHeader="Winrate by Opponent"
+							infoContent={
+								<div>
+									<p>See how various decks perform against a specific class at a glance!</p>
+									<p>Only single classes at this time.</p>
+								</div>
+							}>
 							<h2>Opponent class</h2>
 							<ClassFilter
 								filters="All"
