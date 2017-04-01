@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import CardData from "../CardData";
 import CardSearch from "../components/CardSearch";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
@@ -10,7 +11,7 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
 import {cardSorting, getDustCost, wildSets} from "../helpers";
-import {DeckObj, FragmentChildProps} from "../interfaces";
+import {DeckObj, Filter, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
@@ -38,8 +39,8 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setOpponentClass?: (opponentClass: string) => void;
 	personal?: string;
 	setPersonal?: (personal: string) => void;
-	playerClass?: FilterOption;
-	setPlayerClass?: (playerClass: string) => void;
+	playerClasses?: FilterOption[];
+	setPlayerClasses?: (playerClasses: FilterOption[]) => void;
 	rankRange?: string;
 	setRankRange?: (rankRange: string) => void;
 	region?: string;
@@ -71,7 +72,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.props.includedCards !== prevProps.includedCards ||
 			this.props.opponentClass !== prevProps.opponentClass ||
 			this.props.personal !== prevProps.personal ||
-			this.props.playerClass !== prevProps.playerClass ||
+			!_.eq(this.props.playerClasses, prevProps.playerClasses) ||
 			this.props.rankRange !== prevProps.rankRange ||
 			this.props.region !== prevProps.region ||
 			this.props.timeRange !== prevProps.timeRange ||
@@ -100,7 +101,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 	getDeckElements(): Promise<any[]> {
 		const deckElements = [];
-		const playerClass = this.props.playerClass;
+		const playerClasses = this.props.playerClasses;
 		const filteredCards = (key: string): any[] => {
 			const array = this.props[key] || [];
 			if(array.length == 1 && !array[0]) {
@@ -130,7 +131,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			return this.dataManager.get("/decks/mine/").then(((myDecks: any[]) => {
 				Object.keys(myDecks).forEach((deckId) => {
 					const deck = Object.assign({}, myDecks[deckId]);
-					if (playerClass !== "ALL" && playerClass !== deck.player_class) {
+					if (playerClasses.length && playerClasses.indexOf(deck.player_class) === -1) {
 						return;
 					}
 					const gameTypes = Object.keys(deck.game_types);
@@ -164,7 +165,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 
 				const data = deckData.series.data;
 				Object.keys(data).forEach((key) => {
-					if (playerClass !== "ALL" && playerClass !== key) {
+					if (playerClasses.length && playerClasses.indexOf(key as FilterOption) === -1) {
 						return;
 					}
 					data[key].forEach((deck) => {
@@ -313,11 +314,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				return wildSets.indexOf(card.set) === -1;
 			});
 		}
-		const playerClass = this.props.playerClass;
-		if (playerClass !== "ALL") {
+		const playerClasses = this.props.playerClasses;
+		if (playerClasses.length) {
 			filteredCards = filteredCards.filter((card) => {
 				const cardClass = card.cardClass;
-				return cardClass === "NEUTRAL" || cardClass === playerClass;
+				return cardClass === "NEUTRAL" || playerClasses.indexOf(cardClass) !== -1;
 			});
 		}
 
@@ -337,8 +338,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							filters="All"
 							hideAll
 							minimal
-							selectedClasses={[this.props.playerClass as FilterOption]}
-							selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
+							multiSelect
+							selectedClasses={this.props.playerClasses}
+							selectionChanged={(selected) => this.props.setPlayerClasses(selected)}
 						/>
 					</section>
 					<section id="opponent-class-filter">

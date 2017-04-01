@@ -17,7 +17,7 @@ const render = (cardData: CardData) => {
 				includedCards: [],
 				opponentClass: "ALL",
 				personal: "",
-				playerClass: "ALL",
+				playerClasses: [],
 				rankRange: "ALL",
 				region: "ALL",
 				timeRange: "LAST_30_DAYS",
