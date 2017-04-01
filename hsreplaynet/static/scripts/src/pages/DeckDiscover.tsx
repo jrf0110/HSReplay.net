@@ -15,6 +15,7 @@ import {DeckObj, Filter, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
+import InfoIcon from "../components/InfoIcon";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -333,7 +334,19 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						Decks
 					</ResetHeader>
 					<section id="player-class-filter">
-						<h2>Player Class</h2>
+						<h2>
+							Player Class
+							<InfoIcon
+								className="pull-right"
+								header="Player Class Restriction"
+								content={
+									<p>
+										Only show decks for specific classes.
+										Hold <kbd>Ctrl</kbd> to select multiple classes.
+									</p>
+								}
+							/>
+						</h2>
 						<ClassFilter
 							filters="All"
 							hideAll
