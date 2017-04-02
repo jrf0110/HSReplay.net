@@ -49,7 +49,13 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		for (let key in values) {
 			const suffix = capitalize(key);
 			// prepare the callback
-			const callback = (value: any) => this.onChange(key, value);
+			const callback = this.isDebounced(key) ?
+				(value: any, debounce?: boolean, callback?: () => void) => {
+					this.onChange(key, value, debounce, callback);
+				} :
+				(value: any, callback?: () => void) => {
+					this.onChange(key, value, undefined, callback);
+				};
 			const callbackKey = "set" + suffix;
 			// assign the props
 			props[key] = this.cast(
@@ -73,7 +79,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		return React.cloneElement(this.props.children as any, props);
 	}
 
-	onChange(key: string, value: any, debounce?: boolean): void {
+	onChange(key: string, value: any, debounce?: boolean, callback?: () => void): void {
 		if (!this.isValidKey(key)) {
 			console.error(`Attempted to change undefined fragment key "${key}"`);
 			return;
@@ -100,7 +106,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			this.timeout = setTimeout(() => {
 				this.timeout = null;
 				for (let key in this.state.intermediate) {
-					this.onChange(key, this.state.intermediate[key], false);
+					this.onChange(key, this.state.intermediate[key], false, callback);
 				}
 			}, this.props.delay || 100);
 		}
@@ -118,7 +124,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 					childProps: newProps,
 					intermediate: {},
 				};
-			});
+			}, callback);
 		}
 	}
 
