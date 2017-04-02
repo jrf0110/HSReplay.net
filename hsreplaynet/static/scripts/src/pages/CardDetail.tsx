@@ -99,11 +99,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				);
 			}
 			else {
-				let cardStats = [];
+				let utilization = [];
 				let cardStatsLoading = false;
 
 				if (this.cardIsNeutral()) {
-					cardStats.push(
+					utilization.push(
 						<div id="class-chart">
 							<DataInjector
 								dataManager={this.dataManager}
@@ -123,7 +123,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				}
 
 				if (this.cardHasTargetReqs()) {
-					cardStats.push([
+					utilization.push([
 						<h4>Most popular targets</h4>,
 						<DataInjector
 							dataManager={this.dataManager}
@@ -143,7 +143,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				}
 
 				if (this.cardHasDiscover()) {
-					cardStats.push([
+					utilization.push([
 						<h4>Most popular Discover choices</h4>,
 						<DataInjector
 							dataManager={this.dataManager}
@@ -161,19 +161,21 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					]);
 				}
 
-				if (cardStats.length) {
-					const colWidth = 12 / cardStats.length;
-					cardStats = cardStats.map((obj) => (
+				if (utilization.length) {
+					const colWidth = 12 / utilization.length;
+					utilization = utilization.map((obj) => (
 						<div className={"col-lg-" + colWidth + " col-md-" + colWidth}>
 							{obj}
 						</div>
 					));
 				}
 				else if (cardStatsLoading) {
-					cardStats.push(<h3 className="message-wrapper">Loading…</h3>);
+					utilization.push(<h3 className="message-wrapper">Loading…</h3>);
 				}
 				else {
-					cardStats.push(<h3 className="message-wrapper">We currently don't have any specific stats for this card.</h3>);
+					utilization.push(<h3 className="message-wrapper">
+						No utilization data for this card available
+					</h3>);
 				}
 
 				const headerContent = [
@@ -339,7 +341,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<ul className="nav nav-tabs content-tabs">
 							{tabHeader("recommended-decks", "Recommended decks")}
 							{tabHeader("turn-stats", "Turn details")}
-							{tabHeader("card-stats", "Card stats")}
+							{tabHeader("utilization", "Utilization")}
 						</ul>
 						<div className="tab-content">
 							<div id="recommended-decks" className={tabClassName("recommended-decks")}>
@@ -355,9 +357,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									{turnCharts}
 								</PremiumWrapper>
 							</div>
-							<div id="card-stats" className={tabClassName("card-stats")}>
+							<div id="utilization" className={tabClassName("utilization")}>
 								<div id="card-tables">
-									{cardStats}
+									{utilization}
 								</div>
 							</div>
 						</div>
