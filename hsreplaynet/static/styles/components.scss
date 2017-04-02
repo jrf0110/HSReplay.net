@@ -146,14 +146,17 @@
 		padding-bottom: 8px;
 		white-space: nowrap;
 
+		> * {
+			user-select: none;
+			outline: none;
+		}
+
 		.header-center {
 			text-align: center;
 		}
 
-		> .header-sortable, > * {
-			user-select: none;
+		.header-sortable {
 			cursor: pointer;
-			outline: none;
 
 			&:focus:not(:active) {
 				color: $lighterblue;
