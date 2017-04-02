@@ -7,10 +7,13 @@ interface InfoboxFilterProps extends React.ClassAttributes<InfoboxFilter> {
 	locked?: boolean;
 	onClick?: (newValue: string, sender: string) => void;
 	selected?: boolean;
+	tabIndex?: number;
 	value: string;
 }
 
 export default class InfoboxFilter extends React.Component<InfoboxFilterProps, void> {
+	private ref;
+
 	render(): JSX.Element {
 		const onClick = () => {
 			if (!this.props.disabled && !this.props.locked && (!this.props.selected || this.props.deselectable)) {
@@ -32,6 +35,26 @@ export default class InfoboxFilter extends React.Component<InfoboxFilterProps, v
 			classNames.push("disabled");
 		}
 
-		return <li className={classNames.join(" ")} onClick={onClick}>{this.props.children}</li>;
+		return (
+			<li
+				className={classNames.join(" ")}
+				onClick={() => {
+					onClick();
+					if(this.ref) {
+						this.ref.blur();
+					}
+				}}
+				ref={(ref) => this.ref = ref}
+				onKeyDown={(event) => {
+					if(event.which !== 13) {
+						return;
+					}
+					onClick();
+				}}
+				tabIndex={this.props.disabled ? -1 : (typeof this.props.tabIndex === "undefined" ? 0 : this.props.tabIndex)}
+			>
+				{this.props.children}
+			</li>
+		);
 	}
 }

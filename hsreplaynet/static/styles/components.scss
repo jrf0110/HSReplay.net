@@ -147,6 +147,11 @@
 		.header-sortable {
 			user-select: none;
 			cursor: pointer;
+			outline: none;
+
+			&:focus:not(:active) {
+				color: $lighterblue;
+			}
 		}
 
 		.info-icon {
@@ -283,9 +288,13 @@
 				}
 			}
 
-			>a:hover {
-				background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.5) 100px, #f1f2f4 256px);
-				text-decoration: none;
+			> a {
+				outline: none;
+
+				&:hover, &:focus {
+					background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.5) 100px, #f1f2f4 256px);
+					text-decoration: none;
+				}
 			}
 		}
 		>li:nth-child(odd) {
@@ -294,8 +303,10 @@
 				background: linear-gradient(to right, $offwhite 1%, rgba(255, 255, 255, 0.7) 100px, #f9f9f9 256px);
 			}
 
-			>a:hover {
-				background: linear-gradient(to right, $offwhite 1%, rgba(255, 255, 255, 0.5) 100px, #f1f2f4 256px);
+			> a {
+				&:hover, &:focus {
+					background: linear-gradient(to right, $offwhite 1%, rgba(255, 255, 255, 0.5) 100px, #f1f2f4 256px);
+				}
 			}
 		}
 	}
@@ -353,8 +364,13 @@
 .table-sortable {
 	th {
 		&.th-sortable {
+			outline: none;
 			cursor: pointer;
 			user-select: none;
+
+			&:focus:not(:active) {
+				color: $lighterblue;
+			}
 		}
 	}
 

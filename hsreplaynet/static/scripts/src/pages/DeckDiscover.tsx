@@ -323,6 +323,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			});
 		}
 
+		const isPremium = !!this.props.user.isPremium();
+		const premiumTabIndex = isPremium ? 0 : -1;
+
 		return (
 			<div className="deck-discover">
 				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
@@ -361,7 +364,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					<section id="opponent-class-filter">
 						<PremiumWrapper
-							isPremium={this.props.user.isPremium()}
+							isPremium={isPremium}
 							infoHeader="Winrate by Opponent"
 							infoContent={
 								<p>
@@ -374,6 +377,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								filters="All"
 								hideAll
 								minimal
+								tabIndex={premiumTabIndex}
 								selectedClasses={[this.props.opponentClass]}
 								selectionChanged={(selected) => this.props.setOpponentClass(selected[0])}
 							/>
@@ -412,7 +416,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					<section id="time-frame-filter">
 						<PremiumWrapper
-							isPremium={this.props.user.isPremium()}
+							isPremium={isPremium}
 							infoHeader="Time Frame"
 							infoContent="Want to see which decks are hot right now? Look at data from a time frame of your choosing!"
 						>
@@ -421,6 +425,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								locked={!this.props.user.isPremium()}
 								selectedValue={this.props.timeRange}
 								onClick={(value) => this.props.setTimeRange(value)}
+								tabIndex={premiumTabIndex}
 							>
 								<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
 								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
@@ -431,7 +436,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					<section id="rank-range-filter">
 						<PremiumWrapper
-							isPremium={this.props.user.isPremium()}
+							isPremium={isPremium}
 							infoHeader="Rank Range"
 							infoContent="Ready to climb the ladder? Check out how decks perform at certain rank ranges!"
 						>
@@ -440,6 +445,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								locked={!this.props.user.isPremium()}
 								selectedValue={this.props.rankRange}
 								onClick={(value) => this.props.setRankRange(value)}
+								tabIndex={premiumTabIndex}
 							>
 								<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
 								<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>

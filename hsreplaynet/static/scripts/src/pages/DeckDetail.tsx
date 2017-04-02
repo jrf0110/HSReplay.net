@@ -106,6 +106,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			myStatsContent = <div id="my-stats" className="tab-pane fade">{this.getMyStats()}</div>;
 		}
 
+		const isPremium = this.props.user.isPremium();
+		const premiumTabIndex = isPremium ? 0 : -1;
+
 		return <div className="deck-detail-container">
 			<aside className="infobox">
 				<img
@@ -135,26 +138,28 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<span className="infobox-value">{dustCost && dustCost + " Dust"}</span>
 					</li>
 				</ul>
-				<PremiumWrapper isPremium={this.props.user.isPremium()}>
+				<PremiumWrapper isPremium={isPremium}>
 					<h2>Select your opponent</h2>
 					<ClassFilter
 						filters="All"
 						hideAll
 						minimal
+						tabIndex={premiumTabIndex}
 						selectedClasses={this.state.selectedClasses}
-						selectionChanged={(selected) => this.props.user.isPremium() && this.setState({selectedClasses: selected})}
+						selectionChanged={(selected) => isPremium && this.setState({selectedClasses: selected})}
 					/>
 				</PremiumWrapper>
 				<PremiumWrapper
-					isPremium={this.props.user.isPremium()}
+					isPremium={isPremium}
 					infoHeader="Deck breakdown rank range"
 					infoContent="Check out how this deck performs at higher ranks!"
 				>
 					<h2>Rank range</h2>
 					<InfoboxFilterGroup
-						locked={!this.props.user.isPremium()}
+						locked={!isPremium}
 						selectedValue={this.state.rankRange}
 						onClick={(value) => this.setState({rankRange: value})}
+						tabIndex={premiumTabIndex}
 					>
 						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
 						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>

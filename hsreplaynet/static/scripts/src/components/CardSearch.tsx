@@ -19,6 +19,7 @@ interface CardSearchProps extends React.ClassAttributes<CardSearch> {
 export default class CardSearch extends React.Component<CardSearchProps, CardSearchState> {
 	readonly defaultCardCount = 10;
 	private search: HTMLDivElement;
+	private input: HTMLInputElement;
 
 	constructor(props: CardSearchProps, state: CardSearchState) {
 		super(props, state);
@@ -32,7 +33,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 
 	render(): JSX.Element {
 		const cards = [];
-		const matches = this.getFilteredCards();
+		const matches = this.getFilteredCards(this.state.cardSearchText);
 		matches.slice(0, this.state.cardSearchCount).forEach((card, index) => {
 			const selected = this.state.selectedIndex === index;
 			cards.push(
@@ -89,6 +90,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				<div className="form-group has-feedback">
 					<input
 						id={this.props.id}
+						ref={(input) => this.input = input}
 						className="form-control"
 						type="search"
 						placeholder="Search…"
@@ -139,20 +141,23 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				this.search["scrollTop"] -= 35;
 				break;
 			case "Enter":
-				const filteredCards = this.getFilteredCards();
+				const filteredCards = this.getFilteredCards(this.state.cardSearchText);
 				if (!filteredCards.length) {
 					return;
 				}
-				this.addCard(this.getFilteredCards()[this.state.selectedIndex]);
+				this.addCard(filteredCards[this.state.selectedIndex]);
 				break;
 		}
 	}
 
-	getFilteredCards(): any[] {
+	getFilteredCards(query: string): any[] {
 		if (!this.props.availableCards) {
 			return [];
 		}
-		const cleanQuery = cleanText(this.state.cardSearchText);
+		const cleanQuery = cleanText(query);
+		if (!cleanQuery) {
+			return [];
+		}
 		const resultSet = [];
 		let availableCards = this.props.availableCards;
 		const slang = slangToCardId(cleanQuery);
@@ -185,7 +190,19 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				this.props.onCardsChanged(newSelectedCards);
 			};
 			selectedCards.push(
-				<li onClick={removeCard}>
+				<li
+					onClick={removeCard}
+					onKeyDown={(event) => {
+						if([8, 13, 46].indexOf(event.which) === -1) {
+							return;
+						}
+						removeCard();
+						if(this.input) {
+							this.input.focus();
+						}
+					}}
+					tabIndex={0}
+				>
 					<div className="glyphicon glyphicon-remove" />
 					<CardTile card={card} count={1} height={34} rarityColored noLink />
 				</li>,

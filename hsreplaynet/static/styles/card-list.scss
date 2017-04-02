@@ -108,8 +108,8 @@
 	}
 }
 
-.card-tile:hover {
-	>* {
+.card-tile:hover, :focus .card-tile {
+	> * {
 		filter: brightness(115%);
 	}
 	.card-image {

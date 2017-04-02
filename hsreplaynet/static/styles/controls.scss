@@ -109,22 +109,24 @@ label>input {
 		cursor: pointer;
 	}
 
-	>ul {
+	> ul {
 		list-style-type: none;
 		margin-bottom: 0px;
 		margin-top: 5px;
 		padding-left: 5px;
 
-		>li .glyphicon {
-			color: gray;
-			float: right;
-			margin-top: 7px;
-			padding: 3px;
-		}
-
-		>li:hover {
+		> li {
 			.glyphicon {
-				color: $red;
+				color: gray;
+				float: right;
+				margin-top: 7px;
+				padding: 3px;
+			}
+
+			&:hover, &:focus {
+				.glyphicon {
+					color: $red;
+				}
 			}
 		}
 	}
@@ -255,6 +257,14 @@ label>input {
 	&.deselected {
 		img {
 			filter: grayscale(100%)
+		}
+	}
+
+	&:focus {
+		outline: none;
+
+		img {
+			filter: drop-shadow(0 0 2pt white);
 		}
 	}
 }

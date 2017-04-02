@@ -63,6 +63,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 						mark={markText}
 						markStyle={markStyle}
 						urlGameType={this.props.urlGameType}
+						tabIndex={-1}
 					/>
 				</li>,
 			);

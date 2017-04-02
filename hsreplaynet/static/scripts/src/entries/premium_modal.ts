@@ -15,6 +15,7 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false) 
 };
 
 let modalIsOpen = null;
+let lastFocus = null;
 
 const openModal = (modalToOpen) => {
 	if (modalIsOpen === true) {
@@ -22,6 +23,14 @@ const openModal = (modalToOpen) => {
 	}
 	modalIsOpen = true;
 	modalToOpen.style.display = "flex";
+
+	// setup focus
+	lastFocus = document.activeElement;
+	console.log(lastFocus);
+	const inner = modalToOpen.children[0];
+	inner.setAttribute("tabindex", 0);
+	inner.focus();
+
 	trackModalInteraction("open");
 };
 
@@ -29,8 +38,18 @@ const closeModal = (modalToClose) => {
 	if (modalIsOpen === false) {
 		return;
 	}
+
+	// reset focus
+	if(lastFocus) {
+		lastFocus.focus();
+		lastFocus = null;
+	}
+	const inner = modalToClose.children[0];
+	inner.setAttribute("tabindex", -1);
+
 	modalIsOpen = false;
 	modalToClose.style.display = "none";
+
 	trackModalInteraction("close");
 };
 
@@ -53,11 +72,11 @@ const setupModal = (modal) => {
 	};
 
 	// setup escape button
-	document.addEventListener("keypress", (event) => {
+	modal.children[0].onkeydown = (event) => {
 		if (event.keyCode === 27) {
 			closeModal(modal);
 		}
-	});
+	};
 };
 
 setupModal(modal);

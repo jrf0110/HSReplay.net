@@ -75,6 +75,12 @@
 							1px 1px 0 #000;
 						white-space: pre;
 					}
+
+					&:hover, &:focus {
+						filter: brightness(1.3);
+						text-decoration: none;
+						background: transparent;
+					}
 				}
 
 				&.disabled {
@@ -90,14 +96,6 @@
 							filter: saturate(1) opacity(0.5);
 						}
 					}
-				}
-			}
-
-			>li:hover {
-				&.mana-crystal {
-					filter: brightness(1.3);
-					text-decoration: none;
-					background: transparent;
 				}
 			}
 		}
@@ -126,7 +124,10 @@
 			justify-content: center;
 
 			.card-image {
-				>img {
+				outline: none;
+
+				> img {
+					outline: none;
 					height: 350px;
 					transition: transform .1s ease-in-out;
 
@@ -138,11 +139,10 @@
 						height: 230px;
 					}
 				}
-			}
-
-			.card-image:hover {
-				img {
-					transform: scale(1.05);
+				&:hover, &:focus {
+					img {
+						transform: scale(1.05);
+					}
 				}
 			}
 		}

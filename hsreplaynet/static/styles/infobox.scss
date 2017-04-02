@@ -64,11 +64,13 @@
 			color: inherit;
 			font-size: 1.1em;
 		}
-	}
 
-	h2:hover {
-		&.collapsible {
-			background-color: $lightblue1;
+		&:hover, &:focus {
+			outline: none;
+
+			&.collapsible {
+				background-color: $lightblue1;
+			}
 		}
 	}
 
@@ -134,9 +136,13 @@
 		}
 	}
 
-	li:hover {
+	li:hover, li:active, li:focus {
 		&.selectable {
 			background: $lightblue1;
+
+			.infobox-value, li.selected .infobox-value {
+				color: white;
+			}
 		}
 
 		&.selected {
@@ -146,6 +152,8 @@
 		&.selected:not(.no-deselect)::before {
 			color: $red;
 		}
+
+		outline: none;
 	}
 
 	.infobox-show-deck {
@@ -156,10 +164,6 @@
 		color: $lighterblue;
 		font-weight: bold;
 		float: right;
-	}
-
-	li:hover.selectable .infobox-value, li.selected .infobox-value {
-		color: white;
 	}
 
 	input, select {

@@ -13,6 +13,7 @@ interface CardIconProps extends React.ClassAttributes<CardIcon> {
 	size?: number;
 	mark?: string;
 	markStyle?: any;
+	tabIndex?: number;
 }
 
 export default class CardIcon extends React.Component<CardIconProps, CardIconState> {
@@ -70,7 +71,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 			}
 
 			return (
-				<a href={url}>
+				<a href={url} tabIndex={typeof this.props.tabIndex !== "undefined" ? this.props.tabIndex : 0}>
 					<div
 						className="card-icon"
 						style={style}

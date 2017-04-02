@@ -150,10 +150,8 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 		};
 
 		const headerSortable = isSortable ? "header-sortable " : "";
-		const onClick = (name: string, e?) => {
-			if(e) {
-				e.preventDefault();
-			}
+
+		const sort = (name: string): void => {
 			if (this.props.sortBy === name) {
 				this.props.setSortDirection(this.props.sortDirection === "ascending" ? "descending" : "ascending");
 			}
@@ -162,6 +160,26 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 				this.props.setSortBy(name);
 			}
 		};
+
+		const onClick = (name: string, event?) => {
+			if(event) {
+				event.preventDefault();
+				if (event.currentTarget) {
+					event.currentTarget.blur();
+				}
+			}
+			sort(name);
+		};
+
+		const onKeyPress = (name: string, event?) => {
+			if (event && event.which !== 13) {
+				return;
+			}
+
+			sort(name);
+		};
+
+		const tabIndex = isSortable ? 0 : -1;
 
 		return (
 			<div className="deck-list">
@@ -174,27 +192,52 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 				{!this.props.hideTopPager && pager(true)}
 				<div className="clearfix" />
 				<div className="row header-row">
-					<div className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"} onClick={(e) => onClick("dust", e)}>
+					<div
+						className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"}
+						onClick={(e) => onClick("dust", e)}
+						onKeyPress={(e) => onKeyPress("dust", e)}
+						tabIndex={tabIndex}
+					>
 						Deck / Cost
 						{sortIndicator("dust")}
 						<InfoIcon header="Crafting Cost" content="Total amount of dust required to craft the deck."/>
 					</div>
-					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={(e) => onClick("winrate", e)}>
+					<div
+						className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"}
+						onClick={(e) => onClick("winrate", e)}
+						onKeyPress={(e) => onKeyPress("winrate", e)}
+						tabIndex={tabIndex}
+					>
 						Winrate
 						{sortIndicator("winrate")}
 						<InfoIcon header="Winrate" content="Percentage of games won by the deck." />
 					</div>
-					<div className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"} onClick={(e) => onClick("popularity", e)}>
+					<div
+						className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"}
+						onClick={(e) => onClick("popularity", e)}
+						onKeyPress={(e) => onKeyPress("popularity", e)}
+						tabIndex={tabIndex}
+					>
 						Games
 						{sortIndicator("popularity")}
 						<InfoIcon header="Games Played" content="Number of recorded games where the deck is played." />
 					</div>
-					<div className={headerSortable + "header-center col-lg-1 col-md-1 hidden-sm hidden-xs"} onClick={(e) => onClick("duration", e)}>
+					<div
+						className={headerSortable + "header-center col-lg-1 col-md-1 hidden-sm hidden-xs"}
+						onClick={(e) => onClick("duration", e)}
+						onKeyPress={(e) => onKeyPress("duration", e)}
+						tabIndex={tabIndex}
+					>
 						Duration
 						{sortIndicator("duration")}
 						<InfoIcon header="Game Duration" content="How long a game takes on average when the deck is played." />
 					</div>
-					<div className={headerSortable + "header-center col-lg-1 hidden-md hidden-sm hidden-xs"} onClick={(e) => onClick("mana", e)}>
+					<div
+						className={headerSortable + "header-center col-lg-1 hidden-md hidden-sm hidden-xs"}
+						onClick={(e) => onClick("mana", e)}
+						onKeyPress={(e) => onKeyPress("mana", e)}
+						tabIndex={tabIndex}
+					>
 						Mana
 						{sortIndicator("mana")}
 						<InfoIcon header="Mana Curve" content="Distribution of card costs for the deck." />

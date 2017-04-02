@@ -365,6 +365,10 @@ body, html {
 				border: solid 1px $blue;
 			}
 		}
+
+		&:focus {
+			outline: none;
+		}
 	}
 
 	.promo-button, .promo-button-outline {

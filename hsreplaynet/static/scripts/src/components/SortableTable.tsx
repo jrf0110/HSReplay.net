@@ -23,6 +23,9 @@ interface SortableTableProps extends React.ClassAttributes<SortableTable> {
 export default class SortableTable extends React.Component<SortableTableProps, void> {
 	render(): JSX.Element {
 		const onHeaderClick = (header: TableHeader) => {
+			if (typeof this.props.onSortChanged !== "function") {
+				return;
+			}
 			let sortDirection: SortDirection;
 			if (this.props.sortBy === header.key) {
 				sortDirection = this.props.sortDirection === "ascending" ? "descending" : "ascending";
@@ -49,7 +52,20 @@ export default class SortableTable extends React.Component<SortableTableProps, v
 			return (
 				<th
 					className={sort !== null ? "th-sortable" : null}
-					onClick={sort !== null && this.props.onSortChanged ? () => onHeaderClick(header) : null}
+					onClick={sort !== null ? (event) => {
+						if (event && event.currentTarget) {
+							event.currentTarget.blur();
+						}
+						onHeaderClick(header);
+					} : null}
+					onKeyPress={(event) => {
+						if(event.which !== 13) {
+							return;
+						}
+
+						onHeaderClick(header);
+					}}
+					tabIndex={sort !== null ? 0 : -1}
 				>
 					{header.text}
 					{sort}

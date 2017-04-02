@@ -14,6 +14,7 @@ interface ClassFilterProps extends React.ClassAttributes<ClassFilter> {
 	hideAll?: boolean;
 	minimal?: boolean;
 	multiSelect?: boolean;
+	tabIndex?: number;
 	selectedClasses: FilterOption[];
 	selectionChanged: (selected: FilterOption[]) => void;
 }
@@ -77,10 +78,24 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		}
 
 		return (
-			<span className={wrapperClassNames.join(" ")} onClick={(e) => {
-				const add = e.ctrlKey || e.metaKey;
-				this.onLabelClick(className, selected, add);
-			}}>
+			<span
+				className={wrapperClassNames.join(" ")}
+				onClick={(event) => {
+					const add = event.ctrlKey || event.metaKey;
+					this.onLabelClick(className, selected, add);
+					if (event && event.currentTarget) {
+						event.currentTarget.blur();
+					}
+				}}
+				onKeyDown={(event) => {
+					if (event.keyCode !== 13) {
+						return;
+					}
+					const add = event.ctrlKey || event.metaKey;
+					this.onLabelClick(className, selected, add);
+				}}
+				tabIndex={typeof this.props.tabIndex === "undefined" ? 0 : this.props.tabIndex}
+			>
 				<ClassIcon heroClassName={className} small tooltip/>
 				{label}
 			</span>

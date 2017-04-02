@@ -9,6 +9,7 @@ interface InfoboxFilterGroupProps extends React.ClassAttributes<InfoboxFilterGro
 	locked?: boolean;
 	onClick: (value: string, sender: string) => void;
 	selectedValue: string | string[];
+	tabIndex?: number;
 }
 
 interface InfoboxFilterGroupState {
@@ -40,6 +41,7 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 				onClick: this.props.onClick,
 				deselectable: this.props.deselectable,
 				locked: this.props.locked,
+				tabIndex: this.props.tabIndex,
 				...child.props
 			});
 		};
@@ -58,8 +60,34 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 					icon = <span className="glyphicon glyphicon-menu-up"/>
 				}
 			}
+			const toggle = () => this.setState({collapsed: !this.state.collapsed});
 			header = (
-				<h2 className={headerClassName} onClick={() => collapsible && this.setState({collapsed: !this.state.collapsed})}>
+				<h2
+					className={headerClassName}
+					onClick={(event) => {
+						if(!collapsible) {
+							return;
+						}
+
+						if (event && event.currentTarget) {
+							event.currentTarget.blur();
+						}
+
+						toggle();
+					}}
+					onKeyDown={(event) => {
+						if (!collapsible) {
+							return;
+						}
+
+						if (event.which !== 13) {
+							return;
+						}
+
+						toggle();
+					}}
+					tabIndex={collapsible ? 0 : -1}
+				>
 					{icon}
 					{this.props.header}
 				</h2>

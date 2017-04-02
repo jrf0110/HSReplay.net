@@ -102,7 +102,10 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 				className={classNames.join(" ")}
 				onTouchStart={() => this.setState({hovering: true, touchCount: this.state.touchCount + 1})}
 				onTouchCancel={() => this.setState({hovering: false})}
-				onClick={(e) => {
+				onClick={(event) => {
+					if (event && event.currentTarget) {
+						event.currentTarget.blur();
+					}
 					if (!this.shouldAppear()) {
 						return;
 					}
@@ -113,6 +116,18 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 				}}
 				onMouseEnter={() => this.setState({hovering: true})}
 				onMouseLeave={() => this.setState({hovering: false, touchCount: 0})}
+				onFocus={() => this.setState({hovering: true})}
+				onBlur={() => this.setState({hovering: false})}
+				onKeyPress={(event) => {
+					if (event.which !== 13) {
+						return;
+					}
+					if (!this.shouldAppear()) {
+						return;
+					}
+					showModal();
+				}}
+				tabIndex={this.shouldAppear() ? 0 : -1}
 			>
 				<img
 					className="premium-icon"

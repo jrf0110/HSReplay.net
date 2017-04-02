@@ -562,6 +562,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		}
 		else {
+			const isPremium = !!this.props.user.isPremium();
+			const premiumTabIndex = isPremium ? 0 : -1;
 			filters.push(
 				<h2>Deck Class</h2>,
 				<ClassFilter
@@ -581,15 +583,16 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</InfoboxFilterGroup>,
 				modeFilter,
 				<PremiumWrapper
-					isPremium={this.props.user.isPremium()}
+					isPremium={isPremium}
 					infoHeader="Time Frame"
 					infoContent="Get the most recent data on which cards are hot right now!"
 				>
 					<InfoboxFilterGroup
 						header="Time Frame"
-						locked={!this.props.user.isPremium()}
+						locked={!isPremium}
 						selectedValue={this.state.queryMap["timeRange"]}
 						onClick={(value) => setQueryMap(this, "timeRange", value)}
+						tabIndex={premiumTabIndex}
 					>
 						<InfoboxFilter value="LAST_1_DAY">Yesterday</InfoboxFilter>
 						<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
@@ -598,14 +601,15 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</InfoboxFilterGroup>
 				</PremiumWrapper>,
 				<PremiumWrapper
-					isPremium={this.props.user.isPremium()}
+					isPremium={isPremium}
 					infoHeader="Rank Range"
 					infoContent="Check out which cards are played at certain rank ranges on the ranked ladder!"
 				>
 					<InfoboxFilterGroup
 						header="Rank Range"
-						locked={!this.props.user.isPremium()}
+						locked={!isPremium}
 						selectedValue={this.state.queryMap["rankRange"]} onClick={(value) => setQueryMap(this, "rankRange", value)}
+						tabIndex={premiumTabIndex}
 					>
 						<InfoboxFilter disabled={this.state.queryMap["gameType"] === "ARENA"} value="LEGEND_THROUGH_TEN">
 							Legend–10
