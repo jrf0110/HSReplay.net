@@ -1,20 +1,50 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
-import CardDiscover, { ViewType } from "../pages/CardDiscover";
+import CardDiscover, {ViewType} from "../pages/CardDiscover";
 import UserData from "../UserData";
+import Fragments from "../components/Fragments";
 
 const container = document.getElementById("card-container");
 const viewType = container.getAttribute("data-view-type");
 const user = new UserData();
 
+const availableAccounts = user.getAccounts();
+const defaultAccount = availableAccounts.length ? availableAccounts[0] : null;
+const accountKey = defaultAccount ? defaultAccount.region + "-" + defaultAccount.lo : "-";
+
 const render = (cardData: CardData) => {
 	ReactDOM.render(
-		<CardDiscover
-			cardData={cardData}
-			user={user}
-			viewType={viewType as ViewType}
-		/>,
+		<Fragments
+			defaults={{
+				text: "",
+				account: accountKey,
+				showSparse: false,
+				format: "",
+				gameType: "RANKED_STANDARD",
+				playerClass: "ALL",
+				rankRange: "ALL",
+				timeRange: "LAST_14_DAYS",
+				exclude: "",
+				cost: [],
+				rarity: [],
+				set: [],
+				type: [],
+				race: [],
+				mechanics: [],
+				sortBy: "timesPlayed",
+				sortDirection: "descending",
+			}}
+			debounce="text"
+			immutable={user.isPremium() ? null : ["rankRange", "timeRange"]}
+		>
+			<CardDiscover
+				cardData={cardData}
+				user={user}
+				viewType={viewType as ViewType}
+				accounts={availableAccounts}
+			/>
+		</Fragments>,
 		container,
 	);
 };
