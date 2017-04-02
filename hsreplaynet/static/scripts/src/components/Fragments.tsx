@@ -19,7 +19,7 @@ interface FragmentsProps extends React.ClassAttributes<Fragments> {
 }
 
 interface FragmentsState {
-	childProps: InternalFragmentMap;
+	childProps: FragmentMap;
 	intermediate: InternalFragmentMap;
 }
 
@@ -50,10 +50,10 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			const suffix = capitalize(key);
 			// prepare the callback
 			const callback = this.isDebounced(key) ?
-				(value: any, debounce?: boolean, callback?: () => void) => {
+				(value: any, debounce?: boolean, callback?: () => void): void => {
 					this.onChange(key, value, debounce, callback);
 				} :
-				(value: any, callback?: () => void) => {
+				(value: any, callback?: () => void): void => {
 					this.onChange(key, value, undefined, callback);
 				};
 			const callbackKey = "set" + suffix;
@@ -65,6 +65,11 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 					: values[key],
 			);
 			props[callbackKey] = callback;
+			if (this.isArray(key)) {
+				props["toggle" + suffix] = (value: any, callback?: () => void): void => {
+					this.onToggle(key, value, callback);
+				}
+			}
 			props["default" + suffix] = this.cast(key, this.props.defaults[key]);
 			props["custom" + suffix] = typeof this.state.childProps[key] !== "undefined"
 				? this.cast(key, this.state.childProps[key])
@@ -128,8 +133,23 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		}
 	}
 
+	onToggle(key: string, value: any, callback?: () => void): void {
+		if (!this.isArray(key)) {
+			console.error(`Cannot toggle non-array "${key}"`);
+			return;
+		}
+		let targetArray = this.cast(key, this.state.childProps[key]);
+		if (targetArray.indexOf(value) !== -1) {
+			targetArray = targetArray.filter((x) => x !== value);
+		}
+		else {
+			targetArray.push(value);
+		}
+		this.onChange(key, targetArray, undefined, callback);
+	}
+
 	cast(key: string, value: any): any {
-		if (Array.isArray(this.props.defaults[key])) {
+		if (this.isArray(key)) {
 			if (!value) {
 				value = [];
 			}
@@ -151,7 +171,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 	}
 
 	stringify(key: string, value: any): string {
-		if (Array.isArray(this.props.defaults[key])) {
+		if (this.isArray(key)) {
 			if (Array.isArray(value)) {
 				value = value.join(",");
 			}
@@ -162,6 +182,10 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		}
 
 		return "" + value;
+	}
+
+	isArray(key: string): boolean {
+		return Array.isArray(this.props.defaults[key]);
 	}
 
 	isDebounced(key: string): boolean {
