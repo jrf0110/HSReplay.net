@@ -62,19 +62,28 @@ export function getHeroColor(hero: string): string {
 }
 
 export function getChartScheme(theme: ChartSchemeType): ChartScheme {
+	let scheme: ChartScheme = null;
 	switch (theme) {
 		case "rarity":
-			return rarityScheme;
+			scheme = rarityScheme;
+			break;
 		case "cardtype":
-			return cardtypeScheme;
+			scheme = cardtypeScheme;
+			break;
 		case "cardset":
-			return cardsetScheme;
+			scheme = cardsetScheme;
+			break;
 		case "cost":
-			return costScheme;
+			scheme = costScheme;
+			break;
 		case "class":
-			return classColorScheme;
+			scheme = classColorScheme;
+			break;
 	}
-	return null;
+	return Object.assign({}, {"other": {
+		fill: "rgb(140, 140, 140)",
+		stroke: "rgb(140, 140, 140)",
+	}}, scheme);
 }
 
 const costScheme: ChartScheme = {

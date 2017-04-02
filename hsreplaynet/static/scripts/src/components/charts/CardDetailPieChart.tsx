@@ -31,6 +31,24 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 			if (this.props.removeEmpty) {
 				data = data.filter((x) => x.y > 0);
 			}
+
+			// group sparse data
+			let remaining = 0;
+			data = data.filter((a) => {
+				const value = +a.y;
+				if (value <= 5) {
+					remaining += value;
+					return false;
+				}
+				return true;
+			});
+			if (remaining > 0) {
+				data.push({
+					x: "other",
+					y: remaining,
+				});
+			}
+
 			data.forEach((d) => {
 				legendData.push(
 					{name: toTitleCase("" + d.x), symbol: {type: "circle", fill: scheme[("" + d.x).toLowerCase()].stroke}},
@@ -39,14 +57,26 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 		}
 
 		if (this.props.sortByValue) {
-			data = data.sort((a, b) => a.y > b.y ? -1 : 1);
+			data = data.sort((a, b) => {
+				let o = [a.x, b.x].indexOf("other");
+				if(o !== -1) {
+					return -2 * o + 1;
+				}
+				return a.y > b.y ? -1 : 1;
+			});
 		}
 
+		// filter out low entries
 		return <svg viewBox="0 0 400 400">
 			<VictoryPie
 				containerComponent={<VictoryContainer title="" />}
 				animate={{duration: 300}}
-				labels={(d) => (d.y).toFixed(0) + "%"}
+				labels={(d) => {
+					if(d.x === "other") {
+						return "<" + (d.y).toFixed(0) + "%"
+					}
+					return (d.y).toFixed(1) + "%"
+				}}
 				height={400}
 				width={400}
 				padding={{top: 0, bottom: 10, left: 120, right: 80}}
