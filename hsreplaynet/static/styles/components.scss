@@ -150,7 +150,7 @@
 			text-align: center;
 		}
 
-		.header-sortable {
+		> .header-sortable, > * {
 			user-select: none;
 			cursor: pointer;
 			outline: none;

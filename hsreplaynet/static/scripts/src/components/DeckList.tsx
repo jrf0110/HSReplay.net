@@ -153,15 +153,20 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 
 		const sort = (name: string): void => {
 			if (this.props.sortBy === name) {
-				this.props.setSortDirection(this.props.sortDirection === "ascending" ? "descending" : "ascending");
+				if (this.props.setSortDirection) {
+					this.props.setSortDirection(this.props.sortDirection === "ascending" ? "descending" : "ascending");
+				}
 			}
 			else {
-				this.props.setSortDirection("descending");
-				this.props.setSortBy(name);
+				this.props.setSortDirection && this.props.setSortDirection("descending");
+				this.props.setSortBy && this.props.setSortBy(name);
 			}
 		};
 
 		const onClick = (name: string, event?) => {
+			if (!this.props.setSortDirection && !this.props.setSortBy) {
+				return;
+			}
 			if(event) {
 				event.preventDefault();
 				if (event.currentTarget) {
