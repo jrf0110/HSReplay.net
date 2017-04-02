@@ -167,7 +167,12 @@ def _fetch_query_results(parameterized_query, run_local=False):
 		result = {"msg": "Query is processing. Check back later."}
 		response = JsonResponse(result, status=202)
 
-	log.info("Query: %s Cache Hit: %s" % (parameterized_query.query_name, is_cache_hit))
+	log.info("Query: %s Cache Hit: %s Is Stale: %s" % (
+		parameterized_query.cache_key,
+		is_cache_hit,
+		triggered_refresh
+	))
+
 	query_fetch_metric_fields = {
 		"count": 1,
 	}
