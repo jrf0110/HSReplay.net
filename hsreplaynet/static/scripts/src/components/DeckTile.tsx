@@ -70,20 +70,20 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 		});
 
 		const deckNameStyle = {
-			backgroundImage: "url(/static/images/64x/class-icons/" + this.props.playerClass.toLowerCase() + ".png",
+			backgroundImage: "url(/static/images/64x/class-icons/" + this.props.playerClass.toLowerCase() + ".png)",
 		};
 
 		const dustCost = typeof this.props.dustCost === "number" ? this.props.dustCost : null;
 
 		const dustCostStyle = {
-			backgroundImage: "url(/static/images/dust.png",
+			backgroundImage: "url(/static/images/dust.png)",
 		};
 
 		return (
 			<li
 				style={{
 					backgroundImage: "url(https://art.hearthstonejson.com/v1/256x/"
-						+ getHeroCardId(this.props.playerClass, true) + ".jpg",
+						+ getHeroCardId(this.props.playerClass, true) + ".jpg)",
 				}}
 			>
 				<a href={"/decks/" + this.props.deckId}>
