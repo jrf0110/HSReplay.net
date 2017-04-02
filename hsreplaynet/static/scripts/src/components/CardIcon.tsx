@@ -71,7 +71,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 			}
 
 			return (
-				<a href={url} tabIndex={typeof this.props.tabIndex !== "undefined" ? this.props.tabIndex : 0}>
+				<a href={url} tabIndex={typeof this.props.tabIndex !== "undefined" ? this.props.tabIndex : 0} className="card-icon-link">
 					<div
 						className="card-icon"
 						style={style}

@@ -96,6 +96,12 @@
 	}
 }
 
+.card-icon-link {
+	&:active, &:focus {
+		outline: none;
+	}
+}
+
 .mana-curve {
 	list-style: none;
 	padding-left: 0px;
