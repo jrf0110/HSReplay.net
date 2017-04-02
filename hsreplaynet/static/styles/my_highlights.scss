@@ -86,7 +86,14 @@
 #page-content {
 	.content-tabs {
 		li > a {
-			text-transform: uppercase;
+			border-radius: 0;
+			color: $lightblue;
+			font-weight: bold;
+		}
+
+		li.active > a {
+			background: $offwhite;
+			color: black;
 		}
 	}
 }
