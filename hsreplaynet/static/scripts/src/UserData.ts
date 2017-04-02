@@ -8,7 +8,7 @@ interface UserDataProps {
 	username: string;
 }
 
-interface Account {
+export interface Account {
 	display: string;
 	battletag: string;
 	region: number;
