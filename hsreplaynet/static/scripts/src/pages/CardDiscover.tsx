@@ -640,6 +640,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						header="Accounts"
 						selectedValue={this.props.account}
 						onClick={(value) => this.props.setAccount(value)}
+						tabIndex={accounts.length > 1 ? 0 : -1}
 					>
 						{accounts}
 					</InfoboxFilterGroup>,
