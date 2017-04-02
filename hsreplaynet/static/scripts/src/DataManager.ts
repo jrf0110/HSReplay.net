@@ -1,5 +1,3 @@
-import { toQueryString } from "./QueryParser";
-
 export default class DataManager {
 	private readonly cache = {};
 	private readonly running = {};
@@ -18,7 +16,13 @@ export default class DataManager {
 
 	private fullUrl(url: string, params: any): string {
 		url = url.startsWith("/") ? url : "/analytics/query/" + url;
-		return url + "?" + toQueryString(params);
+
+		const keys = params ? Object.keys(params) : [];
+		const query = keys.reduce((prev, key, i) => {
+			return prev + (i > 0 ? "&" : "?") + encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+		}, "");
+
+		return url + query;
 	}
 
 	get(url: string, params?: any): Promise<any> {
