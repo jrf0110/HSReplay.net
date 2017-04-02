@@ -1,3 +1,4 @@
+import random
 from allauth.account.utils import send_email_confirmation
 from django.conf import settings
 from django.contrib import messages
@@ -245,3 +246,23 @@ class UpdateCardView(LoginRequiredMixin, View):
 class PremiumDetailView(RequestMetaMixin, TemplateView):
 	template_name = "premium/premium_detail.html"
 	title = "HearthSim Premium"
+
+	quotes = [
+		"It only cost my soul!",
+		"Mind if I roll Need?",
+		"I hope you like my invention.",
+		"Who knows what secrets we'll uncover?",
+		"You require my assistance?",
+		"Don't worry love, the cavalry's here!",
+		"Put your faith in the stats.",
+		"The gates are open!",
+		"Are you ready for this?",
+		"Join, or die! (Or both).",
+		"Are you mocking me?",
+		"D-d-don't touch that!",
+	]
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context["random_quote"] = random.choice(self.quotes)
+		return context
