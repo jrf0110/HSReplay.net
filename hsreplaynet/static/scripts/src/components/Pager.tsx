@@ -54,16 +54,21 @@ export default class Pager extends React.Component<PagerProps, void> {
 				className: "weight-normal",
 			}, additionalProps);
 
+			let disabled = true;
 			if (targetPage >= min && (max === null || targetPage <= max)) {
+				disabled = false;
+			}
+
+			if (!disabled) {
 				type = "a";
 				props["href"] = "#page=" + targetPage;
 				props["onClick"] = makeOnClick(targetPage);
 			}
 
-			return <li>{React.createElement(type, props, children)}</li>
+			return <li className={disabled ? "disabled" : null}>{React.createElement(type, props, children)}</li>
 		};
 
-		return <nav className="btn-group">
+		return <nav className="btn-group" aria-label="Deck pages">
 			<ul className="pagination">
 				{
 					action(previous, [
@@ -97,7 +102,7 @@ export default class Pager extends React.Component<PagerProps, void> {
 					}
 
 					return (
-						<li className={classNames.join(" ")}>
+						<li className={classNames.join(" ")} key={pageNumber}>
 							{content}
 						</li>
 					);
@@ -146,15 +151,15 @@ export default class Pager extends React.Component<PagerProps, void> {
 		// always show these pages
 		const pages = [min];
 
-		if(max > 1) {
+		if (max > 1) {
 			pages.push(min + 1);
 		}
 
-		if(max > 2) {
+		if (max > 2) {
 			pages.push(max);
 		}
 
-		if(max > 3) {
+		if (max > 3) {
 			pages.push(max - 1);
 		}
 

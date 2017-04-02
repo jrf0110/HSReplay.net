@@ -499,16 +499,6 @@
 			}
 		}
 
-		> span {
-			background-color: #eee;
-			color: #aaa;
-			cursor: not-allowed;
-
-			&, &:hover {
-				color: #aaa;
-			}
-		}
-
 		> span.transparent-background {
 			color: black;
 			cursor: default;
