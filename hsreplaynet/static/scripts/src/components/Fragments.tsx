@@ -2,6 +2,9 @@ import * as React from "react";
 import * as _ from "lodash";
 import {capitalize} from "../helpers";
 
+const TRUE_STRING = "yes";
+const FALSE_STRING = "no";
+
 interface FragmentMap {
 	[key: string]: any;
 }
@@ -118,7 +121,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		else {
 			this.setState((prevState: FragmentsState) => {
 				let newProps = {};
-				if (!value) {
+				if (value === null) {
 					newProps = Object.assign(newProps, prevState.childProps);
 					delete newProps[key];
 				}
@@ -166,6 +169,9 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			case "string":
 				value = "" + value;
 				break;
+			case "boolean":
+				value = value === TRUE_STRING || value === true;
+				break;
 		}
 		return value;
 	}
@@ -175,6 +181,12 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			if (Array.isArray(value)) {
 				value = value.join(",");
 			}
+		}
+
+		switch (typeof this.props.defaults[key]) {
+			case "boolean":
+				value = value ? TRUE_STRING : FALSE_STRING;
+				break;
 		}
 
 		if (!value) {
