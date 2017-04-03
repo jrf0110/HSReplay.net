@@ -2,6 +2,14 @@ import * as React from "react";
 import CardData from "../CardData";
 import {TableData} from "../interfaces";
 import CardRankingTableRow from "./CardRankingTableRow";
+import {ClickTouch, TooltipContent} from "./Tooltip";
+
+interface TooltipMap<T> {
+	rank?: T;
+	card?: T;
+	popularity?: T;
+	winrate?: T;
+}
 
 interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> {
 	data?: TableData;
@@ -9,6 +17,7 @@ interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> 
 	cardData: CardData;
 	numRows: number;
 	urlGameType: string;
+	tooltips?: TooltipMap<JSX.Element>;
 }
 
 export default class CardRankingTable extends React.Component<CardRankingTableProps, any> {
@@ -32,14 +41,24 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 			);
 		});
 
+		const tooltip = (key: keyof TooltipMap<any>): JSX.Element|null => {
+			if (!this.props.tooltips) {
+				return null;
+			}
+			if (!this.props.tooltips[key]) {
+				return null;
+			}
+			return this.props.tooltips[key];
+		}
+
 		return (
 			<table className="table table-striped">
 				<thead>
 				<tr>
-					<th>Rank</th>
-					<th>Card</th>
-					<th>Popularity</th>
-					{hasWinrate ? <th>Winrate</th> : null}
+					<th>Rank{tooltip("rank")}</th>
+					<th>Card{tooltip("card")}</th>
+					<th>Popularity{tooltip("popularity")}</th>
+					{hasWinrate ? <th>Winrate{tooltip("winrate")}</th> : null}
 				</tr>
 				</thead>
 				<tbody>

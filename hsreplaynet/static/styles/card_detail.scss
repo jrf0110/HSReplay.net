@@ -19,12 +19,12 @@
 		}
 
 		#card-tables {
-			>div >* {
+			>div > * {
 				max-width: 500px;
 				margin: 0 auto;
 			}
 
-			h4 {
+			> h4, > div > h4 {
 				padding-top: 20px;
 			}
 		}

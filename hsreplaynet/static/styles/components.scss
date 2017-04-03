@@ -3,6 +3,10 @@
 	text-transform: none;
 }
 
+table .info-icon {
+	margin-left: 0.3em;
+}
+
 .tooltip-wrapper {
 	cursor: help;
 	display: inline;
@@ -396,10 +400,6 @@
 		margin-top: -7px;
 		min-width: 150px;
 		max-width: 217px;
-	}
-
-	.info-icon {
-		margin-left: 0.3em;
 	}
 }
 
