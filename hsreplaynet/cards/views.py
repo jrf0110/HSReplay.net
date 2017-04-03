@@ -11,11 +11,6 @@ from .queries import CardCountersQueryBuilder
 from .stats.winrates import get_head_to_head_winrates
 
 
-class ArchetypesView(RequestMetaMixin, TemplateView):
-	template_name = "cards/deck_archetypes.html"
-	title = "Archetypes"
-
-
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class CardStatsView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_stats.html"
