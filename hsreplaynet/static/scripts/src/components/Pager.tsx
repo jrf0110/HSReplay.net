@@ -36,8 +36,17 @@ export default class Pager extends React.Component<PagerProps, void> {
 			lastPage = page;
 		}
 
-		const makeOnClick = (pageNumber: number) => (e) => {
-			e.preventDefault();
+		const makeOnClick = (pageNumber: number, keyboard?: boolean) => (event) => {
+			if (keyboard && event.which !== 13) {
+				return;
+			}
+
+			event.preventDefault();
+			const target = event.currentTarget;
+			if(target && !keyboard) {
+				target.blur();
+			}
+
 			this.props.setCurrentPage(pageNumber);
 		};
 
@@ -63,6 +72,7 @@ export default class Pager extends React.Component<PagerProps, void> {
 				type = "a";
 				props["href"] = "#page=" + targetPage;
 				props["onClick"] = makeOnClick(targetPage);
+				props["onKeyDown"] = makeOnClick(targetPage, true);
 			}
 
 			return <li className={disabled ? "disabled" : null}>{React.createElement(type, props, children)}</li>
@@ -87,7 +97,12 @@ export default class Pager extends React.Component<PagerProps, void> {
 					}
 					else {
 						content = (
-							<a href={"#page=" + pageNumber} onClick={makeOnClick(pageNumber)} className="fixed-width">
+							<a
+								href={"#page=" + pageNumber}
+								onClick={makeOnClick(pageNumber)}
+								onKeyDown={makeOnClick(pageNumber, true)}
+								className="fixed-width"
+							>
 								{pageNumber} {page.active ? <span className="sr-only">(current)</span> : null}
 							</a>
 						);
