@@ -20,7 +20,7 @@ if(typeof _userdata === "object" && typeof _userdata.userid !== "undefined") {
 	ga("set", "userId", _userdata.userid);
 }
 ga("send", "pageview", {
-	page: location.pathname + location.search.replace(/((state)|(code))=\w+\&?/, "").replace(/^\?$/, "") + location.hash
+	page: location.pathname,
 });
 {% endif %}
 
