@@ -10,6 +10,7 @@ import {Visibility} from "../interfaces";
 import DeleteReplayButton from "../components/DeleteReplayButton";
 import PlayerInfo from "../components/PlayerInfo";
 import UserData from "../UserData";
+import CardData from "../CardData";
 
 // shortid
 let shortid = document.getElementById("replay-infobox").getAttribute("data-shortid");
@@ -115,16 +116,23 @@ if (playerInfo) {
 	const opponentName = playerInfo.getAttribute("data-opponent-name");
 	const build = +playerInfo.getAttribute("data-build");
 	const featureCardDb = playerInfo.getAttribute("data-feature-carddb") === "1";
-	ReactDOM.render(
-		<PlayerInfo
-			gameId={gameId}
-			playerName={playerName}
-			opponentName={opponentName}
-			build={build}
-			user={user}
-		/>,
-		playerInfo,
-	);
+	const renderPlayerInfo = (cards?) => {
+		ReactDOM.render(
+			<PlayerInfo
+				gameId={gameId}
+				playerName={playerName}
+				opponentName={opponentName}
+				build={build}
+				user={user}
+				cards={cards}
+			/>,
+			playerInfo,
+		);
+	};
+	renderPlayerInfo();
+	new CardData().load((cards) => {
+		renderPlayerInfo(cards);
+	})
 }
 
 // fullscreen button for mobile

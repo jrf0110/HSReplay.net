@@ -4,8 +4,8 @@ import HDTButton from "./HDTButton";
 import {cardSorting} from "../helpers";
 
 interface CardListProps extends React.ClassAttributes<CardList> {
-	cardDb: Map<string, any>;
-	cards: string[];
+	cards: any;
+	cardList: string[];
 	cardHeight?: number;
 	rarityColored?: boolean;
 	name: string;
@@ -17,18 +17,18 @@ interface CardListProps extends React.ClassAttributes<CardList> {
 
 export default class CardList extends React.Component<CardListProps, any> {
 	public render(): JSX.Element {
-		if (!this.props.cards) {
+		if (!this.props.cardList) {
 			return null;
 		}
-		if (!this.props.cardDb) {
+		if (!this.props.cards) {
 			return <div>Loading…</div>;
 		}
 
 		const cardHeight = this.props.cardHeight ? this.props.cardHeight : 34;
 		const counts = {};
-		this.props.cards.forEach((id) => counts[id] = (counts[id] || 0) + 1);
+		this.props.cardList.forEach((id) => counts[id] = (counts[id] || 0) + 1);
 
-		const cards = Object.keys(counts).map((id) => this.props.cardDb.get(id));
+		const cards = Object.keys(counts).map((id) => this.props.cards.byCardId[id]);
 		cards.sort(cardSorting);
 
 		const cardTiles = [];

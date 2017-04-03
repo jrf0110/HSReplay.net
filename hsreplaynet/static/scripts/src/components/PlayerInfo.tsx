@@ -3,6 +3,7 @@ import CardList from "./CardList";
 import {GameReplay, GlobalGamePlayer} from "../interfaces";
 import HearthstoneJSON from "hearthstonejson";
 import UserData from "../UserData";
+import CardData from "../CardData";
 
 interface PlayerInfoProps extends React.ClassAttributes<PlayerInfo> {
 	build: number;
@@ -10,12 +11,11 @@ interface PlayerInfoProps extends React.ClassAttributes<PlayerInfo> {
 	opponentName: string;
 	playerName: string;
 	user: UserData;
+	cards: any[]|null;
 }
 
 interface PlayerInfoState {
-	db?: Map<string, any>;
 	game?: GameReplay;
-	loadingDb?: boolean;
 	showOpponentDeck?: boolean;
 	showPlayerDeck?: boolean;
 }
@@ -25,40 +25,13 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	constructor(props: PlayerInfoProps, context: any) {
 		super(props, context);
 		this.state = {
-			db: null,
 			game: null,
-			loadingDb: false,
 			showOpponentDeck: false,
 			showPlayerDeck: false,
 		};
-		if (this.props.build) {
-			this.loadDb();
-		}
 		if (this.props.gameId) {
 			this.fetch();
 		}
-	}
-
-	protected loadDb() {
-		if (this.state.loadingDb) {
-			return;
-		}
-		let build = this.props.build || this.state.game && this.state.game.global_game.build;
-		if (!build) {
-			if (this.state.game) {
-				this.setState({loadingDb: true});
-				new HearthstoneJSON().getLatest().then((cards) => this.buildDb(cards));
-			}
-			return;
-		}
-		this.setState({loadingDb: true});
-		new HearthstoneJSON().get(build).then((cards) => this.buildDb(cards));
-	}
-
-	private buildDb(cards: any) {
-		let map = new Map<string, any>();
-		cards.forEach((card) => map = map.set(card.id, card));
-		this.setState({db: map, loadingDb: false});
 	}
 
 	protected fetch() {
@@ -70,11 +43,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 			this.setState({
 				game: json,
 			});
-		}).then(() => {
-			if (!this.state.db && !this.state.loadingDb) {
-				this.loadDb();
-			}
-		});
+		})
 	}
 
 	render(): JSX.Element {
@@ -103,8 +72,8 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					const deckClass = this.toTitleCase(this.state.game.opposing_player.hero_class_name);
 					opponentDeck.push(
 						<CardList
-							cardDb={this.state.db}
-							cards={this.state.game.opposing_deck.cards}
+							cards={this.props.cards}
+							cardList={this.state.game.opposing_deck.cards}
 							deckClass={deckClass}
 							name={this.state.game.opposing_player.name + "'s " + deckClass}
 							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
@@ -128,8 +97,8 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					const deckClass = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
 					playerDeck.push(
 						<CardList
-							cardDb={this.state.db}
-							cards={this.state.game.friendly_deck.cards}
+							cards={this.props.cards}
+							cardList={this.state.game.friendly_deck.cards}
 							deckClass={deckClass}
 							name={this.state.game.friendly_player.name + "'s " + deckClass}
 							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
