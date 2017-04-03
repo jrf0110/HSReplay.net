@@ -242,6 +242,18 @@
 			padding: 1em 2em;
 		}
 	}
+
+	@media (max-width: 767px) {
+		.btn-group {
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.btn {
+			width: 100%;
+			display: block;
+		}
+	}
 }
 
 .premium-wrapper {
