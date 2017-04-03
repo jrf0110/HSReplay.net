@@ -170,12 +170,11 @@
 				{% if user.is_authenticated %}
 					{% with user.stripe_customer as customer %}
 					<div class="form-group">
-						{% if user.default_payment_method %}
+						{% if customer.default_source %}
 							<p class="text-center">
-								<button class="promo-button text-premium" type="submit" disabled
-								>Subscribe now</button>
+								<button type="submit" class="promo-button text-premium">Subscribe now</button>
 							</p>
-							<p class="text-center">Using {{ user.default_payment_method }}</p>
+							<p class="text-center">Using <strong>{{ customer.default_source.brand }} &bull;&bull;&bull;&bull; {{ customer.default_source.last4 }}</strong></p>
 						{% else %}
 							<p class="text-center">
 								{% include "premium/checkout_button.html" with id="premium-checkout-button" label="Sign me up!" %}
