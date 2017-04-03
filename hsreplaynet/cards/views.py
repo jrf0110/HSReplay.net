@@ -20,6 +20,8 @@ class ArchetypesView(RequestMetaMixin, TemplateView):
 class CardStatsView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_stats.html"
 	title = "Cards"
+	description = "Compare statistics about all collectible Hearthstone cards. "\
+		"Find the cards that are played the most or have the highest winrate."
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
@@ -32,6 +34,8 @@ class MyCardStatsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 class CardGalleryView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_gallery.html"
 	title = "Card Gallery"
+	description = "View all collectible cards in Hearthstone. Filter by cost, rarity, " \
+		"set, type, race and mechanics. Examine detailed statistics for any card."
 
 
 @method_decorator(view_requires_feature_access("cardeditor"), name="dispatch")
@@ -67,6 +71,11 @@ class CardDetailView(DetailView):
 
 		self.request.head.set_canonical_url(obj.get_absolute_url())
 		self.request.head.title = obj.name
+
+		if obj.collectible:
+			description = "Statistics about %s, the Hearthstone card. " \
+				"Learn which decks we recommend and how it's played." % (obj.name)
+			self.request.head.add_meta({"name": "description", "content": description})
 
 		return obj
 

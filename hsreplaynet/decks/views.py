@@ -48,6 +48,10 @@ class DeckDetailView(View):
 			"deck_name": deck_name,
 		}
 
+		description = "Decklist for this %s. Learn how to play it with our mulligan " \
+			"guide and find similar decks." % (deck_name)
+		self.request.head.add_meta({"name": "description", "content": description})
+
 		return render(request, self.template_name, context)
 
 
@@ -55,12 +59,16 @@ class DeckDetailView(View):
 class DeckListView(RequestMetaMixin, TemplateView):
 	template_name = "decks/deck_list.html"
 	title = "Decks"
+	description = "Dive into the Hearthstone meta and find new decks by class, cards or " \
+		"game mode. Learn about their winrates and popularity on the ladder."
 
 
 @method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class TrendingDecksView(RequestMetaMixin, TemplateView):
 	template_name = "decks/trending.html"
 	title = "Trending Decks"
+	description = "Find the up-and-coming decks with rising popularity in Hearthstone " \
+		"for each class updated every single day."
 
 
 def canonical_decks(request):
