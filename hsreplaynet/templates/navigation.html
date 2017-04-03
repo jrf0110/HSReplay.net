@@ -23,7 +23,7 @@
 				{% block navlinks %}
 					<ul class="nav navbar-nav">
 						<li{% nav_active 'articles_article_list' %}>
-							<a href="{% url 'articles_article_list' %}">
+							<a href="{% url 'articles_article_list' %}" id="navbar-link-articles">
 								<span class="glyphicon glyphicon-comment"></span>
 								<span class="hidden-sm">Articles</span>
 							</a>
@@ -31,32 +31,34 @@
 
 						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
 							<li{% nav_active 'trending_decks' %}>
-								<a href="{% url 'trending_decks' %}">
+								<a href="{% url 'trending_decks' %}" id="navbar-link-trending">
 									<span class="glyphicon glyphicon-fire"></span>
 									<span class="hidden-sm">Trending</span>
 								</a>
 							</li>
 							<li{% nav_active 'deck_list' %}>
-								<a href="{% url 'deck_list' %}">
+								<a href="{% url 'deck_list' %}" id="navbar-link-decks">
 									<span class="glyphicon glyphicon-th-list"></span>
 									<span class="hidden-sm">Decks</span>
 								</a>
 							</li>
 							<li{% nav_active 'card_stats' %}>
-								<a href="{% url 'card_stats' %}">
+								<a href="{% url 'card_stats' %}" id="navbar-link-cards">
 									<span class="glyphicon glyphicon-stats"></span>
 									<span class="hidden-sm">Cards</span>
 								</a>
 							</li>
 							<li{% nav_active 'card_gallery' %}>
-								<a href="{% url 'card_gallery' %}">
+								<a href="{% url 'card_gallery' %}" id="navbar-link-gallery">
 									<span class="glyphicon glyphicon-th-large"></span>
 									<span class="hidden-sm">Gallery</span>
 								</a></li>
 						{% endif %}
 
 						{% if ft_carddb.enabled %}
-							<li{% nav_active 'premium' css='active active-premium' %}><a href="{% url 'premium' %}" class="text-premium">Premium</a></li>
+							<li{% nav_active 'premium' css='active active-premium' %} id="navbar-link-premium">
+								<a href="{% url 'premium' %}" class="text-premium">Premium</a>
+							</li>
 						{% endif %}
 
 						{% feature "scenarios" as ft_scenarios %}{% if ft_scenarios.enabled %}
@@ -90,7 +92,7 @@
 
 						{% feature "profiles" as ft_profiles %}{% if ft_profiles.enabled %}
 							<li{% nav_active 'profile_highlights' %}>
-								<a href="{% url 'profile_highlights' %}">
+								<a href="{% url 'profile_highlights' %}" id="navbar-link-my-highlights">
 									<span class="glyphicon glyphicon-star"></span>
 									<span class="hidden-sm">My Highlights</span>
 								</a>
@@ -98,7 +100,7 @@
 						{% endif %}
 						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
 							<li{% nav_active 'my_card_stats' css='active active-premium' %}>
-								<a href="{% url 'my_card_stats' %}" class="text-premium">
+								<a href="{% url 'my_card_stats' %}" class="text-premium" id="navbar-link-my-cards">
 									<span class="glyphicon glyphicon-stats"></span>
 									<span class="hidden-sm">My Cards</span>
 								</a>
@@ -106,7 +108,7 @@
 						{% endif %}
 
 						<li{% nav_active 'my_replays' %}>
-							<a href="{% url 'my_replays' %}">
+							<a href="{% url 'my_replays' %}" id="navbar-link-my-replays">
 								<span class="glyphicon glyphicon-play"></span>
 								<span class="hidden-sm">My Replays</span>
 							</a>
