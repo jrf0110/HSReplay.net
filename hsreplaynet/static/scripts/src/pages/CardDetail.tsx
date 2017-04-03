@@ -155,6 +155,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									numRows={8}
 									dataKey={"ALL"}
 									urlGameType={this.props.customGameType}
+									tooltips={{
+										popularity: (
+											<InfoIcon
+												header="Popularity for Discover"
+												content="A card's percentage represents how often the card was picked over others if it was available for choice."
+											/>
+										),
+									}}
 								/>
 							</TableLoading>
 						</DataInjector>,
