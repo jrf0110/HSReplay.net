@@ -6,7 +6,19 @@ import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 
 const container = document.getElementById("card-container");
-const viewType = container.getAttribute("data-view-type");
+let viewType = ViewType.STATISTICS;
+switch (container.getAttribute("data-view-type")) {
+	case "statistics":
+		viewType = ViewType.STATISTICS;
+		break;
+	case "personal":
+		viewType = ViewType.PERSONAL;
+		break;
+	case "cards":
+		viewType = ViewType.CARDS;
+		break;
+}
+
 const user = new UserData();
 
 const availableAccounts = user.getAccounts();
@@ -41,7 +53,7 @@ const render = (cardData: CardData) => {
 			<CardDiscover
 				cardData={cardData}
 				user={user}
-				viewType={viewType as ViewType}
+				viewType={viewType}
 				accounts={availableAccounts}
 			/>
 		</Fragments>,
