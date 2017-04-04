@@ -110,5 +110,8 @@ class RequestMetaMixin:
 		if hasattr(self, "title"):
 			self.request.head.title = self.title
 		if hasattr(self, "description"):
-			self.request.head.add_meta({"name": "description", "content": self.description})
+			self.request.head.add_meta(
+				{"name": "description", "content": self.description},
+				{"property": "og:description", "content": self.description},
+			)
 		return super().get(request, *args, **kwargs)
