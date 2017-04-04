@@ -46,7 +46,8 @@ class MetaTagsMiddleware:
 
 		facebook_app_id = getattr(settings, "HSREPLAY_FACEBOOK_APP_ID", "")
 		if facebook_app_id:
-			request.head.add_meta({"name": "fb:app_id", "content": facebook_app_id})
+			# This is intentionally "property"
+			request.head.add_meta({"property": "fb:app_id", "content": facebook_app_id})
 
 		response = self.get_response(request)
 		return response
