@@ -4,6 +4,7 @@ https://docs.djangoproject.com/en/1.10/topics/http/middleware/
 """
 
 from django.conf import settings
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from .html import HTMLHead
 
 
@@ -33,11 +34,15 @@ class MetaTagsMiddleware:
 
 	def __call__(self, request):
 		request.head = HTMLHead(request)
+		thumbnail = static("images/hsreplay-thumbnail.png")
 		request.head.add_meta(
 			{"name": "viewport", "content": "width=device-width, initial-scale=1"},
 			{"property": "og:type", "content": "website"},
 			{"property": "og:site_name", "content": "HSReplay.net"},
 			{"property": "og:locale", "content": "en_US"},
+			{"property": "og:image", "content": request.build_absolute_uri(thumbnail)},
+			{"property": "og:image:width", "content": 400},
+			{"property": "og:image:height", "content": 400},
 		)
 
 		twitter_handle = getattr(settings, "HSREPLAY_TWITTER_HANDLE", "")
