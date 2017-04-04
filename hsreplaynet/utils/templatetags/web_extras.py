@@ -1,5 +1,4 @@
 import json
-import re
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -80,12 +79,7 @@ def adunit(slot, responsive=True):
 
 @register.simple_tag(takes_context=True)
 def static_absolute(context, value):
-	request = context.request
-	value = static(value)
-	# check whether scheme is present according to RFC 3986
-	if not re.match("[a-z]([a-z0-9+-.])*:", value, re.IGNORECASE):
-		value = "%s://%s%s" % (request.scheme, request.get_host(), value)
-	return value
+	return context.request.build_absolute_uri(static(value))
 
 
 @register.simple_tag(takes_context=True)
