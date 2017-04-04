@@ -112,7 +112,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
 		race: ["BEAST", "DEMON", "DRAGON", "ELEMENTAL", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
 		rarity: ["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"],
-		set: ["CORE", "EXPERT1", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "PROMO", "REWARD"],
+		set: ["CORE", "EXPERT1", "UNGORO", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "HOF"],
 		type: ["MINION", "SPELL", "WEAPON"],
 	};
 	readonly multiClassGroups = {

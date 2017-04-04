@@ -219,6 +219,11 @@ const cardsetScheme: ChartScheme = {
 		stroke: "rgba(65, 27, 136, 0.9)",
 		name: "Mean Streets of Gadgetzan",
 	},
+	"ungoro": {
+		fill: "rgba(0, 95, 0, 0.5)",
+		stroke: "rgba(0, 95, 0, 0.9)",
+		name: "Journey to Un'Goro",
+	},
 };
 
 const classColorScheme: ChartScheme = {
@@ -282,8 +287,7 @@ const classColorScheme: ChartScheme = {
 export const setNames = {
 	"core": "Basic",
 	"expert1": "Classic",
-	"reward": "Reward",
-	"promo": "Promotion",
+	"hof": "Hall of Fame",
 	"naxx": "Curse of Naxxramas",
 	"gvg": "Goblins vs Gnomes",
 	"brm": "Blackrock Mountain",
@@ -293,9 +297,10 @@ export const setNames = {
 	"og": "Whispers of the Old Gods",
 	"kara": "One Night in Karazhan",
 	"gangs": "Mean Streets of Gadgetzan",
+	"ungoro": "Journey to Un'Goro",
 };
 
-export const wildSets = ["NAXX", "GVG", "PROMO", "REWARD"];
+export const wildSets = ["NAXX", "GVG", "UNGORO", "HOF"];
 
 export function isWildCard(card: any) {
 	return wildSets.indexOf(card.set) !== -1;
