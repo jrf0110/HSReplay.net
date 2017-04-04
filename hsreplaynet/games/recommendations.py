@@ -51,11 +51,11 @@ class RecommendationGenerator:
 
 class DeckMatchGenerator(RecommendationGenerator):
 	def generate(self):
-		account_lo = self.source_replay.friendly_player.account_lo
+		account_lo = self.source_replay.friendly_player.pegasus_account.account_lo
 		query = GameReplay.objects.filter(
 			visibility=Visibility.Public,
 			global_game__players__deck_list=self.deck
-		).exclude(global_game__players__account_lo=account_lo)[:self.max]
+		).exclude(global_game__players__pegasus_account__account_lo=account_lo)[:self.max]
 		self.recommendations += query
 
 

@@ -92,7 +92,7 @@ class GlobalGameAdmin(admin.ModelAdmin):
 class GlobalGamePlayerAdmin(admin.ModelAdmin):
 	actions = (set_user, )
 	list_display = (
-		"__str__", "account_lo", urlify("hero"), "is_first",
+		"__str__", "pegasus_account", urlify("hero"), "is_first",
 		"rank", "stars", "legend_rank", "final_state"
 	)
 	list_filter = ("is_ai", "is_first", "hero_premium", "final_state", "player_id")

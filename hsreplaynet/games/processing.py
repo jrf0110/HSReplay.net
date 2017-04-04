@@ -516,8 +516,6 @@ def update_global_players(global_game, entity_tree, meta, upload_event):
 			"player_id": player.player_id,
 		}
 		defaults = {
-			"account_hi": player.account_hi,
-			"account_lo": player.account_lo,
 			"is_first": player.tags.get(GameTag.FIRST_PLAYER, False),
 			"is_ai": player.is_ai,
 			"hero_id": player_hero_id,

@@ -218,14 +218,6 @@ class GlobalGamePlayer(models.Model):
 
 	player_id = PlayerIDField(blank=True)
 	pegasus_account = models.ForeignKey(PegasusAccount, null=True, on_delete=models.SET_NULL)
-	account_hi = models.BigIntegerField(
-		"Account Hi", blank=True, null=True,
-		help_text="The region value from account hilo"
-	)
-	account_lo = models.BigIntegerField(
-		"Account Lo", blank=True, null=True,
-		help_text="The account ID value from account hilo"
-	)
 	is_ai = models.BooleanField(
 		"Is AI", default=False,
 		help_text="Whether the player is an AI.",
