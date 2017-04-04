@@ -50,6 +50,7 @@ export default class CheckoutProcess {
 			eventCategory: "Checkout",
 			eventAction: action,
 			eventValue: value,
+			transport: "beacon",
 		});
 	}
 }

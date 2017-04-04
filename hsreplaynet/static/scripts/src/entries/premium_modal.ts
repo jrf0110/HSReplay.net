@@ -11,6 +11,7 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false) 
 		eventCategory: "Premium Modal",
 		eventAction: action,
 		nonInteraction: nonInteraction,
+		transport: "beacon",
 	});
 };
 
