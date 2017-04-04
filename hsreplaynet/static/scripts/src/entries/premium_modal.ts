@@ -27,7 +27,6 @@ const openModal = (modalToOpen) => {
 
 	// setup focus
 	lastFocus = document.activeElement;
-	console.log(lastFocus);
 	const inner = modalToOpen.children[0];
 	inner.setAttribute("tabindex", 0);
 	inner.focus();
