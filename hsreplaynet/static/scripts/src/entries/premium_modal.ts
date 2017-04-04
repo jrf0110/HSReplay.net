@@ -285,12 +285,20 @@ const setupCheckout = (target: HTMLFormElement|HTMLButtonElement) => {
 					// clear the running checkout process
 					checkoutProcess = null;
 				});
+
+				// track start of checkout
+				trackModalInteraction("checkout");
 			};
 			// enable button
 			button.removeAttribute("disabled");
 			button.classList.remove("wait");
 		}
 	});
+
+	const learnMore = document.getElementById("premium-modal-learn-more");
+	if(learnMore) {
+		learnMore.onclick = () => trackModalInteraction("details");
+	}
 };
 
 window.hsreplaynet_load_stripe = (targetElement: HTMLFormElement|HTMLButtonElement) => {
