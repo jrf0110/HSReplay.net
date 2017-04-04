@@ -253,16 +253,17 @@ class PremiumDetailView(RequestMetaMixin, TemplateView):
 	quotes = [
 		"It only cost my soul!",
 		"Mind if I roll Need?",
-		"I hope you like my invention.",
+		"I hope you like my invention!",
 		"Who knows what secrets we'll uncover?",
 		"You require my assistance?",
 		"Don't worry love, the cavalry's here!",
 		"Put your faith in the stats.",
 		"The gates are open!",
 		"Are you ready for this?",
-		"Join, or die! (Or both).",
-		"Are you mocking me?",
+		"Join, or die (or both)!",
 		"D-d-don't touch that!",
+		"Wanna blow somethin' up?",
+		"I have no time for games!"
 	]
 
 	def get_context_data(self, **kwargs):
