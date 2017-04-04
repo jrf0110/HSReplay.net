@@ -300,7 +300,7 @@ export const setNames = {
 	"ungoro": "Journey to Un'Goro",
 };
 
-export const wildSets = ["NAXX", "GVG", "UNGORO", "HOF"];
+export const wildSets = ["NAXX", "GVG", "HOF"];
 
 export function isWildCard(card: any) {
 	return wildSets.indexOf(card.set) !== -1;
