@@ -22,6 +22,7 @@ from hsreplaynet.utils.synchronization import CountDownLatch
 
 @instrumentation.lambda_handler(
 	cpu_seconds=180,
+	memory=settings.LAMBDA_PROCESSING_MEMORY_MB,
 	stream_name="replay-upload-processing-stream",
 	stream_batch_size=100,
 )
