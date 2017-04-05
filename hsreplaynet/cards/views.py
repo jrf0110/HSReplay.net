@@ -66,6 +66,9 @@ class CardDetailView(DetailView):
 
 		self.request.head.set_canonical_url(obj.get_absolute_url())
 		self.request.head.title = obj.name
+		self.request.head.opengraph["og:image"] = obj.get_card_art_url()
+		self.request.head.opengraph["og:image:width"] = 256
+		self.request.head.opengraph["og:image:height"] = 256
 
 		if obj.collectible:
 			description = "Statistics about %s, the Hearthstone card. " \

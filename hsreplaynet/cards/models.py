@@ -113,6 +113,9 @@ class Card(models.Model):
 	def get_absolute_url(self):
 		return reverse("card_detail", kwargs={"pk": self.dbf_id, "slug": self.slug})
 
+	def get_card_art_url(self, resolution=256, format="jpg"):
+		return "https://art.hearthstonejson.com/v1/%ix/%s.%s" % (resolution, self.id, format)
+
 	def update_from_cardxml(self, cardxml, save=False):
 		for k in dir(cardxml):
 			if k.startswith("_"):
