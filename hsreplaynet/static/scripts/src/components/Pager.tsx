@@ -78,7 +78,7 @@ export default class Pager extends React.Component<PagerProps, void> {
 			return <li className={disabled ? "disabled" : null}>{React.createElement(type, props, children)}</li>
 		};
 
-		return <nav className="btn-group" aria-label="Deck pages">
+		return <nav className="btn-group">
 			<ul className="pagination">
 				{
 					action(previous, [
