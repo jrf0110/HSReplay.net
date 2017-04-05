@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
-	VictoryAxis, VictoryArea, VictoryChart, VictoryContainer, VictoryLabel,
-	VictoryLine, VictoryScatter
+	VictoryArea, VictoryAxis, VictoryChart, VictoryContainer, VictoryLabel, VictoryScatter,
 } from "victory";
 import {RenderData} from "../../interfaces";
 import {getChartMetaData} from "../../helpers";
@@ -20,7 +19,7 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 		const width = 150 * (this.props.widthRatio || 3);
 
 		const renderData = this.props.premiumLocked ? this.mockData : this.props.data;
-		const series = renderData.series.find(s => s.name === "popularity_by_turn"
+		const series = renderData.series.find((s) => s.name === "popularity_by_turn"
 			&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 		const metaData = getChartMetaData(series.data, undefined, false, 10);
 
@@ -47,12 +46,12 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 						<VictoryAxis
 							label="Turn"
 							tickCount={series.data.length}
-							tickFormat={tick => tick}
+							tickFormat={(tick) => tick}
 							style={{
 								axisLabel: {fontSize: 8},
 								tickLabels: {fontSize: 8},
 								grid: {stroke: "lightgray"},
-								axis: {visibility: "hidden"}
+								axis: {visibility: "hidden"},
 							}}
 						/>
 						<VictoryAxis
@@ -60,30 +59,25 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 							label={"Popularity"}
 							axisLabelComponent={<VictoryLabel dy={-1} dx={30} />}
 							tickValues={[0, metaData.yCenter, metaData.yDomain[1]]}
-							tickFormat={tick => Math.round(+tick) + " %"}
+							tickFormat={(tick) => Math.round(+tick) + " %"}
 							style={{
 								axisLabel: {fontSize: 8},
 								tickLabels: {fontSize: 8},
-								grid: {stroke: d => d === metaData.yCenter ? "gray" : "lightgray"},
-								axis: {visibility: "hidden"}
+								grid: {stroke: (d) => d === metaData.yCenter ? "gray" : "lightgray"},
+								axis: {visibility: "hidden"},
 							}}
-						/>
-						<VictoryLine
-							data={series.data}
-							interpolation="monotoneX"
-							style={{data: {strokeWidth: 1}}}
 						/>
 						<VictoryScatter
 							data={series.data}
 							size={1}
 						/>
 						<VictoryArea
-							data={series.data.map(p => {return {x: p.x, y: p.y, _y0: 0}})}
-							style={{data: {fill: "url(#turn-played-gradient)"}}}
+							data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 0};})}
+							style={{data: {fill: "url(#turn-played-gradient)", stroke: "black", strokeWidth: 0.3}}}
 							interpolation="monotoneX"
 							containerComponent={<VictoryVoronoiContainer
 								dimension="x"
-								labels={d => "Turn " + d.x + "\n" + d.y + "%"}
+								labels={(d) => "Turn " + d.x + "\n" + d.y + "%"}
 								labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
 							/>}
 						/>
@@ -107,7 +101,7 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 				{y: 9, x: 8},
 				{y: 51, x: 9},
 				{y: 9, x: 10},
-			]
-		}]
+			],
+		}],
 	};
 }

@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
-	VictoryArea, VictoryAxis, VictoryChart, VictoryContainer, VictoryLabel,
-	VictoryLine, VictoryScatter,
+	VictoryArea, VictoryAxis, VictoryChart, VictoryContainer, VictoryLabel, VictoryScatter,
 } from "victory";
 import {VictoryVoronoiContainer} from "victory";
 import {getChartMetaData} from "../../helpers";
@@ -88,11 +87,6 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 							tickLabels: {fontSize: 8},
 						}}
 					/>
-					<VictoryLine
-						data={series.data}
-						interpolation="monotoneX"
-						style={{data: {strokeWidth: 1}}}
-					/>
 					<VictoryScatter
 						data={series.data}
 						symbol="circle"
@@ -100,7 +94,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					/>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
-						style={{data: {fill: "url(#winrate-by-turn-gradient)"}}}
+						style={{data: {fill: "url(#winrate-by-turn-gradient)", stroke: "black", strokeWidth: 0.3}}}
 						interpolation="monotoneX"
 						containerComponent={<VictoryVoronoiContainer
 							dimension="x"
