@@ -1392,8 +1392,8 @@ hawk@~3.1.3:
     sntp "1.x.x"
 
 hearthstonejson@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/hearthstonejson/-/hearthstonejson-0.6.0.tgz#dff1609765c9a2c1df4c880f7060dfa97c86bf0c"
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/hearthstonejson/-/hearthstonejson-0.6.1.tgz#ab14bd686c880285d4f10f35817f1ed67fdf591f"
   dependencies:
     isomorphic-fetch "^2.2.1"
 
@@ -2477,8 +2477,8 @@ tslint@^5.0.0:
     tsutils "^1.4.0"
 
 tsutils@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-1.4.0.tgz#84f8a83df9967d35bf1ff3aa48c7339593d64e19"
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-1.5.0.tgz#36b571537827988b497244486a77792c8fc3563c"
 
 tty-browserify@0.0.0:
   version "0.0.0"
@@ -2549,7 +2549,7 @@ verror@1.3.6:
   dependencies:
     extsprintf "1.0.2"
 
-victory-chart@^18.1.4:
+victory-chart@^18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/victory-chart/-/victory-chart-18.2.0.tgz#288102cea98c52925ab79bf88fa392784c5fba32"
   dependencies:
@@ -2557,9 +2557,9 @@ victory-chart@^18.1.4:
     lodash "^4.12.0"
     victory-core "^14.0.7"
 
-victory-core@^14.0.7:
-  version "14.0.7"
-  resolved "https://registry.yarnpkg.com/victory-core/-/victory-core-14.0.7.tgz#e26859e82b960d03371f7bd28f48801a73fc3925"
+victory-core@^14.0.7, victory-core@^14.1.0:
+  version "14.1.0"
+  resolved "https://registry.yarnpkg.com/victory-core/-/victory-core-14.1.0.tgz#d11b5479694fbfd819e5cb3e05e759bf7b389c9e"
   dependencies:
     d3-ease "^1.0.0"
     d3-interpolate "^1.1.1"
@@ -2568,21 +2568,21 @@ victory-core@^14.0.7:
     d3-timer "^1.0.0"
     lodash "^4.12.0"
 
-victory-pie@^10.2.3:
-  version "10.2.3"
-  resolved "https://registry.yarnpkg.com/victory-pie/-/victory-pie-10.2.3.tgz#c8ce51222cdf14a8fee61c2d73724710946a103f"
+victory-pie@^10.3.0:
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/victory-pie/-/victory-pie-10.3.0.tgz#98be54defda448720c48479a6628616e14b65577"
   dependencies:
     d3-shape "^1.0.0"
     lodash "^4.12.0"
     victory-core "^14.0.7"
 
 victory@^0.18.3:
-  version "0.18.3"
-  resolved "https://registry.yarnpkg.com/victory/-/victory-0.18.3.tgz#7cef811d7dcc35272a273038074c3beed7a3caba"
+  version "0.18.4"
+  resolved "https://registry.yarnpkg.com/victory/-/victory-0.18.4.tgz#cf7a9a31c75cec56929308d42add6056848f72c1"
   dependencies:
-    victory-chart "^18.1.4"
-    victory-core "^14.0.7"
-    victory-pie "^10.2.3"
+    victory-chart "^18.2.0"
+    victory-core "^14.1.0"
+    victory-pie "^10.3.0"
 
 vm-browserify@0.0.4:
   version "0.0.4"
