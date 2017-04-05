@@ -73,6 +73,7 @@ module.exports = (env) => {
 		},
 		card_editor: makeEntry("card_editor"),
 		victory_widgets: makeEntry("victory_widgets"),
+		lightbox: makeEntry("lightbox"),
 		premium_modal: makeEntry("premium_modal"),
 		polyfills: ["babel-polyfill", "whatwg-fetch"],
 	};
