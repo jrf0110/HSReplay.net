@@ -37,6 +37,7 @@ class HTMLHead:
 		self.base_title = "HSReplay.net"
 		self.title = ""
 		self.canonical_url = ""
+		self.opengraph = {}
 		# self.favicon = ""
 
 		self.favicon = "images/favicon.ico"
@@ -71,6 +72,9 @@ class HTMLHead:
 		if self.canonical_url:
 			tags.append(HTMLTag("meta", attrs={"property": "og:url", "content": self.canonical_url}))
 			tags.append(HTMLTag("link", attrs={"rel": "canonical", "href": self.canonical_url}))
+
+		for k, v in self.opengraph.items():
+			tags.append(HTMLTag("meta", attrs={"property": k, "content": v}))
 
 		return tags
 

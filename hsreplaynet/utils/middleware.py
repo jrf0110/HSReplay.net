@@ -37,13 +37,14 @@ class MetaTagsMiddleware:
 		thumbnail = static("images/hsreplay-thumbnail.png")
 		request.head.add_meta(
 			{"name": "viewport", "content": "width=device-width, initial-scale=1"},
-			{"property": "og:type", "content": "website"},
-			{"property": "og:site_name", "content": "HSReplay.net"},
-			{"property": "og:locale", "content": "en_US"},
-			{"property": "og:image", "content": request.build_absolute_uri(thumbnail)},
-			{"property": "og:image:width", "content": 400},
-			{"property": "og:image:height", "content": 400},
 		)
+
+		request.head.opengraph["og:type"] = "website"
+		request.head.opengraph["og:site_name"] = "HSReplay.net"
+		request.head.opengraph["og:locale"] = "en_US"
+		request.head.opengraph["og:image"] = request.build_absolute_uri(thumbnail)
+		request.head.opengraph["og:image:width"] = 400
+		request.head.opengraph["og:image:height"] = 400
 
 		twitter_handle = getattr(settings, "HSREPLAY_TWITTER_HANDLE", "")
 		if twitter_handle:
@@ -52,7 +53,7 @@ class MetaTagsMiddleware:
 		facebook_app_id = getattr(settings, "HSREPLAY_FACEBOOK_APP_ID", "")
 		if facebook_app_id:
 			# This is intentionally "property"
-			request.head.add_meta({"property": "fb:app_id", "content": facebook_app_id})
+			request.head.opengraph["fb:app_id"] = facebook_app_id
 
 		response = self.get_response(request)
 		return response
