@@ -58,6 +58,7 @@ def process_replay_upload_stream_handler(event, context):
 
 	def lambda_invoker(payload, shortid):
 		try:
+			logger.debug("About to invoke single lambda for %s", shortid)
 			LAMBDA.invoke(
 				FunctionName="process_single_replay_upload_stream_handler",
 				InvocationType="RequestResponse",  # Triggers synchronous invocation
@@ -74,6 +75,7 @@ def process_replay_upload_stream_handler(event, context):
 		lambda_invocation = Thread(target=lambda_invoker, args=(payload, shortid))
 		lambda_invocation.start()
 
+	logger.debug("All child invocations have been started")
 	# We will exit once all child invocations have returned.
 	countdown_latch.await()
 	logger.debug("All child invocations have completed")

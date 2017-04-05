@@ -15,7 +15,7 @@ from django.conf import settings
 
 
 lambdas_logger = logging.getLogger("hsreplaynet")
-lambdas_logger.setLevel(logging.INFO)
+lambdas_logger.setLevel(logging.DEBUG)
 
 hsredshift_logger = logging.getLogger("hsredshift")
 hsredshift_logger.setLevel(logging.INFO)
