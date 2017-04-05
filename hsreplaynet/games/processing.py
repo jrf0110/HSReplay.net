@@ -669,6 +669,11 @@ def get_game_info(global_game, replay):
 		player1_decklist = player1.deck_list.as_dbf_json()
 		player2_decklist = player2.deck_list.as_dbf_json()
 
+	if settings.REDSHIFT_USE_MATCH_START_AS_GAME_DATE and global_game.match_start:
+		game_date = global_game.match_start.date()
+	else:
+		game_date = timezone.now().date()
+
 	game_info = {
 		"game_id": int(global_game.id),
 		"shortid": replay.shortid,
@@ -676,7 +681,7 @@ def get_game_info(global_game, replay):
 		"scenario_id": global_game.scenario_id,
 		"ladder_season": global_game.ladder_season,
 		"brawl_season": global_game.brawl_season,
-		"game_date": timezone.now().date(),
+		"game_date": game_date,
 		"players": {
 			"1": {
 				"deck_id": int(player1.deck_list.id),
