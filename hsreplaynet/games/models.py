@@ -236,6 +236,9 @@ class GlobalGamePlayer(models.Model):
 	final_state = IntEnumField(
 		"Final State", enum=PlayState, default=PlayState.INVALID,
 	)
+	extra_turns = models.SmallIntegerField(
+		null=True, help_text="Extra turns taken by the player this game (Time Warp)."
+	)
 
 	deck_list = models.ForeignKey(
 		Deck, on_delete=models.PROTECT,

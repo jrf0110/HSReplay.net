@@ -521,6 +521,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event):
 			"hero_id": player_hero_id,
 			"hero_premium": player._hero.tags.get(GameTag.PREMIUM, False),
 			"final_state": player.tags.get(GameTag.PLAYSTATE, 0),
+			"extra_turns": player.tags.get(GameTag.EXTRA_TURNS_TAKEN_THIS_GAME, 0),
 			"deck_list": deck,
 		}
 
