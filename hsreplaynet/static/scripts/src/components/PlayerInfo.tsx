@@ -1,9 +1,7 @@
 import * as React from "react";
 import CardList from "./CardList";
 import {GameReplay, GlobalGamePlayer} from "../interfaces";
-import HearthstoneJSON from "hearthstonejson";
 import UserData from "../UserData";
-import CardData from "../CardData";
 
 interface PlayerInfoProps extends React.ClassAttributes<PlayerInfo> {
 	build: number;
@@ -47,7 +45,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	}
 
 	render(): JSX.Element {
-		let opponentClass = null; ;
+		let opponentClass = null;
 		let playerClass = null;
 		let playerDeck = [];
 		let opponentDeck = [];
