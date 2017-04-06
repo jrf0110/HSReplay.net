@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 
 {% block fullcontent %}
-	<div id="deck-discover-container" data-authenticated="{{ user.is_authenticated.value }}"></div>
+	<div id="deck-discover-container"></div>
 	{% render_bundle "stats" %}
 	{% render_bundle "deck_discover" %}
 {% endblock %}

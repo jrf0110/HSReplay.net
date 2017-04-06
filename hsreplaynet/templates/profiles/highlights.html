@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 
 {% block fullcontent %}
-	<div id="my-highlights-container" data-authenticated="{{ user.is_authenticated.value }}"></div>
+	<div id="my-highlights-container"></div>
 	{% render_bundle "stats" %}
 	{% render_bundle "my_highlights" %}
 {% endblock %}
