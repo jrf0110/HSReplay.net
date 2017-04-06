@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404, HttpResponseForbidden, JsonResponse
 from django.views.decorators.http import condition
@@ -158,9 +159,14 @@ def _fetch_query_results(parameterized_query, run_local=False):
 			**parameterized_query.supplied_filters_dict
 		)
 
+		if settings.REDSHIFT_PRETTY_PRINT_QUERY_RESULTS:
+			json_params = dict(indent=4)
+		else:
+			json_params = dict(separators=(",", ":"),)
+
 		response = JsonResponse(
 			parameterized_query.response_payload,
-			json_dumps_params=dict(separators=(",", ":"),)
+			json_dumps_params=json_params
 		)
 	else:
 		execute_query(parameterized_query, run_local)
