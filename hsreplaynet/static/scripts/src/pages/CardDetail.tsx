@@ -19,7 +19,7 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import DataManager from "../DataManager";
 import {
 	getChartScheme, getDustCost, isCollectibleCard,
-	isWildCard, setNames, toPrettyNumber, toTitleCase,
+	isWildSet, setNames, toPrettyNumber, toTitleCase,
 } from "../helpers";
 import {
 	RenderData, TableData,
@@ -89,7 +89,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 	componentWillReceiveProps(nextProps: CardDetailProps) {
 		if (!this.props.card && nextProps.card) {
-			if (isWildCard(nextProps.card)) {
+			if (isWildSet(nextProps.card.set)) {
 				this.props.setGameType("RANKED_WILD");
 			}
 		}
@@ -448,11 +448,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					selectedValue={this.props.gameType}
 					onClick={(value) => this.props.setGameType(value)}
 				>
-					<InfoboxFilter disabled={this.props.card && isWildCard(this.props.card)} value="RANKED_STANDARD">
+					<InfoboxFilter disabled={this.props.card && isWildSet(this.props.card.set)} value="RANKED_STANDARD">
 						Ranked Standard
 					</InfoboxFilter>
 					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-					<InfoboxFilter disabled={this.props.card && isWildCard(this.props.card)} value="ARENA">Arena</InfoboxFilter>
+					<InfoboxFilter disabled={this.props.card && isWildSet(this.props.card.set)} value="ARENA">Arena</InfoboxFilter>
 				</InfoboxFilterGroup>
 				<h2>Data</h2>
 				<ul>

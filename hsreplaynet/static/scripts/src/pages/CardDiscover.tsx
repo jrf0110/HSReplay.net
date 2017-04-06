@@ -13,7 +13,7 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import {SortDirection} from "../components/SortableTable";
 import DataManager from "../DataManager";
-import {cardSorting, cleanText, setNames, toTitleCase, wildSets, slangToCardId} from "../helpers";
+import {cardSorting, cleanText, setNames, toTitleCase, slangToCardId, isWildSet} from "../helpers";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
 import {FragmentChildProps, LoadingStatus} from "../interfaces";
@@ -495,7 +495,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					});
 				}
 				else if (key === "format") {
-					if (wildSets.indexOf(card.set) === -1){
+					if (!isWildSet(card.set)){
 						filters.format["standard"] = (filters.format["standard"] || 0) + 1;
 					}
 				}
@@ -827,7 +827,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			) {
 				return true;
 			}
-			if (this.props.gameType === "RANKED_STANDARD" && wildSets.indexOf(card.set) !== -1) {
+			if (this.props.gameType === "RANKED_STANDARD" && isWildSet(card.set)) {
 				return true;
 			}
 			if (playerClass !== "ALL" && playerClass !== card.playerClass && card.playerClass !== "NEUTRAL") {
@@ -869,7 +869,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				const cardValue = card[key];
 				if (key === "format") {
 					if (values.indexOf("standard") !== -1) {
-						filter = wildSets.indexOf(card.set) !== -1;
+						filter = isWildSet(card.set);
 					}
 				}
 				else if (cardValue === undefined) {

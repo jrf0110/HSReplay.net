@@ -10,7 +10,7 @@ import NoDecksMessage from "../components/NoDecksMessage";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import {cardSorting, getDustCost, wildSets} from "../helpers";
+import {cardSorting, getDustCost, isWildSet} from "../helpers";
 import {DeckObj, Filter, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
@@ -311,9 +311,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		let filteredCards = Array.isArray(this.state.cards) ? this.state.cards : [];
 		const gameType = this.props.gameType;
 		if (gameType.endsWith("_STANDARD")) {
-			filteredCards = filteredCards.filter((card) => {
-				return wildSets.indexOf(card.set) === -1;
-			});
+			filteredCards = filteredCards.filter((card) => isWildSet(card.set));
 		}
 		const playerClasses = this.props.playerClasses;
 		if (playerClasses.length) {

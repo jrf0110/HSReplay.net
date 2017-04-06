@@ -18,9 +18,7 @@ import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import {SortDirection} from "../components/SortableTable";
 import DataManager from "../DataManager";
-import {
-	getDustCost, getHeroCardId, toTitleCase, wildSets,
-} from "../helpers";
+import {getDustCost, getHeroCardId, isWildSet, toTitleCase} from "../helpers";
 import { TableData } from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
@@ -352,7 +350,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			return undefined;
 		}
 		return this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId))
-			.some((card) => wildSets.indexOf(card.set) !== -1);
+			.some((card) => isWildSet(card.set));
 	}
 
 	gameType(): string {

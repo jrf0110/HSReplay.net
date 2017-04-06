@@ -2,6 +2,8 @@ import * as React from "react";
 import {Colors} from "./Colors";
 import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint} from "./interfaces";
 import {CardData as CardMeta} from "hearthstonejson";
+import {adventureSets} from "./contants";
+import {wildSets} from "./contants";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -300,12 +302,6 @@ export const setNames = {
 	"ungoro": "Journey to Un'Goro",
 };
 
-export const wildSets = ["NAXX", "GVG", "HOF"];
-
-export function isWildCard(card: any) {
-	return wildSets.indexOf(card.set) !== -1;
-}
-
 export function isCollectibleCard(card: any) {
 	return !!card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1;
 }
@@ -560,12 +556,12 @@ export function getHeroCardId(playerClass: string, skin: boolean) {
 	return "HERO_0" + heroId;
 }
 
-export function isWild(set: string) {
-	return ["NAXX", "GVG"].indexOf(set) !== -1;
+export function isWildSet(set: string) {
+	return wildSets.indexOf(set) !== -1;
 }
 
 export function isAdventure(set: string) {
-	return ["NAXX", "BRM", "LOE", "KARA"].indexOf(set) !== -1;
+	return adventureSets.indexOf(set) !== -1;
 }
 
 export function isCraftableSet(set: string) {
@@ -575,7 +571,7 @@ export function isCraftableSet(set: string) {
 	}
 
 	// cards from active adventures cannot be crafted
-	if (isAdventure(set) && !isWild(set)) {
+	if (isAdventure(set) && !isWildSet(set)) {
 		return false;
 	}
 
@@ -598,9 +594,6 @@ export function getDustCost(card: CardMeta | CardMeta[]): number {
 	}
 
 	const set = card.set;
-	const adventures = ["NAXX", "BRM", "LOE", "KARA"];
-	const rotatedAdventures = ["NAXX"];
-
 	if (!isCraftableSet(set)) {
 		return 0;
 	}
