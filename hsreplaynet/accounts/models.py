@@ -66,7 +66,7 @@ class User(AbstractUser):
 	)
 	exclude_from_statistics = models.BooleanField(default=False)
 	joust_autoplay = models.BooleanField(default=True)
-	settings = JSONField(default={})
+	settings = JSONField(default={}, blank=True)
 
 	@cached_property
 	def stripe_customer(self):
