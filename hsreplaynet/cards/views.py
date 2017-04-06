@@ -73,7 +73,10 @@ class CardDetailView(DetailView):
 		if obj.collectible:
 			description = "Statistics about %s, the Hearthstone card. " \
 				"Learn which decks we recommend and how it's played." % (obj.name)
-			self.request.head.add_meta({"name": "description", "content": description})
+			self.request.head.add_meta(
+				{"name": "description", "content": description},
+				{"property": "og:description", "content": description},
+			)
 
 		return obj
 
