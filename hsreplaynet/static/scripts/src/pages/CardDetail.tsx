@@ -26,6 +26,8 @@ import {
 } from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import InfoIcon from "../components/InfoIcon";
+import Feature from "../components/Feature";
+import UserData from "../UserData";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -43,15 +45,15 @@ interface CardDetailProps extends React.ClassAttributes<CardDetail> {
 	card: any;
 	cardData: CardData;
 	cardId: string;
-	dbfId: number;
-	premium?: boolean;
-	gameType?: string;
 	customGameType?: string;
-	setGameType?: (gameType: string) => void;
+	dbfId: number;
+	gameType?: string;
 	opponentClass?: string;
+	setGameType?: (gameType: string) => void;
 	setOpponentClass?: (opponentClass: string) => void;
-	tab?: string;
 	setTab?: (tab: string) => void;
+	tab?: string;
+	userData: UserData;
 }
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
@@ -229,14 +231,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				const turnStatsQuery = {
 					params: this.getParams(),
 					url: (
-						this.props.opponentClass !== "ALL" && this.props.premium
+						this.props.opponentClass !== "ALL" && this.props.userData.isPremium()
 						? "/analytics/query/single_card_stats_by_turn_and_opponent"
 						: "/analytics/query/single_card_stats_by_turn"
 					),
 				};
 
 				const turnStatsNoDataCondition = (data: RenderData): boolean => {
-					if (this.props.opponentClass !== "ALL" && this.props.premium) {
+					if (this.props.opponentClass !== "ALL" && this.props.userData.isPremium()) {
 						const selectedSeries = data.series.find((s) => s.metadata.opponent_class === this.props.opponentClass);
 						return !selectedSeries || selectedSeries.data.length < 2;
 					}
@@ -253,7 +255,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									hideAll
 									minimal
 									selectedClasses={[this.props.opponentClass as FilterOption]}
-									selectionChanged={(selected) => this.props.premium && this.props.setOpponentClass(selected[0])}
+									selectionChanged={(selected) => this.props.userData.isPremium() && this.props.setOpponentClass(selected[0])}
 								/>
 							</div>
 						</div>
@@ -268,7 +270,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											<TurnPlayedBarChart
 												opponentClass={this.props.opponentClass}
 												widthRatio={2}
-												premiumLocked={!this.props.premium}
+												premiumLocked={!this.props.userData.isPremium()}
 											/>
 										</ChartLoading>
 									</DataInjector>
@@ -288,7 +290,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											<WinrateByTurnLineChart
 												opponentClass={this.props.opponentClass}
 												widthRatio={2}
-												premiumLocked={!this.props.premium}
+												premiumLocked={!this.props.userData.isPremium()}
 											/>
 										</ChartLoading>
 									</DataInjector>
@@ -357,7 +359,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</div>
 							<div id="turn-stats" className={tabClassName("turn-stats")}>
 								<PremiumWrapper
-									isPremium={this.props.premium}
+									isPremium={this.props.userData.isPremium()}
 									infoHeader="Turn played statistics"
 									infoContent="Understand when the card is played and how effective that is, based on turn and opponent."
 									iconStyle={{display: "none"}}

@@ -25,7 +25,7 @@ const render = (cardData: CardData) => {
 				cardData={cardData}
 				cardId={cardId}
 				dbfId={dbfId}
-				premium={user.isPremium()}
+				userData={user}
 			/>
 		</Fragments>,
 		document.getElementById("card-container"),
