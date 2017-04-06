@@ -311,7 +311,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		let filteredCards = Array.isArray(this.state.cards) ? this.state.cards : [];
 		const gameType = this.props.gameType;
 		if (gameType.endsWith("_STANDARD")) {
-			filteredCards = filteredCards.filter((card) => isWildSet(card.set));
+			filteredCards = filteredCards.filter((card) => !isWildSet(card.set));
 		}
 		const playerClasses = this.props.playerClasses;
 		if (playerClasses.length) {
