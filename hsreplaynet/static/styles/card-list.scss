@@ -46,6 +46,10 @@
 		}
 	}
 
+	&.premium .card-gem {
+		background-color: gold;
+	}
+
 	.card-frame {
 		position: relative;
 		border: solid 1px black;
