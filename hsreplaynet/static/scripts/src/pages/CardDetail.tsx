@@ -28,6 +28,8 @@ import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import InfoIcon from "../components/InfoIcon";
 import Feature from "../components/Feature";
 import UserData from "../UserData";
+import Conditional from "../components/Conditional";
+import AdaptDetail from "../components/carddetail/AdaptDetail";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -79,6 +81,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 	cardIsNeutral(): boolean {
 		return this.props.card && this.props.card.playerClass === "NEUTRAL";
+	}
+
+	cardHasAdapt(): boolean {
+		return this.props.card && this.props.card.referencedTags && this.props.card.referencedTags.indexOf("ADAPT") !== -1;
 	}
 
 	componentWillReceiveProps(nextProps: CardDetailProps) {
@@ -352,6 +358,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							{tabHeader("recommended-decks", "Recommended decks")}
 							{tabHeader("turn-stats", "Turn details")}
 							{tabHeader("utilization", "Utilization")}
+							<Feature feature="adapt" userData={this.props.userData}>
+								<Conditional condition={this.cardHasAdapt()}>
+									{tabHeader("adapt", "Adapt")}
+								</Conditional>
+							</Feature>
 						</ul>
 						<div className="tab-content">
 							<div id="recommended-decks" className={tabClassName("recommended-decks")}>
@@ -372,6 +383,29 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									{utilization}
 								</div>
 							</div>
+							<Feature feature="adapt" userData={this.props.userData}>
+								<Conditional condition={this.cardHasAdapt()}>
+									<div id="adapt" className={tabClassName("adapt")}>
+										<DataInjector
+											dataManager={this.dataManager}
+											query={{
+												params: this.getParams(),
+												url: (
+													this.props.userData.isPremium() && this.props.opponentClass !== "ALL"
+														? "single_card_adapt_stats_by_opponent" : "single_card_adapt_stats"
+												),
+											}}
+										>
+											<AdaptDetail
+												cardData={this.props.cardData}
+												opponentClass={this.props.opponentClass}
+												setOpponentClass={this.props.setOpponentClass}
+												userData={this.props.userData}
+											/>
+										</DataInjector>
+									</div>
+								</Conditional>
+							</Feature>
 						</div>
 					</section>,
 				];
