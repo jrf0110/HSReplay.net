@@ -133,7 +133,7 @@ export interface TableSeriesData {
 }
 
 export interface TableRow {
-	[header: string]: string;
+	[header: string]: any;
 }
 
 export interface RenderData {
