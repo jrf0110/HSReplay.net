@@ -331,13 +331,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					);
 				}
 
-				const tabHeader = (key: string, title: string) => {
+				const tabHeader = (key: string, title: string, className?: string) => {
 					return (
 						<li
 							className={this.props.tab === key ? "active" : undefined}
 							onClick={() => this.props.setTab(key)}
 						>
-							<a data-toggle="tab" href={"#" + key}>
+							<a data-toggle="tab" href={"#" + key} className={className}>
 								{title}
 							</a>
 						</li>
@@ -355,8 +355,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</section>,
 					<section id="page-content">
 						<ul className="nav nav-tabs content-tabs">
-							{tabHeader("recommended-decks", "Recommended decks")}
-							{tabHeader("turn-stats", "Turn details")}
+							{tabHeader("recommended-decks", "Recommended Decks")}
+							{tabHeader("turn-stats", "Turn Details", "text-premium")}
 							{tabHeader("utilization", "Utilization")}
 							<Feature feature="adapt" userData={this.props.userData}>
 								<Conditional condition={this.cardHasAdapt()}>

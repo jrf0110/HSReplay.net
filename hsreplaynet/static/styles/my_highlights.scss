@@ -89,6 +89,10 @@
 			border-radius: 0;
 			color: $lightblue;
 			font-weight: bold;
+
+			&.text-premium {
+				color: $premium-hover;
+			}
 		}
 
 		li.active > a {
