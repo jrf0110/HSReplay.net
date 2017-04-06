@@ -331,13 +331,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					);
 				}
 
-				const tabHeader = (key: string, title: string, className?: string) => {
+				const tabHeader = (key: string, title: string|JSX.Element) => {
 					return (
 						<li
 							className={this.props.tab === key ? "active" : undefined}
 							onClick={() => this.props.setTab(key)}
 						>
-							<a data-toggle="tab" href={"#" + key} className={className}>
+							<a data-toggle="tab" href={"#" + key}>
 								{title}
 							</a>
 						</li>
@@ -356,7 +356,15 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<section id="page-content">
 						<ul className="nav nav-tabs content-tabs">
 							{tabHeader("recommended-decks", "Recommended Decks")}
-							{tabHeader("turn-stats", "Turn Details", "text-premium")}
+							{tabHeader("turn-stats", (
+								<span className="text-premium">
+									Turn Details&nbsp;
+									<InfoIcon
+										header="Turn played statistics"
+										content="Learn when this card is usually played in the different matchups and how that affects the winrate."
+									/>
+								</span>
+							))}
 							{tabHeader("utilization", "Utilization")}
 							<Feature feature="adapt" userData={this.props.userData}>
 								<Conditional condition={this.cardHasAdapt()}>
@@ -371,8 +379,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							<div id="turn-stats" className={tabClassName("turn-stats")}>
 								<PremiumWrapper
 									isPremium={this.props.userData.isPremium()}
-									infoHeader="Turn played statistics"
-									infoContent="Understand when the card is played and how effective that is, based on turn and opponent."
 									iconStyle={{display: "none"}}
 								>
 									{turnCharts}
