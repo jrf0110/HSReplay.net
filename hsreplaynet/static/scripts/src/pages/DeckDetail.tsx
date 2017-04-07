@@ -136,7 +136,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<span className="infobox-value">{dustCost && dustCost + " Dust"}</span>
 					</li>
 				</ul>
-				<PremiumWrapper isPremium={isPremium}>
+				<PremiumWrapper name="Single Deck Opponent Selection" isPremium={isPremium}>
 					<h2>Select your opponent</h2>
 					<ClassFilter
 						filters="All"
@@ -148,6 +148,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					/>
 				</PremiumWrapper>
 				<PremiumWrapper
+					name="Single Deck Rank Range"
 					isPremium={isPremium}
 					infoHeader="Deck breakdown rank range"
 					infoContent="Check out how this deck performs at higher ranks!"

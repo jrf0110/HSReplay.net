@@ -55,7 +55,7 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, void>
 			<div className="container-fluid">
 				<div className="row">
 					<div className="opponent-filter-wrapper">
-						<PremiumWrapper isPremium={this.props.userData.isPremium()}>
+						<PremiumWrapper name="Single Card Adapt Opponent Selection" isPremium={this.props.userData.isPremium()}>
 							<h3>Opponent class</h3>
 							<ClassFilter
 								filters="All"

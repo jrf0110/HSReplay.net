@@ -581,6 +581,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</InfoboxFilterGroup>,
 				modeFilter,
 				<PremiumWrapper
+					name="Card List Time Frame"
 					isPremium={isPremium}
 					infoHeader="Time Frame"
 					infoContent="Get the most recent data on which cards are hot right now!"
@@ -599,6 +600,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					</InfoboxFilterGroup>
 				</PremiumWrapper>,
 				<PremiumWrapper
+					name="Card List Rank Range"
 					isPremium={isPremium}
 					infoHeader="Rank Range"
 					infoContent="Check out which cards are played at certain rank ranges on the ranked ladder!"

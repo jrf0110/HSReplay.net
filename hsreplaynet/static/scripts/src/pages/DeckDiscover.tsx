@@ -362,6 +362,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					<section id="opponent-class-filter">
 						<PremiumWrapper
+							name="Deck List Opponent Selection"
 							isPremium={isPremium}
 							infoHeader="Winrate by Opponent"
 							infoContent={
@@ -414,6 +415,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					<section id="time-frame-filter">
 						<PremiumWrapper
+							name="Deck List Time Frame"
 							isPremium={isPremium}
 							infoHeader="Time Frame"
 							infoContent="Want to see which decks are hot right now? Look at data from a time frame of your choosing!"
@@ -434,6 +436,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					<section id="rank-range-filter">
 						<PremiumWrapper
+							name="Deck List Rank Range"
 							isPremium={isPremium}
 							infoHeader="Rank Range"
 							infoContent="Ready to climb the ladder? Check out how decks perform at certain rank ranges!"

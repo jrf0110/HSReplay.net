@@ -378,6 +378,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</div>
 							<div id="turn-stats" className={tabClassName("turn-stats")}>
 								<PremiumWrapper
+									name="Single Card Turn Statistics"
 									isPremium={this.props.userData.isPremium()}
 									iconStyle={{display: "none"}}
 								>

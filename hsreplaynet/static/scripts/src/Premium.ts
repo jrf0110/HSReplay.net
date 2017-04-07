@@ -1,4 +1,4 @@
-export function showModal() {
+export function showModal(label?: string) {
 	const modal = document.getElementById("premium-modal");
 
 	if(!modal) {
@@ -12,5 +12,5 @@ export function showModal() {
 		return;
 	}
 
-	loadModal();
+	loadModal(label);
 }

@@ -4,6 +4,7 @@ import {showModal} from "../Premium";
 import {ClickTouch, TooltipContent} from "./Tooltip";
 
 interface PremiumWrapperProps extends React.ClassAttributes<PremiumWrapper> {
+	name?: string; // used for tracking only
 	isPremium?: boolean;
 	iconStyle?: any;
 	infoHeader?: string;
@@ -112,7 +113,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 					if (this.state.touchCount % 2 === 1) {
 						return;
 					}
-					showModal();
+					showModal(this.props.name);
 				}}
 				onMouseEnter={() => this.setState({hovering: true})}
 				onMouseLeave={() => this.setState({hovering: false, touchCount: 0})}
@@ -125,7 +126,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 					if (!this.shouldAppear()) {
 						return;
 					}
-					showModal();
+					showModal(this.props.name);
 				}}
 				tabIndex={this.shouldAppear() ? 0 : -1}
 			>

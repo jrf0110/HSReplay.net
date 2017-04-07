@@ -2,7 +2,7 @@ import CheckoutProcess from "../checkout/CheckoutProcess";
 
 const modal = document.getElementById("premium-modal");
 
-const trackModalInteraction = (action: string, nonInteraction: boolean = false) => {
+const trackModalInteraction = (action: string, nonInteraction: boolean = false, label?: string) => {
 	if (typeof ga !== "function") {
 		return;
 	}
@@ -10,6 +10,7 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false) 
 		hitType: "event",
 		eventCategory: "Premium Modal",
 		eventAction: action,
+		eventLabel: label,
 		nonInteraction: nonInteraction,
 		transport: "beacon",
 	});
@@ -18,7 +19,7 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false) 
 let modalIsOpen = null;
 let lastFocus = null;
 
-const openModal = (modalToOpen) => {
+const openModal = (modalToOpen, label?: string) => {
 	if (modalIsOpen === true) {
 		return;
 	}
@@ -31,7 +32,7 @@ const openModal = (modalToOpen) => {
 	inner.setAttribute("tabindex", 0);
 	inner.focus();
 
-	trackModalInteraction("open");
+	trackModalInteraction("open", false, label);
 };
 
 const closeModal = (modalToClose) => {
@@ -304,9 +305,9 @@ window.hsreplaynet_load_stripe = (targetElement: HTMLFormElement|HTMLButtonEleme
 	setupCheckout(targetElement);
 };
 
-window.hsreplaynet_load_premium_modal = () => {
+window.hsreplaynet_load_premium_modal = (label?: string) => {
 	// show modal
-	openModal(modal);
+	openModal(modal, label);
 	// find button
 	const modalForm = document.getElementById("premium-modal-checkout-form") as HTMLFormElement;
 	if (!modalForm) {
