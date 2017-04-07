@@ -80,7 +80,7 @@ def influx_timer(measure, timestamp=None, cloudwatch_url=None, **kwargs):
 	Reports the duration of the context manager.
 	Additional kwargs are passed to InfluxDB as tags.
 	"""
-	start_time = time.clock()
+	start_time = time.time()
 	exception_raised = False
 	if timestamp is None:
 		timestamp = now()
@@ -90,8 +90,8 @@ def influx_timer(measure, timestamp=None, cloudwatch_url=None, **kwargs):
 		exception_raised = True
 		raise
 	finally:
-		stop_time = time.clock()
-		duration = (stop_time - start_time) * 10000
+		stop_time = time.time()
+		duration = (stop_time - start_time) * 1000
 		mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 		tags = kwargs
