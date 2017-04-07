@@ -22,15 +22,18 @@ export default class UserData {
 	}
 
 	hasFeature(feature: string): boolean {
-		return this._userData && this._userData.groups && this._userData.groups.indexOf("feature:" + feature) !== -1;
+		return !!(
+			this._userData &&
+			this._userData.groups && this._userData.groups.indexOf("feature:" + feature) !== -1
+		);
 	}
 
 	isPremium(): boolean {
-		return this._userData && this._userData.premium;
+		return !!(this._userData && this._userData.premium);
 	}
 
 	isAuthenticated(): boolean {
-		return this._userData && this._userData.is_authenticated;
+		return !!(this._userData && this._userData.is_authenticated);
 	}
 
 	getUsername(): string|null {
