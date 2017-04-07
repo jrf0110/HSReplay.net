@@ -10,12 +10,13 @@ import NoDecksMessage from "../components/NoDecksMessage";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import {cardSorting, getDustCost, isWildSet} from "../helpers";
-import {DeckObj, Filter, FragmentChildProps} from "../interfaces";
+import {cardSorting, isWildSet} from "../helpers";
+import {DeckObj, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import InfoIcon from "../components/InfoIcon";
+import Feature from "../components/Feature";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -48,6 +49,8 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setRegion?: (region: string) => void;
 	timeRange?: string;
 	setTimeRange?: (timeRange: string) => void;
+	includedSet?: string;
+	setIncludedSet?: (set: string) => void;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -77,7 +80,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.props.rankRange !== prevProps.rankRange ||
 			this.props.region !== prevProps.region ||
 			this.props.timeRange !== prevProps.timeRange ||
-			this.props.cardData !== prevProps.cardData
+			this.props.cardData !== prevProps.cardData ||
+			this.props.includedSet !== prevProps.includedSet
 		) {
 			this.updateFilteredDecks();
 		}
@@ -105,7 +109,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const playerClasses = this.props.playerClasses;
 		const filteredCards = (key: string): any[] => {
 			const array = this.props[key] || [];
-			if(array.length == 1 && !array[0]) {
+			if (array.length === 1 && !array[0]) {
 				return [];
 			}
 			return array.map((dbfId) => this.props.cardData.fromDbf(dbfId));
@@ -172,6 +176,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					data[key].forEach((deck) => {
 						const cards = cardList(JSON.parse(deck.deck_list));
 						if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
+							return;
+						}
+						if (this.props.user.hasFeature("latest_set") && this.props.includedSet
+							&& cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)) {
 							return;
 						}
 						deck.player_class = key;
@@ -384,6 +392,15 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					<section id="include-cards-filter">
 						<h2>Included Cards</h2>
+						<Feature feature="latest_set" userData={this.props.user}>
+							<InfoboxFilterGroup
+								deselectable
+								selectedValue={this.props.includedSet}
+								onClick={(value) => this.props.setIncludedSet(value)}
+							>
+								<InfoboxFilter value="UNGORO">Latest Expansion</InfoboxFilter>
+							</InfoboxFilterGroup>
+						</Feature>
 						<CardSearch
 							id="card-search-include"
 							key={"cardinclude" + this.state.cardSearchIncludeKey}
