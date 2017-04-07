@@ -360,7 +360,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<span className="text-premium">
 									Turn Details&nbsp;
 									<InfoIcon
-										header="Turn played statistics"
+										header="Popularity and Winrate by Turn"
 										content="Learn when this card is usually played in the different matchups and how that affects the winrate."
 									/>
 								</span>
