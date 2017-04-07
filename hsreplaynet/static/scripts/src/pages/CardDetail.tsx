@@ -30,6 +30,9 @@ import Feature from "../components/Feature";
 import UserData from "../UserData";
 import Conditional from "../components/Conditional";
 import AdaptDetail from "../components/carddetail/AdaptDetail";
+import TabList from "../components/layout/TabList";
+import Tab from "../components/layout/Tab";
+import Fragments from "../components/Fragments";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -76,15 +79,19 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	cardHasDiscover(): boolean {
-		return this.props.card && this.props.card.text && this.props.card.text.indexOf("Discover") !== -1;
+		return (this.props.card && this.props.card.text && this.props.card.text.indexOf("Discover") !== -1) || false;
 	}
 
 	cardIsNeutral(): boolean {
-		return this.props.card && this.props.card.playerClass === "NEUTRAL";
+		return (this.props.card && this.props.card.playerClass === "NEUTRAL") || false;
 	}
 
 	cardHasAdapt(): boolean {
-		return this.props.card && this.props.card.referencedTags && this.props.card.referencedTags.indexOf("ADAPT") !== -1;
+		return (
+			this.props.card &&
+			this.props.card.referencedTags &&
+			this.props.card.referencedTags.indexOf("ADAPT") !== -1
+		) || false;
 	}
 
 	componentWillReceiveProps(nextProps: CardDetailProps) {
@@ -109,73 +116,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			else {
 				let utilization = [];
 				let cardStatsLoading = false;
-
-				if (this.cardIsNeutral()) {
-					utilization.push(
-						<div id="class-chart">
-							<DataInjector
-								dataManager={this.dataManager}
-								query={{url: "single_card_class_distribution_by_include_count", params: this.getParams()}}
-							>
-								<ChartLoading>
-									<CardDetailPieChart
-										removeEmpty
-										scheme={getChartScheme("class")}
-										sortByValue
-										title={"Most included by"}
-									/>
-								</ChartLoading>
-							</DataInjector>
-						</div>,
-					);
-				}
-
-				if (this.cardHasTargetReqs()) {
-					utilization.push([
-						<h4>Most popular targets</h4>,
-						<DataInjector
-							dataManager={this.dataManager}
-							query={{url: "single_card_popular_targets", params: this.getParams()}}
-							modify={(data) => this.mergeHeroes(data)}
-						>
-							<TableLoading>
-								<CardRankingTable
-									cardData={this.props.cardData}
-									numRows={8}
-									dataKey={"ALL"}
-									urlGameType={this.props.customGameType}
-								/>
-							</TableLoading>
-						</DataInjector>,
-					]);
-				}
-
-				if (this.cardHasDiscover()) {
-					utilization.push([
-						<h4>Most popular Discover choices</h4>,
-						<DataInjector
-							dataManager={this.dataManager}
-							query={{url: "single_card_choices_by_winrate", params: this.getParams()}}
-						>
-							<TableLoading>
-								<CardRankingTable
-									cardData={this.props.cardData}
-									numRows={8}
-									dataKey={"ALL"}
-									urlGameType={this.props.customGameType}
-									tooltips={{
-										popularity: (
-											<InfoIcon
-												header="Popularity for Discover"
-												content="A card's percentage represents how often the card was picked over others if it was available for choice."
-											/>
-										),
-									}}
-								/>
-							</TableLoading>
-						</DataInjector>,
-					]);
-				}
 
 				if (utilization.length) {
 					const colWidth = 12 / utilization.length;
@@ -310,110 +250,137 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					</div>
 				);
 
-				let recommendedDecks = null;
-				if (this.props.gameType === "ARENA") {
-					recommendedDecks = <h3 className="message-wrapper">No decks found.</h3>;
-				}
-				else {
-					recommendedDecks = (
-						<DataInjector
-							dataManager={this.dataManager}
-							query={{url: "list_decks_by_win_rate", params: {GameType: this.props.gameType}}}
-						>
-							<TableLoading>
-								<RecommendedDecksList
-									card={this.props.card}
-									cardData={this.props.cardData}
-									urlGameType={this.props.customGameType}
-								/>
-							</TableLoading>
-						</DataInjector>
-					);
-				}
-
-				const tabHeader = (key: string, title: string|JSX.Element) => {
-					return (
-						<li
-							className={this.props.tab === key ? "active" : undefined}
-							onClick={() => this.props.setTab(key)}
-						>
-							<a data-toggle="tab" href={"#" + key}>
-								{title}
-							</a>
-						</li>
-					);
-				};
-
-				const tabClassName = (key: string) => {
-					return "tab-pane fade" + (key === this.props.tab ? " in active" : "");
-				};
-
 				content = [
 					<section id="content-header">
 						<h1>{this.props.card && this.props.card.name} - Statistics</h1>
 						{headerContent}
 					</section>,
 					<section id="page-content">
-						<ul className="nav nav-tabs content-tabs">
-							{tabHeader("recommended-decks", "Recommended Decks")}
-							{tabHeader("turn-stats", (
-								<span className="text-premium">
-									Turn Details&nbsp;
-									<InfoIcon
-										header="Popularity and Winrate by Turn"
-										content="Learn when this card is usually played in the different matchups and how that affects the winrate."
-									/>
-								</span>
-							))}
-							{tabHeader("utilization", "Utilization")}
-							<Feature feature="adapt" userData={this.props.userData}>
-								<Conditional condition={this.cardHasAdapt()}>
-									{tabHeader("adapt", "Adapt")}
-								</Conditional>
-							</Feature>
-						</ul>
-						<div className="tab-content">
-							<div id="recommended-decks" className={tabClassName("recommended-decks")}>
-								{recommendedDecks}
-							</div>
-							<div id="turn-stats" className={tabClassName("turn-stats")}>
-								<PremiumWrapper
-									name="Single Card Turn Statistics"
-									isPremium={this.props.userData.isPremium()}
-									iconStyle={{display: "none"}}
+						<Fragments
+							defaults={{
+								tab: ""
+							}}
+							keepDefaults={true}
+						>
+							<TabList tab={this.props.tab} setTab={this.props.setTab}>
+								<Tab label="Recommended Decks" id="recommended-decks" condition={this.props.gameType !== "ARENA"}>
+									<DataInjector
+										dataManager={this.dataManager}
+										query={{url: "list_decks_by_win_rate", params: {GameType: this.props.gameType}}}
+									>
+										<TableLoading>
+											<RecommendedDecksList
+												card={this.props.card}
+												cardData={this.props.cardData}
+												urlGameType={this.props.customGameType}
+											/>
+										</TableLoading>
+									</DataInjector>
+								</Tab>
+								<Tab
+									label={(
+										<span className="text-premium">
+											Turn Details&nbsp;
+											<InfoIcon
+												header="Popularity and Winrate by Turn"
+												content="Learn when this card is usually played in the different matchups and how that affects the winrate."
+											/>
+										</span>
+									)}
+									id="turn-statistics"
+									condition={this.cardHasTargetReqs()}
 								>
-									{turnCharts}
-								</PremiumWrapper>
-							</div>
-							<div id="utilization" className={tabClassName("utilization")}>
-								<div id="card-tables">
-									{utilization}
-								</div>
-							</div>
-							<Feature feature="adapt" userData={this.props.userData}>
-								<Conditional condition={this.cardHasAdapt()}>
-									<div id="adapt" className={tabClassName("adapt")}>
+									<PremiumWrapper
+										name="Single Card Turn Statistics"
+										isPremium={this.props.userData.isPremium()}
+										iconStyle={{display: "none"}}
+									>
+										{turnCharts}
+									</PremiumWrapper>
+								</Tab>
+								<Tab label="Class Distribution" id="class-distribution" condition={this.cardIsNeutral()}>
+									<h3>Class Distribution</h3>
+									<div id="class-chart">
 										<DataInjector
 											dataManager={this.dataManager}
-											query={{
-												params: this.getParams(),
-												url: (
-													this.props.userData.isPremium() && this.props.opponentClass !== "ALL"
-														? "single_card_adapt_stats_by_opponent" : "single_card_adapt_stats"
-												),
-											}}
+											query={{url: "single_card_class_distribution_by_include_count", params: this.getParams()}}
 										>
-											<AdaptDetail
-												cardData={this.props.cardData}
-												opponentClass={this.props.opponentClass}
-												setOpponentClass={this.props.setOpponentClass}
-												userData={this.props.userData}
-											/>
+											<ChartLoading>
+												<CardDetailPieChart
+													removeEmpty
+													scheme={getChartScheme("class")}
+													sortByValue
+												/>
+											</ChartLoading>
 										</DataInjector>
 									</div>
-								</Conditional>
-							</Feature>
-						</div>
+								</Tab>
+								<Tab label="Targets" id="targets" condition={this.cardHasTargetReqs()}>
+									<div className="card-tables">
+										<h3>Most popular targets</h3>
+										<DataInjector
+											dataManager={this.dataManager}
+											query={{url: "single_card_popular_targets", params: this.getParams()}}
+											modify={(data) => this.mergeHeroes(data)}
+										>
+											<TableLoading>
+												<CardRankingTable
+													cardData={this.props.cardData}
+													numRows={8}
+													dataKey={"ALL"}
+													urlGameType={this.props.customGameType}
+												/>
+											</TableLoading>
+										</DataInjector>
+									</div>
+								</Tab>
+								<Tab label="Discover" id="discover" condition={this.cardHasDiscover()}>
+									<div className="card-tables">
+										<h3>Most popular Discover choices</h3>
+										<DataInjector
+											dataManager={this.dataManager}
+											query={{url: "single_card_choices_by_winrate", params: this.getParams()}}
+										>
+											<TableLoading>
+												<CardRankingTable
+													cardData={this.props.cardData}
+													numRows={8}
+													dataKey={"ALL"}
+													urlGameType={this.props.customGameType}
+													tooltips={{
+														popularity: (
+															<InfoIcon
+																header="Popularity for Discover"
+																content="A card's percentage represents how often the card was picked over others if it was available for choice."
+															/>
+														),
+													}}
+												/>
+											</TableLoading>
+										</DataInjector>
+									</div>
+								</Tab>
+								<Tab label="Adapt" id="adapt" condition={this.cardHasAdapt() && this.props.userData.hasFeature("adapt")}>
+									<DataInjector
+										dataManager={this.dataManager}
+										query={{
+											params: this.getParams(),
+											url: (
+												this.props.userData.isPremium() && this.props.opponentClass !== "ALL"
+													? "single_card_adapt_stats_by_opponent" : "single_card_adapt_stats"
+											),
+										}}
+									>
+										<AdaptDetail
+											cardData={this.props.cardData}
+											opponentClass={this.props.opponentClass}
+											setOpponentClass={this.props.setOpponentClass}
+											userData={this.props.userData}
+										/>
+									</DataInjector>
+								</Tab>
+							</TabList>
+						</Fragments>
 					</section>,
 				];
 			}
