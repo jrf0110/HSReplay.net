@@ -5,7 +5,7 @@ import {ChartScheme, RenderData} from "../../interfaces";
 
 interface CardDetailPieChartProps extends React.ClassAttributes<CardDetailPieChart> {
 	data?: RenderData;
-	title: string;
+	title?: string;
 	scheme?: ChartScheme;
 	sortByValue?: boolean;
 	removeEmpty?: boolean;
@@ -118,7 +118,7 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 				]}
 			/>,
 			<VictoryLegend data={legendData} width={100} height={400} padding={{top: 90}}/>,
-			<VictoryLabel
+			{this.props.title ? <VictoryLabel
 				textAnchor="middle"
 				verticalAnchor="middle"
 				x={230}
@@ -127,7 +127,7 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 				style={{
 					fontSize: 20,
 				}}
-			/>
+			/> : null}
 		</svg>;
 	}
 }
