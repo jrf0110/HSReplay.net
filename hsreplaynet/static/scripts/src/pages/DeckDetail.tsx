@@ -44,6 +44,7 @@ interface DeckDetailState {
 }
 
 interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
+	adminUrl: string;
 	cardData: CardData;
 	deckCards: string;
 	deckClass: string;
@@ -186,6 +187,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<PersonalDeckStats deckId={this.props.deckId}/>
 					</HideLoading>
 				</DataInjector>
+				{this.props.user.isStaff() && this.props.adminUrl && (
+					<ul>
+						<li>
+							<span>View in Admin</span>
+							<span className="infobox-value">
+								<a href={this.props.adminUrl}>Admin link</a>
+							</span>
+						</li>
+					</ul>
+				)}
 			</aside>
 			<main>
 				<section id="content-header">
