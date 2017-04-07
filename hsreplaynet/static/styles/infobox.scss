@@ -168,6 +168,10 @@
 		color: $lighterblue;
 		font-weight: bold;
 		float: right;
+
+		p {
+			margin: 0;
+		}
 	}
 
 	input, select {
