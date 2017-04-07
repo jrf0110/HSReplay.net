@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import DeckDetail from "../pages/DeckDetail";
 import UserData from "../UserData";
+import Fragments from "../components/Fragments";
 
 const deckId = document.getElementById("deck-info").getAttribute("data-deck-id");
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
@@ -11,13 +12,19 @@ const user = new UserData();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
-		<DeckDetail
-			cardData={cardData}
-			deckCards={cards}
-			deckClass={deckClass}
-			deckId={deckId}
-			user={user}
-		/>,
+		<Fragments
+			defaults={{
+				tab: "",
+			}}
+		>
+			<DeckDetail
+				cardData={cardData}
+				deckCards={cards}
+				deckClass={deckClass}
+				deckId={deckId}
+				user={user}
+			/>
+		</Fragments>,
 		document.getElementById("deck-container"),
 	);
 };

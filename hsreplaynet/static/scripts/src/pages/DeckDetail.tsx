@@ -23,6 +23,8 @@ import { TableData } from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
 import ManaCurve from "../components/ManaCurve";
+import TabList from "../components/layout/TabList";
+import Tab from "../components/layout/Tab";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -48,6 +50,8 @@ interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
 	deckId: string;
 	deckName?: string;
 	user: UserData;
+	tab?: string;
+	setTab?: (tab: string) => void;
 }
 
 export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
@@ -97,12 +101,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		const premiumMulligan = this.state.selectedClasses[0] !== "ALL" && this.props.user.isAuthenticated();
-		let myStatsHeader =  null;
-		let myStatsContent = null;
-		if (this.props.user.hasFeature("profiles")) {
-			myStatsHeader = <li><a data-toggle="tab" href="#my-stats">My stats</a></li>;
-			myStatsContent = <div id="my-stats" className="tab-pane fade">{this.getMyStats()}</div>;
-		}
 
 		const isPremium = this.props.user.isPremium();
 		const premiumTabIndex = isPremium ? 0 : -1;
@@ -230,13 +228,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</div>
 				</section>
 				<section id="page-content">
-					<ul className="nav nav-tabs content-tabs">
-						<li className="active"><a data-toggle="tab" href="#deck-breakdown">Deck breakdown</a></li>
-						<li><a data-toggle="tab" href="#similar-decks">Similar decks</a></li>
-						{myStatsHeader}
-					</ul>
-					<div className="tab-content">
-						<div id="deck-breakdown" className="tab-pane fade in active">
+					<TabList tab={this.props.tab} setTab={this.props.setTab}>
+						<Tab label="Breakdown" id="breakdown">
 							<div className="table-wrapper">
 								<DataInjector
 									dataManager={this.dataManager}
@@ -272,8 +265,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 									</TableLoading>
 								</DataInjector>
 							</div>
-						</div>
-						<div id="similar-decks" className="tab-pane fade">
+						</Tab>
+						<Tab label="Similar Decks" id="similar">
 							<DataInjector
 								dataManager={this.dataManager}
 								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
@@ -290,9 +283,15 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 									/>
 								</TableLoading>
 							</DataInjector>
-						</div>
-						{myStatsContent}
-					</div>
+						</Tab>
+						<Tab
+							label="My Statistics"
+							id="my-statistics"
+							condition={this.props.user.hasFeature("profiles")}
+						>
+							{this.getMyStats()}
+						</Tab>
+					</TabList>
 				</section>
 			</main>
 		</div>;
