@@ -6,6 +6,7 @@ interface UserDataProps {
 	is_authenticated: boolean;
 	premium: boolean;
 	username: string;
+	staff: boolean;
 }
 
 export interface Account {
@@ -34,6 +35,10 @@ export default class UserData {
 
 	isAuthenticated(): boolean {
 		return !!(this._userData && this._userData.is_authenticated);
+	}
+
+	isStaff(): boolean {
+		return !!(this._userData && this._userData.staff);
 	}
 
 	getUsername(): string|null {
