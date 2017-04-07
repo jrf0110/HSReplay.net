@@ -68,6 +68,12 @@
 			<!-- TODO: move this to Joust itself, in the extra menu -->
 			<li><a href="{{ replay.replay_xml.url }}" download="{{ replay.shortid }}.hsreplay.xml">Download XML</a></li>
 		</ul>
+
+		{% if not premium %}
+			<a href="https://hsreplay.net/articles/7/introducing-hsreplaynet-statistics">
+				<img src="{% static "images/banner-statistics-cards.png" %}" class="statistics-banner" alt="HSReplay.net Statistics are now available!"/>
+			</a>
+		{% endif %}
 	</aside>
 	{% endwith %}
 	<main>

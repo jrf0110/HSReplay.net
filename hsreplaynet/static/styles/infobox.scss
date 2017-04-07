@@ -81,6 +81,10 @@
 		}
 	}
 
+	.text-premium {
+		color: $premium;
+	}
+
 	li {
 		border-bottom: 1px solid $darkblue;
 		padding: 0.5em 1em;
@@ -203,6 +207,28 @@
 			display: block;
 			line-height: 1.1em;
 			margin: 0;
+		}
+	}
+
+	img.statistics-banner {
+		text-align: center;
+		margin: 8px 0 10px 10px;
+		border: 1px solid white;
+		width: 277px;
+		box-sizing: content-box;
+		margin-top: 10px;
+	}
+
+	p {
+		margin: 4px 8px;
+	}
+
+	a.promo-button {
+		& {
+			color: white;
+		}
+		&:hover {
+			color: $red;
 		}
 	}
 }
