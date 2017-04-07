@@ -34,19 +34,24 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 
 			// group sparse data
 			let remaining = 0;
-			data = data.filter((a) => {
+			let filtered = 0;
+			const filteredData = data.filter((a) => {
 				const value = +a.y;
 				if (value <= 5) {
 					remaining += value;
+					filtered++;
 					return false;
 				}
 				return true;
 			});
-			if (remaining > 0) {
-				data.push({
-					x: "other",
-					y: remaining,
-				});
+			if (filtered > 0) {
+				if (remaining > 0) {
+					filteredData.push({
+						x: "other",
+						y: remaining,
+					});
+				}
+				data = filteredData;
 			}
 
 			data.forEach((d) => {
