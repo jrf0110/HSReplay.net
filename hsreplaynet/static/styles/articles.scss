@@ -118,11 +118,14 @@ article.article {
 }
 
 .article-table {
+	th, td {
+		font-family: "Noto Sans", sans-serif;
+	}
+
 	.player-class {
 		background-repeat: no-repeat;
 		background-size: contain;
-		height: 2.2em;
-		padding: 5px 0 5px 30px;
+		padding: 5px 0 5px 35px;
 
 		&.druid {
 			background-image: url(/static/images/class-icons/druid.png);
@@ -153,9 +156,6 @@ article.article {
 		}
 	}
 
-	.percent {
-		font-weight: bold;
-	}
 	.percent::after {
 		content: "%";
 	}
