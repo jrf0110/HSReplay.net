@@ -26,9 +26,7 @@ import {
 } from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import InfoIcon from "../components/InfoIcon";
-import Feature from "../components/Feature";
 import UserData from "../UserData";
-import Conditional from "../components/Conditional";
 import AdaptDetail from "../components/carddetail/AdaptDetail";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
@@ -79,7 +77,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	cardHasDiscover(): boolean {
-		return (this.props.card && this.props.card.text && this.props.card.text.indexOf("Discover") !== -1) || false;
+		const hasDiscover = this.props.card && this.props.card.text
+			&& this.props.card.text.indexOf("Discover") !== -1;
+		const kalimos = this.props.card && this.props.dbfId === 41331;
+		return hasDiscover || kalimos || false;
 	}
 
 	cardIsNeutral(): boolean {
@@ -258,7 +259,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<section id="page-content">
 						<Fragments
 							defaults={{
-								tab: ""
+								tab: "",
 							}}
 							keepDefaults={true}
 						>
