@@ -288,7 +288,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										</span>
 									)}
 									id="turn-statistics"
-									condition={this.cardHasTargetReqs()}
 								>
 									<PremiumWrapper
 										name="Single Card Turn Statistics"
