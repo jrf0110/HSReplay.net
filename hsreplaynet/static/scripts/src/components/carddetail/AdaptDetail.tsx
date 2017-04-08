@@ -42,9 +42,9 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, void>
 					rows.push(
 						<tr className="card-table-row">
 							<td>{"#" + (index + 1)}</td>
-							<td>{choice.popularity + "%"}</td>
-							<td>{winrateCell}</td>
 							{cards}
+							<td>{winrateCell}</td>
+							<td>{choice.popularity + "%"}</td>
 						</tr>,
 					);
 				});
@@ -73,10 +73,10 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, void>
 							<thead>
 							<tr>
 								<th>Rank</th>
-								<th>Popularity</th>
-								<th>Winrate</th>
 								<th>Adaptations</th>
 								{Array.from({length: adaptations - 1}, (x) => <th/>)}
+								<th>Winrate</th>
+								<th>Popularity</th>
 							</tr>
 							</thead>
 							<tbody>
