@@ -16,7 +16,6 @@ import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import InfoIcon from "../components/InfoIcon";
-import Feature from "../components/Feature";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -178,7 +177,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 							return;
 						}
-						if (this.props.user.hasFeature("latest_set") && this.props.includedSet
+						if (this.props.includedSet !== "all"
 							&& cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)) {
 							return;
 						}
@@ -392,15 +391,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					</section>
 					<section id="include-cards-filter">
 						<h2>Included Cards</h2>
-						<Feature feature="latest_set" userData={this.props.user}>
-							<InfoboxFilterGroup
-								deselectable
-								selectedValue={this.props.includedSet}
-								onClick={(value) => this.props.setIncludedSet(value)}
-							>
-								<InfoboxFilter value="UNGORO">Latest Expansion</InfoboxFilter>
-							</InfoboxFilterGroup>
-						</Feature>
+						<InfoboxFilterGroup
+							deselectable
+							selectedValue={this.props.includedSet}
+							onClick={(value) => this.props.setIncludedSet(value || "all")}
+						>
+							<InfoboxFilter value="UNGORO">Latest Expansion</InfoboxFilter>
+						</InfoboxFilterGroup>
 						<CardSearch
 							id="card-search-include"
 							key={"cardinclude" + this.state.cardSearchIncludeKey}
