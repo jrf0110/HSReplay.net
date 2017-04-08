@@ -116,3 +116,47 @@ article.article {
 	margin: 1em auto;
 	max-width: 1250px;
 }
+
+.article-table {
+	.player-class {
+		background-repeat: no-repeat;
+		background-size: contain;
+		height: 2.2em;
+		padding: 5px 0 5px 30px;
+
+		&.druid {
+			background-image: url(/static/images/class-icons/druid.png);
+		}
+		&.hunter {
+			background-image: url(/static/images/class-icons/hunter.png);
+		}
+		&.mage {
+			background-image: url(/static/images/class-icons/mage.png);
+		}
+		&.paladin {
+			background-image: url(/static/images/class-icons/paladin.png);
+		}
+		&.priest {
+			background-image: url(/static/images/class-icons/priest.png);
+		}
+		&.rogue {
+			background-image: url(/static/images/class-icons/rogue.png);
+		}
+		&.shaman {
+			background-image: url(/static/images/class-icons/shaman.png);
+		}
+		&.warlock {
+			background-image: url(/static/images/class-icons/warlock.png);
+		}
+		&.warrior {
+			background-image: url(/static/images/class-icons/warrior.png);
+		}
+	}
+
+	.percent {
+		font-weight: bold;
+	}
+	.percent::after {
+		content: "%";
+	}
+}
