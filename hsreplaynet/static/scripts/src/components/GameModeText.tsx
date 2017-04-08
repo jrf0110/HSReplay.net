@@ -23,7 +23,7 @@ export default class GameModeText extends React.Component<GameModeTextProps, any
 			case BnetGameType.BGT_ARENA:
 				const wins = this.props.player.wins;
 				const losses = this.props.player.losses;
-				if(wins !== null && losses !== null) {
+				if(wins !== null || losses !== null) {
 					return +wins + " - " + +losses;
 				}
 				return "Arena";
