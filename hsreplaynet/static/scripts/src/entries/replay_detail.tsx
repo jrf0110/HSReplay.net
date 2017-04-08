@@ -181,3 +181,20 @@ embedder.launcher.onFullscreen((fullscreen: boolean): void => {
 
 // embed joust
 embedder.render();
+
+// track banner clikcs
+const banner = document.getElementById("banner-link");
+if (banner) {
+	banner.addEventListener("click", () => {
+		if (typeof ga !== "function") {
+			return;
+		}
+		ga("send", {
+			hitType: "event",
+			eventCategory: "Banner",
+			eventAction: "click",
+			eventLabel: "Replay Sidebar Banner",
+			transport: "beacon",
+		});
+	})
+}
