@@ -23,7 +23,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 
 		const series = toTimeSeries(this.props.data.series.find((x) => x.name === "popularity_over_time") || this.props.data.series[0]);
 		const metadata = getChartMetaData(series.data, undefined, true, 1);
-		metadata.yDomain = [0, this.props.maxYDomain];
+		metadata.yDomain = [0, Math.max(this.props.maxYDomain, metadata.yDomain[1])];
 
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
