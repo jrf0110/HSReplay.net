@@ -57,7 +57,7 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 					content.push(selectedContent);
 				}
 			}
-			tooltip = <div className={tooltipClassNames.join(" ")}>{content}</div>;
+			tooltip = <div id="tooltip-body" className={tooltipClassNames.join(" ")}>{content}</div>;
 		}
 
 		let classNames = ["tooltip-wrapper"];
@@ -76,6 +76,7 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 				onMouseOver={(e) => this.setState({hovering: true, clientX: e.clientX})}
 				onMouseOut={cancel}
 				onTouchStart={() => this.setState({isTouchDevice: true})}
+				aria-describedby={this.state.hovering ? "tooltip-body" : null}
 			>
 				{this.props.children}
 				{tooltip}

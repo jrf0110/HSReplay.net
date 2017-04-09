@@ -36,7 +36,7 @@
 				<p>
 					<a href="{% url 'my_replays' %}" class="promo-button">My Replays</a>
 					<a href="{% url 'account_edit' %}" class="promo-button-outline">
-						<img src="{% static 'images/bnet.png' %}"/>
+						<img src="{% static 'images/bnet.png' %}" alt="Battle.net Icon" />
 						<span>{{ user.username }}</span>
 					</a>
 				</p>
@@ -46,7 +46,7 @@
 			{% else %}
 				{% include 'login_button.html' %}
 				<p class="promo-help">
-					You don't need a new account&mdash;we use <img src="{% static 'images/bnet.png' %}"/>
+					You don't need a new account&mdash;we use <img src="{% static 'images/bnet.png' %}" alt=" Battle.net Icon" />
 					<abbr title="We'll send you to the offical Battle.net site where you can securely log in.&#10;HSReplay.net does not gain access to your Battle.net email address or password.">Battle.net</abbr>.
 				</p>
 			{% endif %}
@@ -55,7 +55,7 @@
 
 	<nav class="navbar navbar-default">
 		<div class="container">
-			<nav class="collapse navbar-collapse" id="navbar-collapse">
+			<nav>
 				<ul class="nav navbar-nav">
 					<li><a href="#features">Features</a></li>
 					<li><a href="#how-it-works">How it works</a></li>

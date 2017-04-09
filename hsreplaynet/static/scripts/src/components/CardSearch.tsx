@@ -14,6 +14,7 @@ interface CardSearchProps extends React.ClassAttributes<CardSearch> {
 	id: string;
 	onCardsChanged: (cards: any[]) => void;
 	selectedCards: any[];
+	label?: string;
 }
 
 export default class CardSearch extends React.Component<CardSearchProps, CardSearchState> {
@@ -90,6 +91,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				<div className="form-group has-feedback">
 					<input
 						id={this.props.id}
+						aria-labelledby={this.props.label}
 						ref={(input) => this.input = input}
 						className="form-control"
 						type="search"

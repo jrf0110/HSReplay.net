@@ -390,7 +390,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						</PremiumWrapper>
 					</section>
 					<section id="include-cards-filter">
-						<h2>Included Cards</h2>
+						<h2 id="card-search-include-label">Included Cards</h2>
 						<InfoboxFilterGroup
 							deselectable
 							selectedValue={this.props.includedSet}
@@ -400,6 +400,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						</InfoboxFilterGroup>
 						<CardSearch
 							id="card-search-include"
+							label="card-search-include-label"
 							key={"cardinclude" + this.state.cardSearchIncludeKey}
 							availableCards={filteredCards}
 							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
@@ -407,9 +408,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						/>
 					</section>
 					<section id="exclude-cards-filter">
-						<h2>Excluded Cards</h2>
+						<h2 id="card-search-exclude-label">Excluded Cards</h2>
 						<CardSearch
 							id="card-search-exclude"
+							label="card-search-exclude-label"
 							key={"cardexclude" + this.state.cardSearchExcludeKey}
 							availableCards={filteredCards}
 							onCardsChanged={(cards) => this.props.setExcludedCards(cards.map((card) => card.dbfId))}

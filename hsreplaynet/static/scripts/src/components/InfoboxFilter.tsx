@@ -52,6 +52,9 @@ export default class InfoboxFilter extends React.Component<InfoboxFilterProps, v
 					onClick();
 				}}
 				tabIndex={this.props.disabled ? -1 : (typeof this.props.tabIndex === "undefined" ? 0 : this.props.tabIndex)}
+				role={this.props.deselectable ? "checkbox" : "radio"}
+				aria-disabled={this.props.disabled}
+				aria-checked={this.props.selected}
 			>
 				{this.props.children}
 			</li>
