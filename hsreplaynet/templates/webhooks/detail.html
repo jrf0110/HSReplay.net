@@ -1,4 +1,5 @@
 {% extends "webhooks/base.html" %}
+{% load htmltime from web_extras %}
 
 {% block content %}
 	<section id="webhooks-form" class="box-section">
@@ -104,7 +105,7 @@
 				{% for trigger in triggers %}
 					<tr>
 						<td><a href="{{ trigger.url }}">{{ trigger.url }}</a></td>
-						<td><time datetime="{{ trigger.created|date:'c' }}">{{ trigger.created }}</time></td>
+						<td>{{ trigger.created|htmltime:"%F %X %Z" }}</td>
 						<td>
 							{% if trigger.success %}
 								<strong class="webhook-active">✓</strong>

@@ -30,6 +30,14 @@ def _json(data):
 	return mark_safe(json_str)
 
 
+@register.filter(is_safe=True)
+def htmltime(datetime, fmt="%B %d, %Y"):
+	iso = datetime.isoformat()
+	formatted = datetime.strftime(fmt)
+	html = '<time datetime="%s">%s</time>' % (iso, formatted)
+	return mark_safe(html)
+
+
 @register.simple_tag
 def joust_static(path):
 	return settings.JOUST_STATIC_URL + path

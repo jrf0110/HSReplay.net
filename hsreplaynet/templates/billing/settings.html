@@ -1,7 +1,7 @@
 {% extends "account/base.html" %}
 {% load static from static %}
 {% load feature from features %}
-{% load setting from web_extras %}
+{% load setting htmltime from web_extras %}
 
 {% block content %}
 
@@ -31,7 +31,7 @@
 
 				<p>
 					You have canceled your subscription. It ends on
-					<strong><time datetime="{{ sub.current_period_end|date:'c' }}">{{ sub.current_period_end|date:"F d, Y" }}</time></strong>.
+					<strong>{{ sub.current_period_end|htmltime }}</strong>.
 				</p>
 			{% else %}
 
@@ -47,17 +47,17 @@
 				</form>
 
 				<p>
-					Subscribed since <strong><time datetime="{{ sub.start|date:'c' }}">{{ sub.start|date:"F d, Y" }}</time></strong>.
+					Subscribed since <strong>{{ sub.start|htmltime }}</strong>.
 					Thanks for supporting us!
 				</p>
 				<p>
-					Your subscription will renew on <strong><time datetime="{{ sub.current_period_end|date:'c' }}">{{ sub.current_period_end|date:"F d, Y" }}</time></strong>.
+					Your subscription will renew on <strong>{{ sub.current_period_end|htmltime }}</strong>.
 				</p>
 
 				{% if not customer.default_source and sub.plan.amount %}
 					<p class="alert alert-danger"><strong>
 						You are subscribed but do not have a default payment method set up. Your next payment will fail.<br/>
-						Please add a card below before {{ sub.current_period_end|date:"F d, Y" }}.
+						Please add a card below before {{ sub.current_period_end|htmltime }}.
 					</strong></p>
 				{% endif %}
 			{% endif %}
@@ -199,7 +199,7 @@
 			{% for invoice in customer.invoices.all %}
 				<tr>
 					<td>#{{ invoice.id }} {% if stripe_debug %}<code>{{ invoice.stripe_id }}</code>{% endif %}</td>
-					<td><time datetime="{{ invoice.date|date:'c' }}">{{ invoice.date|date:"Y-m-d" }}</td>
+					<td>{{ invoice.date|htmltime:"%Y-%m-%d" }}</td>
 					<td>{{ invoice.subscription.plan.name }}</td>
 					<td>{{ invoice.status }}</td>
 					<td>{{ invoice.currency|upper }} {{ invoice.total|floatformat:"2" }} {% if invoice.total < 0 %}<span class="label label-success">Credit</span>{% endif %}</td>

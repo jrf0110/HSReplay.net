@@ -1,4 +1,5 @@
 {% extends "account/base.html" %}
+{% load htmltime from web_extras %}
 
 {% block content %}
 	<section id="account-api" class="box-section">
@@ -21,7 +22,7 @@
 			{% for token in tokens %}
 				<tr>
 					{% if token.creation_apikey.website %}
-						<td><a href="{{ token.creation_apikey.website }}">{{ token.creation_apikey }}</a></td>
+						<td><a href="{{ token.creation_apikey.website }}" target="_blank">{{ token.creation_apikey }}</a></td>
 					{% else %}
 						<td>{{ token.creation_apikey }}</td>
 					{% endif %}
@@ -29,7 +30,7 @@
 						{{ token }}
 						{% if user.is_staff %}(<a href="{% url 'admin:api_authtoken_change' token %}">Admin</a>){% endif %}
 					</td>
-					<td>{{ token.created }}</td>
+					<td>{{ token.created|htmltime:"%F %X %Z" }}</td>
 				</tr>
 			{% endfor %}
 			</table>
@@ -68,7 +69,7 @@
 						<tr>
 							<td><a href="{{ webhook.get_absolute_url }}">{{ webhook.uuid }}</a></td>
 							<td>{{ webhook.url }}</td>
-							<td>{{ webhook.created.isoformat }}</td>
+							<td>{{ webhook.created|htmltime:"%F %X %Z" }}</td>
 							{% if webhook.is_active %}
 								<td class="webhook-active">✓</td>
 							{% else %}
