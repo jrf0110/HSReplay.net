@@ -25,9 +25,7 @@
 			{% if webhook %}
 			<div class="form-group">
 				<label for="uuid">UUID</label>
-				<input
-					type="text" id="uuid" class="form-control" value="{{ webhook.uuid }}" readonly
-				/>
+				<input type="text" value="{{ webhook.uuid }}" id="uuid" class="form-control" readonly onclick="this.select()"/>
 			</div>
 			{% endif %}
 
