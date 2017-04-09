@@ -65,6 +65,10 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 			# This is logged by Stripe.
 			messages.add_message(self.request, messages.ERROR, "Error adding payment card")
 			return False
+		except CardError:
+			# Card was declined.
+			messages.error(self.request, "Your card was declined. Please use a different card.")
+			return False
 
 		# Stripe Checkout supports capturing email.
 		# We ask for it if we don't have one yet.
