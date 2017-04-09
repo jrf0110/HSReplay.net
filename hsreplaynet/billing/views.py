@@ -63,7 +63,7 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		except InvalidRequestError:
 			# Most likely, we got a bad token (eg. bad request)
 			# This is logged by Stripe.
-			messages.add_message(self.request, messages.ERROR, "Error adding payment card")
+			messages.error(self.request, "Error adding payment card")
 			return False
 		except CardError:
 			# Card was declined.
@@ -105,11 +105,11 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 					# Maybe the subscription already ran out.
 					# Sync the subscriptions and display an error.
 					customer._sync_subscriptions()
-					messages.add_message(self.request, messages.ERROR, "Your subscription has expired.")
+					messages.error(self.request, "Your subscription has expired.")
 					return False
 				return True
 
-			messages.add_message(self.request, messages.ERROR, "You are already subscribed!")
+			messages.error(self.request, "You are already subscribed!")
 			return False
 
 		# The Stripe ID of the plan should be included in the POST
@@ -123,7 +123,7 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 			customer.subscribe(plan_id)
 		except InvalidRequestError:
 			# Most likely, bad form data. This will be logged by Stripe.
-			messages.add_message(self.request, messages.ERROR, "Could not process subscription.")
+			messages.error(self.request, "Could not process subscription.")
 			return False
 		except CardError:
 			# Card was declined for some reason
@@ -170,7 +170,7 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 
 		if not customer.subscription:
 			# The customer is not subscribed
-			messages.add_message(request, messages.ERROR, "You are not subscribed.")
+			messages.error(request, "You are not subscribed.")
 			return False
 
 		# Whether the cancellation has effect at the end of the period or immediately
