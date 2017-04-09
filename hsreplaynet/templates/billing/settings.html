@@ -53,6 +53,13 @@
 				<p>
 					Your subscription will renew on <strong><time datetime="{{ sub.current_period_end|date:'c' }}">{{ sub.current_period_end|date:"F d, Y" }}</time></strong>.
 				</p>
+
+				{% if not customer.default_source and sub.plan.amount %}
+					<p class="alert alert-danger"><strong>
+						You are subscribed but do not have a default payment method set up. Your next payment will fail.<br/>
+						Please add a card below before {{ sub.current_period_end|date:"F d, Y" }}.
+					</strong></p>
+				{% endif %}
 			{% endif %}
 
 		{% else %}
