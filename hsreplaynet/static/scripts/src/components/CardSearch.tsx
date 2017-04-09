@@ -21,6 +21,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 	readonly defaultCardCount = 10;
 	private search: HTMLDivElement;
 	private input: HTMLInputElement;
+	private cardlist: HTMLUListElement;
 
 	constructor(props: CardSearchProps, state: CardSearchState) {
 		super(props, state);
@@ -69,7 +70,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 		if (this.state.cardSearchHasFocus && cards.length && this.state.cardSearchText.length) {
 			cardSearchResults = (
 				<div className="card-search-results" onScroll={onSearchScroll} ref={(search) => this.search = search}>
-					<ul>
+					<ul ref={(ref) => this.cardlist = ref}>
 						{cards}
 					</ul>
 				</div>
@@ -124,6 +125,12 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 	};
 
 	onKeyDown(event: React.KeyboardEvent<HTMLInputElement>, numCards: number): void {
+		let height = 35;
+		if (this.cardlist && this.cardlist.children && this.cardlist.children.length) {
+			const child = this.cardlist.children[0];
+			const bounds = child.getBoundingClientRect();
+			height = bounds.height - 1;
+		}
 		switch (event.key) {
 			case "ArrowDown":
 				if (!this.search) {
@@ -133,14 +140,14 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				if (this.search["scrollTop"] === 0) {
 					this.search["scrollTop"] += 5;
 				}
-				this.search["scrollTop"] += 35;
+				this.search["scrollTop"] += height;
 				break;
 			case "ArrowUp":
 				if (!this.search) {
 					return;
 				}
 				this.setState({selectedIndex: Math.max(0, this.state.selectedIndex - 1)});
-				this.search["scrollTop"] -= 35;
+				this.search["scrollTop"] -= height;
 				break;
 			case "Enter":
 				const filteredCards = this.getFilteredCards(this.state.cardSearchText);
