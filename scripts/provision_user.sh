@@ -41,7 +41,6 @@ python "$PROJECT/manage.py" load_cards
 python "$PROJECT/scripts/initdb.py"
 
 influx --execute "create database hsreplaynet"
-influx --execute "create database metastats"
 influx --execute "create database joust"
 
 if [[ ! -d $PROJECT/hsreplaynet/static/vendor ]]; then
