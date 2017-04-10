@@ -34,3 +34,16 @@ $hearthsim: #b90303; // distinct from $red, should only be used when directly re
 
 $darkgrey: #505050;
 $lightgrey: #e9e9e9;
+
+/* Card Tiles */
+
+$card-tile-background: rgb(49, 49, 49);
+$card-tile-text-color: white;
+$card-tile-count-color: #f4d442;
+
+$card-tile-background-common: #858585;
+$card-tile-background-rare: #315376;
+$card-tile-background-epic: #644C82;
+$card-tile-background-legendary: #855C25;
+
+$card-tile-background-default: $card-tile-background-rare;

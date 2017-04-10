@@ -3,7 +3,7 @@
 }
 
 .card-tile {
-	color: white;
+	color: $card-tile-text-color;
 	position: relative;
 	text-align: left;
 
@@ -17,7 +17,7 @@
 		height: 100%;
 		float: left;
 		position: relative;
-		background-color: #315376;
+		background: $card-tile-background-default;
 		border-style: solid;
 		border-color: black;
 		border-width: 1px 0 1px 1px;
@@ -30,19 +30,19 @@
 		}
 
 		&.rarity-common, &.rarity-free {
-			background-color: #858585;
+			background: $card-tile-background-common;
 		}
 
 		&.rarity-rare {
-			background-color: #315376;
+			background: $card-tile-background-rare;
 		}
 
 		&.rarity-epic {
-			background-color: #644C82;
+			background: $card-tile-background-epic;
 		}
 
 		&.rarity-legendary {
-			background-color: #855C25;
+			background:: $card-tile-background-legendary;
 		}
 	}
 
@@ -82,14 +82,14 @@
 		.card-asset {
 			position: absolute;
 			height: 100%;
-			background-color: rgb(49,49,49);
+			background-color: $card-tile-background;
 		}
 	}
 
 	.card-countbox {
 		float: right;
 		position: relative;
-		background-color: rgb(49,49,49);
+		background-color: $card-tile-background;
 		border-left: solid 1px black;
 		height: 100%;
 
@@ -101,7 +101,7 @@
 		.card-count {
 			position: absolute;
 			width: 100%;
-			color: #f4d442;
+			color: $card-tile-count-color;
 			font-weight: bold;
 			text-align: center;
 		}
