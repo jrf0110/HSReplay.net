@@ -37,6 +37,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 					rank={index + 1}
 					urlGameType={this.props.urlGameType}
 					winrate={hasWinrate ? +row.win_rate : undefined}
+					noLink={isFace}
 				/>,
 			);
 		});
