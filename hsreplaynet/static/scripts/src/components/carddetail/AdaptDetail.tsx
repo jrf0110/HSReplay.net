@@ -23,7 +23,9 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, void>
 			const choices = this.props.data.series.data[this.props.opponentClass];
 			if (choices) {
 				choices.sort((a, b) => +b.popularity - +a.popularity);
-				choices.slice(0, 15).forEach((choice, index) => {
+				const visibleChoices = choices.slice(0, 15);
+				adaptations = Math.max.apply(Math, visibleChoices.map((choice) => choice.adaptations.length));
+				visibleChoices.forEach((choice, index) => {
 					const cards = [];
 					choice.adaptations.forEach((dbfId) => {
 						const card = this.props.cardData.fromDbf(dbfId);
@@ -35,6 +37,9 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, void>
 							</td>,
 						);
 					});
+					for (let i = cards.length; i < adaptations; i++) {
+						cards.push(<td/>);
+					}
 					const wrData = winrateData(50, choice.win_rate, 2);
 					const winrateCell = (
 						<td style={{color: wrData.color}}>{choice.win_rate + "%"}</td>
@@ -48,7 +53,6 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, void>
 						</tr>,
 					);
 				});
-				adaptations = choices[0].adaptations.length;
 			}
 		}
 		return (
