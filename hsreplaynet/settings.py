@@ -367,7 +367,7 @@ REDSHIFT_STAGING_BUFFER_SIZE_MB = 10
 
 # This controls how often we transfer records from the staging tables
 # Into the production tables
-REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES = 120
+REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES = 180
 
 # This controls how long we must wait after closing a Firehose stream for new data
 # Before we transfer the records from the staging track into the prod tables
@@ -407,7 +407,9 @@ REDSHIFT_QUERY_QUEUES = {
 }
 REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME = "redshift_analytics_query_queue"
 REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME = "redshift_personalized_query_queue"
-REDSHIFT_USE_MATCH_START_AS_GAME_DATE = True
+# Set this to True if reprocessing after a long processing pause to maintain
+# an accurate distribution of games
+REDSHIFT_USE_MATCH_START_AS_GAME_DATE = False
 REDSHIFT_PRETTY_PRINT_QUERY_RESULTS = True
 
 
