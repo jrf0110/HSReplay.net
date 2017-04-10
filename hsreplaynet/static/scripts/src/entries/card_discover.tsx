@@ -23,7 +23,7 @@ const user = new UserData();
 
 const availableAccounts = user.getAccounts();
 const defaultAccount = availableAccounts.length ? availableAccounts[0] : null;
-const accountKey = defaultAccount ? defaultAccount.region + "-" + defaultAccount.lo : "-";
+const accountKey = defaultAccount ? defaultAccount.region + "-" + defaultAccount.lo : null;
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(

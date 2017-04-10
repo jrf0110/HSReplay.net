@@ -158,7 +158,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 		this.filters.mechanics.sort();
 
-		if (this.props.viewType === ViewType.PERSONAL) {
+		if (this.props.viewType === ViewType.PERSONAL && this.props.account) {
 			this.dataManager.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => this.setState({hasPersonalData: data && data.series.data.ALL.length > 0}));
 		}
@@ -267,7 +267,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					return [];
 				});
 		}
-		else if (this.props.viewType === ViewType.PERSONAL) {
+		else if (this.props.viewType === ViewType.PERSONAL && this.props.account) {
 			return this.dataManager
 				.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => {
@@ -319,26 +319,41 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 
 		if (viewType === ViewType.PERSONAL) {
-			content.push(
-				<div className="table-wrapper">
-					<DataInjector
-						dataManager={this.dataManager}
-						query={{params: this.getPersonalParams(), url: "single_account_lo_individual_card_stats"}}
-					>
-						<TableLoading cardData={this.props.cardData}>
-							<MyCardStatsTable
-								cards={this.state.filteredCards || []}
-								numCards={this.state.numCards}
-								sortBy={this.props.sortBy}
-								sortDirection={this.props.sortDirection}
-								onSortChanged={(a, b) => this.onSortChanged(a, b)}
-							/>
-						</TableLoading>
-					</DataInjector>
-				</div>,
-			);
-			if (showMoreButton && this.state.hasPersonalData) {
-				content.push(showMoreButton);
+			if (this.props.account) {
+				content.push(
+					<div className="table-wrapper">
+						<DataInjector
+							dataManager={this.dataManager}
+							query={{params: this.getPersonalParams(), url: "single_account_lo_individual_card_stats"}}
+						>
+							<TableLoading cardData={this.props.cardData}>
+								<MyCardStatsTable
+									cards={this.state.filteredCards || []}
+									numCards={this.state.numCards}
+									sortBy={this.props.sortBy}
+									sortDirection={this.props.sortDirection}
+									onSortChanged={(a, b) => this.onSortChanged(a, b)}
+								/>
+							</TableLoading>
+						</DataInjector>
+					</div>,
+				);
+				if (showMoreButton && this.state.hasPersonalData) {
+					content.push(showMoreButton);
+				}
+			}
+			else {
+				content.push(
+					<div className="message-wrapper">
+						<h3>No Hearthstone account found</h3>
+						<p>
+							Play one (more) game and upload the replay for your personal card statistics to appear here.
+						</p>
+						<p>
+							Please <a href="/contact">contact us</a> if you keep seeing this message.
+						</p>
+					</div>,
+				);
 			}
 		}
 		else if (viewType === ViewType.STATISTICS) {
@@ -654,7 +669,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		}
 
-		if (viewType === ViewType.STATISTICS || viewType === ViewType.PERSONAL) {
+		if (viewType === ViewType.STATISTICS || (viewType === ViewType.PERSONAL && this.props.account)) {
 			const lastUpdatedUrl = viewType === ViewType.STATISTICS
 				? "card_played_popularity_report"
 				: "single_account_lo_individual_card_stats";
