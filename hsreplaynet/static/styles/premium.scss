@@ -112,7 +112,7 @@
 			}
 
 			&.logo {
-				border: solid 1px $hearthsim;
+				border: solid 1px $hearthsim-color;
 				background-color: white;
 				padding: 15px;
 			}
@@ -203,12 +203,12 @@
 	.card {
 		color: black;
 		background-color: white;
-		border: 1px solid $hearthsim;
+		border: 1px solid $hearthsim-color;
 		padding: 0;
 
 		header {
 			color: white;
-			background-color: $hearthsim;
+			background-color: $hearthsim-color;
 
 			h2, h3 {
 				margin: 0;
