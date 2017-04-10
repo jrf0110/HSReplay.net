@@ -4,6 +4,7 @@ import CardData from "../CardData";
 import CardDiscover, {ViewType} from "../pages/CardDiscover";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
+import * as Raven from "raven-js";
 
 const container = document.getElementById("card-container");
 let viewType = ViewType.STATISTICS;
@@ -24,6 +25,12 @@ const user = new UserData();
 const availableAccounts = user.getAccounts();
 const defaultAccount = availableAccounts.length ? availableAccounts[0] : null;
 const accountKey = defaultAccount ? defaultAccount.region + "-" + defaultAccount.lo : null;
+
+if (viewType === ViewType.PERSONAL && !defaultAccount) {
+	Raven.captureMessage("User has no Pegasus account", {
+		level: "warning",
+	});
+}
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
