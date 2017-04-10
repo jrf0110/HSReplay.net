@@ -56,8 +56,7 @@ def _get_query_and_params(request, name):
 		supplied_params["deck_id"] = str(deck.id)
 
 	if query.is_personalized:
-		if request.user and not request.user.is_fake:
-
+		if request.user and request.user.is_authenticated:
 			if "Region" not in supplied_params:
 				default_pegasus_account = request.user.pegasusaccount_set.first()
 
