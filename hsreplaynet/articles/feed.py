@@ -12,7 +12,7 @@ class LatestArticlesFeed(Feed):
 	feed_type = Atom1Feed
 
 	def items(self):
-		return Article.objects.exclude(listed=False).exclude(draft=False)[:10]
+		return Article.objects.filter(listed=True, draft=False)[:10]
 
 	def item_title(self, item):
 		return str(item)
