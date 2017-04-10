@@ -635,14 +635,20 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		}
 
-		let timeFrame = null;
 		if (viewType === ViewType.PERSONAL) {
 			filters.push(modeFilter);
-			timeFrame = (
-				<li>
-					Time frame
-					<span className="infobox-value">Last 30 days</span>
-				</li>
+			filters.push(
+				<InfoboxFilterGroup
+					header="Time Frame"
+					selectedValue={this.props.timeRange}
+					onClick={(value) => this.props.setTimeRange(value)}
+					tabIndex={0}
+				>
+					<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+					<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+					<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
+				</InfoboxFilterGroup>
 			);
 		}
 
@@ -682,7 +688,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						url={lastUpdatedUrl}
 						params={lastUpdatedParams}
 					/>
-					{timeFrame}
 				</ul>,
 				<InfoboxFilterGroup
 					deselectable
@@ -922,6 +927,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			GameType: this.props.gameType,
 			Region: getRegion(this.props.account),
 			account_lo: getLo(this.props.account),
+			TimeRange: this.props.timeRange,
 		};
 	}
 

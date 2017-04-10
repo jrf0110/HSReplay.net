@@ -36,7 +36,7 @@ const render = (cardData: CardData) => {
 				gameType: "RANKED_STANDARD",
 				playerClass: "ALL",
 				rankRange: "ALL",
-				timeRange: "LAST_14_DAYS",
+				timeRange: viewType === ViewType.PERSONAL ? "LAST_30_DAYS" : "LAST_14_DAYS",
 				exclude: "",
 				cost: [],
 				rarity: [],
