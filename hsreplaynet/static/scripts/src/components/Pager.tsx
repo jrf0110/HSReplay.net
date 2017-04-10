@@ -10,6 +10,7 @@ interface PagerProps extends React.ClassAttributes<Pager> {
 	currentPage?: number;
 	setCurrentPage?: (page: number) => void;
 	pageCount?: number;
+	minimal?: boolean;
 }
 
 export default class Pager extends React.Component<PagerProps, void> {
@@ -83,10 +84,10 @@ export default class Pager extends React.Component<PagerProps, void> {
 				{
 					action(previous, [
 						<span className="glyphicon glyphicon-arrow-left"></span>,
-						<span className="hidden-lg space-left">Previous</span>,
+						<span className={"space-left" + (!this.props.minimal ? " hidden-lg" : "")}>Previous</span>,
 					], {title: "Previous page"})
 				}
-				{pages.map((page: Page) => {
+				{!this.props.minimal ? pages.map((page: Page) => {
 					let content = null;
 					const classNames = ["visible-lg-inline"];
 
@@ -121,15 +122,19 @@ export default class Pager extends React.Component<PagerProps, void> {
 							{content}
 						</li>
 					);
-				})}
-				{typeof this.props.pageCount === "number" && this.props.pageCount ? <li className="hidden-lg">
-					<span className="transparent-background">
-						{safeCurrentPage + " / " + this.props.pageCount}
-					</span>
-				</li> : null}
+				}) : null}
+				{typeof this.props.pageCount === "number" && this.props.pageCount ? (
+					<li
+						className={!this.props.minimal ? "hidden-lg" : null}
+					>
+						<span className="transparent-background">
+							{safeCurrentPage + " / " + this.props.pageCount}
+						</span>
+					</li>
+				) : null}
 				{
 					action(next, [
-						<span className="hidden-lg space-right">Next</span>,
+						<span className={"space-right" + (!this.props.minimal ? " hidden-lg" : "")}>Next</span>,
 						<span className="glyphicon glyphicon-arrow-right"></span>,
 					], {title: "Next page"})
 				}
