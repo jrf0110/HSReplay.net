@@ -1,8 +1,11 @@
 {% extends "articles/base.html" %}
 
+{% load render_bundle from webpack_loader %}
+
 {% block content %}
 <div class="article-detail">
 	{% include "articles/article.html" with article=article %}
 </div>
 
+{% render_bundle 'articles' %}
 {% endblock %}
