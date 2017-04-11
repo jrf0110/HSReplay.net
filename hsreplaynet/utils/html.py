@@ -97,11 +97,21 @@ class HTMLHead:
 		for attrs in tags:
 			self._meta_tags.append(HTMLTag("meta", attrs=attrs))
 
-	def add_stylesheets(self, *urls):
-		for url in urls:
-			if not url.startswith(("http:", "https:")):
-				url = static(url)
-			self.add_link(rel="stylesheet", type="text/css", href=url)
+	def add_stylesheets(self, *stylesheets):
+		for stylesheet in stylesheets:
+			if isinstance(stylesheet, dict):
+				attrs = dict(stylesheet)
+				attrs.setdefault("rel", "stylesheet")
+				attrs.setdefault("type", "text/css")
+				if "integrity" in stylesheet:
+					attrs.setdefault("crossorigin", "anonymous")
+			else:
+				attrs = {"rel": "stylesheet", "href": stylesheet, "type": "text/css"}
+
+			if not attrs["href"].startswith(("http:", "https:")):
+				attrs["href"] = static(attrs["href"])
+
+			self.add_link(**attrs)
 
 	def set_canonical_url(self, url):
 		self.canonical_url = self.request.build_absolute_uri(url)
