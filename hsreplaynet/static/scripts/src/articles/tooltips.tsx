@@ -1,0 +1,27 @@
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import Card from "../components/Card";
+
+const tooltip = document.createElement("div");
+tooltip.classList.add("article-tooltip");
+tooltip.classList.add("hidden");
+
+const targets = document.querySelectorAll("[data-toggle=card-tooltip]") as NodeListOf<HTMLElement>;
+
+for (let target of targets) {
+	target.addEventListener("mousemove", (event) => {
+		const cardId = target.getAttribute("data-card-id");
+		ReactDOM.render(<Card
+			id={cardId}
+			x={event.clientX}
+			y={event.clientY}
+		/>, tooltip);
+		document.body.appendChild(tooltip);
+		tooltip.classList.remove("hidden");
+	});
+
+	target.addEventListener("mouseleave", () => {
+		document.body.removeChild(tooltip);
+		tooltip.classList.add("hidden");
+	});
+}
