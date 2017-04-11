@@ -6,7 +6,24 @@ interface CardProps extends React.ClassAttributes<Card> {
 	y?: number;
 }
 
-export default class Card extends React.Component<CardProps, void> {
+interface CardState {
+	loaded?: boolean;
+}
+
+export default class Card extends React.Component<CardProps, CardState> {
+	constructor(props, context) {
+		super(props, context);
+		this.state = {
+			loaded: false,
+		}
+	}
+
+	componentDidUpdate(prevProps: CardProps, prevState: CardState) {
+		if(prevProps.id !== this.props.id) {
+			this.setState({loaded: false});
+		}
+	}
+
 	render(): JSX.Element {
 		const imageStyle = {
 			top: Math.max(0, this.props.y - 350) + "px",
@@ -19,13 +36,26 @@ export default class Card extends React.Component<CardProps, void> {
 			imageStyle["right"] = (window.innerWidth - this.props.x) + "px";
 		}
 
+		const artUrl = "https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.id + ".png";
+
 		return (
-			<img
-				className="card-image"
-				height={350}
-				src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.id + ".png"}
-				style={imageStyle}
-			/>
+			<div>
+				<img
+					style={{visibility: "hidden"}}
+					src={artUrl}
+					height={0}
+					width={0}
+					onLoad={() => {
+						this.setState({loaded: true})
+					}}
+				/>
+				<img
+					className="card-image"
+					height={350}
+					src={this.state.loaded ? artUrl : "https://hsreplay.net/static/images/loading_minion.png"}
+					style={imageStyle}
+				/>
+			</div>
 		);
 	}
 }
