@@ -116,6 +116,9 @@ class Card(models.Model):
 	def get_card_art_url(self, resolution=256, format="jpg"):
 		return "https://art.hearthstonejson.com/v1/%ix/%s.%s" % (resolution, self.id, format)
 
+	def get_tile_url(self, format="png"):
+		return "https://art.hearthstonejson.com/v1/tiles/%s.%s" % (self.id, format)
+
 	def update_from_cardxml(self, cardxml, save=False):
 		for k in dir(cardxml):
 			if k.startswith("_"):

@@ -14,7 +14,7 @@
 								<span class="card-cost" style="font-size: 1.25em;">{{ card.cost }}</span>
 							</div>
 							<div class="card-frame">
-								<img class="card-asset" src="https://art.hearthstonejson.com/v1/tiles/{{ card.id }}.png" style="width: 134px; right: 0px;">
+								<img class="card-asset" src="{{ card.get_tile_url }}" style="width: 134px; right: 0px;">
 								<span class="card-fade-no-countbox"></span>
 								<span class="card-name" style="font-size: 0.9em; width: calc(100% - 4px);">{{ card.name }}</span>
 							</div>
