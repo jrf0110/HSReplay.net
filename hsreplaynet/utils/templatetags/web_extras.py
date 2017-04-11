@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.urls import reverse
 from django.utils.safestring import mark_for_escaping, mark_safe
-from hsreplaynet.games.models import GameReplay
 
 
 register = template.Library()
@@ -41,19 +40,6 @@ def htmltime(datetime, fmt="%B %d, %Y"):
 @register.simple_tag
 def joust_static(path):
 	return settings.JOUST_STATIC_URL + path
-
-
-@register.simple_tag
-def get_featured_game():
-	id = getattr(settings, "FEATURED_GAME_ID", None)
-	if not id:
-		return
-
-	try:
-		replay = GameReplay.objects.get(shortid=id)
-	except GameReplay.DoesNotExist:
-		replay = None
-	return replay
 
 
 @register.simple_tag
