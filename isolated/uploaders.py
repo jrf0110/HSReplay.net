@@ -112,7 +112,7 @@ def generate_log_upload_address_handler(event, context):
 	S3.put_object(
 		ACL="private",
 		Key=s3_descriptor_key,
-		Body=json.dumps(descriptor, sort_keys=True, indent=4).encode("utf8"),
+		Body=json.dumps(descriptor).encode("utf8"),
 		Bucket=S3_RAW_LOG_UPLOAD_BUCKET
 	)
 
