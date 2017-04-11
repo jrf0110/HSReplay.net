@@ -423,6 +423,7 @@ WEBHOOKS = {
 
 # Used in some pages such as /downloads
 FONTAWESOME_CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+FONTAWESOME_CSS_INTEGRITY = "sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0="
 
 
 # Monkeypatch default collectstatic ignore patterns

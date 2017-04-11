@@ -43,5 +43,5 @@ class DownloadsView(RequestMetaMixin, TemplateView):
 	template_name = "downloads.html"
 	title = "Downloads"
 	stylesheets = (
-		settings.FONTAWESOME_CSS_URL,
+		{"href": settings.FONTAWESOME_CSS_URL, "integrity": settings.FONTAWESOME_CSS_INTEGRITY},
 	)
