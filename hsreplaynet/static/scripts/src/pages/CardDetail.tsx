@@ -388,7 +388,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										/>
 									</DataInjector>
 								</Tab>
-								<Tab label="Quest completion" id="quest-completion" condition={this.cardIsQuest() && this.props.userData.hasFeature("quest-completion")}>
+								<Tab label="Quest Completion" id="quest-completion" condition={this.cardIsQuest() && this.props.userData.hasFeature("quest-completion")}>
 									<QuestCompletionDetail
 										dataManager={this.dataManager}
 										query={{
