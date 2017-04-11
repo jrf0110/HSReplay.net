@@ -31,6 +31,7 @@ import AdaptDetail from "../components/carddetail/AdaptDetail";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import Fragments from "../components/Fragments";
+import QuestCompletionDetail from "../components/carddetail/QuestCompletionDetail";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -92,6 +93,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			this.props.card &&
 			this.props.card.referencedTags &&
 			this.props.card.referencedTags.indexOf("ADAPT") !== -1
+		) || false;
+	}
+
+	cardIsQuest(): boolean {
+		return (
+			this.props.card &&
+			this.props.card.mechanics &&
+			this.props.card.mechanics.indexOf("QUEST") !== -1
 		) || false;
 	}
 
@@ -378,6 +387,21 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											userData={this.props.userData}
 										/>
 									</DataInjector>
+								</Tab>
+								<Tab label="Quest completion" id="quest-completion" condition={this.cardIsQuest() && this.props.userData.hasFeature("quest-completion")}>
+									<QuestCompletionDetail
+										dataManager={this.dataManager}
+										query={{
+											params: this.getParams(),
+											url: (
+												this.props.userData.isPremium() && this.props.opponentClass !== "ALL"
+													? "quest_completion_stats_by_turn_and_opponent" : "quest_completion_stats_by_turn"
+											),
+										}}
+										opponentClass={this.props.opponentClass}
+										setOpponentClass={this.props.setOpponentClass}
+										userData={this.props.userData}
+									/>
 								</Tab>
 							</TabList>
 						</Fragments>

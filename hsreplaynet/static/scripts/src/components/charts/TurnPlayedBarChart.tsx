@@ -11,7 +11,7 @@ interface TurnPlayedBarChartProps {
 	data?: RenderData;
 	opponentClass?: string;
 	widthRatio?: number;
-	premiumLocked: boolean;
+	premiumLocked?: boolean;
 }
 
 export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarChartProps, any> {

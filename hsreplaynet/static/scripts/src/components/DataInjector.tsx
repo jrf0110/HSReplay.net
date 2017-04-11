@@ -13,7 +13,7 @@ interface DataInjectorState {
 	status: number[];
 }
 
-interface Query {
+export interface Query {
 	key?: string;
 	url: string;
 	params: any;
