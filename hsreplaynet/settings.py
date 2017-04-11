@@ -421,6 +421,10 @@ WEBHOOKS = {
 }
 
 
+# Used in some pages such as /downloads
+FONTAWESOME_CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+
+
 # Monkeypatch default collectstatic ignore patterns
 from django.contrib.staticfiles.apps import StaticFilesConfig
 StaticFilesConfig.ignore_patterns += ["*.scss", "*.ts", "*.tsx"]

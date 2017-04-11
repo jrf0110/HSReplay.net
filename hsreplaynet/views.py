@@ -43,5 +43,5 @@ class DownloadsView(RequestMetaMixin, TemplateView):
 	template_name = "downloads.html"
 	title = "Downloads"
 	stylesheets = (
-		"https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css",
+		settings.FONTAWESOME_CSS_URL,
 	)
