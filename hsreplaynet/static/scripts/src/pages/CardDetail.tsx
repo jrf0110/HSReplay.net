@@ -369,7 +369,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										</DataInjector>
 									</div>
 								</Tab>
-								<Tab label="Adapt" id="adapt" condition={this.cardHasAdapt() && this.props.userData.hasFeature("adapt")}>
+								<Tab label="Adapt" id="adapt" condition={this.cardHasAdapt()}>
 									<DataInjector
 										dataManager={this.dataManager}
 										query={{
