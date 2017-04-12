@@ -10,11 +10,13 @@ const deckId = document.getElementById("deck-info").getAttribute("data-deck-id")
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
 const deckClass = document.getElementById("deck-info").getAttribute("data-deck-class");
 const user = new UserData();
+const defaultAccount = user.getDefaultAccountKey();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
+				account: defaultAccount,
 				tab: "",
 			}}
 		>

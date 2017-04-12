@@ -44,6 +44,8 @@ interface DeckDetailState {
 }
 
 interface DeckDetailProps {
+	account?: string;
+	setAccount?: (account: string) => void;
 	adminUrl: string;
 	cardData: CardData;
 	deckCards: string;
@@ -71,10 +73,21 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			sortBy: "decklist",
 			sortDirection: "ascending",
 		};
+		this.fetchPersonalDeckSummary();
+	}
 
-		if (this.props.user.hasFeature("profiles")) {
-			this.dataManager.get("/decks/mine/", {}).then((data) => {
-				this.setState({hasPeronalData: data && data[this.props.deckId] !== undefined});
+	componentWillReceiveProps(nextProps: DeckDetailProps, nextState: DeckDetailState) {
+		if (nextProps.account !== this.props.account) {
+			this.fetchPersonalDeckSummary(nextProps);
+		}
+	}
+
+	fetchPersonalDeckSummary(props?: DeckDetailProps) {
+		if (this.props.user.hasFeature("personal-deck-stats")) {
+			this.dataManager.get("single_account_lo_decks_summary", this.getPersonalParams(props)).then((data) => {
+				this.setState({
+					hasPeronalData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
+				});
 			});
 		}
 	}
@@ -105,6 +118,35 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const isPremium = this.props.user.isPremium();
 		const premiumTabIndex = isPremium ? 0 : -1;
+
+		let accountFilter = null;
+		if (this.props.user.isPremium()
+			&& this.props.user.getAccounts().length > 0
+			&& this.props.user.hasFeature("personal-deck-stats")) {
+			const accounts = [];
+			this.props.user.getAccounts().forEach((acc) => {
+				accounts.push(
+					<InfoboxFilter value={acc.region + "-" + acc.lo}>
+						{acc.display}
+					</InfoboxFilter>,
+				);
+			});
+			if (accounts.length) {
+				accountFilter = (
+					<InfoboxFilterGroup
+						header="Accounts"
+						selectedValue={this.props.account}
+						onClick={(value) => {
+							this.props.user.setDefaultAccount(value);
+							this.props.setAccount(value);
+						}}
+						tabIndex={accounts.length > 1 ? 0 : -1}
+					>
+						{accounts}
+					</InfoboxFilterGroup>
+				);
+			}
+		}
 
 		return <div className="deck-detail-container">
 			<aside className="infobox">
@@ -163,6 +205,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</PremiumWrapper>
+				{accountFilter}
 				<DataInjector
 					dataManager={this.dataManager}
 					fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
@@ -296,9 +339,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							</DataInjector>
 						</Tab>
 						<Tab
-							label="My Statistics"
+							label={(
+								<span className="text-premium">
+									My Statistics&nbsp;
+									<InfoIcon
+										header="Personal statistics"
+										content="See detailed statistics about your own performance of each card in this deck."
+									/>
+								</span>
+							)}
 							id="my-statistics"
-							condition={this.props.user.hasFeature("profiles")}
+							condition={this.props.user.hasFeature("personal-deck-stats")}
 						>
 							{this.getMyStats()}
 						</Tab>
@@ -375,4 +426,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			deck_id: this.props.deckId,
 		};
 	}
+
+	getPersonalParams(props?: DeckDetailProps): any {
+		props = props || this.props;
+		const getRegion = (account: string) => account && account.split("-")[0];
+		const getLo = (account: string) => account && account.split("-")[1];
+		return {
+			GameType: this.gameType(),
+			Region: getRegion(props.account),
+			account_lo: getLo(props.account),
+		};
+	}
+
 }
