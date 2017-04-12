@@ -5,7 +5,6 @@ from django.http import Http404, HttpResponseForbidden, JsonResponse
 from django.views.decorators.http import condition
 from hsredshift.analytics.filters import Region
 from hsreplaynet.cards.models import Deck
-from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from .processing import (
 	evict_locks_cache, execute_query, get_concurrent_redshift_query_queue_semaphore,
@@ -110,7 +109,6 @@ def user_is_eligible_for_query(user, query, params):
 		return True
 
 
-@view_requires_feature_access("carddb")
 @condition(last_modified_func=fetch_query_result_as_of)
 def fetch_query_results(request, name):
 	parameterized_query = _get_query_and_params(request, name)
@@ -120,7 +118,6 @@ def fetch_query_results(request, name):
 	return _fetch_query_results(parameterized_query)
 
 
-@view_requires_feature_access("carddb")
 @condition(last_modified_func=fetch_query_result_as_of)
 def fetch_local_query_results(request, name):
 	# This end point is intended only for administrator use.

@@ -4,17 +4,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
-from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, View
 from hearthstone.enums import CardClass, PlayState
 from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.cards.models import Archetype, Deck
-from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils.html import RequestMetaMixin
 
 
-@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class DeckDetailView(View):
 	template_name = "decks/deck_detail.html"
 
@@ -55,7 +52,6 @@ class DeckDetailView(View):
 		return render(request, self.template_name, context)
 
 
-@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class DeckListView(RequestMetaMixin, TemplateView):
 	template_name = "decks/deck_list.html"
 	title = "Decks"
@@ -63,7 +59,6 @@ class DeckListView(RequestMetaMixin, TemplateView):
 		"game mode. Learn about their winrates and popularity on the ladder."
 
 
-@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class TrendingDecksView(RequestMetaMixin, TemplateView):
 	template_name = "decks/trending.html"
 	title = "Trending Decks"

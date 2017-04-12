@@ -11,7 +11,6 @@ from .queries import CardCountersQueryBuilder
 from .stats.winrates import get_head_to_head_winrates
 
 
-@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class CardStatsView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_stats.html"
 	title = "Cards"
@@ -19,13 +18,11 @@ class CardStatsView(RequestMetaMixin, TemplateView):
 		"Find the cards that are played the most or have the highest winrate."
 
 
-@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class MyCardStatsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "cards/my_card_stats.html"
 	title = "My Cards"
 
 
-@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class CardGalleryView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_gallery.html"
 	title = "Card Gallery"
@@ -43,7 +40,6 @@ class CardEditorView(RequestMetaMixin, TemplateView):
 	)
 
 
-@method_decorator(view_requires_feature_access("carddb"), name="dispatch")
 class CardDetailView(DetailView):
 	model = Card
 

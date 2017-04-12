@@ -3,7 +3,6 @@
 {% load web_extras %}
 {% load render_bundle from webpack_loader %}
 {% load humanize %}
-{% load feature from features %}
 
 {% block error_reporting %}
 	{% comment %}Disable error reporting since it conflicts with Joust's Sentry{% endcomment %}
@@ -18,9 +17,11 @@
 		<div id="replay-toggle-container"></div>
 
 		<h2>Players</h2>
-		<div id="infobox-players-container" data-game-id="{{ replay.shortid }}" data-player-name="{{ replay.friendly_player.name }}"
-			 data-opponent-name="{{ replay.opposing_player.name }}" data-build="{{ replay.global_game.build }}"
-			 {% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}data-feature-carddb="1"{% endif %}>
+		<div
+			id="infobox-players-container"
+			data-game-id="{{ replay.shortid }}" data-player-name="{{ replay.friendly_player.name }}"
+			data-opponent-name="{{ replay.opposing_player.name }}" data-build="{{ replay.global_game.build }}"
+		>
 		</div>
 		<h2>Game</h2>
 		<ul id="infobox-game">

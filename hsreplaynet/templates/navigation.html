@@ -29,31 +29,29 @@
 							</a>
 						</li>
 
-						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-							<li{% nav_active 'trending_decks' %}>
-								<a href="{% url 'trending_decks' %}" id="navbar-link-trending">
-									<span class="glyphicon glyphicon-fire"></span>
-									<span class="hidden-sm">Trending</span>
-								</a>
-							</li>
-							<li{% nav_active 'deck_list' %}>
-								<a href="{% url 'deck_list' %}" id="navbar-link-decks">
-									<span class="glyphicon glyphicon-th-list"></span>
-									<span class="hidden-sm">Decks</span>
-								</a>
-							</li>
-							<li{% nav_active 'card_stats' %}>
-								<a href="{% url 'card_stats' %}" id="navbar-link-cards">
-									<span class="glyphicon glyphicon-stats"></span>
-									<span class="hidden-sm">Cards</span>
-								</a>
-							</li>
-							<li{% nav_active 'card_gallery' %}>
-								<a href="{% url 'card_gallery' %}" id="navbar-link-gallery">
-									<span class="glyphicon glyphicon-th-large"></span>
-									<span class="hidden-sm">Gallery</span>
-								</a></li>
-						{% endif %}
+						<li{% nav_active 'trending_decks' %}>
+							<a href="{% url 'trending_decks' %}" id="navbar-link-trending">
+								<span class="glyphicon glyphicon-fire"></span>
+								<span class="hidden-sm">Trending</span>
+							</a>
+						</li>
+						<li{% nav_active 'deck_list' %}>
+							<a href="{% url 'deck_list' %}" id="navbar-link-decks">
+								<span class="glyphicon glyphicon-th-list"></span>
+								<span class="hidden-sm">Decks</span>
+							</a>
+						</li>
+						<li{% nav_active 'card_stats' %}>
+							<a href="{% url 'card_stats' %}" id="navbar-link-cards">
+								<span class="glyphicon glyphicon-stats"></span>
+								<span class="hidden-sm">Cards</span>
+							</a>
+						</li>
+						<li{% nav_active 'card_gallery' %}>
+							<a href="{% url 'card_gallery' %}" id="navbar-link-gallery">
+								<span class="glyphicon glyphicon-th-large"></span>
+								<span class="hidden-sm">Gallery</span>
+							</a></li>
 
 						<li{% nav_active 'premium' css='active active-premium' %} id="navbar-link-premium">
 							<a href="{% url 'premium' %}" class="text-premium">Premium</a>
@@ -96,14 +94,13 @@
 								</a>
 							</li>
 						{% endif %}
-						{% feature "carddb" as ft_carddb %}{% if ft_carddb.enabled %}
-							<li{% nav_active 'my_card_stats' css='active active-premium' %}>
-								<a href="{% url 'my_card_stats' %}" class="text-premium" id="navbar-link-my-cards">
-									<span class="glyphicon glyphicon-stats"></span>
-									<span class="hidden-sm">My Cards</span>
-								</a>
-							</li>
-						{% endif %}
+
+						<li{% nav_active 'my_card_stats' css='active active-premium' %}>
+							<a href="{% url 'my_card_stats' %}" class="text-premium" id="navbar-link-my-cards">
+								<span class="glyphicon glyphicon-stats"></span>
+								<span class="hidden-sm">My Cards</span>
+							</a>
+						</li>
 
 						<li{% nav_active 'my_replays' %}>
 							<a href="{% url 'my_replays' %}" id="navbar-link-my-replays">
@@ -115,14 +112,14 @@
 						{% if premium %}
 							<li{% nav_active 'account_edit' css="active active-premium" %}>
 								<a href="{% url 'account_edit' %}" class="text-premium" id="you">
-									{% else %}
+						{% else %}
 							<li{% nav_active 'account_edit' css="active" %}>
-							<a href="{% url 'account_edit' %}" id="you">
+								<a href="{% url 'account_edit' %}" id="you">
 						{% endif %}
-					<span class="custom-icon" style="background-image: url('{% static 'images/bnet.png' %}')"></span>
-					{{ user.username }}
-					</a>
-					</li>
+						<span class="custom-icon" style="background-image: url('{% static 'images/bnet.png' %}')"></span>
+						{{ user.username }}
+						</a>
+						</li>
 					{% elif not hide_login %}
 						<li class="button-container">
 							{% include "login_button.html" with class="promo-button" next=request.get_full_path %}
