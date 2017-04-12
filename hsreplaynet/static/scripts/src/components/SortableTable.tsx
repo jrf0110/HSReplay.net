@@ -50,9 +50,10 @@ export default class SortableTable extends React.Component<SortableTableProps, v
 					direction={header.key === this.props.sortBy ? this.props.sortDirection : null}
 				/>;
 			}
+			const className = header.classNames ? " " + header.classNames.join(" ") : "";
 			return (
 				<th
-					className={(sort !== null ? "th-sortable" : null) + " " + header.classNames.join(" ")}
+					className={(sort !== null ? "th-sortable" : null) + className}
 					onClick={sort !== null ? (event) => {
 						if (event && event.currentTarget) {
 							event.currentTarget.blur();
