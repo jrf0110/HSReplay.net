@@ -23,8 +23,7 @@ switch (container.getAttribute("data-view-type")) {
 const user = new UserData();
 
 const availableAccounts = user.getAccounts();
-const defaultAccount = availableAccounts.length ? availableAccounts[0] : null;
-const accountKey = defaultAccount ? defaultAccount.region + "-" + defaultAccount.lo : null;
+const defaultAccount = user.getDefaultAccountKey();
 
 if (viewType === ViewType.PERSONAL && !defaultAccount) {
 	Raven.captureMessage("User has no Pegasus account", {
@@ -37,7 +36,7 @@ const render = (cardData: CardData) => {
 		<Fragments
 			defaults={{
 				text: "",
-				account: accountKey,
+				account: defaultAccount,
 				showSparse: false,
 				format: "",
 				gameType: "RANKED_STANDARD",

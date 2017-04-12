@@ -1,5 +1,5 @@
+import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
-import * as _ from "lodash";
 import CardData from "../CardData";
 import CardStatsTable from "../components/carddiscover/CardStatsTable";
 import CardImage from "../components/CardImage";
@@ -7,13 +7,13 @@ import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
 import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
 import InfoboxFilter from "../components/InfoboxFilter";
-import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
+import * as _ from "lodash";
 import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import {SortDirection} from "../components/SortableTable";
 import DataManager from "../DataManager";
-import {cardSorting, cleanText, setNames, toTitleCase, slangToCardId, isWildSet} from "../helpers";
+import {cardSorting, cleanText, isWildSet, setNames, slangToCardId, toTitleCase} from "../helpers";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
 import {FragmentChildProps, LoadingStatus} from "../interfaces";
@@ -648,7 +648,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
 					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
 					<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
-				</InfoboxFilterGroup>
+				</InfoboxFilterGroup>,
 			);
 		}
 
@@ -666,7 +666,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<InfoboxFilterGroup
 						header="Accounts"
 						selectedValue={this.props.account}
-						onClick={(value) => this.props.setAccount(value)}
+						onClick={(value) => {
+							this.props.user.setDefaultAccount(value);
+							this.props.setAccount(value);
+						}}
 						tabIndex={accounts.length > 1 ? 0 : -1}
 					>
 						{accounts}

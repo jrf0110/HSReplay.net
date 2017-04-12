@@ -1,3 +1,5 @@
+import {cookie} from "cookie_js";
+
 interface UserDataProps {
 	accounts: Account[];
 	battletag: string;
@@ -50,6 +52,19 @@ export default class UserData {
 			return [];
 		}
 		return this._userData.accounts || [];
+	}
+
+	getDefaultAccountKey(): string {
+		const accounts = this.getAccounts();
+		if (accounts.length === 0) {
+			return null;
+		}
+		const fromCookie = cookie.get("default-account", null);
+		return fromCookie || accounts[0].region + "-" + accounts[0].lo;
+	}
+
+	setDefaultAccount(key: string): void {
+		cookie.set("default-account", key, {path: "/"});
 	}
 
 }
