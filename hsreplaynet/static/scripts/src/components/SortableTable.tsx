@@ -11,6 +11,7 @@ export interface TableHeader {
 	infoHeader?: string;
 	infoText?: string;
 	sortable?: boolean;
+	classNames?: string[];
 }
 
 interface SortableTableProps {
@@ -36,7 +37,7 @@ export default class SortableTable extends React.Component<SortableTableProps, v
 			this.props.onSortChanged(header.key, sortDirection);
 		};
 
-		const headers = this.props.headers.map(header => {
+		const headers = this.props.headers.map((header) => {
 			let info = null;
 			if (header.infoText) {
 				info = (
@@ -51,7 +52,7 @@ export default class SortableTable extends React.Component<SortableTableProps, v
 			}
 			return (
 				<th
-					className={sort !== null ? "th-sortable" : null}
+					className={(sort !== null ? "th-sortable" : null) + " " + header.classNames.join(" ")}
 					onClick={sort !== null ? (event) => {
 						if (event && event.currentTarget) {
 							event.currentTarget.blur();
@@ -59,7 +60,7 @@ export default class SortableTable extends React.Component<SortableTableProps, v
 						onHeaderClick(header);
 					} : null}
 					onKeyPress={(event) => {
-						if(event.which !== 13) {
+						if (event.which !== 13) {
 							return;
 						}
 

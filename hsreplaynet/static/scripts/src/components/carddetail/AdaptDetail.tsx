@@ -69,7 +69,7 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 					);
 					rows.push(
 						<tr className="card-table-row">
-							<td>{"#" + (offset + index + 1)}</td>
+							<td className="hidden-xs">{"#" + (offset + index + 1)}</td>
 							{cards}
 							{winrateCell}
 							<td>{choice.popularity + "%"}</td>
@@ -80,7 +80,7 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 		}
 
 		const headers: TableHeader[] = [
-			{key: "rank", text: "Rank", sortable: false},
+			{key: "rank", text: "Rank", sortable: false, classNames: ["hidden-xs"]},
 			{key: "adaptations", text: "Adaptations", sortable: false},
 		];
 		Array.from({length: adaptations - 1},

@@ -2,8 +2,6 @@ import * as React from "react";
 import CardData from "../CardData";
 import {TableData} from "../interfaces";
 import CardRankingTableRow from "./CardRankingTableRow";
-import {ClickTouch, TooltipContent} from "./Tooltip";
-import Fragments from "./Fragments";
 import Pager from "./Pager";
 
 interface TooltipMap<T> {
@@ -61,7 +59,7 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 			);
 		});
 
-		const tooltip = (key: keyof TooltipMap<any>): JSX.Element|null => {
+		const tooltip = (key: keyof TooltipMap<any>): JSX.Element | null => {
 			if (!this.props.tooltips) {
 				return null;
 			}
@@ -69,14 +67,14 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 				return null;
 			}
 			return this.props.tooltips[key];
-		}
+		};
 
 		return (
 			<div className="text-center">
 				<table className="table table-striped">
 					<thead>
 					<tr>
-						<th>Rank{tooltip("rank")}</th>
+						<th className="hidden-xs">Rank{tooltip("rank")}</th>
 						<th>Card{tooltip("card")}</th>
 						<th>Popularity{tooltip("popularity")}</th>
 						{hasWinrate ? <th>Winrate{tooltip("winrate")}</th> : null}

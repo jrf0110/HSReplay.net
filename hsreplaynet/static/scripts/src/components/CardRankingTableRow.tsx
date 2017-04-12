@@ -39,7 +39,7 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 		}
 
 		return <tr className="card-table-row">
-			<td className="rank-cell">
+			<td className="rank-cell hidden-xs">
 				{"#" + this.props.rank}
 			</td>
 			<td>
