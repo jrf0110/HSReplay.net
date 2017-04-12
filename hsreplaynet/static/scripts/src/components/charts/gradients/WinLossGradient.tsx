@@ -1,7 +1,7 @@
 import * as React from "react";
 import {ChartMetaData} from "../../../interfaces";
 
-interface WinLossGradientProps extends React.ClassAttributes<WinLossGradient> {
+interface WinLossGradientProps {
 	metadata: ChartMetaData;
 	id: string;
 }

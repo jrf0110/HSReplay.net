@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface ConditionalProps extends React.ClassAttributes<Conditional> {
+interface ConditionalProps {
 	condition: boolean;
 }
 

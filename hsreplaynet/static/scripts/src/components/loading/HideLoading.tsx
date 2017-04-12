@@ -3,7 +3,7 @@ import CardData from "../../CardData";
 import {cloneComponent} from "../../helpers";
 import {LoadingStatus} from "../../interfaces";
 
-interface HideLoadingProps extends React.ClassAttributes<HideLoading> {
+interface HideLoadingProps {
 	cardData?: CardData;
 	data?: any;
 	status?: LoadingStatus;

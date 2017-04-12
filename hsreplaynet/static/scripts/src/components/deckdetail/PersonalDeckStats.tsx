@@ -2,7 +2,7 @@ import moment from "moment";
 import * as React from "react";
 import { MyDecks } from "../../interfaces";
 
-interface PersonalStatsProps extends React.ClassAttributes<PersonalDeckStats> {
+interface PersonalStatsProps {
 	data?: MyDecks;
 	deckId: string;
 }

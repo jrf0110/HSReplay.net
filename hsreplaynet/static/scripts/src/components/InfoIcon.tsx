@@ -1,7 +1,7 @@
 import * as React from "react";
 import Tooltip, {ClickTouch, TooltipContent} from "./Tooltip";
 
-interface InfoIconProps extends React.ClassAttributes<InfoIcon> {
+interface InfoIconProps {
 	content?: TooltipContent | ClickTouch<TooltipContent>;
 	header?: string;
 	className?: string;

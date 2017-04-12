@@ -2,7 +2,7 @@ import * as React from "react";
 import {VictoryPortal} from "victory";
 import {Point} from "victory-core";
 
-interface HighlightPointComponentProps extends React.ClassAttributes<HighlightPointComponent> {
+interface HighlightPointComponentProps {
 	[key: string]: any;
 }
 

@@ -4,7 +4,7 @@ import { TableData } from "../../interfaces";
 import CardTile from "../CardTile";
 import SortableTable, { SortDirection } from "../SortableTable";
 
-interface CardsTableProps extends React.ClassAttributes<CardStatsTable> {
+interface CardsTableProps {
 	cards: any[];
 	gameType: string;
 	hiddenColumns?: string[];

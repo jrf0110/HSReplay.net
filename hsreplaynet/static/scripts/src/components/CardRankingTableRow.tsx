@@ -2,7 +2,7 @@ import * as React from "react";
 import CardTile from "./CardTile";
 import { winrateData } from "../helpers";
 
-interface CardRankingTableRowProps extends React.ClassAttributes<CardRankingTableRow> {
+interface CardRankingTableRowProps {
 	card: any;
 	customCardText?: string;
 	popularity: number;

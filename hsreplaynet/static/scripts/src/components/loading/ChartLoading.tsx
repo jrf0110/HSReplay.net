@@ -3,7 +3,7 @@ import CardData from "../../CardData";
 import {cloneComponent} from "../../helpers";
 import {LoadingStatus, RenderData} from "../../interfaces";
 
-interface ChartLoadingProps extends React.ClassAttributes<ChartLoading> {
+interface ChartLoadingProps {
 	cardData?: CardData;
 	data?: RenderData;
 	noDataCondition?: (data: RenderData) => boolean;

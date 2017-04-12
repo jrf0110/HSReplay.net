@@ -1,7 +1,7 @@
 import * as React from "react";
 import {CardObj} from "../interfaces";
 
-interface ManaCurveProps extends React.ClassAttributes<ManaCurve> {
+interface ManaCurveProps {
 	cards: CardObj[];
 }
 

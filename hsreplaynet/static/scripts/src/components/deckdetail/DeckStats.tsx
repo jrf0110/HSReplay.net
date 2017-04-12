@@ -9,7 +9,7 @@ interface DeckStatsState {
 	expandWinrate?: boolean;
 }
 
-interface DeckStatsProps extends React.ClassAttributes<DeckStats> {
+interface DeckStatsProps {
 	data?: TableData;
 	dataManager: DataManager;
 	deckId?: string;

@@ -3,7 +3,7 @@ import InfoIcon from "./InfoIcon";
 import {showModal} from "../Premium";
 import {ClickTouch, TooltipContent} from "./Tooltip";
 
-interface PremiumWrapperProps extends React.ClassAttributes<PremiumWrapper> {
+interface PremiumWrapperProps {
 	name?: string; // used for tracking only
 	isPremium?: boolean;
 	iconStyle?: any;

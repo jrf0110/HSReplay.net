@@ -6,7 +6,7 @@ import DataManager from "../DataManager";
 import { getAge } from "../PrettyTime";
 import Tooltip from "./Tooltip";
 
-interface InfoboxLastUpdatedProps extends React.ClassAttributes<InfoboxLastUpdated> {
+interface InfoboxLastUpdatedProps {
 	dataManager: DataManager;
 	fetchCondition?: boolean;
 	params: any;

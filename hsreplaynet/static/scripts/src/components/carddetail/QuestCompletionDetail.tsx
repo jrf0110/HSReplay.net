@@ -9,7 +9,7 @@ import WinrateByTurnLineChart from "../charts/WinrateByTurnLineChart";
 import TurnPlayedBarChart from "../charts/TurnPlayedBarChart";
 import DataManager from "../../DataManager";
 
-interface QuestCompletionDetailProps extends React.ClassAttributes<QuestCompletionDetail> {
+interface QuestCompletionDetailProps {
 	opponentClass: string;
 	setOpponentClass: (opponentClass: string) => void;
 	userData: UserData;

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface GameHistorySearchProps extends React.ClassAttributes<GameHistorySearchState > {
+interface GameHistorySearchProps {
 	query: string;
 	setQuery: (query: string) => void;
 }

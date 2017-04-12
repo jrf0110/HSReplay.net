@@ -4,7 +4,7 @@ import {CardObj, DeckObj, TableData} from "../../interfaces";
 import DeckList from "../DeckList";
 import Fragments from "../Fragments";
 
-interface SimilarDecksListProps extends React.ClassAttributes<SimilarDecksList> {
+interface SimilarDecksListProps {
 	cardData?: CardData;
 	data?: TableData;
 	playerClass: string;

@@ -15,7 +15,7 @@ interface AdaptDetailState {
 	sortDirection?: SortDirection;
 }
 
-interface AdaptDetailProps extends React.ClassAttributes<AdaptDetail> {
+interface AdaptDetailProps {
 	cardData: CardData;
 	data?: TableData;
 	opponentClass: string;

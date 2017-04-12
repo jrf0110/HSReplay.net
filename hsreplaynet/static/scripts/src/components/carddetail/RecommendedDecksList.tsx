@@ -4,7 +4,7 @@ import {DeckObj, TableData} from "../../interfaces";
 import DeckList from "../DeckList";
 import Fragments from "../Fragments";
 
-interface RecommendedDecksListProps extends React.ClassAttributes<RecommendedDecksList> {
+interface RecommendedDecksListProps {
 	card: any;
 	cardData: CardData;
 	data?: TableData;

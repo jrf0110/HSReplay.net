@@ -5,7 +5,7 @@ interface CardImageState {
 	url: string;
 }
 
-interface CardImageProps extends React.ClassAttributes<CardImage> {
+interface CardImageProps {
 	card: any;
 	placeholder: string;
 }

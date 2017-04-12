@@ -1,7 +1,7 @@
 import * as React from "react";
 import RangeSlider from "./RangeSlider";
 
-interface RankRangeSelectorProps extends React.ClassAttributes<RankRangeSelector> {
+interface RankRangeSelectorProps {
 	smallest?: number;
 	onChangeSmallest?: (smallest: number) => void;
 	largest?: number;

@@ -3,7 +3,7 @@ import CardData from "../../CardData";
 import {cloneComponent} from "../../helpers";
 import {LoadingStatus} from "../../interfaces";
 
-interface TableLoadingProps extends React.ClassAttributes<TableLoading> {
+interface TableLoadingProps {
 	cardData?: CardData;
 	customMessage?: string;
 	dataKeys?: string[];

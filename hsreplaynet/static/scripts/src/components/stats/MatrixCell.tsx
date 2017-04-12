@@ -2,7 +2,7 @@ import * as React from "react";
 import {Colors} from "../../Colors";
 import {getColorString} from "../../helpers";
 
-interface MatrixCellProps extends React.ClassAttributes<MatrixCell> {
+interface MatrixCellProps {
 	winrate: number,
 	mirror: boolean;
 	intensity: number,

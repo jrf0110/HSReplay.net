@@ -1,6 +1,6 @@
 import * as React from "react"
 
-interface TabProps extends React.ClassAttributes<Tab> {
+interface TabProps {
 	id: string;
 	condition?: boolean;
 	label?: string | JSX.Element;

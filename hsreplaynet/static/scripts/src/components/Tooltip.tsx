@@ -13,7 +13,7 @@ interface TooltipState {
 	isTouchDevice: boolean;
 }
 
-interface TooltipProps extends React.ClassAttributes<Tooltip> {
+interface TooltipProps {
 	centered?: boolean;
 	className?: string;
 	content?: TooltipContent | ClickTouch<TooltipContent>;

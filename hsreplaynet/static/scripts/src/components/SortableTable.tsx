@@ -13,7 +13,7 @@ export interface TableHeader {
 	sortable?: boolean;
 }
 
-interface SortableTableProps extends React.ClassAttributes<SortableTable> {
+interface SortableTableProps {
 	sortBy: string;
 	sortDirection: SortDirection;
 	onSortChanged?: (sortBy: string, sortDirection: SortDirection) => void;

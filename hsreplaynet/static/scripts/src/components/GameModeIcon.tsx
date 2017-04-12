@@ -2,7 +2,7 @@ import * as React from "react";
 import {GlobalGamePlayer} from "../interfaces";
 import {BnetGameType} from "../hearthstone";
 
-export interface GameModeIconProps extends React.ClassAttributes<GameModeIcon>{
+export interface GameModeIconProps{
 	player: GlobalGamePlayer;
 	gameType: BnetGameType;
 	disconnected: boolean;

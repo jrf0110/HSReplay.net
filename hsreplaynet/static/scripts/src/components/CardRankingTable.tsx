@@ -13,7 +13,7 @@ interface TooltipMap<T> {
 	winrate?: T;
 }
 
-interface CardRankingTableProps extends React.ClassAttributes<CardRankingTable> {
+interface CardRankingTableProps {
 	data?: TableData;
 	dataKey: string;
 	cardData: CardData;

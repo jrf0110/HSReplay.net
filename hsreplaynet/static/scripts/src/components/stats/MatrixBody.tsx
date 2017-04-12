@@ -4,7 +4,7 @@ import MatrixCell from "./MatrixCell";
 import * as _ from "lodash";
 import {Cell} from "./Matrix";
 
-interface MatrixBodyProps extends React.ClassAttributes<MatrixBody> {
+interface MatrixBodyProps {
 	cells: Cell[][];
 	colors: Colors;
 	intensity: number;

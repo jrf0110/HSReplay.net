@@ -45,7 +45,7 @@ interface CardDetailState {
 	showInfo?: boolean;
 }
 
-interface CardDetailProps extends React.ClassAttributes<CardDetail> {
+interface CardDetailProps {
 	card: any;
 	cardData: CardData;
 	cardId: string;

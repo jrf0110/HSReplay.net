@@ -1,7 +1,7 @@
 import * as React from "react";
 import {SortDirection} from "./SortableTable";
 
-interface SortIndicatorProps extends React.ClassAttributes<SortIndicator> {
+interface SortIndicatorProps {
 	className?: string;
 	direction?: SortDirection|null;
 }

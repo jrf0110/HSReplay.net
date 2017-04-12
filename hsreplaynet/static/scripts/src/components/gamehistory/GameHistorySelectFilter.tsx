@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface GameHistorySelectFilterProps extends React.ClassAttributes<GameHistorySelectFilterState > {
+interface GameHistorySelectFilterProps {
 	default: string;
 	options: [string, string][];
 	onChanged: (type: string) => void;

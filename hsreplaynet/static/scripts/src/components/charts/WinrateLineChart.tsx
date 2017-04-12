@@ -8,7 +8,7 @@ import {RenderData} from "../../interfaces";
 import ChartHighlighter from "./ChartHighlighter";
 import WinLossGradient from "./gradients/WinLossGradient";
 
-interface WinrateLineChartProps extends React.ClassAttributes<WinrateLineChart> {
+interface WinrateLineChartProps {
 	data?: RenderData;
 	title?: string;
 	widthRatio?: number;

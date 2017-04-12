@@ -8,7 +8,7 @@ import {
 } from "../../helpers";
 import {RenderData} from "../../interfaces";
 
-interface ClassAreaChartChartProps extends React.ClassAttributes<ClassAreaChartChart>{
+interface ClassAreaChartChartProps{
 	data?: RenderData;
 	widthRatio?: number;
 }

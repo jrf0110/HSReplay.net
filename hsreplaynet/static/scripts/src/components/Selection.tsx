@@ -10,7 +10,7 @@ interface Option {
 	premium: boolean;
 }
 
-interface SelectionProps extends React.ClassAttributes<Selection> {
+interface SelectionProps {
 	name: string;
 	visible: Option[];
 	collapsed: Option[];

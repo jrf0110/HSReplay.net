@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface DateRangeSelectorProps extends React.ClassAttributes<DateRangeSelector> {
+interface DateRangeSelectorProps {
 	lookback: number;
 	onChangeLookback?: (lookback: number) => void;
 	offset: any;

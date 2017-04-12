@@ -1,7 +1,7 @@
 import * as React from "react";
 import UserData from "../UserData";
 
-interface FeatureProps extends React.ClassAttributes<Feature> {
+interface FeatureProps {
 	feature: string;
 	userData: UserData;
 }

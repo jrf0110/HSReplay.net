@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface InfoboxFilterProps extends React.ClassAttributes<InfoboxFilter> {
+interface InfoboxFilterProps {
 	classNames?: string[];
 	deselectable?: string;
 	disabled?: boolean;

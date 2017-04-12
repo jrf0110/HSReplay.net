@@ -5,7 +5,7 @@ import {TableData } from "../../interfaces";
 import SortableTable, {SortDirection} from "../SortableTable";
 import DeckBreakdownTableRow from "./DeckBreakdownTableRow";
 
-interface DeckBreakdownTableProps extends React.ClassAttributes<DeckBreakdownTable> {
+interface DeckBreakdownTableProps {
 	cardData?: CardData;
 	dataKey: string;
 	deckId: string;

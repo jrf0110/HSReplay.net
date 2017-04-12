@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface SampleSizeSelectorProps extends React.ClassAttributes<SampleSizeSelector> {
+interface SampleSizeSelectorProps {
 	sampleSize: number;
 	onChangeSampleSize?: (sampleSize: number) => void;
 }

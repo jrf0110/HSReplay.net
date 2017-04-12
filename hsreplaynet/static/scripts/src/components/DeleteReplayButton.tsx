@@ -1,7 +1,7 @@
 import * as React from "react";
 import {fetchCSRF} from "../helpers";
 
-interface DeleteReplayButtonProps extends React.ClassAttributes<DeleteReplayButton> {
+interface DeleteReplayButtonProps {
 	shortid: string;
 	done?: () => void;
 }

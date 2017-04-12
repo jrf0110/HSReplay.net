@@ -7,7 +7,7 @@ interface CardIconState {
 	hovering?: boolean;
 }
 
-interface CardIconProps extends React.ClassAttributes<CardIcon> {
+interface CardIconProps {
 	card: any;
 	urlGameType: string;
 	size?: number;

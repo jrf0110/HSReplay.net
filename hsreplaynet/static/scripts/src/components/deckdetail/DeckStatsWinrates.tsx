@@ -5,7 +5,7 @@ import { TableData } from "../../interfaces";
 interface DeckStatsWinratesState {
 }
 
-interface DeckStatsWinratesProps extends React.ClassAttributes<DeckStatsWinrates> {
+interface DeckStatsWinratesProps {
 	data?: TableData;
 }
 

@@ -3,7 +3,7 @@ import CardTile from "./CardTile";
 import HDTButton from "./HDTButton";
 import {cardSorting} from "../helpers";
 
-interface CardListProps extends React.ClassAttributes<CardList> {
+interface CardListProps {
 	cards: any;
 	cardList: string[];
 	cardHeight?: number;

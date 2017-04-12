@@ -3,7 +3,7 @@ import CardData from "../../CardData";
 import {cloneComponent} from "../../helpers";
 import {LoadingStatus} from "../../interfaces";
 
-interface MyDecksLoadingProps extends React.ClassAttributes<MyDecksLoading> {
+interface MyDecksLoadingProps {
 	cardData?: CardData;
 	data?: any;
 	status?: LoadingStatus;

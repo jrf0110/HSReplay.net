@@ -8,7 +8,7 @@ export type FilterOption = "ALL" | "DRUID" | "HUNTER" | "MAGE"
 
 type FilterPreset = "All" | "AllNeutral" | "Neutral" | "ClassesOnly";
 
-interface ClassFilterProps extends React.ClassAttributes<ClassFilter> {
+interface ClassFilterProps {
 	disabled?: boolean;
 	filters: FilterOption[] | FilterPreset;
 	hideAll?: boolean;

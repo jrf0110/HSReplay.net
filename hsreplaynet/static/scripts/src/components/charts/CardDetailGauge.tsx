@@ -2,7 +2,7 @@ import * as React from "react";
 import {VictoryContainer, VictoryLabel, VictoryPie} from "victory";
 import {ChartSchemeData, RenderData} from "../../interfaces";
 
-interface CardDetailGaugeProps extends React.ClassAttributes<CardDetailGauge> {
+interface CardDetailGaugeProps {
 	renderData: RenderData;
 	title?: string;
 	speedometer?: boolean;

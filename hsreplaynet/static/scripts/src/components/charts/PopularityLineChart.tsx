@@ -8,7 +8,7 @@ import {getChartMetaData, sliceZeros, toDynamicFixed, toTimeSeries} from "../../
 import {RenderData} from "../../interfaces";
 import ChartHighlighter from "./ChartHighlighter";
 
-interface PopularityLineChartProps extends React.ClassAttributes<PopularityLineChart>{
+interface PopularityLineChartProps{
 	data?: RenderData;
 	maxYDomain: 10 | 100;
 	widthRatio?: number;

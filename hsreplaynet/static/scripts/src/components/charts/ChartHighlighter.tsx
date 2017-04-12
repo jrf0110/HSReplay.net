@@ -3,7 +3,7 @@ import PropMultiplexer from "./PropMultiplexer";
 import HighlightPointComponent from "./HighlightPointComponent";
 import {VictoryTooltip} from "victory";
 
-interface ChartHighlighterProps extends React.ClassAttributes<ChartHighlighter> {
+interface ChartHighlighterProps {
 	xCenter: number;
 }
 

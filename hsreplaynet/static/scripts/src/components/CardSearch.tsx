@@ -9,7 +9,7 @@ interface CardSearchState {
 	selectedIndex?: number;
 }
 
-interface CardSearchProps extends React.ClassAttributes<CardSearch> {
+interface CardSearchProps {
 	availableCards: any[];
 	id: string;
 	onCardsChanged: (cards: any[]) => void;

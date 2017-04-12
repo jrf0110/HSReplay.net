@@ -9,7 +9,7 @@ import DataText from "../components/DataText";
 import { getAge } from "../PrettyTime";
 import Tooltip from "../components/Tooltip";
 
-interface DeckSpotlightProps extends React.ClassAttributes<DeckSpotlight> {
+interface DeckSpotlightProps {
 	cardData: CardData;
 }
 

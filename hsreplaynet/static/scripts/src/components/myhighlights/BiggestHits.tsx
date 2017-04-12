@@ -2,7 +2,7 @@ import * as React from "react";
 import CardData from "../../CardData";
 import { TableData } from "../../interfaces";
 import CardHighlightTile from "../CardHighlightTile";
-interface BiggestHitsProps extends React.ClassAttributes<BiggestHits> {
+interface BiggestHitsProps {
 	cardData?: CardData;
 	data?: TableData;
 }

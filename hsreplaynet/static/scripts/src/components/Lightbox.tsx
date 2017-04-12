@@ -1,7 +1,7 @@
 import * as React from "react";
 import Pager from "./Pager";
 
-interface LightboxProps extends React.ClassAttributes<LightboxProps> {
+interface LightboxProps {
 	body: any;
 	hidden: boolean;
 	close: () => void;

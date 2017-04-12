@@ -9,7 +9,7 @@ interface CardObj {
 	count: number;
 }
 
-interface DeckBreakdownTableRowProps extends React.ClassAttributes<DeckBreakdownTableRow> {
+interface DeckBreakdownTableRowProps {
 	cardObj: CardObj;
 	row: TableRow;
 	wildDeck: boolean;

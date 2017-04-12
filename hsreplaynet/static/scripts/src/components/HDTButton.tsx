@@ -7,7 +7,7 @@ interface HDTButtonState {
 	copied?: boolean;
 }
 
-interface HDTButtonProps extends React.ClassAttributes<HDTButton> {
+interface HDTButtonProps {
 	card_ids: string[];
 	deckClass: string;
 	disabled?: boolean;

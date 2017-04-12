@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface CardProps extends React.ClassAttributes<Card> {
+interface CardProps {
 	id: string;
 	x?: number;
 	y?: number;

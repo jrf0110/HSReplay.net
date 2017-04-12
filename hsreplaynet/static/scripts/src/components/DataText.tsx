@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface DataTextProps extends React.ClassAttributes<DataText> {
+interface DataTextProps {
 	data?: any;
 	p?: boolean;
 }

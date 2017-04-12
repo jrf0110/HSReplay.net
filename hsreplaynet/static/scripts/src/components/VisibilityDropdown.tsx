@@ -2,7 +2,7 @@ import * as React from "react";
 import {Visibility} from "../interfaces";
 import {fetchCSRF} from "../helpers";
 
-interface VisibilityDropdownProps extends React.ClassAttributes<PrivacyDropdown> {
+interface VisibilityDropdownProps {
 	initial: Visibility;
 	shortid: string;
 }

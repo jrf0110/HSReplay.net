@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface CardHighlightTileProps extends React.ClassAttributes<CardHighlightTile> {
+interface CardHighlightTileProps {
 	card: any;
 	title: string;
 	value: string;

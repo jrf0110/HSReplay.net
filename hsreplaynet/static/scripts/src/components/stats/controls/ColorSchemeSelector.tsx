@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Colors} from "../../../Colors";
 
-interface ColorSchemeSelectorProps extends React.ClassAttributes<ColorSchemeSelector> {
+interface ColorSchemeSelectorProps {
 	colorScheme: Colors;
 	onChangeColorScheme?: (colorScheme: Colors) => void;
 }

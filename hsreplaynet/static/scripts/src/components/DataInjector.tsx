@@ -19,7 +19,7 @@ export interface Query {
 	params: any;
 }
 
-interface DataInjectorProps extends React.ClassAttributes<DataInjector> {
+interface DataInjectorProps {
 	query: Query | Query[];
 	dataManager: DataManager;
 	fetchCondition?: boolean;

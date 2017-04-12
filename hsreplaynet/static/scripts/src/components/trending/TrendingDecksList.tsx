@@ -3,7 +3,7 @@ import CardData from "../../CardData";
 import { DeckObj, TableData } from "../../interfaces";
 import DeckList from "../DeckList";
 
-interface TrendingDecksListProps extends React.ClassAttributes<TrendingDecksList> {
+interface TrendingDecksListProps {
 	cardData?: CardData;
 	data?: TableData;
 }

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface RangeSliderProps extends React.ClassAttributes<RangeSlider> {
+interface RangeSliderProps {
 	min: number;
 	max: number;
 	step?: number;

@@ -3,7 +3,7 @@ import CardData from "../../CardData";
 import { DeckObj, MyDecks } from "../../interfaces";
 import DeckList from "../DeckList";
 
-interface MostPlayedDecksProps extends React.ClassAttributes<MostPlayedDecks> {
+interface MostPlayedDecksProps {
 	cardData?: CardData;
 	data?: MyDecks;
 }

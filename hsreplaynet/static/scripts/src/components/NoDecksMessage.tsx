@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface NoDecksMessageProps extends React.ClassAttributes<NoDecksMessage> {
+interface NoDecksMessageProps {
 }
 
 export default class NoDecksMessage extends React.Component<NoDecksMessageProps, void> {

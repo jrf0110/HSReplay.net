@@ -15,7 +15,7 @@ import DataManager from "../DataManager";
 import { RenderData } from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
-interface MyHighlightsProps extends React.ClassAttributes<MyHighlights> {
+interface MyHighlightsProps {
 	cardData: CardData;
 	username: string;
 }

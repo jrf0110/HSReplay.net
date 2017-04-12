@@ -7,7 +7,7 @@ interface ClassDistributionPieChartState {
 	hoveringSlice: any;
 }
 
-export interface ClassDistributionPieChartProps extends React.ClassAttributes<ClassDistributionPieChart>{
+export interface ClassDistributionPieChartProps{
 	data: any[];
 	loading?: boolean;
 	onPieceClicked?: (name: string) => void;

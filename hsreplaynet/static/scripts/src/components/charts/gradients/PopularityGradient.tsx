@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface PopularityGradientProps extends React.ClassAttributes<PopularityGradient> {
+interface PopularityGradientProps {
 	id: string;
 	colorMin: string;
 	colorMax: string;

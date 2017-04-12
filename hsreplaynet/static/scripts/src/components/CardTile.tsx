@@ -1,7 +1,7 @@
 import * as React from "react";
 import { getCardUrl } from "../helpers";
 
-interface CardTileProps extends React.ClassAttributes<CardTile> {
+interface CardTileProps {
 	card: any;
 	count: number;
 	customText?: string;

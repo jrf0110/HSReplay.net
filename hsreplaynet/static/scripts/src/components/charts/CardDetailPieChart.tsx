@@ -3,7 +3,7 @@ import {VictoryContainer, VictoryLabel, VictoryLegend, VictoryPie, VictoryTheme}
 import {getChartScheme, toTitleCase} from "../../helpers";
 import {ChartScheme, RenderData} from "../../interfaces";
 
-interface CardDetailPieChartProps extends React.ClassAttributes<CardDetailPieChart> {
+interface CardDetailPieChartProps {
 	data?: RenderData;
 	title?: string;
 	scheme?: ChartScheme;

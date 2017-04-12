@@ -3,7 +3,7 @@ import CardList from "./CardList";
 import {GameReplay, GlobalGamePlayer} from "../interfaces";
 import UserData from "../UserData";
 
-interface PlayerInfoProps extends React.ClassAttributes<PlayerInfo> {
+interface PlayerInfoProps {
 	build: number;
 	gameId: string;
 	opponentName: string;

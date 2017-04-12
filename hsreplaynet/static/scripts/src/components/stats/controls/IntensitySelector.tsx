@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface IntensitySelectorProps extends React.ClassAttributes<IntensitySelector> {
+interface IntensitySelectorProps {
 	intensity: number;
 	onChangeIntensity?: (sampleSize: number) => void;
 }

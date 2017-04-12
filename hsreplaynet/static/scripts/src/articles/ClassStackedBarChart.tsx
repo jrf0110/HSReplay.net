@@ -22,7 +22,7 @@ interface ClassStackedBarChartState {
 	data?: ClassData[];
 }
 
-interface ClassStackedBarChartProps extends React.ClassAttributes<ClassStackedBarChart> {
+interface ClassStackedBarChartProps {
 	url: string;
 	hideLegend?: boolean;
 	hideControls?: boolean;

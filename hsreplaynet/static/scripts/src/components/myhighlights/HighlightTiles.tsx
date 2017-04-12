@@ -3,7 +3,7 @@ import CardData from "../../CardData";
 import { TableData } from "../../interfaces";
 import CardHighlightTile from "../CardHighlightTile";
 
-interface HighlightTilesProps extends React.ClassAttributes<HighlightTiles> {
+interface HighlightTilesProps {
 	cardData?: CardData;
 	cardStats?: TableData;
 	ranks?: TableData;

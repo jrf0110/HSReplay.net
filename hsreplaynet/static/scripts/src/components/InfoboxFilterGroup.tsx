@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface InfoboxFilterGroupProps extends React.ClassAttributes<InfoboxFilterGroup> {
+interface InfoboxFilterGroupProps {
 	classNames?: string[];
 	collapsed?: boolean;
 	collapsible?: boolean;

@@ -10,7 +10,7 @@ import ClassFilter, {FilterOption} from "../ClassFilter";
 interface ClassStackedBarChartState {
 }
 
-interface ClassStackedBarChartProps extends React.ClassAttributes<ClassStackedBarChart> {
+interface ClassStackedBarChartProps {
 	data: RenderData;
 }
 

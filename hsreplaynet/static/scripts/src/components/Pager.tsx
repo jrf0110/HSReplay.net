@@ -6,7 +6,7 @@ interface Page {
 	skip?: boolean;
 }
 
-interface PagerProps extends React.ClassAttributes<Pager> {
+interface PagerProps {
 	currentPage?: number;
 	setCurrentPage?: (page: number) => void;
 	pageCount?: number;

@@ -1,7 +1,7 @@
 import * as React from "react"
 import Tab from "./Tab";
 
-interface TabListProps extends React.ClassAttributes<TabList> {
+interface TabListProps {
 	tab?: string;
 	setTab?(tab?: string): void;
 }

@@ -43,7 +43,7 @@ interface DeckDetailState {
 	sortDirection?: SortDirection;
 }
 
-interface DeckDetailProps extends React.ClassAttributes<DeckDetail> {
+interface DeckDetailProps {
 	adminUrl: string;
 	cardData: CardData;
 	deckCards: string;
