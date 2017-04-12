@@ -7,9 +7,12 @@ import CardData from "../../CardData";
 import CardTile from "../CardTile";
 import { winrateData } from "../../helpers";
 import Pager from "../Pager";
+import SortableTable, { SortDirection, TableHeader } from "../SortableTable";
 
 interface AdaptDetailState {
 	page?: number;
+	sortBy?: string;
+	sortDirection?: SortDirection;
 }
 
 interface AdaptDetailProps extends React.ClassAttributes<AdaptDetail> {
@@ -27,6 +30,8 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 		super(props, state);
 		this.state = {
 			page: 1,
+			sortBy: "popularity",
+			sortDirection: "descending",
 		};
 	}
 
@@ -39,7 +44,8 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 			const choices = this.props.data.series.data[this.props.opponentClass];
 			if (choices) {
 				totalRows = choices.length;
-				choices.sort((a, b) => +b.popularity - +a.popularity);
+				const sortDir = this.state.sortDirection === "descending" ? 1 : -1;
+				choices.sort((a, b) => (+b[this.state.sortBy] - +a[this.state.sortBy]) * sortDir);
 				const visibleChoices = choices.slice(offset, offset + this.numRows);
 				adaptations = Math.max.apply(Math, visibleChoices.map((choice) => choice.adaptations.length));
 				visibleChoices.forEach((choice, index) => {
@@ -72,6 +78,30 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 				});
 			}
 		}
+
+		const headers: TableHeader[] = [
+			{key: "rank", text: "Rank", sortable: false},
+			{key: "adaptations", text: "Adaptations", sortable: false},
+		];
+		Array.from({length: adaptations - 1},
+			(x, index) => headers.push({key: "adaptations-" + index, text: "", sortable: false}));
+		headers.push(
+			{key: "win_rate", text: "Winrate"},
+			{key: "popularity", text: "Popularity"},
+		);
+
+		const table = (
+			<SortableTable
+				headers={headers}
+				sortBy={this.state.sortBy}
+				sortDirection={this.state.sortDirection}
+				onSortChanged={
+					(sortBy, sortDirection) => this.setState({sortBy, sortDirection})}
+			>
+				{rows}
+			</SortableTable>
+		);
+
 		return (
 			<div className="container-fluid">
 				<div className="row">
@@ -90,20 +120,7 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 				</div>
 				<div className="row">
 					<div className="table-wrapper col-lg-12">
-						<table className="table table-striped">
-							<thead>
-							<tr>
-								<th>Rank</th>
-								<th>Adaptations</th>
-								{Array.from({length: adaptations - 1}, (x) => <th/>)}
-								<th>Winrate</th>
-								<th>Popularity</th>
-							</tr>
-							</thead>
-							<tbody>
-								{rows}
-							</tbody>
-						</table>
+						{table}
 						<div className="text-center">
 							<Pager
 								currentPage={this.state.page}
