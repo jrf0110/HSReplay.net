@@ -132,6 +132,8 @@ class UploadEventSerializer(serializers.Serializer):
 	spectator_password = serializers.CharField(required=False, write_only=True)
 
 	scenario_id = serializers.IntegerField(required=False, min_value=0, write_only=True)
+	ladder_season = serializers.IntegerField(required=False, min_value=0, write_only=True)
+	brawl_season = serializers.IntegerField(required=False, min_value=0, write_only=True)
 
 	player1 = PlayerSerializer(required=False, write_only=True)
 	player2 = PlayerSerializer(required=False, write_only=True)
