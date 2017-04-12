@@ -6,6 +6,7 @@
 	color: $card-tile-text-color;
 	position: relative;
 	text-align: left;
+	cursor: default;
 
 	margin-top: 1px;
 	text-shadow: -1px -1px 0 #000,
@@ -111,14 +112,16 @@
 		position: fixed;
 		z-index: 1000;
 	}
-}
 
-.card-tile:hover, :focus .card-tile {
-	> * {
-		filter: brightness(115%);
-	}
-	.card-image {
-		filter: none;
+	a:hover &, a:focus & {
+		cursor: pointer;
+
+		> * {
+			filter: brightness(115%);
+		}
+		.card-image {
+			filter: none;
+		}
 	}
 }
 
