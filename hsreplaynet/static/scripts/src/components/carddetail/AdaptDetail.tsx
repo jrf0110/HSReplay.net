@@ -6,6 +6,11 @@ import PremiumWrapper from "../PremiumWrapper";
 import CardData from "../../CardData";
 import CardTile from "../CardTile";
 import { winrateData } from "../../helpers";
+import Pager from "../Pager";
+
+interface AdaptDetailState {
+	page?: number;
+}
 
 interface AdaptDetailProps extends React.ClassAttributes<AdaptDetail> {
 	cardData: CardData;
@@ -15,15 +20,27 @@ interface AdaptDetailProps extends React.ClassAttributes<AdaptDetail> {
 	userData: UserData;
 }
 
-export default class AdaptDetail extends React.Component<AdaptDetailProps, void> {
+export default class AdaptDetail extends React.Component<AdaptDetailProps, AdaptDetailState> {
+	private readonly numRows = 10;
+
+	constructor(props: AdaptDetailProps, state: AdaptDetailState) {
+		super(props, state);
+		this.state = {
+			page: 1,
+		};
+	}
+
 	render(): JSX.Element {
 		let adaptations = 0;
+		let totalRows = 0;
 		const rows = [];
+		const offset = (this.state.page - 1) * this.numRows;
 		if (this.props.data && this.props.cardData) {
 			const choices = this.props.data.series.data[this.props.opponentClass];
 			if (choices) {
+				totalRows = choices.length;
 				choices.sort((a, b) => +b.popularity - +a.popularity);
-				const visibleChoices = choices.slice(0, 15);
+				const visibleChoices = choices.slice(offset, offset + this.numRows);
 				adaptations = Math.max.apply(Math, visibleChoices.map((choice) => choice.adaptations.length));
 				visibleChoices.forEach((choice, index) => {
 					const cards = [];
@@ -46,9 +63,9 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, void>
 					);
 					rows.push(
 						<tr className="card-table-row">
-							<td>{"#" + (index + 1)}</td>
+							<td>{"#" + (offset + index + 1)}</td>
 							{cards}
-							<td>{winrateCell}</td>
+							{winrateCell}
 							<td>{choice.popularity + "%"}</td>
 						</tr>,
 					);
@@ -87,6 +104,14 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, void>
 								{rows}
 							</tbody>
 						</table>
+						<div className="text-center">
+							<Pager
+								currentPage={this.state.page}
+								setCurrentPage={(page: number) => this.setState({page})}
+								pageCount={Math.ceil(totalRows / this.numRows)}
+								minimal
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
