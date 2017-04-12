@@ -335,7 +335,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											<TableLoading>
 												<CardRankingTable
 													cardData={this.props.cardData}
-													numRows={8}
+													numRows={12}
 													dataKey={"ALL"}
 													urlGameType={this.props.customGameType}
 												/>
@@ -353,7 +353,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											<TableLoading>
 												<CardRankingTable
 													cardData={this.props.cardData}
-													numRows={8}
+													numRows={12}
 													dataKey={"ALL"}
 													urlGameType={this.props.customGameType}
 													tooltips={{
