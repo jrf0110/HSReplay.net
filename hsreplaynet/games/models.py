@@ -217,7 +217,7 @@ class GlobalGamePlayer(models.Model):
 	real_name = models.CharField("Real name", blank=True, max_length=64)
 
 	player_id = PlayerIDField(blank=True)
-	pegasus_account = models.ForeignKey(PegasusAccount, null=True, on_delete=models.SET_NULL)
+	pegasus_account = models.ForeignKey(PegasusAccount, on_delete=models.PROTECT)
 	is_ai = models.BooleanField(
 		"Is AI", default=False,
 		help_text="Whether the player is an AI.",
