@@ -230,9 +230,10 @@ def _permutation_matches_game_types(perm, game_types):
 	return is_w or is_s
 
 
-def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None):
+def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None, catalogue=None):
+	redshift_catalogue = catalogue if catalogue else get_redshift_catalogue()
 	queries = []
-	for query in get_redshift_catalogue().personalized_queries:
+	for query in redshift_catalogue.personalized_queries:
 		is_eligible = eligible_queries is None or query.name in eligible_queries
 		if query.cache_warming_enabled and is_eligible:
 			for permutation in query.generate_personalized_parameter_permutation_bases():
