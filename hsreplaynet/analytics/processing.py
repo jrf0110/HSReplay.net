@@ -161,8 +161,8 @@ class PremiumUserCacheWarmingContext:
 			# even when there are no games attached
 			deck_map_for_account = pegasus_account_deck_map[pegasus_account]
 			ggps = pegasus_account.globalgameplayer_set.select_related(
-				'game',
-				'deck_list'
+				"game",
+				"deck_list"
 			).filter(game__match_start__gte=time_horizon)
 			for ggp in ggps.all():
 				deck = ggp.deck_list
