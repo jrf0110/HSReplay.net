@@ -494,8 +494,18 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								onClick={(value) => this.props.setRankRange(value)}
 								tabIndex={premiumTabIndex}
 							>
-								<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-								<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+							{
+								(() => {
+									const filters = [
+										<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>,
+										<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>,
+									];
+									if (this.props.user.hasFeature("legend-filter")) {
+										filters.unshift(<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>);
+									}
+									return filters;
+								})()
+							}
 							</InfoboxFilterGroup>
 						</PremiumWrapper>
 					</section>
