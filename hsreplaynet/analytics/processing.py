@@ -147,31 +147,41 @@ def get_new_redshift_connection(autocommit=True):
 
 class PremiumUserCacheWarmingContext:
 
-	def __init__(self, user, pegasus_accounts, decks):
+	def __init__(self, user, pegasus_account_map):
 		self.user = user
-		self.pegasus_accounts = pegasus_accounts
-		self.decks = decks
+		self.pegasus_account_map = pegasus_account_map
 
 	@classmethod
 	def from_user(cls, user):
-		decks = defaultdict(set)
-		from hsreplaynet.games.models import GameReplay
 		time_horizon = timezone.now() - timedelta(days=30)
-		qs = GameReplay.objects.live().filter(
-			user=user,
-			global_game__match_start__gte=time_horizon
-		)
-
-		for replay in qs.all():
-			if replay.friendly_deck.size == 30:
-				decks[replay.friendly_deck].add(replay.global_game.game_type)
 		pegasus_accounts = list(user.pegasusaccount_set.all())
+		pegasus_account_deck_map = defaultdict(lambda: defaultdict(set))
+		for pegasus_account in pegasus_accounts:
+			# Make sure this gets initialized if it exists
+			# even when there are no games attached
+			deck_map_for_account = pegasus_account_deck_map[pegasus_account]
+			ggps = pegasus_account.globalgameplayer_set.select_related(
+				'game',
+				'deck_list'
+			).filter(game__match_start__gte=time_horizon)
+			for ggp in ggps.all():
+				deck = ggp.deck_list
+				if deck.size == 30:
+					game_type = ggp.game.game_type
+					deck_map_for_account[deck].add(game_type)
+
 		result = PremiumUserCacheWarmingContext(
 			user,
-			pegasus_accounts,
-			decks
+			pegasus_account_deck_map
 		)
 		return result
+
+	@property
+	def pegasus_accounts(self):
+		return self.pegasus_account_map.keys()
+
+	def get_deck_map_for_account(self, account):
+		return self.pegasus_account_map[account]
 
 
 def warm_redshift_cache_for_user_context(context):
@@ -230,7 +240,11 @@ def _permutation_matches_game_types(perm, game_types):
 	return is_w or is_s
 
 
-def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None, catalogue=None):
+def get_personalized_queries_for_cache_warming(
+	contexts,
+	eligible_queries=None,
+	catalogue=None
+):
 	redshift_catalogue = catalogue if catalogue else get_redshift_catalogue()
 	queries = []
 	for query in redshift_catalogue.personalized_queries:
@@ -244,7 +258,10 @@ def get_personalized_queries_for_cache_warming(contexts, eligible_queries=None, 
 						new_permutation["Region"] = pegasus_account.region.name
 						new_permutation["account_lo"] = pegasus_account.account_lo
 						if "deck_id" in query.get_available_non_filter_parameters():
-							for deck, gts in ctx.decks.items():
+							deck_map_for_account = ctx.get_deck_map_for_account(
+								pegasus_account
+							)
+							for deck, gts in deck_map_for_account.items():
 								if _permutation_matches_game_types(new_permutation, gts):
 									new_permutation_for_deck = copy.copy(new_permutation)
 									new_permutation_for_deck["deck_id"] = deck.id
