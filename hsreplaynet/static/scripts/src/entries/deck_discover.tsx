@@ -12,18 +12,18 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
+				account: "",
 				excludedCards: [],
 				gameType: "RANKED_STANDARD",
 				includedCards: [],
 				includedSet: "UNGORO",
 				opponentClass: "ALL",
-				personal: "",
 				playerClasses: [],
 				rankRange: "ALL",
 				region: "ALL",
 				timeRange: "LAST_30_DAYS",
 			}}
-			immutable={!user.isPremium() ? ["timeRange", "opponentClass", "rankRange"] : null}
+			immutable={!user.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange"] : null}
 		>
 			<DeckDiscover
 				cardData={cardData}
