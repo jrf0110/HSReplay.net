@@ -190,7 +190,6 @@ def warm_redshift_cache_for_user_context(context):
 
 
 def fill_redshift_cache_warming_queue(eligible_queries=None):
-	fill_global_query_queue(eligible_queries)
 	from hsreplaynet.billing.utils import (
 		get_premium_cache_warming_contexts_from_subscriptions
 	)
