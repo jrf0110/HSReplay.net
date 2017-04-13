@@ -21,7 +21,10 @@ for (let target of targets) {
 	});
 
 	target.addEventListener("mouseleave", () => {
-		document.body.removeChild(tooltip);
+		const parent = tooltip.parentElement;
+		if (parent) {
+			parent.removeChild(tooltip);
+		}
 		tooltip.classList.add("hidden");
 	});
 }
