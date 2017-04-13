@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from . import views
+from .api import DeckInventory
 
 
 urlpatterns = [
@@ -19,4 +20,9 @@ urlpatterns = [
 		r"^release/semaphore/(?P<name>\w+)$", views.release_semaphore,
 		name="analytics_release_semaphore"
 	),
+]
+
+
+api_urlpatterns = [
+	url(r"^v1/stats/deck-inventory/$", DeckInventory.as_view()),
 ]
