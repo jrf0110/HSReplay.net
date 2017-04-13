@@ -220,7 +220,7 @@ def run_local_warm_queries(eligible_queries=None):
 
 
 def fill_personalized_query_queue(contexts, eligible_queries=None):
-	queue_name = settings.REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME
+	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
 	messages = get_personalized_queries_for_cache_warming(
 		contexts,
 		eligible_queries
