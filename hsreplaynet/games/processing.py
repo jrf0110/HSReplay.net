@@ -607,7 +607,19 @@ def do_process_upload_event(upload_event):
 
 				try:
 					with influx_timer("flush_exporter_to_firehose_duration"):
-						flush_exporter_to_firehose(exporter)
+						flush_failures_report = flush_exporter_to_firehose(exporter)
+						for target_table, errors in flush_failures_report.items():
+							for error in errors:
+								influx_metric(
+									"firehose_flush_failure",
+									{
+										"stream_name": error["stream_name"],
+										"error_code": error["error_code"],
+										"error_message": error["error_message"],
+										"count": 1
+									},
+									target_table=target_table
+								)
 				except:
 					raise
 				else:
