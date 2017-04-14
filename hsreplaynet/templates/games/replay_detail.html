@@ -71,7 +71,7 @@
 		</ul>
 
 		{% if not premium %}
-			<a href="https://hsreplay.net/articles/7/introducing-hsreplaynet-statistics" id="banner-link">
+			<a href="{% url "deck_list" %}" id="banner-link">
 				<img src="{% static "images/banner-statistics-cards.png" %}" class="statistics-banner" alt="HSReplay.net Statistics are now available!"/>
 			</a>
 		{% endif %}
