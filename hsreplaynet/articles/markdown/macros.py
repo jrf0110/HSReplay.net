@@ -83,7 +83,7 @@ class MacroPattern(markdown.inlinepatterns.Pattern):
 		return markdown.util.etree.fromstring(html)
 
 
-def do_card(id=None, name=None, render=False, link=True):
+def do_card(id=None, name=None, render=False, link=True, tooltip=None):
 	if not id and not name:
 		raise ValueError("Argument id or name is required.")
 
@@ -102,8 +102,15 @@ def do_card(id=None, name=None, render=False, link=True):
 	else:
 		inner = name
 
+	if tooltip is None:
+		tooltip = link and not render
+
 	if link:
-		outer = '<a href="%s">%s</a>' % (card.get_absolute_url(), inner)
+		if tooltip:
+			outer = '<a href="{url}" data-card-id="{id}" data-toggle="card-tooltip">{inner}</a>'
+		else:
+			outer = '<a href="{url}" data-card-id="{id}">{inner}</a>'
+		outer = outer.format(url=card.get_absolute_url(), id=card.id, inner=inner)
 	else:
 		outer = inner
 
