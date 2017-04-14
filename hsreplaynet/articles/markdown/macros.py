@@ -7,6 +7,7 @@ import ast
 import logging
 import re
 import markdown
+from django.utils.html import escape
 
 
 MACRO = r"{%\s*(?P<name>[A-Za-z0-9_]+)\((?P<args>.*?)\)\s*%}"
@@ -82,6 +83,33 @@ class MacroPattern(markdown.inlinepatterns.Pattern):
 		return markdown.util.etree.fromstring(html)
 
 
+def do_card(id=None, name=None, render=False, link=True):
+	if not id and not name:
+		raise ValueError("Argument id or name is required.")
+
+	from hsreplaynet.cards.models import Card
+
+	if id:
+		card = Card.objects.get(id=id)
+	elif name:
+		card = Card.objects.get(name=name)
+
+	name = escape(card.name)
+
+	if render:
+		card_art_url = escape(card.get_card_art_url())
+		inner = '<img src="%s" alt="%s"/>' % (card_art_url, name)
+	else:
+		inner = name
+
+	if link:
+		outer = '<a href="%s">%s</a>' % (card.get_absolute_url(), inner)
+	else:
+		outer = inner
+
+	return outer
+
+
 def makeExtension(config=None):
 	# XXX
 	from webpack_loader.templatetags.webpack_loader import render_bundle
@@ -89,5 +117,6 @@ def makeExtension(config=None):
 	config = {
 		"sum": lambda *args, **kwargs: sum(args),
 		"render_bundle": render_bundle,
+		"card": do_card,
 	}
 	return MacroExtension(config)
