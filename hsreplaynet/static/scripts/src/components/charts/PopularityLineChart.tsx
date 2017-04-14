@@ -22,6 +22,12 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 		const width = 150 * (this.props.widthRatio || 3);
 
 		const series = toTimeSeries(this.props.data.series.find((x) => x.name === "popularity_over_time") || this.props.data.series[0]);
+
+		// This is a temporary solution to remove very low volume data points from the Un'Goro launch
+		if (series.data[0].x === new Date("2017-04-05").getTime() && +series.data[0].y * 100 < +series.data[1].y) {
+			series.data.shift();
+		}
+
 		const metadata = getChartMetaData(series.data, undefined, true, 1);
 		metadata.yDomain = [0, Math.max(this.props.maxYDomain, metadata.yDomain[1])];
 
