@@ -131,6 +131,7 @@ class FeatureInvite(models.Model):
 		"djstripe.Plan", null=True, blank=True, help_text="Auto subscribe to this Stripe Plan"
 	)
 	coupon = models.CharField(max_length=500, blank=True, help_text="Redeem a Stripe Coupon")
+	description = models.TextField(blank=True)
 
 	created = models.DateTimeField(auto_now_add=True)
 	modified = models.DateTimeField(auto_now=True)
