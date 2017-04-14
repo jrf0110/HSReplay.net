@@ -100,8 +100,8 @@ def do_card(id=None, name=None, render=False, link=True, tooltip=None):
 		name = escape(card.name)
 
 	if render:
-		card_art_url = escape(card.get_card_art_url())
-		inner = '<img src="%s" alt="%s"/>' % (card_art_url, name)
+		card_render_url = escape(card.get_card_render_url())
+		inner = '<img src="%s" alt="%s"/>' % (card_render_url, name)
 	else:
 		inner = name
 

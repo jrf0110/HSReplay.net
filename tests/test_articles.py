@@ -9,7 +9,7 @@ def test_card_macro():
 	card_name = "Lightwarden"
 	card = Card.objects.get(id=card_id)
 	card_url = card.get_absolute_url()
-	card_art = card.get_card_art_url()
+	card_art = card.get_card_render_url()
 
 	html = card_name
 	assert do_card(id=card_id, render=False, link=False) == html
