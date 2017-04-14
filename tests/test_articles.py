@@ -18,6 +18,9 @@ def test_card_macro():
 	html = '<a href="%s" data-card-id="%s">%s</a>' % (card_url, card_id, card_name)
 	assert do_card(id=card_id, render=False, link=True, tooltip=False) == html
 
+	html = '<a href="%s" data-card-id="%s">%s</a>' % (card_url, card_id, "Foo")
+	assert do_card(id=card_id, render=False, link=True, tooltip=False, name="Foo") == html
+
 	html = '<a href="%s" data-card-id="%s" data-toggle="card-tooltip">%s</a>' % (
 		card_url, card_id, card_name
 	)

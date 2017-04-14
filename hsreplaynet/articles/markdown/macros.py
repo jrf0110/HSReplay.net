@@ -89,12 +89,15 @@ def do_card(id=None, name=None, render=False, link=True, tooltip=None):
 
 	from hsreplaynet.cards.models import Card
 
-	if id:
+	if id and name:
 		card = Card.objects.get(id=id)
+		name = escape(name)
+	elif id:
+		card = Card.objects.get(id=id)
+		name = escape(card.name)
 	elif name:
 		card = Card.objects.get(name=name)
-
-	name = escape(card.name)
+		name = escape(card.name)
 
 	if render:
 		card_art_url = escape(card.get_card_art_url())
