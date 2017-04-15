@@ -38,7 +38,7 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	includedCards?: string[];
 	setIncludedCards?: (includedCards: string[]) => void;
 	opponentClass?: FilterOption;
-	setOpponentClass?: (opponentClass: string) => void;
+	setOpponentClass?: (opponentClass: FilterOption) => void;
 	account?: string;
 	setAccount?: (account: string) => void;
 	playerClasses?: FilterOption[];
@@ -413,6 +413,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								filters="All"
 								hideAll
 								minimal
+								multiSelect
 								tabIndex={premiumTabIndex}
 								selectedClasses={[this.props.opponentClass]}
 								selectionChanged={(selected) => this.props.setOpponentClass(selected[0])}
