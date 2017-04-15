@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export type TooltipContent = string | JSX.Element;
+export type TooltipContent = string | JSX.Element | JSX.Element[];
 
 export interface ClickTouch<T> {
 	click: T;
