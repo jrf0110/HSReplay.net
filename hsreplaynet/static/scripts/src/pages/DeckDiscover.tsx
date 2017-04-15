@@ -11,7 +11,7 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
 import {cardSorting, isWildSet} from "../helpers";
-import { DeckObj, FragmentChildProps, TableData } from "../interfaces";
+import {DeckObj, FragmentChildProps, TableData} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
@@ -37,8 +37,8 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setGameType?: (gameType: string) => void;
 	includedCards?: string[];
 	setIncludedCards?: (includedCards: string[]) => void;
-	opponentClass?: FilterOption;
-	setOpponentClass?: (opponentClass: FilterOption) => void;
+	opponentClasses?: FilterOption[];
+	setOpponentClasses?: (opponentClasses: FilterOption[]) => void;
 	account?: string;
 	setAccount?: (account: string) => void;
 	playerClasses?: FilterOption[];
@@ -74,7 +74,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.props.excludedCards !== prevProps.excludedCards ||
 			this.props.gameType !== prevProps.gameType ||
 			this.props.includedCards !== prevProps.includedCards ||
-			this.props.opponentClass !== prevProps.opponentClass ||
+			!_.eq(this.props.opponentClasses, prevProps.opponentClasses) ||
 			this.props.account !== prevProps.account ||
 			!_.eq(this.props.playerClasses, prevProps.playerClasses) ||
 			this.props.rankRange !== prevProps.rankRange ||
@@ -195,19 +195,30 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		if (!this.props.cardData) {
 			return;
 		}
-		const selectedOpponent = this.props.opponentClass;
-		const winrateField = selectedOpponent === "ALL" ? "win_rate" : "win_rate_vs_" + selectedOpponent;
-		const numGamesField = selectedOpponent === "ALL" ? "total_games" : "total_games_vs_" + selectedOpponent;
 		this.getDeckElements().then(((deckElements) => {
 			const decks: DeckObj[] = [];
 			deckElements.forEach((deck) => {
+				let winrate = deck.win_rate;
+				let numGames = deck.total_games;
+				const opponents = this.props.opponentClasses;
+				if (opponents && opponents.length) {
+					numGames = opponents.reduce((x: number, playerClass: FilterOption) => {
+						return x + deck["total_games_vs_" + playerClass];
+					}, 0);
+					winrate = opponents.map((playerClass) =>
+							[
+								deck["total_games_vs_" + playerClass],
+								deck["win_rate_vs_" + playerClass],
+							]
+						).reduce((a: number, b) => a + b[0] * b[1], 0) / numGames;
+				}
 				decks.push({
 					cards: deck.cards,
 					deckId: deck.deck_id,
 					duration: deck.avg_game_length_seconds,
-					numGames: deck[numGamesField],
+					numGames: numGames,
 					playerClass: deck.player_class,
-					winrate: deck[winrateField],
+					winrate: winrate,
 				});
 			});
 			this.setState({filteredDecks: decks, loading: false});
@@ -405,7 +416,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							infoContent={
 								<p>
 									See how various decks perform against a specific class at a glance!
-									Only single classes at this time.
 								</p>
 							}>
 							<h2>Opponent class</h2>
@@ -415,8 +425,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								minimal
 								multiSelect
 								tabIndex={premiumTabIndex}
-								selectedClasses={[this.props.opponentClass]}
-								selectionChanged={(selected) => this.props.setOpponentClass(selected[0])}
+								selectedClasses={this.props.opponentClasses}
+								selectionChanged={(selected) => this.props.setOpponentClasses(selected)}
 							/>
 						</PremiumWrapper>
 					</section>
