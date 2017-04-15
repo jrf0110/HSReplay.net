@@ -1,5 +1,5 @@
 import random
-from allauth.account.utils import send_email_confirmation
+from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -75,10 +75,14 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		email = self.request.POST.get("stripeEmail")
 		if email and not self.request.user.email:
 			# So if the user doesn't have an email, we set it to the stripe email.
+			# First we attach the email as an EmailAddress to the account
+			# confirm=True will send an email confirmation
+			EmailAddress.objects.add_email(
+				self.request, self.request.user, email, confirm=True
+			)
+			# Then we set it on the account object itself
 			self.request.user.email = email
 			self.request.user.save()
-			# Send a confirmation email for email verification
-			send_email_confirmation(self.request, self.request.user)
 
 		# Let's attach the email we got to the Stripe customer object as well
 		email = email or self.request.user.email
