@@ -11,15 +11,6 @@ def pytest_addoption(parser):
 		action="store_true",
 		help="run slower tests not enabled by default"
 	)
-	parser.addoption(
-		"--selenium",
-		action="store_true",
-		help="run selenium tests against the --host target"
-	)
-	parser.addoption(
-		"--host",
-		default="https://hsreplay.net"
-	)
 
 
 @pytest.fixture(scope="session")
