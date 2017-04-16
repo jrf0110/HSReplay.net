@@ -32,6 +32,7 @@ import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import Fragments from "../components/Fragments";
 import QuestCompletionDetail from "../components/carddetail/QuestCompletionDetail";
+import QuestContributors from "../components/carddetail/QuestContributors";
 
 interface TableDataMap {
 	[key: string]: TableData;
@@ -385,6 +386,20 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											opponentClass={this.props.opponentClass}
 											setOpponentClass={this.props.setOpponentClass}
 											userData={this.props.userData}
+										/>
+									</DataInjector>
+								</Tab>
+								<Tab
+									label="Quest Contributors"
+									id="quest-contributors"
+									condition={this.cardIsQuest() && this.props.userData.hasFeature("quest-contributors")}
+								>
+									<DataInjector
+										dataManager={this.dataManager}
+										query={{params: this.getParams(), url: "quest_contributor_stats"}}
+									>
+										<QuestContributors
+											cardData={this.props.cardData}
 										/>
 									</DataInjector>
 								</Tab>
