@@ -9,7 +9,12 @@
 <div id="premium-modal"{% if show_premium_modal %} data-stripe-load="1"{% else %} style="display: none;"{% endif %}>
 	<div class="inner">
 		<header>
-			<span class="pull-right"><a href="#" id="premium-modal-close" style="display: none;">&times;</a></span>
+			<span class="pull-right">
+				<a href="#" id="premium-modal-close" style="display: none;">
+					<span aria-hidden="true">&times;</span>
+					<span class="sr-only">Close</span>
+				</a>
+			</span>
 			<h3>HearthSim <span class="text-premium">Premium</span></h3>
 		</header>
 

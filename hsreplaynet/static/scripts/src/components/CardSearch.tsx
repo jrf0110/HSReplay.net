@@ -102,6 +102,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 						value={this.state.cardSearchText}
 						onChange={(e) => this.setState({cardSearchText: e.target["value"]})}
 						onKeyDown={(e) => this.onKeyDown(e, cards.length)}
+						aria-autocomplete="list"
 					/>
 					{clear}
 				</div>

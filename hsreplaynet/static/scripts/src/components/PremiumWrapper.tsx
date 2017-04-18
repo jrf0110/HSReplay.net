@@ -134,6 +134,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 					className="premium-icon"
 					src={STATIC_URL + "images/premium.png"}
 					style={this.props.iconStyle}
+					role="presentation"
 				/>
 				{infoIcon}
 				<div className="premium-info">

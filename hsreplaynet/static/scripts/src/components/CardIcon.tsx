@@ -77,6 +77,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 						style={style}
 						onMouseEnter={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
 						onMouseLeave={() => this.setState({hovering: false})}
+						aria-label={this.props.card.name}
 					>
 						{mark}
 						{tooltip}

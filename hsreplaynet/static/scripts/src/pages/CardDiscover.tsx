@@ -795,8 +795,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	buildCostFilters(counts: any): JSX.Element[] {
 		return counts && this.filters["cost"].map((item) => (
 			<InfoboxFilter value={"" + item} disabled={!counts["" + item]} classNames={["mana-crystal"]}>
-				<img src={STATIC_URL + "images/mana_crystal.png"} height={28}/>
-				<div>{+item < 7 ? item : " 7+"}</div>
+				<img src={STATIC_URL + "images/mana_crystal.png"} height={28} aria-hidden="true" />
+				<div>
+					{+item < 7 ? item : "7+"}
+					<span className="sr-only">Mana</span>
+				</div>
 			</InfoboxFilter>
 		));
 	}

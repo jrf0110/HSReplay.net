@@ -97,12 +97,15 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 			);
 		}
 
+		const label = this.props.customText || this.props.card.name;
+
 		let tile = (
 			<div
 				className="card-tile"
 				style={tileStyle}
 				onMouseMove={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
 				onMouseLeave={() => this.setState({hovering: false})}
+				aria-label={label}
 			>
 				{tooltip}
 				{gem}
@@ -112,7 +115,7 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 						 style={imageStyle} />
 					{countBox}
 					<span className={"card-fade-" + (showCountBox ? "countbox" : "no-countbox")} />
-					<span className="card-name" style={nameStyle}>{this.props.customText || this.props.card.name}</span>
+					<span className="card-name" style={nameStyle}>{label}</span>
 				</div>
 			</div>
 		);
