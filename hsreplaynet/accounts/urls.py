@@ -19,5 +19,6 @@ urlpatterns = [
 	url(r"^claim/(?P<id>[\w-]+)/$", views.ClaimAccountView.as_view(), name="account_claim"),
 	url(r"^delete/$", views.DeleteAccountView.as_view(), name="account_delete"),
 	url(r"^make_primary/$", views.MakePrimaryView.as_view(), name="account_make_primary"),
+	url(r"^login/", views.LoginView.as_view(), name="account_login"),
 	url(r"^", include("allauth.urls")),
 ]

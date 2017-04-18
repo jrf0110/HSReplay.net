@@ -1,3 +1,4 @@
+from allauth.account.views import LoginView as BaseLoginView
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
@@ -13,6 +14,12 @@ from hsreplaynet.utils import get_uuid_object_or_404, log
 from hsreplaynet.utils.html import RequestMetaMixin
 from hsreplaynet.utils.influx import influx_metric
 from .models import AccountClaim, AccountDeleteRequest, User
+
+
+class LoginView(BaseLoginView):
+	def get(self, request):
+		request.head.title = "Sign in"
+		return super().get(request)
 
 
 class EditAccountView(LoginRequiredMixin, RequestMetaMixin, UpdateView):
