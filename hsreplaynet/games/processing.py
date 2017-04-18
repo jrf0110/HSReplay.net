@@ -8,11 +8,10 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db.utils import IntegrityError
 from django.utils import timezone
-from hearthstone import __version__ as hslog_version
 from hearthstone.enums import BnetRegion, CardType, GameTag
-from hearthstone.hslog.exceptions import ParsingError
-from hearthstone.hslog.export import EntityTreeExporter, FriendlyPlayerExporter
-from hearthstone.hslog.parser import LogParser
+from hslog import __version__ as hslog_version, LogParser
+from hslog.exceptions import ParsingError
+from hslog.export import EntityTreeExporter, FriendlyPlayerExporter
 from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
 from hsredshift.etl.exporters import RedshiftPublishingExporter
