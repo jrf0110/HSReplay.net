@@ -64,7 +64,7 @@ export default class UserData {
 	}
 
 	setDefaultAccount(key: string): void {
-		cookie.set("default-account", key, {path: "/"});
+		cookie.set("default-account", key, {path: "/", expires: 365});
 	}
 
 }
