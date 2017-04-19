@@ -51,7 +51,7 @@ export default class CardList extends React.Component<CardListProps, any> {
 				{cardTiles}
 				{this.props.showButton && cardTiles.length > 0 && this.props.deckClass ?
 					<HDTButton
-						card_ids={this.props.cards}
+						card_ids={this.props.cardList}
 						name={this.props.name}
 						deckClass={this.props.deckClass}
 						sourceUrl={window.location.toString()}
