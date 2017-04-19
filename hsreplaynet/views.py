@@ -4,7 +4,8 @@ from .games.models import GameReplay
 from .utils.html import RequestMetaMixin
 
 
-SITE_DESCRIPTION = "Watch and share Hearthstone replays directly from your web browser!"
+SITE_DESCRIPTION = "Watch and share Hearthstone replays directly from your web browser. \
+Explore advanced statistics about decks and cards based on millions of games per week."
 
 
 class HomeView(TemplateView):
