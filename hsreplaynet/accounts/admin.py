@@ -21,6 +21,7 @@ class PegasusAccountInline(admin.TabularInline):
 	model = PegasusAccount
 	extra = 0
 	readonly_fields = ("account_hi", "account_lo")
+	show_change_link = True
 
 
 class SocialAccountInline(admin.TabularInline):
