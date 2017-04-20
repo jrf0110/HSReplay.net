@@ -206,7 +206,11 @@ class DeckManager(models.Manager):
 			deck.save()
 
 	def get_by_shortid(self, shortid):
-		digest = hex(string_to_int(shortid, ALPHABET))[2:].rjust(32, "0")
+		try:
+			id = string_to_int(shortid, ALPHABET)
+		except ValueError:
+			raise Deck.DoesNotExist("Invalid deck ID")
+		digest = hex(id)[2:].rjust(32, "0")
 		return Deck.objects.get(digest=digest)
 
 
