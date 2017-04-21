@@ -126,6 +126,7 @@
 
 		&.disabled {
 			color: gray;
+			cursor: not-allowed;
 		}
 
 		ul {
@@ -146,6 +147,10 @@
 
 			.infobox-value, li.selected .infobox-value {
 				color: white;
+
+				&.disabled {
+					color: gray;
+				}
 			}
 		}
 
