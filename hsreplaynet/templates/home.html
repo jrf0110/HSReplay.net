@@ -10,9 +10,9 @@
 
 {% block javascript %}
 {{ block.super }}
-{% if featured_game %}
+{% if featured_replay %}
 	<script type="text/javascript">
-		{% include "joust_include.js" with featured_game=featured_game %}
+		{% include "joust_include.js" with featured_replay=featured_replay %}
 	</script>
 {% endif %}
 {% endblock %}

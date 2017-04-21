@@ -50,7 +50,7 @@ $(document).ready(function() {
 				.cardArt("{% setting 'HEARTHSTONE_ART_URL' %}")
 				.width("100%")
 				.height("100%")
-				.fromUrl("{{ featured_game.replay_xml.url|safe }}");
+				.fromUrl("{{ featured_replay.replay_xml.url|safe }}");
 		}
 	};
 	var trigger_resize = function() {
