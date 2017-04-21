@@ -392,7 +392,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<Tab
 									label="Quest Contributors"
 									id="quest-contributors"
-									condition={this.cardIsQuest() && this.props.userData.hasFeature("quest-contributors")}
+									condition={
+										this.cardIsQuest()
+										&& this.props.gameType !== "ARENA"
+										&& this.props.userData.hasFeature("quest-contributors")
+									}
 								>
 									<DataInjector
 										dataManager={this.dataManager}
@@ -403,7 +407,15 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										/>
 									</DataInjector>
 								</Tab>
-								<Tab label="Quest Completion" id="quest-completion" condition={this.cardIsQuest() && this.props.userData.hasFeature("quest-completion")}>
+								<Tab
+									label="Quest Completion"
+									id="quest-completion"
+									condition={
+										this.cardIsQuest()
+										&& this.props.gameType !== "ARENA"
+										&& this.props.userData.hasFeature("quest-completion")
+									}
+								>
 									<QuestCompletionDetail
 										dataManager={this.dataManager}
 										query={{
