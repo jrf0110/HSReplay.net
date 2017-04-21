@@ -350,6 +350,7 @@ SUNWELL_URL = "https://sunwell.hearthsim.net/branches/master/sunwell.js"
 
 HSREPLAY_DISCORD_URL = "https://discord.gg/hearthsim"
 HSREPLAY_FACEBOOK_APP_ID = "1278788528798942"
+HSREPLAY_FACEBOOK_URL = "https://www.facebook.com/HSReplayNet/"
 HSREPLAY_TWITTER_HANDLE = "HSReplayNet"
 
 # This setting controls whether utils.aws.clients are initialized.
