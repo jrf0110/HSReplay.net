@@ -23,4 +23,8 @@ class UploadDetailView(View):
 
 		request.head.title = "Uploading replay..."
 
-		return render(request, "uploads/processing.html", {"upload": upload})
+		context = {}
+		context["upload"] = upload
+		context["redirect_url"] = request.build_absolute_uri(request.path)
+
+		return render(request, "uploads/processing.html", context)

@@ -5,7 +5,7 @@
 {% block head %}
 	{{ block.super }}
 	{% if not upload or upload.is_processing %}
-		<meta http-equiv="refresh" content="3"/>
+		<meta http-equiv="refresh" content="3{% if redirect_url %}; URL={{ redirect_url }}{% endif %}"/>
 	{% endif %}
 {% endblock %}
 
