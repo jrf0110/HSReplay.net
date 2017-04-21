@@ -446,16 +446,17 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			);
 		}
 
-		let craftingCost = null;
-		if (this.props.card && this.props.card.rarity && this.props.card.rarity !== "FREE"
-			&& this.props.card.set !== "CORE") {
-			craftingCost = (
-				<li>
-					Cost
-					<span className="infobox-value">{getDustCost(this.props.card) + " Dust"}</span>
-				</li>
-			);
-		}
+		const dustCostValue = getDustCost(this.props.card);
+		const craftingCost = (
+			<li>
+				Cost
+				{this.props.card ? (
+					<span className="infobox-value">
+						{dustCostValue > 0 ? (dustCostValue + " Dust") : "Not craftable"}
+					</span>
+				)  : null}
+			</li>
+		);
 
 		let rankRange = null;
 		if (this.props.userData.hasFeature("legend-filter")) {
