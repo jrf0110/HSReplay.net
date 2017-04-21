@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from . import views
-from .api import DeckInventory
 
 
 urlpatterns = [
@@ -22,7 +21,9 @@ urlpatterns = [
 	),
 ]
 
-
 api_urlpatterns = [
-	url(r"^v1/stats/deck-inventory/$", DeckInventory.as_view()),
+	url(
+		r"^v1/analytics/query/(?P<name>\w+)$", views.fetch_query_results,
+		name="analytics_api_fetch_query_results"
+	),
 ]
