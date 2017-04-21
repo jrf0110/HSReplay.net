@@ -2,7 +2,7 @@ import * as React from "react";
 import { TableData } from "../../interfaces";
 import CardData from "../../CardData";
 import CardTile from "../CardTile";
-import { winrateData } from "../../helpers";
+import { toDynamicFixed, winrateData } from "../../helpers";
 import Pager from "../Pager";
 import SortableTable, { SortDirection, TableHeader } from "../SortableTable";
 
@@ -41,7 +41,7 @@ export default class QuestContributors extends React.Component<QuestContributors
 			contributors.slice(offset, offset + this.numRows).forEach((contributor, index) => {
 				const wrData = winrateData(50, contributor.win_rate, 2);
 				const winrateCell = (
-					<td style={{color: wrData.color}}>{contributor.win_rate + "%"}</td>
+					<td style={{color: wrData.color}}>{contributor.win_rate.toFixed(2) + "%"}</td>
 				);
 				const card = this.props.cardData.fromDbf(contributor.dbf_id);
 				rows.push(
@@ -52,9 +52,9 @@ export default class QuestContributors extends React.Component<QuestContributors
 							</div>
 						</td>
 						{winrateCell}
-						<td>{contributor.popularity + "%"}</td>
+						<td>{toDynamicFixed(contributor.popularity, 2) + "%"}</td>
 						<td>{contributor.median_turn_completed}</td>
-						<td>{contributor.quest_completion_frequency + "%"}</td>
+						<td>{contributor.quest_completion_frequency.toFixed(2) + "%"}</td>
 					</tr>,
 				);
 			});
