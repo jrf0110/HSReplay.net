@@ -423,16 +423,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								>
 									<QuestCompletionDetail
 										dataManager={this.dataManager}
-										query={{
-											params: this.getParams(),
-											url: (
-												this.props.userData.isPremium() && this.props.opponentClass !== "ALL"
-													? "quest_completion_stats_by_turn_and_opponent" : "quest_completion_stats_by_turn"
-											),
-										}}
-										opponentClass={this.props.opponentClass}
-										setOpponentClass={this.props.setOpponentClass}
-										userData={this.props.userData}
+										query={{params: this.getParams(), url: "quest_completion_stats_by_turn"}}
 									/>
 								</Tab>
 							</TabList>
