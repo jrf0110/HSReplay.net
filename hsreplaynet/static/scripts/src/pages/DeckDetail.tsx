@@ -30,7 +30,12 @@ interface TableDataCache {
 	[key: string]: TableData;
 }
 
+interface AvailableFilters {
+	[key: string]: string[];
+}
+
 interface DeckDetailState {
+	availableFilters?: AvailableFilters;
 	expandWinrate?: boolean;
 	hasData?: boolean;
 	hasPeronalData?: boolean;
@@ -63,6 +68,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	constructor(props: DeckDetailProps, state: DeckDetailState) {
 		super(props, state);
 		this.state = {
+			availableFilters: {},
 			expandWinrate: false,
 			hasData: undefined,
 			hasPeronalData: undefined,
@@ -94,10 +100,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailState) {
 		if (!prevProps.cardData && this.props.cardData) {
-			this.dataManager.get("list_decks_by_win_rate", {GameType: this.gameType()}).then((data) => {
-				this.setState({
-					hasData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
-				});
+			this.dataManager.get("list_deck_inventory", {GameType: this.gameType()}).then((data) => {
+				if (data) {
+					const availableFilters = data.series[this.props.deckId];
+					this.setState({availableFilters, hasData: !!availableFilters});
+				}
 			});
 		}
 	}
@@ -416,7 +423,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	gameType(): string {
-		return this.isWildDeck() ? "RANKED_WILD" : "RANKED_STANDARD";
+		const gameTypes = Object.keys(this.state.availableFilters);
+		return gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
 	}
 
 	getParams(rankRange?: boolean): any {
