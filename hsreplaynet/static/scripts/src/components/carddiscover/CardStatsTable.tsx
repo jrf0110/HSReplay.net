@@ -15,6 +15,8 @@ interface CardsTableProps {
 	playerClass: string;
 	sortBy: string;
 	sortDirection: SortDirection;
+	showSparseWarning?: boolean;
+	showAll: () => void;
 }
 
 export default class CardStatsTable extends React.Component<CardsTableProps, void> {
@@ -50,6 +52,34 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 			cardObjs.sort((a, b) => cardObjSorting(a, b, sortBy, direction));
 		}
 
+		let postfix = null;
+		const warnFields = ["includedPopularity", "timesPlayed", "includedWinrate", "playedWinrate"];
+		if (this.props.showSparseWarning) {
+			const warning = (
+				<tr className="help-row">
+					<td colSpan={6} className="text-center">
+						Some cards were hidden due to a low amount of data.
+						{this.props.showAll ? <a
+							href="#"
+							className="btn btn-default"
+							onClick={(event) => {
+								event.preventDefault();
+								this.props.showAll();
+							}}
+						>
+							Show sparse data
+						</a> : null}
+					</td>
+				</tr>
+			);
+			if (direction === -1 && warnFields.indexOf(sortBy) !== -1) {
+				rows.push(warning);
+			}
+			else {
+				postfix = warning;
+			}
+		}
+
 		cardObjs.slice(0, this.props.numCards).forEach((obj) => {
 			const playedPopularity = " (" + (obj.playedPopularity ? toDynamicFixed(obj.playedPopularity) + "%" : "0%") + ")";
 			const includedWrData = obj.includedWinrate && winrateData(50, obj.includedWinrate, 3);
@@ -80,6 +110,10 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 				</tr>,
 			);
 		});
+
+		if(postfix) {
+			rows.push(postfix);
+		}
 
 		const tableHeaders = [
 			{key: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},

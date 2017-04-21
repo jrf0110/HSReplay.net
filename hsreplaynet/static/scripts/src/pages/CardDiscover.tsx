@@ -375,6 +375,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 								sortBy={this.props.sortBy}
 								sortDirection={this.props.sortDirection}
 								onSortChanged={(a, b) => this.onSortChanged(a, b)}
+								showSparseWarning={!this.props.showSparse}
+								showAll={() => this.props.setShowSparse(true)}
 							/>
 						</TableLoading>
 					</DataInjector>
