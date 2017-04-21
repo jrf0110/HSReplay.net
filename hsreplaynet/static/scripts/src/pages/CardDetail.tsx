@@ -54,8 +54,10 @@ interface CardDetailProps {
 	dbfId: number;
 	gameType?: string;
 	opponentClass?: string;
+	rankRange?: string;
 	setGameType?: (gameType: string) => void;
 	setOpponentClass?: (opponentClass: string) => void;
+	setRankRange?: (rankRange: string) => void;
 	setTab?: (tab: string) => void;
 	tab?: string;
 	userData: UserData;
@@ -277,7 +279,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<Tab label="Recommended Decks" id="recommended-decks" condition={this.props.gameType !== "ARENA"}>
 									<DataInjector
 										dataManager={this.dataManager}
-										query={{url: "list_decks_by_win_rate", params: {GameType: this.props.gameType}}}
+										query={{
+											params: {GameType: this.props.gameType, RankRange: this.props.rankRange},
+											url: "list_decks_by_win_rate",
+										}}
 									>
 										<TableLoading>
 											<RecommendedDecksList
@@ -461,8 +466,32 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			);
 		}
 
+		let rankRange = null;
+		if (this.props.userData.hasFeature("legend-filter")) {
+			rankRange = (
+				<PremiumWrapper
+					name="Single Card Rank Range"
+					isPremium={this.props.userData.isPremium()}
+					infoHeader="Rank range"
+					infoContent="Check out how this card performs at higher ranks!"
+				>
+					<h2>Rank range</h2>
+					<InfoboxFilterGroup
+						locked={!this.props.userData.isPremium()}
+						selectedValue={this.props.rankRange}
+						onClick={(value) => this.props.setRankRange(value)}
+					>
+						<InfoboxFilter value="LEGEND_ONLY" disabled={this.props.gameType === "ARENA"}>Legend only</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_THROUGH_FIVE" disabled={this.props.gameType === "ARENA"}>Legend–5</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_THROUGH_TEN" disabled={this.props.gameType === "ARENA"}>Legend–10</InfoboxFilter>
+						<InfoboxFilter value="ALL" disabled={this.props.gameType === "ARENA"}>Legend–25</InfoboxFilter>
+					</InfoboxFilterGroup>
+				</PremiumWrapper>
+			);
+		}
+
 		return <div className="card-detail-container">
-			<aside className="infobox">
+			<aside className="infobox" id="card-detail-infobox">
 				<img
 					className="card-image"
 					src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"}
@@ -479,6 +508,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
 					<InfoboxFilter disabled={this.props.card && isWildSet(this.props.card.set)} value="ARENA">Arena</InfoboxFilter>
 				</InfoboxFilterGroup>
+				{rankRange}
 				<h2>Data</h2>
 				<ul>
 					<li>
@@ -572,9 +602,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	getParams(): any {
-		return {
+		const params =  {
 			GameType: this.props.gameType,
 			card_id: this.props.dbfId,
 		};
+		if (this.props.gameType !== "ARENA") {
+			params["RankRange"] = this.props.rankRange;
+		}
+		return params;
 	}
 }

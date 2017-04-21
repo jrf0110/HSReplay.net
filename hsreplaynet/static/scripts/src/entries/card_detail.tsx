@@ -16,8 +16,9 @@ const render = (cardData: CardData) => {
 			defaults={{
 				gameType: "RANKED_STANDARD",
 				opponentClass: "ALL",
+				rankRange: "ALL",
 			}}
-			immutable={!user.isPremium() ? "opponentClass" : null}
+			immutable={!user.isPremium() ? ["opponentClass", "rankRange"] : null}
 		>
 			<CardDetail
 				card={card}

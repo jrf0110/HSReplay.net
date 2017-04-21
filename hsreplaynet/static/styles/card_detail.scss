@@ -85,6 +85,15 @@
 		}
 	}
 
+	#card-detail-infobox {
+		ul > li {
+			&.disabled {
+				cursor: not-allowed;
+				color: gray;
+			}
+		}
+	}
+
 	.chart-wrapper {
 		max-width: 700px;
 		margin: 0 auto;
