@@ -59,7 +59,7 @@ class HTMLHead:
 		title = self.get_title()
 		if title:
 			tags.append(HTMLTag("title", content=title))
-			tags.append(HTMLTag("meta", attrs={"property": "og:title", "content": title}))
+			self.opengraph["og:title"] = title
 
 		tags += self._meta_tags
 
