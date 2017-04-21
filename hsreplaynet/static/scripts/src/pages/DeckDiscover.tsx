@@ -512,6 +512,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 										<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>,
 									];
 									if (this.props.user.hasFeature("legend-filter")) {
+										filters.unshift(<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>);
 										filters.unshift(<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>);
 									}
 									return filters;
@@ -523,8 +524,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<section id="side-bar-data">
 						<h2>Data</h2>
 						<ul>
-							<InfoboxLastUpdated dataManager={this.dataManager} url={this.getQueryName()}
-												params={this.getParams()} />
+							<InfoboxLastUpdated
+								dataManager={this.dataManager}
+								url={this.getQueryName()}
+								params={this.getParams()}
+							/>
 						</ul>
 					</section>
 					{backButton}
