@@ -126,7 +126,6 @@ export default class QuestContributors extends React.Component<QuestContributors
 						currentPage={this.state.page}
 						setCurrentPage={(page: number) => this.setState({page})}
 						pageCount={Math.ceil(totalRows / this.numRows)}
-						minimal
 					/>
 				</div>
 			</div>
