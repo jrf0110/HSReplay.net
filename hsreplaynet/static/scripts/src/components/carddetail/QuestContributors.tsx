@@ -61,11 +61,49 @@ export default class QuestContributors extends React.Component<QuestContributors
 		}
 
 		const headers: TableHeader[] = [
-			{key: "card", text: "Card", sortable: false},
-			{key: "win_rate", text: "Winrate"},
-			{key: "popularity", text: "Popularity"},
-			{key: "median_turn_completed", text: "Avg. Turn"},
-			{key: "quest_completion_frequency", text: "Completion Chance"},
+			{
+				key: "card",
+				text: "Contributor",
+				sortable: false,
+				infoHeader: "Contributor",
+				infoText: [
+					<p>Cards that contributed to the completion of this quest in some way.</p>,
+					<br/>,
+					<strong>Created cards:</strong>,
+					<p>
+						Created cards count towards their source:
+						e.g. Fireballs created by Archmage Antonidas
+						will count towards the Archmage, rather than Fireball.
+					</p>,
+					<br/>,
+					<strong>The Caverns Below (Rogue):</strong>,
+					<p>All progress ticks are included, not just the ones that eventually complete the Quest.</p>,
+				],
+			},
+			{
+				key: "win_rate",
+				text: "Played Winrate",
+				infoHeader: "Played Winrate",
+				infoText: "Average winrate of games where the card contributed to the quest.",
+			},
+			{
+				key: "popularity",
+				text: "Popularity",
+				infoHeader: "Popularity",
+				infoText: "Total percentage of quest progress made by the card.",
+			},
+			{
+				key: "median_turn_completed",
+				text: "Median Turn",
+				infoHeader: "Median Turn Completed",
+				infoText: "Turn this quest is most commonly completed on when the card contributed the progress.",
+			},
+			{
+				key: "quest_completion_frequency",
+				text: "Completed",
+				infoHeader: "Completion Frequency",
+				infoText: "Frequency of this quest being completed when the card contributed to the progress.",
+			},
 		];
 
 		const table = (

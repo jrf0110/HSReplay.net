@@ -1,6 +1,7 @@
 import * as React from "react";
 import InfoIcon from "./InfoIcon";
 import SortIndicator from "./SortIndicator";
+import { TooltipContent } from "./Tooltip";
 
 export type SortDirection = "ascending" | "descending";
 
@@ -9,7 +10,7 @@ export interface TableHeader {
 	text: string;
 	defaultSortDirection?: SortDirection;
 	infoHeader?: string;
-	infoText?: string;
+	infoText?: TooltipContent;
 	sortable?: boolean;
 	classNames?: string[];
 }
