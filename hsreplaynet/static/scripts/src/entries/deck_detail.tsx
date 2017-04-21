@@ -18,7 +18,10 @@ const render = (cardData: CardData) => {
 			defaults={{
 				account: defaultAccount,
 				tab: "",
+				selectedClasses: [],
+				rankRange: "ALL",
 			}}
+			immutable={!user.isPremium() ? ["selectedClasses", "rankRange"] : null}
 		>
 			<DeckDetail
 				adminUrl={adminUrl}

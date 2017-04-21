@@ -42,8 +42,6 @@ interface DeckDetailState {
 	hasPeronalData?: boolean;
 	personalSortBy?: string;
 	personalSortDirection?: SortDirection;
-	rankRange?: string;
-	selectedClasses?: FilterOption[];
 	showInfo?: boolean;
 	sortBy?: string;
 	sortDirection?: SortDirection;
@@ -61,6 +59,10 @@ interface DeckDetailProps {
 	user: UserData;
 	tab?: string;
 	setTab?: (tab: string) => void;
+	selectedClasses?: FilterOption[];
+	setSelectedClasses?: (selectedClasses: FilterOption[]) => void;
+	rankRange?: string;
+	setRankRange?: (rankRange: string) => void;
 }
 
 export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
@@ -74,8 +76,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			hasData: undefined,
 			hasPeronalData: undefined,
 			personalSortBy: "card",
-			rankRange: "ALL",
-			selectedClasses: ["ALL"],
 			showInfo: false,
 			sortBy: "decklist",
 			sortDirection: "ascending",
@@ -122,10 +122,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			});
 		}
 
-		const premiumMulligan = this.state.selectedClasses[0] !== "ALL" && this.props.user.isPremium();
-
 		const isPremium = this.props.user.isPremium();
 		const premiumTabIndex = isPremium ? 0 : -1;
+
+		const premiumMulligan = (
+			isPremium &&
+			this.props.selectedClasses.length &&
+			this.props.selectedClasses[0] !== "ALL"
+		);
 
 		let accountFilter = null;
 		if (this.props.user.isPremium()
@@ -223,8 +227,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						hideAll
 						minimal
 						tabIndex={premiumTabIndex}
-						selectedClasses={this.state.selectedClasses}
-						selectionChanged={(selected) => isPremium && this.setState({selectedClasses: selected})}
+						selectedClasses={this.props.selectedClasses}
+						selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
 					/>
 				</PremiumWrapper>
 				<PremiumWrapper
@@ -241,7 +245,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<InfoboxFilterGroup
 						locked={!isPremium}
 						selectedValue={this.rankRange()}
-						onClick={(value) => this.setState({rankRange: value})}
+						onClick={(rankRange) => this.props.setRankRange(rankRange)}
 						tabIndex={premiumTabIndex}
 					>
 					{rankRanges}
@@ -349,7 +353,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 										customMessage={this.state.hasData === false ? "No available data" : undefined}
 									>
 										<DeckBreakdownTable
-											dataKey={this.state.selectedClasses[0]}
+											dataKey={this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL"}
 											deckId={this.props.deckId}
 											onSortChanged={(sortBy: string, sortDirection: SortDirection) => this.setState({sortBy, sortDirection})}
 											playerClass={this.props.deckClass}
@@ -467,7 +471,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	};
 
 	rankRange(): string {
-		return this.hasRankRange(this.state.rankRange) ? this.state.rankRange : "ALL";
+		return this.hasRankRange(this.props.rankRange) ? this.props.rankRange : "ALL";
 	}
 
 	getParams(): any {
