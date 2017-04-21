@@ -101,7 +101,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailState) {
 		if (!prevProps.cardData && this.props.cardData) {
-			this.dataManager.get("list_deck_inventory", {GameType: this.gameType()}).then((data) => {
+			this.dataManager.get("list_deck_inventory").then((data) => {
 				if (data) {
 					const availableFilters = data.series[this.props.deckId];
 					this.setState({availableFilters, hasData: !!availableFilters});
