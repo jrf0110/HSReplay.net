@@ -25,6 +25,7 @@ import InfoIcon from "../components/InfoIcon";
 import ManaCurve from "../components/ManaCurve";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
+import Tooltip from "../components/Tooltip";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -155,6 +156,37 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 		}
 
+		const infoBoxFilter = (key: string, text: string) => {
+			let content: any = text;
+			const hasFilter = this.hasFilter(key);
+			if (this.state.hasData && !hasFilter) {
+				content = (
+					<Tooltip
+						header="Not enough data"
+						content={`This deck does not have enough data at ${text}.`}
+					>
+						{text}
+					</Tooltip>
+				);
+			}
+			return (
+				<InfoboxFilter value={key} disabled={!hasFilter}>
+					{content}
+				</InfoboxFilter>
+			);
+		}
+
+		const rankRanges = [
+			infoBoxFilter("LEGEND_THROUGH_TEN", "Legend–10"),
+			infoBoxFilter("ALL", "Legend–25"),
+		];
+		if (this.props.user.hasFeature("legend-filter")) {
+			rankRanges.unshift(
+				infoBoxFilter("LEGEND_ONLY", "Legend only"),
+				infoBoxFilter("LEGEND_THROUGH_FIVE", "Legend–5"),
+			);
+		}
+
 		return <div className="deck-detail-container">
 			<aside className="infobox">
 				<img
@@ -199,7 +231,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					name="Single Deck Rank Range"
 					isPremium={isPremium}
 					infoHeader="Deck breakdown rank range"
-					infoContent="Check out how this deck performs at higher ranks!"
+					infoContent={[
+						<p>Check out how this deck performs at higher ranks!</p>,
+						<br/>,
+						<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
+					]}
 				>
 					<h2>Rank range</h2>
 					<InfoboxFilterGroup
@@ -208,8 +244,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						onClick={(value) => this.setState({rankRange: value})}
 						tabIndex={premiumTabIndex}
 					>
-						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+					{rankRanges}
 					</InfoboxFilterGroup>
 				</PremiumWrapper>
 				{accountFilter}
@@ -426,6 +461,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const gameTypes = Object.keys(this.state.availableFilters);
 		return gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
 	}
+
+	hasFilter(filter: string): boolean {
+		return this.state.hasData && this.state.availableFilters[this.gameType()].indexOf(filter) !== -1;
+	};
 
 	getParams(rankRange?: boolean): any {
 		return {
