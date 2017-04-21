@@ -103,6 +103,7 @@ export default class Pager extends React.Component<PagerProps, void> {
 								onClick={makeOnClick(pageNumber)}
 								onKeyDown={makeOnClick(pageNumber, true)}
 								className="fixed-width"
+								aria-label={"Page " + pageNumber}
 							>
 								{pageNumber} {page.active ? <span className="sr-only">(current)</span> : null}
 							</a>
