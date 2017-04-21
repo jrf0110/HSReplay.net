@@ -413,6 +413,11 @@ REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME = "redshift_personalized_query_queue"
 REDSHIFT_USE_MATCH_START_AS_GAME_DATE = False
 REDSHIFT_PRETTY_PRINT_QUERY_RESULTS = False
 
+# When False the cached data will only get refreshed:
+#	1) At the end of each ETL Track Load
+#	2) Immediately when a new premium user subscribes
+#	3) When the daily cache warming Jenkins job runs
+REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS = True
 
 WEBHOOKS = {
 	"SCHEME_WHITELIST": ["http", "https"],

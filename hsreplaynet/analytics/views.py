@@ -137,7 +137,7 @@ def _fetch_query_results(parameterized_query, run_local=False):
 	if is_cache_hit:
 		if parameterized_query.result_is_stale:
 			triggered_refresh = True
-			execute_query(parameterized_query, run_local)
+			attempt_request_triggered_query_execution(parameterized_query, run_local)
 
 		staleness = (datetime.utcnow() - parameterized_query.result_as_of).total_seconds()
 		query_fetch_metric_fields = {
@@ -165,7 +165,7 @@ def _fetch_query_results(parameterized_query, run_local=False):
 			json_dumps_params=json_params
 		)
 	else:
-		execute_query(parameterized_query, run_local)
+		attempt_request_triggered_query_execution(parameterized_query, run_local)
 		result = {"msg": "Query is processing. Check back later."}
 		response = JsonResponse(result, status=202)
 
@@ -192,3 +192,8 @@ def _fetch_query_results(parameterized_query, run_local=False):
 	)
 
 	return response
+
+
+def attempt_request_triggered_query_execution(parameterized_query, run_local=False):
+	if run_local or settings.REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS:
+		execute_query(parameterized_query, run_local)
