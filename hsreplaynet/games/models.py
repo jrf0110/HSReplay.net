@@ -513,6 +513,10 @@ class GameReplay(models.Model):
 	def opposing_deck(self):
 		return self.opponent_revealed_deck
 
+	@property
+	def region(self):
+		return self.friendly_player.pegasus_account.region
+
 	def related_replays(self, num=3):
 		"""
 		Returns RelatedReplayRecommendation objects similar to this one.
