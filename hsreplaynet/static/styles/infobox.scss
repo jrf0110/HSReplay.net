@@ -104,6 +104,10 @@
 				background: $lightcyan;
 			}
 
+			&.disabled {
+				color: gray;
+			}
+
 			&.selected:not(.no-deselect)::before {
 				content: "× ";
 				color: $lightgrey;
