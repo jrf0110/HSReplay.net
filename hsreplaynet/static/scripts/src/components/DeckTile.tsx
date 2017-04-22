@@ -3,12 +3,11 @@ import CardIcon from "./CardIcon";
 import ManaCurve from "./ManaCurve";
 import moment from "moment";
 import {CardObj, DeckObj} from "../interfaces";
-import {cardSorting, getDustCost, getHeroCardId, toPrettyNumber, toTitleCase} from "../helpers";
+import { cardSorting, getFragments, getHeroCardId, toPrettyNumber, toTitleCase } from "../helpers";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
 	compareWith?: CardObj[];
-	urlGameType: string;
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
@@ -62,7 +61,6 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 						card={card}
 						mark={markText}
 						markStyle={markStyle}
-						urlGameType={this.props.urlGameType}
 						tabIndex={-1}
 					/>
 				</li>,
@@ -86,7 +84,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 						+ getHeroCardId(this.props.playerClass, true) + ".jpg)",
 				}}
 			>
-				<a href={"/decks/" + this.props.deckId}>
+				<a href={"/decks/" + this.props.deckId + "/" + getFragments(["gameType", "rankRange"])}>
 					<div>
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							<span className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.playerClass)}</span>

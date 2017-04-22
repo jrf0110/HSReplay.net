@@ -33,7 +33,6 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	excludedCards?: string[];
 	setExcludedCards?: (excludedCards: string[]) => void;
 	gameType?: string;
-	customGameType?: string;
 	setGameType?: (gameType: string) => void;
 	includedCards?: string[];
 	setIncludedCards?: (includedCards: string[]) => void;
@@ -209,16 +208,16 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							[
 								deck["total_games_vs_" + playerClass],
 								deck["win_rate_vs_" + playerClass],
-							]
+							],
 						).reduce((a: number, b) => a + b[0] * b[1], 0) / numGames;
 				}
 				decks.push({
 					cards: deck.cards,
 					deckId: deck.deck_id,
 					duration: deck.avg_game_length_seconds,
-					numGames: numGames,
+					numGames,
 					playerClass: deck.player_class,
-					winrate: winrate,
+					winrate,
 				});
 			});
 			this.setState({filteredDecks: decks, loading: false});
@@ -271,7 +270,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<DeckList
 						decks={this.state.filteredDecks}
 						pageSize={12}
-						urlGameType={this.props.customGameType}
 						helpMessage="Decks require at least 1000 recorded games in the selected time frame to be listed."
 					/>
 				</Fragments>

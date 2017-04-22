@@ -8,7 +8,6 @@ interface RecommendedDecksListProps {
 	card: any;
 	cardData: CardData;
 	data?: TableData;
-	urlGameType: string;
 }
 
 export default class RecommendedDecksList extends React.Component<RecommendedDecksListProps, void> {
@@ -53,7 +52,6 @@ export default class RecommendedDecksList extends React.Component<RecommendedDec
 					decks={decks}
 					pageSize={10}
 					hideTopPager
-					urlGameType={this.props.urlGameType}
 				/>
 			</Fragments>
 		);

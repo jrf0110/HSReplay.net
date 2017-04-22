@@ -89,7 +89,7 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 				<tr>
 					<td>
 						<div className="card-wrapper">
-							<CardTile card={obj.card} count={1} rarityColored height={34} urlGameType={urlGameType}/>
+							<CardTile card={obj.card} count={1} rarityColored height={34}/>
 						</div>
 					</td>
 					<td>
@@ -111,7 +111,7 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 			);
 		});
 
-		if(postfix) {
+		if (postfix) {
 			rows.push(postfix);
 		}
 

@@ -7,7 +7,6 @@ interface CardRankingTableRowProps {
 	customCardText?: string;
 	popularity: number;
 	rank: number;
-	urlGameType?: string;
 	winrate?: number;
 	noLink?: boolean;
 }
@@ -25,7 +24,6 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 				rarityColored
 				customText={this.props.customCardText}
 				disableTooltip={["HERO", "HERO_POWER"].indexOf(this.props.card.type) !== -1}
-				urlGameType={this.props.urlGameType}
 				noLink={this.props.noLink}
 			/>
 		);

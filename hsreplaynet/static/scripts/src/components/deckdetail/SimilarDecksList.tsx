@@ -83,7 +83,6 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 					pageSize={10}
 					hideTopPager
 					compareWith={cards}
-					urlGameType={this.props.wildDeck && "RANKED_WILD"}
 				/>
 			</Fragments>
 		);

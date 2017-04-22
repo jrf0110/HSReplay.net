@@ -4,6 +4,7 @@ import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint} fro
 import {CardData as CardMeta} from "hearthstonejson";
 import {adventureSets} from "./contants";
 import {wildSets} from "./contants";
+import Fragments from "./components/Fragments";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -739,4 +740,17 @@ export function fetchCSRF(url: string, options?) {
 	}
 	options.headers = headers;
 	return fetch(url, options);
+}
+
+export function getFragments(keys: string[]) {
+	const fragments = Fragments.parseFragmentString(document.location.hash);
+	Object.keys(fragments).forEach((key) => {
+		if (keys.indexOf(key) === -1) {
+			delete fragments[key];
+		}
+	});
+	if (Object.keys(fragments).length === 0) {
+		return "";
+	}
+	return Fragments.encodeFragmentString(fragments);
 }

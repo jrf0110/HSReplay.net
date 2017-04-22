@@ -63,6 +63,8 @@ interface DeckDetailProps {
 	setSelectedClasses?: (selectedClasses: FilterOption[]) => void;
 	rankRange?: string;
 	setRankRange?: (rankRange: string) => void;
+	gameType?: string;
+	setGameType?: (gameType: string) => void;
 }
 
 export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
@@ -104,6 +106,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			this.dataManager.get("list_deck_inventory").then((data) => {
 				if (data) {
 					const availableFilters = data.series[this.props.deckId];
+					const gameTypes = Object.keys(availableFilters);
+					if (gameTypes.indexOf(this.props.gameType) === -1) {
+						const gameType = gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
+						this.props.setGameType(gameType);
+					}
 					this.setState({availableFilters, hasData: !!availableFilters});
 				}
 			});
@@ -178,7 +185,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					{content}
 				</InfoboxFilter>
 			);
-		}
+		};
 
 		const rankRanges = [
 			infoBoxFilter("LEGEND_THROUGH_TEN", "Legend–10"),
@@ -461,9 +468,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			.some((card) => isWildSet(card.set));
 	}
 
+	hasGameType(gameType: string): boolean {
+		return this.state.hasData && Object.keys(this.state.availableFilters).indexOf(gameType) !== -1;
+	}
+
 	gameType(): string {
-		const gameTypes = Object.keys(this.state.availableFilters);
-		return gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
+		return this.hasGameType(this.props.gameType) ? this.props.gameType : "RANKED_STANDARD";
 	}
 
 	hasRankRange(rankRange: string): boolean {

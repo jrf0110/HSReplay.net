@@ -50,7 +50,6 @@ interface CardDetailProps {
 	card: any;
 	cardData: CardData;
 	cardId: string;
-	customGameType?: string;
 	dbfId: number;
 	gameType?: string;
 	opponentClass?: string;
@@ -71,6 +70,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		this.state = {
 			showInfo: false,
 		};
+		if (!props.userData.hasFeature("legend-filter")) {
+			props.setRankRange("ALL");
+		}
 	}
 
 	cardHasTargetReqs(): boolean {
@@ -288,7 +290,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											<RecommendedDecksList
 												card={this.props.card}
 												cardData={this.props.cardData}
-												urlGameType={this.props.customGameType}
 											/>
 										</TableLoading>
 									</DataInjector>
@@ -343,7 +344,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 													cardData={this.props.cardData}
 													numRows={12}
 													dataKey={"ALL"}
-													urlGameType={this.props.customGameType}
 												/>
 											</TableLoading>
 										</DataInjector>
@@ -361,7 +361,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 													cardData={this.props.cardData}
 													numRows={12}
 													dataKey={"ALL"}
-													urlGameType={this.props.customGameType}
 													tooltips={{
 														popularity: (
 															<InfoIcon

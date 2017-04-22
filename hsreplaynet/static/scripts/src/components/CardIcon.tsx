@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getCardUrl } from "../helpers";
+import { getCardUrl, getFragments } from "../helpers";
 
 interface CardIconState {
 	clientX?: number;
@@ -9,7 +9,6 @@ interface CardIconState {
 
 interface CardIconProps {
 	card: any;
-	urlGameType: string;
 	size?: number;
 	mark?: string;
 	markStyle?: any;
@@ -65,10 +64,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 				);
 			}
 
-			let url = getCardUrl(this.props.card);
-			if (this.props.urlGameType) {
-				url += "#gameType=" + this.props.urlGameType;
-			}
+			const url = getCardUrl(this.props.card) + getFragments(["gameType", "rankRange"]);
 
 			return (
 				<a href={url} tabIndex={typeof this.props.tabIndex !== "undefined" ? this.props.tabIndex : 0} className="card-icon-link">

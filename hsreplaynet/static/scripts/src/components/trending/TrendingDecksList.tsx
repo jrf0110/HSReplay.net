@@ -30,6 +30,6 @@ export default class TrendingDecksList extends React.Component<TrendingDecksList
 			});
 		});
 		decks.sort((a, b) => a.playerClass > b.playerClass ? 1 : -1);
-		return <DeckList decks={decks} pageSize={9} hideTopPager urlGameType={null}/>;
+		return <DeckList decks={decks} pageSize={9} hideTopPager />;
 	}
 }

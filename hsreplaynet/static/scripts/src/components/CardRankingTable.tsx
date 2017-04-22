@@ -16,7 +16,6 @@ interface CardRankingTableProps {
 	dataKey: string;
 	cardData: CardData;
 	numRows: number;
-	urlGameType: string;
 	tooltips?: TooltipMap<JSX.Element>;
 }
 
@@ -52,7 +51,6 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 					customCardText={isFace ? "Opponent Hero" : undefined}
 					popularity={popularity}
 					rank={((this.state.page - 1) * this.props.numRows) + index + 1}
-					urlGameType={this.props.urlGameType}
 					winrate={hasWinrate ? +row.win_rate : undefined}
 					noLink={isFace}
 				/>,

@@ -17,9 +17,10 @@ const render = (cardData: CardData) => {
 		<Fragments
 			defaults={{
 				account: defaultAccount,
-				tab: "",
-				selectedClasses: [],
+				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
+				selectedClasses: [],
+				tab: "",
 			}}
 			immutable={!user.isPremium() ? ["selectedClasses", "rankRange"] : null}
 		>

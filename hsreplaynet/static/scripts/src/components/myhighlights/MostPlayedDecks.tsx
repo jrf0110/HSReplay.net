@@ -30,7 +30,7 @@ export default class MostPlayedDecks extends React.Component<MostPlayedDecksProp
 
 			if (decks.length) {
 				decks.sort((a, b) => b.numGames - a.numGames);
-				return <DeckList decks={decks.slice(0, 10)} urlGameType={null} pageSize={5}/>;
+				return <DeckList decks={decks.slice(0, 10)} pageSize={5}/>;
 			}
 	}
 }

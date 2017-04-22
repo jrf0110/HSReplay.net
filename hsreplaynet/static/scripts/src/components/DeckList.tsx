@@ -11,7 +11,6 @@ import {getDustCost, getManaCost} from "../helpers";
 interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckList> {
 	decks: DeckObj[];
 	pageSize: number;
-	urlGameType: string;
 	hideTopPager?: boolean;
 	compareWith?: CardObj[];
 	sortBy?: string;
@@ -46,10 +45,10 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 	}
 
 	cacheDecks(decks: DeckObj[]) {
-		for(let i in decks) {
+		for (let i in decks) {
 			const deck = decks[i];
 			const id = deck.deckId;
-			if(typeof this.cache[id] !== "undefined") {
+			if (typeof this.cache[id] !== "undefined") {
 				continue;
 			}
 			this.cache[id] = {
@@ -64,7 +63,6 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 		const pageOffset = (currentPage - 1) * this.props.pageSize;
 		const nextPageOffset = pageOffset + this.props.pageSize;
 		const deckCount = this.props.decks.length;
-
 
 		let cacheProp = null;
 		let sortProp = this.props.sortBy;
@@ -88,7 +86,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 
 		const decks = this.props.decks.slice(0);
 
-		if(sortProp) {
+		if (sortProp) {
 			const direction = this.props.sortDirection === "ascending" ? 1 : -1;
 			decks.sort((a: DeckObj, b: DeckObj) => {
 				let x = +a[sortProp];
@@ -117,7 +115,6 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 					winrate={deck.winrate}
 					compareWith={this.props.compareWith}
 					dustCost={this.cache[deck.deckId].dust}
-					urlGameType={this.props.urlGameType}
 				/>,
 			);
 		});
@@ -167,7 +164,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 			if (!this.props.setSortDirection && !this.props.setSortBy) {
 				return;
 			}
-			if(event) {
+			if (event) {
 				event.preventDefault();
 				if (event.currentTarget) {
 					event.currentTarget.blur();

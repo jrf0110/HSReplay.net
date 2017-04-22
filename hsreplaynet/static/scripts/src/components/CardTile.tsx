@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getCardUrl } from "../helpers";
+import { getCardUrl, getFragments } from "../helpers";
 
 interface CardTileProps {
 	card: any;
@@ -10,7 +10,6 @@ interface CardTileProps {
 	hideGem?: boolean;
 	rarityColored?: boolean;
 	noLink?: boolean;
-	urlGameType?: string;
 }
 
 interface CardTileState {
@@ -120,11 +119,8 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 			</div>
 		);
 
-		if(!this.props.noLink) {
-			let url = getCardUrl(this.props.card);
-			if (this.props.urlGameType) {
-				url += "#gameType=" + this.props.urlGameType;
-			}
+		if (!this.props.noLink) {
+			const url = getCardUrl(this.props.card) + getFragments(["gameType", "rankRange"]);
 			tile = <a href={url}>{tile}</a>;
 		}
 

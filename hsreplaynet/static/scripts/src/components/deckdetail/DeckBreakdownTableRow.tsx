@@ -31,7 +31,6 @@ export default class DeckBreakdownTableRow extends React.Component<DeckBreakdown
 					card={this.props.cardObj.card}
 					count={this.props.cardObj.count}
 					rarityColored
-					urlGameType={this.props.wildDeck && "RANKED_WILD"}
 				/>
 			</div>
 		</td>);
