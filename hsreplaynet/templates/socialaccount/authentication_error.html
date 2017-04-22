@@ -1,14 +1,14 @@
 {% extends "account/base.html" %}
+{% load setting from web_extras %}
 
 {% block content %}
-
 <div class="content authentication-error">
 	<section>
 		<h1>Authentication error</h1>
 
 		<p class="alert alert-danger">
 			We could not authenticate you with Battle.net.<br/>
-			If this persists, <a href="mailto:help@hsreplay.net>">contact us</a>.
+			If this persists, <a href="mailto:{% setting 'DEFAULT_FROM_EMAIL' %}">contact us</a>.
 		</p>
 	</section>
 	{% if debug %}

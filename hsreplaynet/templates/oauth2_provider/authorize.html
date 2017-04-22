@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load setting from web_extras %}
 
 {% block navlinks %}{% endblock %}
 
@@ -11,7 +12,7 @@
 			<!-- Error details: {{ error.description }} ({{ error.error }}) -->
 		</p>
 		<p>
-			<a href="mailto:contact@hsreplay.net">Contact us</a> if you need help.
+			<a href="mailto:{% setting 'DEFAULT_FROM_EMAIL' %}">Contact us</a> if you need help.
 		</p>
 	{% else %}
 		<h3>Permission request</h3>
