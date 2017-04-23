@@ -26,6 +26,8 @@ import ManaCurve from "../components/ManaCurve";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import Tooltip from "../components/Tooltip";
+import WinrateBreakdownTable from "../components/deckdetail/WinrateBreakdownTable";
+import DeckOverviewTable from "../components/deckdetail/DeckOverviewTable";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -204,9 +206,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					className="hero-image"
 					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
 				/>
-				<div>
-					<ManaCurve cards={cards}/>
-				</div>
 				<HDTButton
 					card_ids={
 						this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)
@@ -336,6 +335,54 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</section>
 				<section id="page-content">
 					<TabList tab={this.props.tab} setTab={this.props.setTab}>
+						<Tab label="Overview" id="overview">
+							<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+								<ManaCurve cards={cards}/>
+								<DataInjector
+									dataManager={this.dataManager}
+									fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
+									query={{
+										params: {GameType: this.gameType(), RankRange: this.rankRange()},
+										url: "list_decks_by_win_rate",
+									}}
+								>
+									<TableLoading customMessage={this.state.hasData === false ? "No available data" : undefined}>
+										<DeckOverviewTable
+											deckId={this.props.deckId}
+											playerClass={this.props.deckClass}
+										/>
+									</TableLoading>
+								</DataInjector>
+							</div>
+							<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+								<DataInjector
+									dataManager={this.dataManager}
+									fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
+									query={[
+										{
+											key: "opponentWinrateData",
+											params: this.getParams(),
+											url: "single_deck_base_winrate_by_opponent_class",
+										},
+										{
+											key: "deckListData",
+											params: {GameType: this.gameType(), RankRange: this.rankRange()},
+											url: "list_decks_by_win_rate",
+										},
+									]}
+								>
+									<TableLoading
+										dataKeys={["opponentWinrateData", "deckListData"]}
+										customMessage={this.state.hasData === false ? "No available data" : undefined}
+									>
+										<WinrateBreakdownTable
+											deckId={this.props.deckId}
+											playerClass={this.props.deckClass}
+										/>
+									</TableLoading>
+								</DataInjector>
+							</div>
+						</Tab>
 						<Tab label="Breakdown" id="breakdown">
 							<div className="table-wrapper">
 								<DataInjector

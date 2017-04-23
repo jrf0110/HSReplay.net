@@ -20,7 +20,7 @@ const render = (cardData: CardData) => {
 				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
 				selectedClasses: [],
-				tab: "",
+				tab: "breakdown",
 			}}
 			immutable={!user.isPremium() ? ["selectedClasses", "rankRange"] : null}
 		>

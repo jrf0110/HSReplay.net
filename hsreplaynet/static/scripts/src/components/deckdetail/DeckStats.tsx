@@ -1,4 +1,3 @@
-import moment from "moment";
 import * as React from "react";
 import { toPrettyNumber } from "../../helpers";
 import { TableData } from "../../interfaces";
@@ -50,20 +49,6 @@ export default class DeckStats extends React.Component<DeckStatsProps, DeckStats
 					<li>
 						Time frame
 						<span className="infobox-value">Last 30 days</span>
-					</li>
-					<li>
-						Winrate
-						<span className="infobox-value">{(+deck["win_rate"]).toFixed(1) + "%"}</span>
-					</li>
-					<li>
-						Avg. match duration
-						<span className="infobox-value">
-							{moment.duration(+deck["avg_game_length_seconds"], "second").asMinutes().toFixed(1) + " minutes"}
-						</span>
-					</li>
-					<li>
-						Avg. number of turns
-						<span className="infobox-value">{deck["avg_num_player_turns"]}</span>
 					</li>
 				</ul>
 			</section>
