@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import moment from "moment";
 import * as React from "react";
 import {
@@ -38,10 +39,12 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		const yTicks = [50];
 		metadata.yDomain.forEach((value) => yTicks.indexOf(value) === -1 && yTicks.push(value));
 
+		const filterId = _.uniqueId("winrate-by-time-gradient-");
+
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
 				<defs>
-					<WinLossGradient id="winrate-by-time-gradient" metadata={metadata} />
+					<WinLossGradient id={filterId} metadata={metadata} />
 				</defs>,
 				<VictoryChart
 					height={150}
@@ -87,7 +90,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					/>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
-						style={{data: {fill: "url(#winrate-by-time-gradient)", stroke: "black", strokeWidth: 0.3}}}
+						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
 						interpolation="monotoneX"
 					/>
 				</VictoryChart>

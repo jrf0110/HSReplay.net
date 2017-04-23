@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import * as React from "react";
 import {
 	VictoryArea, VictoryAxis, VictoryChart, VictoryContainer, VictoryLabel, VictoryScatter,
@@ -42,14 +43,17 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		const yTicks = [50];
 		yDomain.forEach((value) => yTicks.indexOf(value) === -1 && yTicks.push(value));
 
+		const filterId = _.uniqueId("winrate-by-turn-gradient-");
+		const blurId = _.uniqueId("winrate-gaussian-blur-");
+
 		return <svg viewBox={"0 0 " + width + " 150"}>
 			<defs>
-				<WinLossGradient id="winrate-by-turn-gradient" metadata={metaData} />
-				<filter id="winrate-gaussian-blur">
+				<WinLossGradient id={filterId} metadata={metaData} />
+				<filter id={blurId}>
 					<feGaussianBlur in="SourceGraphic" stdDeviation="2" />
 				</filter>
 			</defs>
-			<svg filter={this.props.premiumLocked && "url(#winrate-gaussian-blur)"}>
+			<svg filter={this.props.premiumLocked && `url(#${blurId})`}>
 				<VictoryChart
 					height={150}
 					width={width}
@@ -94,7 +98,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					/>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
-						style={{data: {fill: "url(#winrate-by-turn-gradient)", stroke: "black", strokeWidth: 0.3}}}
+						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
 						interpolation="monotoneX"
 						containerComponent={<VictoryVoronoiContainer
 							dimension="x"

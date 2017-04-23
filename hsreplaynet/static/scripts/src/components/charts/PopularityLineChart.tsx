@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import moment from "moment";
 import * as React from "react";
 import {
@@ -31,10 +32,12 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 		const metadata = getChartMetaData(series.data, undefined, true, 1);
 		metadata.yDomain = [0, Math.max(this.props.maxYDomain, metadata.yDomain[1])];
 
+		const filterId = _.uniqueId("popularity-gradient-");
+
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
 				<defs>
-					<linearGradient id="popularity-gradient" x1="50%" y1="100%" x2="50%" y2="0%">
+					<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
 						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
 						<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
 					</linearGradient>
@@ -68,7 +71,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 					/>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: metadata.yDomain[0]}; })}
-						style={{data: {fill: "url(#popularity-gradient)", stroke: "black", strokeWidth: 0.3}}}
+						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
 						interpolation="monotoneX"
 					/>
 				</VictoryChart>

@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import * as React from "react";
 import {
 	VictoryArea, VictoryAxis, VictoryChart, VictoryContainer, VictoryLabel, VictoryScatter,
@@ -23,18 +24,21 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 			&& (this.props.opponentClass === "ALL" || s.metadata["opponent_class"] === this.props.opponentClass));
 		const metaData = getChartMetaData(series.data, undefined, false, 10);
 
+		const filterId = _.uniqueId("turn-played-gradient-");
+		const blurId = _.uniqueId("popularity-gaussian-blur-");
+
 		return (
 			<svg viewBox={"0 0 " + width + " 150"}>
 				<defs>
-					<linearGradient id="turn-played-gradient" x1="50%" y1="100%" x2="50%" y2="0%">
+					<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
 						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
 						<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
 					</linearGradient>
-					<filter id="popularity-gaussian-blur">
+					<filter id={blurId}>
 						<feGaussianBlur in="SourceGraphic" stdDeviation="2" />
 					</filter>
 				</defs>
-				<svg filter={this.props.premiumLocked && "url(#popularity-gaussian-blur)"}>
+				<svg filter={this.props.premiumLocked && `url(#${blurId})`}>
 					<VictoryChart
 						height={150}
 						width={width}
@@ -73,7 +77,7 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 						/>
 						<VictoryArea
 							data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 0};})}
-							style={{data: {fill: "url(#turn-played-gradient)", stroke: "black", strokeWidth: 0.3}}}
+							style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
 							interpolation="monotoneX"
 							containerComponent={<VictoryVoronoiContainer
 								dimension="x"
