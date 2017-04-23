@@ -23,7 +23,7 @@ export default class DeckOverviewTable extends React.Component<DeckOverviewTable
 			);
 		};
 
-		const secondsPerTurn = deck && (+deck.avg_game_length_seconds / +deck.avg_num_player_turns);
+		const secondsPerTurn = deck && Math.round(+deck.avg_game_length_seconds / (+deck.avg_num_player_turns * 2));
 
 		return (
 			<table className="table table-striped table-hover half-table">
@@ -42,7 +42,7 @@ export default class DeckOverviewTable extends React.Component<DeckOverviewTable
 					</tr>
 					<tr>
 						<td>Turn duration</td>
-						<td>{deck && moment.duration(secondsPerTurn , "second").asSeconds().toFixed(1) + " seconds"}</td>
+						<td>{deck && (secondsPerTurn + " seconds")}</td>
 					</tr>
 				</tbody>
 			</table>
