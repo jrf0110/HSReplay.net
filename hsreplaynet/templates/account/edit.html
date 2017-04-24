@@ -5,16 +5,17 @@
 		{% csrf_token %}
 
 		<section id="account-locale" class="box-section">
-			<h3>Replays</h3>
+			<h3>Preferences</h3>
 			<div class="inner">
 				<p>
-					Choose your default replay language for all your devices. You can override this per device by selecting a language in the replay applet options.
+					Choose your preferred card language for all your devices.
+					You can override this per device by selecting a language in the replay applet options.
 				</p>
 				<p>
 					{{ form.locale }}
 				</p>
 				<p class="help-block">
-					This currently only affects cards in the replays, not the replay applet or the site itself.
+					This currently affects cards in the replays and on statistics pages, not the site itself.
 				</p>
 				<hr/>
 				<p>

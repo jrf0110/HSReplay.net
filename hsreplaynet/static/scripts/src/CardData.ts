@@ -1,4 +1,6 @@
+import {cookie} from "cookie_js";
 import HearthstoneJSON from "hearthstonejson";
+import UserData from "./UserData";
 
 export default class CardData {
 	private readonly byDbfId = {};
@@ -9,8 +11,10 @@ export default class CardData {
 	}
 
 	public load(cb: (cardData: CardData) => void) {
+		const userdata = new UserData();
+		const locale = cookie.get("joust_locale", userdata.getLocale());
 		const hsjson = new HearthstoneJSON();
-		hsjson.getLatest().then((data: any[]) => {
+		hsjson.getLatest(locale).then((data: any[]) => {
 			data.forEach(card => {
 				this.modify && this.modify(card);
 				this.byDbfId[card.dbfId] = card;
