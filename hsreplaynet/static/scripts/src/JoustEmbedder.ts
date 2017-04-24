@@ -12,7 +12,7 @@ export default class JoustEmbedder {
 	public turn: number = null;
 	public reveal: boolean = null;
 	public swap: boolean = null;
-	public locale: string = "enUS";
+	public locale: string = null;
 	public launcher: Launcher = null;
 	public onTurn: (turn: number) => void = null;
 	public onToggleSwap: (swap: boolean) => void = null;
@@ -46,6 +46,8 @@ export default class JoustEmbedder {
 		this.launcher = launcher;
 		const release = Joust.release();
 
+		const userdata = new UserData();
+
 		// setup RavenJS/Sentry
 		let logger = null;
 		let dsn = JOUST_RAVEN_DSN_PUBLIC;
@@ -54,7 +56,6 @@ export default class JoustEmbedder {
 				release,
 				environment: JOUST_RAVEN_ENVIRONMENT || "development",
 			}).install();
-			const userdata = new UserData();
 			const username = userdata.getUsername();
 			if (username) {
 				raven.setUserContext({username});
@@ -82,7 +83,10 @@ export default class JoustEmbedder {
 
 		// setup metadata
 		if (typeof launcher.selectedLocale !== "undefined" && !launcher.selectedLocale) {
-			launcher.locale(this.locale);
+			if (!this.locale) {
+				this.locale = userdata.getLocale();
+			}
+			launcher.locale(this.locale || "enUS");
 		}
 
 		// setup influx

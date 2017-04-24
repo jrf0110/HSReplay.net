@@ -81,7 +81,6 @@
 		{% include "snippets/noscript.html" %}
 		<section id="joust-container" class="hidden-xs"
 			data-replayurl="{{ replay.replay_xml.url }}"
-			{% if user.is_authenticated %}data-locale="{{ user.locale }}"{% endif %}
 			{% if user.joust_autoplay is False %}data-autoplay="false"{% endif %}
 			{% for player in players %}
 				data-player{{ forloop.counter }}="{{ player }}"

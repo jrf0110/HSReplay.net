@@ -21,6 +21,7 @@ def userdata(request):
 		data["userid"] = request.user.pk
 		data["username"] = request.user.username
 		data["battletag"] = request.user.battletag
+		data["locale"] = request.user.locale
 
 		if request.user.is_premium and not request.COOKIES.get("free-mode") == "true":
 			data["premium"] = True

@@ -20,9 +20,6 @@ let embedder = new JoustEmbedder();
 
 const container = document.getElementById("joust-container");
 const startPaused = container.getAttribute("data-autoplay") == "false";
-if (container.hasAttribute("data-locale")) {
-	embedder.locale = container.getAttribute("data-locale");
-}
 
 // shared url decoding
 if (location.hash) {

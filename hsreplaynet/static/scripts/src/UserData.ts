@@ -9,6 +9,7 @@ interface UserDataProps {
 	premium: boolean;
 	username: string;
 	staff: boolean;
+	locale: string;
 }
 
 export interface Account {
@@ -45,6 +46,10 @@ export default class UserData {
 
 	getUsername(): string|null {
 		return this._userData ? this._userData.username : null;
+	}
+
+	getLocale(): string|null {
+		return this._userData ? this._userData.locale : null;
 	}
 
 	getAccounts(): Account[] {
