@@ -23,9 +23,7 @@
 				<p class="tagline">Advanced Statistics for Hearthstone</p>
 				{% if not billing.read_only %}
 					<p><a href="#go" class="promo-button-outline text-premium">Get Premium</a></p>
-					{% with monthly_plan.human_readable_cost as monthly_cost %}
-						{% if monthly_cost %}<p>Subscribe for {{ monthly_cost }}.</p>{% endif %}
-					{% endwith %}
+					<p>Subscribe for {{ monthly_plan.human_readable_price }}.</p>
 				{% else %}
 					<p><span class="btn promo-button-outline disabled">Not available</span></p>
 				{% endif %}
@@ -140,27 +138,27 @@
 					<p>Please choose your plan:</p>
 					<div class="btn-group" data-toggle="buttons" role="radiogroup">
 						<label class="btn btn-default active" id="plan-{{ monthly_plan.stripe_id }}">
-							<h4>{{ monthly_plan.human_readable_cost }}</h4>
+							<h4>{{ monthly_plan.human_readable_price }}</h4>
 							<input
 									type="radio"
 									name="plan"
 									value="{{ monthly_plan.stripe_id }}"
 									data-amount="{{ monthly_plan.amount_in_cents }}"
 									data-currency="{{ monthly_plan.currency }}"
-									data-description="{{ monthly_plan.human_readable_cost }}"
+									data-description="{{ monthly_plan.human_readable_price }}"
 									required
 									checked
 							>
 						</label>
 						<label class="btn btn-default" id="plan-{{ semiannual_plan.stripe_id }}">
-							<h4>{{ semiannual_plan.human_readable_cost }}</h4>
+							<h4>{{ semiannual_plan.human_readable_price }}</h4>
 							<input
 									type="radio"
 									name="plan"
 									value="{{ semiannual_plan.stripe_id }}"
 									data-amount="{{ semiannual_plan.amount_in_cents }}"
 									data-currency="{{ semiannual_plan.currency }}"
-									data-description="{{ semiannual_plan.human_readable_cost }}"
+									data-description="{{ semiannual_plan.human_readable_price }}"
 									required
 							>
 						</label>

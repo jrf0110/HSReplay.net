@@ -20,7 +20,7 @@
 		{% with customer.valid_subscriptions.first as sub %}
 		{% if sub %}
 
-			<h4>{{ sub.plan.name }} ({{ sub.plan.human_readable_cost }})</h4>
+			<h4>{{ sub.plan.name }} ({{ sub.plan.human_readable_price }})</h4>
 
 			{% if sub.cancel_at_period_end %}
 				<form method="POST" action="{% url 'premium_subscribe' %}" class="premium-plan-form">
@@ -72,10 +72,10 @@
 					{% csrf_token %}
 
 					<p>
-						<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.name }} &ndash; {{ monthly_plan.human_readable_cost }}</label>
+						<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.name }} &ndash; {{ monthly_plan.human_readable_price }}</label>
 					</p>
 					<p>
-						<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked> {{ semiannual_plan.name }} &ndash; {{ semiannual_plan.human_readable_cost}}</label>
+						<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked> {{ semiannual_plan.name }} &ndash; {{ semiannual_plan.human_readable_price }}</label>
 					</p>
 
 					<button type="submit" name="subscribe" class="btn btn-primary">Subscribe now</button>

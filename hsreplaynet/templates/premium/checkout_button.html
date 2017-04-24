@@ -10,6 +10,6 @@
 	data-plan="{{ plan.stripe_id }}"
 	data-amount="{{ plan.amount_in_cents }}"
 	data-currency="{{ plan.currency }}"
-	data-description="{{ plan.human_readable_cost }}"
+	data-description="{{ plan.human_readable_price }}"
 	{% endif %}
->{% if plan %}{{ label|default:plan.human_readable_cost }}{% else %}{{ label|default:"Sign me up!"}}{% endif %}</button>
+>{% if plan %}{{ label|default:plan.human_readable_price }}{% else %}{{ label|default:"Sign me up!"}}{% endif %}</button>
