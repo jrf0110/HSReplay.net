@@ -591,6 +591,8 @@ class RedshiftStagingTrackManager(models.Manager):
 				return self.attempt_continue_deduplicating_tasks()
 			elif operation_name == RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS:
 				return self.attempt_continue_refreshing_views_tasks()
+			elif operation_name == RedshiftETLStage.CLEANING_UP:
+				return self.attempt_continue_cleaning_up_tasks()
 			else:
 				log.info("Will wait until it has completed to initiate new tasks")
 				return []
@@ -788,6 +790,14 @@ class RedshiftStagingTrackManager(models.Manager):
 			track_for_cleanup.stage = RedshiftETLStage.CLEANING_UP
 			track_for_cleanup.track_cleanup_start_at = timezone.now()
 			track_for_cleanup.save()
+			return track_for_cleanup.get_cleanup_tasks()
+
+	def attempt_continue_cleaning_up_tasks(self):
+		track_for_cleanup = RedshiftStagingTrack.objects.filter(
+			stage=RedshiftETLStage.CLEANING_UP
+		).first()
+
+		if track_for_cleanup:
 			return track_for_cleanup.get_cleanup_tasks()
 
 	def get_track_lifecycle_tasks(self):
@@ -1148,14 +1158,7 @@ class RedshiftStagingTrack(models.Model):
 			return False, None
 
 		if self._any_tables_are_in_stage(RedshiftETLStage.CLEANING_UP):
-			# Cleaning up is a synchronous operation.
-			# Tables progress through CLEANING_UP to FINISHED within the same task
-			# Thus any table discovered stuck in CLEANING_UP has actually errored.
-			self.stage = RedshiftETLStage.ERROR
-			self.save()
-			raise RuntimeError(
-				"Track %s has a child table stuck in cleanup" % self.track_prefix
-			)
+			return True, RedshiftETLStage.CLEANING_UP
 
 		if self._all_tables_are_in_stage(RedshiftETLStage.ANALYZE_COMPLETE):
 			self.stage = RedshiftETLStage.ANALYZE_COMPLETE
@@ -1368,7 +1371,7 @@ class RedshiftStagingTrack(models.Model):
 	def get_cleanup_tasks(self):
 		results = []
 		for t in self.tables.all():
-			if t.stage == RedshiftETLStage.ANALYZE_COMPLETE:
+			if t.stage in (RedshiftETLStage.ANALYZE_COMPLETE, RedshiftETLStage.CLEANING_UP):
 				if t.is_materialized_view:
 					t.stage = RedshiftETLStage.FINISHED
 					t.cleaning_up_started_at = timezone.now()
@@ -1780,10 +1783,11 @@ class RedshiftStagingTrackTable(models.Model):
 
 	def do_cleanup(self):
 		from hsreplaynet.utils.instrumentation import error_handler
-		self.stage = RedshiftETLStage.CLEANING_UP
-		self.cleaning_up_started_at = timezone.now()
-		self.save()
-		self.heartbeat_track_status_metrics()
+		if self.stage != RedshiftETLStage.CLEANING_UP:
+			self.stage = RedshiftETLStage.CLEANING_UP
+			self.cleaning_up_started_at = timezone.now()
+			self.save()
+			self.heartbeat_track_status_metrics()
 
 		try:
 			streams.delete_firehose_stream(self.firehose_stream)
@@ -1794,8 +1798,8 @@ class RedshiftStagingTrackTable(models.Model):
 			engine = get_redshift_engine()
 			conn = engine.connect()
 			conn.execution_options(isolation_level="AUTOCOMMIT")
-			conn.execute("DROP TABLE %s;" % self.pre_insert_table_name)
-			conn.execute("DROP TABLE %s;" % self.staging_table)
+			conn.execute("DROP TABLE IF EXISTS %s;" % self.pre_insert_table_name)
+			conn.execute("DROP TABLE IF EXISTS %s;" % self.staging_table)
 		except Exception as e:
 			error_handler(e)
 

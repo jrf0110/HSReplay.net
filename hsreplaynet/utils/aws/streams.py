@@ -364,10 +364,36 @@ def create_firehose_stream(stream_name, table_name):
 	)
 
 
-def delete_firehose_stream(stream_name):
-	FIREHOSE.delete_delivery_stream(
-		DeliveryStreamName=stream_name
-	)
+def delete_firehose_stream(stream_name, if_exists=True):
+	stream_exists = does_stream_exist(stream_name)
+	if not stream_exists and not if_exists:
+		raise ValueError("Cannot delete a stream that does not exist.")
+
+	if stream_exists:
+		FIREHOSE.delete_delivery_stream(
+			DeliveryStreamName=stream_name
+		)
+
+
+def list_delivery_streams():
+	result = []
+	finished = False
+	start_stream_name = None
+	while not finished:
+		if start_stream_name:
+			response = FIREHOSE.list_delivery_streams(
+				ExclusiveStartDeliveryStreamName=start_stream_name
+			)
+		else:
+			response = FIREHOSE.list_delivery_streams()
+		result.extend(response["DeliveryStreamNames"])
+		start_stream_name = response["DeliveryStreamNames"][-1]
+		finished = not response["HasMoreDeliveryStreams"]
+	return result
+
+
+def does_stream_exist(stream_name):
+	return stream_name in list_delivery_streams()
 
 
 def get_delivery_stream_description(stream_name):
