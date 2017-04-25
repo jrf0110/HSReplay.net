@@ -3,6 +3,7 @@ import * as React from "react"
 interface TabProps {
 	id: string;
 	hidden?: boolean;
+	disabled?: boolean;
 	label?: string | JSX.Element;
 }
 

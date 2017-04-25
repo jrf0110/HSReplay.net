@@ -18,6 +18,7 @@ export default class TabList extends React.Component<TabListProps, void> {
 
 		const tabs = children.map((child: any) => {
 			const id = child.props.id;
+			const disabled = child.props.disabled;
 			const isActive = id === this.props.tab;
 
 			const label = (
@@ -25,7 +26,7 @@ export default class TabList extends React.Component<TabListProps, void> {
 					href={"#"}
 					onClick={(event) => {
 						event.preventDefault();
-						if (isActive || !canSwitch) {
+						if (isActive || !canSwitch || disabled) {
 							return;
 						}
 						this.props.setTab(id);
@@ -35,14 +36,25 @@ export default class TabList extends React.Component<TabListProps, void> {
 				</a>
 			);
 
+			const classNames = [];
+			if (isActive) {
+				classNames.push("active");
+			}
+			if (disabled) {
+				classNames.push("disabled")
+			}
+
 			return (
-				<li key={id} className={isActive ? "active" : null}>
+				<li key={id} className={classNames.join(" ")}>
 					{label}
 				</li>
 			);
 		});
 
 		const body = children.map((child: any) => {
+			if (child.props.disabled) {
+				return null;
+			}
 			const id = child.props.id;
 			const classNames = ["tab-pane"];
 			if (id === this.props.tab) {
@@ -53,7 +65,7 @@ export default class TabList extends React.Component<TabListProps, void> {
 					{child}
 				</div>
 			);
-		})
+		});
 
 		return (
 			<div>
@@ -75,7 +87,7 @@ export default class TabList extends React.Component<TabListProps, void> {
 		this.ensureVisibleTab(nextProps);
 	}
 
-	private getValidChildren(children, warn?: boolean): React.ReactChild[] {
+	private getValidChildren(children, excludeDisabled?: boolean, warn?: boolean): React.ReactChild[] {
 		return React.Children.toArray(children).filter((child: any) => {
 			if (child.type !== Tab) {
 				if (warn) {
@@ -86,7 +98,13 @@ export default class TabList extends React.Component<TabListProps, void> {
 			if (!child.props) {
 				return false;
 			}
-			return typeof child.props.hidden !== "undefined" ? child.props.hidden: true;
+			if (child.props.hidden) {
+				return false;
+			}
+			if (excludeDisabled && child.props.disabled) {
+				return false;
+			}
+			return true;
 		});
 	}
 
@@ -96,7 +114,7 @@ export default class TabList extends React.Component<TabListProps, void> {
 			return;
 		}
 
-		const validChildren = this.getValidChildren(props.children, true) as any[];
+		const validChildren = this.getValidChildren(props.children, true, true) as any[];
 		if (!validChildren.length) {
 			// no valid tabs, nothing we can do
 			return;

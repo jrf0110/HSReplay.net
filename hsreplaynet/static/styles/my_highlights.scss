@@ -99,6 +99,14 @@
 			background: $offwhite;
 			color: black;
 		}
+
+		li.disabled > a {
+			color: #777;
+
+			.text-premium {
+				color: inherit;
+			}
+		}
 	}
 }
 
