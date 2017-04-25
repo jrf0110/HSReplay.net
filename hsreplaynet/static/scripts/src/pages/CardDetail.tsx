@@ -414,11 +414,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<Tab
 									label="Quest Completion"
 									id="quest-completion"
-									condition={
-										this.cardIsQuest()
-										&& this.props.gameType !== "ARENA"
-										&& this.props.userData.hasFeature("quest-completion")
-									}
+									condition={this.cardIsQuest() && this.props.gameType !== "ARENA"}
 								>
 									<QuestCompletionDetail
 										dataManager={this.dataManager}
