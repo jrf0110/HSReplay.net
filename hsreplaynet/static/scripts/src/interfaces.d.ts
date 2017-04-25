@@ -211,6 +211,7 @@ export const enum LoadingStatus {
 	SUCCESS,
 	LOADING,
 	PROCESSING,
+	NO_DATA,
 	ERROR,
 }
 

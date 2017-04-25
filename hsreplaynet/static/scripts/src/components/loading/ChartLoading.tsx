@@ -37,6 +37,8 @@ export default class ChartLoading extends React.Component<ChartLoadingProps, voi
 						<p><i>This may take a few seconds</i></p>
 					</div>
 				);
+			case LoadingStatus.NO_DATA:
+				return <h3 className="chart-message-wrapper">No available data.</h3>;
 			case LoadingStatus.ERROR:
 				return <h3 className="chart-message-wrapper">Something went wrong</h3>;
 		}

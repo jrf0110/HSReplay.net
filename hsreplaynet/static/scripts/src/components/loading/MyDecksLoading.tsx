@@ -21,6 +21,8 @@ export default class MyDecksLoading extends React.Component<MyDecksLoadingProps,
 						<p><i>This may take a few seconds</i></p>
 					</div>
 				);
+			case LoadingStatus.NO_DATA:
+				return <h3 className="chart-message-wrapper">No available data.</h3>;
 			case LoadingStatus.ERROR:
 				return <h3 className="message-wrapper">Please check back later</h3>;
 		}

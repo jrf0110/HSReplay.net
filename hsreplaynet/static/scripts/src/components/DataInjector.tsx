@@ -33,6 +33,7 @@ const STATUS_LOADING = 0;
 const STATUS_TIMEOUT = 1;
 const STATUS_SUCCESS = 200;
 const STATUS_PROCESSING = 202;
+const STATUS_NO_DATA = 204;
 
 export default class DataInjector extends React.Component<DataInjectorProps, DataInjectorState> {
 	constructor(props: DataInjectorProps, state: DataInjectorState) {
@@ -124,8 +125,11 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 			if (status.every((s) => s === STATUS_SUCCESS)) {
 				return LoadingStatus.SUCCESS;
 			}
-			if (status.some((s) => [STATUS_SUCCESS, STATUS_LOADING, STATUS_PROCESSING].indexOf(s) === -1)) {
+			if (status.some((s) => [STATUS_SUCCESS, STATUS_LOADING, STATUS_PROCESSING, STATUS_NO_DATA].indexOf(s) === -1)) {
 				return LoadingStatus.ERROR;
+			}
+			if (status.some((s) => s === STATUS_NO_DATA)) {
+				return LoadingStatus.NO_DATA;
 			}
 			if (status.some((s) => s === STATUS_PROCESSING)) {
 				return LoadingStatus.PROCESSING;
