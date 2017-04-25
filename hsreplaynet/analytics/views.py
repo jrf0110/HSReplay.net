@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import Http404, HttpResponseForbidden, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden, JsonResponse
 from django.views.decorators.http import condition
 from hsredshift.analytics.filters import Region
 from hsreplaynet.cards.models import Deck
@@ -131,6 +131,7 @@ def fetch_local_query_results(request, name):
 
 
 def _fetch_query_results(parameterized_query, run_local=False):
+	cache_is_populated = parameterized_query.cache_is_populated
 	is_cache_hit = parameterized_query.result_available
 	triggered_refresh = False
 
@@ -164,12 +165,21 @@ def _fetch_query_results(parameterized_query, run_local=False):
 			parameterized_query.response_payload,
 			json_dumps_params=json_params
 		)
+	elif cache_is_populated:
+		# There is no content for this permutation of parameters
+		# For deck related queries this most likely means that someone hand crafted the URL
+		# Or if it's a card related query, then it's a corner case where there is no data
+		response = HttpResponse(status=204)
 	else:
+		# The cache is not populated yet for this query.
+		# Perhaps it's a new query or perhaps the cache was recently flushed.
+		# So attempt to trigger populating it
 		attempt_request_triggered_query_execution(parameterized_query, run_local)
 		result = {"msg": "Query is processing. Check back later."}
 		response = JsonResponse(result, status=202)
 
-	log.info("Query: %s Cache Hit: %s Is Stale: %s" % (
+	log.info("Query: %s Cache Populated: %s Cache Hit: %s Is Stale: %s" % (
+		cache_is_populated,
 		parameterized_query.cache_key,
 		is_cache_hit,
 		triggered_refresh
@@ -185,6 +195,7 @@ def _fetch_query_results(parameterized_query, run_local=False):
 	influx.influx_metric(
 		"redshift_query_fetch",
 		query_fetch_metric_fields,
+		cache_populated=cache_is_populated,
 		cache_hit=is_cache_hit,
 		query_name=parameterized_query.query_name,
 		triggered_refresh=triggered_refresh,
