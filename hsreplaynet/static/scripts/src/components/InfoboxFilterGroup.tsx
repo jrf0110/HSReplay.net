@@ -10,6 +10,7 @@ interface InfoboxFilterGroupProps {
 	onClick: (value: string, sender: string) => void;
 	selectedValue: string | string[];
 	tabIndex?: number;
+	disabled?: boolean;
 }
 
 interface InfoboxFilterGroupState {
@@ -36,14 +37,14 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 		}
 
 		const cloneWidthProps = child => {
-			return React.cloneElement(child, {
+			return React.cloneElement(child, Object.assign({}, child.props, {
 				selected: selected(typeof child.props === "object" ? child.props.value : ""),
 				onClick: this.props.onClick,
 				deselectable: this.props.deselectable,
 				locked: this.props.locked,
 				tabIndex: this.props.tabIndex,
-				...child.props
-			});
+				disabled: this.props.disabled || child.props.disabled,
+			}));
 		};
 
 		let header = null;
