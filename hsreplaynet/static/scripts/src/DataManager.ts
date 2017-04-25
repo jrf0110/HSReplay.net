@@ -1,5 +1,6 @@
 export default class DataManager {
 	private readonly cache = {};
+	private readonly responses = {};
 	private readonly running = {};
 
 	private genCacheKey(url: string, params: any): string {
@@ -30,16 +31,22 @@ export default class DataManager {
 
 	get(url: string, params?: any): Promise<any> {
 		const cacheKey = this.genCacheKey(url, params || {});
-		if (this.cache[cacheKey]) {
+		if (this.responses[cacheKey] === 200) {
 			return Promise.resolve(this.cache[cacheKey]);
+		}
+		if (this.responses[cacheKey]) {
+			return Promise.reject(this.responses[cacheKey]);
 		}
 		if (this.running[cacheKey]) {
 			return this.running[cacheKey];
 		}
 		const promise = fetch(this.fullUrl(url, params || {}), {credentials: "include"})
 			.then((response: Response) => {
-				if (response.ok && response.status !== 202) {
+				if (response.status === 200) {
 					this.cache[cacheKey] = response.json();
+				}
+				if (response.status !== 202) {
+					this.responses[cacheKey] = response.status;
 				}
 				this.running[cacheKey] = undefined;
 				return this.cache[cacheKey] || Promise.reject(response.status);
