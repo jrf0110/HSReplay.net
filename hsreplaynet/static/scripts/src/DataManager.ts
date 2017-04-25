@@ -16,6 +16,9 @@ export default class DataManager {
 
 	private fullUrl(url: string, params: any): string {
 		url = url.startsWith("/") ? url : "/analytics/query/" + url;
+		if (!url.endsWith("/")) {
+			url += "/";
+		}
 
 		const keys = params ? Object.keys(params) : [];
 		const query = keys.reduce((prev, key, i) => {
