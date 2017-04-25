@@ -493,7 +493,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						Ranked Standard
 					</InfoboxFilter>
 					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-					<InfoboxFilter disabled={this.props.card && isWildSet(this.props.card.set)} value="ARENA">Arena</InfoboxFilter>
+					<InfoboxFilter
+						disabled={(this.props.card && isWildSet(this.props.card.set)) || this.cardIsQuest()}
+						value="ARENA">
+						Arena
+					</InfoboxFilter>
 				</InfoboxFilterGroup>
 				{rankRange}
 				<h2>Data</h2>
