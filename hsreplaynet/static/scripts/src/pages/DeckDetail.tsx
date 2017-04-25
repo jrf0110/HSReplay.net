@@ -449,7 +449,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</span>
 							)}
 							id="my-statistics"
-							condition={this.props.user.hasFeature("personal-deck-stats")}
+							hidden={!this.props.user.hasFeature("personal-deck-stats")}
 						>
 							{this.getMyStats()}
 						</Tab>

@@ -2,7 +2,7 @@ import * as React from "react"
 
 interface TabProps {
 	id: string;
-	condition?: boolean;
+	hidden?: boolean;
 	label?: string | JSX.Element;
 }
 

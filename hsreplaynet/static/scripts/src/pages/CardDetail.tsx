@@ -278,7 +278,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							keepDefaults={true}
 						>
 							<TabList tab={this.props.tab} setTab={this.props.setTab}>
-								<Tab label="Recommended Decks" id="recommended-decks" condition={this.props.gameType !== "ARENA"}>
+								<Tab label="Recommended Decks" id="recommended-decks" hidden={this.props.gameType === "ARENA"}>
 									<DataInjector
 										dataManager={this.dataManager}
 										query={{
@@ -314,7 +314,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										{turnCharts}
 									</PremiumWrapper>
 								</Tab>
-								<Tab label="Class Distribution" id="class-distribution" condition={this.cardIsNeutral()}>
+								<Tab label="Class Distribution" id="class-distribution" hidden={!this.cardIsNeutral()}>
 									<h3>Class Distribution</h3>
 									<div id="class-chart">
 										<DataInjector
@@ -331,7 +331,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										</DataInjector>
 									</div>
 								</Tab>
-								<Tab label="Targets" id="targets" condition={this.cardHasTargetReqs()}>
+								<Tab label="Targets" id="targets" hidden={!this.cardHasTargetReqs()}>
 									<div className="card-tables">
 										<h3>Most popular targets</h3>
 										<DataInjector
@@ -349,7 +349,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										</DataInjector>
 									</div>
 								</Tab>
-								<Tab label="Discover" id="discover" condition={this.cardHasDiscover()}>
+								<Tab label="Discover" id="discover" hidden={!this.cardHasDiscover()}>
 									<div className="card-tables">
 										<h3>Most popular Discover choices</h3>
 										<DataInjector
@@ -374,7 +374,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										</DataInjector>
 									</div>
 								</Tab>
-								<Tab label="Adapt" id="adapt" condition={this.cardHasAdapt()}>
+								<Tab label="Adapt" id="adapt" hidden={!this.cardHasAdapt()}>
 									<DataInjector
 										dataManager={this.dataManager}
 										query={{
@@ -396,10 +396,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<Tab
 									label="Quest Contributors"
 									id="quest-contributors"
-									condition={
-										this.cardIsQuest()
-										&& this.props.gameType !== "ARENA"
-										&& this.props.userData.hasFeature("quest-contributors")
+									hidden={
+										!this.cardIsQuest()
+										|| this.props.gameType === "ARENA"
+										|| !this.props.userData.hasFeature("quest-contributors")
 									}
 								>
 									<DataInjector
@@ -414,7 +414,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<Tab
 									label="Quest Completion"
 									id="quest-completion"
-									condition={this.cardIsQuest() && this.props.gameType !== "ARENA"}
+									hidden={!this.cardIsQuest() || this.props.gameType === "ARENA"}
 								>
 									<QuestCompletionDetail
 										dataManager={this.dataManager}

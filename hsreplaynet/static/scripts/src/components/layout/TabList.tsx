@@ -86,7 +86,7 @@ export default class TabList extends React.Component<TabListProps, void> {
 			if (!child.props) {
 				return false;
 			}
-			return typeof child.props.condition !== "undefined" ? child.props.condition : true;
+			return typeof child.props.hidden !== "undefined" ? child.props.hidden: true;
 		});
 	}
 
