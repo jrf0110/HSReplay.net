@@ -16,6 +16,11 @@ Vagrant.configure("2") do |config|
 		path: "scripts/provision_system.sh",
 		keep_color: true
 
+	config.vm.provider "virtualbox" do |v|
+		v.memory = 2048
+		v.cpus = 2
+	end
+
 	config.vm.provision "shell",
 		path: "scripts/provision_user.sh",
 		env: {"ENV_VAGRANT": "1", "HSREPLAYNET_DEBUG": "1"},
