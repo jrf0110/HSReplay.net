@@ -278,7 +278,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							keepDefaults={true}
 						>
 							<TabList tab={this.props.tab} setTab={this.props.setTab}>
-								<Tab label="Recommended Decks" id="recommended-decks" hidden={this.props.gameType === "ARENA"}>
+								<Tab label="Recommended Decks" id="recommended-decks" disabled={this.isArena()}>
 									<DataInjector
 										dataManager={this.dataManager}
 										query={{
@@ -398,7 +398,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									id="quest-contributors"
 									hidden={
 										!this.cardIsQuest()
-										|| this.props.gameType === "ARENA"
+										|| this.isArena()
 										|| !this.props.userData.hasFeature("quest-contributors")
 									}
 								>
@@ -414,7 +414,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<Tab
 									label="Quest Completion"
 									id="quest-completion"
-									hidden={!this.cardIsQuest() || this.props.gameType === "ARENA"}
+									hidden={!this.cardIsQuest() || this.isArena()}
 								>
 									<QuestCompletionDetail
 										dataManager={this.dataManager}
@@ -468,10 +468,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						selectedValue={this.props.rankRange}
 						onClick={(value) => this.props.setRankRange(value)}
 					>
-						<InfoboxFilter value="LEGEND_ONLY" disabled={this.props.gameType === "ARENA"}>Legend only</InfoboxFilter>
-						<InfoboxFilter value="LEGEND_THROUGH_FIVE" disabled={this.props.gameType === "ARENA"}>Legend–5</InfoboxFilter>
-						<InfoboxFilter value="LEGEND_THROUGH_TEN" disabled={this.props.gameType === "ARENA"}>Legend–10</InfoboxFilter>
-						<InfoboxFilter value="ALL" disabled={this.props.gameType === "ARENA"}>Legend–25</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_ONLY" disabled={this.isArena()}>Legend only</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_THROUGH_FIVE" disabled={this.isArena()}>Legend–5</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_THROUGH_TEN" disabled={this.isArena()}>Legend–10</InfoboxFilter>
+						<InfoboxFilter value="ALL" disabled={this.isArena()}>Legend–25</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</PremiumWrapper>
 			);
@@ -566,6 +566,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		</div>;
 	}
 
+	isArena(): boolean {
+		return this.props.gameType === "ARENA";
+	}
+
 	mergeHeroes(tableData: TableData): TableData {
 		if (!this.props.cardData) {
 			return tableData;
@@ -597,7 +601,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			GameType: this.props.gameType,
 			card_id: this.props.dbfId,
 		};
-		if (this.props.gameType !== "ARENA") {
+		if (!this.isArena()) {
 			params["RankRange"] = this.props.rankRange;
 		}
 		return params;
