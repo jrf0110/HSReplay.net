@@ -632,29 +632,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						locked={!isPremium}
 						onClick={(value) => this.props.setRankRange(value)}
 						selectedValue={this.props.rankRange}
+						disabled={this.props.gameType === "ARENA"}
 						tabIndex={premiumTabIndex}
 					>
-						{
-							(() => {
-								const rankFilters = [
-									<InfoboxFilter disabled={this.props.gameType === "ARENA"} value="LEGEND_THROUGH_TEN">
-										Legend–10
-									</InfoboxFilter>,
-									<InfoboxFilter disabled={this.props.gameType === "ARENA"} value="ALL">Legend–25</InfoboxFilter>,
-								];
-								if (this.props.user.hasFeature("legend-filter")) {
-									rankFilters.unshift(
-										<InfoboxFilter disabled={this.props.gameType === "ARENA"} value="LEGEND_THROUGH_FIVE">
-											Legend–5
-										</InfoboxFilter>,
-									);
-									rankFilters.unshift(
-										<InfoboxFilter disabled={this.props.gameType === "ARENA"} value="LEGEND_ONLY">Legend only</InfoboxFilter>,
-									);
-								}
-								return rankFilters;
-							})()
-						}
+						<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</PremiumWrapper>,
 			);

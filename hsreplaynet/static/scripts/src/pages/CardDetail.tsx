@@ -70,9 +70,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		this.state = {
 			showInfo: false,
 		};
-		if (!props.userData.hasFeature("legend-filter")) {
-			props.setRankRange("ALL");
-		}
 	}
 
 	cardHasTargetReqs(): boolean {
@@ -499,7 +496,25 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						Arena
 					</InfoboxFilter>
 				</InfoboxFilterGroup>
-				{rankRange}
+				<PremiumWrapper
+					name="Single Card Rank Range"
+					isPremium={this.props.userData.isPremium()}
+					infoHeader="Rank range"
+					infoContent="Check out how this card performs at higher ranks!"
+				>
+					<h2>Rank range</h2>
+					<InfoboxFilterGroup
+						locked={!this.props.userData.isPremium()}
+						selectedValue={this.props.rankRange}
+						onClick={(value) => this.props.setRankRange(value)}
+						disabled={this.isArena()}
+					>
+						<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
+						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+					</InfoboxFilterGroup>
+				</PremiumWrapper>
 				<h2>Data</h2>
 				<ul>
 					<li>

@@ -190,15 +190,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		};
 
 		const rankRanges = [
+			infoBoxFilter("LEGEND_ONLY", "Legend only"),
+			infoBoxFilter("LEGEND_THROUGH_FIVE", "Legend–5"),
 			infoBoxFilter("LEGEND_THROUGH_TEN", "Legend–10"),
 			infoBoxFilter("ALL", "Legend–25"),
 		];
-		if (this.props.user.hasFeature("legend-filter")) {
-			rankRanges.unshift(
-				infoBoxFilter("LEGEND_ONLY", "Legend only"),
-				infoBoxFilter("LEGEND_THROUGH_FIVE", "Legend–5"),
-			);
-		}
 
 		return <div className="deck-detail-container">
 			<aside className="infobox">
