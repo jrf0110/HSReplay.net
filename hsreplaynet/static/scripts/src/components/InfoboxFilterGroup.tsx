@@ -39,7 +39,7 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 		const cloneWidthProps = child => {
 			return React.cloneElement(child, Object.assign({}, child.props, {
 				selected: selected(typeof child.props === "object" ? child.props.value : ""),
-				onClick: this.props.onClick,
+				onClick: typeof child.props.onClick !== "undefined" ? child.props.onClick : this.props.onClick,
 				deselectable: this.props.deselectable,
 				locked: this.props.locked,
 				tabIndex: this.props.tabIndex,
