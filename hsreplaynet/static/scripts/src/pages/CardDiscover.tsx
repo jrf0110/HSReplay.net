@@ -631,7 +631,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						header="Rank Range"
 						locked={!isPremium}
 						onClick={(value) => this.props.setRankRange(value)}
-						selectedValue={this.props.rankRange}
+						selectedValue={this.props.gameType !== "ARENA" && this.props.rankRange}
 						disabled={this.props.gameType === "ARENA"}
 						tabIndex={premiumTabIndex}
 					>

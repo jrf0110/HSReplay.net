@@ -505,7 +505,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<h2>Rank range</h2>
 					<InfoboxFilterGroup
 						locked={!this.props.userData.isPremium()}
-						selectedValue={this.props.rankRange}
+						selectedValue={!this.isArena() && this.props.rankRange}
 						onClick={(value) => this.props.setRankRange(value)}
 						disabled={this.isArena()}
 					>
