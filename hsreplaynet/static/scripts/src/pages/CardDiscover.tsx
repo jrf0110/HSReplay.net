@@ -135,6 +135,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		timeRange: ["LAST_1_DAY", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS"],
 	};
 
+	showMoreButton: HTMLDivElement;
+
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
 		super(props, state);
 		this.state = {
@@ -184,24 +186,27 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	onSearchScroll(): void {
-		if (this.state.filteredCards.length > this.state.numCards) {
-			const atBottom = () => document.body.scrollTop + (window.innerHeight + 100) >= document.body.scrollHeight;
-			if (atBottom()) {
-				window.setTimeout(() => {
-					if (atBottom()) {
-						this.setState({numCards: this.state.numCards + 10});
-					}
-				}, 300);
-			}
+		if (!this.showMoreButton) {
+			return;
+		}
+		if (this.state.numCards >= this.state.filteredCards.length) {
+			return;
+		}
+		const rect = this.showMoreButton.getBoundingClientRect();
+		if (rect.top < window.innerHeight) {
+			this.setState({numCards: this.state.numCards + 12});
 		}
 	}
 
+	private scrollCb;
+
 	componentDidMount() {
-		document.addEventListener("scroll", () => this.onSearchScroll());
+		this.scrollCb = () => this.onSearchScroll();
+		document.addEventListener("scroll", this.scrollCb);
 	}
 
 	componentDidUnmount() {
-		document.removeEventListener("scroll", () => this.onSearchScroll());
+		document.removeEventListener("scroll", this.scrollCb);
 	}
 
 	componentDidUpdate(prevProps: CardDiscoverProps, prevState: CardDiscoverState) {
@@ -306,7 +311,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 		if (this.state.filteredCards.length > this.state.numCards) {
 			showMoreButton = (
-				<div id="more-button-wrapper">
+				<div id="more-button-wrapper" ref={(ref) => this.showMoreButton = ref}>
 					<button
 						type="button"
 						className="btn btn-default"
