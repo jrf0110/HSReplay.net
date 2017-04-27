@@ -109,6 +109,10 @@ label>input {
 		cursor: pointer;
 	}
 
+	.card-tile {
+		cursor: inherit;
+	}
+
 	> ul {
 		list-style-type: none;
 		margin-bottom: 0px;
@@ -142,11 +146,12 @@ label>input {
 		width: 100%;
 		z-index: 1000;
 
-		>ul {
+		> ul {
 			list-style-type: none;
 			margin-bottom: 0px;
 			padding-left: 0px;
-			>li .search-message {
+
+			> li .search-message {
 				color: gray;
 				text-align: center;
 			}
