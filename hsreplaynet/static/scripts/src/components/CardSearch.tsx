@@ -42,7 +42,13 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				<li
 					className={selected ? "selected" : undefined}
 					key={card.id}
-					onMouseDown={() => this.addCard(card)}
+					onMouseDown={(event) => {
+						if (event.button !== 0) {
+							event.preventDefault();
+							return;
+						}
+						this.addCard(card);
+					}}
 					onMouseEnter={() => this.setState({selectedIndex: index})}
 				>
 					<CardTile card={card} count={1} height={34} rarityColored noLink/>
