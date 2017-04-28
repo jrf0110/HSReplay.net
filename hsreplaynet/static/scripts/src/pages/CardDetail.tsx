@@ -450,30 +450,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			</li>
 		);
 
-		let rankRange = null;
-		if (this.props.userData.hasFeature("legend-filter")) {
-			rankRange = (
-				<PremiumWrapper
-					name="Single Card Rank Range"
-					isPremium={this.props.userData.isPremium()}
-					infoHeader="Rank range"
-					infoContent="Check out how this card performs at higher ranks!"
-				>
-					<h2>Rank range</h2>
-					<InfoboxFilterGroup
-						locked={!this.props.userData.isPremium()}
-						selectedValue={this.props.rankRange}
-						onClick={(value) => this.props.setRankRange(value)}
-					>
-						<InfoboxFilter value="LEGEND_ONLY" disabled={this.isArena()}>Legend only</InfoboxFilter>
-						<InfoboxFilter value="LEGEND_THROUGH_FIVE" disabled={this.isArena()}>Legend–5</InfoboxFilter>
-						<InfoboxFilter value="LEGEND_THROUGH_TEN" disabled={this.isArena()}>Legend–10</InfoboxFilter>
-						<InfoboxFilter value="ALL" disabled={this.isArena()}>Legend–25</InfoboxFilter>
-					</InfoboxFilterGroup>
-				</PremiumWrapper>
-			);
-		}
-
 		return <div className="card-detail-container">
 			<aside className="infobox" id="card-detail-infobox">
 				<img
