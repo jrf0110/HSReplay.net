@@ -115,6 +115,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	render(): JSX.Element {
+		const isPremium = this.props.userData.isPremium();
 		let content = null;
 		if (this.props.card) {
 			if (!isCollectibleCard(this.props.card)) {
@@ -189,14 +190,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				const turnStatsQuery = {
 					params: this.getParams(),
 					url: (
-						this.props.opponentClass !== "ALL" && this.props.userData.isPremium()
+						this.props.opponentClass !== "ALL" && isPremium
 						? "/analytics/query/single_card_stats_by_turn_and_opponent"
 						: "/analytics/query/single_card_stats_by_turn"
 					),
 				};
 
 				const turnStatsNoDataCondition = (data: RenderData): boolean => {
-					if (this.props.opponentClass !== "ALL" && this.props.userData.isPremium()) {
+					if (this.props.opponentClass !== "ALL" && isPremium) {
 						const selectedSeries = data.series.find((s) => s.metadata.opponent_class === this.props.opponentClass);
 						return !selectedSeries || selectedSeries.data.length < 2;
 					}
@@ -213,7 +214,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									hideAll
 									minimal
 									selectedClasses={[this.props.opponentClass as FilterOption]}
-									selectionChanged={(selected) => this.props.userData.isPremium() && this.props.setOpponentClass(selected[0])}
+									selectionChanged={(selected) => isPremium && this.props.setOpponentClass(selected[0])}
 								/>
 							</div>
 						</div>
@@ -228,7 +229,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											<TurnPlayedBarChart
 												opponentClass={this.props.opponentClass}
 												widthRatio={2}
-												premiumLocked={!this.props.userData.isPremium()}
+												premiumLocked={!isPremium}
 											/>
 										</ChartLoading>
 									</DataInjector>
@@ -248,7 +249,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											<WinrateByTurnLineChart
 												opponentClass={this.props.opponentClass}
 												widthRatio={2}
-												premiumLocked={!this.props.userData.isPremium()}
+												premiumLocked={!isPremium}
 											/>
 										</ChartLoading>
 									</DataInjector>
@@ -305,7 +306,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								>
 									<PremiumWrapper
 										name="Single Card Turn Statistics"
-										isPremium={this.props.userData.isPremium()}
+										isPremium={isPremium}
 										iconStyle={{display: "none"}}
 									>
 										{turnCharts}
@@ -377,7 +378,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										query={{
 											params: this.getParams(),
 											url: (
-												this.props.userData.isPremium() && this.props.opponentClass !== "ALL"
+												isPremium && this.props.opponentClass !== "ALL"
 													? "single_card_adapt_stats_by_opponent" : "single_card_adapt_stats"
 											),
 										}}
@@ -474,16 +475,17 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				</InfoboxFilterGroup>
 				<PremiumWrapper
 					name="Single Card Rank Range"
-					isPremium={this.props.userData.isPremium()}
+					isPremium={isPremium}
 					infoHeader="Rank range"
 					infoContent="Check out how this card performs at higher ranks!"
 				>
 					<h2>Rank range</h2>
 					<InfoboxFilterGroup
-						locked={!this.props.userData.isPremium()}
+						locked={!isPremium}
 						selectedValue={!this.isArena() && this.props.rankRange}
 						onClick={(value) => this.props.setRankRange(value)}
 						disabled={this.isArena()}
+						tabIndex={!isPremium ? -1 : 0}
 					>
 						<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 						<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
