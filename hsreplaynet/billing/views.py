@@ -238,8 +238,15 @@ class UpdateCardView(LoginRequiredMixin, View):
 			# Set the default payment method
 			stripe_customer = customer.api_retrieve()
 			stripe_customer.default_source = card.stripe_id
-			stripe_customer.save()
-			customer.__class__.sync_from_stripe_data(stripe_customer)
+			try:
+				stripe_customer.save()
+			except InvalidRequestError:
+				messages.error(self.request, "Could not update default card.")
+				# This may happen if the card does not exist (attempt to save
+				# a default card that does not exist). Resync the customer's cards.
+				customer._sync_cards()
+			else:
+				customer.__class__.sync_from_stripe_data(stripe_customer)
 
 		return True
 
