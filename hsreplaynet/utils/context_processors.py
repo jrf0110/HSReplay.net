@@ -42,14 +42,4 @@ def userdata(request):
 		for group in request.user.groups.all():
 			data["groups"].append(group.name.replace(":preview", ""))
 
-	quest_contributors = (
-		"/cards/41222/the-caverns-below",
-		"/cards/41499/unite-the-murlocs",
-		"/cards/41856/lakkari-sacrifice",
-	)
-	if hasattr(request, "head") and request.head.canonical_url.endswith(quest_contributors):
-		if "groups" not in data:
-			data["groups"] = []
-		data["groups"].append("feature:quest-contributors")
-
 	return {"userdata": data}

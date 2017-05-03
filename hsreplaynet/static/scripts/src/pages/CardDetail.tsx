@@ -397,7 +397,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									hidden={
 										!this.cardIsQuest()
 										|| this.isArena()
-										|| !this.props.userData.hasFeature("quest-contributors")
 									}
 								>
 									<DataInjector
