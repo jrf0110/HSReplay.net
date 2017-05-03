@@ -161,7 +161,7 @@ def _fetch_query_results(parameterized_query, run_local=False):
 			parameterized_query.response_payload,
 			json_dumps_params=json_params
 		)
-	elif cache_is_populated:
+	elif cache_is_populated and parameterized_query.is_global:
 		# There is no content for this permutation of parameters
 		# For deck related queries this most likely means that someone hand crafted the URL
 		# Or if it's a card related query, then it's a corner case where there is no data
