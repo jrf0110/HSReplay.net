@@ -14,11 +14,7 @@ from .processing import (
 
 @staff_member_required
 def evict_query_from_cache(request, name):
-	query = get_redshift_catalogue().get_query(name)
-	if not query:
-		raise Http404("No query named: %s" % name)
-
-	parameterized_query = query.build_full_params(request.GET.dict())
+	parameterized_query = _get_query_and_params(request, name)
 	parameterized_query.evict_cache()
 
 	# Clear out any lingering dogpile locks on this query
