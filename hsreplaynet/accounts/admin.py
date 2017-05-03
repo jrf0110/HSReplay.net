@@ -1,3 +1,4 @@
+from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -21,6 +22,12 @@ class PegasusAccountInline(admin.TabularInline):
 	model = PegasusAccount
 	extra = 0
 	readonly_fields = ("account_hi", "account_lo")
+	show_change_link = True
+
+
+class EmailAddressInline(admin.TabularInline):
+	model = EmailAddress
+	extra = 1
 	show_change_link = True
 
 
@@ -51,7 +58,8 @@ class UserAdmin(BaseUserAdmin):
 	)
 	list_filter = BaseUserAdmin.list_filter + ("is_fake", "default_replay_visibility")
 	inlines = (
-		SocialAccountInline, PegasusAccountInline, AuthTokenInline, StripeCustomerInline
+		EmailAddressInline, SocialAccountInline, PegasusAccountInline, AuthTokenInline,
+		StripeCustomerInline
 	)
 	ordering = None
 	paginator = EstimatedCountPaginator
