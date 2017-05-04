@@ -4,7 +4,7 @@
 <form
 	id="{{ id|default:"checkout-form"}}"
 	method="post"
-	action="{% url 'premium_subscribe' %}?next={{ request.get_full_path|urlencode }}"
+	action="{% url 'premium_subscribe' %}?next={{ request.path|urlencode }}"
 	data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
 	data-image="{% static 'images/hsreplay-thumbnail.png' %}"
 	data-name="HearthSim Premium"

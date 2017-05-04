@@ -122,7 +122,7 @@
 						</li>
 					{% elif not hide_login %}
 						<li class="button-container">
-							{% include "login_button.html" with class="promo-button" next=request.get_full_path %}
+							{% include "login_button.html" with class="promo-button" next=request.path|urlencode %}
 						</li>
 					{% endif %}
 				</ul>
