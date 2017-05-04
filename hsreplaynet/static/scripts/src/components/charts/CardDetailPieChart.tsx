@@ -54,6 +54,24 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 				data = filteredData;
 			}
 
+			data.sort((a, b) => {
+				// other always to the end
+				if (a.x === "other") {
+					return 1;
+				}
+				if (b.x === "other") {
+					return -1;
+				}
+				// now do normal compare
+				if (a.y < b.y) {
+					return 1;
+				}
+				if (a.y > b.y) {
+					return -1;
+				}
+				return 0;
+			});
+
 			data.forEach((d) => {
 				legendData.push(
 					{name: toTitleCase("" + d.x), symbol: {type: "circle", fill: scheme[("" + d.x).toLowerCase()].stroke}},
