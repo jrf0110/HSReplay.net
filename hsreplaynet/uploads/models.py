@@ -579,7 +579,9 @@ class RedshiftStagingTrackManager(models.Manager):
 		if operation_in_progress:
 			log.info("%s is still %s" % (prefix, str(operation_name)))
 			log.info("Will check for additional unstarted tasks")
-			if operation_name == RedshiftETLStage.GATHERING_STATS:
+			if operation_name == RedshiftETLStage.INITIALIZING:
+				return self.attempt_continue_initializing_tasks()
+			elif operation_name == RedshiftETLStage.GATHERING_STATS:
 				return self.attempt_continue_gathering_stats_tasks()
 			elif operation_name == RedshiftETLStage.VACUUMING:
 				return self.attempt_continue_vacuum_tasks()
@@ -876,6 +878,16 @@ class RedshiftStagingTrackManager(models.Manager):
 
 		return successor
 
+	def attempt_continue_initializing_tasks(self):
+		active_track = self.get_active_track()
+		successor = active_track.successor
+		if not successor or successor.stage != RedshiftETLStage.INITIALIZING:
+			raise RuntimeError("Successor must exist and be initializing.")
+
+		tmpl = "Initializing successor for track_prefix: %s"
+		task_name = tmpl % (active_track.track_prefix,)
+		return [RedshiftETLTask(task_name, successor.initialize_tables)]
+
 	def generate_track_prefix(self):
 		staging_prefix = "stage"
 		track_uuid = str(uuid4())[:4]
@@ -1133,15 +1145,7 @@ class RedshiftStagingTrack(models.Model):
 			raise RuntimeError("Refresh should never get called on errored tracks")
 
 		if self.stage == RedshiftETLStage.INITIALIZING:
-			# The track must completely enter and exit initializing in the course of
-			# a single lambda. If we ever discover the track in the initializing state,
-			# then it most likely got throttled midway through initialization and is
-			# corrupt and needs manual intervention.
-			self.stage = RedshiftETLStage.ERROR
-			self.save()
-			raise RuntimeError(
-				"Track %s did not successfully finish initializing" % self.track_prefix
-			)
+			return True, RedshiftETLStage.INITIALIZING
 
 		for table in self.tables.all():
 			# If the table previously launched a long running operation
@@ -1237,8 +1241,6 @@ class RedshiftStagingTrack(models.Model):
 		return RedshiftStagingTrack.objects.create_successor_for(self)
 
 	def initialize_tables(self):
-		if self.tables.count() > 0:
-			raise RuntimeError("Tables already initialized.")
 
 		self.stage = RedshiftETLStage.INITIALIZING
 		self.save()
@@ -1397,7 +1399,7 @@ class RedshiftStagingTrackTableManager(models.Manager):
 	def create_view_table_for_track(self, view, track):
 
 		# Create the record once we know the table and stream creation didn't error
-		track_table = RedshiftStagingTrackTable.objects.create(
+		track_table, created = RedshiftStagingTrackTable.objects.get_or_create(
 			track=track,
 			target_table=view,
 			is_materialized_view=True,
@@ -1406,23 +1408,28 @@ class RedshiftStagingTrackTableManager(models.Manager):
 
 		return track_table
 
-	def create_table_for_track(self, table, track):
+	def staging_table_exists(self, staging_table_name):
+		return staging_table_name in get_redshift_metadata().tables
 
+	def create_table_for_track(self, table, track):
+		staging_table_name = track.track_prefix + table.name
 		# Create the staging table in redshift
-		staging_table_name = create_staging_table(
-			table,
-			track.track_prefix,
-			get_redshift_engine()
-		)
+		if not self.staging_table_exists(staging_table_name):
+			staging_table_name = create_staging_table(
+				table,
+				track.track_prefix,
+				get_redshift_engine()
+			)
 
 		# Create the firehose stream
-		streams.create_firehose_stream(
-			staging_table_name,
-			staging_table_name
-		)
+		if not streams.does_stream_exist(staging_table_name):
+			streams.create_firehose_stream(
+				staging_table_name,
+				staging_table_name
+			)
 
 		# Create the record once we know the table and stream creation didn't error
-		track_table = RedshiftStagingTrackTable.objects.create(
+		track_table, created = RedshiftStagingTrackTable.objects.get_or_create(
 			track=track,
 			target_table=table.name,
 			staging_table=staging_table_name,
