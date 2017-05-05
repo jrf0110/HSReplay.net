@@ -143,8 +143,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 								return;
 							}
-							if (this.props.includedSet !== "all"
-								&& cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)) {
+							if (
+								this.props.includedSet !== "ALL" &&
+								cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
+							) {
 								return;
 							}
 							deck.player_class = playerClass;
@@ -177,8 +179,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 							return;
 						}
-						if (this.props.includedSet !== "all"
-							&& cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)) {
+						if (
+							this.props.includedSet !== "ALL" &&
+							cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
+						) {
 							return;
 						}
 						deck.player_class = key;
@@ -433,7 +437,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						<InfoboxFilterGroup
 							deselectable
 							selectedValue={this.props.includedSet}
-							onClick={(value) => this.props.setIncludedSet(value || "all")}
+							onClick={(value) => this.props.setIncludedSet(value || "ALL")}
 						>
 							<InfoboxFilter value="UNGORO">Latest Expansion</InfoboxFilter>
 						</InfoboxFilterGroup>

@@ -16,7 +16,7 @@ const render = (cardData: CardData) => {
 				excludedCards: [],
 				gameType: "RANKED_STANDARD",
 				includedCards: [],
-				includedSet: "UNGORO",
+				includedSet: "ALL",
 				playerClasses: [],
 				opponentClasses: [],
 				rankRange: "ALL",
