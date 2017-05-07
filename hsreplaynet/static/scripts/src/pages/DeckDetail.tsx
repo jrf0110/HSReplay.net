@@ -520,7 +520,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	hasRankRange(rankRange: string): boolean {
-		return this.state.hasData && this.state.availableFilters[this.gameType()].indexOf(rankRange) !== -1;
+		const gameType = this.gameType();
+		if (!this.state.hasData) {
+			return false;
+		}
+		if (!this.state.availableFilters[gameType] || !Array.isArray(this.state.availableFilters[gameType])) {
+			return false;
+		}
+		return this.state.availableFilters[gameType].indexOf(rankRange) !== -1;
 	};
 
 	rankRange(): string {
