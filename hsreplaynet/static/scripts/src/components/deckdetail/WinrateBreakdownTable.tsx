@@ -40,8 +40,12 @@ export default class WinrateBreakdownTable extends React.Component<WinrateBreakd
 		};
 
 		const opponents = this.props.opponentWinrateData.series.data;
-		const rows = Object.keys(opponents).map((opponent) => {
-			return {opponent, winrate: opponents[opponent][0].win_rate};
+		const rows = [];
+		Object.keys(opponents).forEach((opponent) => {
+			const oppData = opponents[opponent][0];
+			if (oppData) {
+				rows.push({opponent, winrate: oppData.win_rate});
+			}
 		});
 		const direction = this.state.sortDirection === "ascending" ? 1 : -1;
 		rows.sort((a, b) => a[this.state.sortBy] > b[this.state.sortBy] ? direction : -direction);
