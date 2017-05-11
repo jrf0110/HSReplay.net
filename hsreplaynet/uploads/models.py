@@ -1409,7 +1409,7 @@ class RedshiftStagingTrackTableManager(models.Manager):
 		return track_table
 
 	def staging_table_exists(self, staging_table_name):
-		return staging_table_name in get_redshift_metadata().tables
+		return staging_table_name in get_redshift_metadata(refresh=True).tables
 
 	def create_table_for_track(self, table, track):
 		staging_table_name = track.track_prefix + table.name
@@ -2001,10 +2001,10 @@ class RedshiftStagingTrackTable(models.Model):
 		return pct_unsorted >= VACUUM_THRESHOLD
 
 	def _get_table_obj(self):
-		return get_redshift_metadata().tables[self.staging_table]
+		return get_redshift_metadata(refresh=True).tables[self.staging_table]
 
 	def _get_target_table_obj(self):
-		return get_redshift_metadata().tables[self.target_table]
+		return get_redshift_metadata(refresh=True).tables[self.target_table]
 
 	def _get_staging_table_size_stmt(self):
 		return select([func.count()]).select_from(self._get_table_obj())
