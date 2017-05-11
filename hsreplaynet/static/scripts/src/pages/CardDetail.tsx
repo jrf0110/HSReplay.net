@@ -452,10 +452,13 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 		return <div className="card-detail-container">
 			<aside className="infobox" id="card-detail-infobox">
-				<img
-					className="card-image"
-					src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"}
-				/>
+				<h1 className="art">
+					<img
+						className="card-image"
+						src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"}
+						alt={this.props.card ? this.props.card.name : null}
+					/>
+				</h1>
 				<p>{this.getCleanFlavorText()}</p>
 				<InfoboxFilterGroup
 					header="Game Mode"
