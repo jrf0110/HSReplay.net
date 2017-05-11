@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from . import views
+from .api import CreateAccountClaimView
 from ..utils import UUID4_RE
 from ..webhooks.views import WebhookCreateView, WebhookDeleteView, WebhookUpdateView
 
@@ -21,4 +22,8 @@ urlpatterns = [
 	url(r"^make_primary/$", views.MakePrimaryView.as_view(), name="account_make_primary"),
 	url(r"^login/", views.LoginView.as_view(), name="account_login"),
 	url(r"^", include("allauth.urls")),
+]
+
+api_urlpatterns = [
+	url(r"^v1/claim_account/$", CreateAccountClaimView.as_view()),
 ]

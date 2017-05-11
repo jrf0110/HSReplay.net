@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
+from hsreplaynet.accounts.urls import api_urlpatterns as accounts_urlpatterns
 from hsreplaynet.analytics.urls import api_urlpatterns as analytics_urlpatterns
 from hsreplaynet.comments.urls import api_urlpatterns as comments_urlpatterns
 from hsreplaynet.packs.api import PackViewSet
@@ -18,9 +19,9 @@ urlpatterns = [
 	url(r"^v1/", include(router.urls)),
 	url(r"^v1/games/$", views.GameReplayList.as_view()),
 	url(r"^v1/games/(?P<shortid>.+)/$", views.GameReplayDetail.as_view()),
-	url(r"^v1/claim_account/", views.CreateAccountClaimView.as_view()),
 	url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
 
+urlpatterns += accounts_urlpatterns
 urlpatterns += comments_urlpatterns
 urlpatterns += analytics_urlpatterns

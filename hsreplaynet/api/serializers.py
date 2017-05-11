@@ -33,12 +33,6 @@ class SmartFileField(serializers.FileField):
 		return super(SmartFileField, self).to_internal_value(data)
 
 
-class AccountClaimSerializer(serializers.Serializer):
-	url = serializers.ReadOnlyField(source="get_absolute_url")
-	full_url = serializers.ReadOnlyField(source="get_full_url")
-	created = serializers.ReadOnlyField()
-
-
 class UserSerializer(serializers.Serializer):
 	id = serializers.IntegerField(read_only=True)
 	battletag = serializers.SerializerMethodField()

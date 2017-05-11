@@ -1,12 +1,8 @@
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED
 from rest_framework.viewsets import GenericViewSet
-from hsreplaynet.accounts.models import AccountClaim
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.uploads.models import UploadEvent
 from . import serializers
@@ -32,25 +28,6 @@ class APIKeyViewSet(WriteOnlyOnceViewSet):
 	permission_classes = (AllowAny, )
 	queryset = APIKey.objects.all()
 	serializer_class = serializers.APIKeySerializer
-
-
-class CreateAccountClaimView(CreateAPIView):
-	authentication_classes = (AuthTokenAuthentication, )
-	permission_classes = (RequireAuthToken, APIKeyPermission)
-	queryset = AccountClaim.objects.all()
-	serializer_class = serializers.AccountClaimSerializer
-
-	def create(self, request):
-		if request.auth_token.user and not request.auth_token.user.is_fake:
-			raise ValidationError("This token has already been claimed.")
-		claim, _ = AccountClaim.objects.get_or_create(
-			token=request.auth_token,
-			defaults={"api_key": request.api_key}
-		)
-		serializer = self.get_serializer(claim)
-		headers = self.get_success_headers(serializer.data)
-		response = Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
-		return response
 
 
 class UploadEventViewSet(WriteOnlyOnceViewSet):
