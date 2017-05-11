@@ -14,7 +14,9 @@ from hslog.exceptions import ParsingError
 from hslog.export import EntityTreeExporter, FriendlyPlayerExporter
 from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
-from hsredshift.etl.exporters import RedshiftPublishingExporter
+from hsredshift.etl.exporters import (
+	CorruptReplayDataError, CorruptReplayPacketError, RedshiftPublishingExporter
+)
 from hsredshift.etl.firehose import flush_exporter_to_firehose
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.uploads.models import UploadEventStatus
@@ -374,10 +376,31 @@ def validate_parser(parser, meta):
 		raise ValidationError("Expected exactly 1 game, got %i" % (len(parser.games)))
 	packet_tree = parser.games[0]
 	with influx_timer("replay_exporter_duration"):
-		exporter = RedshiftPublishingExporter(
-			packet_tree,
-			stream_prefix=fetch_active_stream_prefix()
-		).export()
+		try:
+			exporter = RedshiftPublishingExporter(
+				packet_tree,
+				stream_prefix=fetch_active_stream_prefix()
+			).export()
+		except CorruptReplayPacketError as e:
+			influx_metric(
+				"redshift_exporter_corrupt_data_error",
+				{
+					"count": 1,
+					"id": e.id,
+
+				},
+				corrupt_packet=True,
+				packet_class=str(e.packet_class)
+			)
+			raise ValidationError(str(e))
+		except CorruptReplayDataError as e:
+			influx_metric(
+				"redshift_exporter_corrupt_data_error",
+				{
+					"count": 1
+				},
+			)
+			raise ValidationError(str(e))
 
 	game = exporter.game
 
