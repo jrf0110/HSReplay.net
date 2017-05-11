@@ -9,7 +9,8 @@ from django.core.exceptions import ValidationError
 from hsreplay.document import HSReplayDocument
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
-from hsreplaynet.api.models import APIKey, AuthToken
+from hsreplaynet.accounts.models import AuthToken
+from hsreplaynet.api.models import APIKey
 from hsreplaynet.api.serializers import UploadEventSerializer
 from hsreplaynet.uploads.models import (
 	_generate_upload_key, RawUpload, UploadEvent, UploadEventStatus

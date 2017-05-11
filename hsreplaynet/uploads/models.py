@@ -361,7 +361,7 @@ class UploadEvent(models.Model):
 	@property
 	def token(self):
 		if not hasattr(self, "_token"):
-			from hsreplaynet.api.models import AuthToken
+			from hsreplaynet.accounts.models import AuthToken
 			if self.token_uuid:
 				self._token = AuthToken.objects.get(key=self.token_uuid)
 			else:

@@ -1,4 +1,6 @@
+from enum import IntEnum
 from uuid import uuid4
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import JSONField
 from django.db import models
@@ -6,7 +8,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django_intenum import IntEnumField
-from hsreplaynet.games.models import Visibility
 
 
 HEARTHSTONE_LOCALES = (
@@ -29,9 +30,14 @@ HEARTHSTONE_LOCALES = (
 )
 
 
+class Visibility(IntEnum):
+	Public = 1
+	Unlisted = 2
+
+
 class AccountClaim(models.Model):
 	id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
-	token = models.OneToOneField("api.AuthToken")
+	token = models.OneToOneField("accounts.AuthToken")
 	api_key = models.ForeignKey("api.APIKey", on_delete=models.CASCADE, null=True)
 	created = models.DateTimeField("Created", auto_now_add=True)
 
@@ -76,8 +82,6 @@ class User(AbstractUser):
 
 	@cached_property
 	def is_premium(self):
-		from django.conf import settings
-
 		# The PREMIUM_OVERRIDE setting allows forcing a True or False for all users
 		# This is especially useful if no Stripe API key is available
 		premium_override = getattr(settings, "PREMIUM_OVERRIDE", None)
@@ -134,3 +138,46 @@ class AccountDeleteRequest(models.Model):
 		if self.delete_replay_data:
 			self.user.delete_replays()
 		self.user.delete()
+
+
+class AuthToken(models.Model):
+	key = models.UUIDField("Key", primary_key=True, editable=False, default=uuid4)
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+		related_name="auth_tokens", null=True, blank=True
+	)
+	created = models.DateTimeField("Created", auto_now_add=True)
+	creation_apikey = models.ForeignKey("api.APIKey", related_name="tokens")
+
+	test_data = models.BooleanField(default=False)
+
+	class Meta:
+		db_table = "api_authtoken"
+
+	def __str__(self):
+		return str(self.key)
+
+	# XXX classmethod
+	@staticmethod
+	def get_token_from_header(header):
+		header = header.lower()
+
+		method, _, token = header.partition(" ")
+		if method != "token":
+			return
+
+		try:
+			return AuthToken.objects.get(key=token)
+		except (AuthToken.DoesNotExist, ValueError):
+			pass
+
+	def create_fake_user(self, save=True):
+		"""
+		Create a User instance with the same username as the key UUID.
+		The user has the is_fake attribute set to True.
+		"""
+		user = User.objects.create(username=str(self.key), is_fake=True)
+		self.user = user
+		if save:
+			self.save()
+		return user

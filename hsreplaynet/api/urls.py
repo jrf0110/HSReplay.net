@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
+from hsreplaynet.accounts.api import AuthTokenViewSet
 from hsreplaynet.accounts.urls import api_urlpatterns as accounts_urlpatterns
 from hsreplaynet.analytics.urls import api_urlpatterns as analytics_urlpatterns
 from hsreplaynet.comments.urls import api_urlpatterns as comments_urlpatterns
@@ -10,9 +11,9 @@ from . import views
 
 router = DefaultRouter()
 router.register(r"agents", views.APIKeyViewSet)
-router.register(r"tokens", views.AuthTokenViewSet)
 router.register(r"uploads", views.UploadEventViewSet)
 router.register(r"packs", PackViewSet)
+router.register(r"tokens", AuthTokenViewSet)
 router.register(r"webhooks", WebhookViewSet)
 
 urlpatterns = [

@@ -3,9 +3,10 @@ from django.core.files.storage import default_storage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.six import string_types
 from rest_framework import serializers
+from hsreplaynet.accounts.api import UserSerializer
 from hsreplaynet.cards.models import Deck
 from hsreplaynet.games.models import GameReplay, GlobalGame, GlobalGamePlayer
-from .models import APIKey, AuthToken
+from .models import APIKey
 
 
 class DeckListField(serializers.ListField):
@@ -31,44 +32,6 @@ class SmartFileField(serializers.FileField):
 			if default_storage.exists(data):
 				return default_storage.open(data, mode="rb")
 		return super(SmartFileField, self).to_internal_value(data)
-
-
-class UserSerializer(serializers.Serializer):
-	id = serializers.IntegerField(read_only=True)
-	battletag = serializers.SerializerMethodField()
-	username = serializers.SerializerMethodField()
-
-	def get_battletag(self, instance):
-		if "request" in self.context and self.context["request"].user == instance:
-			return instance.battletag
-
-	def get_username(self, instance):
-		if "request" in self.context and self.context["request"].user == instance:
-			return instance.username
-
-	def to_representation(self, instance):
-		if instance.is_fake:
-			return None
-		return super(UserSerializer, self).to_representation(instance)
-
-
-class AuthTokenSerializer(serializers.HyperlinkedModelSerializer):
-	key = serializers.UUIDField(read_only=True)
-	user = UserSerializer(read_only=True)
-	test_data = serializers.BooleanField(default=False)
-
-	class Meta:
-		model = AuthToken
-		fields = ("key", "user", "test_data")
-
-	def create(self, data):
-		api_key = self.context["request"].api_key
-		data["creation_apikey"] = api_key
-		ret = super(AuthTokenSerializer, self).create(data)
-		# Create a "fake" user to correspond to the AuthToken
-		ret.create_fake_user(save=False)
-		ret.save()
-		return ret
 
 
 class APIKeySerializer(serializers.HyperlinkedModelSerializer):

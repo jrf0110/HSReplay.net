@@ -1,4 +1,3 @@
-from enum import IntEnum
 from math import ceil
 from django.conf import settings
 from django.db import models
@@ -6,7 +5,7 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django_intenum import IntEnumField
 from hearthstone.enums import BnetGameType, BnetRegion, FormatType, PlayState
-from hsreplaynet.api.models import AuthToken
+from hsreplaynet.accounts.models import AuthToken, Visibility
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.utils.fields import PlayerIDField, ShortUUIDField
 from hsreplaynet.utils.synchronization import acquire_redshift_lock, release_redshift_lock
@@ -286,11 +285,6 @@ class GlobalGamePlayer(models.Model):
 	@property
 	def hero_class_name(self):
 		return self.hero.card_class.name
-
-
-class Visibility(IntEnum):
-	Public = 1
-	Unlisted = 2
 
 
 class GameReplayManager(models.Manager):

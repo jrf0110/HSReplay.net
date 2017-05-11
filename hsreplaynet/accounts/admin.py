@@ -4,10 +4,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from djstripe.models import Customer
 from hsreplaynet.admin.paginators import EstimatedCountPaginator
-from hsreplaynet.api.admin import AuthToken
 from hsreplaynet.games.models import PegasusAccount
-from hsreplaynet.utils.admin import admin_urlify as urlify
-from .models import AccountClaim, AccountDeleteRequest, User
+from hsreplaynet.utils.admin import admin_urlify as urlify, set_user
+from .models import AccountClaim, AccountDeleteRequest, AuthToken, User
 
 
 class AuthTokenInline(admin.TabularInline):
@@ -103,3 +102,15 @@ class AccountDeleteRequestAdmin(admin.ModelAdmin):
 	date_hierarchy = "created"
 	raw_id_fields = ("user", )
 	search_fields = ("user__username", "reason")
+
+
+@admin.register(AuthToken)
+class AuthTokenAdmin(admin.ModelAdmin):
+	actions = (set_user, )
+	date_hierarchy = "created"
+	list_display = ("__str__", "user", "created", urlify("creation_apikey"), "test_data")
+	list_filter = ("test_data", )
+	raw_id_fields = ("user", )
+	search_fields = ("key", "user__username")
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator
