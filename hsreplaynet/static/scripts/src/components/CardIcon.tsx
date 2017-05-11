@@ -60,6 +60,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 							src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.card.id + ".png"}
 							style={imageStyle}
 							onMouseEnter={() => this.setState({hovering: false})}
+							alt={this.props.card ? this.props.card.name : null}
 						/>
 				);
 			}
@@ -73,7 +74,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 						style={style}
 						onMouseEnter={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
 						onMouseLeave={() => this.setState({hovering: false})}
-						aria-label={this.props.card.name}
+						aria-label={this.props.card.name + (this.props.mark ? " " + this.props.mark : "")}
 					>
 						{mark}
 						{tooltip}
