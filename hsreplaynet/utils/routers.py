@@ -54,17 +54,15 @@ class UploadEventsRouter(object):
 			return "default"
 
 	def allow_relation(self, obj1, obj2, **hints):
-		if obj1._meta.app_label == "uploads" and obj2._meta.app_label == "uploads":
+		if obj1._meta.app_label == "uploads" or obj2._meta.app_label == "uploads":
 			# Models within the uploads-db can have relationships with each other
-			return True
+			return obj1._meta.app_label == obj2._meta.app_label
 
-		# None indicates the router has no opinion
 		return None
 
 	def allow_migrate(self, db, app_label, model_name=None, **hints):
 		uploads_db = getattr(settings, "UPLOADS_DB", None)
-
-		if app_label == "uploads":
-			return db == uploads_db
+		if uploads_db and db == uploads_db:
+			return app_label == "uploads"
 
 		return None
