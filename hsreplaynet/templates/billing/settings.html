@@ -206,6 +206,7 @@
 				</tr>
 			{% endfor %}
 		</table>
+		<p class="help-block">Open payments are periodically retried using your default payment method. <a href="mailto:{% setting 'DEFAULT_FROM_EMAIL' %}">Contact us</a> if you need any help.</p>
 		{% else %}
 			<p>You have no recorded payments.</p>
 		{% endif %}
