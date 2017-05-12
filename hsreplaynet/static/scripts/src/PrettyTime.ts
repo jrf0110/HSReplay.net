@@ -5,5 +5,5 @@ export function getDuration(from: Date, to: Date): string {
 }
 
 export function getAge(since: Date): string {
-	return moment(since).fromNow();
+	return moment(since).utc().from(new Date());
 }
