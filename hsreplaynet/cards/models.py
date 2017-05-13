@@ -267,7 +267,7 @@ class Deck(models.Model):
 		return self.includes.all().select_related("card").only(*fields)
 
 	def get_absolute_url(self):
-		return reverse("deck_detail", kwargs={"id": self.id})
+		return reverse("deck_detail", kwargs={"id": self.shortid})
 
 	def save(self, *args, **kwargs):
 		EMPTY_DECK_DIGEST = "d41d8cd98f00b204e9800998ecf8427e"
