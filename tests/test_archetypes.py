@@ -48,18 +48,13 @@ freeze_mage_variation_short_partial_deck = [
 tempo_mage_variation_partial_deck = [
 	"NEW1_012",
 	"NEW1_012",
-	"EX1_277",
-	"EX1_277",
 	"KAR_009",
-	"AT_004",
-	"AT_004",
-	"CS2_024",
-	"CS2_024",
-	"EX1_608",
-	"EX1_608",
-	"CS2_025",
-	"EX1_012",
-	"OG_303",
+	"KAR_009",
+	"KAR_097",
+	"KAR_076",
+	"KAR_076",
+	"OG_090",
+	"OG_090",
 ]
 
 

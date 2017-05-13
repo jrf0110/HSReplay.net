@@ -199,8 +199,7 @@ class DeckManager(models.Manager):
 		return enums.FormatType.FT_UNKNOWN
 
 	def classify_deck_with_archetype(self, deck, player_class, format):
-		from hsreplaynet.cards.archetypes import classify_deck
-		archetype = classify_deck(deck, player_class, format)
+		archetype = Archetype.objects.classify_deck(deck, player_class, format)
 		if archetype:
 			deck.archetype = archetype
 			deck.save()
@@ -345,6 +344,20 @@ class ArchetypeManager(models.Manager):
 
 		return result
 
+	def classify_deck(self, deck, player_class, format):
+		distances = []
+		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
+		for archetype in Archetype.objects.filter(player_class=player_class):
+			distance = archetype.distance(deck, format)
+			if distance and distance >= distance_cutoff:
+				distances.append((archetype, distance))
+
+		distances = sorted(distances, key=lambda t: t[1], reverse=True)
+		if distances:
+			return distances[0][0]
+		else:
+			return None
+
 
 class Archetype(models.Model):
 	"""
@@ -358,6 +371,13 @@ class Archetype(models.Model):
 	objects = ArchetypeManager()
 	name = models.CharField(max_length=250, blank=True)
 	player_class = IntEnumField(enum=enums.CardClass, default=enums.CardClass.INVALID)
+
+	def distance(self, deck, format):
+		signature = self.get_signature(format)
+		if signature:
+			return signature.distance(deck)
+		else:
+			return None
 
 	def get_canonical_decks(self, format=enums.FormatType.FT_STANDARD, as_of=None):
 		if as_of is None:
@@ -375,8 +395,52 @@ class Archetype(models.Model):
 		else:
 			return None
 
+	def get_signature(self, format=enums.FormatType.FT_STANDARD, as_of=None):
+		if as_of is None:
+			return self.signature_set.filter(
+				format=format,
+			).order_by("-as_of").first()
+		else:
+			return self.canonical_decks.filter(
+				format=format,
+				as_of__lte=as_of
+			).order_by("-as_of").first()
+
 	def __str__(self):
 		return self.name
+
+
+class Signature(models.Model):
+	id = models.AutoField(primary_key=True)
+	archetype = models.ForeignKey(
+		Archetype,
+		on_delete=models.CASCADE
+	)
+	format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
+	as_of = models.DateTimeField()
+
+	def distance(self, deck):
+		dist = 0
+		card_counts = {i.card: i.count for i in deck.includes.all()}
+		for component in self.components.all():
+			if component.card in card_counts:
+				dist += (card_counts[component.card] * component.weight)
+		return dist
+
+
+class SignatureComponent(models.Model):
+	id = models.AutoField(primary_key=True)
+	signature = models.ForeignKey(
+		Signature,
+		related_name="components",
+		on_delete=models.CASCADE
+	)
+	card = models.ForeignKey(
+		Card,
+		related_name="signature_components",
+		on_delete=models.PROTECT
+	)
+	weight = models.FloatField(default=0.0)
 
 
 class CanonicalDeck(models.Model):

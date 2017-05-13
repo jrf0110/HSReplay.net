@@ -1,8 +1,11 @@
 import base64
 import pytest
 from django.core.management import call_command
+from django.utils import timezone
 from hearthstone.enums import CardClass, FormatType
-from hsreplaynet.cards.models import Archetype, CanonicalDeck, Deck
+from hsreplaynet.cards.models import (
+	Archetype, Card, Signature, SignatureComponent
+)
 
 
 def pytest_addoption(parser):
@@ -22,100 +25,63 @@ def django_db_setup(django_db_setup, django_db_blocker):
 @pytest.mark.django_db
 @pytest.yield_fixture(scope="module")
 def freeze_mage_archetype():
-	freeze_mage = [
-		"EX1_561",
-		"CS2_032",
-		"EX1_295",
-		"EX1_295",
-		"EX1_012",
-		"CS2_031",
-		"CS2_031",
-		"CS2_029",
-		"CS2_029",
-		"CS2_023",
-		"CS2_023",
-		"CS2_024",
-		"CS2_024",
-		"EX1_096",
-		"EX1_096",
-		"EX1_015",
-		"EX1_015",
-		"EX1_007",
-		"EX1_007",
-		"CS2_028",
-		"CS2_028",
-		"BRM_028",
-		"NEW1_021",
-		"NEW1_021",
-		"CS2_026",
-		"CS2_026",
-		"LOE_002",
-		"LOE_002",
-		"EX1_289",
-		"OG_082",
-	]
-
-	deck, deck_created = Deck.objects.get_or_create_from_id_list(freeze_mage)
+	signature_components = {
+		138: 20,  # Doomsayer
+		587: 20,  # Frostnova
+		662: 10,  # Frostbolt
+		457: 10,  # Blizzard
+		749: 10,  # Bloodmage
+		251: 10,  # Loothoarder
+	}
 	archetype, archetype_created = Archetype.objects.get_or_create(
 		name="Freeze Mage",
 		player_class=CardClass.MAGE
 	)
 	if archetype_created:
-		CanonicalDeck.objects.create(
+		signature = Signature.objects.create(
 			archetype=archetype,
-			deck=deck,
-			format=FormatType.FT_STANDARD
+			format=FormatType.FT_STANDARD,
+			as_of=timezone.now()
 		)
+		for dbf_id, weight in signature_components.items():
+			SignatureComponent.objects.create(
+				signature=signature,
+				card=Card.objects.filter(dbf_id=dbf_id).first(),
+				weight=weight
+			)
 	yield archetype
 
 
 @pytest.mark.django_db
 @pytest.yield_fixture(scope="module")
 def tempo_mage_archetype():
-	tempo_mage = [
-		"CS2_032",
-		"KAR_076",
-		"KAR_076",
-		"EX1_284",
-		"EX1_284",
-		"CS2_029",
-		"CS2_029",
-		"OG_303",
-		"OG_303",
-		"KAR_009",
-		"AT_004",
-		"AT_004",
-		"EX1_277",
-		"EX1_277",
-		"EX1_012",
-		"EX1_298",
-		"CS2_033",
-		"CS2_033",
-		"CS2_024",
-		"CS2_024",
-		"NEW1_012",
-		"NEW1_012",
-		"BRM_002",
-		"BRM_002",
-		"OG_207",
-		"OG_207",
-		"CS2_023",
-		"CS2_023",
-		"EX1_608",
-		"EX1_608",
-	]
+	signature_components = {
+		405: 10,  # Mana Wyrm
+		39169: 10,  # Babbling Book
+		1941: 10,  # Medivh
+		41878: 10,  # Meteor
+		40496: 10,  # Kabal Courier
+		41683: 10,  # Glutonous Ooze
+		39715: 10,  # Firelands Portal
+		38418: 10,  # Cabalist's Tomb
+	}
 
-	deck, deck_created = Deck.objects.get_or_create_from_id_list(tempo_mage)
 	archetype, archetype_created = Archetype.objects.get_or_create(
 		name="Tempo Mage",
 		player_class=CardClass.MAGE
 	)
 	if archetype_created:
-		CanonicalDeck.objects.create(
+		signature = Signature.objects.create(
 			archetype=archetype,
-			deck=deck,
-			format=FormatType.FT_STANDARD
+			format=FormatType.FT_STANDARD,
+			as_of=timezone.now()
 		)
+		for dbf_id, weight in signature_components.items():
+			SignatureComponent.objects.create(
+				signature=signature,
+				card=Card.objects.filter(dbf_id=dbf_id).first(),
+				weight=weight
+			)
 	yield archetype
 
 
