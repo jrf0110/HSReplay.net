@@ -18,14 +18,14 @@ from hsredshift.etl.exporters import (
 	CorruptReplayDataError, CorruptReplayPacketError, RedshiftPublishingExporter
 )
 from hsredshift.etl.firehose import flush_exporter_to_firehose
+from hsreplaynet.accounts.models import BlizzardAccount
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.utils.instrumentation import error_handler
 from .models import (
-	_generate_upload_path, GameReplay, GlobalGame, GlobalGamePlayer,
-	PegasusAccount, ReplayAlias
+	_generate_upload_path, GameReplay, GlobalGame, GlobalGamePlayer, ReplayAlias
 )
 
 
@@ -508,7 +508,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event):
 			# Replace with an empty deck
 			deck, _ = Deck.objects.get_or_create_from_id_list([])
 
-		# Create the PegasusAccount first
+		# Create the BlizzardAccount first
 		defaults = {
 			"region": BnetRegion.from_account_hi(player.account_hi),
 			"battletag": name,
@@ -520,17 +520,17 @@ def update_global_players(global_game, entity_tree, meta, upload_event):
 				# and user.battletag and user.battletag.startswith(player.name):
 				defaults["user"] = user
 
-		pegasus_account, created = PegasusAccount.objects.get_or_create(
+		blizzard_account, created = BlizzardAccount.objects.get_or_create(
 			account_hi=player.account_hi, account_lo=player.account_lo,
 			defaults=defaults
 		)
-		if not created and not pegasus_account.user and "user" in defaults:
-			# Set PegasusAccount.user if it's an available claim for the user
+		if not created and not blizzard_account.user and "user" in defaults:
+			# Set BlizzardAccount.user if it's an available claim for the user
 			influx_metric("pegasus_account_claimed", {"count": 1})
-			pegasus_account.user = defaults["user"]
-			pegasus_account.save()
+			blizzard_account.user = defaults["user"]
+			blizzard_account.save()
 
-		log.debug("Prepared PegasusAccount %r", pegasus_account)
+		log.debug("Prepared BlizzardAccount %r", blizzard_account)
 
 		# Now create the GlobalGamePlayer object
 		common = {
@@ -550,7 +550,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event):
 		update = {
 			"name": name,
 			"real_name": real_name,
-			"pegasus_account": pegasus_account,
+			"pegasus_account": blizzard_account,
 			"rank": player_meta.get("rank"),
 			"legend_rank": player_meta.get("legend_rank"),
 			"stars": player_meta.get("stars"),

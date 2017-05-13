@@ -46,5 +46,8 @@ class Migration(migrations.Migration):
                 ('completed_time', models.PositiveIntegerField()),
                 ('webhook', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='triggers', to='webhooks.Webhook')),
             ],
+            options={
+                'ordering': ('-created',),
+            },
         ),
     ]

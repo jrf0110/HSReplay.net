@@ -26,7 +26,7 @@ const availableAccounts = user.getAccounts();
 const defaultAccount = user.getDefaultAccountKey();
 
 if (viewType === ViewType.PERSONAL && !defaultAccount) {
-	Raven.captureMessage("User has no Pegasus account", {
+	Raven.captureMessage("User has no Blizzard account", {
 		level: "warning",
 	});
 }

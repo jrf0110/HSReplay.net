@@ -91,17 +91,17 @@
 	</div>
 </section>
 
-<section id="account-pegasus-accounts" class="box-section">
-	<h3>Connected Hearthstone accounts</h3>
+<section id="account-blizzard-accounts" class="box-section">
+	<h3>Connected earthstone accounts</h3>
 	<div class="inner">
 		<p>
 			These are the accounts you have uploaded replays with and can see statistics for.
 			If any of these are incorrect, please <a href="mailto:{% setting 'DEFAULT_FROM_EMAIL' %}">let us know</a>.
 		</p>
-		{% if user.pegasusaccount_set.count %}
+		{% if user.blizzard_accounts.count %}
 			<ul>
-			{% for pegasus_account in user.pegasusaccount_set.all %}
-				<li>{{ pegasus_account }}</li>
+			{% for blizzard_account in user.blizzard_accounts.all %}
+				<li>{{ blizzard_account }}</li>
 			{% endfor %}
 			</ul>
 		{% else %}

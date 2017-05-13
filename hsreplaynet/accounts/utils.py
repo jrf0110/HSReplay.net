@@ -23,8 +23,8 @@ def merge_users(base_user, user):
 	do_queryset(user.comment_comments)
 	do_queryset(user.comment_flags)
 
-	# Pegasus Accounts
-	do_queryset(user.pegasusaccount_set)
+	# Blizzard Accounts
+	do_queryset(user.blizzard_accounts)
 
 	# Emails
 	do_queryset(user.emailaddress_set)

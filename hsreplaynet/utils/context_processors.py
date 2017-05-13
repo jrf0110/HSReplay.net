@@ -30,7 +30,7 @@ def userdata(request):
 			data["staff"] = True
 
 		data["accounts"] = []
-		for acc in request.user.pegasusaccount_set.all():
+		for acc in request.user.blizzard_accounts.all():
 			data["accounts"].append({
 				"lo": acc.account_lo,
 				"battletag": acc.battletag,

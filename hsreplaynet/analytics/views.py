@@ -53,19 +53,19 @@ def _get_query_and_params(request, name):
 	if query.is_personalized:
 		if request.user and request.user.is_authenticated:
 			if "Region" not in supplied_params:
-				default_pegasus_account = request.user.pegasusaccount_set.first()
+				default_blizzard_account = request.user.blizzard_accounts.first()
 
-				if default_pegasus_account:
-					supplied_params["Region"] = default_pegasus_account.region.name
-					supplied_params["account_lo"] = default_pegasus_account.account_lo
+				if default_blizzard_account:
+					supplied_params["Region"] = default_blizzard_account.region.name
+					supplied_params["account_lo"] = default_blizzard_account.account_lo
 				else:
-					raise Http404("User does not have any Pegasus Accounts.")
+					raise Http404("User does not have any Blizzard Accounts.")
 			else:
-				user_owns_pegasus_account = request.user.pegasusaccount_set.filter(
+				user_owns_blizzard_account = request.user.blizzard_accounts.filter(
 					region__exact=int(supplied_params["Region"]),
 					account_lo__exact=int(supplied_params["account_lo"])
 				).exists()
-				if not user_owns_pegasus_account:
+				if not user_owns_blizzard_account:
 					return HttpResponseForbidden()
 
 			if supplied_params["Region"].isdigit():
@@ -74,11 +74,7 @@ def _get_query_and_params(request, name):
 
 			personal_parameterized_query = query.build_full_params(supplied_params)
 
-			if not user_is_eligible_for_query(
-				request.user,
-				query,
-				personal_parameterized_query
-			):
+			if not user_is_eligible_for_query(request.user, query, personal_parameterized_query):
 				return HttpResponseForbidden()
 
 			return personal_parameterized_query

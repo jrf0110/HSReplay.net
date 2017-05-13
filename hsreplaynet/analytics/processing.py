@@ -146,23 +146,21 @@ def get_new_redshift_connection(autocommit=True):
 
 
 class PremiumUserCacheWarmingContext:
-
-	def __init__(self, user, pegasus_account_map):
+	def __init__(self, user, blizzard_account_map):
 		self.user = user
-		self.pegasus_account_map = pegasus_account_map
+		self.blizzard_account_map = blizzard_account_map
 
 	@classmethod
 	def from_user(cls, user):
 		time_horizon = timezone.now() - timedelta(days=30)
-		pegasus_accounts = list(user.pegasusaccount_set.all())
-		pegasus_account_deck_map = defaultdict(lambda: defaultdict(set))
-		for pegasus_account in pegasus_accounts:
+		blizzard_accounts = list(user.blizzard_accounts.all())
+		blizzard_account_deck_map = defaultdict(lambda: defaultdict(set))
+		for blizzard_account in blizzard_accounts:
 			# Make sure this gets initialized if it exists
 			# even when there are no games attached
-			deck_map_for_account = pegasus_account_deck_map[pegasus_account]
-			ggps = pegasus_account.globalgameplayer_set.select_related(
-				"game",
-				"deck_list"
+			deck_map_for_account = blizzard_account_deck_map[blizzard_account]
+			ggps = blizzard_account.globalgameplayer_set.select_related(
+				"game", "deck_list"
 			).filter(game__match_start__gte=time_horizon)
 			for ggp in ggps.all():
 				deck = ggp.deck_list
@@ -170,18 +168,14 @@ class PremiumUserCacheWarmingContext:
 					game_type = ggp.game.game_type
 					deck_map_for_account[deck].add(game_type)
 
-		result = PremiumUserCacheWarmingContext(
-			user,
-			pegasus_account_deck_map
-		)
-		return result
+		return PremiumUserCacheWarmingContext(user, blizzard_account_deck_map)
 
 	@property
-	def pegasus_accounts(self):
-		return self.pegasus_account_map.keys()
+	def blizzard_accounts(self):
+		return self.blizzard_account_map.keys()
 
 	def get_deck_map_for_account(self, account):
-		return self.pegasus_account_map[account]
+		return self.blizzard_account_map[account]
 
 
 def warm_redshift_cache_for_user_context(context):
@@ -248,41 +242,34 @@ def get_personalized_queries_for_cache_warming(
 	queries = []
 	for query in redshift_catalogue.personalized_queries:
 		is_eligible = eligible_queries is None or query.name in eligible_queries
+
 		if query.cache_warming_enabled and is_eligible:
 			for permutation in query.generate_personalized_parameter_permutation_bases():
 				# Each permutation will still be missing a Region and account_lo value
 				for ctx in contexts:
-					for pegasus_account in ctx.pegasus_accounts:
+					for blizzard_account in ctx.blizzard_accounts:
 						new_permutation = copy.copy(permutation)
-						new_permutation["Region"] = pegasus_account.region.name
-						new_permutation["account_lo"] = pegasus_account.account_lo
+						new_permutation["Region"] = blizzard_account.region.name
+						new_permutation["account_lo"] = blizzard_account.account_lo
 						if "deck_id" in query.get_available_non_filter_parameters():
-							deck_map_for_account = ctx.get_deck_map_for_account(
-								pegasus_account
-							)
+							deck_map_for_account = ctx.get_deck_map_for_account(blizzard_account)
+
 							for deck, gts in deck_map_for_account.items():
 								if _permutation_matches_game_types(new_permutation, gts):
 									new_permutation_for_deck = copy.copy(new_permutation)
 									new_permutation_for_deck["deck_id"] = deck.id
-									msg = "Warming: %s: %s" % (
-										str(new_permutation_for_deck),
-										str(query.name)
-									)
-									log.info(msg)
+									log.info("Warming: %s: %s", new_permutation_for_deck, query.name)
 									queries.append({
 										"query_name": query.name,
-										"supplied_parameters": new_permutation_for_deck
+										"supplied_parameters": new_permutation_for_deck,
 									})
 						else:
-							msg = "Warming: %s: %s" % (
-								str(new_permutation),
-								str(query.name)
-							)
-							log.info(msg)
+							log.info("Warming: %s: %s", new_permutation, query.name)
 							queries.append({
 								"query_name": query.name,
 								"supplied_parameters": new_permutation
 							})
+
 	return queries
 
 

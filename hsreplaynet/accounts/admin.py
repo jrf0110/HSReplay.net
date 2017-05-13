@@ -4,9 +4,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from djstripe.models import Customer
 from hsreplaynet.admin.paginators import EstimatedCountPaginator
-from hsreplaynet.games.models import PegasusAccount
 from hsreplaynet.utils.admin import admin_urlify as urlify, set_user
-from .models import AccountClaim, AccountDeleteRequest, AuthToken, User
+from .models import AccountClaim, AccountDeleteRequest, AuthToken, BlizzardAccount, User
 
 
 class AuthTokenInline(admin.TabularInline):
@@ -17,8 +16,8 @@ class AuthTokenInline(admin.TabularInline):
 	show_change_link = True
 
 
-class PegasusAccountInline(admin.TabularInline):
-	model = PegasusAccount
+class BlizzardAccountInline(admin.TabularInline):
+	model = BlizzardAccount
 	extra = 0
 	readonly_fields = ("account_hi", "account_lo")
 	show_change_link = True
@@ -57,7 +56,7 @@ class UserAdmin(BaseUserAdmin):
 	)
 	list_filter = BaseUserAdmin.list_filter + ("is_fake", "default_replay_visibility")
 	inlines = (
-		EmailAddressInline, SocialAccountInline, PegasusAccountInline, AuthTokenInline,
+		EmailAddressInline, SocialAccountInline, BlizzardAccountInline, AuthTokenInline,
 		StripeCustomerInline
 	)
 	ordering = None
@@ -112,5 +111,18 @@ class AuthTokenAdmin(admin.ModelAdmin):
 	list_filter = ("test_data", )
 	raw_id_fields = ("user", )
 	search_fields = ("key", "user__username")
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator
+
+
+@admin.register(BlizzardAccount)
+class BlizzardAccountAdmin(admin.ModelAdmin):
+	list_display = (
+		"__str__", urlify("user"), "account_lo", "account_hi", "region", "created", "modified"
+	)
+	list_filter = ("region", )
+	raw_id_fields = ("user", )
+	search_fields = ("battletag", )
+	readonly_fields = ("created", "modified")
 	show_full_result_count = False
 	paginator = EstimatedCountPaginator

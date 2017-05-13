@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django_intenum import IntEnumField
+from hearthstone.enums import BnetRegion
 
 
 HEARTHSTONE_LOCALES = (
@@ -181,3 +182,43 @@ class AuthToken(models.Model):
 		if save:
 			self.save()
 		return user
+
+
+REGIONS = {
+	BnetRegion.REGION_UNKNOWN: "Unknown region",
+	BnetRegion.REGION_US: "North America (US)",
+	BnetRegion.REGION_EU: "Europe (EU)",
+	BnetRegion.REGION_KR: "Korea (KR)",
+	BnetRegion.REGION_CN: "China (CN)",
+	BnetRegion.REGION_TW: "South East Asia (SEA)",
+}
+
+
+class BlizzardAccount(models.Model):
+	id = models.BigAutoField(primary_key=True)
+
+	account_hi = models.BigIntegerField(
+		"Account Hi",
+		help_text="The region value from account hilo"
+	)
+	account_lo = models.BigIntegerField(
+		"Account Lo",
+		help_text="The account ID value from account hilo"
+	)
+	region = IntEnumField(enum=BnetRegion)
+	battletag = models.CharField(max_length=64, blank=True)
+
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+		null=True, blank=True, related_name="blizzard_accounts"
+	)
+	created = models.DateTimeField(auto_now_add=True)
+	modified = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		db_table = "games_pegasusaccount"
+		unique_together = ("account_hi", "account_lo")
+
+	def __str__(self):
+		region = REGIONS.get(self.region, "Dev. region")
+		return "%s - %s" % (self.battletag, region)

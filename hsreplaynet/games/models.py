@@ -4,7 +4,7 @@ from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django_intenum import IntEnumField
-from hearthstone.enums import BnetGameType, BnetRegion, FormatType, PlayState
+from hearthstone.enums import BnetGameType, FormatType, PlayState
 from hsreplaynet.accounts.models import AuthToken, Visibility
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.utils.fields import PlayerIDField, ShortUUIDField
@@ -19,44 +19,6 @@ def _generate_upload_path(timestamp, shortid):
 def generate_upload_path(instance, filename):
 	ts = instance.global_game.match_start
 	return _generate_upload_path(ts, instance.shortid)
-
-
-REGIONS = {
-	BnetRegion.REGION_UNKNOWN: "Unknown region",
-	BnetRegion.REGION_US: "North America (US)",
-	BnetRegion.REGION_EU: "Europe (EU)",
-	BnetRegion.REGION_KR: "Korea (KR)",
-	BnetRegion.REGION_CN: "China (CN)",
-	BnetRegion.REGION_TW: "South East Asia (SEA)",
-}
-
-
-class PegasusAccount(models.Model):
-	id = models.BigAutoField(primary_key=True)
-
-	account_hi = models.BigIntegerField(
-		"Account Hi",
-		help_text="The region value from account hilo"
-	)
-	account_lo = models.BigIntegerField(
-		"Account Lo",
-		help_text="The account ID value from account hilo"
-	)
-	region = IntEnumField(enum=BnetRegion)
-	battletag = models.CharField(max_length=64, blank=True)
-
-	user = models.ForeignKey(
-		settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
-	)
-	created = models.DateTimeField(auto_now_add=True)
-	modified = models.DateTimeField(auto_now=True)
-
-	class Meta:
-		unique_together = ("account_hi", "account_lo")
-
-	def __str__(self):
-		region = REGIONS.get(self.region, "Dev. region")
-		return "%s - %s" % (self.battletag, region)
 
 
 class GlobalGame(models.Model):
@@ -216,7 +178,7 @@ class GlobalGamePlayer(models.Model):
 	real_name = models.CharField("Real name", blank=True, max_length=64)
 
 	player_id = PlayerIDField(blank=True)
-	pegasus_account = models.ForeignKey(PegasusAccount, on_delete=models.PROTECT)
+	pegasus_account = models.ForeignKey("accounts.BlizzardAccount", on_delete=models.PROTECT)
 	is_ai = models.BooleanField(
 		"Is AI", default=False,
 		help_text="Whether the player is an AI.",

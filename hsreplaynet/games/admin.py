@@ -3,7 +3,7 @@ from hsreplaynet.admin.paginators import EstimatedCountPaginator
 from hsreplaynet.uploads.models import UploadEvent
 from hsreplaynet.uploads.processing import queue_upload_event_for_reprocessing
 from hsreplaynet.utils.admin import admin_urlify as urlify, set_user
-from .models import GameReplay, GlobalGame, GlobalGamePlayer, PegasusAccount
+from .models import GameReplay, GlobalGame, GlobalGamePlayer
 
 
 def queue_for_reprocessing(admin, request, queryset):
@@ -98,18 +98,5 @@ class GlobalGamePlayerAdmin(admin.ModelAdmin):
 	list_filter = ("is_ai", "is_first", "hero_premium", "final_state", "player_id")
 	raw_id_fields = ("game", "hero", "deck_list", "pegasus_account")
 	search_fields = ("name", )
-	show_full_result_count = False
-	paginator = EstimatedCountPaginator
-
-
-@admin.register(PegasusAccount)
-class PegasusAccountAdmin(admin.ModelAdmin):
-	list_display = (
-		"__str__", urlify("user"), "account_lo", "account_hi", "region", "created", "modified"
-	)
-	list_filter = ("region", )
-	raw_id_fields = ("user", )
-	search_fields = ("battletag", )
-	readonly_fields = ("created", "modified")
 	show_full_result_count = False
 	paginator = EstimatedCountPaginator
