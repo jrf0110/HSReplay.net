@@ -215,7 +215,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<ul>
 					<li>
 						Class
-						<span className="infobox-value">{toTitleCase(this.props.deckClass)}</span>
+						<a
+							className="infobox-value"
+							href={"/decks/#playerClasses=" + this.props.deckClass}
+						>
+							{toTitleCase(this.props.deckClass)}
+						</a>
 					</li>
 					<li>
 						Cost
