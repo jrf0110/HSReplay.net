@@ -63,7 +63,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			viewType,
 			working: true,
 		};
-		this.query("https://hsreplay.net/api/v1/games/?username=" + encodeURIComponent(props.username));
+		this.query("/api/v1/games/?username=" + encodeURIComponent(props.username));
 	}
 
 	protected query(url: string) {
