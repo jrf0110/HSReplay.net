@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from hsreplaynet.api.models import APIKey
+from hearthsim_identity.api.models import APIKey
 from hsreplaynet.uploads.models import UploadEventStatus
 
 

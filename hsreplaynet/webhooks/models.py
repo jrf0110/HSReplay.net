@@ -4,7 +4,6 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from hsreplaynet.accounts.models import User
 from .validators import WebhookURLValidator
 
 
@@ -18,7 +17,9 @@ class Webhook(models.Model):
 		validators=[WebhookURLValidator()],
 		help_text="The URL the webhook will POST to."
 	)
-	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="webhooks")
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="webhooks"
+	)
 	is_active = models.BooleanField(default=True)
 	is_deleted = models.BooleanField(default=False)
 	max_triggers = models.PositiveSmallIntegerField(
@@ -44,8 +45,6 @@ class Webhook(models.Model):
 		self.save()
 
 	def trigger(self, data):
-		from django.conf import settings
-
 		payload = {
 			"webhook_uuid": str(self.uuid),
 			"url": self.url,

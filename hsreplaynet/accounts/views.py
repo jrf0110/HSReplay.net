@@ -9,11 +9,11 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, UpdateView, View
+from hearthsim_identity.accounts.models import AccountClaim, AccountDeleteRequest, User
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils import get_uuid_object_or_404, log
 from hsreplaynet.utils.html import RequestMetaMixin
 from hsreplaynet.utils.influx import influx_metric
-from .models import AccountClaim, AccountDeleteRequest, User
 
 
 class LoginView(BaseLoginView):

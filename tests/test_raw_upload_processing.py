@@ -2,8 +2,8 @@ import json
 import os
 import pytest
 from django.core.files.storage import default_storage
-from hsreplaynet.accounts.models import AuthToken
-from hsreplaynet.api.models import APIKey
+from hearthsim_identity.accounts.models import AuthToken
+from hearthsim_identity.api.models import APIKey
 from hsreplaynet.lambdas.uploads import process_raw_upload
 from hsreplaynet.uploads.models import _generate_upload_key, UploadEvent
 

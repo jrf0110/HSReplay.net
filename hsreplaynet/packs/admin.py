@@ -1,5 +1,5 @@
 from django.contrib import admin
-from hsreplaynet.utils.admin import admin_urlify as urlify
+from hearthsim_identity.utils import admin_urlify as urlify
 from .models import Pack, PackCard
 
 

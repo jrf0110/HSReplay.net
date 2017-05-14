@@ -5,7 +5,7 @@ from django.core.files.storage import default_storage
 from hearthstone.enums import PlayState
 from oauth2_provider.models import AccessToken, Grant
 from rest_framework.serializers import ValidationError
-from hsreplaynet.accounts.models import AccountClaim, AuthToken, User
+from hearthsim_identity.accounts.models import AccountClaim, AuthToken, User
 from hsreplaynet.api.serializers import SmartFileField
 from hsreplaynet.oauth2.models import Application
 from hsreplaynet.webhooks.models import Webhook

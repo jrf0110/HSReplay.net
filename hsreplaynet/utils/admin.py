@@ -2,9 +2,6 @@ from django import forms
 from django.contrib.admin import ACTION_CHECKBOX_NAME
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import NoReverseMatch, reverse
-from django.utils.html import format_html
-from hsreplaynet.accounts.models import User
 
 
 def set_field_admin_action(qs, field_name):
@@ -37,26 +34,3 @@ def set_field_admin_action(qs, field_name):
 	set_field.short_description = "Set %s to..." % (field_name)
 
 	return set_field
-
-
-set_user = set_field_admin_action(User.objects, "user")
-
-
-def admin_urlify(column):
-	def inner(obj):
-		_obj = getattr(obj, column)
-		if _obj is None:
-			return "-"
-		try:
-			url = _obj.get_absolute_url()
-		except (AttributeError, NoReverseMatch):
-			url = ""
-		admin_pattern = "admin:%s_%s_change" % (_obj._meta.app_label, _obj._meta.model_name)
-		admin_url = reverse(admin_pattern, args=[_obj.pk])
-
-		ret = format_html('<a href="{url}">{obj}</a>', url=admin_url, obj=_obj)
-		if url:
-			ret += format_html(' (<a href="{url}">View</a>)', url=url)
-		return ret
-	inner.short_description = column.replace("_", " ")
-	return inner

@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from .models import APIKey
+from hearthsim_identity.api.models import APIKey
 
 
 class APIKeyPermission(permissions.BasePermission):

@@ -5,9 +5,9 @@ from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateMo
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.viewsets import GenericViewSet
+from hearthsim_identity.accounts.models import AccountClaim, AuthToken
 from hsreplaynet.api.authentication import AuthTokenAuthentication, RequireAuthToken
 from hsreplaynet.api.permissions import APIKeyPermission
-from .models import AccountClaim, AuthToken
 
 
 class AccountClaimSerializer(serializers.Serializer):

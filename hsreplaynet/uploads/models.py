@@ -361,7 +361,7 @@ class UploadEvent(models.Model):
 	@property
 	def token(self):
 		if not hasattr(self, "_token"):
-			from hsreplaynet.accounts.models import AuthToken
+			from hearthsim_identity.accounts.models import AuthToken
 			if self.token_uuid:
 				self._token = AuthToken.objects.get(key=self.token_uuid)
 			else:
@@ -378,7 +378,7 @@ class UploadEvent(models.Model):
 	@property
 	def api_key(self):
 		if not hasattr(self, "_api_key"):
-			from hsreplaynet.api.models import APIKey
+			from hearthsim_identity.api.models import APIKey
 			if self.api_key_id:
 				self._api_key = APIKey.objects.get(id=self.api_key_id)
 			else:

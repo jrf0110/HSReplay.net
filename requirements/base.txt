@@ -3,6 +3,7 @@
 hearthstone
 hslog==1.0.0
 hsreplay==1.4.2
+-e git+https://github.com/HearthSim/hearthsim-identity.git#egg=hearthsim_identity
 
 aniso8601==1.2.0
 boto3==1.4.4

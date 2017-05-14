@@ -14,11 +14,11 @@ from hslog.exceptions import ParsingError
 from hslog.export import EntityTreeExporter, FriendlyPlayerExporter
 from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
+from hearthsim_identity.accounts.models import BlizzardAccount
 from hsredshift.etl.exporters import (
 	CorruptReplayDataError, CorruptReplayPacketError, RedshiftPublishingExporter
 )
 from hsredshift.etl.firehose import flush_exporter_to_firehose
-from hsreplaynet.accounts.models import BlizzardAccount
 from hsreplaynet.cards.models import Card, Deck
 from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log

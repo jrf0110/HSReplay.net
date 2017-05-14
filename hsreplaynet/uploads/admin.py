@@ -1,6 +1,5 @@
 from django.contrib import admin
-from hsreplaynet.admin.paginators import EstimatedCountPaginator
-from hsreplaynet.utils.admin import admin_urlify as urlify
+from hearthsim_identity.utils import admin_urlify as urlify, EstimatedCountPaginator
 from .models import UploadEvent
 from .processing import queue_upload_events_for_reprocessing
 

@@ -1,8 +1,7 @@
 from django.contrib import admin
-from hsreplaynet.admin.paginators import EstimatedCountPaginator
+from hearthsim_identity.utils import admin_urlify as urlify, EstimatedCountPaginator
 from hsreplaynet.uploads.models import UploadEvent
 from hsreplaynet.uploads.processing import queue_upload_event_for_reprocessing
-from hsreplaynet.utils.admin import admin_urlify as urlify, set_user
 from .models import GameReplay, GlobalGame, GlobalGamePlayer
 
 
@@ -40,7 +39,7 @@ class GameReplayInline(admin.StackedInline):
 
 @admin.register(GameReplay)
 class GameReplayAdmin(admin.ModelAdmin):
-	actions = (set_user, queue_for_reprocessing)
+	actions = (queue_for_reprocessing, )
 	list_display = (
 		"__str__", urlify("user"), urlify("global_game"), "visibility",
 		"build", "client_handle", "views", "replay_xml", "upload_event"
@@ -90,7 +89,6 @@ class GlobalGameAdmin(admin.ModelAdmin):
 
 @admin.register(GlobalGamePlayer)
 class GlobalGamePlayerAdmin(admin.ModelAdmin):
-	actions = (set_user, )
 	list_display = (
 		"__str__", "pegasus_account", urlify("hero"), "is_first",
 		"rank", "stars", "legend_rank", "final_state"

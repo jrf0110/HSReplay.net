@@ -7,10 +7,10 @@ from zlib import decompress
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from hsreplay.document import HSReplayDocument
+from hearthsim_identity.accounts.models import AuthToken
+from hearthsim_identity.api.models import APIKey
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
-from hsreplaynet.accounts.models import AuthToken
-from hsreplaynet.api.models import APIKey
 from hsreplaynet.api.serializers import UploadEventSerializer
 from hsreplaynet.uploads.models import (
 	_generate_upload_key, RawUpload, UploadEvent, UploadEventStatus

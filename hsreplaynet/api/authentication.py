@@ -1,7 +1,7 @@
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import BasePermission
-from hsreplaynet.accounts.models import AuthToken
+from hearthsim_identity.accounts.models import AuthToken
 
 
 class RequireAuthToken(BasePermission):
