@@ -29,6 +29,10 @@
 		border-color: white;
 	}
 
+	.btn-group .btn + .btn {
+		border-left-color: $red;
+	}
+
 	.promo-button-outline, .promo-button-outline:visited {
 		color: white;
 		border-color: white;

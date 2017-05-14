@@ -25,13 +25,45 @@
 		background-color: $premium;
 		color: black;
 	}
+
+	.btn-group > &:first-child {
+		padding-left: 20px;
+		padding-right: 15px;
+	}
+
+	.btn-group > .btn + &.btn {
+		border-left: solid 1px white;
+	}
+
+	.btn-group > .btn + &.dropdown-toggle {
+		padding-left: 15px;
+		padding-right: 15px;
+	}
+
+	.btn-group > &.dropdown-toggle ~ .dropdown-menu {
+		width: 100%;
+		border-radius: 0;
+		background-color: white;
+		margin-top: 0;
+
+		> li {
+			> a {
+				text-transform: none;
+			}
+
+			&:hover > a {
+				color: white;
+				background-color: $red;
+			}
+		}
+	}
 }
 
 .promo-button {
 	text-transform: uppercase;
 }
 
-.promo-button:hover, .promo-button:active {
+.promo-button:hover, .promo-button:active, .promo-button:focus {
 	text-decoration: none;
 
 	color: $red;

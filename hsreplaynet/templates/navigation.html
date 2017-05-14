@@ -122,7 +122,9 @@
 						</li>
 					{% elif not hide_login %}
 						<li class="button-container">
-							{% include "login_button.html" with class="promo-button" next=request.path|urlencode %}
+							<a href="{% url 'account_login' %}?next={{ request.path|urlencode }}" class="btn promo-button">
+								Log in or create account
+							</a>
 						</li>
 					{% endif %}
 				</ul>

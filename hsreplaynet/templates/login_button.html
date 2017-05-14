@@ -2,13 +2,28 @@
 {% load web_extras %}
 
 {% setting "ENV_VAGRANT" as vagrant %}
-<a
-	{# This is to support login with battle.net on local dev #}
-	{% if vagrant %}
-		href="https://localhost:8443{% provider_login_url 'battlenet' next=next %}"
-	{% else %}
-		href="{% provider_login_url 'battlenet' next=next %}"
-	{% endif %}
-		class="{{ class|default:"btn promo-button hero-button" }}">
+<div class="btn-group">
+	<a
+		href="{% if vagrant %}https://localhost:8443{% endif %}{% provider_login_url 'battlenet' next=next %}"
+		class="{{ class|default:"btn promo-button hero-button" }}"
+	>
 	{{ inscription|default:'Log in with Battle.net' }}
-</a>
+	</a>
+	<button
+		type="button"
+		class="{{ class|default:"btn promo-button hero-button" }} dropdown-toggle"
+		data-toggle="dropdown"
+		aria-haspopup="true"
+		aria-expanded="false"
+	>
+		<span class="caret"></span>
+		<span class="sr-only">Toggle Dropdown</span>
+	</button>
+	<ul class="dropdown-menu">
+		<li>
+			<a href="{% if vagrant %}https://localhost:8443{% endif %}{% provider_login_url 'battlenet' region='cn' next=next %}">
+				Region China (CN)&hellip;
+			</a>
+		</li>
+	</ul>
+</div>
