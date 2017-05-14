@@ -1,5 +1,5 @@
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
-from ...models import User
 from ...utils import merge_users
 
 
@@ -11,6 +11,7 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		base_username = options["base_user"]
 		username = options["user"]
+		User = get_user_model()
 
 		try:
 			base_user = User.objects.get(username=base_username[0])
