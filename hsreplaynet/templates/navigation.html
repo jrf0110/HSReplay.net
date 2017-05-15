@@ -116,8 +116,8 @@
 							<li{% nav_active 'account_edit' css="active" %}>
 								<a href="{% url 'account_edit' %}" id="you">
 						{% endif %}
-						<span class="custom-icon" style="background-image: url('{% static 'images/bnet.png' %}')"></span>
-						{{ user.username }}
+							<span class="glyphicon glyphicon-cog"></span>
+							<span>{{ user.username }}</span>
 						</a>
 						</li>
 					{% elif not hide_login %}

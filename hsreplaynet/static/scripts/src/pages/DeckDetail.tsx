@@ -467,7 +467,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<p>You play this deck? Want to see card statistics based on your games?</p>
 					<p className="login-button">
 						<a className="btn promo-button hero-button" href={`/account/battlenet/login/?next=/decks/${this.props.deckId}/`}>
-							Log in with battle.net
+							Log in with Blizzard
 						</a>
 					</p>
 					<p className="help-block"><i>We are only able to include games recorded by Hearthstone Deck Tracker.</i></p>

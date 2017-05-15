@@ -9,7 +9,7 @@
 		{% if account.extra_data.battletag %}
 			<p>
 				<input type="hidden" name="username" value="{{ account.extra_data.battletag }}"/>
-				Signing up with <strong>{{ account.extra_data.battletag|default:"Battle.net" }}</strong>.
+				Signing up with <strong>{{ account.extra_data.battletag|default:"Blizzard" }}</strong>.
 				<em>(You can change this later.)</em>
 			</p>
 		{% else %}
@@ -19,7 +19,7 @@
 				</label>
 				{% if form.username.errors %}<small class="help-inline">{{ form.username.errors.0 }}</small>{% endif %}
 				<small class="form-text text-muted">
-					Your Battle.net account does not appear to have a battletag yet.
+					Your Blizzard account does not appear to have a battletag yet.
 					You get to choose your own username!
 				</small>
 			</p>

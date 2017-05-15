@@ -35,7 +35,7 @@
 				<p>
 					<a href="{% url 'my_replays' %}" class="promo-button">My Replays</a>
 					<a href="{% url 'account_edit' %}" class="promo-button-outline">
-						<img src="{% static 'images/bnet.png' %}" alt="Battle.net Icon" />
+						<span class="glyphicon glyphicon-cog"></span>
 						<span>{{ user.username }}</span>
 					</a>
 				</p>
@@ -45,8 +45,7 @@
 			{% else %}
 				{% include 'login_button.html' %}
 				<p class="promo-help">
-					You don't need a new account&mdash;we use <img src="{% static 'images/bnet.png' %}" alt=" Battle.net Icon" />
-					<abbr title="We'll send you to the offical Battle.net site where you can securely log in.&#10;HSReplay.net does not gain access to your Battle.net email address or password.">Battle.net</abbr>.
+					You don't need a new account&mdash;we use the secure <abbr title="We'll send you to the offical Blizzard site where you can securely log in.&#10;HSReplay.net does not gain access to your Blizzard email address or password.">Blizzard login</abbr>.
 				</p>
 			{% endif %}
 		</div>
@@ -140,7 +139,11 @@
 			<p class="front-pad"><a href="{% url 'my_replays' %}" class="promo-button hero-button">View your replays</a></p>
 		{% else %}
 			<h2>Let's get started:</h2>
-			<div class="front-pad">{% include 'login_button.html' %}</div>
+			<p class="front-pad-top">{% include 'login_button.html' %}</p>
+			<p class="help-block">
+				We'll send you to the offical Blizzard site where you can securely log in.<br />
+				Blizzard will redirect you back here once you're done.
+			</p>
 		{% endif %}
 	</article>
 
@@ -152,8 +155,8 @@
 					<dl>
 						<dt>How do I sign in?</dt>
 						<dd>
-							Click on the "Log in with Battle.net" button and we'll securely send you to Blizzard.
-							This is <a href="https://dev.battle.net/docs/read/log_in_with_blizzard#main" target="_blank">officially supported</a>, and
+							Click on the "Log in with Blizzard" button and we'll securely send you to Blizzard.
+							This is <a href="https://dev.battle.net/docs/read/log_in_with_blizzard#main" target="_blank">an official feature</a>, and
 							HSReplay.net never gains access to your password.
 						</dd>
 						<dt>Do I need to sign in?</dt>
