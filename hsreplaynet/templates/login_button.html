@@ -20,9 +20,15 @@
 		<span class="sr-only">Toggle Dropdown</span>
 	</button>
 	<ul class="dropdown-menu">
+		<li class="dropdown-header">Regions</li>
+		<li>
+			<a href="{% if vagrant %}https://localhost:8443{% endif %}{% provider_login_url 'battlenet' next=next %}">
+				Blizzard (US/EU/SEA)&hellip;
+			</a>
+		</li>
 		<li>
 			<a href="{% if vagrant %}https://localhost:8443{% endif %}{% provider_login_url 'battlenet' region='cn' next=next %}">
-				Region China (CN)&hellip;
+				Blizzard China (CN)&hellip;
 			</a>
 		</li>
 	</ul>

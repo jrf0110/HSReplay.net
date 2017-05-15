@@ -47,6 +47,13 @@
 		margin-top: 0;
 
 		> li {
+			color: black;
+
+			&.dropdown-header {
+				font-weight: bold;
+				padding-left: 10px;
+			}
+
 			> a {
 				text-transform: none;
 			}
