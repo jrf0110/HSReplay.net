@@ -1,9 +1,12 @@
 from datetime import datetime
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import Http404, HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http import (
+	Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
+)
 from django.views.decorators.http import condition
 from hsredshift.analytics.filters import Region
+from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet.cards.models import Deck
 from hsreplaynet.utils import influx, log
 from .processing import (
@@ -33,7 +36,7 @@ def release_semaphore(request, name):
 
 def fetch_query_result_as_of(request, name):
 	parameterized_query = _get_query_and_params(request, name)
-	if isinstance(parameterized_query, HttpResponseForbidden):
+	if issubclass(parameterized_query.__class__, HttpResponse):
 		return None
 
 	return parameterized_query.result_as_of
@@ -72,7 +75,12 @@ def _get_query_and_params(request, name):
 				region_member = Region.from_int(int(supplied_params["Region"]))
 				supplied_params["Region"] = region_member.name
 
-			personal_parameterized_query = query.build_full_params(supplied_params)
+			try:
+				personal_parameterized_query = query.build_full_params(supplied_params)
+			except InvalidOrMissingQueryParameterError as e:
+				# Return a 400 Bad Request response
+				log.warn(str(e))
+				return HttpResponseBadRequest()
 
 			if not user_is_eligible_for_query(request.user, query, personal_parameterized_query):
 				return HttpResponseForbidden()
@@ -83,8 +91,13 @@ def _get_query_and_params(request, name):
 			# Anonymous or Fake Users Can Never Request Personal Stats
 			return HttpResponseForbidden()
 	else:
+		try:
+			parameterized_query = query.build_full_params(supplied_params)
+		except InvalidOrMissingQueryParameterError as e:
+			# Return a 400 Bad Request response
+			log.warn(str(e))
+			return HttpResponseBadRequest()
 
-		parameterized_query = query.build_full_params(supplied_params)
 		if not user_is_eligible_for_query(request.user, query, parameterized_query):
 			return HttpResponseForbidden()
 
@@ -104,12 +117,13 @@ def user_is_eligible_for_query(user, query, params):
 @condition(last_modified_func=fetch_query_result_as_of)
 def fetch_query_results(request, name):
 	parameterized_query = _get_query_and_params(request, name)
-	if isinstance(parameterized_query, HttpResponseForbidden):
+	if issubclass(parameterized_query.__class__, HttpResponse):
 		return parameterized_query
 
 	return _fetch_query_results(parameterized_query)
 
 
+@staff_member_required
 @condition(last_modified_func=fetch_query_result_as_of)
 def fetch_local_query_results(request, name):
 	# This end point is intended only for administrator use.
