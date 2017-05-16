@@ -60,6 +60,7 @@ module.exports = (env) => {
 	// define entry points and groups with common code
 	const makeEntry = (name) => path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name);
 	const entries = {
+		app: ["babel-polyfill", "whatwg-fetch", makeEntry("polyfills")],
 		my_replays: makeEntry("my_replays"),
 		replay_detail: makeEntry("replay_detail"),
 		replay_embed: makeEntry("replay_embed"),
@@ -75,7 +76,6 @@ module.exports = (env) => {
 		victory_widgets: makeEntry("victory_widgets"),
 		articles: makeEntry("articles"),
 		premium_modal: makeEntry("premium_modal"),
-		polyfills: ["babel-polyfill", "whatwg-fetch", makeEntry("polyfills")],
 	};
 
 	// flatten the entry points for config
