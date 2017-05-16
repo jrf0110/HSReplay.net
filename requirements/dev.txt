@@ -1,6 +1,6 @@
 # Additional requirements for development
 
--r tests.txt
+-r web.txt
 
 q
 django-sslserver
