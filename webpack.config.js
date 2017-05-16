@@ -60,7 +60,14 @@ module.exports = (env) => {
 	// define entry points and groups with common code
 	const makeEntry = (name) => path.join(__dirname, "hsreplaynet/static/scripts/src/entries/", name);
 	const entries = {
-		app: ["babel-polyfill", "whatwg-fetch", makeEntry("polyfills")],
+		app: [
+			"babel-polyfill",
+			"whatwg-fetch",
+			makeEntry("polyfills"),
+			"i18next",
+			"react-i18next",
+			path.join(__dirname, "hsreplaynet/static/scripts/src/i18n")
+		],
 		my_replays: makeEntry("my_replays"),
 		replay_detail: makeEntry("replay_detail"),
 		replay_embed: makeEntry("replay_embed"),
@@ -143,7 +150,10 @@ module.exports = (env) => {
 		plugins: [
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
 			new webpack.DefinePlugin(settings),
-		].concat(commons),
+			new webpack.optimize.CommonsChunkPlugin({
+				name: "app",
+				minChunks: Infinity,
+			})].concat(commons),
 		watchOptions: {
 			// required in the Vagrant setup due to Vagrant inotify not working
 			poll: true
