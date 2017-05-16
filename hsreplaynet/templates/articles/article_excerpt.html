@@ -13,14 +13,18 @@
 	<div class="article-contents markdown">
 		{{ article.get_excerpt|markdownify }}
 		<p class="article-read-more">
-			<a href="{{ article.get_absolute_url }}">Read full article</a>
+			<a href="{{ article.get_absolute_url }}">Read full article&hellip;</a>
 		</p>
 	</div>
 
 	<footer class="article-footer">
 		<span class="article-authorship">
 			<time pubdate="pubdate" datetime="{{ article.pubdate|date:'c' }}">{{ article.pubdate|naturaltime }}</time>
+			{% if article.author.get_absolute_url %}
 			by <a href="{{ article.author.get_absolute_url }}">{{ article.author }}</a>
+			{% else %}
+			by {{ article.author }}
+			{% endif %}
 		</span>
 		<a href="{{ article.get_absolute_url }}#comments" class="comment-count">
 			{% if comment_count == 0 %}

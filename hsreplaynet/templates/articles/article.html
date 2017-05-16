@@ -7,7 +7,11 @@
 	<header class="article-header">
 		<p class="article-metadata">
 			<time pubdate="pubdate" datetime="{{ article.pubdate|date:'c' }}">{{ article.pubdate }}</time> &middot;
+			{% if article.author.get_absolute_url %}
 			<a href="{{ article.author.get_absolute_url }}">{{ article.author }}</a>
+			{% else %}
+			{{ article.author }}
+			{% endif %}
 			{% if user.is_staff or user == article.author %}
 				&middot; <a href="{% url 'admin:articles_article_change' article.pk %}">Edit</a>
 			{% endif %}
