@@ -5,6 +5,8 @@ import CardDiscover, {ViewType} from "../pages/CardDiscover";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import * as Raven from "raven-js";
+import {I18nextProvider} from "react-i18next";
+import i18n from "../i18n";
 
 const container = document.getElementById("card-container");
 let viewType = ViewType.STATISTICS;
@@ -33,36 +35,38 @@ if (viewType === ViewType.PERSONAL && !defaultAccount) {
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
-		<Fragments
-			defaults={{
-				text: "",
-				account: defaultAccount,
-				showSparse: false,
-				format: "",
-				gameType: "RANKED_STANDARD",
-				playerClass: "ALL",
-				rankRange: "ALL",
-				timeRange: viewType === ViewType.PERSONAL ? "LAST_30_DAYS" : "LAST_14_DAYS",
-				exclude: "",
-				cost: [],
-				rarity: [],
-				set: [],
-				type: [],
-				race: [],
-				mechanics: [],
-				sortBy: "timesPlayed",
-				sortDirection: "descending",
-			}}
-			debounce="text"
-			immutable={user.isPremium() ? null : ["rankRange", "timeRange"]}
-		>
-			<CardDiscover
-				cardData={cardData}
-				user={user}
-				viewType={viewType}
-				accounts={availableAccounts}
-			/>
-		</Fragments>,
+		<I18nextProvider i18n={i18n}>
+			<Fragments
+				defaults={{
+					text: "",
+					account: defaultAccount,
+					showSparse: false,
+					format: "",
+					gameType: "RANKED_STANDARD",
+					playerClass: "ALL",
+					rankRange: "ALL",
+					timeRange: viewType === ViewType.PERSONAL ? "LAST_30_DAYS" : "LAST_14_DAYS",
+					exclude: "",
+					cost: [],
+					rarity: [],
+					set: [],
+					type: [],
+					race: [],
+					mechanics: [],
+					sortBy: "timesPlayed",
+					sortDirection: "descending",
+				}}
+				debounce="text"
+				immutable={user.isPremium() ? null : ["rankRange", "timeRange"]}
+			>
+				<CardDiscover
+					cardData={cardData}
+					user={user}
+					viewType={viewType}
+					accounts={availableAccounts}
+				/>
+			</Fragments>
+		</I18nextProvider>,
 		container,
 	);
 };

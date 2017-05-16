@@ -17,6 +17,7 @@ import {cardSorting, cleanText, isWildSet, setNames, slangToCardId, toTitleCase}
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
 import {FragmentChildProps, LoadingStatus} from "../interfaces";
+import {translate} from "react-i18next";
 
 interface CardFilters {
 	cost: any;
@@ -99,7 +100,7 @@ const PLACEHOLDER_MINION = STATIC_URL + "images/loading_minion.png";
 const PLACEHOLDER_SPELL = STATIC_URL + "images/loading_spell.png";
 const PLACEHOLDER_WEAPON = STATIC_URL + "images/loading_weapon.png";
 
-export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
+export class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
 	private readonly dataManager: DataManager = new DataManager();
 	readonly filters = {
 		cost: [0, 1, 2, 3, 4, 5, 6, 7],
@@ -137,8 +138,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 	showMoreButton: HTMLDivElement;
 
-	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
-		super(props, state);
+	constructor(props: CardDiscoverProps, context: any) {
+		super(props, context);
 		this.state = {
 			cards: null,
 			filterCounts: null,
@@ -306,6 +307,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	render(): JSX.Element {
 		const viewType = this.props.viewType;
 		const content = [];
+		const t = (this.props as any).t;
 
 		let showMoreButton = null;
 
@@ -436,7 +438,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<div className="form-group has-feedback">
 						<input
 							autoFocus
-							placeholder="Search…"
+							placeholder={t("Search…")}
 							type="search"
 							className="form-control"
 							value={this.props.text}
@@ -546,10 +548,24 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	buildFilters(): JSX.Element[] {
 		const showReset = this.props.canBeReset;
 		const viewType = this.props.viewType;
+		const t = (this.props as any).t;
+
+		let filterHeader = null;
+		switch (viewType) {
+			case ViewType.CARDS:
+				filterHeader = t("Gallery");
+				break;
+			case ViewType.STATISTICS:
+				filterHeader = t("Cards");
+				break;
+			case ViewType.PERSONAL:
+				filterHeader = t("My Cards");
+				break;
+		}
 
 		const filters = [
 			<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
-				{viewType === ViewType.CARDS ? "Gallery" : (viewType === ViewType.STATISTICS ? "Cards" : "My Cards")}
+				{filterHeader}
 			</ResetHeader>,
 		];
 
@@ -951,3 +967,5 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		this.props.setSortDirection(sortDirection);
 	}
 }
+
+export default translate()(CardDiscover);
