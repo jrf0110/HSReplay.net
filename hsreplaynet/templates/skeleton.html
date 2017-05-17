@@ -5,17 +5,17 @@
 <head>
 	{% block head %}
 	{{ request.head|safe }}
-	{% block javascript %}{% endblock %}
-	{% block adsense %}{% endblock %}
-	{% endblock %}
-</head>
-<body>
 
 	{% block userdata %}
 		<script type="application/json" id="userdata">{{ userdata|json }}</script>
 		<script type="text/javascript">_userdata = JSON.parse(document.getElementById("userdata").textContent);</script>
 	{% endblock %}
 
+	{% block javascript %}{% endblock %}
+	{% block adsense %}{% endblock %}
+	{% endblock %}
+</head>
+<body>
 	{% block body %}
 	{% endblock %}
 
