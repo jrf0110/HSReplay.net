@@ -1,12 +1,14 @@
 import * as React from "react";
+import {translate} from "react-i18next";
 
 interface ResetHeaderProps {
 	onReset: () => void;
 	showReset: boolean;
 }
 
-export default class ResetHeader extends React.Component<ResetHeaderProps, void> {
+class ResetHeader extends React.Component<ResetHeaderProps, void> {
 	render(): JSX.Element {
+		const t = (this.props as any).t;
 		const classNames = ["reset-header"];
 		if (this.props.showReset) {
 			classNames.push("btn btn-danger btn-full")
@@ -26,8 +28,10 @@ export default class ResetHeader extends React.Component<ResetHeaderProps, void>
 				}}
 				tabIndex={this.props.showReset ? 0 : -1}
 			>
-				{this.props.showReset ? "Reset all filters" : this.props.children}
+				{this.props.showReset ? t("Reset all filters") : this.props.children}
 			</h1>
 		);
 	}
 }
+
+export default translate()(ResetHeader);
