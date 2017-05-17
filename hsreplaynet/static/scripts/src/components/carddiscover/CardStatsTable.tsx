@@ -3,6 +3,43 @@ import { cardObjSorting, cardSorting, toDynamicFixed, toPrettyNumber, winrateDat
 import { TableData } from "../../interfaces";
 import CardTile from "../CardTile";
 import SortableTable, { SortDirection } from "../SortableTable";
+import * as numeral from "numeral";
+
+numeral.register("locale", "de", {
+	delimiters: {
+		thousands: ".",
+		decimal: ",",
+	},
+	abbreviations: {
+		thousand: "K",
+		million: "M",
+		billion: "B",
+		trillion: "T",
+	},
+	ordinal: (number) => ".",
+	currency: {
+		symbol: "€",
+	},
+});
+
+numeral.locale("de");
+
+numeral.register("format", "smooth", {
+	regexps: {
+		format: /(~)/,
+		unformat: /(~)/,
+	},
+	format: function(value: number, format: string, roundingFunction: (number) => number): string {
+		const divisor = 10 ** (Math.floor(Math.log10(value)) - 1);
+		value = Math.floor(value / divisor) * divisor;
+
+		let output = (numeral as any)._.numberToFormat(value, format, roundingFunction);
+		return output;
+	},
+	unformat: function(string: string): number {
+		return +string;
+	}
+});
 
 interface CardsTableProps {
 	cards: any[];
@@ -81,7 +118,6 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 		}
 
 		cardObjs.slice(0, this.props.numCards).forEach((obj) => {
-			const playedPopularity = " (" + (obj.playedPopularity ? toDynamicFixed(obj.playedPopularity) + "%" : "0%") + ")";
 			const includedWrData = obj.includedWinrate && winrateData(50, obj.includedWinrate, 3);
 			const playedWrData = obj.playedWinrate && winrateData(50, obj.playedWinrate, 3);
 			const urlGameType = this.props.gameType !== "RANKED_STANDARD" ? this.props.gameType : undefined;
@@ -93,19 +129,23 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 						</div>
 					</td>
 					<td>
-						{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}
+						{numeral(obj.includedPopularity / 100).format("0.00%")}
 					</td>
 					<td>
-						{obj.includedCount ? obj.includedCount : "-"}
+						{numeral(obj.includedCount).format("0.[00]")}
 					</td>
 					<td style={{color: includedWrData && includedWrData.color}}>
-						{obj.includedWinrate ? toDynamicFixed(obj.includedWinrate) + "%" : "-"}
+						{numeral(obj.includedWinrate / 100).format("0.0%")}
 					</td>
 					<td>
-						{(obj.timesPlayed ? toPrettyNumber(obj.timesPlayed) : "0") + playedPopularity}
+						{numeral(obj.timesPlayed).format("~0,000") + " (" + (numeral(obj.playedPopularity / 100) as any).format("0.[000]%", (x) => {
+							let y = toDynamicFixed(+x);
+							console.log(x, y);
+							return y;
+						}) + ")"}
 					</td>
 					<td style={{color: playedWrData && playedWrData.color}}>
-						{obj.playedWinrate ? toDynamicFixed(obj.playedWinrate) + "%" : "-"}
+						{numeral(obj.playedWinrate / 100).format("0.0%")}
 					</td>
 				</tr>,
 			);
