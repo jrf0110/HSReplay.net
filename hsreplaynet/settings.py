@@ -207,19 +207,6 @@ SOCIALACCOUNT_ADAPTER = "hsreplaynet.accounts.providers.BattleNetAdapter"
 SOCIALACCOUNT_PROVIDERS = {"battlenet": {"SCOPE": []}}
 
 
-##
-# Cache (django-redis-cache)
-# https://django-redis-cache.readthedocs.io/en/latest/intro_quick_start.html
-CACHES = {
-	"default": {
-		"BACKEND": "redis_lock.django_cache.RedisCache",
-		"LOCATION": "localhost:6379",
-		'OPTIONS': {
-			'CLIENT_CLASS': 'django_redis.client.DefaultClient'
-		}
-	}
-}
-
 # Any subsystem wishing to use the advisory lock synchronization tools
 # found in `hsreplaynet.utils.synchronization` should register the namespace
 # they are using here, to prevent collisions.

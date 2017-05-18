@@ -21,6 +21,28 @@ DATABASES = {
 }
 
 
+# Cache (django-redis-cache)
+# https://django-redis-cache.readthedocs.io/en/latest/intro_quick_start.html
+CACHES = {
+	"default": {
+		"BACKEND": "redis_lock.django_cache.RedisCache",
+		"LOCATION": "localhost:6379",
+		"OPTIONS": {
+			"CLIENT_CLASS": "django_redis.client.DefaultClient",
+		}
+	},
+	"redshift": {
+		"BACKEND": "redis_lock.django_cache.RedisCache",
+		"LOCATION": "localhost:6379",
+		"OPTIONS": {
+			"CLIENT_CLASS": "django_redis.client.DefaultClient",
+			"COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+			"SERIALIZER": "django_redis.serializers.json.JSONSerializer",
+		}
+	}
+}
+
+
 STRIPE_LIVE_MODE = False
 STRIPE_TEST_SECRET_KEY = "sk_test_"
 
