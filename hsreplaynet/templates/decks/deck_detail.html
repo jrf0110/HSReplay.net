@@ -6,7 +6,7 @@
 		{% if user.is_staff %}data-admin-url="{% url 'admin:cards_deck_change' deck.pk %}"{% endif %}
 		data-deck-id="{{ deck.shortid }}"
 		data-deck-cards="{{ card_list }}"
-		data-deck-class="{{ deck_class }}">
+		data-deck-class="{{ deck.deck_class.name }}">
 	</div>
 	<div id="deck-container"></div>
 	{% render_bundle "stats" %}

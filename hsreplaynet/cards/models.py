@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import connection, models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django_intenum import IntEnumField
 from hearthstone import enums
@@ -251,6 +252,14 @@ class Deck(models.Model):
 		alpha_sorted = sorted(self.cards.all(), key=lambda c: c.name)
 		mana_sorted = sorted(alpha_sorted, key=lambda c: c.cost)
 		return mana_sorted.__iter__()
+
+	@cached_property
+	def deck_class(self):
+		for include in self.includes.all():
+			card_class = include.card.card_class
+			if card_class not in (enums.CardClass.INVALID, enums.CardClass.NEUTRAL):
+				return card_class
+		return enums.CardClass.INVALID
 
 	@property
 	def shortid(self):

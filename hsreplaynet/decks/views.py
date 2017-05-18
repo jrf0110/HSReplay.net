@@ -6,7 +6,6 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.views.generic import TemplateView, View
 from hearthstone.enums import CardClass, PlayState
-from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.cards.models import Archetype, Deck
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils.html import RequestMetaMixin
@@ -25,15 +24,14 @@ class DeckDetailView(View):
 		if len(cards) != 30:
 			raise Http404("Deck list is too small.")
 
-		guessed_class = guess_class(deck)
-		deck_name = "%s Deck" % (guessed_class.name.capitalize()) if guessed_class else ""
+		deck_name = "%s Deck" % (deck.deck_class.name.capitalize())
 		request.head.title = deck_name
 
-		if guessed_class:
+		if deck.deck_class:
 			deck_url = request.build_absolute_uri(deck.get_absolute_url())
 			request.head.add_meta(
 				{"property": "x-hearthstone:deck", "content": deck_name},
-				{"property": "x-hearthstone:deck:hero", "content": guessed_class.default_hero},
+				{"property": "x-hearthstone:deck:hero", "content": deck.deck_class.default_hero},
 				{"property": "x-hearthstone:deck:cards", "content": ",".join(deck.card_id_list())},
 				{"property": "x-hearthstone:deck:url", "content": deck_url},
 			)
@@ -41,7 +39,6 @@ class DeckDetailView(View):
 		context = {
 			"deck": deck,
 			"card_list": ",".join(str(id) for id in cards),
-			"deck_class": guessed_class.name if guessed_class else "UNKNOWN",
 			"deck_name": deck_name,
 		}
 

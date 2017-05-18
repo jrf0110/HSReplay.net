@@ -2,7 +2,6 @@ import json
 from datetime import date, timedelta
 from django.core.management.base import BaseCommand
 from django.db import connection
-from hsreplaynet.cards.archetypes import guess_class
 from hsreplaynet.cards.models import Deck
 from hsreplaynet.utils.db import execute_query
 
@@ -79,7 +78,7 @@ class Command(BaseCommand):
 			d = Deck.objects.get(id=row["deck_id"])
 
 			if len(d.card_id_list()) == 30:
-				player_class = guess_class(d)
+				player_class = d.deck_class
 
 				if player_class and (player_class.value not in result["decks"]):
 					result["decks"][player_class.value] = []

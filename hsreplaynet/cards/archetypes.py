@@ -1,4 +1,3 @@
-from collections import defaultdict
 from hearthstone.enums import CardClass, FormatType, Race
 from hsreplaynet.utils import log
 from .models import Archetype
@@ -99,21 +98,6 @@ ELISE = "LOE_079"
 DESERT_CAMEL = "LOE_020"
 
 
-def guess_class(deck):
-	class_map = defaultdict(int)
-
-	for include in deck.includes.all():
-		card = include.card
-		if card.card_class != 0 and card.card_class != 12:
-			class_map[card.card_class] += 1
-
-	sorted_cards = sorted(class_map.items(), key=lambda t: t[1], reverse=True)
-	if len(sorted_cards) > 0:
-		return sorted_cards[0][0]
-	else:
-		return ""
-
-
 def count_race(deck, race):
 	count = 0
 	for include in deck.includes.all():
@@ -124,7 +108,7 @@ def count_race(deck, race):
 
 
 def guess_archetype(deck):
-	class_guess = guess_class(deck)
+	class_guess = deck.deck_class
 	card_ids = deck.card_id_list()
 
 	if class_guess == CardClass.DRUID:
