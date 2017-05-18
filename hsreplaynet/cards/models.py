@@ -238,7 +238,9 @@ class Deck(models.Model):
 	size = models.IntegerField(null=True)
 
 	def __str__(self):
-		return repr(self)
+		if self.deck_class:
+			return "%s Deck" % (self.deck_class.name.capitalize())
+		return "Neutral Deck"
 
 	def __repr__(self):
 		values = self.includes.values("card__name", "count", "card__cost")

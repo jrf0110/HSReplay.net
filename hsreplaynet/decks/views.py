@@ -24,28 +24,29 @@ class DeckDetailView(View):
 		if len(cards) != 30:
 			raise Http404("Deck list is too small.")
 
-		deck_name = "%s Deck" % (deck.deck_class.name.capitalize())
-		request.head.title = deck_name
+		request.head.title = str(deck)
 
 		if deck.deck_class:
 			deck_url = request.build_absolute_uri(deck.get_absolute_url())
 			request.head.add_meta(
-				{"property": "x-hearthstone:deck", "content": deck_name},
+				{"property": "x-hearthstone:deck", "content": str(deck)},
 				{"property": "x-hearthstone:deck:hero", "content": deck.hero},
 				{"property": "x-hearthstone:deck:cards", "content": ",".join(deck.card_id_list())},
 				{"property": "x-hearthstone:deck:url", "content": deck_url},
 			)
 
+		self.request.head.add_meta({
+			"name": "description",
+			"content": (
+				"Decklist for this %s. Learn how to play it with our mulligan guide "
+				"and find similar decks."
+			) % (deck),
+		})
+
 		context = {
 			"deck": deck,
 			"card_list": ",".join(str(id) for id in cards),
-			"deck_name": deck_name,
 		}
-
-		description = "Decklist for this %s. Learn how to play it with our mulligan " \
-			"guide and find similar decks." % (deck_name)
-		self.request.head.add_meta({"name": "description", "content": description})
-
 		return render(request, self.template_name, context)
 
 
