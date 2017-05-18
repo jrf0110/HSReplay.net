@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django_intenum import IntEnumField
-from hearthstone import enums
+from hearthstone import deckstrings, enums
 from shortuuid.main import int_to_string, string_to_int
 
 
@@ -268,6 +268,14 @@ class Deck(models.Model):
 			if card_class not in (enums.CardClass.INVALID, enums.CardClass.NEUTRAL):
 				return card_class
 		return enums.CardClass.INVALID
+
+	@cached_property
+	def deckstring(self):
+		hero = Card.objects.get(id=self.hero).dbf_id
+		cardlist = self.card_dbf_id_list()
+		sorted_list = sorted(set(cardlist))
+		cards = [(id, cardlist.count(id)) for id in sorted_list]
+		return deckstrings.write_deckstring(cards, [hero], enums.FormatType.FT_WILD)
 
 	@property
 	def shortid(self):
