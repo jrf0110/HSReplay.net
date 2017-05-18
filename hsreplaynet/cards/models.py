@@ -254,6 +254,12 @@ class Deck(models.Model):
 		return mana_sorted.__iter__()
 
 	@cached_property
+	def hero(self):
+		deck_class = self.deck_class
+		if deck_class and deck_class != enums.CardClass.NEUTRAL:
+			return deck_class.default_hero
+
+	@cached_property
 	def deck_class(self):
 		for include in self.includes.all():
 			card_class = include.card.card_class
