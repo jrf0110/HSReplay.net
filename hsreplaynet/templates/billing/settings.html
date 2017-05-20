@@ -200,7 +200,13 @@
 				<tr>
 					<td>#{{ invoice.id }} {% if stripe_debug %}<code>{{ invoice.stripe_id }}</code>{% endif %}</td>
 					<td>{{ invoice.date|htmltime:"%Y-%m-%d" }}</td>
-					<td>{{ invoice.subscription.plan.name }}</td>
+					<td>
+						<ul>
+							{% for item in invoice.invoiceitems.all %}
+								<li>{{ item }}</li>
+							{% endfor %}
+						</ul>
+					</td>
 					<td>{{ invoice.status }}</td>
 					<td>{{ invoice.currency|upper }} {{ invoice.total|floatformat:"2" }} {% if invoice.total < 0 %}<span class="label label-success">Credit</span>{% endif %}</td>
 				</tr>
