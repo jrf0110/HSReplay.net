@@ -222,7 +222,9 @@ class GlobalGamePlayer(models.Model):
 		"Losses", null=True, blank=True,
 		help_text="Number of losses in the current game mode (current season)",
 	)
-	deck_id = models.IntegerField("Deck ID", null=True, blank=True)
+	# Legacy deck id, mistakenly defined as 32-bit
+	deck_id_legacy = models.IntegerField("Deck ID (OLD)", null=True, blank=True)
+	deck_id = models.BigIntegerField("Deck ID", null=True, blank=True)
 	cardback_id = models.IntegerField("Cardback ID", null=True, blank=True)
 
 	class Meta:
