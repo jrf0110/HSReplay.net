@@ -165,7 +165,7 @@
 					{% csrf_token %}
 					<script
 						type="text/javascript" src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-						data-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
+						data-key="{{ STRIPE_PUBLIC_KEY }}"
 						data-image="{% static 'images/hsreplay-thumbnail.png' %}"
 						data-name="HSReplay.net"
 						{% if user.email %}data-email="{{ user.email }}"{% endif %}

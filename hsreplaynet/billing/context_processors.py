@@ -3,10 +3,8 @@ Context processors for billing/premium purposes
 """
 from django.conf import settings
 from djstripe.models import Plan
-from djstripe.settings import STRIPE_LIVE_MODE
-
-
-STRIPE_DEBUG = not STRIPE_LIVE_MODE and settings.DEBUG
+from djstripe.settings import STRIPE_LIVE_MODE, STRIPE_PUBLIC_KEY
+from .views import STRIPE_DEBUG
 
 
 def premium(request):
@@ -22,4 +20,5 @@ def premium(request):
 		"monthly_plan": plans.filter(stripe_id=settings.MONTHLY_PLAN_ID).first(),
 		"semiannual_plan": plans.filter(stripe_id=settings.SEMIANNUAL_PLAN_ID).first(),
 		"stripe_debug": STRIPE_DEBUG,
+		"STRIPE_PUBLIC_KEY": STRIPE_PUBLIC_KEY,
 	}

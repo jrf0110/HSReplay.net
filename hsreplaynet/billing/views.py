@@ -9,8 +9,12 @@ from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, View
 from djstripe.models import StripeCard
+from djstripe.settings import STRIPE_LIVE_MODE
 from stripe.error import CardError, InvalidRequestError
 from hsreplaynet.utils.html import RequestMetaMixin
+
+
+STRIPE_DEBUG = not STRIPE_LIVE_MODE and settings.DEBUG
 
 
 class PaymentsMixin:
@@ -181,7 +185,6 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 		# True by default (= the subscription remains, will cancel once it ends)
 		at_period_end = True
 
-		STRIPE_DEBUG = settings.STRIPE_PUBLIC_KEY.startswith("pk_test_") and settings.DEBUG
 		if STRIPE_DEBUG and request.POST.get("immediate", "") == "on":
 			# in STRIPE_DEBUG mode only, we allow immediate cancellation
 			at_period_end = False
