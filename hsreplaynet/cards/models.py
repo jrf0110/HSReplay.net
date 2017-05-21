@@ -275,7 +275,14 @@ class Deck(models.Model):
 		cardlist = self.card_dbf_id_list()
 		sorted_list = sorted(set(cardlist))
 		cards = [(id, cardlist.count(id)) for id in sorted_list]
-		return deckstrings.write_deckstring(cards, [hero], enums.FormatType.FT_WILD)
+		return deckstrings.write_deckstring(cards, [hero], self.format)
+
+	@cached_property
+	def format(self):
+		for include in self.includes.all():
+			if not include.card.card_set.is_standard:
+				return enums.FormatType.FT_WILD
+		return enums.FormatType.FT_STANDARD
 
 	@property
 	def shortid(self):
