@@ -133,10 +133,8 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 			# Most likely, bad form data. This will be logged by Stripe.
 			messages.error(self.request, "Could not process subscription.")
 			return False
-		except CardError:
-			# Card was declined for some reason
-			messages.error(self.request, "Your card was declined. You have not been charged.")
-			return False
+		except CardError as e:
+			return self.handle_card_error(e)
 
 		if customer.coupon:
 			# HACK: If the customer has a coupon attached and the coupon is
@@ -146,6 +144,25 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 			customer.__class__.sync_from_stripe_data(data)
 
 		return True
+
+	def handle_card_error(self, e):
+		if e.code in ("do_not_honor", "transaction_not_allowed"):
+			# Generic unknown decline reason
+			message = "Your card declined the charge. Please contact your bank for information."
+		elif e.code == "currency_not_supported":
+			message = "Your card does not support payments in USD. Please try a different card."
+		elif e.code == "card_velocity_exceeded":
+			message = "Your card has exceeded its credit limit. Please use a different one."
+		elif e.code == "insufficient_funds":
+			message = "Your card has insufficient funds to proceed."
+		else:
+			# Card was declined for some other reason
+			message = (
+				"Your card was declined, you have not been charged. "
+				"Please try a different card; contact us if this persists."
+			)
+		messages.error(self.request, message)
+		return False
 
 	def get_success_url(self):
 		success_url = self.request.GET.get("next", "")
