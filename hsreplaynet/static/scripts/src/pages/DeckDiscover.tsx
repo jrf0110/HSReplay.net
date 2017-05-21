@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as _ from "lodash";
 import CardData from "../CardData";
-import CardSearch from "../components/CardSearch";
+import CardSearch, {Limit} from "../components/CardSearch";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
 import InfoboxFilter from "../components/InfoboxFilter";
@@ -448,6 +448,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							availableCards={filteredCards}
 							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
 							selectedCards={selectedCards("includedCards")}
+							cardLimit={Limit.SINGLE}
 						/>
 					</section>
 					<section id="exclude-cards-filter">
@@ -459,6 +460,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							availableCards={filteredCards}
 							onCardsChanged={(cards) => this.props.setExcludedCards(cards.map((card) => card.dbfId))}
 							selectedCards={selectedCards("excludedCards")}
+							cardLimit={Limit.SINGLE}
 						/>
 					</section>
 					{personalFilters}

@@ -105,12 +105,8 @@ label>input {
 .card-search {
 	position: relative;
 
-	li {
-		cursor: pointer;
-	}
-
 	.card-tile {
-		cursor: inherit;
+		margin-top: 0;
 	}
 
 	> ul {
@@ -120,17 +116,23 @@ label>input {
 		padding-left: 5px;
 
 		> li {
-			.glyphicon {
-				color: gray;
-				float: right;
-				margin-top: 7px;
-				padding: 3px;
+			padding: 0 0 4px 0;
+			border: 0;
+
+			display: flex;
+			flex-direction: row;
+
+			.card-tile {
+				flex-grow: 1;
 			}
 
-			&:hover, &:focus {
-				.glyphicon {
-					color: $red;
-				}
+			.btn {
+				height: 34px;
+				border: solid 1px black;
+			}
+
+			&:last-child {
+				margin-bottom: 0;
 			}
 		}
 	}
@@ -166,16 +168,6 @@ label>input {
 				}
 			}
 		}
-	}
-
-	.glyphicon-remove {
-		cursor: pointer;
-		color: lightgray;
-		pointer-events: auto;
-	}
-
-	.glyphicon-remove:hover {
-		color: $red;
 	}
 }
 

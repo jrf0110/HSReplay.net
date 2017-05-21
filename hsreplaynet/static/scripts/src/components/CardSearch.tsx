@@ -2,6 +2,12 @@ import * as React from "react";
 import CardTile from "./CardTile";
 import {cleanText, slangToCardId} from "../helpers";
 
+export const enum Limit {
+	SINGLE,
+	NORMAL,
+	UNLIMITED,
+}
+
 interface CardSearchState {
 	cardSearchText?: string;
 	cardSearchHasFocus?: boolean;
@@ -15,6 +21,7 @@ interface CardSearchProps {
 	onCardsChanged: (cards: any[]) => void;
 	selectedCards: any[];
 	label?: string;
+	cardLimit?: Limit;
 }
 
 export default class CardSearch extends React.Component<CardSearchProps, CardSearchState> {
@@ -199,31 +206,68 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 		if (!this.props.selectedCards) {
 			return null;
 		}
-		const selectedCards = [];
+		const cards = {};
 		this.props.selectedCards.forEach((card) => {
-			const removeCard = () => {
-				const newSelectedCards = this.props.selectedCards.filter((x) => x !== card);
+			const key = card.id;
+			if(typeof cards[key] !== "undefined") {
+				cards[key].count++;
+			}
+			else {
+				cards[key] = {
+					card: card,
+					count: 1,
+				};
+			}
+		});
+		return Object.keys(cards).map((key) => {
+			const card = cards[key].card;
+			const count = cards[key].count;
+			const updateCard = (newValue: number) => {
+				let updatedCount = count;
+				let newSelectedCards = this.props.selectedCards.slice(0);
+				while(updatedCount < newValue) {
+					newSelectedCards.push(card);
+					updatedCount++;
+				}
+				while(updatedCount > newValue) {
+					let index = this.props.selectedCards.lastIndexOf(card);
+					newSelectedCards.splice(index, 1);
+					updatedCount--;
+				}
 				this.props.onCardsChanged(newSelectedCards);
 			};
-			selectedCards.push(
-				<li
-					onClick={removeCard}
-					onKeyDown={(event) => {
-						if([8, 13, 46].indexOf(event.which) === -1) {
-							return;
-						}
-						removeCard();
-						if(this.input) {
-							this.input.focus();
-						}
-					}}
-					tabIndex={0}
-				>
-					<div className="glyphicon glyphicon-remove" />
-					<CardTile card={card} count={1} height={34} rarityColored noLink />
-				</li>,
+
+			const cardLimit = typeof this.props.cardLimit === "undefined" ? Limit.NORMAL : this.props.cardLimit ;
+			const maxCopies = cardLimit === Limit.NORMAL ? (card.rarity === "LEGENDARY" ? 1 : 2) : 0;
+
+			return (
+				<li>
+					<CardTile
+						card={card}
+						count={count}
+						height={34}
+						rarityColored
+						noLink
+					/>
+					<button
+						onClick={() => updateCard(count - 1)}
+						className="btn btn-danger"
+					>
+						<span
+							className={"glyphicon glyphicon-minus"}
+						/>
+					</button>
+					{cardLimit  !== Limit.SINGLE ? <button
+						onClick={() => updateCard(count + 1)}
+						className="btn btn-primary"
+						disabled={maxCopies > 0 && count + 1 > maxCopies}
+					>
+						<span
+							className="glyphicon glyphicon-plus"
+						/>
+					</button> : null}
+				</li>
 			);
 		});
-		return selectedCards;
 	}
 }
