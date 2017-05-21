@@ -111,15 +111,36 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			if (array.length === 1 && !array[0]) {
 				return [];
 			}
-			return array.map((dbfId) => this.props.cardData.fromDbf(dbfId));
+			const cards = [];
+			array.forEach((dbfId) => {
+				const index = cards.findIndex((obj) => {
+					return obj.card && +obj.card.dbfId === +dbfId;
+				});
+				if (index !== -1) {
+					cards[index].count++;
+				}
+				else {
+					cards.push({
+						card: this.props.cardData.fromDbf(dbfId),
+						count: 1,
+					});
+				}
+			});
+			return cards;
 		};
 		const includedCards = filteredCards("includedCards");
 		const excludedCards = filteredCards("excludedCards");
 		const missingIncludedCards = (deckList: any[]) => {
-			return includedCards.some((card) => card && deckList.every((cardObj) => cardObj && cardObj.card.id !== card.id));
+			return includedCards.some((includedCardObj) => {
+				return includedCardObj && deckList.every((cardObj) => {
+					return cardObj && cardObj.card.id !== includedCardObj.card.id || cardObj.count < includedCardObj.count
+				});
+			});
 		};
 		const containsExcludedCards = (deckList: any[]) => {
-			return excludedCards.some((card) => card && deckList.some((cardObj) => cardObj.card.id === card.id));
+			return excludedCards.some((excludedCardObj) => {
+				return excludedCardObj && deckList.some((cardObj) => cardObj.card.id === excludedCardObj.card.id)
+			});
 		};
 		const cardList = (cards) => cards.map((c: any[]) => {
 			return {card: this.props.cardData.fromDbf(c[0]), count: c[1]};
@@ -448,7 +469,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							availableCards={filteredCards}
 							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
 							selectedCards={selectedCards("includedCards")}
-							cardLimit={Limit.SINGLE}
+							cardLimit={Limit.NORMAL}
 						/>
 					</section>
 					<section id="exclude-cards-filter">
