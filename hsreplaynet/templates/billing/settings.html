@@ -201,7 +201,7 @@
 					<td>#{{ invoice.id }} {% if stripe_debug %}<code>{{ invoice.stripe_id }}</code>{% endif %}</td>
 					<td>{{ invoice.date|htmltime:"%Y-%m-%d" }}</td>
 					<td>
-						<ul>
+						<ul class="list-unstyled">
 							{% for item in invoice.invoiceitems.all %}
 								<li>{{ item }}</li>
 							{% endfor %}
