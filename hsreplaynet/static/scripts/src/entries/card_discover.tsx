@@ -26,9 +26,15 @@ const availableAccounts = user.getAccounts();
 const defaultAccount = user.getDefaultAccountKey();
 
 if (viewType === ViewType.PERSONAL && !defaultAccount) {
-	Raven.captureMessage("User has no Blizzard account", {
-		level: "warning",
-	});
+	if (typeof ga === "function") {
+		ga("send", {
+			hitType: "event",
+			eventCategory: "Pegasus Account",
+			eventAction: "missing",
+			eventLabel: "My Cards",
+			nonInteraction: true,
+		});
+	}
 }
 
 const render = (cardData: CardData) => {
