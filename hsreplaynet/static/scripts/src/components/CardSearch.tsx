@@ -113,7 +113,10 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 						onFocus={() => this.setState({cardSearchHasFocus: true})}
 						onBlur={() => this.setState({cardSearchHasFocus: false})}
 						value={this.state.cardSearchText}
-						onChange={(e) => this.setState({cardSearchText: e.target["value"]})}
+						onChange={(e) => this.setState({
+							selectedIndex: 0,
+							cardSearchText: e.target["value"],
+						})}
 						onKeyDown={(e) => this.onKeyDown(e, cards.length)}
 						aria-autocomplete="list"
 					/>
@@ -125,6 +128,14 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				</ul>
 			</div>
 		);
+	}
+
+	componentDidUpdate(prevProps: CardSearchProps, prevState: CardSearchState) {
+		if(prevState.cardSearchText !== this.state.cardSearchText) {
+			if (this.search) {
+				this.search["scrollTop"] = 0;
+			}
+		}
 	}
 
 	addCard(card: any): void {
