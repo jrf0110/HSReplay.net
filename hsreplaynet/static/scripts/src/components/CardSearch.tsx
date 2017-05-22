@@ -156,6 +156,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 			const bounds = child.getBoundingClientRect();
 			height = bounds.height - 1;
 		}
+		let valid = true;
 		switch (event.key) {
 			case "ArrowDown":
 				if (!this.search) {
@@ -181,6 +182,12 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				}
 				this.addCard(filteredCards[this.state.selectedIndex]);
 				break;
+			default:
+				valid = false;
+				break;
+		}
+		if (valid) {
+			event.preventDefault();
 		}
 	}
 
