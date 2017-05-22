@@ -570,10 +570,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			return tableData;
 		}
 		const all = [];
-		const hero = {dbf_id: -1, popularity: 0};
+		const hero = {dbf_id: -1, popularity: 0, is_opponent_hero: true};
 		tableData.series.data.ALL.forEach((x) => {
-			const card = this.props.cardData.fromDbf(x.dbf_id);
-			if (card.type === "HERO") {
+			const card = x.dbf_id !== -1 ? this.props.cardData.fromDbf(x.dbf_id) : null;
+			if (card && card.type === "HERO") {
 				hero.popularity += +x.popularity;
 			}
 			else {

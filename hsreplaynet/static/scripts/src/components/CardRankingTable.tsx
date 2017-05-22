@@ -33,27 +33,30 @@ export default class CardRankingTable extends React.Component<CardRankingTablePr
 	}
 
 	render(): JSX.Element {
-		const cardRows = [];
 		const tableRows = this.props.data.series.data[this.props.dataKey];
 		const hasWinrate = tableRows[0] && tableRows[0].win_rate;
 		const rowCount = tableRows.length;
 		tableRows.sort((a, b) => +b.popularity - +a.popularity);
-		tableRows.slice((this.state.page - 1) * this.props.numRows, (this.state.page * this.props.numRows)).forEach((row, index) => {
-			const isFace = +row.dbf_id === -1;
-			const card = this.props.cardData.fromDbf(isFace ? 39770 : row.dbf_id);
+		const cardRows = tableRows.slice((this.state.page - 1) * this.props.numRows, (this.state.page * this.props.numRows)).map((row, index) => {
+			const isFace = !!row["is_opponent_hero"];
+			const isNoTarget = +row.dbf_id === -1 && !isFace;
+			const card = this.props.cardData.fromDbf(isFace ? 39770 : (isNoTarget ? 1674 : row.dbf_id));
+			if(isNoTarget) {
+				card.cost = null;
+			}
 			const popularity = +row.popularity;
 			if (isNaN(popularity) || !popularity) {
 				return;
 			}
-			cardRows.push(
+			return (
 				<CardRankingTableRow
 					card={card}
-					customCardText={isFace ? "Opponent Hero" : undefined}
+					customCardText={isNoTarget ? "No Target" : (isFace ? "Opponent Hero" : undefined)}
 					popularity={popularity}
 					rank={((this.state.page - 1) * this.props.numRows) + index + 1}
 					winrate={hasWinrate ? +row.win_rate : undefined}
-					noLink={isFace}
-				/>,
+					noLink={isFace || isNoTarget}
+				/>
 			);
 		});
 
