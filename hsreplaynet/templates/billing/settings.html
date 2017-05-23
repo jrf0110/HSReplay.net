@@ -35,16 +35,27 @@
 				</p>
 			{% else %}
 
-				<form method="POST" action="{% url 'premium_cancel' %}" class="premium-plan-form">
-					{% csrf_token %}
-					<button
-						{% if billing.read_only %}disabled{% endif %} type="submit" name="cancel" class="btn btn-danger"
-						onclick="return confirm('Your subscription will remain available until {{ sub.current_period_end|date:'F d, Y' }}. Proceed?')
-					">
-						Cancel subscription
-					</button>
-					{% if stripe_debug %}<p><label><input type="checkbox" name="immediate"/> Immediate (debug)</label></p>{% endif %}
-				</form>
+				{% if not billing.read_only %}
+					<form method="POST" action="{% url 'premium_cancel' %}" class="premium-plan-form">
+						{% csrf_token %}
+						{% if can_cancel and not billing.read_only %}
+						<button
+							type="submit" name="cancel_at_period_end" class="btn btn-danger"
+							onclick="return confirm('Your subscription will remain available until {{ sub.current_period_end|date:'F d, Y' }}. Proceed?')
+						">
+							Cancel subscription
+						</button>
+						{% endif %}
+						{% if can_cancel_immediately and not billing.read_only %}
+							<button
+								type="submit" name="cancel" class="btn btn-danger"
+								onclick="return confirm('Your subscription will be immediately canceled, no refund will be issued. Proceed?')
+							">
+								Cancel immediately
+							</button>
+						{% endif %}
+					</form>
+				{% endif %}
 
 				<p>
 					Subscribed since <strong>{{ sub.start|htmltime }}</strong>.
@@ -80,8 +91,6 @@
 
 					<button type="submit" name="subscribe" class="btn btn-primary">Subscribe now</button>
 				</form>
-			{% else %}
-				<a href="{% url 'premium' %}">Check out premium</a>
 			{% endif %}
 
 		{% endif %}

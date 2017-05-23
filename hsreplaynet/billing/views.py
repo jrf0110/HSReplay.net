@@ -25,15 +25,44 @@ class PaymentsMixin:
 		if self.request.user.is_authenticated:
 			return self.request.user.stripe_customer
 
+	def can_cancel(self, customer):
+		"""
+		Return whether a customer is allowed to cancel (at end of period).
+		"""
+		if not customer or not customer.subscription:
+			# Safeguard
+			return False
+
+		# We only allow end-of-period cancel if the current subscription is active.
+		return customer.subscription.is_valid()
+
+	def can_cancel_immediately(self, customer):
+		"""
+		Returns whether a customer is allowed to cancel immediately.
+		"""
+		if not customer or not customer.subscription:
+			# Safeguard
+			return False
+
+		if STRIPE_DEBUG:
+			# In Stripe debug mode, we always allow immediate cancel.
+			return True
+
+		# Otherwise, we only allow immediate cancel if the subscription is not active.
+		return not customer.subscription.is_valid()
+
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 
 		# Will be None if the user is not authenticated
-		context["customer"] = self.get_customer()
+		customer = self.get_customer()
+		context["customer"] = customer
 
-		if context["customer"]:
+		if customer:
 			# `payment_methods` is a queryset of the customer's payment sources
-			context["payment_methods"] = context["customer"].sources.all()
+			context["payment_methods"] = customer.sources.all()
+			context["can_cancel"] = self.can_cancel(customer)
+			context["can_cancel_immediately"] = self.can_cancel_immediately(customer)
 		else:
 			# When anonymous, the customer is None, thus has no payment methods
 			context["payment_methods"] = []
@@ -187,13 +216,11 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		return redirect(self.get_success_url())
 
 
-class CancelSubscriptionView(LoginRequiredMixin, View):
+class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 	success_url = reverse_lazy("billing_methods")
 
 	def handle_form(self, request):
-		customer = request.user.stripe_customer
-
-		if not customer.subscription:
+		if not self.customer.subscription:
 			# The customer is not subscribed
 			messages.error(request, "You are not subscribed.")
 			return False
@@ -202,17 +229,22 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 		# True by default (= the subscription remains, will cancel once it ends)
 		at_period_end = True
 
-		if STRIPE_DEBUG and request.POST.get("immediate", "") == "on":
-			# in STRIPE_DEBUG mode only, we allow immediate cancellation
-			at_period_end = False
+		if request.POST.get("immediate") == "on":
+			if self.can_cancel_immediately(self.customer):
+				at_period_end = False
+			else:
+				messages.error(
+					"Your subscription cannot be canceled immediately."
+					"Please contact us if you are receiving this in error."
+				)
 
 		try:
-			customer.subscription.cancel(at_period_end=at_period_end)
+			self.customer.subscription.cancel(at_period_end=at_period_end)
 		except InvalidRequestError as e:
 			if "No such subscription: " in str(e):
 				# The subscription doesn't exist (or was already cancelled)
 				# This check should happen in dj-stripe's cancel() method really
-				customer._sync_subscriptions()
+				self.customer._sync_subscriptions()
 				return False
 			else:
 				raise
@@ -220,6 +252,7 @@ class CancelSubscriptionView(LoginRequiredMixin, View):
 		return True
 
 	def post(self, request):
+		self.customer = self.get_customer()
 		self.handle_form(request)
 		return redirect(self.success_url)
 
