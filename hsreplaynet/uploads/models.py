@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from enum import IntEnum
 from threading import Lock, Thread
 from uuid import uuid4
-from botocore.vendored.requests.packages.urllib3.exceptions import ReadTimeoutError
 from django.conf import settings
 from django.db import models
 from django.dispatch.dispatcher import receiver
@@ -443,14 +442,15 @@ class UploadEvent(models.Model):
 		)
 
 	def log_bytes(self):
+		from botocore.vendored.requests.packages.urllib3.exceptions import ReadTimeoutError
 		try:
 			self.file.open(mode="rb")
-			return self.file.read()
 		except ReadTimeoutError:
 			# We wait one second and then give it a second attempt before we fail
 			time.sleep(1)
 			self.file.open(mode="rb")
-			return self.file.read()
+
+		return self.file.read()
 
 	def process(self):
 		from hsreplaynet.games.processing import process_upload_event
