@@ -238,17 +238,7 @@ class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 					"Please contact us if you are receiving this in error."
 				)
 
-		try:
-			self.customer.subscription.cancel(at_period_end=at_period_end)
-		except InvalidRequestError as e:
-			if "No such subscription: " in str(e):
-				# The subscription doesn't exist (or was already cancelled)
-				# This check should happen in dj-stripe's cancel() method really
-				self.customer._sync_subscriptions()
-				return False
-			else:
-				raise
-
+		self.customer.subscription.cancel(at_period_end=at_period_end)
 		return True
 
 	def post(self, request):
