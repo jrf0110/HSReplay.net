@@ -4,10 +4,12 @@ import Tooltip from "./Tooltip";
 import * as _ from "lodash";
 import Clipboard from "clipboard";
 import CardData from "../CardData";
+import {toTitleCase} from "../helpers";
 
 interface CopyDeckButtonProps extends React.ClassAttributes<CopyDeckButton> {
 	cardData: CardData;
 	name?: string;
+	deckClass?: string;
 	cards: number[];
 	heroes: number[];
 	format: number;
@@ -107,9 +109,9 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 
 		return [
 			`### ${this.props.name || "HSReplay.net Deck"}`,
-			//`# Class:  ???`,
-			`# Format: ${format === 2 ? "Standard" : "Wild"}`, ,
-			...readableDeckList ? ["#", `# ${readableDeckList}`, "#"] : [],
+			...this.props.deckClass ? [`# Class: ${toTitleCase(this.props.deckClass)}`] : [],
+			`# Format: ${format === 2 ? "Standard" : "Wild"}`,
+			...readableDeckList ? ["#", ...readableDeckList.map((line) => "# " + line)] : [],
 			"#",
 			deckstring,
 			"#",

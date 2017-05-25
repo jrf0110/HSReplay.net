@@ -15,12 +15,13 @@ interface SwitchableCopyDeckButtonProps extends React.ClassAttributes<Switchable
 	cards: number[];
 	heroes: number[];
 	format: number;
+
+	deckClass: string;
 	sourceUrl: string;
 
 	// to be removed
 	id?: string;
 	cardIds: string[];
-	deckClass: string;
 }
 
 export default class SwitchableCopyDeckButton extends React.Component<SwitchableCopyDeckButtonProps, void> {
@@ -41,6 +42,8 @@ export default class SwitchableCopyDeckButton extends React.Component<Switchable
 		}
 
 		return <CopyDeckButton
+			name={this.props.name}
+			deckClass={this.props.deckClass}
 			cardData={this.props.cardData}
 			cards={this.props.cards}
 			heroes={this.props.heroes}

@@ -76,7 +76,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							heroes={[this.state.game.opposing_player.hero_dbf_id]}
 							deckClass={deckClass}
 							format={this.state.game.global_game.format}
-							name={this.state.game.opposing_player.name + "'s " + deckClass}
+							name={this.pluralize(this.state.game.opposing_player.name) + " " + deckClass}
 							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
 							id={1}
 							clickable
@@ -103,7 +103,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							heroes={[this.state.game.friendly_player.hero_dbf_id]}
 							format={this.state.game.global_game.format}
 							deckClass={deckClass}
-							name={this.state.game.friendly_player.name + "'s " + deckClass}
+							name={this.pluralize(this.state.game.friendly_player.name) + " " + deckClass}
 							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
 							id={2}
 							clickable
@@ -146,5 +146,9 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 
 	toTitleCase(str: string) {
 		return str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1).toLowerCase();
+	}
+
+	pluralize(str: string): string {
+		return str + "'" + (str.charAt(str.length - 1) !== "s" ? "s" : "");
 	}
 }
