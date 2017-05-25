@@ -5,6 +5,7 @@
 	<div id="deck-info"
 		{% if user.is_staff %}data-admin-url="{% url 'admin:cards_deck_change' deck.pk %}"{% endif %}
 		data-deck-id="{{ deck.shortid }}"
+		data-hero-id="{{ deck.hero.dbf_id }}"
 		data-deck-cards="{{ card_list }}"
 		data-deck-class="{{ deck.deck_class.name }}"
 		data-deckstring="{{ deck.deckstring }}"
