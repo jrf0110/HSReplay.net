@@ -63,7 +63,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 						className={opponentClass.join(" ")}
 						onClick={() => this.setState({showOpponentDeck: !this.state.showOpponentDeck})}
 					>
-						{this.state.showOpponentDeck ? "Hide" : "Show"} deck
+						{this.state.showOpponentDeck ? "Hide Deck" : "Show Deck"}
 					</a>,
 				);
 				if (this.state.showOpponentDeck) {
@@ -90,7 +90,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 			) {
 				playerDeck.push(
 					<a className={playerClass.join(" ")} onClick={() => this.setState({showPlayerDeck: !this.state.showPlayerDeck})}>
-						{this.state.showPlayerDeck ? "Hide" : "Show"} deck
+						{this.state.showPlayerDeck ? "Hide Deck" : "Show Deck"}
 					</a>,
 				);
 				if (this.state.showPlayerDeck) {

@@ -23,7 +23,7 @@ export default class CardList extends React.Component<CardListProps, any> {
 			return null;
 		}
 		if (!this.props.cards) {
-			return <div>Loading…</div>;
+			return <div className="text-center">Loading cards…</div>;
 		}
 
 		const cardHeight = this.props.cardHeight ? this.props.cardHeight : 34;
