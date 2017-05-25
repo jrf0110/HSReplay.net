@@ -90,7 +90,7 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 			format: format,
 		});
 		return [
-			`"### ${this.props.name || "HSReplay.net Deck"}`,
+			`### ${this.props.name || "HSReplay.net Deck"}`,
 			//`# Class:  ???`,
 			`# Format: ${format === 2 ? "Standard" : "Wild"}`,
 			"#",
