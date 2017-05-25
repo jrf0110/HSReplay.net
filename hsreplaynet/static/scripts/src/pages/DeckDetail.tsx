@@ -28,6 +28,7 @@ import Tab from "../components/layout/Tab";
 import Tooltip from "../components/Tooltip";
 import WinrateBreakdownTable from "../components/deckdetail/WinrateBreakdownTable";
 import DeckOverviewTable from "../components/deckdetail/DeckOverviewTable";
+import CopyDeckButton from "../components/SwitchableCopyDeckButton";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -58,6 +59,7 @@ interface DeckDetailProps {
 	deckClass: string;
 	deckId: string;
 	deckName?: string;
+	heroDbfId: number;
 	user: UserData;
 	tab?: string;
 	setTab?: (tab: string) => void;
@@ -202,15 +204,20 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					className="hero-image"
 					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
 				/>
-				<HDTButton
-					card_ids={
-						this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)
-					}
-					deckClass={this.props.deckClass}
-					disabled={!this.props.cardData}
-					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
-					sourceUrl={window.location.toString()}
-				/>
+				<div className="text-center">
+					<CopyDeckButton
+						cardIds={
+							this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)
+						}
+						cards={this.props.deckCards.split(",").map(Number)}
+						heroes={[this.props.heroDbfId]}
+						format={this.gameType() === "RANKED_STANDARD" ? 2 : 1}
+						deckClass={this.props.deckClass}
+						disabled={!this.props.cardData}
+						name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
+						sourceUrl={window.location.toString()}
+					/>
+				</div>
 				<h2>Deck</h2>
 				<ul>
 					<li>

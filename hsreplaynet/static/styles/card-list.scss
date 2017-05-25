@@ -124,30 +124,3 @@
 		}
 	}
 }
-
-.hdt-button-wrapper {
-	cursor: pointer;
-	display: flex;
-	flex-direction: row-reverse;
-	font-weight: bold;
-	height: 34px;
-	margin-top: 5px;
-
-	>span {
-		height: 34px;
-		line-height: 34px;
-		padding-right: 5px;
-
-		&.highlight {
-			color: $lighterblue;
-		}
-	}
-}
-
-.infobox .hdt-button-wrapper {
-	color: $lighterblue;
-
-	>span.highlight {
-		color: White;
-	}
-}

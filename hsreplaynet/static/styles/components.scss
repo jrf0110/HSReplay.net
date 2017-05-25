@@ -376,6 +376,27 @@ table .info-icon {
 	}
 }
 
+.copy-deck-button {
+	font-weight: bold;
+	//cursor: pointer;
+	//text-align: center;
+	//width: 100%;
+	//padding: 6px 4px;
+	//border: solid 1px white;
+
+	.success {
+		color: green;
+	}
+
+	&.disabled {
+		color: $darkgrey;
+	}
+}
+
+.copy-deck-wrapper {
+	padding: 1em 0 0.5em 0;
+}
+
 .table-wrapper {
 	overflow-x: auto;
 

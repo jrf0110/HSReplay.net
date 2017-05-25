@@ -1,7 +1,7 @@
 import * as React from "react";
 import CardTile from "./CardTile";
-import HDTButton from "./HDTButton";
 import {cardSorting} from "../helpers";
+import CopyDeckButton from "./SwitchableCopyDeckButton";
 
 interface CardListProps {
 	cards: any;
@@ -9,10 +9,12 @@ interface CardListProps {
 	cardHeight?: number;
 	rarityColored?: boolean;
 	name: string;
-	deckClass?: string;
+	heroes: number[];
 	showButton?: boolean;
 	id?: number;
 	clickable?: boolean;
+	deckClass?: string;
+	format?: number;
 }
 
 export default class CardList extends React.Component<CardListProps, any> {
@@ -47,17 +49,24 @@ export default class CardList extends React.Component<CardListProps, any> {
 		});
 
 		return (
-			<ul className="card-list">
-				{cardTiles}
+			<div>
+				<ul className="card-list">
+					{cardTiles}
+				</ul>
 				{this.props.showButton && cardTiles.length > 0 && this.props.deckClass ?
-					<HDTButton
-						card_ids={this.props.cardList}
-						name={this.props.name}
-						deckClass={this.props.deckClass}
-						sourceUrl={window.location.toString()}
-						id={this.props.id}
-				/> : null}
-			</ul>
+					<div className="text-center copy-deck-wrapper">
+						<CopyDeckButton
+							cardIds={this.props.cardList}
+							cards={this.props.cardList.map((id) => this.props.cards.byCardId[id].dbfId)}
+							heroes={this.props.heroes}
+							format={this.props.format}
+							deckClass={this.props.deckClass}
+							name={this.props.name}
+							sourceUrl={window.location.toString()}
+							id={"" + this.props.id}
+						/>
+					</div> : null}
+			</div>
 		);
 	}
 }

@@ -45,6 +45,7 @@ export interface GlobalGamePlayer {
 	hero_premium: boolean;
 	hero_name: string;
 	hero_class_name: string;
+	hero_dbf_id: number;
 	final_state: PlayState;
 	wins: number;
 	losses: number;

@@ -72,7 +72,9 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 						<CardList
 							cards={this.props.cards}
 							cardList={this.state.game.opposing_deck.cards}
+							heroes={[this.state.game.opposing_player.hero_dbf_id]}
 							deckClass={deckClass}
+							format={this.state.game.global_game.format}
 							name={this.state.game.opposing_player.name + "'s " + deckClass}
 							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
 							id={1}
@@ -97,6 +99,8 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 						<CardList
 							cards={this.props.cards}
 							cardList={this.state.game.friendly_deck.cards}
+							heroes={[this.state.game.friendly_player.hero_dbf_id]}
+							format={this.state.game.global_game.format}
 							deckClass={deckClass}
 							name={this.state.game.friendly_player.name + "'s " + deckClass}
 							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}

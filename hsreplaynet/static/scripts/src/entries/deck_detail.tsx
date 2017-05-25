@@ -9,6 +9,7 @@ const adminUrl = document.getElementById("deck-info").getAttribute("data-admin-u
 const deckId = document.getElementById("deck-info").getAttribute("data-deck-id");
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
 const deckClass = document.getElementById("deck-info").getAttribute("data-deck-class");
+const heroDbfId = +document.getElementById("deck-info").getAttribute("data-hero-id");
 const user = new UserData();
 const defaultAccount = user.getDefaultAccountKey();
 
@@ -30,6 +31,7 @@ const render = (cardData: CardData) => {
 				deckCards={cards}
 				deckClass={deckClass}
 				deckId={deckId}
+				heroDbfId={heroDbfId}
 				user={user}
 			/>
 		</Fragments>,
