@@ -378,11 +378,6 @@ table .info-icon {
 
 .copy-deck-button {
 	font-weight: bold;
-	//cursor: pointer;
-	//text-align: center;
-	//width: 100%;
-	//padding: 6px 4px;
-	//border: solid 1px white;
 
 	.success {
 		color: green;
@@ -393,8 +388,12 @@ table .info-icon {
 	}
 }
 
-.copy-deck-wrapper {
+.card-list + .copy-deck-wrapper {
 	padding: 1em 0 0.5em 0;
+}
+
+.hero-image + .copy-deck-wrapper {
+	padding: 0 0 1em 0;
 }
 
 .table-wrapper {

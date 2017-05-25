@@ -204,7 +204,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					className="hero-image"
 					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
 				/>
-				<div className="text-center">
+				<div className="text-center copy-deck-wrapper">
 					<CopyDeckButton
 						cardIds={
 							this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)

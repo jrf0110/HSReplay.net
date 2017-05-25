@@ -31,9 +31,12 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 	}
 
 	render() {
-		const classNames = ["copy-deck-button hidden-xs btn btn-default"];
+		const classNames = ["copy-deck-button hidden-xs btn"];
 		if (this.state.copied) {
-			classNames.push("highlight");
+			classNames.push("btn-success");
+		}
+		else {
+			classNames.push("btn-primary");
 		}
 		if (this.props.disabled) {
 			classNames.push("disabled");
@@ -49,8 +52,8 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 					id={this.state.elementId}
 					className={classNames.join(" ")}
 				>
-					<span className={this.state.copied ? "glyphicon glyphicon-check" : "glyphicon glyphicon-copy"}></span>&nbsp;
-					{this.state.copied ? "Copied!" : "Copy Deck to Hearthstone"}
+					{!this.state.copied ? <span><span className="glyphicon glyphicon-copy"></span>&nbsp;</span> : null}
+					{this.state.copied ? "Deck copied!" : "Copy Deck to Hearthstone"}
 				</span>
 			</Tooltip>
 		);
