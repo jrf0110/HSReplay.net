@@ -108,6 +108,10 @@ class GlobalGamePlayerSerializer(serializers.ModelSerializer):
 	hero_name = serializers.SerializerMethodField()
 	account_hi = serializers.SerializerMethodField()
 	account_lo = serializers.SerializerMethodField()
+	hero_dbf_id = serializers.SerializerMethodField()
+
+	def get_hero_dbf_id(self, instance):
+		return instance.hero.dbf_id
 
 	def get_hero_name(self, instance):
 		return instance.hero.name
@@ -122,8 +126,8 @@ class GlobalGamePlayerSerializer(serializers.ModelSerializer):
 		model = GlobalGamePlayer
 		fields = (
 			"name", "player_id", "account_hi", "account_lo", "is_ai", "is_first",
-			"hero_id", "hero_premium", "final_state", "wins", "losses", "rank", "legend_rank",
-			"hero_name", "hero_class_name"
+			"hero_id", "hero_premium", "final_state", "wins", "losses", "rank",
+			"legend_rank", "hero_name", "hero_class_name", "hero_dbf_id"
 		)
 
 
