@@ -261,6 +261,10 @@ class Deck(models.Model):
 		if deck_class and deck_class != enums.CardClass.NEUTRAL:
 			return deck_class.default_hero
 
+	@property
+	def hero_dbf_id(self):
+		return Card.objects.get(id=self.hero).dbf_id
+
 	@cached_property
 	def deck_class(self):
 		for include in self.includes.all():
@@ -271,11 +275,10 @@ class Deck(models.Model):
 
 	@cached_property
 	def deckstring(self):
-		hero = Card.objects.get(id=self.hero).dbf_id
 		cardlist = self.card_dbf_id_list()
 		sorted_list = sorted(set(cardlist))
 		cards = [(id, cardlist.count(id)) for id in sorted_list]
-		return deckstrings.write_deckstring(cards, [hero], self.format)
+		return deckstrings.write_deckstring(cards, [self.hero_dbf_id], self.format)
 
 	@cached_property
 	def format(self):
