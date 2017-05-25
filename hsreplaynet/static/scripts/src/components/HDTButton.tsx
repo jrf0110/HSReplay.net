@@ -11,7 +11,7 @@ interface HDTButtonProps {
 	card_ids: string[];
 	deckClass: string;
 	disabled?: boolean;
-	id?: number;
+	id?: string;
 	name: string;
 	sourceUrl: string;
 }

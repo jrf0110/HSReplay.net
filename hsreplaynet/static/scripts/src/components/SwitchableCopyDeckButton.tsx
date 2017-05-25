@@ -28,7 +28,7 @@ export default class SwitchableCopyDeckButton extends React.Component<Switchable
 					card_ids={this.props.cardIds}
 					deckClass={this.props.deckClass}
 					disabled={this.props.disabled}
-					id={1}
+					id={this.props.id}
 					name={this.props.name}
 					sourceUrl={this.props.sourceUrl}
 				/>
