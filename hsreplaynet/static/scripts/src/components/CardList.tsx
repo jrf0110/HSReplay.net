@@ -2,9 +2,10 @@ import * as React from "react";
 import CardTile from "./CardTile";
 import {cardSorting} from "../helpers";
 import CopyDeckButton from "./SwitchableCopyDeckButton";
+import CardData from "../CardData";
 
 interface CardListProps {
-	cards: any;
+	cardData: CardData;
 	cardList: string[];
 	cardHeight?: number;
 	rarityColored?: boolean;
@@ -22,7 +23,7 @@ export default class CardList extends React.Component<CardListProps, any> {
 		if (!this.props.cardList) {
 			return null;
 		}
-		if (!this.props.cards) {
+		if (!this.props.cardData) {
 			return <div className="text-center">Loading cards…</div>;
 		}
 
@@ -30,7 +31,7 @@ export default class CardList extends React.Component<CardListProps, any> {
 		const counts = {};
 		this.props.cardList.forEach((id) => counts[id] = (counts[id] || 0) + 1);
 
-		const cards = Object.keys(counts).map((id) => this.props.cards.byCardId[id]);
+		const cards = Object.keys(counts).map((id) => this.props.cardData.fromCardId(id));
 		cards.sort(cardSorting);
 
 		const cardTiles = [];
@@ -56,8 +57,9 @@ export default class CardList extends React.Component<CardListProps, any> {
 				{this.props.showButton && cardTiles.length > 0 && this.props.deckClass ?
 					<div className="text-center copy-deck-wrapper">
 						<CopyDeckButton
+							cardData={this.props.cardData}
 							cardIds={this.props.cardList}
-							cards={this.props.cardList.map((id) => this.props.cards.byCardId[id].dbfId)}
+							cards={this.props.cardList.map((id) => this.props.cardData.fromCardId(id).dbfId)}
 							heroes={this.props.heroes}
 							format={this.props.format}
 							deckClass={this.props.deckClass}

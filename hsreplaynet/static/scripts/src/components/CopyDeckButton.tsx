@@ -3,8 +3,10 @@ import {encode as encodeDeckstring} from "deckstrings";
 import Tooltip from "./Tooltip";
 import * as _ from "lodash";
 import Clipboard from "clipboard";
+import CardData from "../CardData";
 
 interface CopyDeckButtonProps extends React.ClassAttributes<CopyDeckButton> {
+	cardData: CardData;
 	name?: string;
 	cards: number[];
 	heroes: number[];
@@ -92,13 +94,23 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 			heroes: this.props.heroes,
 			format: format,
 		});
+
+		let readableDeckList = null;
+		if (this.props.cardData) {
+			const dataCountTuples = tuples.map(([dbfId, count]) => {
+				return [this.props.cardData.fromDbf(dbfId), count];
+			});
+			dataCountTuples.sort(([a, x], [b, y]) => a["name"] > b["name"] ? 1 : -1);
+			dataCountTuples.sort(([a, x], [b, y]) => a["cost"] > b["cost"] ? 1 : -1);
+			readableDeckList = dataCountTuples.map(([card, count]) => `${count}x (${card.cost}) ${card.name}`);
+		}
+
 		return [
 			`### ${this.props.name || "HSReplay.net Deck"}`,
 			//`# Class:  ???`,
-			`# Format: ${format === 2 ? "Standard" : "Wild"}`,
+			`# Format: ${format === 2 ? "Standard" : "Wild"}`, ,
+			...readableDeckList ? ["#", `# ${readableDeckList}`, "#"] : [],
 			"#",
-			//"# Deck list here",
-			//"#",
 			deckstring,
 			"#",
 			"# To use this deck, copy it to your clipboard and create a new deck in Hearthstone",

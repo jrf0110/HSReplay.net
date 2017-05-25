@@ -2,6 +2,7 @@ import * as React from "react";
 import CardList from "./CardList";
 import {GameReplay, GlobalGamePlayer} from "../interfaces";
 import UserData from "../UserData";
+import CardData from "../CardData";
 
 interface PlayerInfoProps {
 	build: number;
@@ -9,7 +10,7 @@ interface PlayerInfoProps {
 	opponentName: string;
 	playerName: string;
 	user: UserData;
-	cards: any[]|null;
+	cardData: CardData;
 }
 
 interface PlayerInfoState {
@@ -70,7 +71,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					const deckClass = this.toTitleCase(this.state.game.opposing_player.hero_class_name);
 					opponentDeck.push(
 						<CardList
-							cards={this.props.cards}
+							cardData={this.props.cardData}
 							cardList={this.state.game.opposing_deck.cards}
 							heroes={[this.state.game.opposing_player.hero_dbf_id]}
 							deckClass={deckClass}
@@ -97,7 +98,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					const deckClass = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
 					playerDeck.push(
 						<CardList
-							cards={this.props.cards}
+							cardData={this.props.cardData}
 							cardList={this.state.game.friendly_deck.cards}
 							heroes={[this.state.game.friendly_player.hero_dbf_id]}
 							format={this.state.game.global_game.format}

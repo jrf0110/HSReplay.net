@@ -120,14 +120,15 @@ if (playerInfo) {
 				opponentName={opponentName}
 				build={build}
 				user={user}
-				cards={cards}
+				cardData={cards}
 			/>,
 			playerInfo,
 		);
 	};
 	renderPlayerInfo();
-	new CardData().load((cards) => {
-		renderPlayerInfo(cards);
+	const cardData = new CardData();
+	cardData.load((instance) => {
+		renderPlayerInfo(instance);
 	})
 }
 

@@ -3,14 +3,19 @@ import HDTButton from "./HDTButton";
 import UserData from "../UserData";
 import Tooltip from "./Tooltip";
 import CopyDeckButton from "./CopyDeckButton";
+import CardData from "../CardData";
 
 interface SwitchableCopyDeckButtonProps extends React.ClassAttributes<SwitchableCopyDeckButton> {
+	// element
+	cardData: CardData;
+	disabled?: boolean;
+
+	// deck specific
 	name: string;
 	cards: number[];
 	heroes: number[];
 	format: number;
 	sourceUrl: string;
-	disabled?: boolean;
 
 	// to be removed
 	id?: string;
@@ -36,6 +41,7 @@ export default class SwitchableCopyDeckButton extends React.Component<Switchable
 		}
 
 		return <CopyDeckButton
+			cardData={this.props.cardData}
 			cards={this.props.cards}
 			heroes={this.props.heroes}
 			format={this.props.format}

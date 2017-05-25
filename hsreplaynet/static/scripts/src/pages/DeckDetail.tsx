@@ -209,6 +209,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						cardIds={
 							this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)
 						}
+						cardData={this.props.cardData}
 						cards={this.props.deckCards.split(",").map(Number)}
 						heroes={[this.props.heroDbfId]}
 						format={this.gameType() === "RANKED_STANDARD" ? 2 : 1}
