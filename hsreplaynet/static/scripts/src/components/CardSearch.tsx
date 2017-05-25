@@ -22,6 +22,7 @@ interface CardSearchProps {
 	selectedCards: any[];
 	label?: string;
 	cardLimit?: Limit;
+	onPaste: (e: any) => any;
 }
 
 export default class CardSearch extends React.Component<CardSearchProps, CardSearchState> {
@@ -119,6 +120,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 						})}
 						onKeyDown={(e) => this.onKeyDown(e, cards.length)}
 						aria-autocomplete="list"
+						onPaste={this.props.onPaste}
 					/>
 					{clear}
 				</div>
