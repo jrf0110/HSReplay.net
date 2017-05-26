@@ -35,7 +35,7 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 	}
 
 	render() {
-		const classNames = ["copy-deck-button hidden-xs btn"];
+		const classNames = ["copy-deck-button btn"];
 		if (this.state.copied) {
 			classNames.push("btn-success");
 		}
