@@ -1,7 +1,6 @@
 import * as React from "react";
 import HDTButton from "./HDTButton";
 import UserData from "../UserData";
-import Tooltip from "./Tooltip";
 import CopyDeckButton from "./CopyDeckButton";
 import CardData from "../CardData";
 
