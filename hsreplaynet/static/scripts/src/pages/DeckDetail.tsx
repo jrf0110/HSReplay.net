@@ -214,7 +214,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						heroes={[this.props.heroDbfId]}
 						format={this.gameType() === "RANKED_STANDARD" ? 2 : 1}
 						deckClass={this.props.deckClass}
-						disabled={!this.props.cardData}
 						name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
 						sourceUrl={window.location.toString()}
 					/>
