@@ -64,6 +64,20 @@ table .info-icon {
 				margin: 0.4em 0 0 0;
 			}
 		}
+
+		dl {
+			margin: 0;
+
+			dt {
+				font-style: italic;
+				font-weight: normal;
+				margin-top: 0.5em;
+
+				&:first-child {
+					margin-top: 0.7em;
+				}
+			}
+		}
 	}
 
 	&.simple-tooltip {
