@@ -49,7 +49,10 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 		return (
 			<Tooltip
 				header="After you click:"
-				content={"Create a new deck in Hearthstone or Hearthstone Deck Tracker."}
+				content={<p>
+					Create a new deck in Hearthstone, or
+					paste it into our own Hearthstone&nbsp;Deck&nbsp;Tracker.
+				</p>}
 				centered
 			>
 				<span
