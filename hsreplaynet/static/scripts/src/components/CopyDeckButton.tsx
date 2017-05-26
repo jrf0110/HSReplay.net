@@ -90,6 +90,7 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 		const tuples = Object.keys(dbfs).map((dbfId) => {
 			return [+dbfId, +dbfs[dbfId]];
 		});
+		tuples.sort(([a, x], [b, y]) => a === b ? 0 : (a > b ? 1 : -1));
 		let format = this.props.format ? this.props.format : 1; // default to wild
 		const deckstring = encodeDeckstring({
 			cards: tuples,
