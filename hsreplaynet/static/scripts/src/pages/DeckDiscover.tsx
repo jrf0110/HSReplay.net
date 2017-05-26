@@ -10,13 +10,14 @@ import NoDecksMessage from "../components/NoDecksMessage";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import {cardSorting, isWildSet} from "../helpers";
+import {cardSorting, isWildSet, sortCards} from "../helpers";
 import {DeckObj, FragmentChildProps, TableData} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import InfoIcon from "../components/InfoIcon";
 import Tooltip from "../components/Tooltip";
+import {decode as decodeDeckstring} from "deckstrings";
 
 interface DeckDiscoverState {
 	cardSearchExcludeKey?: number;
@@ -133,8 +134,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const missingIncludedCards = (deckList: any[]) => {
 			return includedCards.some((includedCardObj) => {
 				return includedCardObj && deckList.every((cardObj) => {
-					return cardObj && cardObj.card.id !== includedCardObj.card.id || cardObj.count < includedCardObj.count
-				});
+						return cardObj && cardObj.card.id !== includedCardObj.card.id || cardObj.count < includedCardObj.count
+					});
 			});
 		};
 		const containsExcludedCards = (deckList: any[]) => {
@@ -333,13 +334,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			if (accounts.length === 0) {
 				const message = this.props.user.isPremium() ? "No account found" : "My Account";
 				const help = this.props.user.isPremium() && (
-					<span className="infobox-value">
+						<span className="infobox-value">
 						<Tooltip
 							header="No Hearthstone account found"
 							content={
 								<div>
 									<p>Play one (more) game and upload the replay for your account to appear here.</p>
-									<br/>
+									<br />
 									<p>Please contact us if this problem remains! (click)</p>
 								</div>
 							}
@@ -347,7 +348,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							<a href="/contact/">help</a>
 						</Tooltip>
 					</span>
-				);
+					);
 				accounts.push(
 					<InfoboxFilter value="undefined" locked>
 						{message}
@@ -414,8 +415,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								content={{
 									click: (
 										<p>
-												Only show decks for specific classes.&nbsp;
-												<span>Hold <kbd>Ctrl</kbd> to select multiple classes.</span>
+											Only show decks for specific classes.&nbsp;
+											<span>Hold <kbd>Ctrl</kbd> to select multiple classes.</span>
 										</p>
 									),
 									touch: "Only show decks for specific classes.",
@@ -470,6 +471,27 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
 							selectedCards={selectedCards("includedCards")}
 							cardLimit={Limit.NORMAL}
+							onPaste={this.props.user.hasFeature("deckstrings") ? (e) => {
+								const input = e.clipboardData.getData("text/plain");
+								const lines = input.trim().split("\n").filter((line) => !line.startsWith("#"));
+								let result = null;
+								try {
+									result = decodeDeckstring(lines[0]);
+								}
+								catch (e) {
+									return;
+								}
+								e.preventDefault();
+								const cards = [];
+								for (let tuple of result.cards) {
+									const [dbfId, count] = tuple;
+									for (let i = 0; i < count; i++) {
+										cards.push(this.props.cardData.fromDbf(dbfId));
+									}
+								}
+								cards.sort(sortCards);
+								this.props.setIncludedCards(cards.map((card) => card.dbfId));
+							} : null}
 						/>
 					</section>
 					<section id="exclude-cards-filter">

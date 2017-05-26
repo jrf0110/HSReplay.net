@@ -754,3 +754,13 @@ export function getFragments(keys: string[]) {
 	}
 	return Fragments.encodeFragmentString(fragments);
 }
+
+export function sortCards(a, b): number {
+	if (a["cost"] === b["cost"]) {
+		if (a["name"] === b["name"]) {
+			return 0;
+		}
+		return a["name"] > b["name"] ? 1 : -1;
+	}
+	return a["cost"] > b["cost"] ? 1 : -1;
+}

@@ -1,6 +1,6 @@
 import * as React from "react";
 import CardTile from "./CardTile";
-import {cleanText, slangToCardId} from "../helpers";
+import {cleanText, slangToCardId, sortCards} from "../helpers";
 
 export const enum Limit {
 	SINGLE,
@@ -22,7 +22,7 @@ interface CardSearchProps {
 	selectedCards: any[];
 	label?: string;
 	cardLimit?: Limit;
-	onPaste: (e: any) => any;
+	onPaste?: (e: any) => any;
 }
 
 export default class CardSearch extends React.Component<CardSearchProps, CardSearchState> {
@@ -110,7 +110,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 						ref={(input) => this.input = input}
 						className="form-control"
 						type="search"
-						placeholder="Search…"
+						placeholder={this.props.onPaste ? "Search for cards or paste deck…" : "Search for cards…"}
 						onFocus={() => this.setState({cardSearchHasFocus: true})}
 						onBlur={() => this.setState({cardSearchHasFocus: false})}
 						value={this.state.cardSearchText}
@@ -144,8 +144,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 		const selected = this.props.selectedCards || [];
 		if (selected.indexOf(card) === -1) {
 			const newSelectedCards = selected.concat([card]);
-			newSelectedCards.sort((a, b) => a["name"] > b["name"] ? 1 : -1);
-			newSelectedCards.sort((a, b) => a["cost"] > b["cost"] ? 1 : -1);
+			newSelectedCards.sort(sortCards);
 			this.props.onCardsChanged(newSelectedCards);
 		}
 		this.setState({cardSearchText: "", cardSearchCount: this.defaultCardCount, selectedIndex: 0});
