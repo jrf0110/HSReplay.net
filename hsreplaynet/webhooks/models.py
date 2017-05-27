@@ -27,7 +27,7 @@ class Event(models.Model):
 		return self.type
 
 
-class Webhook(models.Model):
+class WebhookEndpoint(models.Model):
 	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
 
 	url = models.URLField(
@@ -128,7 +128,7 @@ class WebhookTrigger(models.Model):
 	id = models.BigAutoField(primary_key=True)
 
 	webhook = models.ForeignKey(
-		Webhook, null=True, on_delete=models.SET_NULL, related_name="triggers"
+		WebhookEndpoint, null=True, on_delete=models.SET_NULL, related_name="triggers"
 	)
 	payload = models.TextField(blank=True)
 	url = models.URLField(help_text="The URL that is POSTed to")

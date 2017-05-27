@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Webhook, WebhookTrigger
+from .models import WebhookEndpoint, WebhookTrigger
 
 
 def send_test_payload(admin, request, queryset):
@@ -18,8 +18,8 @@ def redeliver(admin, request, queryset):
 send_test_payload.short_description = "Redeliver payload"
 
 
-@admin.register(Webhook)
-class WebhookAdmin(admin.ModelAdmin):
+@admin.register(WebhookEndpoint)
+class WebhookEndpointAdmin(admin.ModelAdmin):
 	list_display = (
 		"__str__", "url", "is_active", "user", "max_triggers", "created", "is_deleted",
 	)
