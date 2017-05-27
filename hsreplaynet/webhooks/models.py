@@ -1,5 +1,6 @@
 import json
 import time
+from datetime import datetime
 from uuid import uuid4
 from django.conf import settings
 from django.db import models
@@ -136,8 +137,11 @@ class WebhookTrigger(models.Model):
 		key = self.webhook.secret.encode("utf-8")
 		msg = self.payload.encode("utf-8")
 		mac = HMAC(key, msg, digestmod=sha256)
+		timestamp = datetime.now().timestamp()
 
-		return "sha256=" + mac.hexdigest()
+		return "t={t}, sha256={sha256}".format(
+			t=int(timestamp), sha256=mac.hexdigest()
+		)
 
 	def deliver(self, timeout):
 		import requests
