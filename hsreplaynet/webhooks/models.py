@@ -9,9 +9,6 @@ from django.urls import reverse
 from .validators import WebhookURLValidator
 
 
-SUCCESS_STATUS_CODES = (200, 201, 204)
-
-
 class Event(models.Model):
 	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
 	type = models.CharField(max_length=50, db_index=True)
@@ -166,7 +163,7 @@ class WebhookTrigger(models.Model):
 			r = requests.post(self.url, data=self.payload, headers=headers, timeout=timeout)
 			self.response_status = r.status_code
 			self.response = r.text[:8192]
-			self.success = r.status_code in SUCCESS_STATUS_CODES
+			self.success = 200 <= r.status_code <= 299
 		except Exception as e:
 			self.response_status = 0
 			self.response = str(e)
