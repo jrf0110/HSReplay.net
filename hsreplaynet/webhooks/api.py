@@ -5,7 +5,7 @@ from rest_framework.viewsets import GenericViewSet
 from hsreplaynet.api.permissions import IsOwnerOrStaff
 from hsreplaynet.api.serializers import UserSerializer
 from hsreplaynet.utils.influx import influx_metric
-from .models import Webhook
+from .models import WebhookEndpoint
 
 
 class WebhookSerializer(serializers.ModelSerializer):
@@ -17,11 +17,11 @@ class WebhookSerializer(serializers.ModelSerializer):
 		)
 		read_only_fields = ("user", )
 		extra_kwargs = {"secret": {"write_only": True}}
-		model = Webhook
+		model = WebhookEndpoint
 
 	def create(self, validated_data):
 		validated_data["user"] = self.context["request"].user
-		ret = Webhook.objects.create(**validated_data)
+		ret = WebhookEndpoint.objects.create(**validated_data)
 		influx_metric("hsreplaynet_webhook_create", {
 			"source": "api-oauth2",
 			"client_id": self.context["request"].auth.application.client_id,
@@ -33,7 +33,7 @@ class WebhookSerializer(serializers.ModelSerializer):
 class WebhookViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
 	authentication_classes = (OAuth2Authentication, )
 	permission_classes = (IsOwnerOrStaff, TokenHasResourceScope)
-	queryset = Webhook.objects.filter(is_deleted=False)
+	queryset = WebhookEndpoint.objects.filter(is_deleted=False)
 	serializer_class = WebhookSerializer
 	required_scopes = ["webhooks"]
 

@@ -2,11 +2,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, UpdateView
 from hsreplaynet.utils.html import RequestMetaMixin
-from .models import Webhook
+from .models import WebhookEndpoint
 
 
 class WebhookFormMixin(LoginRequiredMixin, RequestMetaMixin):
-	model = Webhook
+	model = WebhookEndpoint
 	template_name = "webhooks/detail.html"
 	fields = ["url", "secret", "is_active"]
 	success_url = reverse_lazy("account_api")
