@@ -15,7 +15,7 @@ class WebhookSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		fields = (
-			"uuid", "user", "url", "is_active", "max_triggers", "secret", "created", "modified"
+			"uuid", "user", "url", "is_active", "secret", "created", "updated"
 		)
 		read_only_fields = ("user", )
 		extra_kwargs = {"secret": {"write_only": True}}

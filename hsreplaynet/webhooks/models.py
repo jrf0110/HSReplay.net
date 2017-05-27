@@ -29,30 +29,28 @@ class Event(models.Model):
 
 class WebhookEndpoint(models.Model):
 	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
-
 	url = models.URLField(
 		validators=[WebhookURLValidator()],
 		help_text="The URL the webhook will POST to."
 	)
+	secret = models.UUIDField(
+		editable=False, default=uuid4,
+		help_text="Salt for the X-Webhook-Signature header sent with the payload",
+	)
+	timeout = models.PositiveSmallIntegerField(
+		default=10, help_text="Timeout (in seconds) the triggers have before they fail."
+	)
 	user = models.ForeignKey(
 		settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="webhooks"
 	)
-	is_active = models.BooleanField(default=True)
+
+	is_active = models.BooleanField(default=True, help_text="Whether the listener is enabled.")
 	is_deleted = models.BooleanField(default=False)
-	max_triggers = models.PositiveSmallIntegerField(
-		default=0,
-		help_text="How many triggers after which the Webhook will be deleted. (0 for unlimited)"
-	)
 	created = models.DateTimeField(auto_now_add=True)
-	modified = models.DateTimeField(auto_now=True)
-	timeout = models.PositiveSmallIntegerField(default=10)
-	secret = models.CharField(
-		blank=True, max_length=255,
-		help_text="Salt for the X-Webhook-Signature header sent with the payload",
-	)
+	updated = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
-		return str(self.uuid)
+		return self.url
 
 	def get_absolute_url(self):
 		return reverse("account_update_webhook", kwargs={"pk": self.pk})
@@ -117,11 +115,6 @@ class WebhookEndpoint(models.Model):
 		)
 		# Firing the webhook will save it
 		t.deliver(timeout=self.timeout)
-
-		if self.max_triggers:
-			num_triggers = self.triggers.count()
-			if num_triggers >= self.max_triggers:
-				self.delete()
 
 
 class WebhookTrigger(models.Model):

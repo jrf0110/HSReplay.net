@@ -19,7 +19,6 @@ NOTE: All requests SHOULD include `X-Api-Key: <apikey>`.
 #### Read+write attributes
 
 - `url` (str) (required): The URL the webhook will hit.
-- `max_triggers` (int): Webhook is deleted after it triggers `max_triggers` times. Default 0 (unlimited)
 - `is_active` (bool): If `is_active` is false, the webhook does not trigger.
 
 

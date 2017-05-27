@@ -21,7 +21,7 @@ send_test_payload.short_description = "Redeliver payload"
 @admin.register(WebhookEndpoint)
 class WebhookEndpointAdmin(admin.ModelAdmin):
 	list_display = (
-		"__str__", "url", "is_active", "user", "max_triggers", "created", "is_deleted",
+		"__str__", "url", "is_active", "user", "created", "is_deleted",
 	)
 	list_filter = ("is_active", "is_deleted")
 	raw_id_fields = ("user", )
