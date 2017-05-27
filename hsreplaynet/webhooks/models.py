@@ -3,12 +3,28 @@ import time
 from datetime import datetime
 from uuid import uuid4
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 from .validators import WebhookURLValidator
 
 
 SUCCESS_STATUS_CODES = (200, 201, 204)
+
+
+class Event(models.Model):
+	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
+	type = models.CharField(max_length=50, db_index=True)
+	data = JSONField(blank=True)
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="events"
+	)
+
+	created = models.DateTimeField(auto_now_add=True)
+	updated = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.type
 
 
 class Webhook(models.Model):
