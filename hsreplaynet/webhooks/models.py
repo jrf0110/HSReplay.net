@@ -1,6 +1,7 @@
 import json
 import time
 import traceback
+from datetime import datetime
 from enum import IntEnum
 from uuid import uuid4
 from django.conf import settings
@@ -30,7 +31,6 @@ def generate_signature(key, message):
 	- https://developer.github.com/webhooks/securing/
 	- https://stripe.com/docs/webhooks#signatures
 	"""
-	from datetime import datetime
 	from hashlib import sha256
 	from hmac import HMAC
 
@@ -111,6 +111,18 @@ class WebhookEndpoint(models.Model):
 	def delete(self):
 		self.is_deleted = True
 		self.save()
+
+	def send_test_event(self):
+		payload = {
+			"event": None,
+			"type": "test",
+			"data": {},
+			"created": int(datetime.now().timestamp()),
+		}
+		webhook = Webhook.objects.create(
+			endpoint=self, url=self.url, event=None, payload=payload, status=WebhookStatus.PENDING
+		)
+		webhook.schedule_delivery()
 
 
 class Webhook(models.Model):
