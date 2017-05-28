@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import WebhookDelivery, WebhookEndpoint
+from .models import Webhook, WebhookDelivery, WebhookEndpoint
 
 
 def send_test_payload(admin, request, queryset):
@@ -29,10 +29,19 @@ class WebhookEndpointAdmin(admin.ModelAdmin):
 	actions = (send_test_payload, )
 
 
-@admin.register(WebhookDelivery)
-class WebhookDeliveryAdmin(admin.ModelAdmin):
-	list_display = (
-		"__str__", "uuid", "url", "webhook", "created", "response_status", "success", "completed_time"
-	)
-	list_filter = ("response_status", "success")
+class WebhookDeliveryInline(admin.StackedInline):
+	model = WebhookDelivery
+	extra = 0
 	raw_id_fields = ("webhook", )
+	show_change_link = True
+
+
+@admin.register(Webhook)
+class WebhookAdmin(admin.ModelAdmin):
+	list_display = (
+		"__str__", "endpoint", "url", "event", "status", "created", "updated"
+	)
+	list_filter = ("status", )
+	raw_id_fields = ("endpoint", "event", )
+	search_fields = ("url", )
+	inlines = (WebhookDeliveryInline, )
