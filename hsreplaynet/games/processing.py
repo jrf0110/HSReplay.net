@@ -261,9 +261,14 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 		# We use get or create in case this is not the first time processing this replay
 		ReplayAlias.objects.get_or_create(replay=replay, shortid=upload_event.shortid)
 
-	if user:
-		# Re-query the replay object for the webhook trigger
-		user.trigger_webhooks(GameReplay.objects.get(id=replay.id))
+	if user and not user.is_fake and user.webhook_endpoints.filter(is_deleted=False).exists():
+		# Re-query the replay object and create an Event for it
+		from hsreplaynet.webhooks.models import Event
+		replay = GameReplay.objects.get(id=replay.id)
+		event = Event.objects.create(
+			user=user, type="replay.created", data=replay.serialize()
+		)
+		event.create_webhooks()
 
 	return replay, created
 
