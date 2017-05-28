@@ -4,7 +4,7 @@ from .models import WebhookDelivery, WebhookEndpoint
 
 def send_test_payload(admin, request, queryset):
 	for obj in queryset:
-		obj.trigger({"test_data": True})
+		obj.send_test_event()
 
 
 send_test_payload.short_description = "Send test payload"
