@@ -106,7 +106,7 @@ class WebhookEndpoint(models.Model):
 		return self.url
 
 	def get_absolute_url(self):
-		return reverse("account_update_webhook", kwargs={"pk": self.pk})
+		return reverse("account_update_webhook", kwargs={"pk": str(self.pk)})
 
 	def delete(self):
 		self.is_deleted = True
@@ -221,7 +221,7 @@ class Webhook(models.Model):
 class WebhookDelivery(models.Model):
 	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
 	webhook = models.ForeignKey(
-		Webhook, null=True, on_delete=models.SET_NULL, related_name="triggers"
+		Webhook, null=True, on_delete=models.SET_NULL, related_name="deliveries"
 	)
 	url = models.URLField()
 	request_headers = JSONField()

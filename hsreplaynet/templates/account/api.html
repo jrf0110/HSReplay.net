@@ -62,14 +62,12 @@
 					<thead>
 						<th>UUID</th>
 						<th>URL</th>
-						<th>Created</th>
 						<th>Active</th>
 					</thead>
 					{% for webhook in webhooks %}
 						<tr>
 							<td><a href="{{ webhook.get_absolute_url }}">{{ webhook.uuid }}</a></td>
 							<td>{{ webhook.url }}</td>
-							<td>{{ webhook.created|htmltime:"%F %X %Z" }}</td>
 							{% if webhook.is_active %}
 								<td class="webhook-active">✓</td>
 							{% else %}
