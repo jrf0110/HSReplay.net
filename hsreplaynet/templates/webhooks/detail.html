@@ -3,7 +3,7 @@
 
 {% block content %}
 	<section id="webhooks-form" class="box-section">
-	<h3>{% if webhook %}Edit Webhook{% else %}New Webhook{% endif %}</h3>
+	<h3>{% if webhook %}Manage endpoint{% else %}New endpoint{% endif %}</h3>
 
 	<div class="inner">
 		{% if not webhook %}
@@ -20,13 +20,29 @@
 		<hr/>
 		{% endif %}
 
+		{% if webhook %}
+			<div>
+				<form
+					action="{% url 'account_delete_webhook' webhook.pk %}"
+					method="POST"
+					id="webhook-delete-form"
+					onsubmit="return confirm('Are you sure? There is no undo.')"
+				>
+					{% csrf_token %}
+					<button type="submit" class="btn btn-danger">Delete webhook</button>
+				</form>
+				<h2>{{ webhook.url }}</h2>
+			</div>
+			<hr/>
+		{% endif %}
+
 		<form action="" method="POST" id="webhook-create-form">
 			{% csrf_token %}
 
-			{% if webhook %}
+			{% if webhook and user.is_staff %}
 			<div class="form-group">
 				<label for="uuid">UUID</label>
-				<input type="text" value="{{ webhook.uuid }}" id="uuid" class="form-control" readonly onclick="this.select()"/>
+				<input type="text" value="{{ webhook.uuid }}" id="id_uuid" class="form-control" readonly onclick="this.select()"/>
 			</div>
 			{% endif %}
 
@@ -42,22 +58,18 @@
 				{% endif %}
 				<p class="help-block">
 					This URL will receive the JSON POST request.
-					It should always return either HTTP 200 or HTTP 201.
 				</p>
 			</div>
 
+			{% if webhook %}
 			<div class="form-group">
-				<label for="id_secret">Secret (optional)</label>
-				<input
-					type="password" name="secret" id="id_secret" size="30" maxlength="200"
-					class="form-control" value="{{ form.instance.secret }}"
-				/>
+				<label for="id_secret">Secret</label>
+				<input type="text" value="{{ webhook.secret }}" id="id_secret" class="form-control" readonly onclick="this.select()"/>
 				<p class="help-block">
-					Webhooks will contain an <code>X-Webhook-Signature</code> HTTP header with an SHA-256 HMAC of the payload's body.<br/>
-					If you include a secret here, it will serve as the HMAC key.
-					The implementation is similar to <a href="https://developer.github.com/webhooks/securing/" target="_blank">GitHub's webhooks</a>.
+					<a href="https://github.com/HearthSim/HSReplay.net/wiki/Webhooks">Learn more about securing webhooks</a>.
 				</p>
 			</div>
+			{% endif %}
 
 			<div class="checkbox">
 				<label>
@@ -68,25 +80,10 @@
 
 			{% if webhook %}
 				<button type="submit" class="btn btn-primary">Update webhook</button>
-				{% if user.is_staff %}
-					<a href="{% url 'admin:webhooks_webhook_change' webhook.pk %}" class="btn btn-info pull-right">View in admin</a>
-				{% endif %}
 			{% else %}
 				<button type="submit" class="btn btn-success">Add webhook</button>
 			{% endif %}
 		</form>
-
-		{% if webhook %}
-			<form
-				action="{% url 'account_delete_webhook' webhook.pk %}"
-				method="POST"
-				id="webhook-delete-form"
-				onsubmit="return confirm('Are you sure? There is no undo.')"
-			>
-				{% csrf_token %}
-				<input type="submit" class="btn btn-danger" value="Delete webhook"/>
-			</form>
-		{% endif %}
 	</div>
 
 	</section>
@@ -95,24 +92,24 @@
 		<section id="webhooks-deliveries" class="box-section">
 		<h3>Latest deliveries</h3>
 		<div class="inner">
-		{% if triggers %}
+		{% if deliveries %}
 			<table class="table table-bordered">
 				<thead>
 					<th>URL</th>
 					<th>Date</th>
 					<th>Success</th>
 				</thead>
-				{% for trigger in triggers %}
+				{% for delivery in deliveries %}
 					<tr>
-						<td><a href="{{ trigger.url }}">{{ trigger.url }}</a></td>
-						<td>{{ trigger.created|htmltime:"%F %X %Z" }}</td>
+						<td><a href="{{ delivery.url }}" target="_blank">{{ delivery.url }}</a></td>
+						<td>{{ delivery.created|htmltime:"%F %X %Z" }}</td>
 						<td>
-							{% if trigger.success %}
+							{% if delivery.success %}
 								<strong class="webhook-active">✓</strong>
-								({{ trigger.completed_time }}ms)
+								({{ delivery.completed_time }}ms)
 							{% else %}
 								<strong class="webhook-inactive">✗</strong>
-								{% if trigger.response_status %}(HTTP {{ trigger.response_status }}){% endif %}
+								{% if delivery.response_status %}(HTTP {{ delivery.response_status }}){% endif %}
 							{% endif %}
 						</td>
 					</tr>
@@ -120,7 +117,7 @@
 			</table>
 		{% else %}
 			<p>
-				This webhook has not been triggered yet.
+				There are no recent deliveries for this webhook.
 				{% if not webhook.is_active %}
 					<em>Try enabling it!</em>
 				{% endif %}
