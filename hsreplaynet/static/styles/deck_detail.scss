@@ -105,6 +105,14 @@
 			padding-bottom: 0;
 		}
 
+		.card-list {
+			width: 270px;
+			margin: 20px auto;
+		}
+
+		.copy-deck-wrapper {
+			padding-bottom: 20px;
+		}
 	}
 
 	.chart-wrapper {
@@ -135,6 +143,11 @@
 		font-style: italic;
 		margin: -10px 0 0 5px;
 	}
+
+	#message-no-data {
+		padding-top: 20px;
+	}
+
 }
 
 .card-table-row {

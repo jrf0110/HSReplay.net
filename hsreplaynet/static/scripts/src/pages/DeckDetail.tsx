@@ -9,7 +9,6 @@ import DeckStats from "../components/deckdetail/DeckStats";
 import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
 import PersonalDeckStats from "../components/deckdetail/PersonalDeckStats";
 import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
-import HDTButton from "../components/HDTButton";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import ChartLoading from "../components/loading/ChartLoading";
@@ -29,6 +28,7 @@ import Tooltip from "../components/Tooltip";
 import WinrateBreakdownTable from "../components/deckdetail/WinrateBreakdownTable";
 import DeckOverviewTable from "../components/deckdetail/DeckOverviewTable";
 import CopyDeckButton from "../components/SwitchableCopyDeckButton";
+import CardList from "../components/CardList";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -110,8 +110,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			this.dataManager.get("list_deck_inventory").then((data) => {
 				if (data) {
 					const availableFilters = data.series[this.props.deckId];
-					const gameTypes = Object.keys(availableFilters);
-					if (gameTypes.indexOf(this.props.gameType) === -1) {
+					const gameTypes = availableFilters && Object.keys(availableFilters);
+					if (gameTypes && gameTypes.indexOf(this.props.gameType) === -1) {
 						const gameType = gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
 						this.props.setGameType(gameType);
 					}
@@ -191,19 +191,116 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			);
 		};
 
-		const rankRanges = [
-			infoBoxFilter("LEGEND_ONLY", "Legend only"),
-			infoBoxFilter("LEGEND_THROUGH_FIVE", "Legend–5"),
-			infoBoxFilter("LEGEND_THROUGH_TEN", "Legend–10"),
-			infoBoxFilter("ALL", "Legend–25"),
-		];
-
-		return <div className="deck-detail-container">
-			<aside className="infobox">
+		let cardList = null;
+		let heroImage = null;
+		let filters = null;
+		let header = null;
+		const hasPersonalData = this.props.user.hasFeature("personal-deck-stats") && this.state.hasPeronalData;
+		if (this.state.hasData === false && hasPersonalData === false) {
+			cardList = (
+				<CardList
+					cardData={this.props.cardData}
+					cardList={this.props.deckCards.split(",").map(Number)}
+					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
+					heroes={[this.props.heroDbfId]}
+				/>
+			);
+			header = (
+				<h4 className="message-wrapper" id="message-no-data">This deck does not have enough data.</h4>
+			);
+		}
+		else {
+			heroImage = (
 				<img
 					className="hero-image"
 					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
 				/>
+			);
+
+			if (this.state.hasData !== false) {
+				filters = [
+					<PremiumWrapper name="Single Deck Opponent Selection" isPremium={isPremium}>
+						<h2>Select your opponent</h2>
+						<ClassFilter
+							filters="All"
+							hideAll
+							minimal
+							tabIndex={premiumTabIndex}
+							selectedClasses={this.props.selectedClasses}
+							selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
+						/>
+					</PremiumWrapper>,
+					<PremiumWrapper
+						name="Single Deck Rank Range"
+						isPremium={isPremium}
+						infoHeader="Deck breakdown rank range"
+						infoContent={[
+							<p>Check out how this deck performs at higher ranks!</p>,
+							<br/>,
+							<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
+						]}
+					>
+						<h2>Rank range</h2>
+						<InfoboxFilterGroup
+							locked={!isPremium}
+							selectedValue={this.rankRange()}
+							onClick={(rankRange) => this.props.setRankRange(rankRange)}
+							tabIndex={premiumTabIndex}
+						>
+							{infoBoxFilter("LEGEND_ONLY", "Legend only")}
+							{infoBoxFilter("LEGEND_THROUGH_FIVE", "Legend–5")}
+							{infoBoxFilter("LEGEND_THROUGH_TEN", "Legend–10")}
+							{infoBoxFilter("ALL", "Legend–25")}
+						</InfoboxFilterGroup>
+					</PremiumWrapper>,
+				];
+
+				header = [
+					<div className="col-lg-6 col-md-6">
+						<div className="chart-wrapper wide">
+							<DataInjector
+								dataManager={this.dataManager}
+								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
+								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
+							>
+								<ChartLoading>
+									<PopularityLineChart
+										widthRatio={2}
+										maxYDomain={10}
+									/>
+								</ChartLoading>
+							</DataInjector>
+							<InfoIcon
+								header="Popularity over time"
+								content="Percentage of games played with this deck."
+							/>
+						</div>
+					</div>,
+					<div className="col-lg-6 col-md-6">
+						<div className="chart-wrapper wide">
+							<DataInjector
+								dataManager={this.dataManager}
+								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
+								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
+							>
+								<ChartLoading>
+									<WinrateLineChart widthRatio={2} />
+								</ChartLoading>
+							</DataInjector>
+							<InfoIcon
+								header="Winrate over time"
+								content="Percentage of games won with this deck."
+							/>
+						</div>
+					</div>,
+				];
+			}
+		}
+
+		return <div className="deck-detail-container">
+			<aside className="infobox">
+				{cardList}
+				{heroImage}
 				<div className="text-center copy-deck-wrapper">
 					<CopyDeckButton
 						cardIds={
@@ -234,37 +331,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<span className="infobox-value">{dustCost && dustCost + " Dust"}</span>
 					</li>
 				</ul>
-				<PremiumWrapper name="Single Deck Opponent Selection" isPremium={isPremium}>
-					<h2>Select your opponent</h2>
-					<ClassFilter
-						filters="All"
-						hideAll
-						minimal
-						tabIndex={premiumTabIndex}
-						selectedClasses={this.props.selectedClasses}
-						selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
-					/>
-				</PremiumWrapper>
-				<PremiumWrapper
-					name="Single Deck Rank Range"
-					isPremium={isPremium}
-					infoHeader="Deck breakdown rank range"
-					infoContent={[
-						<p>Check out how this deck performs at higher ranks!</p>,
-						<br/>,
-						<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
-					]}
-				>
-					<h2>Rank range</h2>
-					<InfoboxFilterGroup
-						locked={!isPremium}
-						selectedValue={this.rankRange()}
-						onClick={(rankRange) => this.props.setRankRange(rankRange)}
-						tabIndex={premiumTabIndex}
-					>
-					{rankRanges}
-					</InfoboxFilterGroup>
-				</PremiumWrapper>
+				{filters}
 				{accountFilter}
 				<DataInjector
 					dataManager={this.dataManager}
@@ -303,47 +370,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</aside>
 			<main>
 				<section id="content-header">
-					<div className="col-lg-6 col-md-6">
-						<div className="chart-wrapper wide">
-							<DataInjector
-								dataManager={this.dataManager}
-								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
-							>
-								<ChartLoading>
-									<PopularityLineChart
-										widthRatio={2}
-										maxYDomain={10}
-									/>
-								</ChartLoading>
-							</DataInjector>
-							<InfoIcon
-								header="Popularity over time"
-								content="Percentage of games played with this deck."
-							/>
-						</div>
-					</div>
-					<div className="col-lg-6 col-md-6">
-						<div className="chart-wrapper wide">
-							<DataInjector
-								dataManager={this.dataManager}
-								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
-							>
-								<ChartLoading>
-									<WinrateLineChart widthRatio={2} />
-								</ChartLoading>
-							</DataInjector>
-							<InfoIcon
-								header="Winrate over time"
-								content="Percentage of games won with this deck."
-							/>
-						</div>
-					</div>
+					{header}
 				</section>
 				<section id="page-content">
 					<TabList tab={this.props.tab} setTab={this.props.setTab}>
-						<Tab label="Overview" id="overview">
+						<Tab label="Overview" id="overview" hidden={this.state.hasData === false}>
 							<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 								<ManaCurve cards={cards}/>
 								<DataInjector
@@ -391,7 +422,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</DataInjector>
 							</div>
 						</Tab>
-						<Tab label="Breakdown" id="breakdown">
+						<Tab label="Breakdown" id="breakdown" hidden={this.state.hasData === false}>
 							<div className="table-wrapper">
 								<DataInjector
 									dataManager={this.dataManager}
@@ -431,13 +462,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<Tab label="Similar Decks" id="similar">
 							<DataInjector
 								dataManager={this.dataManager}
-								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
+								fetchCondition={this.isWildDeck() !== undefined}
 								query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType(), RankRange: this.rankRange()}}}
 							>
-								<TableLoading
-									cardData={this.props.cardData}
-									customMessage={this.state.hasData === false ? "No available data" : undefined}
-								>
+								<TableLoading cardData={this.props.cardData}>
 									<SimilarDecksList
 										playerClass={this.props.deckClass}
 										rawCardList={this.props.deckCards}
