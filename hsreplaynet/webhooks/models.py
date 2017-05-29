@@ -74,8 +74,7 @@ class Event(models.Model):
 		}
 		for endpoint in endpoints:
 			webhook = Webhook.objects.create(
-				endpoint=endpoint, url=endpoint.url,
-				event=self, payload=payload, status=WebhookStatus.PENDING
+				endpoint=endpoint, url=endpoint.url, event=self, payload=payload
 			)
 			webhook.schedule_delivery()
 
@@ -120,7 +119,7 @@ class WebhookEndpoint(models.Model):
 			"created": int(datetime.now().timestamp()),
 		}
 		webhook = Webhook.objects.create(
-			endpoint=self, url=self.url, event=None, payload=payload, status=WebhookStatus.PENDING
+			endpoint=self, url=self.url, event=None, payload=payload
 		)
 		webhook.schedule_delivery()
 
@@ -174,6 +173,9 @@ class Webhook(models.Model):
 		On ENV_AWS, this schedules a Lambda trigger.
 		Otherwise, triggers immediately.
 		"""
+		self.status = WebhookStatus.PENDING
+		self.save()
+
 		if settings.ENV_AWS:
 			from hsreplaynet.utils.aws.clients import LAMBDA
 			LAMBDA.invoke(
