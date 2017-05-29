@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Webhook, WebhookDelivery, WebhookEndpoint
+from .models import Event, Webhook, WebhookDelivery, WebhookEndpoint
 
 
 def send_test_payload(admin, request, queryset):
@@ -16,6 +16,20 @@ def redeliver(admin, request, queryset):
 
 
 send_test_payload.short_description = "Redeliver payload"
+
+
+class WebhookInline(admin.StackedInline):
+	model = Webhook
+	raw_id_fields = ("endpoint", "event")
+	extra = 0
+	show_change_link = True
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+	list_display = ("__str__", "type", "user", "created", "updated")
+	raw_id_fields = ("user", )
+	inlines = (WebhookInline, )
 
 
 @admin.register(WebhookEndpoint)
