@@ -64,7 +64,7 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 			}
 		}
 		else if (this.props.opponentWinrateData) {
-			baseWinrate = +this.props.opponentWinrateData.series.data[this.props.dataKey][0].win_rate;
+			baseWinrate = +this.props.opponentWinrateData.series.data[this.props.dataKey][0].winrate;
 		}
 
 		rowList.forEach((item, index) => {
