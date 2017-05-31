@@ -175,7 +175,9 @@ class DeckManager(models.Manager):
 			return Deck.objects.get_or_create(digest=digest)
 
 	def _convert_hero_id_to_player_class(self, hero_id):
-		if hero_id:
+		if isinstance(hero_id, int):
+			return Card.objects.get(dbf_id=hero_id).card_class
+		elif hero_id:
 			return Card.objects.get(id=hero_id).card_class
 		return enums.CardClass.INVALID
 
