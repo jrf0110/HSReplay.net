@@ -27,7 +27,7 @@ export default class SwitchableCopyDeckButton extends React.Component<Switchable
 	render() {
 		const userdata = new UserData();
 
-		if (!userdata.hasFeature("deckstrings")) {
+		if (userdata.hasFeature("hdt-button")) {
 			return (
 				<HDTButton
 					card_ids={this.props.cardIds}
