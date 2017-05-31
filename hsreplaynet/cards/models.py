@@ -155,23 +155,21 @@ class DeckManager(models.Manager):
 		return deck, created
 
 	def _get_or_create_deck_from_db(self, id_list):
-		if len(id_list):
-			# This native implementation in the DB is to reduce the volume
-			# of DB chatter between Lambdas and the DB
-			cursor = connection.cursor()
-			cursor.callproc("get_or_create_deck", (id_list,))
-			result_row = cursor.fetchone()
-			deck_id = int(result_row[0])
-			created_ts = result_row[1]
-			digest = result_row[2]
-			created = result_row[3]
-			deck_size = result_row[4]
-			cursor.close()
-			d = Deck(id=deck_id, created=created_ts, digest=digest, size=deck_size)
-			return d, created
-		else:
+		if not id_list:
+			# Empty list; not supported by our db function
 			digest = generate_digest_from_deck_list(id_list)
 			return Deck.objects.get_or_create(digest=digest)
+
+		# This native implementation in the DB is to reduce the volume
+		# of DB chatter between Lambdas and the DB
+		cursor = connection.cursor()
+		cursor.callproc("get_or_create_deck", (id_list, ))
+		result_row = cursor.fetchone()
+		deck_id = int(result_row[0])
+		created_ts, digest, created, deck_size = result_row[1:]
+		cursor.close()
+		d = Deck(id=deck_id, created=created_ts, digest=digest, size=deck_size)
+		return d, created
 
 	def _convert_hero_id_to_player_class(self, hero_id):
 		if isinstance(hero_id, int):
