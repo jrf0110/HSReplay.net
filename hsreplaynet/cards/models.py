@@ -131,11 +131,6 @@ class DeckManager(models.Manager):
 	):
 		deck, created = self._get_or_create_deck_from_db(id_list)
 
-		archetypes_enabled = settings.ARCHETYPE_CLASSIFICATION_ENABLED
-		if archetypes_enabled and classify_into_archetype and created:
-			player_class = self._convert_hero_id_to_player_class(hero_id)
-			self.classify_deck_with_archetype(deck.format, player_class, format)
-
 		return deck, created
 
 	def _get_or_create_deck_from_db(self, id_list):
