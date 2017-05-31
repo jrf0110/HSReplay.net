@@ -13,7 +13,7 @@ from shortuuid.main import int_to_string, string_to_int
 
 
 ALPHABET = string.ascii_letters + string.digits
-DBF_DB, _ = cardxml.load_dbf()
+DBF_DB = {}
 
 
 class CardManager(models.Manager):
@@ -86,6 +86,9 @@ class Card(models.Model):
 
 	@classmethod
 	def get_string_id(cls, dbf_id):
+		if not DBF_DB:
+			db, _ = cardxml.load_dbf()
+			DBF_DB.update(db)
 		return DBF_DB[dbf_id].id
 
 	def __str__(self):
