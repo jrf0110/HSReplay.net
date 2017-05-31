@@ -8,11 +8,12 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django_intenum import IntEnumField
-from hearthstone import deckstrings, enums
+from hearthstone import cardxml, deckstrings, enums
 from shortuuid.main import int_to_string, string_to_int
 
 
 ALPHABET = string.ascii_letters + string.digits
+DBF_DB, _ = cardxml.load_dbf()
 
 
 class CardManager(models.Manager):
@@ -82,6 +83,10 @@ class Card(models.Model):
 		obj = cls(id=card.id)
 		obj.update_from_cardxml(card, save=save)
 		return obj
+
+	@classmethod
+	def get_string_id(cls, dbf_id):
+		return DBF_DB[dbf_id].id
 
 	def __str__(self):
 		return self.name
