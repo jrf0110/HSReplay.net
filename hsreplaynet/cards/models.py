@@ -150,8 +150,7 @@ class DeckManager(models.Manager):
 		archetypes_enabled = settings.ARCHETYPE_CLASSIFICATION_ENABLED
 		if archetypes_enabled and classify_into_archetype and created:
 			player_class = self._convert_hero_id_to_player_class(hero_id)
-			format = self._convert_game_type_to_format(game_type)
-			self.classify_deck_with_archetype(deck, player_class, format)
+			self.classify_deck_with_archetype(deck.format, player_class, format)
 
 		return deck, created
 
@@ -180,26 +179,6 @@ class DeckManager(models.Manager):
 		elif hero_id:
 			return Card.objects.get(id=hero_id).card_class
 		return enums.CardClass.INVALID
-
-	def _convert_game_type_to_format(self, game_type):
-		# TODO: Move this to be a helper on the enum itself
-		STANDARD_GAME_TYPES = [
-			enums.BnetGameType.BGT_CASUAL_STANDARD,
-			enums.BnetGameType.BGT_RANKED_STANDARD,
-		]
-		WILD_GAME_TYPES = [
-			enums.BnetGameType.BGT_CASUAL_WILD,
-			enums.BnetGameType.BGT_RANKED_WILD,
-			enums.BnetGameType.BGT_ARENA
-		]
-
-		if game_type:
-			if game_type in STANDARD_GAME_TYPES:
-				return enums.FormatType.FT_STANDARD
-			elif game_type in WILD_GAME_TYPES:
-				return enums.FormatType.FT_WILD
-
-		return enums.FormatType.FT_UNKNOWN
 
 	def classify_deck_with_archetype(self, deck, player_class, format):
 		archetype = Archetype.objects.classify_deck(deck, player_class, format)
