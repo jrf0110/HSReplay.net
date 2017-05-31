@@ -118,7 +118,7 @@ class FeatureInvite(models.Model):
 	"""
 
 	uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
-	features = models.ManyToManyField(Feature, related_name="invites")
+	features = models.ManyToManyField(Feature, related_name="invites", blank=True)
 	use_count = models.PositiveIntegerField(
 		default=0, editable=False,
 		help_text="The amount of times this invitation has been successfully used."
