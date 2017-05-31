@@ -1065,9 +1065,9 @@ decamelize@^1.0.0, decamelize@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
 
-deckstrings@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/deckstrings/-/deckstrings-0.1.1.tgz#ba010e8667bdcecf6ba11faf2458f359f7c5e96e"
+deckstrings@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/deckstrings/-/deckstrings-0.2.0.tgz#93744830784da35925671bfda804c0c34e1029f3"
   dependencies:
     atob "^2.0.3"
     btoa "^1.1.2"
