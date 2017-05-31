@@ -169,4 +169,4 @@ class MyDeckIDsView(LoginRequiredMixin, View):
 				"game_types": dict(game_types_for_deck[deck_id])
 			}
 
-		return JsonResponse(result, json_dumps_params=dict(indent=4))
+		return JsonResponse(result)
