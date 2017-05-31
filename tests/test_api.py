@@ -254,3 +254,36 @@ def test_oauth_api(admin_user, client, settings):
 	assert response.status_code == 403
 	response = client.get(webhooks_list_url, HTTP_AUTHORIZATION=bearer_auth)
 	assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_deck_exchange(client):
+	from hearthstone.enums import FormatType
+	from hsreplaynet.cards.models import Deck
+
+	decks_by_list_url = "/api/v1/decks/"
+
+	response = client.post(decks_by_list_url, data={})
+	assert response.status_code == 400
+
+	decklist = [1074, 1074]  # Slam
+	decklist += [179] * 28  # Wisps
+
+	data = {
+		"cards": decklist,
+		"heroes": [7],  # Garrosh
+		"format": int(FormatType.FT_STANDARD),
+	}
+
+	response = client.post(decks_by_list_url, data=data)
+	obj = response.json()
+	print(obj)
+	assert obj["cards"] == sorted(decklist)
+	assert obj["shortid"] == "If2f3dQc0qnIqvulN18KId"
+	assert response.status_code == 201
+	assert Deck.objects.all().count() == 1
+
+	# Replay the request, should be 200 now
+	response = client.post(decks_by_list_url, data=data)
+	assert response.status_code == 200
+	assert Deck.objects.all().count() == 1

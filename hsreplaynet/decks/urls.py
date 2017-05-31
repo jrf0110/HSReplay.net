@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from . import views
+from .api import GetOrCreateDeckView
 
 
 deck_detail = views.DeckDetailView.as_view()
@@ -14,4 +15,8 @@ urlpatterns = [
 	url(r"^trending/", trending_decks, name="trending_decks"),
 	url(r"^canonical/json/$", views.canonical_decks, name="canonical_decks"),
 	url(r"^(?P<id>\w+)/$", deck_detail, name="deck_detail"),
+]
+
+api_urlpatterns = [
+	url(r"^v1/decks/$", GetOrCreateDeckView.as_view()),
 ]

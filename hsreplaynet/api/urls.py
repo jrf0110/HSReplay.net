@@ -4,6 +4,7 @@ from hsreplaynet.accounts.api import AuthTokenViewSet
 from hsreplaynet.accounts.urls import api_urlpatterns as accounts_urlpatterns
 from hsreplaynet.analytics.urls import api_urlpatterns as analytics_urlpatterns
 from hsreplaynet.comments.urls import api_urlpatterns as comments_urlpatterns
+from hsreplaynet.decks.urls import api_urlpatterns as decks_urlpatterns
 from hsreplaynet.packs.api import PackViewSet
 from hsreplaynet.webhooks.api import WebhookViewSet
 from . import views
@@ -24,5 +25,6 @@ urlpatterns = [
 ]
 
 urlpatterns += accounts_urlpatterns
+urlpatterns += decks_urlpatterns
 urlpatterns += comments_urlpatterns
 urlpatterns += analytics_urlpatterns
