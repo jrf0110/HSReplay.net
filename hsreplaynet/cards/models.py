@@ -1,6 +1,5 @@
 import hashlib
 import json
-import random
 import string
 from django.conf import settings
 from django.db import connection, models
@@ -17,26 +16,6 @@ ALPHABET = string.ascii_letters + string.digits
 
 
 class CardManager(models.Manager):
-	def random(self, cost=None, collectible=True, card_class=None):
-		"""
-		Return a random Card.
-
-		Keyword arguments:
-		cost: Restrict the set of candidate cards to cards of this mana cost.
-		By default will be in the range 1 through 8 inclusive.
-		collectible: Restrict the set of candidate cards to the set of collectible cards.
-		card_class: Restrict the set of candidate cards to this class.
-		"""
-		cost = random.randint(1, 8) if cost is None else cost
-		cards = super(CardManager, self).filter(collectible=collectible)
-		cards = cards.exclude(type=enums.CardType.HERO).filter(cost=cost)
-
-		if card_class is not None:
-			cards = [c for c in cards if c.card_class in (0, card_class)]
-
-		if cards:
-			return random.choice(cards)
-
 	def get_valid_deck_list_card_set(self):
 		if not hasattr(self, "_usable_cards"):
 			card_list = Card.objects.filter(collectible=True).exclude(type=enums.CardType.HERO)
