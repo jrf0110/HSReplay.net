@@ -206,18 +206,18 @@ body, html {
 			margin: 0.5em;
 		}
 	}
-}
 
-.site-footer p {
-	margin: 0;
-}
+	p {
+		margin: 0;
+	}
 
-.site-footer a {
-	color: inherit;
-}
+	a {
+		color: inherit;
+	}
 
-.site-footer abbr[title] {
-	border-bottom: none;
+	abbr[title] {
+		border-bottom: none;
+	}
 }
 
 /* Generic pages (eg. account, flatpages) */
@@ -226,10 +226,10 @@ body, html {
 	padding: 0 3em;
 	max-width: 950px;
 	margin: 0 auto;
-}
 
-.page section {
-	margin-bottom: 2.5em;
+	section {
+		margin-bottom: 2.5em;
+	}
 }
 
 #flatpage-content {
