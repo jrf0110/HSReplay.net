@@ -38,18 +38,18 @@ export default class DeckStats extends React.Component<DeckStatsProps, DeckStats
 				<h2>Data</h2>
 				<ul>
 					<li>
-						Based on
-						<span className="infobox-value">{toPrettyNumber(+deck["total_games"]) + " replays"}</span>
+						Sample size
+						<span className="infobox-value">{toPrettyNumber(+deck["total_games"]) + " games"}</span>
+					</li>
+					<li>
+						Time frame
+						<span className="infobox-value">Last 30 days</span>
 					</li>
 					<InfoboxLastUpdated
 						dataManager={this.props.dataManager}
 						url={this.props.lastUpdatedUrl}
 						params={this.props.lastUpdatedParams}
 					/>
-					<li>
-						Time frame
-						<span className="infobox-value">Last 30 days</span>
-					</li>
 				</ul>
 			</section>
 		);

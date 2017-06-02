@@ -498,7 +498,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				<h2>Data</h2>
 				<ul>
 					<li>
-						Based on
+						Sample size
 						<span className="infobox-value">
 							<DataInjector
 								dataManager={this.dataManager}
@@ -516,16 +516,16 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</DataInjector>
 						</span>
 					</li>
+					<li>
+						Time frame
+						<span className="infobox-value">Last 30 days</span>
+					</li>
 					<InfoboxLastUpdated
 						dataManager={this.dataManager}
 						fetchCondition={!!this.props.card && isCollectibleCard(this.props.card)}
 						url={"single_card_stats_over_time"}
 						params={this.getParams()}
 					/>
-					<li>
-						Time frame
-						<span className="infobox-value">Last 30 days</span>
-					</li>
 				</ul>
 				<h2>Card</h2>
 				<ul>
