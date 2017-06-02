@@ -31,5 +31,13 @@
 				Blizzard China (CN)&hellip;
 			</a>
 		</li>
+		{% if debug %}
+		<li class="dropdown-header">Debug</li>
+		<li>
+			<a href="{% url 'account_login' %}?with-password">
+				Sign in with password&hellip;
+			</a>
+		</li>
+		{% endif %}
 	</ul>
 </div>
