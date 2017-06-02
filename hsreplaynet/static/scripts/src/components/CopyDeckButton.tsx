@@ -120,6 +120,7 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 			deckstring,
 			"#",
 			"# To use this deck, copy it to your clipboard and create a new deck in Hearthstone",
+			...this.props.sourceUrl ? [`# Find the deck on ${this.props.sourceUrl}`] : [],
 		].join("\n");
 	}
 }
