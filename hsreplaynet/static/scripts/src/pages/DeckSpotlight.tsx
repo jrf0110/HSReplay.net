@@ -5,9 +5,9 @@ import TableLoading from "../components/loading/TableLoading";
 import TrendingDecksList from "../components/trending/TrendingDecksList";
 import DataManager from "../DataManager";
 import HideLoading from "../components/loading/HideLoading";
-import DataText from "../components/DataText";
-import { getAge } from "../PrettyTime";
 import Tooltip from "../components/Tooltip";
+import PropRemapper from "../components/utils/PropRemapper";
+import SemanticAge from "../components/SemanticAge";
 
 interface DeckSpotlightProps {
 	cardData: CardData;
@@ -20,17 +20,21 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, v
 		return (
 			<div id="deck-spotlight">
 				<span className="pull-right">
-					Last updated
 					<Tooltip
 						header="Automatic updates"
 						content="This page is periodically updated as new data becomes available."
 					>
+						Last updated&nbsp;
 						<DataInjector
 							dataManager={this.dataManager}
 							query={{url: "trending_decks_by_popularity", params: {}}}
-							modify={(data) => data && data.as_of ? getAge(new Date(data.as_of)) : null}
+							modify={(data) => data && data.as_of ? new Date(data.as_of) : null}
 						>
-							<HideLoading><DataText /></HideLoading>
+							<HideLoading>
+								<PropRemapper map={{data: "date"}}>
+									<SemanticAge />
+								</PropRemapper>
+							</HideLoading>
 						</DataInjector>
 					</Tooltip>
 				</span>

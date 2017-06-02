@@ -5,7 +5,8 @@ import GameHistoryPlayer from "./GameHistoryPlayer";
 import GameModeIcon from "../GameModeIcon";
 import GameModeText from "../GameModeText";
 import {PlayState, BnetGameType} from "../../hearthstone";
-import {getDuration, getAge} from "../../PrettyTime";
+import {getDuration} from "../../PrettyTime";
+import SemanticAge from "../SemanticAge";
 
 
 interface GameHistoryTableRowProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryTableRow> {
@@ -65,7 +66,7 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 				</div>
 				<div className="match-table-cell hide-below-1600">{getDuration(this.props.startTime, this.props.endTime)}</div>
 				<div className="match-table-cell hide-below-768">{Math.ceil(this.props.turns / 2)}</div>
-				<div className="match-table-cell hide-below-500">{getAge(this.props.endTime)}</div>
+				<div className="match-table-cell hide-below-500"><SemanticAge date={this.props.endTime} /></div>
 			</a>
 		);
 	}

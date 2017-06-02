@@ -4,7 +4,8 @@ import GameHistoryPlayer from "./GameHistoryPlayer";
 import GameModeIcon from "../GameModeIcon";
 import GameModeText from "../GameModeText";
 import {PlayState, BnetGameType} from "../../hearthstone";
-import {getDuration, getAge} from "../../PrettyTime";
+import {getDuration} from "../../PrettyTime";
+import SemanticAge from "../SemanticAge";
 
 interface GameHistoryItemProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryItem> {
 	shortid: string;
@@ -41,7 +42,7 @@ export default class GameHistoryItem extends React.Component<GameHistoryItemProp
 				<div className="hsreplay-details">
 					<dl>
 						<dt>Played</dt>
-						<dd>{getAge(this.props.endTime)}</dd>
+						<dd><SemanticAge date={this.props.endTime} /></dd>
 						<dt>Duration</dt>
 						<dd>{getDuration(this.props.startTime, this.props.endTime)}</dd>
 						<dt>Turns</dt>

@@ -1,10 +1,10 @@
 import * as React from "react";
 import HideLoading from "./loading/HideLoading";
 import DataInjector from "./DataInjector";
-import DataText from "./DataText";
 import DataManager from "../DataManager";
-import { getAge } from "../PrettyTime";
 import Tooltip from "./Tooltip";
+import SemanticAge from "./SemanticAge";
+import PropRemapper from "./utils/PropRemapper";
 
 interface InfoboxLastUpdatedProps {
 	dataManager: DataManager;
@@ -27,9 +27,13 @@ export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdat
 							dataManager={this.props.dataManager}
 							fetchCondition={this.props.fetchCondition}
 							query={{url: this.props.url, params: this.props.params}}
-							modify={(data) => data && data.as_of ? getAge(new Date(data.as_of)) : null}
+							modify={(data) => data && data.as_of ? new Date(data.as_of) : null}
 						>
-							<HideLoading><DataText p={false} /></HideLoading>
+							<HideLoading>
+								<PropRemapper map={{data: "date"}}>
+									<SemanticAge />
+								</PropRemapper>
+							</HideLoading>
 						</DataInjector>
 					</Tooltip>
 				</span>
