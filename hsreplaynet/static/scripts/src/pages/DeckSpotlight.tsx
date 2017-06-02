@@ -22,8 +22,8 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, v
 				<span className="pull-right">
 					Last updated
 					<Tooltip
-						header="Last updated"
-						content="We try to keep our statistics as up-to-date as possible. Pages are updated as new data becomes available."
+						header="Automatic updates"
+						content="This page is periodically updated as new data becomes available."
 					>
 						<DataInjector
 							dataManager={this.dataManager}

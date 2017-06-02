@@ -20,8 +20,8 @@ export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdat
 				Last updated
 				<span className="infobox-value">
 					<Tooltip
-						header="Last updated"
-						content="We try to keep our statistics as up-to-date as possible. Pages are updated as new data becomes available."
+						header="Automatic updates"
+						content="This page is periodically updated as new data becomes available."
 					>
 						<DataInjector
 							dataManager={this.props.dataManager}
