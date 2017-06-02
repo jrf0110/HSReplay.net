@@ -94,28 +94,32 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 			return [+dbfId, +dbfs[dbfId]];
 		});
 		tuples.sort(([a, x], [b, y]) => a === b ? 0 : (a > b ? 1 : -1));
-		let format = this.props.format ? this.props.format : 1; // default to wild
+		const format = this.props.format ? this.props.format : 1; // default to wild
 		const deckstring = encodeDeckstring({
 			cards: tuples,
 			heroes: this.props.heroes,
 			format: format,
+
 		});
 
-		let readableDeckList = null;
+		const standard = format === 2;
+
+		let prettyDeckList = null;
 		if (this.props.cardData) {
 			const dataCountTuples = tuples.map(([dbfId, count]) => {
 				return [this.props.cardData.fromDbf(dbfId), count];
 			});
 			dataCountTuples.sort(([a, x], [b, y]) => a["name"] > b["name"] ? 1 : -1);
 			dataCountTuples.sort(([a, x], [b, y]) => a["cost"] > b["cost"] ? 1 : -1);
-			readableDeckList = dataCountTuples.map(([card, count]) => `${count}x (${card.cost}) ${card.name}`);
+			prettyDeckList = dataCountTuples.map(([card, count]) => `${count}x (${card.cost}) ${card.name}`);
 		}
 
 		return [
 			`### ${this.props.name || "HSReplay.net Deck"}`,
 			...this.props.deckClass ? [`# Class: ${toTitleCase(this.props.deckClass)}`] : [],
-			`# Format: ${format === 2 ? "Standard" : "Wild"}`,
-			...readableDeckList ? ["#", ...readableDeckList.map((line) => "# " + line)] : [],
+			`# Format: ${standard ? "Standard" : "Wild"}`,
+			...standard ? ["# Year of the Mammoth"] : [],
+			...prettyDeckList ? ["#", ...prettyDeckList.map((line) => "# " + line)] : [],
 			"#",
 			deckstring,
 			"#",
