@@ -18,6 +18,7 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false, 
 
 let modalIsOpen = null;
 let lastFocus = null;
+let lastLabel = null;
 
 const openModal = (modalToOpen, label?: string) => {
 	if (modalIsOpen === true) {
@@ -31,6 +32,8 @@ const openModal = (modalToOpen, label?: string) => {
 	const inner = modalToOpen.children[0];
 	inner.setAttribute("tabindex", 0);
 	inner.focus();
+
+	lastLabel = label;
 
 	trackModalInteraction("open", false, label);
 };
@@ -51,7 +54,10 @@ const closeModal = (modalToClose) => {
 	modalIsOpen = false;
 	modalToClose.style.display = "none";
 
-	trackModalInteraction("close");
+	const label = lastLabel;
+	lastLabel = null;
+
+	trackModalInteraction("close", false, label);
 };
 
 // setup modal
@@ -287,7 +293,9 @@ const setupCheckout = (target: HTMLFormElement|HTMLButtonElement) => {
 				});
 
 				// track start of checkout
-				trackModalInteraction("checkout");
+				const label = lastLabel;
+				lastLabel = null;
+				trackModalInteraction("checkout", false, label);
 			};
 			// enable button
 			button.removeAttribute("disabled");
