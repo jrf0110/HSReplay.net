@@ -190,7 +190,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				const turnStatsQuery = {
 					params: this.getParams(),
 					url: (
-						this.props.opponentClass !== "ALL" && isPremium
+						this.props.opponentClass !== "ALL"
 						? "/analytics/query/single_card_stats_by_turn_and_opponent"
 						: "/analytics/query/single_card_stats_by_turn"
 					),
@@ -203,6 +203,18 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					}
 					return data.series[0].data.length < 2;
 				};
+
+				const turnPlayedChart = <TurnPlayedBarChart
+					opponentClass={this.props.opponentClass}
+					widthRatio={2}
+					premiumLocked={!isPremium}
+				/>;
+
+				const winrateByTurnChart = <WinrateByTurnLineChart
+					opponentClass={this.props.opponentClass}
+					widthRatio={2}
+					premiumLocked={!isPremium}
+				/>;
 
 				const turnCharts = (
 					<div className="container-fluid">
@@ -221,18 +233,16 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<div className="row">
 							<div className="col-lg-6 col-md-6">
 								<div className="chart-wrapper">
-									<DataInjector
-										dataManager={this.dataManager}
-										query={turnStatsQuery}
-									>
-										<ChartLoading noDataCondition={turnStatsNoDataCondition}>
-											<TurnPlayedBarChart
-												opponentClass={this.props.opponentClass}
-												widthRatio={2}
-												premiumLocked={!isPremium}
-											/>
-										</ChartLoading>
-									</DataInjector>
+									{isPremium ?
+										<DataInjector
+											dataManager={this.dataManager}
+											query={turnStatsQuery}
+										>
+											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
+												{turnPlayedChart}
+											</ChartLoading>
+										</DataInjector> :
+									turnPlayedChart}
 									<InfoIcon
 										header="Popularity by turn"
 										content="Percentage of the time this card is played on a given turn."
@@ -241,18 +251,17 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</div>
 							<div className="col-lg-6 col-md-6">
 								<div className="chart-wrapper">
-									<DataInjector
-										dataManager={this.dataManager}
-										query={turnStatsQuery}
-									>
-										<ChartLoading noDataCondition={turnStatsNoDataCondition}>
-											<WinrateByTurnLineChart
-												opponentClass={this.props.opponentClass}
-												widthRatio={2}
-												premiumLocked={!isPremium}
-											/>
-										</ChartLoading>
-									</DataInjector>
+									{isPremium ?
+										<DataInjector
+											dataManager={this.dataManager}
+											query={turnStatsQuery}
+										>
+											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
+												{winrateByTurnChart}
+											</ChartLoading>
+										</DataInjector> :
+										winrateByTurnChart
+									}
 									<InfoIcon
 										header="Winrate by turn"
 										content="Percentage of games won when this card is played on a given turn."
