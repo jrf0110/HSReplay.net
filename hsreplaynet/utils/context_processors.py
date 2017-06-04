@@ -3,6 +3,7 @@ Context processors for billing/premium purposes
 """
 from django.conf import settings
 from django.contrib.messages import get_messages
+from hsreplaynet.features.models import Feature
 
 
 def userdata(request):
@@ -41,5 +42,13 @@ def userdata(request):
 		data["groups"] = []
 		for group in request.user.groups.all():
 			data["groups"].append(group.name.replace(":preview", ""))
+
+	data["features"] = {}
+	for feature in Feature.objects.all():
+		data["features"][feature.name] = {
+			"enabled": bool(feature.enabled_for_user(request.user))  # Django 1.10 hack
+		}
+		if feature.read_only:
+			data["features"][feature.name]["read_only"] = True
 
 	return {"userdata": data}
