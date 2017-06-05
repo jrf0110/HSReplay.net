@@ -33,14 +33,28 @@
 		}
 
 		#overview {
+			.overview-content {
+				display: flex;
+			}
+
 			>div >div {
 				padding-top: 20px;
 			}
 
 			table {
-				max-width: 500px;
+				max-width: 350px;
 				margin: 0 auto;
 				font-weight: bold;
+			}
+
+			.card-list-wrapper {
+				max-width: 270px;
+				min-width: 200px;
+				margin: 0 auto;
+			}
+
+			.chart-wrapper {
+				max-width: 450px;
 			}
 
 			.mana-curve {

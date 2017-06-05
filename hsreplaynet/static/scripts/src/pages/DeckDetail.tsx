@@ -1,5 +1,5 @@
+import TableLoading from "../components/loading/TableLoading";
 import * as React from "react";
-import CardData from "../CardData";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
@@ -13,22 +13,22 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import ChartLoading from "../components/loading/ChartLoading";
 import HideLoading from "../components/loading/HideLoading";
-import TableLoading from "../components/loading/TableLoading";
+import CardData from "../CardData";
 import PremiumWrapper from "../components/PremiumWrapper";
 import {SortDirection} from "../components/SortableTable";
 import DataManager from "../DataManager";
 import {getDustCost, getHeroCardId, isWildSet, toTitleCase} from "../helpers";
-import { TableData } from "../interfaces";
+import { CardObj, RenderData, TableData, DataPoint } from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
 import ManaCurve from "../components/ManaCurve";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import Tooltip from "../components/Tooltip";
-import WinrateBreakdownTable from "../components/deckdetail/WinrateBreakdownTable";
 import DeckOverviewTable from "../components/deckdetail/DeckOverviewTable";
 import CopyDeckButton from "../components/SwitchableCopyDeckButton";
 import CardList from "../components/CardList";
+import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -122,15 +122,23 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	render(): JSX.Element {
+		const dbfIds = this.props.deckCards.split(",").map(Number);
 		const cards = [];
 		let dustCost = 0;
+		let deckCharts = null;
 		if (this.props.cardData) {
-			this.props.deckCards.split(",").forEach((id) => {
+			dbfIds.forEach((id) => {
 				const card = this.props.cardData.fromDbf(id);
 				const cardObj = cards.find((obj) => obj.card.id === card.id) || cards[cards.push({card, count: 0}) - 1];
 				cardObj.count++;
 				dustCost += getDustCost(card);
 			});
+
+			deckCharts = this.getChartData(cards).map((data) => (
+				<div className="chart-wrapper">
+					<CardDetailPieChart data={data} customViewbox="0 30 400 310" removeEmpty/>
+				</div>
+			));
 		}
 
 		const isPremium = this.props.user.isPremium();
@@ -191,32 +199,42 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			);
 		};
 
-		let cardList = null;
-		let heroImage = null;
+		const overviewContent = [];
+
+		const cardList = (
+			<div className="card-list-wrapper">
+				<CardList
+					cardData={this.props.cardData}
+					cardList={dbfIds}
+					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
+					heroes={[this.props.heroDbfId]}
+					rarityColored
+					clickable
+				/>
+			</div>
+		);
+
 		let filters = null;
 		let header = null;
 		const hasPersonalData = this.props.user.hasFeature("personal-deck-stats") && this.state.hasPeronalData;
-		if (this.state.hasData === false && hasPersonalData === false) {
-			cardList = (
-				<CardList
-					cardData={this.props.cardData}
-					cardList={this.props.deckCards.split(",").map(Number)}
-					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
-					heroes={[this.props.heroDbfId]}
-				/>
-			);
+		if (this.state.hasData === false) {
 			header = (
 				<h4 className="message-wrapper" id="message-no-data">This deck does not have enough data.</h4>
 			);
 		}
-		else {
-			heroImage = (
-				<img
-					className="hero-image"
-					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
-				/>
+		if (this.state.hasData === false && hasPersonalData === false) {
+			overviewContent.push(
+				<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+					{cardList}
+					<ManaCurve cards={cards}/>
+				</div>,
+				<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+					{deckCharts && deckCharts[0]}
+					{deckCharts && deckCharts[1]}
+				</div>
 			);
-
+		}
+		else {
 			if (this.state.hasData !== false) {
 				filters = [
 					<PremiumWrapper name="Single Deck Opponent Selection" isPremium={isPremium}>
@@ -294,20 +312,60 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						</div>
 					</div>,
 				];
+
+				overviewContent.push(
+					<div className="col-lg-3 col-md-6 col-sm-12 col-xs-12">
+						{cardList}
+					</div>,
+					<div className="col-lg-5 col-md-6 col-sm-12 col-xs-12">
+						<ManaCurve cards={cards}/>
+						<DataInjector
+							dataManager={this.dataManager}
+							fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
+							query={[
+								{
+									key: "opponentWinrateData",
+									params: this.getParams(),
+									url: "single_deck_base_winrate_by_opponent_class",
+								},
+								{
+									key: "deckListData",
+									params: {GameType: this.gameType(), RankRange: this.rankRange()},
+									url: "list_decks_by_win_rate",
+								},
+							]}
+						>
+							<TableLoading
+								dataKeys={["opponentWinrateData", "deckListData"]}
+							>
+								<DeckOverviewTable
+									deckId={this.props.deckId}
+									playerClass={this.props.deckClass}
+								/>
+							</TableLoading>
+						</DataInjector>
+					</div>,
+					<div className="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+						{deckCharts && deckCharts[0]}
+						{deckCharts && deckCharts[1]}
+					</div>
+				);
 			}
 		}
 
 		return <div className="deck-detail-container">
 			<aside className="infobox">
-				{cardList}
-				{heroImage}
+				<img
+					className="hero-image"
+					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
+				/>
 				<div className="text-center copy-deck-wrapper">
 					<CopyDeckButton
 						cardIds={
 							this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)
 						}
 						cardData={this.props.cardData}
-						cards={this.props.deckCards.split(",").map(Number)}
+						cards={dbfIds}
 						heroes={[this.props.heroDbfId]}
 						format={this.gameType() === "RANKED_STANDARD" ? 2 : 1}
 						deckClass={this.props.deckClass}
@@ -374,53 +432,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</section>
 				<section id="page-content">
 					<TabList tab={this.props.tab} setTab={this.props.setTab}>
-						<Tab label="Overview" id="overview" hidden={this.state.hasData === false}>
-							<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-								<ManaCurve cards={cards}/>
-								<DataInjector
-									dataManager={this.dataManager}
-									fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
-									query={{
-										params: {GameType: this.gameType(), RankRange: this.rankRange()},
-										url: "list_decks_by_win_rate",
-									}}
-								>
-									<TableLoading customMessage={this.state.hasData === false ? "No available data" : undefined}>
-										<DeckOverviewTable
-											deckId={this.props.deckId}
-											playerClass={this.props.deckClass}
-										/>
-									</TableLoading>
-								</DataInjector>
-							</div>
-							<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-								<DataInjector
-									dataManager={this.dataManager}
-									fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
-									query={[
-										{
-											key: "opponentWinrateData",
-											params: this.getParams(),
-											url: "single_deck_base_winrate_by_opponent_class",
-										},
-										{
-											key: "deckListData",
-											params: {GameType: this.gameType(), RankRange: this.rankRange()},
-											url: "list_decks_by_win_rate",
-										},
-									]}
-								>
-									<TableLoading
-										dataKeys={["opponentWinrateData", "deckListData"]}
-										customMessage={this.state.hasData === false ? "No available data" : undefined}
-									>
-										<WinrateBreakdownTable
-											deckId={this.props.deckId}
-											playerClass={this.props.deckClass}
-										/>
-									</TableLoading>
-								</DataInjector>
-							</div>
+						<Tab label="Overview" id="overview">
+							{overviewContent}
 						</Tab>
 						<Tab label="Breakdown" id="breakdown" hidden={this.state.hasData === false}>
 							<div className="table-wrapper">
@@ -593,4 +606,25 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		};
 	}
 
+	getChartData(cards: CardObj[]): RenderData[] {
+		const dataSets = [{}, {}];
+
+		cards.forEach((cardObj) => {
+			dataSets[0][cardObj.card.rarity] = (dataSets[0][cardObj.card.rarity] || 0) + cardObj.count;
+			dataSets[1][cardObj.card.type] = (dataSets[1][cardObj.card.type] || 0) + cardObj.count;
+		});
+
+		const renderData = [
+			{ series: [ { name: "rarity", data: [], metadata: {chart_scheme: "rarity"} } ]},
+			{ series: [ { name: "type", data: [], metadata: {chart_scheme: "cardtype"} } ] },
+		];
+
+		dataSets.forEach((set, index) => {
+			Object.keys(set).forEach((key) => {
+				renderData[index].series[0].data.push({x: key, y: set[key]});
+			});
+		});
+
+		return renderData;
+	}
 }
