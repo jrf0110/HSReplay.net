@@ -333,6 +333,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 													removeEmpty
 													scheme={getChartScheme("class")}
 													sortByValue
+													groupSparseData
+													percentage
 												/>
 											</ChartLoading>
 										</DataInjector>

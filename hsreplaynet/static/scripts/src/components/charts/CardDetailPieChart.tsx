@@ -9,6 +9,9 @@ interface CardDetailPieChartProps {
 	scheme?: ChartScheme;
 	sortByValue?: boolean;
 	removeEmpty?: boolean;
+	groupSparseData?: boolean;
+	percentage?: boolean;
+	customViewbox?: string;
 }
 
 export default class CardDetailPieChart extends React.Component<CardDetailPieChartProps, void> {
@@ -32,26 +35,27 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 				data = data.filter((x) => x.y > 0);
 			}
 
-			// group sparse data
-			let remaining = 0;
-			let filtered = 0;
-			const filteredData = data.filter((a) => {
-				const value = +a.y;
-				if (value <= 5) {
-					remaining += value;
-					filtered++;
-					return false;
+			if (this.props.groupSparseData) {
+				let remaining = 0;
+				let filtered = 0;
+				const filteredData = data.filter((a) => {
+					const value = +a.y;
+					if (value <= 5) {
+						remaining += value;
+						filtered++;
+						return false;
+					}
+					return true;
+				});
+				if (filtered > 0) {
+					if (remaining > 0) {
+						filteredData.push({
+							x: "other",
+							y: remaining,
+						});
+					}
+					data = filteredData;
 				}
-				return true;
-			});
-			if (filtered > 0) {
-				if (remaining > 0) {
-					filteredData.push({
-						x: "other",
-						y: remaining,
-					});
-				}
-				data = filteredData;
 			}
 
 			data.sort((a, b) => {
@@ -89,16 +93,15 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 			});
 		}
 
-		// filter out low entries
-		return <svg viewBox="0 0 400 400">
+		return <svg viewBox={this.props.customViewbox || "0 0 400 400"}>
 			<VictoryPie
 				containerComponent={<VictoryContainer title="" />}
 				animate={{duration: 300}}
 				labels={(d) => {
-					if(d.x === "other") {
+					if(d.x === "other" && this.props.percentage) {
 						return "<" + (d.y).toFixed(0) + "%"
 					}
-					return (d.y).toFixed(1) + "%"
+					return this.props.percentage ? ((d.y).toFixed(1) + "%") : d.y
 				}}
 				height={400}
 				width={400}
