@@ -1536,19 +1536,28 @@ class RedshiftStagingTrackTable(models.Model):
 			self.gathering_stats_handle
 		))
 
-		self.get_min_max_game_dates_from_staging_table()
 		self.record_final_staging_table_size()
+		if self.final_staging_table_size:
+			self.get_min_max_game_dates_from_staging_table()
 
-		def etl_task_func():
-			conn = get_new_redshift_connection()
-			conn.execute("SET QUERY_GROUP TO '%s'" % self.gathering_stats_handle)
-			conn.execute("ANALYZE %s;" % self.staging_table)
+			def etl_task_func():
+				conn = get_new_redshift_connection()
+				conn.execute("SET QUERY_GROUP TO '%s'" % self.gathering_stats_handle)
+				conn.execute("ANALYZE %s;" % self.staging_table)
 
-		self.launch_background_thread(
-			self.gathering_stats_handle,
-			etl_task_func,
-			stage=RedshiftETLStage.GATHERING_STATS
-		)
+			self.launch_background_thread(
+				self.gathering_stats_handle,
+				etl_task_func,
+				stage=RedshiftETLStage.GATHERING_STATS
+			)
+
+		else:
+			# When there are no records in the table, then just inherit from the parent to be safe
+			# There is no need to analyze since there are no records in the table.
+			self.min_game_date = self.track.min_game_date
+			self.max_game_date = self.track.max_game_date
+			self.save()
+
 
 	def get_deduplication_task(self):
 		tmpl = "Deduplicating %s for track_prefix: %s"
