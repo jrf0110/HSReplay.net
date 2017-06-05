@@ -629,7 +629,10 @@ def do_process_upload_event(upload_event):
 
 				try:
 					with influx_timer("flush_exporter_to_firehose_duration"):
-						flush_failures_report = flush_exporter_to_firehose(exporter)
+						flush_failures_report = flush_exporter_to_firehose(
+							exporter,
+							records_to_flush=get_records_to_flush()
+						)
 						for target_table, errors in flush_failures_report.items():
 							for error in errors:
 								influx_metric(
@@ -654,6 +657,19 @@ def do_process_upload_event(upload_event):
 			log.debug("Did not acquire redshift lock. Will not flush to redshift")
 
 	return replay, do_flush_exporter
+
+
+def get_records_to_flush():
+	from hsredshift.etl.records import STAGING_RECORDS
+	from hsreplaynet.uploads.models import RedshiftStagingTrack
+	active_track = RedshiftStagingTrack.objects.get_active_track()
+	staging_records = {r.REDSHIFT_TABLE: r for r in STAGING_RECORDS}
+	result = []
+	for table in active_track.tables.all():
+		if table.target_table in staging_records:
+			result.append(staging_records[table.target_table])
+
+	return result
 
 
 def should_load_into_redshift(upload_event, global_game):
