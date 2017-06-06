@@ -5,7 +5,7 @@ from .models import Archetype, CanonicalDeck, Card, Deck, Include
 @admin.register(Card)
 class CardAdmin(admin.ModelAdmin):
 	list_display = (
-		"__str__", "id", "description", "card_set", "rarity", "type",
+		"__str__", "card_id", "description", "card_set", "rarity", "type",
 		"card_class", "artist"
 	)
 	list_filter = (
@@ -16,7 +16,7 @@ class CardAdmin(admin.ModelAdmin):
 		"overload", "spell_damage"
 	)
 	search_fields = (
-		"name", "description", "id",
+		"name", "description", "card_id",
 	)
 
 

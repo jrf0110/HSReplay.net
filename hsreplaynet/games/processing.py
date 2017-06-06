@@ -421,7 +421,7 @@ def validate_parser(parser, meta):
 		player._hero = heroes[0]
 
 		try:
-			db_hero = Card.objects.get(id=player._hero.card_id)
+			db_hero = Card.objects.get(card_id=player._hero.card_id)
 		except Card.DoesNotExist:
 			raise UnsupportedReplay("Hero %r not found." % (player._hero))
 		if db_hero.type != CardType.HERO:

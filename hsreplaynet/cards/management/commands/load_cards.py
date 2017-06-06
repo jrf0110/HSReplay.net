@@ -14,7 +14,7 @@ class Command(BaseCommand):
 		db, _ = cardxml.load(path, locale=options["locale"])
 		self.stdout.write("%i cards available" % (len(db)))
 
-		qs = Card.objects.all().values_list("id")
+		qs = Card.objects.all().values_list("card_id")
 		known_ids = [item[0] for item in qs]
 		missing = [id for id in db if id not in known_ids]
 		self.stdout.write("%i known cards" % (len(known_ids)))
@@ -26,10 +26,12 @@ class Command(BaseCommand):
 		if options["force"]:
 			existing = Card.objects.filter(id__in=known_ids)
 			for card in existing:
-				if card.id not in db:
-					self.stderr.write("WARNING: %r (%s) not in CardDefs.xml. Skipping." % (card, card.id))
+				if card.card_id not in db:
+					self.stderr.write(
+						"WARNING: %r (%s) not in CardDefs.xml. Skipping." % (card, card.card_id)
+					)
 					continue
-				c = db[card.id]
+				c = db[card.card_id]
 				if c:
 					card.update_from_cardxml(c, save=True)
 			self.stdout.write("%i updated cards" % (len(existing)))

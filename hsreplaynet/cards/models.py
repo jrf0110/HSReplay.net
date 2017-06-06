@@ -17,7 +17,7 @@ DBF_DB = {}
 
 
 class Card(models.Model):
-	id = models.CharField(primary_key=True, max_length=50)
+	card_id = models.CharField(primary_key=True, max_length=50)
 	dbf_id = models.IntegerField(null=True, unique=True, db_index=True)
 
 	name = models.CharField(max_length=50)
@@ -64,9 +64,13 @@ class Card(models.Model):
 	class Meta:
 		db_table = "card"
 
+	@property
+	def id(self):
+		return self.card_id
+
 	@classmethod
 	def from_cardxml(cls, card, save=False):
-		obj = cls(id=card.id)
+		obj = cls(card_id=card.id)
 		obj.update_from_cardxml(card, save=save)
 		return obj
 
@@ -100,7 +104,7 @@ class Card(models.Model):
 
 	def update_from_cardxml(self, cardxml, save=False):
 		for k in dir(cardxml):
-			if k.startswith("_"):
+			if k.startswith("_") or k == "id":
 				continue
 			# Transfer all existing CardXML attributes to our model
 			if hasattr(self, k):
@@ -143,7 +147,7 @@ class DeckManager(models.Manager):
 		if isinstance(hero_id, int):
 			return Card.objects.get(dbf_id=hero_id).card_class
 		elif hero_id:
-			return Card.objects.get(id=hero_id).card_class
+			return Card.objects.get(card_id=hero_id).card_class
 		return enums.CardClass.INVALID
 
 	def classify_deck_with_archetype(self, deck, player_class, format):
@@ -210,7 +214,7 @@ class Deck(models.Model):
 
 	@property
 	def hero_dbf_id(self):
-		return Card.objects.get(id=self.hero).dbf_id
+		return Card.objects.get(card_id=self.hero).dbf_id
 
 	@cached_property
 	def deck_class(self):
@@ -272,7 +276,7 @@ class Deck(models.Model):
 	def card_id_list(self):
 		result = []
 
-		includes = self.includes.values_list("card__id", "count")
+		includes = self.includes.values_list("card__card_id", "count")
 		for id, count in includes:
 			for i in range(count):
 				result.append(id)

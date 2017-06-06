@@ -90,10 +90,10 @@ def do_card(id=None, name=None, render=False, link=True, tooltip=None):
 	from hsreplaynet.cards.models import Card
 
 	if id and name:
-		card = Card.objects.get(id=id)
+		card = Card.objects.get(card_id=id)
 		name = escape(name)
 	elif id:
-		card = Card.objects.get(id=id)
+		card = Card.objects.get(card_id=id)
 		name = escape(card.name)
 	elif name:
 		card = Card.objects.get(name=name)
@@ -110,10 +110,15 @@ def do_card(id=None, name=None, render=False, link=True, tooltip=None):
 
 	if link:
 		if tooltip:
-			outer = '<a href="{url}" data-card-id="{id}" data-toggle="card-tooltip">{inner}</a>'
+			outer = (
+				'<a href="{url}" data-card-id="{id}" data-dbf-id="{dbf_id}" data-toggle="card-tooltip">'
+				"{inner}</a>"
+			)
 		else:
-			outer = '<a href="{url}" data-card-id="{id}">{inner}</a>'
-		outer = outer.format(url=card.get_absolute_url(), id=card.id, inner=inner)
+			outer = '<a href="{url}" data-card-id="{id}" data-dbf-id="{dbf_id}">{inner}</a>'
+		outer = outer.format(
+			url=card.get_absolute_url(), id=card.card_id, dbf_id=card.dbf_id, inner=inner
+		)
 	else:
 		outer = inner
 
