@@ -2032,8 +2032,11 @@ class RedshiftStagingTrackTable(models.Model):
 		return self.final_staging_table_size
 
 	def record_deduped_table_size(self):
-		query = "select count(*) from %s;" % self.pre_insert_table_name
-		self.deduped_table_size = get_new_redshift_connection().execute(query).scalar()
+		if self.final_staging_table_size:
+			query = "select count(*) from %s;" % self.pre_insert_table_name
+			self.deduped_table_size = get_new_redshift_connection().execute(query).scalar()
+		else:
+			self.deduped_table_size = 0
 		self.save()
 
 	def record_pre_insert_prod_table_size(self):
