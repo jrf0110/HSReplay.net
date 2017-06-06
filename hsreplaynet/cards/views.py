@@ -1,13 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404, HttpResponseBadRequest, JsonResponse
-from django.shortcuts import render
+from django.http import Http404, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils.html import RequestMetaMixin
 from .models import Archetype, Card
-from .queries import CardCountersQueryBuilder
 from .stats.winrates import get_head_to_head_winrates
 
 
@@ -119,33 +117,3 @@ def winrates(request):
 	}
 
 	return JsonResponse(payload)
-
-
-@login_required
-@view_requires_feature_access("winrates")
-def counters(request):
-	query_builder = CardCountersQueryBuilder()
-	context = {}
-
-	cards_param = request.GET.get("cards", "")
-	if not cards_param:
-		return HttpResponseBadRequest("A 'cards' query parameter is required.")
-
-	card_names = [c.strip('"') for c in cards_param.split(",")]
-	cards = []
-	for name in card_names:
-		card = Card.objects.get_by_partial_name(name)
-		if card:
-			cards.append(card)
-		else:
-			return HttpResponseBadRequest("Unknown card '%s'" % name)
-
-	context["cards"] = cards
-	query_builder.cards = context["cards"]
-
-	columns, counters_by_match_count = query_builder.result()
-
-	context["counter_deck_columns"] = columns
-	context["counters_by_match_count"] = counters_by_match_count
-
-	return render(request, "cards/deck_counters.html", context)

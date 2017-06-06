@@ -11,7 +11,6 @@ my_card_stats = views.MyCardStatsView.as_view()
 
 urlpatterns = [
 	url(r"^$", card_stats, name="card_stats"),
-	url(r"^counters/$", views.counters, name="deck_counters"),
 	url(r"^editor/", card_editor, name="card_editor"),
 	url(r"^mine/$", my_card_stats, name="my_card_stats"),
 	url(r"^gallery/$", card_gallery, name="card_gallery"),
