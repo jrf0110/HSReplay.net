@@ -56,10 +56,6 @@
 						<li{% nav_active 'premium' css='active active-premium' %} id="navbar-link-premium">
 							<a href="{% url 'premium' %}" class="text-premium">Premium</a>
 						</li>
-
-						{% feature "scenarios" as ft_scenarios %}{% if ft_scenarios.enabled %}
-							<li{% nav_active 'scenario_list_view' %}><a href="{% url 'scenario_list_view' %}">Scenarios</a></li>
-						{% endif %}
 					</ul>
 				{% endblock %}
 

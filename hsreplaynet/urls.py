@@ -11,7 +11,6 @@ urlpatterns = [
 	url(r"^analytics/", include("hsreplaynet.analytics.urls")),
 	url(r"^cards/", include("hsreplaynet.cards.urls")),
 	url(r"^games/", include("hsreplaynet.games.urls")),
-	url(r"^scenarios/", include("hsreplaynet.scenarios.urls")),
 	url(r"^uploads/", include("hsreplaynet.uploads.urls")),
 
 	# Direct link to replays
