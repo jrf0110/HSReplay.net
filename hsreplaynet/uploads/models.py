@@ -8,7 +8,7 @@ from enum import IntEnum
 from threading import Lock, Thread
 from uuid import uuid4
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -1267,21 +1267,22 @@ class RedshiftStagingTrack(models.Model):
 		if not self.firehose_streams_are_active:
 			raise RuntimeError("Firehose streams are not active")
 
-		current_timestamp = timezone.now()
-		self.active_at = current_timestamp
-		self.stage = RedshiftETLStage.ACTIVE
-		for table in self.tables.all():
-			table.stage = RedshiftETLStage.ACTIVE
-			table.save()
-		self.save()
+		with transaction.atomic():
+			current_timestamp = timezone.now()
+			self.active_at = current_timestamp
+			self.stage = RedshiftETLStage.ACTIVE
+			for table in self.tables.all():
+				table.stage = RedshiftETLStage.ACTIVE
+				table.save()
+			self.save()
 
-		self.predecessor.closed_at = current_timestamp
-		self.predecessor.stage = RedshiftETLStage.IN_QUIESCENCE
-		for table in self.predecessor.tables.all():
-			table.stage = RedshiftETLStage.IN_QUIESCENCE
-			table.save()
+			self.predecessor.closed_at = current_timestamp
+			self.predecessor.stage = RedshiftETLStage.IN_QUIESCENCE
+			for table in self.predecessor.tables.all():
+				table.stage = RedshiftETLStage.IN_QUIESCENCE
+				table.save()
 
-		self.predecessor.save()
+			self.predecessor.save()
 
 		return current_timestamp
 
@@ -1557,7 +1558,6 @@ class RedshiftStagingTrackTable(models.Model):
 			self.min_game_date = self.track.min_game_date
 			self.max_game_date = self.track.max_game_date
 			self.save()
-
 
 	def get_deduplication_task(self):
 		tmpl = "Deduplicating %s for track_prefix: %s"
