@@ -16,23 +16,9 @@ ALPHABET = string.ascii_letters + string.digits
 DBF_DB = {}
 
 
-class CardManager(models.Manager):
-	def get_valid_deck_list_card_set(self):
-		if not hasattr(self, "_usable_cards"):
-			card_list = Card.objects.filter(collectible=True).exclude(type=enums.CardType.HERO)
-			self._usable_cards = set(c[0] for c in card_list.values_list("id"))
-
-		return self._usable_cards
-
-	def get_by_partial_name(self, name):
-		"""Makes a best guess attempt to return a card based on a full or partial name."""
-		return Card.objects.filter(collectible=True).filter(name__icontains=name).first()
-
-
 class Card(models.Model):
 	id = models.CharField(primary_key=True, max_length=50)
 	dbf_id = models.IntegerField(null=True, unique=True, db_index=True)
-	objects = CardManager()
 
 	name = models.CharField(max_length=50)
 	description = models.TextField(blank=True)
