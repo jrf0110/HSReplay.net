@@ -23,3 +23,4 @@ markdown==2.6.8
 # stripe
 
 -e git+https://github.com/jleclanche/dj-stripe.git#egg=dj-stripe
+https://github.com/jleclanche/django-polymorphic/archive/master.tar.gz
