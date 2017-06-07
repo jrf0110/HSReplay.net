@@ -2200,7 +2200,8 @@ class RedshiftStagingTrackTable(models.Model):
 			else:
 				new_record_count = None
 
-			previous_track_dupes = self.final_staging_table_size - self.deduped_table_size
+			if self.final_staging_table_size is not None and self.deduped_table_size is not None:
+				previous_track_dupes = self.final_staging_table_size - self.deduped_table_size
 
 			if new_record_count is not None:
 				inter_track_dupes = self.deduped_table_size - new_record_count
