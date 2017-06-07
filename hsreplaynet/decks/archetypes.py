@@ -1,6 +1,6 @@
 from hearthstone.enums import CardClass, FormatType, Race
+from hsreplaynet.cards.models import Archetype
 from hsreplaynet.utils import log
-from .models import Archetype
 
 
 def edit_distance(canonical_list, unclassified_deck):

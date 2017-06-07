@@ -4,12 +4,86 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
-from django.views.generic import TemplateView, View
+from django.utils.decorators import method_decorator
+from django.views.generic import DetailView, TemplateView, View
 from hearthstone.enums import CardClass, PlayState
-from hsreplaynet.cards.models import Archetype, Deck
+from hsreplaynet.cards.models import Archetype, Card, Deck
+from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils.html import RequestMetaMixin
 
+
+##
+# Card pages
+
+class CardStatsView(RequestMetaMixin, TemplateView):
+	template_name = "cards/card_stats.html"
+	title = "Cards"
+	description = "Compare statistics about all collectible Hearthstone cards. "\
+		"Find the cards that are played the most or have the highest winrate."
+
+
+class MyCardStatsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+	template_name = "cards/my_card_stats.html"
+	title = "My Cards"
+
+
+class CardGalleryView(RequestMetaMixin, TemplateView):
+	template_name = "cards/card_gallery.html"
+	title = "Card Gallery"
+	description = "View all collectible cards in Hearthstone. Filter by cost, rarity, " \
+		"set, type, race and mechanics. Examine detailed statistics for any card."
+
+
+@method_decorator(view_requires_feature_access("cardeditor"), name="dispatch")
+class CardEditorView(RequestMetaMixin, TemplateView):
+	template_name = "cards/card_editor.html"
+	title = "Card Editor"
+	stylesheets = (
+		"fonts/belwefs_extrabold_macroman/stylesheet.css",
+		"fonts/franklingothicfs_mediumcondensed_macroman/stylesheet.css",
+	)
+
+
+class CardDetailView(DetailView):
+	model = Card
+
+	def get_object(self, queryset=None):
+		if queryset is None:
+			queryset = self.get_queryset()
+
+		pk = self.kwargs[self.pk_url_kwarg]
+		if pk.isdigit():
+			# If it's numeric, filter using the dbf id
+			queryset = queryset.filter(dbf_id=pk)
+		else:
+			# Otherwise, use the card id
+			queryset = queryset.filter(id=pk)
+
+		try:
+			obj = queryset.get()
+		except queryset.model.DoesNotExist:
+			raise Http404("No card found matching the query.")
+
+		self.request.head.set_canonical_url(obj.get_absolute_url())
+		self.request.head.title = obj.name
+		self.request.head.opengraph["og:image"] = obj.get_card_art_url()
+		self.request.head.opengraph["og:image:width"] = 256
+		self.request.head.opengraph["og:image:height"] = 256
+
+		if obj.collectible:
+			description = "Statistics about %s, the Hearthstone card. " \
+				"Learn which decks we recommend and how it's played." % (obj.name)
+			self.request.head.add_meta(
+				{"name": "description", "content": description},
+				{"property": "og:description", "content": description},
+			)
+
+		return obj
+
+
+##
+# Deck pages
 
 class DeckDetailView(View):
 	template_name = "decks/deck_detail.html"

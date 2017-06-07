@@ -49,6 +49,7 @@ INSTALLED_APPS_CORE = [
 	"hearthsim_identity.api",
 	"hsreplaynet.analytics",
 	"hsreplaynet.cards",
+	"hsreplaynet.decks",
 	"hsreplaynet.features",
 	"hsreplaynet.games",
 	"hsreplaynet.lambdas",
@@ -77,7 +78,6 @@ INSTALLED_APPS_WEB = [
 	"hsreplaynet.admin",
 	"hsreplaynet.articles",
 	"hsreplaynet.billing",
-	"hsreplaynet.decks",
 	"hsreplaynet.packs",
 	"hsreplaynet.oauth2",
 ]

@@ -9,7 +9,6 @@ urlpatterns = [
 	url(r"^$", HomeView.as_view(), name="home"),
 	url(r"^api/", include("hsreplaynet.api.urls")),
 	url(r"^analytics/", include("hsreplaynet.analytics.urls")),
-	url(r"^cards/", include("hsreplaynet.cards.urls")),
 	url(r"^games/", include("hsreplaynet.games.urls")),
 	url(r"^uploads/", include("hsreplaynet.uploads.urls")),
 
@@ -31,12 +30,13 @@ if not settings.ENV_LAMBDA:
 		url(r"^contact/$", flatpage, {"url": "/contact/"}, name="contact_us"),
 		url(r"^about/privacy/$", flatpage, {"url": "/about/privacy/"}, name="privacy_policy"),
 		url(r"^about/tos/$", flatpage, {"url": "/about/tos/"}, name="terms_of_service"),
-		url(r"^decks/", include("hsreplaynet.decks.urls")),
 		url(r"^downloads/", DownloadsView.as_view(), name="downloads"),
 		url(r"^features/", include("hsreplaynet.features.urls")),
 		url(r"^profile/", include("hsreplaynet.profiles.urls")),
 		url(r"^pages/", include("django.contrib.flatpages.urls")),
 		url(r"^oauth2/", include("hsreplaynet.oauth2.urls")),
+		# decks and cards
+		url(r"^", include("hsreplaynet.decks.urls")),
 	]
 
 if settings.DEBUG:
