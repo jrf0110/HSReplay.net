@@ -96,7 +96,7 @@ table .info-icon {
 	position: relative;
 	user-select: none;
 
-	>span {
+	> span {
 		font-size: 1.3em;
 		font-weight: bold;
 		position: absolute;
@@ -111,6 +111,11 @@ table .info-icon {
 	.card-image {
 		position: absolute;
 		z-index: 1000;
+	}
+
+	&.loading {
+		border-color: #ddd;
+		background-color: #ddd;
 	}
 }
 

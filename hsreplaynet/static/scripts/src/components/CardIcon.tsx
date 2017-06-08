@@ -1,18 +1,19 @@
 import * as React from "react";
 import { getCardUrl, getFragments } from "../helpers";
 
-interface CardIconState {
-	clientX?: number;
-	clientY?: number;
-	hovering?: boolean;
-}
-
-interface CardIconProps {
+interface CardIconProps extends React.ClassAttributes<CardIcon> {
 	card: any;
 	size?: number;
 	mark?: string;
 	markStyle?: any;
 	tabIndex?: number;
+}
+
+interface CardIconState {
+	clientX?: number;
+	clientY?: number;
+	backgroundLoaded?: boolean;
+	hovering?: boolean;
 }
 
 export default class CardIcon extends React.Component<CardIconProps, CardIconState> {
@@ -29,20 +30,54 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 		};
 	}
 
+	componentDidMount() {
+		this.loadBackgroundImage();
+	}
+
+	componentWillReceiveProps(nextProps: CardIconProps) {
+		if (!this.props.card || !nextProps.card && this.props.card.id !== nextProps.card.id) {
+			this.loadBackgroundImage();
+		}
+	}
+
+	buildBackgroundImageUrl(): string {
+		return "https://art.hearthstonejson.com/v1/tiles/" + this.props.card.id + ".png";
+	}
+
+	loadBackgroundImage() {
+		if (!this.props.card) {
+			return;
+		}
+		const image = new Image();
+		image.onload = () => {
+			this.setState({backgroundLoaded: true});
+		};
+		image.src = this.buildBackgroundImageUrl();
+	}
+
 	render(): JSX.Element {
+		const classNames = ["card-icon"];
+
 		if (this.props.card) {
 			const size = this.props.size || this.baseSize;
-			const style = {
-				backgroundImage: "url(https://art.hearthstonejson.com/v1/tiles/" + this.props.card.id + ".png)",
-				backgroundPositionX: this.baseOffset * (size / this.baseSize) + "px",
-				backgroundSize: this.baseBackgroundWidth * (size / this.baseSize) + "px " + (size - 2) + "px",
+			const style: any = {
 				height: size + "px",
 				width: size + "px",
 			};
 
 			let mark = null;
-			if (this.props.mark !== undefined) {
-				mark = <span style={this.props.markStyle}>{this.props.mark}</span>;
+
+			if (this.state.backgroundLoaded) {
+				style.backgroundImage = `url(${this.buildBackgroundImageUrl()})`;
+				style.backgroundPositionX = this.baseOffset * (size / this.baseSize) + "px";
+				style.backgroundSize = this.baseBackgroundWidth * (size / this.baseSize) + "px " + (size - 2) + "px";
+
+				if (this.props.mark !== undefined) {
+					mark = <span style={this.props.markStyle}>{this.props.mark}</span>;
+				}
+			}
+			else {
+				classNames.push("loading");
 			}
 
 			let tooltip = null;
@@ -70,7 +105,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 			return (
 				<a href={url} tabIndex={typeof this.props.tabIndex !== "undefined" ? this.props.tabIndex : 0} className="card-icon-link">
 					<div
-						className="card-icon"
+						className={classNames.join(" ")}
 						style={style}
 						onMouseEnter={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
 						onMouseLeave={() => this.setState({hovering: false})}
