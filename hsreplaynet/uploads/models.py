@@ -1583,7 +1583,7 @@ class RedshiftStagingTrackTable(models.Model):
 			if self.final_staging_table_size:
 				pre_table_name = self.pre_insert_table_name
 				game_id_val = "id" if self.target_table == "game" else "game_id"
-				column_names = ", ".join([c.name for c in table_obj.columns])
+				column_names = ', '.join(['"%s"' % c.name for c in table_obj.columns])  # NOQA
 
 				template1 = """
 				DROP TABLE IF EXISTS {pre_table};
