@@ -3,6 +3,7 @@ import Tab from "./Tab";
 
 interface TabListProps {
 	tab?: string;
+	tabFragment?: string;
 	setTab?(tab?: string): void;
 }
 
@@ -23,7 +24,7 @@ export default class TabList extends React.Component<TabListProps, void> {
 
 			const label = (
 				<a
-					href={"#"}
+					href={`#${this.props.tabFragment || "tab"}=${id}`}
 					onClick={(event) => {
 						event.preventDefault();
 						if (isActive || !canSwitch || disabled) {
