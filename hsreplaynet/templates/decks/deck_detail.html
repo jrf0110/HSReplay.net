@@ -3,7 +3,7 @@
 
 {% block fullcontent %}
 	<div id="deck-info"
-		{% if user.is_staff %}data-admin-url="{% url 'admin:cards_deck_change' deck.pk %}"{% endif %}
+		{% if user.is_staff %}data-admin-url="{% url 'admin:decks_deck_change' deck.pk %}"{% endif %}
 		data-deck-id="{{ deck.shortid }}"
 		data-hero-id="{{ deck.hero_dbf_id }}"
 		data-deck-cards="{{ card_list }}"
