@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from rest_framework import permissions
 from hearthsim_identity.api.models import APIKey
 
@@ -18,7 +19,7 @@ class APIKeyPermission(permissions.BasePermission):
 
 		try:
 			api_key = APIKey.objects.get(api_key=key)
-		except (APIKey.DoesNotExist, ValueError):
+		except (APIKey.DoesNotExist, ValidationError):
 			return False
 
 		request.api_key = api_key
