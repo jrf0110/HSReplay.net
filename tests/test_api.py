@@ -259,7 +259,7 @@ def test_oauth_api(admin_user, client, settings):
 @pytest.mark.django_db
 def test_deck_exchange(client):
 	from hearthstone.enums import FormatType
-	from hsreplaynet.cards.models import Deck
+	from hsreplaynet.decks.models import Deck
 
 	decks_by_list_url = "/api/v1/decks/"
 

@@ -3,9 +3,8 @@ import pytest
 from django.core.management import call_command
 from django.utils import timezone
 from hearthstone.enums import CardClass, FormatType
-from hsreplaynet.cards.models import (
-	Archetype, Card, Signature, SignatureComponent
-)
+from hsreplaynet.cards.models import Card
+from hsreplaynet.decks.models import Archetype, Signature, SignatureComponent
 
 
 def pytest_addoption(parser):
