@@ -19,7 +19,8 @@ from hsredshift.etl.exporters import (
 	CorruptReplayDataError, CorruptReplayPacketError, RedshiftPublishingExporter
 )
 from hsredshift.etl.firehose import flush_exporter_to_firehose
-from hsreplaynet.cards.models import Card, Deck
+from hsreplaynet.cards.models import Card
+from hsreplaynet.decks.models import Deck
 from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer

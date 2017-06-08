@@ -7,7 +7,7 @@ from django.http import (
 from django.views.decorators.http import condition
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
-from hsreplaynet.cards.models import Deck
+from hsreplaynet.decks.models import Deck
 from hsreplaynet.utils import influx, log
 from .processing import (
 	evict_locks_cache, execute_query, get_concurrent_redshift_query_queue_semaphore,

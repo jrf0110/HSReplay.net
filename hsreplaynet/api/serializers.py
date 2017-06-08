@@ -5,7 +5,7 @@ from django.utils.six import string_types
 from rest_framework import serializers
 from hearthsim_identity.api.models import APIKey
 from hsreplaynet.accounts.api import UserSerializer
-from hsreplaynet.cards.models import Deck
+from hsreplaynet.decks.models import Deck
 from hsreplaynet.games.models import GameReplay, GlobalGame, GlobalGamePlayer
 
 

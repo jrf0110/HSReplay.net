@@ -6,7 +6,7 @@ from django.urls import reverse
 from django_intenum import IntEnumField
 from hearthstone.enums import BnetGameType, FormatType, PlayState
 from hearthsim_identity.accounts.models import AuthToken, Visibility
-from hsreplaynet.cards.models import Card, Deck
+from hsreplaynet.cards.models import Card
 from hsreplaynet.utils.fields import PlayerIDField, ShortUUIDField
 from hsreplaynet.utils.synchronization import acquire_redshift_lock, release_redshift_lock
 
@@ -202,7 +202,7 @@ class GlobalGamePlayer(models.Model):
 	)
 
 	deck_list = models.ForeignKey(
-		Deck, on_delete=models.PROTECT,
+		"decks.Deck", on_delete=models.PROTECT,
 		help_text="As much as is known of the player's starting deck list."
 	)
 
@@ -344,7 +344,7 @@ class GameReplay(models.Model):
 	# unified. If the other uploader has set their replay visibility to private, then we cannot
 	# leak the cards in their deck, via the globalgameplayer.
 	opponent_revealed_deck = models.ForeignKey(
-		Deck, on_delete=models.PROTECT,
+		"decks.Deck", on_delete=models.PROTECT,
 		null=True,
 		help_text="As much as is known of the opponent's starting deck list."
 	)

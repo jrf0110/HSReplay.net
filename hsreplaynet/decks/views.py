@@ -7,10 +7,11 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
 from hearthstone.enums import CardClass, PlayState
-from hsreplaynet.cards.models import Archetype, Card, Deck
+from hsreplaynet.cards.models import Card
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils.html import RequestMetaMixin
+from .models import Archetype, Deck
 
 
 ##

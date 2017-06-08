@@ -2,7 +2,7 @@ import json
 from datetime import date, timedelta
 from django.core.management.base import BaseCommand
 from django.db import connection
-from hsreplaynet.cards.models import Deck
+from hsreplaynet.decks.models import Deck
 from hsreplaynet.utils.db import execute_query
 
 
