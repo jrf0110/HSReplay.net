@@ -87,10 +87,8 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 			const urlGameType = this.props.gameType !== "RANKED_STANDARD" ? this.props.gameType : undefined;
 			rows.push(
 				<tr>
-					<td>
-						<div className="card-wrapper">
-							<CardTile card={obj.card} count={1} rarityColored height={34}/>
-						</div>
+					<td className="card-cell">
+						<CardTile card={obj.card} count={1} rarityColored height={34}/>
 					</td>
 					<td>
 						{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}

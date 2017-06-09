@@ -46,10 +46,8 @@ export default class QuestContributors extends React.Component<QuestContributors
 				const card = this.props.cardData.fromDbf(contributor.dbf_id);
 				rows.push(
 					<tr className="card-table-row">
-						<td>
-							<div className="card-wrapper">
-								<CardTile card={card} count={1} height={34} />
-							</div>
+						<td className="card-cell">
+							<CardTile card={card} count={1} height={34} />
 						</td>
 						{winrateCell}
 						<td>{toDynamicFixed(contributor.popularity, 2) + "%"}</td>

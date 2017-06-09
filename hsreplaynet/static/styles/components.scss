@@ -443,13 +443,6 @@ table .info-icon {
 		visibility: hidden;
 	}
 
-	.card-wrapper {
-		margin-bottom: -7px;
-		margin-top: -7px;
-		min-width: 150px;
-		max-width: 217px;
-	}
-
 	.help-row {
 		td {
 			font-weight: normal;
@@ -460,6 +453,16 @@ table .info-icon {
 		.btn {
 			margin-left: 0.5em;
 		}
+	}
+}
+
+.table > tbody > tr > td.card-cell {
+	padding-top: 0;
+	padding-bottom: 0;
+
+	.card-tile {
+		min-width: 150px;
+		max-width: 217px;
 	}
 }
 

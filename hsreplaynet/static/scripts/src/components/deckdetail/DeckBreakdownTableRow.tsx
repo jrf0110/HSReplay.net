@@ -24,15 +24,13 @@ export default class DeckBreakdownTableRow extends React.Component<DeckBreakdown
 			return null;
 		}
 		const cols = [];
-		cols.push(<td>
-			<div className="card-wrapper">
-				<CardTile
-					height={34}
-					card={this.props.cardObj.card}
-					count={this.props.cardObj.count}
-					rarityColored
-				/>
-			</div>
+		cols.push(<td className="card-cell">
+			<CardTile
+				height={34}
+				card={this.props.cardObj.card}
+				count={this.props.cardObj.count}
+				rarityColored
+			/>
 		</td>);
 		const mulligan = winrateData(this.props.baseMulliganWinrate, +this.props.row["opening_hand_win_rate"], 5);
 		const drawn = winrateData(this.props.baseDrawnWinrate, +this.props.row["win_rate_when_drawn"], 5);

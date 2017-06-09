@@ -53,10 +53,8 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 			};
 			rows.push(
 				<tr>
-					<td className="td-card">
-						<div className="card-wrapper">
-							<CardTile card={obj.card} count={1} rarityColored height={34} />
-						</div>
+					<td className="card-cell">
+						<CardTile card={obj.card} count={1} rarityColored height={34} />
 					</td>
 					{cell("totalGames", 0)}
 					<td className={hiddenColumns.indexOf("winrate") === -1 ? "" : "hidden"} style={{color: wrData && wrData.color}}>

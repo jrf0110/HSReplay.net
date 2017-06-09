@@ -53,10 +53,8 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 					choice.adaptations.forEach((dbfId) => {
 						const card = this.props.cardData.fromDbf(dbfId);
 						cards.push(
-							<td>
-								<div className="card-wrapper">
-									<CardTile card={card} count={1} height={34} noLink customText={this.shortAdaptText(card)} />
-								</div>
+							<td className="card-cell">
+								<CardTile card={card} count={1} height={34} noLink customText={this.shortAdaptText(card)} />
 							</td>,
 						);
 					});

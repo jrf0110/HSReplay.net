@@ -40,10 +40,8 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 			<td className="rank-cell hidden-xs">
 				{"#" + this.props.rank}
 			</td>
-			<td>
-				<div className="card-wrapper">
-					{cardTile}
-				</div>
+			<td className="card-cell">
+				{cardTile}
 			</td>
 			<td style={{lineHeight: "19px", fontWeight: "bold"}}>
 				{this.getPopularity()}
