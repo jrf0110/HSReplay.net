@@ -200,7 +200,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 						onKeyPress={(e) => onKeyPress("dust", e)}
 						tabIndex={tabIndex}
 					>
-						Deck / Cost
+						<span>Deck / Cost</span>
 						{sortIndicator("dust")}
 						<InfoIcon header="Crafting Cost" content="Total amount of dust required to craft the deck."/>
 					</div>
@@ -210,7 +210,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 						onKeyPress={(e) => onKeyPress("winrate", e)}
 						tabIndex={tabIndex}
 					>
-						Winrate
+						<span>Winrate</span>
 						{sortIndicator("winrate")}
 						<InfoIcon header="Winrate" content="Percentage of games won by the deck." />
 					</div>
@@ -220,7 +220,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 						onKeyPress={(e) => onKeyPress("popularity", e)}
 						tabIndex={tabIndex}
 					>
-						Games
+						<span>Games</span>
 						{sortIndicator("popularity")}
 						<InfoIcon header="Games Played" content="Number of recorded games where the deck is played." />
 					</div>
@@ -230,7 +230,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 						onKeyPress={(e) => onKeyPress("duration", e)}
 						tabIndex={tabIndex}
 					>
-						Duration
+						<span>Duration</span>
 						{sortIndicator("duration")}
 						<InfoIcon header="Game Duration" content="How long a game takes on average when the deck is played." />
 					</div>
@@ -240,7 +240,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 						onKeyPress={(e) => onKeyPress("mana", e)}
 						tabIndex={tabIndex}
 					>
-						Mana
+						<span>Mana</span>
 						{sortIndicator("mana")}
 						<InfoIcon header="Mana Curve" content="Distribution of card costs for the deck." />
 					</div>

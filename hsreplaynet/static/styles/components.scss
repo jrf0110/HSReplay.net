@@ -182,10 +182,19 @@ table .info-icon {
 		> * {
 			user-select: none;
 			outline: none;
+			display: flex;
+			flex-direction: row;
+
+			> span:first-child {
+				text-overflow: clip;
+				overflow: hidden;
+				flex-shrink: 1;
+			}
 		}
 
 		.header-center {
 			text-align: center;
+			justify-content: center;
 		}
 
 		.header-sortable {
