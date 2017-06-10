@@ -19,7 +19,7 @@ from .models import Archetype, Deck
 
 class CardStatsView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_stats.html"
-	title = "Cards"
+	title = "Hearthstone Card Statistics"
 	description = "Compare statistics about all collectible Hearthstone cards. "\
 		"Find the cards that are played the most or have the highest winrate."
 
@@ -31,7 +31,7 @@ class MyCardStatsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 
 class CardGalleryView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_gallery.html"
-	title = "Card Gallery"
+	title = "Hearthstone Card Gallery"
 	description = "View all collectible cards in Hearthstone. Filter by cost, rarity, " \
 		"set, type, race and mechanics. Examine detailed statistics for any card."
 
@@ -39,7 +39,7 @@ class CardGalleryView(RequestMetaMixin, TemplateView):
 @method_decorator(view_requires_feature_access("cardeditor"), name="dispatch")
 class CardEditorView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_editor.html"
-	title = "Card Editor"
+	title = "Hearthstone Card Editor"
 	stylesheets = (
 		"fonts/belwefs_extrabold_macroman/stylesheet.css",
 		"fonts/franklingothicfs_mediumcondensed_macroman/stylesheet.css",
@@ -128,14 +128,14 @@ class DeckDetailView(View):
 
 class DeckListView(RequestMetaMixin, TemplateView):
 	template_name = "decks/deck_list.html"
-	title = "Decks"
+	title = "Hearthstone Decks"
 	description = "Dive into the Hearthstone meta and find new decks by class, cards or " \
 		"game mode. Learn about their winrates and popularity on the ladder."
 
 
 class TrendingDecksView(RequestMetaMixin, TemplateView):
 	template_name = "decks/trending.html"
-	title = "Trending Decks"
+	title = "Trending Hearthstone Decks"
 	description = "Find the up-and-coming decks with rising popularity in Hearthstone " \
 		"for each class updated every single day."
 

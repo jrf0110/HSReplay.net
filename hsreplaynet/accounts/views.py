@@ -18,7 +18,8 @@ from hsreplaynet.utils.influx import influx_metric
 
 class LoginView(BaseLoginView):
 	def get(self, request):
-		request.head.title = "Sign in"
+		request.head.base_title = ""
+		request.head.title = "Sign in to HSReplay.net"
 		return super().get(request)
 
 
@@ -29,7 +30,7 @@ class EditAccountView(LoginRequiredMixin, RequestMetaMixin, UpdateView):
 		"default_replay_visibility", "joust_autoplay", "locale", "exclude_from_statistics"
 	]
 	success_url = "/account/"
-	title = "Account settings"
+	title = "My Account"
 
 	def get_object(self, queryset=None):
 		return self.request.user
@@ -37,7 +38,7 @@ class EditAccountView(LoginRequiredMixin, RequestMetaMixin, UpdateView):
 
 class APIAccountView(LoginRequiredMixin, RequestMetaMixin, View):
 	template_name = "account/api.html"
-	title = "API access"
+	title = "API Access"
 
 	def get(self, request):
 		context = {
@@ -81,7 +82,7 @@ class ClaimAccountView(LoginRequiredMixin, View):
 class DeleteAccountView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "account/delete.html"
 	success_url = reverse_lazy("home")
-	title = "Delete account"
+	title = "Delete Account"
 
 	def can_delete(self):
 		customer = self.request.user.stripe_customer
