@@ -6,8 +6,8 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
+from django_hearthstone.cards.models import Card
 from hearthstone.enums import CardClass, PlayState
-from hsreplaynet.cards.models import Card
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils.html import RequestMetaMixin

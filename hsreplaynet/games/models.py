@@ -3,10 +3,10 @@ from django.conf import settings
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
+from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone.enums import BnetGameType, FormatType, PlayState
 from hearthsim_identity.accounts.models import AuthToken, Visibility
-from hsreplaynet.cards.models import Card
 from hsreplaynet.utils.fields import PlayerIDField, ShortUUIDField
 from hsreplaynet.utils.synchronization import acquire_redshift_lock, release_redshift_lock
 

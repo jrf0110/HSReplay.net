@@ -87,7 +87,7 @@ def do_card(id=None, name=None, render=False, link=True, tooltip=None):
 	if not id and not name:
 		raise ValueError("Argument id or name is required.")
 
-	from hsreplaynet.cards.models import Card
+	from django_hearthstone.cards.models import Card
 
 	if id and name:
 		card = Card.objects.get(card_id=id)

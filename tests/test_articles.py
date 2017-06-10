@@ -1,6 +1,6 @@
 import pytest
+from django_hearthstone.cards.models import Card
 from hsreplaynet.articles.markdown.macros import do_card
-from hsreplaynet.cards.models import Card
 
 
 @pytest.mark.django_db

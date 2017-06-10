@@ -6,10 +6,10 @@ from django.db import connection, models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from shortuuid.main import int_to_string, string_to_int
-from hsreplaynet.cards.models import Card
 
 
 ALPHABET = string.ascii_letters + string.digits

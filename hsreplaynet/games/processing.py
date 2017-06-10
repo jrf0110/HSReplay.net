@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db.utils import IntegrityError
 from django.utils import timezone
+from django_hearthstone.cards.models import Card
 from hearthstone.enums import BnetRegion, CardType, GameTag
 from hslog import __version__ as hslog_version, LogParser
 from hslog.exceptions import ParsingError
@@ -19,7 +20,6 @@ from hsredshift.etl.exporters import (
 	CorruptReplayDataError, CorruptReplayPacketError, RedshiftPublishingExporter
 )
 from hsredshift.etl.firehose import flush_exporter_to_firehose
-from hsreplaynet.cards.models import Card
 from hsreplaynet.decks.models import Deck
 from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log

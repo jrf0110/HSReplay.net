@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.db import models
+from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone.enums import Booster
-from hsreplaynet.cards.models import Card
 
 
 class Pack(models.Model):

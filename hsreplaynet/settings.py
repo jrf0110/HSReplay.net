@@ -48,7 +48,7 @@ INSTALLED_APPS_CORE = [
 	"hearthsim_identity.accounts",
 	"hearthsim_identity.api",
 	"hsreplaynet.analytics",
-	"hsreplaynet.cards",
+	"django_hearthstone.cards",
 	"hsreplaynet.decks",
 	"hsreplaynet.features",
 	"hsreplaynet.games",
