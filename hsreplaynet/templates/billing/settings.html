@@ -57,13 +57,20 @@
 					</form>
 				{% endif %}
 
-				<p>
-					Subscribed since <strong>{{ sub.start|htmltime }}</strong>.
-					Thanks for supporting us!
-				</p>
-				<p>
-					Your subscription will renew on <strong>{{ sub.current_period_end|htmltime }}</strong>.
-				</p>
+				{% if sub.status == "trialing" %}
+					<p>
+						You are currently on a free trial, started on <strong>{{ sub.trial_start|htmltime }}</strong>.
+						Your subscription begins on <strong>{{ sub.trial_end|htmltime }}</strong>.
+					</p>
+				{% else %}
+					<p>
+						Subscribed since <strong>{{ sub.start|htmltime }}</strong>.
+						Thanks for supporting us!
+					</p>
+					<p>
+						Your subscription will renew on <strong>{{ sub.current_period_end|htmltime }}</strong>.
+					</p>
+				{% endif %}
 
 				{% if not customer.default_source and sub.plan.amount %}
 					<p class="alert alert-danger"><strong>
