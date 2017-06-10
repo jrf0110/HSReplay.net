@@ -11,13 +11,18 @@ interface HighlightTilesProps {
 
 export default class HighlightTiles extends React.Component<HighlightTilesProps, void> {
 	getCard(dbfId: number): any {
-		return this.props.cardData.fromDbf(dbfId || 1720);
+		return this.props.cardData.fromDbf(dbfId || 1674);
 	}
 
 	render(): JSX.Element {
 		const max = {
-			damage_done: {}, healing_done: {}, times_played: {}, minions_killed: {},
-			heroes_killed: {}, num_distinct_decks: {}, win_rate: {},
+			damage_done: {},
+			healing_done: {},
+			times_played: {},
+			minions_killed: {},
+			heroes_killed: {},
+			num_distinct_decks: {},
+			win_rate: {},
 		};
 		const maxKeys = Object.keys(max);
 		const cards = this.props.cardStats.series.data.ALL;
@@ -47,12 +52,22 @@ export default class HighlightTiles extends React.Component<HighlightTilesProps,
 			});
 		});
 
-		const maxStandardRank = legendRank.best_standard_legend_rank ? "Legend " + legendRank.best_standard_legend_rank : rank.best_standard_rank;
-		const maxWildRank = legendRank.best_wild_legend_rank ? "Legend " + legendRank.best_wild_legend_rank : rank.best_wild_rank;
+		const makeRank = (rank: number, legend: number): string => {
+			if (legend) {
+				return "Legend " + legend;
+			}
+			if (rank) {
+				return "Rank " + rank;
+			}
+			return "Unranked";
+		};
+
+		const maxStandardRank = makeRank(legendRank.best_standard_legend_rank, rank.best_standard_rank);
+		const maxWildRank = makeRank(legendRank.best_wild_legend_rank, rank.best_wild_rank);
 		return (
 			<div>
-				<CardHighlightTile card={this.getCard(2053)} title="Highest rank | Standard" value={maxStandardRank || "-"} name={gameCounts.num_standard_games + " games"}/>
-				<CardHighlightTile card={this.getCard(42049)} title="Highest rank | Wild" value={maxWildRank || "-"} name={gameCounts.num_wild_games + " games"}/>
+				<CardHighlightTile card={this.getCard(2053)} title="Highest rank | Standard" value={maxStandardRank} name={(gameCounts.num_standard_games || "No") + " games"}/>
+				<CardHighlightTile card={this.getCard(38526)} title="Highest rank | Wild" value={maxWildRank} name={(gameCounts.num_wild_games || "No") + " games"}/>
 				<CardHighlightTile card={this.getCard(max.damage_done["dbf_id"])} title="Most damage done" value={max.damage_done["damage_done"] || 0}/>
 				<CardHighlightTile card={this.getCard(max.healing_done["dbf_id"])} title="Most healing done" value={max.healing_done["healing_done"] || 0}/>
 				<CardHighlightTile card={this.getCard(max.times_played["dbf_id"])} title="Most played" value={(max.times_played["times_played"] || 0) + " times"}/>

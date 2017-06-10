@@ -16,7 +16,7 @@ export default class CardHighlightTile extends React.Component<CardHighlightTile
 					<div className="card-info-container">
 						<h1>{this.props.title}</h1>
 						<p className="card-info-value">{this.props.value || 0}</p>
-						<p className="card-info-name">{this.props.name || this.props.card.name || "None"}</p>
+						<p className="card-info-name">{this.props.card.dbfId !== 1674 && (this.props.name || this.props.card.name) || "None"}</p>
 					</div>
 				</a>
 			</div>
