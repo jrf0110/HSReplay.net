@@ -48,5 +48,3 @@ if [[ ! -d $PROJECT/hsreplaynet/static/vendor ]]; then
 fi
 
 mkdir -p "$PROJECT/build/generated"
-
-"$PROJECT/scripts/update_log_data.sh"

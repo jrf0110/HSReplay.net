@@ -6,11 +6,7 @@ from hearthsim_identity.accounts.models import AuthToken
 from hearthsim_identity.api.models import APIKey
 from hsreplaynet.lambdas.uploads import process_raw_upload
 from hsreplaynet.uploads.models import _generate_upload_key, UploadEvent
-
-
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-DATA_DIR = os.path.join(BASE_DIR, "build", "hsreplay-test-data")
-UPLOAD_SUITE = os.path.join(DATA_DIR, "hsreplaynet-tests", "uploads")
+from .conftest import UPLOAD_SUITE
 
 
 class MockRawUpload(object):
@@ -111,18 +107,14 @@ class MockRawUpload(object):
 
 @pytest.mark.django_db
 def test_upload_regression_suite():
-	if os.path.exists(UPLOAD_SUITE):
-		for shortid in os.listdir(UPLOAD_SUITE):
-			raw_upload = MockRawUpload(os.path.join(UPLOAD_SUITE, shortid), default_storage)
+	for shortid in os.listdir(UPLOAD_SUITE):
+		raw_upload = MockRawUpload(os.path.join(UPLOAD_SUITE, shortid), default_storage)
 
-			# Run first as a create
-			do_process_raw_upload(raw_upload, is_reprocessing=False)
+		# Run first as a create
+		do_process_raw_upload(raw_upload, is_reprocessing=False)
 
-			# Then run as a reprocess
-			do_process_raw_upload(raw_upload, is_reprocessing=True)
-	else:
-
-		assert False, "Upload Suite Does Not Exist On Disk"
+		# Then run as a reprocess
+		do_process_raw_upload(raw_upload, is_reprocessing=True)
 
 
 def do_process_raw_upload(raw_upload, is_reprocessing):

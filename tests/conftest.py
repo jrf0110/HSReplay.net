@@ -1,4 +1,6 @@
 import base64
+import os
+import subprocess
 import pytest
 from django.core.management import call_command
 from django.utils import timezone
@@ -7,12 +9,16 @@ from hsreplaynet.cards.models import Card
 from hsreplaynet.decks.models import Archetype, Signature, SignatureComponent
 
 
-def pytest_addoption(parser):
-	parser.addoption(
-		"--all",
-		action="store_true",
-		help="run slower tests not enabled by default"
-	)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_DATA_DIR = os.path.join(BASE_DIR, "logdata")
+LOG_DATA_GIT = "https://github.com/HearthSim/hsreplay-test-data"
+UPLOAD_SUITE = os.path.join(LOG_DATA_DIR, "hsreplaynet-tests", "uploads")
+
+
+def pytest_configure(config):
+	if not os.path.exists(LOG_DATA_DIR):
+		proc = subprocess.Popen(["git", "clone", LOG_DATA_GIT, LOG_DATA_DIR])
+		assert proc.wait() == 0
 
 
 @pytest.fixture(scope="session")
