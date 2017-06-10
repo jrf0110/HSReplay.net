@@ -1,23 +1,18 @@
 import logging
 from hsreplaynet.utils.instrumentation import lambda_handler
+from .models import Webhook
 
 
-@lambda_handler(cpu_seconds=120)
+@lambda_handler(cpu_seconds=90)
 def trigger_webhook(event, context):
 	"""
 	A handler that handles firing game replay webhooks.
 	"""
-	from hsreplaynet.webhooks.models import Webhook
+	logger = logging.getLogger("hsreplaynet.webhooks.lambdas.trigger_webhook")
+	webhook_pk = event["webhook"]
 
-	logger = logging.getLogger("hsreplaynet.lambdas.trigger_webhook")
-	webhook_uuid = event["webhook_uuid"]
-	url = event["url"]
-	payload = {
-		"uuid": webhook_uuid,
-		"event": "REPLAY_UPLOADED",
-		"data": event["data"],
-	}
+	logger.info("Preparing to trigger Webhook %r", webhook_pk)
+	webhook = Webhook.objects.get(pk=webhook_pk)
 
-	logger.info("Triggering webhook %r on %r", webhook_uuid, url)
-	webhook = Webhook.objects.get(uuid=webhook_uuid)
-	webhook.immediate_trigger(url, payload)
+	logger.info("Triggering webhook %r", webhook)
+	webhook.deliver()
