@@ -1,6 +1,7 @@
 from django_hearthstone.cards.models import Card
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.mixins import (
 	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
@@ -12,7 +13,13 @@ from rest_framework.viewsets import GenericViewSet
 from .models import Archetype, Deck
 
 
-class DeckSerializer(serializers.Serializer):
+class ArchetypeSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Archetype
+		fields = ("id", "name", "player_class")
+
+
+class DeckCreationSerializer(serializers.Serializer):
 	shortid = serializers.CharField(read_only=True)
 	format = serializers.IntegerField(min_value=0)
 	heroes = serializers.ListField(
@@ -32,10 +39,23 @@ class DeckSerializer(serializers.Serializer):
 		return created
 
 
+class DeckSerializer(serializers.ModelSerializer):
+	archetype = ArchetypeSerializer()
+	shortid = serializers.CharField(read_only=True)
+	cards = serializers.SerializerMethodField(read_only=True)
+
+	class Meta:
+		model = Deck
+		fields = ("archetype", "shortid", "cards")
+
+	def get_cards(self, value):
+		return value.cards.values_list("dbf_id", flat=True)
+
+
 class GetOrCreateDeckView(APIView):
 	authentication_classes = ()
 	permission_classes = ()
-	serializer_class = DeckSerializer
+	serializer_class = DeckCreationSerializer
 
 	def post(self, request, format=None):
 		serializer = self.serializer_class(data=request.data)
@@ -49,10 +69,14 @@ class GetOrCreateDeckView(APIView):
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-class ArchetypeSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Archetype
-		fields = ("name", "player_class")
+class DeckDetailView(RetrieveAPIView):
+	authentication_classes = (SessionAuthentication, )
+	# permission_classes = ()
+	queryset = Deck.objects.all()
+	serializer_class = DeckSerializer
+
+	def get_object(self):
+		return self.queryset.model.objects.get_by_shortid(self.kwargs["shortid"])
 
 
 class ArchetypeViewSet(

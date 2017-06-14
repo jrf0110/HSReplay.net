@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from . import views
-from .api import GetOrCreateDeckView
+from .api import DeckDetailView, GetOrCreateDeckView
 
 
 card_detail = views.CardDetailView.as_view()
@@ -30,4 +30,5 @@ urlpatterns = [
 
 api_urlpatterns = [
 	url(r"^v1/decks/$", GetOrCreateDeckView.as_view()),
+	url(r"^v1/decks/(?P<shortid>\w+)/$", DeckDetailView.as_view()),
 ]
