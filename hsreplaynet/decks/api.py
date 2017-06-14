@@ -56,13 +56,10 @@ class DeckSerializer(serializers.ModelSerializer):
 
 	def update(self, instance, validated_data):
 		if instance.archetype != validated_data["archetype"]:
-			from hsreplaynet.utils.redis import job_queue
-			job_queue.enqueue(
-				Archetype.objects.update_signature_for_archetype,
+			Archetype.objects.update_signature_for_archetype(
 				validated_data["archetype"].id,
 				instance.format
 			)
-
 		return super(DeckSerializer, self).update(instance, validated_data)
 
 
