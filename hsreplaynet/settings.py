@@ -64,6 +64,7 @@ INSTALLED_APPS_WEB = [
 	"django.contrib.admin",
 	"django.contrib.flatpages",
 	"django.contrib.humanize",
+	"django.contrib.sitemaps",
 	"django_comments",
 	"allauth",
 	"allauth.account",

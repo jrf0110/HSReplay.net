@@ -19,6 +19,9 @@ urlpatterns = [
 
 if not settings.ENV_LAMBDA:
 	from django.contrib.flatpages.views import flatpage
+	from django.contrib.sitemaps.views import sitemap
+	from .sitemap import SITEMAPS
+
 	# These pages are not registered on Lambda as they are not needed there
 	urlpatterns += [
 		url(r"^admin/", include("hsreplaynet.admin.urls")),
@@ -37,6 +40,11 @@ if not settings.ENV_LAMBDA:
 		url(r"^oauth2/", include("hsreplaynet.oauth2.urls")),
 		# decks and cards
 		url(r"^", include("hsreplaynet.decks.urls")),
+		# url(r"^sitemap\.xml", CardSitemap.as_view())
+		url(
+			r"^sitemap\.xml", sitemap, {"sitemaps": SITEMAPS},
+			name="django.contrib.sitemaps.views.sitemap"
+		)
 	]
 
 if settings.DEBUG:
