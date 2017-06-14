@@ -277,8 +277,8 @@ class ArchetypeManager(models.Manager):
 		return result
 
 	def update_signature_for_archetype(self, archetype_id, format):
-		input_decks_qs = Deck.objects.filter(archetype_id=archetype_id, size=30)
-		input_decks = [d for d in input_decks_qs if d.format == format]
+		input_decks_qs = Deck.objects.filter(archetype_id=archetype_id)
+		input_decks = [d for d in input_decks_qs if d.format == format and d.size == 30]
 		deck_observation_counts = self._get_deck_observation_counts_from_redshift(format)
 		card_prevalance_counts = defaultdict(int)
 		total_occurances_of_decks = 0
