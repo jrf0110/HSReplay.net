@@ -86,7 +86,9 @@ class Deck(models.Model):
 	cards = models.ManyToManyField(Card, through="Include")
 	digest = models.CharField(max_length=32, unique=True)
 	created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-	archetype = models.ForeignKey("Archetype", null=True, on_delete=models.SET_NULL)
+	archetype = models.ForeignKey(
+		"decks.Archetype", on_delete=models.SET_NULL, blank=True, null=True
+	)
 	size = models.IntegerField(null=True)
 
 	class Meta:

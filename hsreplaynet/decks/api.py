@@ -1,7 +1,8 @@
 from django_hearthstone.cards.models import Card
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.mixins import (
 	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
@@ -40,7 +41,7 @@ class DeckCreationSerializer(serializers.Serializer):
 
 
 class DeckSerializer(serializers.ModelSerializer):
-	archetype = ArchetypeSerializer()
+	archetype = serializers.PrimaryKeyRelatedField(queryset=Archetype.objects.all(), allow_null=True)
 	shortid = serializers.CharField(read_only=True)
 	cards = serializers.SerializerMethodField(read_only=True)
 
@@ -69,9 +70,9 @@ class GetOrCreateDeckView(APIView):
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-class DeckDetailView(RetrieveAPIView):
+class DeckDetailView(RetrieveUpdateAPIView):
 	authentication_classes = (SessionAuthentication, )
-	# permission_classes = ()
+	permission_classes = (IsAdminUser, )
 	queryset = Deck.objects.all()
 	serializer_class = DeckSerializer
 
