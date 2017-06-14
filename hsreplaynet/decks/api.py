@@ -1,7 +1,6 @@
 from django_hearthstone.cards.models import Card
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.mixins import (
 	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -41,7 +40,10 @@ class DeckCreationSerializer(serializers.Serializer):
 
 
 class DeckSerializer(serializers.ModelSerializer):
-	archetype = serializers.PrimaryKeyRelatedField(queryset=Archetype.objects.all(), allow_null=True)
+	archetype = serializers.PrimaryKeyRelatedField(
+		queryset=Archetype.objects.all(),
+		allow_null=True
+	)
 	shortid = serializers.CharField(read_only=True)
 	cards = serializers.SerializerMethodField(read_only=True)
 
@@ -51,6 +53,16 @@ class DeckSerializer(serializers.ModelSerializer):
 
 	def get_cards(self, value):
 		return value.cards.values_list("dbf_id", flat=True)
+
+	def update(self, instance, validated_data):
+		if instance.archetype != validated_data["archetype"]:
+			from hsreplaynet.utils.redis import job_queue
+			job_queue.enqueue(
+				Archetype.objects.update_signature_for_archetype,
+				validated_data["archetype"].id
+			)
+
+		super(DeckSerializer, self).update(instance, validated_data)
 
 
 class GetOrCreateDeckView(APIView):

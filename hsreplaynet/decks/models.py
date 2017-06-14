@@ -251,6 +251,9 @@ class ArchetypeManager(models.Manager):
 		else:
 			return None
 
+	def update_signature_for_archetype(self, archetype_id):
+		pass
+
 
 class Archetype(models.Model):
 	"""
