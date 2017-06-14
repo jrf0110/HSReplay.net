@@ -146,7 +146,7 @@ module.exports = (env) => {
 		].concat(commons),
 		watchOptions: {
 			// required in the Vagrant setup due to Vagrant inotify not working
-			poll: true
+			poll: 1000
 		},
 	};
 };
