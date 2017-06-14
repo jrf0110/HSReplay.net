@@ -1,15 +1,19 @@
 import hashlib
 import json
 import string
+from collections import defaultdict
 from django.conf import settings
 from django.db import connection, models
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from shortuuid.main import int_to_string, string_to_int
+from hsreplaynet.analytics.processing import get_redshift_catalogue
+from hsreplaynet.utils import log
 
 
 ALPHABET = string.ascii_letters + string.digits
@@ -251,8 +255,76 @@ class ArchetypeManager(models.Manager):
 		else:
 			return None
 
-	def update_signature_for_archetype(self, archetype_id):
-		pass
+	def _get_deck_observation_counts_from_redshift(self, format):
+		query = get_redshift_catalogue().get_query("list_decks_by_win_rate")
+		if format == enums.FormatType.FT_STANDARD:
+			paramiterized_query = query.build_full_params(dict(
+				TimeRange="LAST_30_DAYS",
+				GameType="RANKED_STANDARD",
+			))
+		else:
+			paramiterized_query = query.build_full_params(dict(
+				TimeRange="LAST_30_DAYS",
+				GameType="RANKED_WILD",
+			))
+		result = {}
+		redshift_data = paramiterized_query.response_payload["series"]["data"]
+		if redshift_data:
+			for player_class, decks in redshift_data.items():
+				for deck in decks:
+					result[deck["deck_id"]] = deck["total_games"]
+		return result
+
+	def update_signature_for_archetype(self, archetype_id, format):
+		input_decks_qs = Deck.objects.filter(archetype_id=archetype_id, size=30)
+		input_decks = [d for d in input_decks_qs if d.format == format]
+		deck_observation_counts = self._get_deck_observation_counts_from_redshift(format)
+		card_prevalance_counts = defaultdict(int)
+		total_occurances_of_decks = 0
+		for deck in input_decks:
+			if deck.shortid in deck_observation_counts:
+				total_occurances_of_decks += deck_observation_counts[deck.shortid]
+				for card in deck:
+					card_prevalance_counts[card] += deck_observation_counts[deck.shortid]
+
+		archetype = Archetype.objects.get(id=archetype_id)
+		log.info(
+			"Generating new %s signature for archetype: %s" % (format.name, archetype.name)
+		)
+		log.info(
+			"Deck occurences contributing to signature: %s" % str(total_occurances_of_decks)
+		)
+		signature = Signature.objects.create(
+			archetype=archetype,
+			format=format,
+			as_of=timezone.now()
+		)
+
+		for card, observation_count in card_prevalance_counts.items():
+			prevalance = float(observation_count) / total_occurances_of_decks
+
+			if prevalance >= settings.ARCHETYPE_CORE_CARD_THRESHOLD:
+				log.info(
+					"card: %s with prevalence: %s is CORE" % (card.name, prevalance)
+				)
+				SignatureComponent.objects.create(
+					signature=signature,
+					card=card,
+					weight=settings.ARCHETYPE_CORE_CARD_WEIGHT * prevalance
+				)
+			elif prevalance >= settings.ARCHETYPE_TECH_CARD_THRESHOLD:
+				log.info(
+					"card: %s with prevalence: %s is TECH" % (card.name, prevalance)
+				)
+				SignatureComponent.objects.create(
+					signature=signature,
+					card=card,
+					weight=settings.ARCHETYPE_TECH_CARD_WEIGHT * prevalance
+				)
+			else:
+				log.info(
+					"card: %s with prevalence: %s is DISCARD" % (card.name, prevalance)
+				)
 
 
 class Archetype(models.Model):

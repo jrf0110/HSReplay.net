@@ -59,10 +59,11 @@ class DeckSerializer(serializers.ModelSerializer):
 			from hsreplaynet.utils.redis import job_queue
 			job_queue.enqueue(
 				Archetype.objects.update_signature_for_archetype,
-				validated_data["archetype"].id
+				validated_data["archetype"].id,
+				instance.format
 			)
 
-		super(DeckSerializer, self).update(instance, validated_data)
+		return super(DeckSerializer, self).update(instance, validated_data)
 
 
 class GetOrCreateDeckView(APIView):
