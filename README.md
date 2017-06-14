@@ -44,8 +44,9 @@ Prerequisites:
 
 - [Vagrant](https://vagrantup.com) must be installed
 - Virtualbox must be installed in order for the default provider to work
-- Run `./scripts/run.sh` to start the server. This will download, provision and
-  start the box as necessary.
+
+Use the [HearthSim Vagrant Box](https://github.com/HearthSim/hearthsim-vagrant)
+to run the server locally.
 
 The Django server will then be available on `localhost:8000`.
 The API is available at `/api/v1/` and is browsable using the DRF interface.
