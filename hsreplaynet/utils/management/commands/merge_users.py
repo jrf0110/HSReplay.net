@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
-from ...utils import merge_users
+from hsreplaynet.accounts.utils import merge_users
 
 
 class Command(BaseCommand):
