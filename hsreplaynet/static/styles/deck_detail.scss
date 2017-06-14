@@ -127,6 +127,19 @@
 		.copy-deck-wrapper {
 			padding-bottom: 20px;
 		}
+
+		.dropdown {
+			>button {
+				padding: 0 5px;
+			}
+
+			li {
+				padding: unset;
+				&.dropdown-header {
+					padding: 3px 20px;
+				}
+			}
+		}
 	}
 
 	.chart-wrapper {

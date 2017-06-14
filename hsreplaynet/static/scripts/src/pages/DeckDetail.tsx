@@ -29,6 +29,7 @@ import DeckOverviewTable from "../components/deckdetail/DeckOverviewTable";
 import CopyDeckButton from "../components/SwitchableCopyDeckButton";
 import CardList from "../components/CardList";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
+import ArchetypeSelector from "../components/ArchetypeSelector";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -421,6 +422,20 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<span>View in Admin</span>
 							<span className="infobox-value">
 								<a href={this.props.adminUrl}>Admin link</a>
+							</span>
+						</li>
+						<li>
+							<span>Archetype</span>
+							<span className="infobox-value">
+								<DataInjector
+									dataManager={this.dataManager}
+									query={[
+										{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
+										{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
+									]}
+								>
+									<ArchetypeSelector playerClass={this.props.deckClass}/>
+								</DataInjector>
 							</span>
 						</li>
 					</ul>
