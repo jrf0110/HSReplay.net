@@ -1,9 +1,15 @@
 from django_hearthstone.cards.models import Card
 from rest_framework import serializers
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.mixins import (
+	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+)
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
-from hsreplaynet.decks.models import Deck
+from rest_framework.viewsets import GenericViewSet
+from .models import Archetype, Deck
 
 
 class DeckSerializer(serializers.Serializer):
@@ -41,3 +47,18 @@ class GetOrCreateDeckView(APIView):
 				status = HTTP_200_OK
 			return Response(serializer.data, status=status)
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class ArchetypeSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Archetype
+		fields = ("name", "player_class")
+
+
+class ArchetypeViewSet(
+	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet
+):
+	authentication_classes = (SessionAuthentication, )
+	permission_classes = (IsAdminUser, )
+	queryset = Archetype.objects.all()
+	serializer_class = ArchetypeSerializer
