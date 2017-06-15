@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('digest', models.CharField(max_length=32, unique=True)),
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('size', models.IntegerField(null=True)),
-                ('archetype', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='decks.Archetype')),
+                ('archetype', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='decks.Archetype')),
             ],
             options={
                 'db_table': 'cards_deck',
