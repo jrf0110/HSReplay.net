@@ -1,27 +1,13 @@
 import json
 import pytest
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from hearthstone.enums import PlayState
 from oauth2_provider.models import AccessToken, Grant
-from rest_framework.serializers import ValidationError
 from hearthsim_identity.accounts.models import AccountClaim, AuthToken, User
-from hsreplaynet.api.serializers import SmartFileField
 from hsreplaynet.oauth2.models import Application
 from hsreplaynet.webhooks.models import Webhook
 
 
 CLAIM_ACCOUNT_API = "/api/v1/claim_account/"
-
-
-def test_smart_file_field():
-	field = SmartFileField()
-	with pytest.raises(ValidationError):
-		field.run_validation("does_not_exist_12e89fhcu923rks.txt")
-
-	value = default_storage.save("test_file.txt", ContentFile("test data"))
-	field.run_validation(value)
-	default_storage.delete(value)
 
 
 def test_valid_webhook_serialization():

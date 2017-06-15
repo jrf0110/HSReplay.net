@@ -1,7 +1,5 @@
 import json
-from django.core.files.storage import default_storage
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.six import string_types
 from rest_framework import serializers
 from hearthsim_identity.api.models import APIKey
 from hsreplaynet.accounts.api import UserSerializer
@@ -19,19 +17,6 @@ class DeckSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Deck
 		fields = ("digest", "size", "cards")
-
-
-class SmartFileField(serializers.FileField):
-	"""
-	A FileField which interprets a valid string as a file path.
-	Also see: serializers.FilePathField
-	"""
-
-	def to_internal_value(self, data):
-		if isinstance(data, string_types):
-			if default_storage.exists(data):
-				return default_storage.open(data, mode="rb")
-		return super(SmartFileField, self).to_internal_value(data)
 
 
 class APIKeySerializer(serializers.HyperlinkedModelSerializer):
