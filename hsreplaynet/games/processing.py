@@ -282,7 +282,7 @@ def handle_upload_event_exception(e, upload_event):
 	elif isinstance(e, UnsupportedReplay):
 		return UploadEventStatus.UNSUPPORTED, True
 	elif isinstance(e, ValidationError):
-		return UploadEventStatus.VALIDATION_ERROR, True
+		return UploadEventStatus.VALIDATION_ERROR, False
 	elif isinstance(e, ReplayAlreadyExists):
 		upload_event.game = e.game
 		return UploadEventStatus.SERVER_ERROR, False
