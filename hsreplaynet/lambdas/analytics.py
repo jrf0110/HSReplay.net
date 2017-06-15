@@ -133,6 +133,9 @@ def do_execute_redshift_query(query_name, supplied_params, queue_name):
 	logger.info("Query Params: %s" % supplied_params)
 
 	query = get_redshift_catalogue().get_query(query_name)
+	if not query:
+		return False
+
 	parameterized_query = query.build_full_params(supplied_params)
 
 	try:
