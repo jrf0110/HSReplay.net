@@ -26,7 +26,8 @@ export default class ArchetypeSelector extends React.Component<ArchetypeSelector
 			return null;
 		}
 
-		const onArchetypeClick = (id) => {
+		const onArchetypeClick = (e, id) => {
+			e.preventDefault();
 			this.setState({selectedArchetype: id});
 			const headers = new Headers();
 			headers.set("content-type", "application/json");
@@ -50,7 +51,7 @@ export default class ArchetypeSelector extends React.Component<ArchetypeSelector
 			}
 		}
 		const archetypes = playerClassArchetypes.map((x) => (
-			<li><a href="#" onClick={() => onArchetypeClick(x.id)}>{x.name}</a></li>
+			<li><a href="#" onClick={(e) => onArchetypeClick(e, x.id)}>{x.name}</a></li>
 		));
 
 		return <div className="dropdown">
