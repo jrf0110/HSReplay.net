@@ -11,7 +11,7 @@ from django.utils import timezone
 from django_hearthstone.cards.models import Card
 from hearthstone.enums import BnetRegion, CardType, GameTag
 from hslog import __version__ as hslog_version, LogParser
-from hslog.exceptions import ParsingError
+from hslog.exceptions import MissingPlayerData, ParsingError
 from hslog.export import EntityTreeExporter, FriendlyPlayerExporter
 from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
@@ -384,21 +384,19 @@ def validate_parser(parser, meta):
 			).export()
 		except CorruptReplayPacketError as e:
 			influx_metric(
-				"redshift_exporter_corrupt_data_error",
-				{
+				"redshift_exporter_corrupt_data_error", {
 					"count": 1,
 					"id": e.id,
-
 				},
 				corrupt_packet=True,
 				packet_class=str(e.packet_class)
 			)
 			raise ValidationError(str(e))
-		except CorruptReplayDataError as e:
+		except (CorruptReplayDataError, MissingPlayerData) as e:
 			influx_metric(
-				"redshift_exporter_corrupt_data_error",
-				{
-					"count": 1
+				"redshift_exporter_corrupt_data_error", {
+					"count": 1,
+					"exception": e.__class__.__name__,
 				},
 			)
 			raise ValidationError(str(e))
