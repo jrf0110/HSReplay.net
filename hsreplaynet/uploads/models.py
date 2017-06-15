@@ -169,7 +169,7 @@ class RawUpload(object):
 
 			# These are loaded lazily from S3
 			self._descriptor = None
-			self.descriptor_key = self._create_raw_descriptor_key(fields["ts"], fields["shortid"])
+			self.descriptor_key = "raw/%s/%s.descriptor.json" % (fields["ts"], fields["shortid"])
 
 		elif key.startswith("uploads"):
 			self._state = RawUploadState.HAS_UPLOAD_EVENT
@@ -184,7 +184,7 @@ class RawUpload(object):
 
 			self.upload_event = UploadEvent.objects.get(shortid=self._shortid)
 			self._descriptor = json.loads(self.upload_event.descriptor_data)
-			self.descriptor_key = str(self.upload_event.descriptor)  # No longer used
+			self.descriptor_key = ""
 
 		else:
 			raise ValueError("Invalid key pattern: %r" % (key))
@@ -211,7 +211,9 @@ class RawUpload(object):
 		if self.state == RawUploadState.NEW:
 			log.debug("Deleting files from S3")
 			aws.S3.delete_object(Bucket=self.bucket, Key=self.log_key)
-			aws.S3.delete_object(Bucket=self.bucket, Key=self.descriptor_key)
+
+			if self.descriptor_key:
+				aws.S3.delete_object(Bucket=self.bucket, Key=self.descriptor_key)
 
 	@staticmethod
 	def from_s3_event(event):
@@ -273,6 +275,8 @@ class RawUpload(object):
 
 	@property
 	def descriptor_url(self):
+		if not self.descriptor_key:
+			return ""
 		return self._signed_url_for(self.descriptor_key)
 
 	@property
@@ -465,10 +469,6 @@ def cleanup_uploaded_log_file(sender, instance, **kwargs):
 	file = instance.file
 	if file.name:
 		delete_file_async(file.name)
-
-	descriptor = instance.descriptor
-	if descriptor.name:
-		delete_file_async(descriptor.name)
 
 
 class RedshiftETLStage(IntEnum):
