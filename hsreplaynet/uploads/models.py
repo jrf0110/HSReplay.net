@@ -196,9 +196,6 @@ class RawUpload(object):
 	def __repr__(self):
 		return "<RawUpload %s:%s:%s>" % (self.shortid, self.bucket, self.log_key)
 
-	def _create_raw_descriptor_key(self, ts_string, shortid):
-		return "raw/%s/%s.descriptor.json" % (ts_string, shortid)
-
 	def prepare_upload_event_log_location(self, bucket, key):
 		if key != self.log_key:
 			copy_source = "%s/%s" % (self.bucket, self.log_key)
@@ -314,10 +311,6 @@ def _generate_upload_path(instance, filename):
 	return _generate_upload_key(instance.created, instance.shortid, "power.log")
 
 
-def _generate_descriptor_path(instance, filename):
-	return _generate_upload_key(instance.created, instance.shortid, "descriptor.json")
-
-
 def _generate_upload_key(ts, shortid, suffix="power.log"):
 	# This timestamp in the key path is where we are capturing when
 	# the log was uploaded to S3
@@ -349,7 +342,6 @@ class UploadEvent(models.Model):
 
 	metadata = models.TextField(blank=True)
 	file = models.FileField(upload_to=_generate_upload_path, null=True)
-	descriptor = models.FileField(upload_to=_generate_descriptor_path, blank=True, null=True)
 	descriptor_data = models.TextField(blank=True)
 	user_agent = models.CharField(max_length=100, blank=True)
 	log_stream_name = models.CharField(max_length=64, blank=True)

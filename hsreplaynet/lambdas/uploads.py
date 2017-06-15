@@ -166,7 +166,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	new_log_key = _generate_upload_key(raw_upload.timestamp, raw_upload.shortid)
 	new_bucket = settings.AWS_STORAGE_BUCKET_NAME
 
-	# Move power.log/descriptor.json to the other bucket if it's needed
+	# Move power.log to the other bucket if it's needed
 	raw_upload.prepare_upload_event_log_location(new_bucket, new_log_key)
 
 	upload_metadata = descriptor["upload_metadata"]

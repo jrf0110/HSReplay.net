@@ -34,7 +34,6 @@ class Migration(migrations.Migration):
                 ('canary', models.BooleanField(default=False)),
                 ('metadata', models.TextField(blank=True)),
                 ('file', models.FileField(null=True, upload_to=hsreplaynet.uploads.models._generate_upload_path)),
-                ('descriptor', models.FileField(blank=True, null=True, upload_to=hsreplaynet.uploads.models._generate_descriptor_path)),
                 ('user_agent', models.CharField(blank=True, max_length=100)),
                 ('log_stream_name', models.CharField(blank=True, max_length=64)),
                 ('log_group_name', models.CharField(blank=True, max_length=64)),
