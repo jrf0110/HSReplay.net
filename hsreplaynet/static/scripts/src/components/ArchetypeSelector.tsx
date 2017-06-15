@@ -69,6 +69,7 @@ export default class ArchetypeSelector extends React.Component<ArchetypeSelector
 			<ul className="dropdown-menu" aria-labelledby="dropdownMenu1">
 				<li className="dropdown-header">Modify Archetype</li>
 				{archetypes}
+				<li><a href="#" onClick={(e) => onArchetypeClick(e, null)}>Remove Archetype</a></li>
 			</ul>
 		</div>;
 	}
