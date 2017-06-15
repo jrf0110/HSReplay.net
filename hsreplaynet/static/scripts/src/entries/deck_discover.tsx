@@ -13,6 +13,7 @@ const render = (cardData: CardData) => {
 		<Fragments
 			defaults={{
 				account: "",
+				archetypeSelector: "",
 				excludedCards: [],
 				gameType: "RANKED_STANDARD",
 				includedCards: [],

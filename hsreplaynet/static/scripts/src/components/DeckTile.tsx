@@ -4,10 +4,17 @@ import ManaCurve from "./ManaCurve";
 import moment from "moment";
 import {CardObj, DeckObj} from "../interfaces";
 import { cardSorting, getFragments, getHeroCardId, toPrettyNumber, toTitleCase } from "../helpers";
+import DataInjector from "./DataInjector";
+import ArchetypeSelector from "./ArchetypeSelector";
+import UserData from "../UserData";
+import DataManager from "../DataManager";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
 	compareWith?: CardObj[];
+	showArchetypeSelector?: boolean;
+	user?: UserData;
+	dataManager?: DataManager;
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
@@ -77,6 +84,29 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			backgroundImage: "url(/static/images/dust.png)",
 		};
 
+		let deckName = null;
+		if (this.props.showArchetypeSelector && this.props.user
+			&& this.props.dataManager && this.props.user.isStaff()) {
+			deckName = (
+				<DataInjector
+					dataManager={this.props.dataManager}
+					query={[
+						{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
+						{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
+					]}
+				>
+					<ArchetypeSelector playerClass={this.props.playerClass}/>
+				</DataInjector>
+			);
+		}
+		else {
+			deckName = (
+				<span className="deck-name" style={deckNameStyle}>
+					{toTitleCase(this.props.playerClass)}
+				</span>
+			);
+		}
+
 		return (
 			<li
 				style={{
@@ -87,7 +117,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				<a href={"/decks/" + this.props.deckId + "/" + getFragments(["gameType", "rankRange"])}>
 					<div>
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
-							<span className="deck-name" style={deckNameStyle}>{toTitleCase(this.props.playerClass)}</span>
+							{deckName}
 							{dustCost !== null ? <span className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span> : null}
 						</div>
 						<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3">

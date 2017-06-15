@@ -51,6 +51,7 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setTimeRange?: (timeRange: string) => void;
 	includedSet?: string;
 	setIncludedSet?: (set: string) => void;
+	archetypeSelector?: string;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -297,6 +298,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						decks={this.state.filteredDecks}
 						pageSize={12}
 						helpMessage="Decks require at least 1000 recorded games in the selected time frame to be listed."
+						showArchetypeSelector={this.props.archetypeSelector === "show"}
+						dataManager={this.dataManager}
+						user={this.props.user}
 					/>
 				</Fragments>
 			);

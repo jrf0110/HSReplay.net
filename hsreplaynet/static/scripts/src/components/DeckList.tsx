@@ -7,6 +7,8 @@ import SortIndicator from "./SortIndicator";
 import {SortDirection} from "./SortableTable";
 import {CardObj, DeckObj, FragmentChildProps} from "../interfaces";
 import {getDustCost, getManaCost} from "../helpers";
+import UserData from "../UserData";
+import DataManager from "../DataManager";
 
 interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckList> {
 	decks: DeckObj[];
@@ -20,6 +22,9 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	page?: number;
 	setPage?: (page: number) => void;
 	helpMessage?: string;
+	showArchetypeSelector?: boolean;
+	user?: UserData;
+	dataManager?: DataManager;
 }
 
 export default class DeckList extends React.Component<DeckListProps, void> {
@@ -115,6 +120,9 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 					winrate={deck.winrate}
 					compareWith={this.props.compareWith}
 					dustCost={this.cache[deck.deckId].dust}
+					showArchetypeSelector={this.props.showArchetypeSelector}
+					dataManager={this.props.dataManager}
+					user={this.props.user}
 				/>,
 			);
 		});
