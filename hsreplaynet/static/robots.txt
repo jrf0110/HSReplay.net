@@ -1,3 +1,3 @@
 User-agent: *
-Disallow:
+Disallow: /account/battlenet/login
 Sitemap: https://hsreplay.net/sitemap.xml
