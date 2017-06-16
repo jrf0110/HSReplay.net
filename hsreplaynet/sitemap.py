@@ -1,5 +1,30 @@
 from django.contrib.sitemaps import Sitemap
+from django.urls import reverse
 from django_hearthstone.cards.models import Card
+
+
+class StaticViewSitemap(Sitemap):
+	changefreq = "daily"
+	priority = 1.0
+
+	def items(self):
+		return [
+			"home",
+			"articles_article_list",
+			"trending_decks",
+			"deck_list",
+			"card_stats",
+			"card_gallery",
+			"premium"
+		]
+
+	def changefreq(self, item):
+		if item in ["home", "premium"]:
+			return "weekly"
+		return "daily"
+
+	def location(self, item):
+		return reverse(item)
 
 
 class CardSitemap(Sitemap):
@@ -20,5 +45,6 @@ class CardSitemap(Sitemap):
 
 
 SITEMAPS = {
+	"static": StaticViewSitemap,
 	"cards": CardSitemap,
 }
