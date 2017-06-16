@@ -4,10 +4,19 @@ from django_hearthstone.cards.models import Card
 
 class CardSitemap(Sitemap):
 	changefreq = "daily"
-	priority = 0.6
 
 	def items(self):
 		return Card.objects.all()
+
+	def priority(self, card):
+		if not card.collectible:
+			return 0.4
+		return 0.6
+
+	def changefreq(self, card):
+		if not card.collectible:
+			return "monthly"
+		return "daily"
 
 
 SITEMAPS = {
