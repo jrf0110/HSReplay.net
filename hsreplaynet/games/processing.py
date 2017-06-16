@@ -9,7 +9,7 @@ from django.core.files.storage import default_storage
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django_hearthstone.cards.models import Card
-from hearthstone.enums import BnetRegion, CardType, GameTag
+from hearthstone.enums import BnetGameType, BnetRegion, CardType, GameTag
 from hslog import __version__ as hslog_version, LogParser
 from hslog.exceptions import MissingPlayerData, ParsingError
 from hslog.export import EntityTreeExporter, FriendlyPlayerExporter
@@ -671,6 +671,17 @@ def get_records_to_flush():
 	return result
 
 
+REDSHIFT_GAMETYPE_WHITELIST = (
+	BnetGameType.BGT_ARENA,
+	BnetGameType.BGT_FRIENDS,
+	BnetGameType.BGT_RANKED_STANDARD,
+	BnetGameType.BGT_RANKED_WILD,
+	BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI,
+	BnetGameType.BGT_TAVERNBRAWL_2P_COOP,
+	BnetGameType.BGT_TAVERNBRAWL_PVP,
+)
+
+
 def should_load_into_redshift(upload_event, global_game):
 	if not settings.ENV_AWS or not settings.REDSHIFT_LOADING_ENABLED:
 		return False
@@ -685,6 +696,9 @@ def should_load_into_redshift(upload_event, global_game):
 		return False
 
 	if global_game.tainted_decks:
+		return False
+
+	if global_game.game_type not in REDSHIFT_GAMETYPE_WHITELIST:
 		return False
 
 	# We only load games in where the match_start date is within +/ 36 hours from
