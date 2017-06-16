@@ -1,6 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from django_hearthstone.cards.models import Card
+from .articles.models import Article
 
 
 class StaticViewSitemap(Sitemap):
@@ -44,7 +45,16 @@ class CardSitemap(Sitemap):
 		return "daily"
 
 
+class ArticleSitemap(Sitemap):
+	changefreq = "monthly"
+	priority = 0.8
+
+	def items(self):
+		return Article.objects.filter(listed=True).filter(draft=False)
+
+
 SITEMAPS = {
 	"static": StaticViewSitemap,
 	"cards": CardSitemap,
+	"articles": ArticleSitemap,
 }
