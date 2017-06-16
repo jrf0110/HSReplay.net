@@ -67,7 +67,7 @@ class CardDetailView(DetailView):
 			raise Http404("No card found matching the query.")
 
 		self.request.head.set_canonical_url(obj.get_absolute_url())
-		self.request.head.title = obj.name
+		self.request.head.title = "%s - Hearthstone Card Statistics" % (obj.name)
 		self.request.head.opengraph["og:image"] = obj.get_card_art_url()
 		self.request.head.opengraph["og:image:width"] = 256
 		self.request.head.opengraph["og:image:height"] = 256
