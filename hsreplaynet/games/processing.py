@@ -672,39 +672,38 @@ def get_records_to_flush():
 
 
 def should_load_into_redshift(upload_event, global_game):
+	if not settings.ENV_AWS or not settings.REDSHIFT_LOADING_ENABLED:
+		return False
+
+	if upload_event.test_data:
+		return False
+
+	if global_game.loaded_into_redshift:
+		return False
+
+	if global_game.exclude_from_statistics:
+		return False
+
 	if global_game.tainted_decks:
 		return False
 
-	is_not_test_data = (not upload_event.test_data)
-	is_not_exclude_from_stats = (not global_game.exclude_from_statistics)
-	is_not_already_loaded = global_game.loaded_into_redshift is None
-
-	if settings.ENV_AWS and settings.REDSHIFT_LOADING_ENABLED:
-		if is_not_test_data and is_not_exclude_from_stats and is_not_already_loaded:
-			if replay_meets_recency_requirements(upload_event, global_game):
-				return True
-
-	return False
-
-
-def replay_meets_recency_requirements(upload_event, global_game):
 	# We only load games in where the match_start date is within +/ 36 hours from
 	# The upload_date. This filters out really old replays people might upload
 	# Or replays from users with crazy system clocks.
 	# The purpose of this filtering is to do reduce variability and thrash in our vacuuming
 	# If we determine that vacuuming is not a bottleneck than we can consider
 	# relaxing this requirement.
-	meets_requirements, diff_hours = _dates_within_threshold(
-		global_game.match_start,
-		upload_event.log_upload_date,
-		settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
-	)
-	if not meets_requirements:
+
+	upload_date = upload_event.log_upload_date
+	match_start = global_game.match_start
+	meets_req, diff_hours = _dates_within_etl_threshold(upload_date, match_start)
+	if not meets_req:
 		influx_metric("replay_failed_recency_requirement", {"count": 1, "diff": diff_hours})
-	return meets_requirements
+	return meets_req
 
 
-def _dates_within_threshold(d1, d2, threshold_hours):
+def _dates_within_etl_threshold(d1, d2):
+	threshold_hours = settings.REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS
 	diff = d1 - d2
 	diff_hours = abs(diff.total_seconds()) / 3600.0
 	within_threshold = diff_hours <= threshold_hours
