@@ -275,12 +275,12 @@ class ArchetypeManager(models.Manager):
 			))
 		return paramiterized_query.response_payload["series"]["data"]
 
-	def update_signatures(self):
-		self.update_signatures_for_format(enums.FormatType.FT_STANDARD)
-		self.update_signatures_for_format(enums.FormatType.FT_WILD)
+	def update_signatures(self, archetype=None):
+		self.update_signatures_for_format(enums.FormatType.FT_STANDARD, archetype=archetype)
+		self.update_signatures_for_format(enums.FormatType.FT_WILD, archetype=archetype)
 
-	def update_signatures_for_format(self, format):
-		redshift_data = self._get_deck_observation_counts_from_redshift(format)
+	def update_signatures_for_format(self, game_format, archetype=None):
+		redshift_data = self._get_deck_observation_counts_from_redshift(game_format)
 
 		if redshift_data:
 			deck_observation_counts = {}
@@ -300,15 +300,16 @@ class ArchetypeManager(models.Manager):
 						for card in deck:
 							card_prevalance_counts[deck.archetype_id][card] += obs_count
 
-			for archetype in Archetype.objects.all():
+			archetypes_for_update = [archetype] if archetype else Archetype.objects.all()
+			for archetype in archetypes_for_update:
 				deck_occurances = deck_occurances_per_archetype[archetype.id]
 				msg1 = "Generating new %s signature for archetype: %s"
-				log.info(msg1 % (format.name, archetype.name))
+				log.info(msg1 % (game_format.name, archetype.name))
 				msg2 = "Deck occurances contributing to signature: %s"
 				log.info(msg2 % str(deck_occurances))
 				signature = Signature.objects.create(
 					archetype=archetype,
-					format=format,
+					format=game_format,
 					as_of=timezone.now()
 				)
 
