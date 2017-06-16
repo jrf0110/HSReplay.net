@@ -268,7 +268,7 @@ class ArchetypeManager(models.Manager):
 		return result
 
 	def _fetch_signature_weights(self, archetypes, game_format):
-		archetype_ids_for_class = ",".join([a.id for a in archetypes])
+		archetype_ids_for_class = ",".join([str(a.id) for a in archetypes])
 		query = self.SIGNATURE_COMPONENTS_QUERY_TEMPLATE.format(
 			archetype_ids=archetype_ids_for_class,
 			format=str(int(game_format))
