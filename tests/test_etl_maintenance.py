@@ -1,8 +1,7 @@
 from datetime import timedelta
-from unittest.mock import MagicMock
 from django.conf import settings
 from django.utils import timezone
-from hsreplaynet.games.processing import replay_meets_recency_requirements
+from hsreplaynet.games.processing import _dates_within_etl_threshold
 from hsreplaynet.uploads.models import RedshiftETLTask
 
 
@@ -23,13 +22,8 @@ def test_etl_task():
 
 
 def assert_recency_requirements_for(log_upload_date, match_start):
-	mock_upload_event = MagicMock()
-	mock_upload_event.log_upload_date = log_upload_date
-
-	mock_global_game = MagicMock()
-	mock_global_game.match_start = match_start
-
-	return replay_meets_recency_requirements(mock_upload_event, mock_global_game)
+	req, threshold = _dates_within_etl_threshold(log_upload_date, match_start)
+	return req
 
 
 def test_replay_meets_recency_requirements():
