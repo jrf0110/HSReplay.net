@@ -268,64 +268,69 @@ class ArchetypeManager(models.Manager):
 				TimeRange="LAST_30_DAYS",
 				GameType="RANKED_WILD",
 			))
-		result = {}
-		redshift_data = paramiterized_query.response_payload["series"]["data"]
+		return paramiterized_query.response_payload["series"]["data"]
+
+	def update_signatures(self):
+		self.update_signatures_for_format(enums.FormatType.FT_STANDARD)
+		self.update_signatures_for_format(enums.FormatType.FT_WILD)
+
+	def update_signatures_for_format(self, format):
+		redshift_data = self._get_deck_observation_counts_from_redshift(format)
+
 		if redshift_data:
+			deck_observation_counts = {}
+			digests = []
 			for player_class, decks in redshift_data.items():
 				for deck in decks:
-					result[deck["deck_id"]] = deck["total_games"]
-		return result
+					digests.append(deck["digest"])
+					deck_observation_counts[deck["digest"]] = deck["total_games"]
 
-	def update_signature_for_archetype(self, archetype_id, format):
-		input_decks_qs = Deck.objects.filter(archetype_id=archetype_id)
-		input_decks = [d for d in input_decks_qs if d.format == format and d.size == 30]
-		deck_observation_counts = self._get_deck_observation_counts_from_redshift(format)
-		card_prevalance_counts = defaultdict(int)
-		total_occurances_of_decks = 0
-		for deck in input_decks:
-			if deck.shortid in deck_observation_counts:
-				total_occurances_of_decks += deck_observation_counts[deck.shortid]
-				for card in deck:
-					card_prevalance_counts[card] += deck_observation_counts[deck.shortid]
+			card_prevalance_counts = defaultdict(lambda: defaultdict(int))
+			deck_occurances_per_archetype = defaultdict(int)
+			for deck in Deck.objects.filter(digest__in=digests):
+				if deck.archetype_id:
+					obs_count = deck_observation_counts[deck.digest]
+					deck_occurances_per_archetype[deck.archetype_id] = obs_count
+					if deck.digest in deck_observation_counts:
+						for card in deck:
+							card_prevalance_counts[deck.archetype_id][card] += obs_count
 
-		archetype = Archetype.objects.get(id=archetype_id)
-		log.info(
-			"Generating new %s signature for archetype: %s" % (format.name, archetype.name)
-		)
-		log.info(
-			"Deck occurences contributing to signature: %s" % str(total_occurances_of_decks)
-		)
-		signature = Signature.objects.create(
-			archetype=archetype,
-			format=format,
-			as_of=timezone.now()
-		)
+			for archetype in Archetype.objects.all():
+				deck_occurances = deck_occurances_per_archetype[archetype.id]
+				msg1 = "Generating new %s signature for archetype: %s"
+				log.info(msg1 % (format.name, archetype.name))
+				msg2 = "Deck occurances contributing to signature: %s"
+				log.info(msg2 % str(deck_occurances))
+				signature = Signature.objects.create(
+					archetype=archetype,
+					format=format,
+					as_of=timezone.now()
+				)
 
-		for card, observation_count in card_prevalance_counts.items():
-			prevalance = float(observation_count) / total_occurances_of_decks
+				for card, observation_count in card_prevalance_counts[archetype.id].items():
+					prevalance = float(observation_count) / deck_occurances
 
-			if prevalance >= settings.ARCHETYPE_CORE_CARD_THRESHOLD:
-				log.info(
-					"card: %s with prevalence: %s is CORE" % (card.name, prevalance)
-				)
-				SignatureComponent.objects.create(
-					signature=signature,
-					card=card,
-					weight=settings.ARCHETYPE_CORE_CARD_WEIGHT * prevalance
-				)
-			elif prevalance >= settings.ARCHETYPE_TECH_CARD_THRESHOLD:
-				log.info(
-					"card: %s with prevalence: %s is TECH" % (card.name, prevalance)
-				)
-				SignatureComponent.objects.create(
-					signature=signature,
-					card=card,
-					weight=settings.ARCHETYPE_TECH_CARD_WEIGHT * prevalance
-				)
-			else:
-				log.info(
-					"card: %s with prevalence: %s is DISCARD" % (card.name, prevalance)
-				)
+					if prevalance >= settings.ARCHETYPE_CORE_CARD_THRESHOLD:
+						log.info(
+							"card: %s with prevalence: %s is CORE" % (card.name, prevalance)
+						)
+						SignatureComponent.objects.create(
+							signature=signature,
+							card=card,
+							weight=settings.ARCHETYPE_CORE_CARD_WEIGHT * prevalance
+						)
+					elif prevalance >= settings.ARCHETYPE_TECH_CARD_THRESHOLD:
+						log.info(
+							"card: %s with prevalence: %s is TECH" % (card.name, prevalance)
+						)
+						SignatureComponent.objects.create(
+							signature=signature,
+							card=card,
+							weight=settings.ARCHETYPE_TECH_CARD_WEIGHT * prevalance
+						)
+					else:
+						msg3 = "card: %s with prevalence: %s is DISCARD"
+						log.info(msg3 % (card.name, prevalance))
 
 
 class Archetype(models.Model):
