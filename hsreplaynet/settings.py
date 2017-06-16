@@ -411,7 +411,7 @@ REDSHIFT_PRETTY_PRINT_QUERY_RESULTS = False
 #	1) At the end of each ETL Track Load
 #	2) Immediately when a new premium user subscribes
 #	3) When the daily cache warming Jenkins job runs
-REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS = True
+REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS = False
 
 WEBHOOKS = {
 	"SCHEME_WHITELIST": ["http", "https"],
