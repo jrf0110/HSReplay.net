@@ -32,7 +32,7 @@ class DeckManager(models.Manager):
 		archetypes_enabled = settings.ARCHETYPE_CLASSIFICATION_ENABLED
 		if archetypes_enabled and classify_into_archetype and created:
 			player_class = self._convert_hero_id_to_player_class(hero_id)
-			self.classify_deck_with_archetype(deck.format, player_class, format)
+			self.classify_deck_with_archetype(deck, player_class, deck.format)
 
 		return deck, created
 
@@ -60,8 +60,8 @@ class DeckManager(models.Manager):
 			return Card.objects.get(card_id=hero_id).card_class
 		return enums.CardClass.INVALID
 
-	def classify_deck_with_archetype(self, deck, player_class, format):
-		archetype = Archetype.objects.classify_deck(deck, player_class, format)
+	def classify_deck_with_archetype(self, deck, player_class, game_format):
+		archetype = Archetype.objects.classify_deck(deck, player_class, game_format)
 		if archetype:
 			deck.archetype = archetype
 			deck.save()
@@ -247,11 +247,11 @@ class ArchetypeManager(models.Manager):
 
 		return result
 
-	def classify_deck(self, deck, player_class, format):
+	def classify_deck(self, deck, player_class, game_format):
 		distances = []
 		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
 		for archetype in Archetype.objects.filter(player_class=player_class):
-			distance = archetype.distance(deck, format)
+			distance = archetype.distance(deck, game_format)
 			if distance and distance >= distance_cutoff:
 				distances.append((archetype, distance))
 
@@ -357,8 +357,8 @@ class Archetype(models.Model):
 	def __str__(self):
 		return self.name
 
-	def distance(self, deck, format):
-		signature = self.get_signature(format)
+	def distance(self, deck, game_format):
+		signature = self.get_signature(game_format)
 		if signature:
 			return signature.distance(deck)
 		else:
@@ -380,14 +380,14 @@ class Archetype(models.Model):
 		else:
 			return None
 
-	def get_signature(self, format=enums.FormatType.FT_STANDARD, as_of=None):
+	def get_signature(self, game_format=enums.FormatType.FT_STANDARD, as_of=None):
 		if as_of is None:
 			return self.signature_set.filter(
-				format=format,
+				format=int(game_format),
 			).order_by("-as_of").first()
 		else:
-			return self.canonical_decks.filter(
-				format=format,
+			return self.signature_set.filter(
+				format=int(game_format),
 				as_of__lte=as_of
 			).order_by("-as_of").first()
 
