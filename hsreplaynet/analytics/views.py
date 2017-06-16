@@ -27,6 +27,14 @@ def evict_query_from_cache(request, name):
 
 
 @staff_member_required
+def evict_all_from_cache(request, name):
+	parameterized_query = _get_query_and_params(request, name)
+	count = parameterized_query.evict_all_from_cache()
+
+	return JsonResponse({"msg": "OK", "count": count})
+
+
+@staff_member_required
 def release_semaphore(request, name):
 	semaphore = get_concurrent_redshift_query_queue_semaphore(name)
 	if semaphore:
