@@ -150,7 +150,7 @@ class Deck(models.Model):
 
 	@cached_property
 	def format(self):
-		for include in self.includes.select_related("card__card_set").all():
+		for include in self.includes.select_related("card").all():
 			is_classic = include.card.card_set in (enums.CardSet.EXPERT1, enums.CardSet.CORE)
 			if not is_classic and not include.card.card_set.is_standard:
 				return enums.FormatType.FT_WILD
@@ -270,8 +270,8 @@ class ArchetypeManager(models.Manager):
 	def _fetch_signature_weights(self, archetypes, game_format):
 		archetype_ids_for_class = ",".join([a.id for a in archetypes])
 		query = self.SIGNATURE_COMPONENTS_QUERY_TEMPLATE.format(
-			archetype_ids = archetype_ids_for_class,
-			format = str(int(game_format))
+			archetype_ids=archetype_ids_for_class,
+			format=str(int(game_format))
 		)
 		with connection.cursor() as cursor:
 			cursor.execute(query)
