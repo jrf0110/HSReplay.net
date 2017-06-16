@@ -14,6 +14,7 @@ from hearthstone import deckstrings, enums
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.analytics.processing import get_redshift_catalogue
 from hsreplaynet.utils import log
+from hsreplaynet.utils.db import dictfetchall
 
 
 ALPHABET = string.ascii_letters + string.digits
@@ -238,6 +239,24 @@ class Include(models.Model):
 
 
 class ArchetypeManager(models.Manager):
+	SIGNATURE_COMPONENTS_QUERY_TEMPLATE = """
+		WITH signatures AS (
+			SELECT
+				ds.archetype_id,
+				max(ds.id) AS signature_id
+			FROM decks_signature ds
+			WHERE ds.archetype_id IN ({archetype_ids})
+			AND ds.format = {format}
+			GROUP BY ds.archetype_id
+		)
+		SELECT
+			s.archetype_id,
+			c.card_id,
+			c.weight
+		FROM decks_signaturecomponent c
+		JOIN signatures s ON s.signature_id = c.signature_id;
+	"""
+
 	def archetypes_for_class(self, player_class, format):
 		result = {}
 
@@ -248,11 +267,33 @@ class ArchetypeManager(models.Manager):
 
 		return result
 
+	def _fetch_signature_weights(self, archetypes, game_format):
+		archetype_ids_for_class = ",".join([a.id for a in archetypes])
+		query = self.SIGNATURE_COMPONENTS_QUERY_TEMPLATE.format(
+			archetype_ids = archetype_ids_for_class,
+			format = str(int(game_format))
+		)
+		with connection.cursor() as cursor:
+			cursor.execute(query)
+			result = defaultdict(dict)
+			for record in dictfetchall(cursor):
+				result[record["archetype_id"]][record["card_id"]] = record["weight"]
+			return result
+
 	def classify_deck(self, deck, player_class, game_format):
 		distances = []
 		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
-		for archetype in Archetype.objects.filter(player_class=player_class):
-			distance = archetype.distance(deck, game_format)
+		archetypes_for_class = list(Archetype.objects.filter(player_class=player_class).all())
+		signature_weights = self._fetch_signature_weights(archetypes_for_class, game_format)
+
+		card_counts = {i.card_id: i.count for i in deck.includes.all()}
+		for archetype in archetypes_for_class:
+			distance = 0
+			if archetype.id in signature_weights:
+				for card_id, weight in signature_weights[archetype.id].items():
+					if card_id in card_counts:
+						distance += (card_counts[card_id] * weight)
+
 			if distance and distance >= distance_cutoff:
 				distances.append((archetype, distance))
 
@@ -404,10 +445,10 @@ class Signature(models.Model):
 
 	def distance(self, deck):
 		dist = 0
-		card_counts = {i.card: i.count for i in deck.includes.all()}
+		card_counts = {i.card_id: i.count for i in deck.includes.all()}
 		for component in self.components.all():
 			if component.card in card_counts:
-				dist += (card_counts[component.card] * component.weight)
+				dist += (card_counts[component.card_id] * component.weight)
 		return dist
 
 
