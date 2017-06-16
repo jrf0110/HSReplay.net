@@ -284,6 +284,8 @@ class ArchetypeManager(models.Manager):
 		distances = []
 		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
 		archetypes_for_class = list(Archetype.objects.filter(player_class=player_class).all())
+		if not archetypes_for_class:
+			return None
 		signature_weights = self._fetch_signature_weights(archetypes_for_class, game_format)
 
 		card_counts = {i.card_id: i.count for i in deck.includes.all()}
