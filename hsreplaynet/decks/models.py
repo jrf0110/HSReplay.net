@@ -50,7 +50,7 @@ class DeckManager(models.Manager):
 		deck_id = int(result_row[0])
 		created_ts, digest, created, deck_size = result_row[1:]
 		cursor.close()
-		d = Deck(id=deck_id, created=created_ts, digest=digest, size=deck_size)
+		d = Deck.objects.get(id=deck_id)
 		return d, created
 
 	def _convert_hero_id_to_player_class(self, hero_id):
