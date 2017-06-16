@@ -149,7 +149,7 @@ class Deck(models.Model):
 
 	@cached_property
 	def format(self):
-		for include in self.includes.all():
+		for include in self.includes.select_related("card__card_set").all():
 			is_classic = include.card.card_set in (enums.CardSet.EXPERT1, enums.CardSet.CORE)
 			if not is_classic and not include.card.card_set.is_standard:
 				return enums.FormatType.FT_WILD
