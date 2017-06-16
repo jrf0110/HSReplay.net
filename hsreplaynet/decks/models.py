@@ -293,12 +293,11 @@ class ArchetypeManager(models.Manager):
 			card_prevalance_counts = defaultdict(lambda: defaultdict(int))
 			deck_occurances_per_archetype = defaultdict(int)
 			for deck in Deck.objects.filter(digest__in=digests):
-				if deck.archetype_id:
+				if deck.archetype_id and deck.digest in deck_observation_counts:
 					obs_count = deck_observation_counts[deck.digest]
-					deck_occurances_per_archetype[deck.archetype_id] = obs_count
-					if deck.digest in deck_observation_counts:
-						for card in deck:
-							card_prevalance_counts[deck.archetype_id][card] += obs_count
+					deck_occurances_per_archetype[deck.archetype_id] += obs_count
+					for card in deck:
+						card_prevalance_counts[deck.archetype_id][card] += obs_count
 
 			archetypes_for_update = [archetype] if archetype else Archetype.objects.all()
 			for archetype in archetypes_for_update:
