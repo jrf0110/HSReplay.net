@@ -40,7 +40,7 @@ if not settings.ENV_LAMBDA:
 		url(r"^oauth2/", include("hsreplaynet.oauth2.urls")),
 		# decks and cards
 		url(r"^", include("hsreplaynet.decks.urls")),
-		# url(r"^sitemap\.xml", CardSitemap.as_view())
+		# sitemaps
 		url(
 			r"^sitemap\.xml", sitemap, {"sitemaps": SITEMAPS},
 			name="django.contrib.sitemaps.views.sitemap"
