@@ -1,6 +1,7 @@
 from django_hearthstone.cards.models import Card
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import NotFound
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.mixins import (
 	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -86,7 +87,10 @@ class DeckDetailView(RetrieveUpdateAPIView):
 	serializer_class = DeckSerializer
 
 	def get_object(self):
-		return self.queryset.model.objects.get_by_shortid(self.kwargs["shortid"])
+		try:
+			return self.queryset.model.objects.get_by_shortid(self.kwargs["shortid"])
+		except Deck.DoesNotExist:
+			raise NotFound()
 
 
 class ArchetypeViewSet(
