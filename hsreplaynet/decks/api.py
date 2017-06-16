@@ -54,14 +54,6 @@ class DeckSerializer(serializers.ModelSerializer):
 	def get_cards(self, value):
 		return value.cards.values_list("dbf_id", flat=True)
 
-	def update(self, instance, validated_data):
-		if instance.archetype != validated_data["archetype"]:
-			Archetype.objects.update_signature_for_archetype(
-				validated_data["archetype"].id,
-				instance.format
-			)
-		return super(DeckSerializer, self).update(instance, validated_data)
-
 
 class GetOrCreateDeckView(APIView):
 	authentication_classes = ()
