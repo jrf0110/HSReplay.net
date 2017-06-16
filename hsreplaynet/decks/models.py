@@ -31,7 +31,7 @@ class DeckManager(models.Manager):
 
 		archetypes_enabled = settings.ARCHETYPE_CLASSIFICATION_ENABLED
 		if archetypes_enabled and classify_into_archetype and not deck.archetype_id:
-			player_class = self._convert_hero_id_to_player_class(hero_id)
+			player_class = deck.deck_class
 			self.classify_deck_with_archetype(deck, player_class, deck.format)
 
 		return deck, created
