@@ -172,15 +172,6 @@ class Deck(models.Model):
 	def get_absolute_url(self):
 		return reverse("deck_detail", kwargs={"id": self.shortid})
 
-	def save(self, *args, **kwargs):
-		EMPTY_DECK_DIGEST = "d41d8cd98f00b204e9800998ecf8427e"
-		if self.digest != EMPTY_DECK_DIGEST and self.includes.count() == 0:
-			# A client has set a digest by hand, so don't recalculate it.
-			return super(Deck, self).save(*args, **kwargs)
-		else:
-			self.digest = generate_digest_from_deck_list(self.card_id_list())
-			return super(Deck, self).save(*args, **kwargs)
-
 	def card_dbf_id_list(self):
 		result = []
 
