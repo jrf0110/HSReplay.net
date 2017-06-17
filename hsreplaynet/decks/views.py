@@ -15,6 +15,15 @@ from .models import Archetype, Deck
 
 
 ##
+# Archetype pages
+
+@method_decorator(view_requires_feature_access("archetype-detail"), name="dispatch")
+class ArchetypeDetailView(LoginRequiredMixin, TemplateView):
+	template_name = "archetypes/archetype_detail.html"
+	title = "Archetype"
+
+
+##
 # Card pages
 
 class CardStatsView(RequestMetaMixin, TemplateView):

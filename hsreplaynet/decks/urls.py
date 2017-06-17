@@ -2,6 +2,7 @@ from django.conf.urls import url
 from . import views
 from .api import DeckDetailView, GetOrCreateDeckView
 
+archetype_detail = views.ArchetypeDetailView.as_view()
 
 card_detail = views.CardDetailView.as_view()
 card_editor = views.CardEditorView.as_view()
@@ -16,6 +17,7 @@ trending_decks = views.TrendingDecksView.as_view()
 
 
 urlpatterns = [
+	url(r"^archetypes/$", archetype_detail, name="archetype_detail"),
 	url(r"^cards/$", card_stats, name="card_stats"),
 	url(r"^cards/editor/", card_editor, name="card_editor"),
 	url(r"^cards/mine/$", my_card_stats, name="my_card_stats"),

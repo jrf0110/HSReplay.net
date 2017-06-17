@@ -83,7 +83,7 @@ export function getChartScheme(theme: ChartSchemeType): ChartScheme {
 			scheme = classColorScheme;
 			break;
 	}
-	return Object.assign({}, {"other": {
+	return Object.assign({}, {other: {
 		fill: "rgb(140, 140, 140)",
 		stroke: "rgb(140, 140, 140)",
 	}}, scheme);
@@ -302,6 +302,25 @@ export const setNames = {
 	"gangs": "Mean Streets of Gadgetzan",
 	"ungoro": "Journey to Un'Goro",
 };
+
+export const playerClasses = [
+	"DRUID",
+	"HUNTER",
+	"MAGE",
+	"PALADIN",
+	"PRIEST",
+	"ROGUE",
+	"SHAMAN",
+	"WARLOCK",
+	"WARRIOR",
+];
+
+export function getPlayerClassFromId(id: number): string {
+	if (id < 2 || id > 10) {
+		return "";
+	}
+	return playerClasses[id - 2];
+}
 
 export const playerClassIds = {
 	DRUID: 2,

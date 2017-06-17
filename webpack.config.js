@@ -71,6 +71,7 @@ module.exports = (env) => {
 			my_highlights: makeEntry("my_highlights"),
 			trending: makeEntry("trending"),
 		},
+		archetype_detail: makeEntry("archetype_detail"),
 		card_editor: makeEntry("card_editor"),
 		victory_widgets: makeEntry("victory_widgets"),
 		articles: makeEntry("articles"),

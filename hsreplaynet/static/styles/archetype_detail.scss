@@ -1,0 +1,77 @@
+.archetype-detail-container {
+	display: flex;
+
+	@media(max-width: 768px) {
+		flex-direction: column;
+	}
+
+	>main {
+		min-height: calc(100vh - 50px);
+		padding-top: 10px;
+		width: calc(100% - 300px);
+
+		@media(max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+		}
+
+		.chart-wrapper > .info-icon {
+			color: $blue;
+			font-size: 1em;
+			left: 3%;
+			@media(min-width: 1336px) {
+				left: calc(50% - 350px);
+			}
+			padding: 0;
+			position: absolute;
+			right: unset;
+			top: 5%;
+		}
+
+		#overview {
+			.overview-content {
+				display: flex;
+			}
+
+			.card-list-wrapper {
+				max-width: 270px;
+				min-width: 200px;
+				margin: 0 auto;
+			}
+
+		}
+	}
+
+	>aside {
+		@media(max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+			padding-bottom: 0;
+		}
+
+		.player-class-icon {
+			width: 24px;
+			height: 24px;
+			margin: -3px 5px -3px 0;
+		}
+	}
+
+	.chart-wrapper {
+		max-width: 700px;
+		margin: 0 auto;
+	}
+
+	.chart-column {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	>h3 {
+		border-bottom: 1px solid $darkgrey;
+	}
+
+	#message-no-data {
+		padding-top: 20px;
+	}
+
+}
