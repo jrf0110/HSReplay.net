@@ -1,7 +1,3 @@
 User-agent: *
 Disallow: /account/battlenet/login
 Sitemap: https://hsreplay.net/sitemap.xml
-
-User-agent: googlebot
-Allow: /replay/vZEz7JoNnfgVo34HJUHhEF
-Disallow: /replay/
