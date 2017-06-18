@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from hsreplaynet.api.permissions import UserHasFeature
 from .models import Archetype, Deck
 
 
@@ -97,6 +98,6 @@ class ArchetypeViewSet(
 	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet
 ):
 	authentication_classes = (SessionAuthentication, )
-	permission_classes = (IsAdminUser, )
+	permission_classes = (UserHasFeature("archetype-selection"), )
 	queryset = Archetype.objects.all()
 	serializer_class = ArchetypeSerializer
