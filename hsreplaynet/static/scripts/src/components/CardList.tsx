@@ -1,7 +1,7 @@
 import * as React from "react";
 import CardTile from "./CardTile";
 import {cardSorting} from "../helpers";
-import CopyDeckButton from "./SwitchableCopyDeckButton";
+import CopyDeckButton from "./CopyDeckButton";
 import CardData from "../CardData";
 
 type CardId = string | number;
@@ -69,14 +69,12 @@ export default class CardList extends React.Component<CardListProps, any> {
 					<div className="text-center copy-deck-wrapper">
 						<CopyDeckButton
 							cardData={this.props.cardData}
-							cardIds={cards.map((card) => card.Id)}
 							cards={copyButtonCards}
 							heroes={this.props.heroes}
 							format={this.props.format}
 							deckClass={this.props.deckClass}
 							name={this.props.name}
 							sourceUrl={window.location.toString()}
-							id={"" + this.props.id}
 						/>
 					</div> : null}
 			</div>

@@ -26,7 +26,7 @@ import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import Tooltip from "../components/Tooltip";
 import DeckOverviewTable from "../components/deckdetail/DeckOverviewTable";
-import CopyDeckButton from "../components/SwitchableCopyDeckButton";
+import CopyDeckButton from "../components/CopyDeckButton";
 import CardList from "../components/CardList";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import ArchetypeSelector from "../components/ArchetypeSelector";
@@ -362,9 +362,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				/>
 				<div className="text-center copy-deck-wrapper">
 					<CopyDeckButton
-						cardIds={
-							this.props.cardData && this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId).id)
-						}
 						cardData={this.props.cardData}
 						cards={dbfIds}
 						heroes={[this.props.heroDbfId]}
