@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from rest_framework import permissions
 from hearthsim_identity.api.models import APIKey
+from hsreplaynet.features.models import Feature
 
 
 class APIKeyPermission(permissions.BasePermission):
@@ -51,3 +52,22 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 		if request.method in permissions.SAFE_METHODS:
 			return True
 		return getattr(obj, self.OWNER_FIELD) == request.user
+
+
+class BaseUserHasFeature(permissions.BasePermission):
+	"""
+	Permission check that only authorizes staff or users with
+	the provided feature.
+	"""
+
+	FEATURE = None
+
+	def has_permission(self, request, view):
+		if request.user.is_staff:
+			return True
+		feature = Feature.objects.get(name=self.FEATURE)
+		return feature.enabled_for_user(request.user)
+
+
+def UserHasFeature(feature_name):
+	return type("UserHasFeature", (BaseUserHasFeature, ), {"FEATURE":  feature_name})
