@@ -40,13 +40,18 @@ export default class CardList extends React.Component<CardListProps, any> {
 		const cards = Object.keys(counts).map((id) => getCard(id));
 		cards.sort(cardSorting);
 
+		const copyButtonCards = [];
 		const cardTiles = [];
 		cards.forEach((card) => {
 			if (card) {
+				const count = counts[dbfIds ? card.dbfId : card.id];
+				for (let i = 0; i < count; i++) {
+					copyButtonCards.push(card.dbfId);
+				}
 				cardTiles.push(
 					<CardTile
 						card={card}
-						count={counts[dbfIds ? card.dbfId : card.id]}
+						count={count}
 						height={cardHeight}
 						rarityColored={this.props.rarityColored}
 						noLink={!this.props.clickable}
@@ -65,7 +70,7 @@ export default class CardList extends React.Component<CardListProps, any> {
 						<CopyDeckButton
 							cardData={this.props.cardData}
 							cardIds={cards.map((card) => card.Id)}
-							cards={cards.map((card) => card.dbfId)}
+							cards={copyButtonCards}
 							heroes={this.props.heroes}
 							format={this.props.format}
 							deckClass={this.props.deckClass}
