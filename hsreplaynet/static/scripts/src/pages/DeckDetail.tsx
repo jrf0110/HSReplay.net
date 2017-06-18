@@ -1,5 +1,5 @@
+import PremiumWrapper from "../components/PremiumWrapper";
 import TableLoading from "../components/loading/TableLoading";
-import * as React from "react";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
@@ -14,11 +14,11 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import ChartLoading from "../components/loading/ChartLoading";
 import HideLoading from "../components/loading/HideLoading";
 import CardData from "../CardData";
-import PremiumWrapper from "../components/PremiumWrapper";
+import * as React from "react";
 import {SortDirection} from "../components/SortableTable";
 import DataManager from "../DataManager";
 import {getDustCost, getHeroCardId, isWildSet, toTitleCase} from "../helpers";
-import { CardObj, RenderData, TableData, DataPoint } from "../interfaces";
+import { CardObj, RenderData, TableData } from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
 import ManaCurve from "../components/ManaCurve";
@@ -232,7 +232,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 					{deckCharts && deckCharts[0]}
 					{deckCharts && deckCharts[1]}
-				</div>
+				</div>,
 			);
 		}
 		else {
@@ -349,7 +349,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="col-lg-4 col-md-12 col-sm-12 col-xs-12">
 						{deckCharts && deckCharts[0]}
 						{deckCharts && deckCharts[1]}
-					</div>
+					</div>,
 				);
 			}
 		}
@@ -424,6 +424,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								<a href={this.props.adminUrl}>Admin link</a>
 							</span>
 						</li>
+					</ul>
+				)}
+				{this.props.user.hasFeature("archetype-selection") && (
+					<ul>
 						<li>
 							<span>Archetype</span>
 							<span className="infobox-value">

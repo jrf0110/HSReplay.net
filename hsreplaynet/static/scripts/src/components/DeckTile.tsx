@@ -86,7 +86,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 		let deckName = null;
 		if (this.props.showArchetypeSelector && this.props.user
-			&& this.props.dataManager && this.props.user.isStaff()) {
+			&& this.props.dataManager && this.props.user.hasFeature("archetype-selection")) {
 			deckName = (
 				<DataInjector
 					dataManager={this.props.dataManager}
