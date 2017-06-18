@@ -52,6 +52,7 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	includedSet?: string;
 	setIncludedSet?: (set: string) => void;
 	archetypeSelector?: string;
+	setArchetypeSelector?: (archetypeSelector: string) => void;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -135,13 +136,13 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const missingIncludedCards = (deckList: any[]) => {
 			return includedCards.some((includedCardObj) => {
 				return includedCardObj && deckList.every((cardObj) => {
-						return cardObj && cardObj.card.id !== includedCardObj.card.id || cardObj.count < includedCardObj.count
+						return cardObj && cardObj.card.id !== includedCardObj.card.id || cardObj.count < includedCardObj.count;
 					});
 			});
 		};
 		const containsExcludedCards = (deckList: any[]) => {
 			return excludedCards.some((excludedCardObj) => {
-				return excludedCardObj && deckList.some((cardObj) => cardObj.card.id === excludedCardObj.card.id)
+				return excludedCardObj && deckList.some((cardObj) => cardObj.card.id === excludedCardObj.card.id);
 			});
 		};
 		const cardList = (cards) => cards.map((c: any[]) => {
@@ -572,6 +573,15 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								params={this.getParams()}
 							/>
 						</ul>
+						{this.props.user.hasFeature("archetype-selection") && (
+							<InfoboxFilterGroup
+								deselectable
+								selectedValue={this.props.archetypeSelector}
+								onClick={(value) => this.props.setArchetypeSelector(value)}
+							>
+								<InfoboxFilter value="show">Show archetype selection</InfoboxFilter>
+							</InfoboxFilterGroup>
+						)}
 					</section>
 					{backButton}
 				</div>
