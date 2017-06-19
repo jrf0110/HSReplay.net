@@ -59,7 +59,7 @@ class CardDetailView(DetailView):
 			queryset = queryset.filter(dbf_id=pk)
 		else:
 			# Otherwise, use the card id
-			queryset = queryset.filter(id=pk)
+			queryset = queryset.filter(card_id=pk)
 
 		try:
 			obj = queryset.get()
