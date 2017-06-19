@@ -60,7 +60,7 @@ class Command(BaseCommand):
 					existing_lambda = func
 
 			lambda_args = {
-				"Runtime": "python2.7",
+				"Runtime": descriptor["runtime"],
 				"FunctionName": descriptor["name"],
 				"Handler": descriptor["handler"],
 				"Timeout": descriptor["cpu_seconds"],
