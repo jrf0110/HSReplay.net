@@ -153,7 +153,7 @@ def _fetch_query_results(parameterized_query, run_local=False):
 	triggered_refresh = False
 
 	if is_cache_hit:
-		if parameterized_query.result_is_stale:
+		if parameterized_query.result_is_stale or run_local:
 			triggered_refresh = True
 			attempt_request_triggered_query_execution(parameterized_query, run_local)
 
