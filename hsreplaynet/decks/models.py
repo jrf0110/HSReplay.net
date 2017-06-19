@@ -443,6 +443,12 @@ class Signature(models.Model):
 				dist += (card_counts[component.card_id] * component.weight)
 		return dist
 
+	def to_dbf_map(self):
+		result = {}
+		for component in self.components.all():
+			result[component.card.dbf_id] = [component.weight, component.card.name]
+		return result
+
 
 class SignatureComponent(models.Model):
 	id = models.AutoField(primary_key=True)
