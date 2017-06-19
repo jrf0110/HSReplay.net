@@ -62,7 +62,7 @@ def get_approximate_queue_size(queue_name):
 		QueueUrl=get_or_create_queue(queue_name),
 		AttributeNames=attributes
 	)
-	return sum(int(response['Attributes'][attrib]) for attrib in attributes)
+	return sum(int(response["Attributes"][attrib]) for attrib in attributes)
 
 
 def block_until_empty(queue_name, poll_interval=10):

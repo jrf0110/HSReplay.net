@@ -42,12 +42,12 @@ def acquire_redshift_lock(lock_ids, wait=False):
 	if not lock_ids:
 		raise ValueError("lock_ids cannot be None")
 
-	function_name = 'pg_'
+	function_name = "pg_"
 
 	if not wait:
-		function_name += 'try_'
+		function_name += "try_"
 
-	function_name += 'advisory_lock'
+	function_name += "advisory_lock"
 
 	if len(lock_ids) == 1:
 		command = "SELECT %s(%i);" % (function_name, lock_ids[0])
