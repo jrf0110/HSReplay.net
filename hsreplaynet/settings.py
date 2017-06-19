@@ -212,7 +212,7 @@ SOCIALACCOUNT_PROVIDERS = {"battlenet": {"SCOPE": []}}
 # found in `hsreplaynet.utils.synchronization` should register the namespace
 # they are using here, to prevent collisions.
 ADVISORY_LOCK_NAMESPACES = {
-	"REDSHIFT_ETL_MAINTENANCE_LOCK": 1,
+	"REDSHIFT_ETL_MAINTENANCE_LOCK": (1, 1),
 }
 
 # If False, then we will use RQ for async processing

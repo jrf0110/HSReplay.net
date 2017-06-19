@@ -535,9 +535,9 @@ class RedshiftStagingTrackManager(models.Manager):
 		log.info("Starting Redshift ETL Maintenance Cycle")
 
 		# We use this as a shared value so 2 ETL Lambdas never start concurrently
-		NAMESPACE = settings.ADVISORY_LOCK_NAMESPACES["REDSHIFT_ETL_MAINTENANCE_LOCK"]
-		ADVISORY_LOCK_ID = 1
-		with advisory_lock([NAMESPACE, ADVISORY_LOCK_ID]) as acquired:
+		LOCK_NAME = "REDSHIFT_ETL_MAINTENANCE_LOCK"
+		NAMESPACE, ADVISORY_LOCK_ID = settings.ADVISORY_LOCK_NAMESPACES[LOCK_NAME]
+		with advisory_lock([NAMESPACE, self.ADVISORY_LOCK_ID]) as acquired:
 			if acquired:
 				log.info("Lock acquired. Generating tasks...")
 				with influx_timer("redshift_etl_task_generation_duration"):

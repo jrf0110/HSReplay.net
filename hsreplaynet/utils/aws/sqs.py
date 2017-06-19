@@ -1,4 +1,5 @@
 import json
+import time
 from hsreplaynet.utils import log
 from .clients import SQS
 
@@ -49,3 +50,21 @@ def get_messages(queue_name, max_num=10):
 			do_receive = False
 
 	return result
+
+
+def get_approximate_queue_size(queue_name):
+	attributes = [
+		"ApproximateNumberOfMessages",
+		"ApproximateNumberOfMessagesDelayed",
+		"ApproximateNumberOfMessagesNotVisible"
+	]
+	response = SQS.get_queue_attributes(
+		QueueUrl=get_or_create_queue(queue_name),
+		AttributeNames=attributes
+	)
+	return sum(int(response['Attributes'][attrib]) for attrib in attributes)
+
+
+def block_until_empty(queue_name, poll_interval=10):
+	while get_approximate_queue_size(queue_name) > 0:
+		time.sleep(poll_interval)

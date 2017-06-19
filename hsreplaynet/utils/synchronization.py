@@ -19,10 +19,12 @@ class CountDownLatch(object):
 				self.lock.wait()
 
 
-def acquire_redshift_lock(lock_ids):
+def acquire_redshift_lock(lock_ids, wait=False):
 	"""
-	Make a non-blocking attempt to claim an exclusive session level advisory lock
+	Make a non-blocking (by default) attempt to claim an exclusive session level advisory lock
 	in postgres for the supplied lock_ids argument.
+
+	If wait=True then this will block until the lock is acquired.
 
 	lock_ids must be an iterable of 1 bigint or 2 ints
 
@@ -40,10 +42,17 @@ def acquire_redshift_lock(lock_ids):
 	if not lock_ids:
 		raise ValueError("lock_ids cannot be None")
 
+	function_name = 'pg_'
+
+	if not wait:
+		function_name += 'try_'
+
+	function_name += 'advisory_lock'
+
 	if len(lock_ids) == 1:
-		command = "SELECT pg_try_advisory_lock(%i);" % lock_ids[0]
+		command = "SELECT %s(%i);" % (function_name, lock_ids[0])
 	elif len(lock_ids) == 2:
-		command = "SELECT pg_try_advisory_lock(%i, %i);" % (lock_ids[0], lock_ids[1])
+		command = "SELECT %s(%i, %i);" % (function_name, lock_ids[0], lock_ids[1])
 	else:
 		raise ValueError("lock_ids must have either 1 bigint or 2 ints")
 
@@ -78,8 +87,8 @@ def release_redshift_lock(lock_ids):
 
 
 @contextmanager
-def advisory_lock(lock_ids):
-	acquired = acquire_redshift_lock(lock_ids)
+def advisory_lock(lock_ids, wait=False):
+	acquired = acquire_redshift_lock(lock_ids, wait)
 	try:
 		yield acquired
 	finally:
