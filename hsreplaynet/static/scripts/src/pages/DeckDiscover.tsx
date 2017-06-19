@@ -56,6 +56,7 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
+	private deckListsFragmentsRef;
 	private readonly dataManager: DataManager = new DataManager();
 
 	constructor(props: DeckDiscoverProps, state: DeckDiscoverState) {
@@ -86,6 +87,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.props.includedSet !== prevProps.includedSet
 		) {
 			this.updateFilteredDecks();
+			this.deckListsFragmentsRef && this.deckListsFragmentsRef.reset("page");
 		}
 	}
 
@@ -294,6 +296,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						sortDirection: "descending",
 						page: 1,
 					}}
+					ref={(ref) => this.deckListsFragmentsRef}
 				>
 					<DeckList
 						decks={this.state.filteredDecks}

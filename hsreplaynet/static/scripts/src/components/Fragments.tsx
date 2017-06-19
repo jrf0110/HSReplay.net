@@ -45,6 +45,15 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		this.timeout = null;
 	}
 
+	public reset(key: string): void {
+		let childProps = {};
+		if(key) {
+			childProps = Object.assign({}, this.state.childProps);
+			delete childProps[key];
+		}
+		this.setState({childProps});
+	}
+
 	render(): any {
 		let props = {};
 
@@ -81,7 +90,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 
 		props = Object.assign({}, props, {
 			canBeReset: Object.keys(this.state.childProps).length > 0,
-			reset: () => this.setState({childProps: {}}),
+			reset: (key?) => this.reset(key),
 		});
 
 		return React.cloneElement(this.props.children as any, props);
