@@ -13,7 +13,7 @@ interface InternalFragmentMap {
 	[key: string]: string;
 }
 
-interface FragmentsProps {
+interface FragmentsProps extends React.ClassAttributes<Fragments> {
 	defaults: FragmentMap;
 	debounce?: string | string[];
 	immutable?: string | string[];
