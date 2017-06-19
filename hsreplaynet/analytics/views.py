@@ -223,5 +223,10 @@ def _fetch_query_results(parameterized_query, run_local=False):
 
 
 def attempt_request_triggered_query_execution(parameterized_query, run_local=False):
+	do_personal = settings.REDSHIFT_TRIGGER_PERSONALIZED_DATA_REFRESHES_FROM_QUERY_REQUESTS
 	if run_local or settings.REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS:
 		execute_query(parameterized_query, run_local)
+	elif do_personal and parameterized_query.is_personalized:
+		execute_query(parameterized_query, run_local)
+	else:
+		log.debug("Triggering query from web app is disabled")

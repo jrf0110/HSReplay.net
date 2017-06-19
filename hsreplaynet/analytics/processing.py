@@ -191,14 +191,15 @@ def fill_redshift_cache_warming_queue(eligible_queries=None):
 	fill_personalized_query_queue(contexts, eligible_queries)
 
 
-def fill_global_query_queue(eligible_queries=None):
+def fill_global_query_queue(eligible_queries=None, filter_fresh_queries=True):
 	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
 	messages = get_queries_for_cache_warming(eligible_queries)
 	log.info("Generated %i global query permutations for cache warming." % len(messages))
-	stale_queries = filter_freshly_cached_queries(messages)
-	msg = "%i permutations remain after filtering fresh queries" % len(stale_queries)
-	log.info(msg)
-	write_messages_to_queue(queue_name, stale_queries)
+	if filter_fresh_queries:
+		messages = filter_freshly_cached_queries(messages)
+		msg = "%i permutations remain after filtering fresh queries" % len(messages)
+		log.info(msg)
+	write_messages_to_queue(queue_name, messages)
 
 
 def run_local_warm_queries(eligible_queries=None):
