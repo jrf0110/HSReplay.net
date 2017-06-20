@@ -403,6 +403,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							dataManager={this.dataManager}
 							lastUpdatedUrl="single_deck_stats_over_time"
 							lastUpdatedParams={this.getParams()}
+							timeFrameUrl={premiumMulligan ? "single_deck_mulligan_guide_by_class" : "single_deck_mulligan_guide"}
+							timeFrameParams={this.getParams()}
 						/>
 					</HideLoading>
 				</DataInjector>

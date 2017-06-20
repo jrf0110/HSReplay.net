@@ -3,6 +3,7 @@ import { toPrettyNumber } from "../../helpers";
 import { TableData } from "../../interfaces";
 import InfoboxLastUpdated from "../InfoboxLastUpdated";
 import DataManager from "../../DataManager";
+import InfoboxTimeFrame from "../InfoboxTimeFrame";
 
 interface DeckStatsState {
 	expandWinrate?: boolean;
@@ -12,8 +13,10 @@ interface DeckStatsProps {
 	data?: TableData;
 	dataManager: DataManager;
 	deckId?: string;
-	lastUpdatedParams: string;
 	lastUpdatedUrl: string;
+	lastUpdatedParams: any;
+	timeFrameUrl: string;
+	timeFrameParams: any;
 	playerClass: string;
 }
 
@@ -41,10 +44,11 @@ export default class DeckStats extends React.Component<DeckStatsProps, DeckStats
 						Sample size
 						<span className="infobox-value">{toPrettyNumber(+deck["total_games"]) + " games"}</span>
 					</li>
-					<li>
-						Time frame
-						<span className="infobox-value">Last 30 days</span>
-					</li>
+					<InfoboxTimeFrame
+						dataManager={this.props.dataManager}
+						url={this.props.timeFrameUrl}
+						params={this.props.timeFrameParams}
+					/>
 					<InfoboxLastUpdated
 						dataManager={this.props.dataManager}
 						url={this.props.lastUpdatedUrl}
