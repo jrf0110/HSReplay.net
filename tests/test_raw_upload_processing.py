@@ -14,10 +14,12 @@ class MockRawUpload(object):
 		from datetime import datetime
 
 		self._descriptor_path = os.path.join(path, "descriptor.json")
-		self._descriptor = json.load(open(self._descriptor_path))
+		with open(self._descriptor_path, "r") as f:
+			self._descriptor = json.load(f)
 
 		self._powerlog_path = os.path.join(path, "power.log")
-		self._log = open(self._powerlog_path).read()
+		with open(self._powerlog_path, "r") as f:
+			self._log = f.read()
 
 		api_key_str = self._descriptor["gateway_headers"]["X-Api-Key"]
 		self._api_key = APIKey.objects.get_or_create(api_key=api_key_str, defaults={

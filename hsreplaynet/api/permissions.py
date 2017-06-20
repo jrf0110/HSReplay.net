@@ -70,4 +70,4 @@ class BaseUserHasFeature(permissions.BasePermission):
 
 
 def UserHasFeature(feature_name):
-	return type("UserHasFeature", (BaseUserHasFeature, ), {"FEATURE":  feature_name})
+	return type("UserHasFeature", (BaseUserHasFeature, ), {"FEATURE": feature_name})
