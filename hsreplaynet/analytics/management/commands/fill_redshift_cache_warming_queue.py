@@ -20,7 +20,7 @@ class Command(BaseCommand):
 		LOCK_NAME = "REDSHIFT_ETL_MAINTENANCE_LOCK"
 		NAMESPACE, ADVISORY_LOCK_ID = settings.ADVISORY_LOCK_NAMESPACES[LOCK_NAME]
 
-		with advisory_lock([NAMESPACE, self.ADVISORY_LOCK_ID]):
+		with advisory_lock([NAMESPACE, ADVISORY_LOCK_ID]):
 			fill_redshift_cache_warming_queue(options["queries"])
 			# Poll until queue is empty
 			block_until_empty(settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME)
