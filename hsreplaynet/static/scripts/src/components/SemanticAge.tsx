@@ -1,5 +1,5 @@
 import * as React from "react";
-import {getAge} from "../PrettyTime";
+import * as moment from "moment";
 
 interface SemanticAgeProps extends React.ClassAttributes<SemanticAge> {
 	date?: Date;
@@ -13,7 +13,7 @@ export default class SemanticAge extends React.Component<SemanticAgeProps, void>
 		}
 
 		const machineReadable = this.props.date.toISOString();
-		const phrasing = getAge(this.props.date, this.props.noSuffix);
+		const phrasing = moment(this.props.date).utc().fromNow(this.props.noSuffix);
 
 		return <time dateTime={machineReadable}>{phrasing}</time>;
 	}
