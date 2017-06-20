@@ -90,6 +90,14 @@ def tempo_mage_archetype():
 	yield archetype
 
 
+@pytest.mark.django_db
+@pytest.yield_fixture(scope="session")
+def user():
+	from django.contrib.auth import get_user_model
+	user, created = get_user_model().objects.get_or_create(username="user")
+	return user
+
+
 @pytest.yield_fixture(scope="session")
 def upload_context():
 	yield None
