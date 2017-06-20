@@ -10,6 +10,15 @@ interface UserDataProps {
 	username: string;
 	staff: boolean;
 	locale: string;
+	features: FeatureMap;
+}
+
+interface FeatureMap {
+	[feature: string]: Feature;
+}
+
+interface Feature {
+	enabled: boolean;
 }
 
 export interface Account {
@@ -28,7 +37,9 @@ export default class UserData {
 	hasFeature(feature: string): boolean {
 		return !!(
 			this._userData &&
-			this._userData.groups && this._userData.groups.indexOf("feature:" + feature) !== -1
+			this._userData.features &&
+			this._userData.features[feature] &&
+			this._userData.features[feature].enabled
 		);
 	}
 
