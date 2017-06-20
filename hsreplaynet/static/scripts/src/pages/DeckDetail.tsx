@@ -125,9 +125,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	render(): JSX.Element {
 		const dbfIds = this.props.deckCards.split(",").map(Number);
 		const cards = [];
-		let dustCost = 0;
+		let dustCost = null;
 		let deckCharts = null;
 		if (this.props.cardData) {
+			dustCost = 0;
 			dbfIds.forEach((id) => {
 				const card = this.props.cardData.fromDbf(id);
 				const cardObj = cards.find((obj) => obj.card.id === card.id) || cards[cards.push({card, count: 0}) - 1];
@@ -384,7 +385,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</li>
 					<li>
 						Cost
-						<span className="infobox-value">{dustCost && dustCost + " Dust"}</span>
+						<span className="infobox-value">{dustCost ? dustCost + " Dust" : "Counting…"}</span>
 					</li>
 				</ul>
 				{filters}
