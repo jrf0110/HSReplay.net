@@ -3,6 +3,7 @@ import {getAge} from "../PrettyTime";
 
 interface SemanticAgeProps extends React.ClassAttributes<SemanticAge> {
 	date?: Date;
+	noSuffix?: boolean;
 }
 
 export default class SemanticAge extends React.Component<SemanticAgeProps, void> {
@@ -12,7 +13,7 @@ export default class SemanticAge extends React.Component<SemanticAgeProps, void>
 		}
 
 		const machineReadable = this.props.date.toISOString();
-		const phrasing = getAge(this.props.date);
+		const phrasing = getAge(this.props.date, this.props.noSuffix);
 
 		return <time dateTime={machineReadable}>{phrasing}</time>;
 	}
