@@ -209,6 +209,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							decks={deckObjs}
 							pageSize={10}
 							hideTopPager
+							user={this.props.user}
+							dataManager={this.dataManager}
+							showArchetypeSelector={true}
 						/>
 					);
 				}
