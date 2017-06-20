@@ -282,13 +282,17 @@ MARKDOWN_EXTENSIONS = [
 # NOTE: This won't work is DEBUG is set to True from local_settings.py
 
 if ENV_DEV:
-	INSTALLED_APPS += [
-		"debug_toolbar",
-		# "explorer",
-	]
-	MIDDLEWARE += [
-		"debug_toolbar.middleware.DebugToolbarMiddleware",
-	]
+	try:
+		import debug_toolbar
+	except ImportError:
+		pass
+	else:
+		INSTALLED_APPS += [
+			"debug_toolbar",
+		]
+		MIDDLEWARE += [
+			"debug_toolbar.middleware.DebugToolbarMiddleware",
+		]
 
 
 # sslserver (for local development only)

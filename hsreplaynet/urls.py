@@ -48,11 +48,14 @@ if not settings.ENV_LAMBDA:
 	]
 
 if settings.DEBUG:
-	import debug_toolbar
-	from django.conf.urls.static import static
+	try:
+		import debug_toolbar
+	except ImportError:
+		pass
+	else:
+		urlpatterns += [
+			url(r"^__debug__/", include(debug_toolbar.urls)),
+		]
 
-	urlpatterns += [
-		url(r"^__debug__/", include(debug_toolbar.urls)),
-		# url(r"^admin/_/explorer/", include("explorer.urls")),
-	]
+	from django.conf.urls.static import static
 	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
