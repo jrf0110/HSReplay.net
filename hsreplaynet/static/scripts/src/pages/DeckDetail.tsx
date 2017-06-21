@@ -30,6 +30,7 @@ import CopyDeckButton from "../components/CopyDeckButton";
 import CardList from "../components/CardList";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import ArchetypeSelector from "../components/ArchetypeSelector";
+import DeckCountersList from "../components/deckdetail/DeckCountersList";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -518,6 +519,43 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							hidden={!this.props.user.hasFeature("personal-deck-stats")}
 						>
 							{this.getMyStats()}
+						</Tab>
+						<Tab
+							label={(
+								<span className="text-premium">
+									Deck Counters&nbsp;
+									<InfoIcon
+										header="Deck Counters"
+										content="A list of archetypes and decks that this deck has trouble against."
+									/>
+								</span>
+							)}
+							id="deck-counters"
+							hidden={!this.props.user.hasFeature("deck-counters")}
+						>
+							<DataInjector
+								dataManager={this.dataManager}
+								fetchCondition={this.isWildDeck() !== undefined}
+								query={[
+									{
+										key: "deckData",
+										params: {GameType: this.gameType(), RankRange: this.rankRange()},
+										url: "list_decks_by_win_rate",
+									},
+									{
+										key: "countersData",
+										params: {GameType: this.gameType(), RankRange: this.rankRange(), deck_id: this.props.deckId},
+										url: "single_deck_recommended_counters",
+									},
+								]}
+							>
+								<TableLoading
+									cardData={this.props.cardData}
+									dataKeys={["deckData", "countersData"]}
+								>
+									<DeckCountersList/>
+								</TableLoading>
+							</DataInjector>
 						</Tab>
 					</TabList>
 				</section>
