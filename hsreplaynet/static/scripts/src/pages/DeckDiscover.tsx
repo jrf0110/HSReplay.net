@@ -158,30 +158,37 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			&& this.props.user.isPremium()
 			&& this.props.user.hasFeature("personal-deck-stats")) {
 			const params = this.getPersonalParams();
-			if (!this.dataManager.has("single_account_lo_decks_summary", params)) {
+			const globalQuery = this.getQueryName();
+			const globalParams = this.getParams();
+			if (!this.dataManager.has("single_account_lo_decks_summary", params)
+			|| !this.dataManager.has(globalQuery, globalParams)) {
 				this.setState({loading: true});
 			}
-			return this.dataManager.get("single_account_lo_decks_summary", params).then(((data: TableData) => {
-				if (data && data.series) {
-					Object.keys(data.series.data).forEach((playerClass) => {
-						data.series.data[playerClass].forEach((deck) => {
-							const cards = cardList(JSON.parse(deck.deck_list));
-							if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
-								return;
-							}
-							if (
-								this.props.includedSet !== "ALL" &&
-								cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
-							) {
-								return;
-							}
-							deck.player_class = playerClass;
-							pushDeck(deck, cards);
+			return this.dataManager.get(globalQuery, globalParams).then((deckData) => {
+				return this.dataManager.get("single_account_lo_decks_summary", params).then(((data: TableData) => {
+					if (data && data.series) {
+						Object.keys(data.series.data).forEach((playerClass) => {
+							data.series.data[playerClass].forEach((deck) => {
+								const cards = cardList(JSON.parse(deck.deck_list));
+								if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
+									return;
+								}
+								if (
+									this.props.includedSet !== "ALL" &&
+									cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
+								) {
+									return;
+								}
+								deck.player_class = playerClass;
+								deck.noGlobalData = deckData.series.data[playerClass].every((d) => d.deck_id !== deck.deck_id);
+								console.log(deck.noGlobalData)
+								pushDeck(deck, cards);
+							});
 						});
-					});
-				}
-				return deckElements;
-			}));
+					}
+					return deckElements;
+				}));
+			});
 		}
 		else {
 			const params = this.getParams();
@@ -246,6 +253,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					deckId: deck.deck_id,
 					duration: deck.avg_game_length_seconds,
 					numGames,
+					noGlobalData: deck.noGlobalData,
 					playerClass: deck.player_class,
 					winrate,
 				});

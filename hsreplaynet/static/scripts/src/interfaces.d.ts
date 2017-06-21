@@ -192,6 +192,7 @@ export interface DeckObj {
 	numGames: number;
 	winrate: number;
 	duration: number;
+	noGlobalData?: boolean;
 }
 
 export interface CardObj {

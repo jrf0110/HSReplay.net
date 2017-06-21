@@ -8,6 +8,7 @@ import DataInjector from "./DataInjector";
 import ArchetypeSelector from "./ArchetypeSelector";
 import UserData from "../UserData";
 import DataManager from "../DataManager";
+import Tooltip from "./Tooltip";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
@@ -107,6 +108,19 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			);
 		}
 
+		let noGlobalDataIndicator = null;
+		if (this.props.noGlobalData) {
+			noGlobalDataIndicator = (
+				<Tooltip
+					className="no-global-data-wrapper"
+					header="No global data"
+					content="This deck does not have enough games for global data to be available."
+				>
+					<span className="glyphicon glyphicon-warning-sign" />
+				</Tooltip>
+			);
+		}
+
 		return (
 			<li
 				style={{
@@ -119,6 +133,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							{deckName}
 							{dustCost !== null ? <span className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span> : null}
+							{noGlobalDataIndicator}
 						</div>
 						<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3">
 							<span className="win-rate">{(+this.props.winrate).toFixed(1)}%</span>
