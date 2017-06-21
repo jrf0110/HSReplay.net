@@ -93,10 +93,11 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 					data.series.data[playerClass].forEach((deck) => {
 						deck.playerClass = playerClass;
 						deck.cards = JSON.parse(deck["deck_list"]);
-						if (!decksByArchetype[deck.archetype_id]) {
-							decksByArchetype[deck.archetype_id] = [];
+						const id = deck.archetype_id === null ? -1 : deck.archetype_id;
+						if (!decksByArchetype[id]) {
+							decksByArchetype[id] = [];
 						}
-						decksByArchetype[deck.archetype_id].push(deck);
+						decksByArchetype[id].push(deck);
 					});
 				});
 				this.setState({deckData: data.series.data, decksByArchetype});
@@ -181,7 +182,11 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				);
 			});
 
-			if (this.props.archetype > 0) {
+			if (this.props.user.hasFeature("archetype-selection")) {
+				archetypes.push(<InfoboxFilter value={"-1"}>Unclassified</InfoboxFilter>);
+			}
+
+			if (this.props.archetype !== 0) {
 
 				selectedArchetype = this.state.activeArchetypes.find((a) => a.id === this.props.archetype);
 
