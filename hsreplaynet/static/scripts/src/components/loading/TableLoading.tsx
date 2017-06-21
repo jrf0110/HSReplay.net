@@ -27,7 +27,7 @@ export default class TableLoading extends React.Component<TableLoadingProps, voi
 					</div>
 				);
 			case LoadingStatus.NO_DATA:
-				return <h3 className="chart-message-wrapper">No available data.</h3>;
+				return <h3 className="message-wrapper">No available data.</h3>;
 			case LoadingStatus.ERROR:
 				return <h3 className="message-wrapper">Please check back later</h3>;
 		}
