@@ -1,3 +1,4 @@
 User-agent: *
 Disallow: /account/battlenet/login
+Disallow: /uploads/upload/
 Sitemap: https://hsreplay.net/sitemap.xml
