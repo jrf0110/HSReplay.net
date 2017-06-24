@@ -1,5 +1,4 @@
 import * as React from "react";
-import { getPlayerClassFromId } from "../../helpers";
 import ClassMatchup, { ArchetypeData } from "../ClassMatchup";
 
 interface DeckMatchupsProps extends React.ClassAttributes<DeckMatchups> {
@@ -35,19 +34,9 @@ export default class DeckMatchups extends React.Component<DeckMatchupsProps, voi
 	}
 
 	getArchetypes(playerClass: string): ArchetypeData[] {
-		// Temp. method of getting the archetype data for a class,
-		// until data in split into playerclasses
-		const archetypes = [];
-		const archetypeData = this.props.archetypeMatchupData.series.data.ALL;
-		archetypeData.forEach((archetype) => {
-			const data = this.props.archetypeData.results.find((a) =>
-				a.id === archetype.archetype_id
-				&& getPlayerClassFromId(a.player_class) === playerClass,
-			);
-			if (data) {
-				archetypes.push({name: data.name, winrate: archetype.win_rate});
-			}
+		return this.props.archetypeMatchupData.series.data[playerClass].map((archetype) => {
+			const data = this.props.archetypeData.results.find((a) => a.id === archetype.archetype_id);
+			return {name: data.name, winrate: archetype.win_rate};
 		});
-		return archetypes;
 	}
 }
