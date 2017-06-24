@@ -31,6 +31,7 @@ import CardList from "../components/CardList";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import ArchetypeSelector from "../components/ArchetypeSelector";
 import DeckCountersList from "../components/deckdetail/DeckCountersList";
+import DeckMatchups from "../components/deckdetail/DeckMatchups";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -519,6 +520,37 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							hidden={!this.props.user.hasFeature("personal-deck-stats")}
 						>
 							{this.getMyStats()}
+						</Tab>
+						<Tab
+							label="Matchups"
+							id="matchups"
+							hidden={!this.props.user.hasFeature("deck-matchups")}
+						>
+							<DataInjector
+								dataManager={this.dataManager}
+								fetchCondition={this.isWildDeck() !== undefined}
+								query={[
+									{
+										key: "archetypeMatchupData",
+										params: {GameType: this.gameType(), RankRange: this.rankRange(), deck_id: this.props.deckId},
+										url: "single_deck_archetype_matchups",
+									},
+									{
+										key: "classMatchupData",
+										params: {GameType: this.gameType(), RankRange: this.rankRange(), deck_id: this.props.deckId},
+										url: "single_deck_base_winrate_by_opponent_class",
+									},
+									{
+										key: "archetypeData",
+										params: {},
+										url: "/api/v1/archetypes/",
+									},
+								]}
+							>
+								<TableLoading dataKeys={["archetypeMatchupData", "classMatchupData", "archetypeData"]}>
+									<DeckMatchups/>
+								</TableLoading>
+							</DataInjector>
 						</Tab>
 						<Tab
 							label={(

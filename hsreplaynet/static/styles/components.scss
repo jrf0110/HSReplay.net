@@ -609,38 +609,56 @@ table .info-icon {
 	}
 }
 
-table {
-	td .player-class {
-		background-repeat: no-repeat;
-		background-size: contain;
-		padding: 5px 0 5px 35px;
+.player-class {
+	background-repeat: no-repeat;
+	background-size: contain;
+	padding: 5px 0 5px 35px;
 
-		&.druid {
-			background-image: url(/static/images/64x/class-icons/druid.png);
+	&.druid {
+		background-image: url(/static/images/64x/class-icons/druid.png);
+	}
+	&.hunter {
+		background-image: url(/static/images/64x/class-icons/hunter.png);
+	}
+	&.mage {
+		background-image: url(/static/images/64x/class-icons/mage.png);
+	}
+	&.paladin {
+		background-image: url(/static/images/64x/class-icons/paladin.png);
+	}
+	&.priest {
+		background-image: url(/static/images/64x/class-icons/priest.png);
+	}
+	&.rogue {
+		background-image: url(/static/images/64x/class-icons/rogue.png);
+	}
+	&.shaman {
+		background-image: url(/static/images/64x/class-icons/shaman.png);
+	}
+	&.warlock {
+		background-image: url(/static/images/64x/class-icons/warlock.png);
+	}
+	&.warrior {
+		background-image: url(/static/images/64x/class-icons/warrior.png);
+	}
+}
+
+.class-matchup {
+	padding: 15px;
+
+	.class-matchup-header {
+		background: $blue;
+		color: white;
+		font-weight: bold;
+		padding-right: 5px;
+
+		.player-class {
+			margin-left: -5px;
 		}
-		&.hunter {
-			background-image: url(/static/images/64x/class-icons/hunter.png);
-		}
-		&.mage {
-			background-image: url(/static/images/64x/class-icons/mage.png);
-		}
-		&.paladin {
-			background-image: url(/static/images/64x/class-icons/paladin.png);
-		}
-		&.priest {
-			background-image: url(/static/images/64x/class-icons/priest.png);
-		}
-		&.rogue {
-			background-image: url(/static/images/64x/class-icons/rogue.png);
-		}
-		&.shaman {
-			background-image: url(/static/images/64x/class-icons/shaman.png);
-		}
-		&.warlock {
-			background-image: url(/static/images/64x/class-icons/warlock.png);
-		}
-		&.warrior {
-			background-image: url(/static/images/64x/class-icons/warrior.png);
-		}
+	}
+
+	.class-matchup-archetype {
+		padding: 5px 5px 0 5px;
+		border-bottom: 1px solid lightgray;
 	}
 }
