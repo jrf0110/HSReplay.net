@@ -7,13 +7,14 @@ interface DeckCountersListProps extends React.ClassAttributes<DeckCountersList> 
 	deckData?: any;
 	cardData?: any;
 	countersData?: any;
+	playerClass: string;
 }
 
 export default class DeckCountersList extends React.Component<DeckCountersListProps, void> {
 
 	render(): JSX.Element {
 		const decks: DeckObj[] = [];
-		this.props.countersData.series.data.ALL.forEach((data) => {
+		this.props.countersData.series.data[this.props.playerClass].forEach((data) => {
 			const deck = this.findDeck(data.deck_id);
 			if (deck) {
 				const cards = JSON.parse(deck.deck_list);
