@@ -6,17 +6,15 @@ import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
-import NoDecksMessage from "../components/NoDecksMessage";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
 import {cardSorting, isWildSet, sortCards} from "../helpers";
-import {DeckObj, FragmentChildProps, TableData} from "../interfaces";
+import {DeckObj, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import InfoIcon from "../components/InfoIcon";
-import Tooltip from "../components/Tooltip";
 import {decode as decodeDeckstring} from "deckstrings";
 
 interface DeckDiscoverState {
@@ -39,8 +37,6 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setIncludedCards?: (includedCards: string[]) => void;
 	opponentClasses?: FilterOption[];
 	setOpponentClasses?: (opponentClasses: FilterOption[]) => void;
-	account?: string;
-	setAccount?: (account: string) => void;
 	playerClasses?: FilterOption[];
 	setPlayerClasses?: (playerClasses: FilterOption[]) => void;
 	rankRange?: string;
@@ -78,7 +74,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.props.gameType !== prevProps.gameType ||
 			this.props.includedCards !== prevProps.includedCards ||
 			!_.eq(this.props.opponentClasses, prevProps.opponentClasses) ||
-			this.props.account !== prevProps.account ||
 			!_.eq(this.props.playerClasses, prevProps.playerClasses) ||
 			this.props.rankRange !== prevProps.rankRange ||
 			this.props.region !== prevProps.region ||
@@ -154,77 +149,39 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			deck.cards = cards;
 			deckElements.push(deck);
 		};
-		if (this.props.account
-			&& this.props.user.isPremium()
-			&& this.props.user.hasFeature("personal-deck-stats")) {
-			const params = this.getPersonalParams();
-			const globalQuery = this.getQueryName();
-			const globalParams = this.getParams();
-			if (!this.dataManager.has("single_account_lo_decks_summary", params)
-			|| !this.dataManager.has(globalQuery, globalParams)) {
-				this.setState({loading: true});
-			}
-			return this.dataManager.get(globalQuery, globalParams).then((deckData) => {
-				return this.dataManager.get("single_account_lo_decks_summary", params).then(((data: TableData) => {
-					if (data && data.series) {
-						Object.keys(data.series.data).forEach((playerClass) => {
-							data.series.data[playerClass].forEach((deck) => {
-								const cards = cardList(JSON.parse(deck.deck_list));
-								if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
-									return;
-								}
-								if (
-									this.props.includedSet !== "ALL" &&
-									cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
-								) {
-									return;
-								}
-								deck.player_class = playerClass;
-								deck.noGlobalData = deckData.series.data[playerClass].every((d) => d.deck_id !== deck.deck_id);
-								console.log(deck.noGlobalData)
-								pushDeck(deck, cards);
-							});
-						});
-					}
-					return deckElements;
-				}));
-			});
+		const params = this.getParams();
+		const query = this.getQueryName();
+		if (!this.dataManager.has(query, params)) {
+			this.setState({loading: true});
 		}
-		else {
-			const params = this.getParams();
-			const query = this.getQueryName();
-			if (!this.dataManager.has(query, params)) {
-				this.setState({loading: true});
+		return this.dataManager.get(query, params).then((deckData) => {
+			const newParams = this.getParams();
+			if (Object.keys(params).some((key) => params[key] !== newParams[key])) {
+				return Promise.reject("Params changed");
 			}
-			return this.dataManager.get(query, params).then((deckData) => {
-				const newParams = this.getParams();
-				if (Object.keys(params).some((key) => params[key] !== newParams[key])) {
-					return Promise.reject("Params changed");
-				}
 
-				const data = deckData.series.data;
-				Object.keys(data).forEach((key) => {
-					if (playerClasses.length && playerClasses.indexOf(key as FilterOption) === -1) {
+			const data = deckData.series.data;
+			Object.keys(data).forEach((key) => {
+				if (playerClasses.length && playerClasses.indexOf(key as FilterOption) === -1) {
+					return;
+				}
+				data[key].forEach((deck) => {
+					const cards = cardList(JSON.parse(deck.deck_list));
+					if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 						return;
 					}
-					data[key].forEach((deck) => {
-						const cards = cardList(JSON.parse(deck.deck_list));
-						if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
-							return;
-						}
-						if (
-							this.props.includedSet !== "ALL" &&
-							cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
-						) {
-							return;
-						}
-						deck.player_class = key;
-						pushDeck(deck, cards);
-					});
+					if (
+						this.props.includedSet !== "ALL" &&
+						cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
+					) {
+						return;
+					}
+					deck.player_class = key;
+					pushDeck(deck, cards);
 				});
-				return deckElements;
 			});
-		}
+			return deckElements;
+		});
 	}
 
 	updateFilteredDecks(): void {
@@ -272,29 +229,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			content = <h3 className="message-wrapper">Loading…</h3>;
 		}
 		else if (this.state.filteredDecks.length === 0) {
-			if (this.props.account && this.props.user.hasFeature("personal-deck-stats")) {
-				content = (
-					<NoDecksMessage>
-						<button
-							className="btn btn-default"
-							type="button"
-							onClick={() => this.props.setAccount(null)}
-						>
-							Back to the decks
-						</button>
-					</NoDecksMessage>
-				);
-			}
-			else {
-				content = (
-					<div className="content-message">
-						<h2>No decks found</h2>
-						<button className="btn btn-default" type="button" onClick={() => this.props.reset()}>
-							Reset filters
-						</button>
-					</div>
-				);
-			}
+			content = (
+				<div className="content-message">
+					<h2>No decks found</h2>
+					<button className="btn btn-default" type="button" onClick={() => this.props.reset()}>
+						Reset filters
+					</button>
+				</div>
+			);
 		}
 		else {
 			content = (
@@ -336,56 +278,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 				Back to deck list
 			</button>
 		);
-
-		let personalFilters = null;
-		if (this.props.user.hasFeature("personal-deck-stats")) {
-			const accounts = [];
-			this.props.user.getAccounts().forEach((acc) => {
-				accounts.push(
-					<InfoboxFilter value={acc.region + "-" + acc.lo}>
-						{acc.display}
-					</InfoboxFilter>,
-				);
-			});
-			if (accounts.length === 0) {
-				const message = this.props.user.isPremium() ? "No account found" : "My Account";
-				const help = this.props.user.isPremium() && (
-						<span className="infobox-value">
-						<Tooltip
-							header="No Hearthstone account found"
-							content={
-								<div>
-									<p>Play one (more) game and upload the replay for your account to appear here.</p>
-									<br />
-									<p>Please contact us if this problem remains! (click)</p>
-								</div>
-							}
-						>
-							<a href="/contact/">help</a>
-						</Tooltip>
-					</span>
-					);
-				accounts.push(
-					<InfoboxFilter value="undefined" locked>
-						{message}
-						{help}
-					</InfoboxFilter>,
-				);
-			}
-			personalFilters = (
-				<PremiumWrapper isPremium={this.props.user.isPremium()}>
-					<InfoboxFilterGroup
-						deselectable
-						header="Played with"
-						selectedValue={this.props.account}
-						onClick={(value) => this.props.setAccount(value)}
-						tabIndex={accounts.length > 1 ? 0 : -1}
-					>
-						{accounts}
-					</InfoboxFilterGroup>
-				</PremiumWrapper>
-			);
-		}
 
 		const selectedCards = (key: string) => {
 			if (!this.props.cardData || !this.props[key]) {
@@ -522,7 +414,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							cardLimit={Limit.SINGLE}
 						/>
 					</section>
-					{personalFilters}
 					<section id="game-mode-filter">
 						<h2>Game Mode</h2>
 						<InfoboxFilterGroup
@@ -621,17 +512,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			RankRange: this.props.rankRange,
 			TimeRange: this.props.timeRange,
 			// Region: this.props.region,
-		};
-	}
-
-	getPersonalParams(props?: DeckDiscoverProps): any {
-		props = props || this.props;
-		const getRegion = (account: string) => account && account.split("-")[0];
-		const getLo = (account: string) => account && account.split("-")[1];
-		return {
-			GameType: props.gameType,
-			Region: getRegion(props.account),
-			account_lo: getLo(props.account),
 		};
 	}
 }
