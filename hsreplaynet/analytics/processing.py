@@ -129,7 +129,11 @@ def get_redshift_cache_redis_client():
 
 
 def get_redshift_engine():
-	return create_engine(settings.REDSHIFT_CONNECTION, poolclass=NullPool)
+	return create_engine(
+		settings.REDSHIFT_CONNECTION,
+		poolclass=NullPool,
+		connect_args={"sslmode": "disable"}
+	)
 
 
 def get_redshift_catalogue():

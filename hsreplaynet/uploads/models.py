@@ -32,7 +32,11 @@ def get_redshift_engine():
 	# We do not cache the engine across lambdas
 	# To ensure that background ETL tasks are never able to reconnect
 	# From subsequent invocations of the ETL maintenance Lambda
-	return create_engine(settings.REDSHIFT_CONNECTION, poolclass=NullPool)
+	return create_engine(
+		settings.REDSHIFT_CONNECTION,
+		poolclass=NullPool,
+		connect_args={"sslmode": "disable"}
+	)
 
 
 def get_new_redshift_connection(autocommit=True):
