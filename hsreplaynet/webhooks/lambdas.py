@@ -2,7 +2,7 @@ import logging
 from hsreplaynet.utils.instrumentation import lambda_handler
 
 
-@lambda_handler(runtime="python3.6", cpu_seconds=120)
+@lambda_handler(cpu_seconds=120)
 def trigger_webhook(event, context):
 	"""
 	A handler that handles firing game replay webhooks.

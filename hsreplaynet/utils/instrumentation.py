@@ -69,7 +69,7 @@ def build_admin_url(shortid):
 
 
 def lambda_handler(
-	runtime="python2.7", cpu_seconds=60, memory=128, name=None, handler=None,
+	runtime="python3.6", cpu_seconds=60, memory=128, name=None, handler=None,
 	stream_name=None, stream_batch_size=1, trap_exceptions=True, tracing=True,
 	requires_vpc_access=False
 ):
