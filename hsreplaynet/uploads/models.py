@@ -279,13 +279,13 @@ class RawUpload(object):
 	@property
 	def descriptor(self):
 		if self._descriptor is None:
-			self._descriptor = self._get_object(self.descriptor_key)
-
+			descriptor_data = self._load_descriptor_from_s3(self.descriptor_key)
+			self._descriptor = json.loads(descriptor_data)
 		return self._descriptor
 
-	def _get_object(self, key):
-		obj = aws.S3.get_object(Bucket=self.bucket, Key=key)
-		return json.loads(obj["Body"].read().decode("utf8"))
+	def _load_descriptor_from_s3(self, key):
+		obj = aws.S3.get_object(Bucket=self.bucket, Key=self.descriptor_key)
+		return obj["Body"].read().decode("utf-8")
 
 	def _signed_url_for(self, key):
 		return aws.S3.generate_presigned_url(
