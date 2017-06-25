@@ -109,25 +109,25 @@ def lambda_handler(
 		def wrapper(event, context):
 			tracing_id = get_tracing_id(event) if tracing else ""
 			os.environ["TRACING_REQUEST_ID"] = tracing_id
-			if sentry:
-				# Provide additional metadata to sentry in case the exception
-				# gets trapped and reported within the function.
-				cloudwatch_url = build_cloudwatch_url(
-					context.log_group_name,
-					context.log_stream_name
-				)
-				# Tags context can be used to group exceptions
-				sentry.tags_context({
-					"aws_function_name": context.function_name
-				})
-				# Extra context is just attached to the exception in Sentry
-				sentry.extra_context({
-					"aws_log_group_name": context.log_group_name,
-					"aws_log_stream_name": context.log_stream_name,
-					"aws_cloudwatch_url": cloudwatch_url,
-					"admin_url": build_admin_url(tracing_id),
-					"tracing_id": tracing_id
-				})
+
+			# Provide additional metadata to sentry in case the exception
+			# gets trapped and reported within the function.
+			cloudwatch_url = build_cloudwatch_url(
+				context.log_group_name,
+				context.log_stream_name
+			)
+			# Tags context can be used to group exceptions
+			sentry.tags_context({
+				"aws_function_name": context.function_name
+			})
+			# Extra context is just attached to the exception in Sentry
+			sentry.extra_context({
+				"aws_log_group_name": context.log_group_name,
+				"aws_log_stream_name": context.log_stream_name,
+				"aws_cloudwatch_url": cloudwatch_url,
+				"admin_url": build_admin_url(tracing_id),
+				"tracing_id": tracing_id
+			})
 
 			try:
 				measurement = "%s_duration_ms" % (func.__name__)
@@ -139,10 +139,7 @@ def lambda_handler(
 					return func(event, context)
 			except Exception as e:
 				log.exception("Got an exception: %r", e)
-				if sentry:
-					sentry.captureException()
-				else:
-					log.info("Sentry is not available.")
+				sentry.captureException()
 
 				if not trap_exceptions:
 					raise
