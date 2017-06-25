@@ -585,7 +585,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 									cardData={this.props.cardData}
 									dataKeys={["deckData", "countersData"]}
 								>
-									<DeckCountersList playerClass={this.props.deckClass}/>
+									<DeckCountersList/>
 								</TableLoading>
 							</DataInjector>
 						</Tab>

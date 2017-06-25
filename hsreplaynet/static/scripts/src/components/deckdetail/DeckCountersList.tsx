@@ -7,29 +7,31 @@ interface DeckCountersListProps extends React.ClassAttributes<DeckCountersList> 
 	deckData?: any;
 	cardData?: any;
 	countersData?: any;
-	playerClass: string;
 }
 
 export default class DeckCountersList extends React.Component<DeckCountersListProps, void> {
 
 	render(): JSX.Element {
 		const decks: DeckObj[] = [];
-		this.props.countersData.series.data[this.props.playerClass].forEach((data) => {
-			const deck = this.findDeck(data.deck_id);
-			if (deck) {
-				const cards = JSON.parse(deck.deck_list);
-				const cardData = cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
+		const data = this.props.countersData.series.data;
+		Object.keys(data).forEach((playerClass) => {
+			data[playerClass].forEach((deckData) => {
+				const deck = this.findDeck(deckData.deck_id);
+				if (deck) {
+					const cards = JSON.parse(deck.deck_list);
+					const cardData = cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
 
-				// This is currently using global stats for everything but the winrate
-				decks.push({
-					cards: cardData,
-					deckId: deck.deck_id,
-					duration: +deck.avg_game_length_seconds,
-					numGames: +deck.total_games,
-					playerClass: deck.playerClass,
-					winrate: (100 - data.win_rate),
-				});
-			}
+					// This is currently using global stats for everything but the winrate
+					decks.push({
+						cards: cardData,
+						deckId: deck.deck_id,
+						duration: +deck.avg_game_length_seconds,
+						numGames: +deck.total_games,
+						playerClass: deck.playerClass,
+						winrate: (100 - deckData.win_rate),
+					});
+				}
+			});
 		});
 
 		return (
