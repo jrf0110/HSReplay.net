@@ -91,6 +91,15 @@
 							</li>
 						{% endif %}
 
+						{% feature "my-decks" as ft_my_decks %}{% if ft_my_decks.enabled %}
+							<li{% nav_active 'my_decks' css='active active-premium' %}>
+								<a href="{% url 'my_decks' %}" class="text-premium" id="navbar-link-my-decks">
+									<span class="glyphicon glyphicon-th-list"></span>
+									<span class="hidden-sm">My Decks</span>
+								</a>
+							</li>
+						{% endif %}
+
 						<li{% nav_active 'my_card_stats' css='active active-premium' %}>
 							<a href="{% url 'my_card_stats' %}" class="text-premium" id="navbar-link-my-cards">
 								<span class="glyphicon glyphicon-stats"></span>

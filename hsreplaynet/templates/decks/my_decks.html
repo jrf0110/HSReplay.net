@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block fullcontent %}
+	<div id="my-decks-container"></div>
+	{% render_bundle "stats" %}
+	{% render_bundle "my_decks" %}
+{% endblock %}

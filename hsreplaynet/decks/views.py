@@ -138,6 +138,12 @@ class DeckListView(RequestMetaMixin, TemplateView):
 		"game mode. Learn about their winrates and popularity on the ladder."
 
 
+@method_decorator(view_requires_feature_access("my-decks"), name="dispatch")
+class MyDecksView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+	template_name = "decks/my_decks.html"
+	title = "My Decks"
+
+
 class TrendingDecksView(RequestMetaMixin, TemplateView):
 	template_name = "decks/trending.html"
 	title = "Trending Hearthstone Decks"
