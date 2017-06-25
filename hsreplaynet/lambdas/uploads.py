@@ -263,7 +263,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	logger.debug("Done")
 
 
-@instrumentation.lambda_handler(cpu_seconds=120)
+@instrumentation.lambda_handler(runtime="python3.6", cpu_seconds=120)
 def trigger_webhook(event, context):
 	"""
 	A handler that handles firing game replay webhooks.
