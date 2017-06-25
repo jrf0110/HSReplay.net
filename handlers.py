@@ -25,3 +25,4 @@ from hsreplaynet.lambdas.uploads import *
 from hsreplaynet.lambdas.crons import *
 # TODO: Need to resolve getting redis dependencies packaged into Lambdas
 from hsreplaynet.lambdas.analytics import *
+from hsreplaynet.webhooks.lambdas import *
