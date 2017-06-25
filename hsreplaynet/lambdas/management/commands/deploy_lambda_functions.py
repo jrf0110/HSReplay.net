@@ -13,7 +13,7 @@ class Command(BaseCommand):
 	def add_arguments(self, parser):
 		parser.add_argument("module", help="The comma separated modules to inspect")
 		parser.add_argument(
-			"artifact", default="hsreplay.zip", help="The name of the lambdas zip artifact"
+			"--artifact", help="The name of the lambdas zip artifact", required=True
 		)
 		parser.add_argument(
 			"--wait", action="store_true",
