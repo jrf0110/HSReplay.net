@@ -178,7 +178,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 		logger.debug("User Agent: UNKNOWN")
 
 	obj.file = new_log_key
-	obj.descriptor_data = json.dumps(descriptor)
+	obj.descriptor_data = raw_upload.descriptor_json
 	obj.upload_ip = descriptor["source_ip"]
 	obj.canary = "canary" in upload_metadata and upload_metadata["canary"]
 	obj.user_agent = gateway_headers.get("user-agent", "")[:100]

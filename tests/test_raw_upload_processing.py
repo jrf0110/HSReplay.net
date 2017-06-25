@@ -15,7 +15,8 @@ class MockRawUpload(object):
 
 		self._descriptor_path = os.path.join(path, "descriptor.json")
 		with open(self._descriptor_path, "r") as f:
-			self._descriptor = json.load(f)
+			self.descriptor_json = f.read()
+		self._descriptor = json.loads(self.descriptor_json)
 
 		self._powerlog_path = os.path.join(path, "power.log")
 		with open(self._powerlog_path, "r") as f:

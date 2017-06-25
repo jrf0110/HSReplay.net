@@ -183,7 +183,8 @@ class RawUpload(object):
 			self._timestamp = datetime.strptime(fields["ts"], RawUpload.TIMESTAMP_FORMAT)
 
 			self.upload_event = UploadEvent.objects.get(shortid=self._shortid)
-			self._descriptor = json.loads(self.upload_event.descriptor_data)
+			self.descriptor_json = self.upload_event.descriptor_data
+			self._descriptor = json.loads(self.descriptor_json)
 			self.descriptor_key = ""
 
 		else:
@@ -273,8 +274,8 @@ class RawUpload(object):
 	@property
 	def descriptor(self):
 		if self._descriptor is None:
-			descriptor_data = self._load_descriptor_from_s3(self.descriptor_key)
-			self._descriptor = json.loads(descriptor_data)
+			self.descriptor_json = self._load_descriptor_from_s3(self.descriptor_key)
+			self._descriptor = json.loads(self.descriptor_json)
 		return self._descriptor
 
 	def _load_descriptor_from_s3(self, key):
