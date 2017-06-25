@@ -1,4 +1,3 @@
-set -x
 echo "Creating AWS Lambda Deployment Zip"
 
 BASEDIR=$(readlink -f "$(dirname $0)/../..")
@@ -30,4 +29,3 @@ cd "$BASEDIR"
 zip -r "$ZIPFILE" "hsreplaynet/local_settings.py"
 
 echo "Written to $ZIPFILE"
-set +x
