@@ -271,12 +271,6 @@ class RawUpload(object):
 		return self._signed_url_for(self._log_key)
 
 	@property
-	def descriptor_url(self):
-		if not self.descriptor_key:
-			return ""
-		return self._signed_url_for(self.descriptor_key)
-
-	@property
 	def descriptor(self):
 		if self._descriptor is None:
 			descriptor_data = self._load_descriptor_from_s3(self.descriptor_key)
