@@ -16,6 +16,9 @@ class Command(BaseCommand):
 			"--artifact", help="The name of the lambdas zip artifact", required=True
 		)
 		parser.add_argument(
+			"--artifact-bucket", help="The bucket in which the artifact resides", required=True
+		)
+		parser.add_argument(
 			"--wait", action="store_true",
 			help="Wait up to 30 seconds for all Uploads to finish processing"
 		)
@@ -48,7 +51,7 @@ class Command(BaseCommand):
 		self.output("Private Execution Role Arn: %r" % (private_execution_role_arn))
 
 		artifact_obj = options["artifact"]
-		artifact_bucket = settings.AWS_LAMBDA_ARTIFACTS_BUCKET
+		artifact_bucket = options["artifact_bucket"]
 		self.output("Using code at S3 path: %r/%r" % (artifact_bucket, artifact_obj))
 
 		for descriptor in descriptors:
