@@ -3,7 +3,7 @@
 hearthstone
 hslog==1.1.0
 hsreplay==1.4.3
--e git+https://github.com/HearthSim/hearthsim-identity.git#egg=hearthsim_identity
+https://github.com/HearthSim/hearthsim-identity/archive/master.tar.gz
 
 aniso8601==1.2.1
 boto3==1.4.4
@@ -25,4 +25,4 @@ redis==2.10.5
 django-redis==4.8.0
 python-redis-lock[django]==3.2.0
 redis-semaphore==0.2.2
--e git+https://github.com/HearthSim/hsredshift.git#egg=hsredshift
+https://github.com/HearthSim/hsredshift/archive/master.tar.gz
