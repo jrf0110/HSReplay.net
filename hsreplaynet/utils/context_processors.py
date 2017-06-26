@@ -39,10 +39,6 @@ def userdata(request):
 				"display": str(acc),
 			})
 
-		data["groups"] = []
-		for group in request.user.groups.all():
-			data["groups"].append(group.name.replace(":preview", ""))
-
 	data["features"] = {}
 	for feature in Feature.objects.all():
 		data["features"][feature.name] = {
