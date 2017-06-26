@@ -1,6 +1,5 @@
 import json
 import pytest
-from hearthstone.enums import PlayState
 from oauth2_provider.models import AccessToken, Grant
 from hearthsim_identity.accounts.models import AccountClaim, AuthToken, User
 from hsreplaynet.oauth2.models import Application
@@ -8,16 +7,6 @@ from hsreplaynet.webhooks.models import Webhook
 
 
 CLAIM_ACCOUNT_API = "/api/v1/claim_account/"
-
-
-def test_valid_webhook_serialization():
-	# Check that Webhooks can reserialize themselves.
-	# Python 2 issue. Get rid of this in Py3
-
-	payload = {"final_state": PlayState.WON}
-	d = Webhook()._serialize_payload(payload)
-	decoded = json.loads(d)
-	assert decoded["final_state"] == PlayState.WON
 
 
 @pytest.mark.django_db

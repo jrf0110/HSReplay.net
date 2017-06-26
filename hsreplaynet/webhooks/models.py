@@ -142,30 +142,6 @@ class Webhook(models.Model):
 	def __str__(self):
 		return "%s -> %s" % (self.event, self.url)
 
-	@property
-	def serialized_payload(self):
-		import sys
-
-		payload = self.payload
-
-		if sys.version_info.major == 2:
-			# I wasted six hours on this.
-			# No, using a custom encoder isn't possible.
-			# Thanks Amazon, for not supporting Python 3 on Lambda. No really.
-
-			def recurse_transform_intenum(o):
-				if isinstance(o, dict):
-					for k, v in o.items():
-						if isinstance(v, IntEnum):
-							o[k] = int(v)
-						elif isinstance(v, dict):
-							recurse_transform_intenum(v)
-				return o
-
-			recurse_transform_intenum(payload)
-
-		return json.dumps(payload, cls=DjangoJSONEncoder).encode("utf-8")
-
 	def schedule_delivery(self):
 		"""
 		Schedule the webhook for delivery.
@@ -197,7 +173,7 @@ class Webhook(models.Model):
 		self.save()
 
 		secret = str(self.endpoint.secret).encode("utf-8")
-		body = self.serialized_payload
+		body = json.dumps(self.payload, cls=DjangoJSONEncoder).encode("utf-8")
 		signature = generate_signature(secret, body)
 		default_headers = {
 			"content-type": WEBHOOK_CONTENT_TYPE,
