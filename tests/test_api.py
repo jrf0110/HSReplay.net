@@ -199,7 +199,6 @@ def test_oauth_api(admin_user, client, settings):
 	assert data["user"]["username"] == "admin"
 	assert data["max_triggers"] == 1
 	assert data["url"] == webhook_callback_url
-	assert "secret" not in data
 	obj = Webhook.objects.get(uuid=data["uuid"])
 	assert obj.secret == "seekrit"
 

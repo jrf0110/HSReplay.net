@@ -18,7 +18,6 @@ class WebhookSerializer(serializers.ModelSerializer):
 			"uuid", "user", "url", "is_active", "secret", "created", "updated"
 		)
 		read_only_fields = ("user", )
-		extra_kwargs = {"secret": {"write_only": True}}
 		model = WebhookEndpoint
 
 	def create(self, validated_data):
