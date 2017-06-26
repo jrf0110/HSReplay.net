@@ -3,7 +3,7 @@ import pytest
 from oauth2_provider.models import AccessToken, Grant
 from hearthsim_identity.accounts.models import AccountClaim, AuthToken, User
 from hsreplaynet.oauth2.models import Application
-from hsreplaynet.webhooks.models import Webhook
+from hsreplaynet.webhooks.models import WebhookEndpoint
 
 
 CLAIM_ACCOUNT_API = "/api/v1/claim_account/"
@@ -184,9 +184,7 @@ def test_oauth_api(admin_user, client, settings):
 	webhook_callback_url = "https://example.com/webhook/callback/"
 	post_data = {
 		"url": webhook_callback_url,
-		"max_triggers": 1,
 		"user": 123,  # will be ignored
-		"secret": "seekrit",
 	}
 	response = client.post(
 		webhooks_list_url,
@@ -197,10 +195,9 @@ def test_oauth_api(admin_user, client, settings):
 	assert response.status_code == 201
 	data = response.json()
 	assert data["user"]["username"] == "admin"
-	assert data["max_triggers"] == 1
 	assert data["url"] == webhook_callback_url
-	obj = Webhook.objects.get(uuid=data["uuid"])
-	assert obj.secret == "seekrit"
+	obj = WebhookEndpoint.objects.get(uuid=data["uuid"])
+	assert obj.url == webhook_callback_url
 
 	# Change scope to read-only, check that we can't create webhooks
 	token_obj.scope = "webhooks:read"
