@@ -6,11 +6,9 @@ import DataInjector from "../components/DataInjector";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import ChartLoading from "../components/loading/ChartLoading";
-import MyDecksLoading from "../components/loading/MyDecksLoading";
 import TableLoading from "../components/loading/TableLoading";
 import BiggestHits from "../components/myhighlights/BiggestHits";
 import HighlightTiles from "../components/myhighlights/HighlightTiles";
-import MostPlayedDecks from "../components/myhighlights/MostPlayedDecks";
 import DataManager from "../DataManager";
 import { RenderData } from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
@@ -76,7 +74,6 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 				<section id="page-content">
 					<ul className="nav nav-tabs content-tabs">
 						<li className="active"><a data-toggle="tab" href="#highlights">Highlights</a></li>
-						<li><a data-toggle="tab" href="#mostplayeddeck">Most played decks</a></li>
 						<li><a data-toggle="tab" href="#biggesthits">Biggest hits</a></li>
 					</ul>
 					<div className="tab-content">
@@ -91,13 +88,6 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 								<TableLoading cardData={this.props.cardData} dataKeys={["cardStats", "ranks"]}>
 									<HighlightTiles/>
 								</TableLoading>
-							</DataInjector>
-						</div>
-						<div id="mostplayeddeck" className="tab-pane fade">
-							<DataInjector dataManager={this.dataManager} query={{url: "/decks/mine/", params: {}}}>
-								<MyDecksLoading cardData={this.props.cardData}>
-									<MostPlayedDecks/>
-								</MyDecksLoading>
 							</DataInjector>
 						</div>
 						<div id="biggesthits" className="tab-pane fade">

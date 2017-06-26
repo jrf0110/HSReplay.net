@@ -7,7 +7,6 @@ import DataInjector from "../components/DataInjector";
 import DeckBreakdownTable from "../components/deckdetail/DeckBreakdownTable";
 import DeckStats from "../components/deckdetail/DeckStats";
 import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
-import PersonalDeckStats from "../components/deckdetail/PersonalDeckStats";
 import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
@@ -405,15 +404,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							lastUpdatedUrl="single_deck_stats_over_time"
 							lastUpdatedParams={this.getParams()}
 						/>
-					</HideLoading>
-				</DataInjector>
-				<DataInjector
-					dataManager={this.dataManager}
-					fetchCondition={this.props.user.hasFeature("profiles") && this.isWildDeck() !== undefined}
-					query={{url: "/decks/mine/", params: {}}}
-				>
-					<HideLoading>
-						<PersonalDeckStats deckId={this.props.deckId}/>
 					</HideLoading>
 				</DataInjector>
 				{this.props.user.isStaff() && this.props.adminUrl && (

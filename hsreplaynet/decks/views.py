@@ -1,15 +1,11 @@
-from collections import defaultdict
-from datetime import timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
 from django_hearthstone.cards.models import Card
-from hearthstone.enums import CardClass, PlayState
+from hearthstone.enums import CardClass
 from hsreplaynet.features.decorators import view_requires_feature_access
-from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils.html import RequestMetaMixin
 from .models import Archetype, Deck
 
@@ -172,85 +168,3 @@ def canonical_decks(request):
 		result.append(record)
 
 	return JsonResponse(result, safe=False)
-
-
-class MyDeckIDsView(LoginRequiredMixin, View):
-	def get(self, request):
-		time_horizon = timezone.now() - timedelta(days=30)
-		qs = GameReplay.objects.live().filter(
-			user=request.user
-		).filter(
-			global_game__match_start__gte=time_horizon
-		)
-
-		deck_data = defaultdict(list)
-		deck_lists = dict()
-		game_types_for_deck = defaultdict(lambda: defaultdict(int))
-
-		for replay in qs.all():
-			friendly_player = replay.friendly_player
-			player_class = friendly_player.hero.card_class.name
-			final_state = friendly_player.final_state
-			global_game = replay.global_game
-			if global_game.match_end and global_game.match_start:
-				game_duration = global_game.match_end - global_game.match_start
-				game_length_seconds = game_duration.total_seconds()
-			else:
-				game_length_seconds = 0
-
-			num_turns = global_game.num_turns
-			deck_id = replay.friendly_deck.id
-			replay_details = {
-				"final_state": final_state,
-				"game_length_seconds": game_length_seconds,
-				"player_class": player_class,
-				"num_turns": num_turns,
-				"pretty_name": replay.pretty_name,
-				"replay_url": replay.get_absolute_url()
-			}
-
-			if replay.friendly_deck.size == 30:
-				deck_lists[deck_id] = replay.friendly_deck.as_dbf_json(serialized=False)
-				deck_data[deck_id].append(replay_details)
-				game_types_for_deck[deck_id][replay.global_game.game_type.name] += 1
-
-		result = {}
-		for deck_id, replay_details in deck_data.items():
-			total_game_seconds = 0
-			game_seconds_denom = 0
-			total_num_turns = 0
-			game_count = 0
-			player_class = None
-			total_wins = 0
-			replay_urls = []
-			for r in replay_details:
-				if player_class is None and r["player_class"]:
-					player_class = r["player_class"]
-				# Converting from game turns to player_turns
-				total_num_turns += round(float(r["num_turns"]) / 2)
-				game_count += 1
-				if r["final_state"] == PlayState.WON:
-					total_wins += 1
-
-				if r["game_length_seconds"]:
-					game_seconds_denom += 1
-					total_game_seconds += r["game_length_seconds"]
-				replay_urls.append([r["pretty_name"], r["replay_url"]])
-
-			win_rate = float(total_wins) / game_count
-			avg_game_length_seconds = float(total_game_seconds) / game_seconds_denom
-			avg_num_turns = float(total_num_turns) / game_count
-
-			result[deck_id] = {
-				"deck_id": deck_id,
-				"deck_list": deck_lists[deck_id],
-				"player_class": player_class,
-				"total_games": game_count,
-				"win_rate": round(win_rate, 2),
-				"avg_game_length_seconds": round(avg_game_length_seconds, 2),
-				"avg_num_turns": round(avg_num_turns, 2),
-				"replays": replay_urls,
-				"game_types": dict(game_types_for_deck[deck_id])
-			}
-
-		return JsonResponse(result)
