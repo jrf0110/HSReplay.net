@@ -15,7 +15,7 @@ def redeliver(admin, request, queryset):
 		obj.deliver(timeout=10)
 
 
-send_test_payload.short_description = "Redeliver payload"
+redeliver.short_description = "Redeliver payload"
 
 
 class WebhookInline(admin.StackedInline):
@@ -59,3 +59,4 @@ class WebhookAdmin(admin.ModelAdmin):
 	raw_id_fields = ("endpoint", "event", )
 	search_fields = ("url", )
 	inlines = (WebhookDeliveryInline, )
+	actions = (redeliver, )
