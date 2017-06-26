@@ -34,11 +34,12 @@ def generate_signature(key, message):
 	from hashlib import sha256
 	from hmac import HMAC
 
-	mac = HMAC(key, message, digestmod=sha256)
-	timestamp = datetime.now().timestamp()
+	timestamp = int(datetime.now().timestamp())
+	message = "{t}.{message}".format(t=timestamp, message=message)
+	mac = HMAC(key, message.encode("utf-8"), digestmod=sha256)
 
 	return "t={t}, sha256={sha256}".format(
-		t=int(timestamp), sha256=mac.hexdigest()
+		t=timestamp, sha256=mac.hexdigest()
 	)
 
 
