@@ -218,6 +218,16 @@ def run_local_warm_queries(eligible_queries=None):
 		execute_query(parameterized_query, run_local=True)
 
 
+def synchronize_all_pegasus_accounts():
+	# To be called at the start (or end) of each ETL cycle
+	pass
+
+
+def synchronize_single_pegasus_account(account):
+	# To be called whenever a new premium subscription is created.
+	pass
+
+
 def fill_personalized_query_queue(contexts, eligible_queries=None):
 	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
 	messages = get_personalized_queries_for_cache_warming(
