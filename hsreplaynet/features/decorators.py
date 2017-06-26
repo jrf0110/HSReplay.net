@@ -20,10 +20,7 @@ def view_requires_feature_access(feature_name):
 				feature = Feature.objects.get(name=feature_name)
 			except Feature.DoesNotExist as e:
 				error_handler(e)
-				# Missing features are treated as if they are set to
-				# FeatureStatus.STAFF_ONLY. This occurs when new feature code is deployed
-				# before the DB is updated
-				is_enabled = request.user.is_staff
+				is_enabled = False
 			else:
 				is_enabled = feature.enabled_for_user(request.user)
 

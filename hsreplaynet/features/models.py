@@ -80,13 +80,9 @@ class Feature(models.Model):
 		if self.status == FeatureStatus.OFF:
 			return False
 
-		if user.is_staff:
-			# Staff can always see everything except OFF
-			return True
-
 		if self.status == FeatureStatus.STAFF_ONLY:
 			# If the user is staff we will have already returned True
-			return False
+			return user.is_superuser or user.is_staff
 
 		if self.status == FeatureStatus.AUTHORIZED_ONLY:
 			return user.groups.filter(name=self.authorized_group_name).exists()
