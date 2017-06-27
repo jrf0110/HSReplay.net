@@ -8,7 +8,7 @@ export interface ArchetypeData {
 
 interface ClassMatchupProps extends React.ClassAttributes<ClassMatchup> {
 	playerClass: string;
-	totalWinrate: number;
+	totalWinrate?: number;
 	archetypes: ArchetypeData[];
 }
 
@@ -28,7 +28,7 @@ export default class ClassMatchup extends React.Component<ClassMatchupProps, voi
 					<span className={"player-class " + this.props.playerClass.toLowerCase()}>
 							{toTitleCase(this.props.playerClass)}
 					</span>
-					<span className="pull-right">{this.props.totalWinrate.toFixed(2)}%</span>
+					<span className="pull-right">{this.props.totalWinrate && `${this.props.totalWinrate.toFixed(2)}%}`}</span>
 				</div>
 				{archetypes}
 			</div>
@@ -36,7 +36,7 @@ export default class ClassMatchup extends React.Component<ClassMatchupProps, voi
 	}
 
 	winrate(winrate: number) {
-		const wrData =  winrateData(this.props.totalWinrate, winrate, 5);
+		const wrData =  winrateData(this.props.totalWinrate || 50, winrate, 5);
 		return (
 			<span className="winrate-cell pull-right" style={{color: wrData.color}}>
 				{wrData.tendencyStr}
