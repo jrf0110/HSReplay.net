@@ -82,12 +82,12 @@ export default class DeckBreakdownTable extends React.Component<DeckBreakdownTab
 
 		const tableHeaders = [
 			{key: "decklist", text: "Card", defaultSortDirection: "ascending" as SortDirection},
-			{key: "opening_hand_win_rate", text: "Mulligan WR", infoHeader: "Mulligan winrate", infoText: "Winrate when the card ends up in the opening hand." },
-			{key: "keep_percentage", text: "Kept", infoHeader: "Kept", infoText: "Percentage the card was kept when presented during mulligan." },
-			{key: "win_rate_when_drawn", text: "Drawn WR", infoHeader: "Drawn winrate", infoText: "Average winrate of games where the card was drawn at any point." },
+			{key: "opening_hand_win_rate", text: "Mulligan WR", infoHeader: "Mulligan winrate", infoText: "Average winrate of games when the card ended up in the opening hand." },
+			{key: "keep_percentage", text: "Kept", infoHeader: "Kept", infoText: "Percentage of times the card was kept when presented during mulligan." },
+			{key: "win_rate_when_drawn", text: "Drawn WR", infoHeader: "Drawn winrate", infoText: "Average winrate of games where the card was drawn at any point or ended up in the opening hand." },
 			{key: "win_rate_when_played", text: "Played WR", infoHeader: "Played winrate", infoText: "Average winrate of games where the card was played at any point." },
-			{key: "avg_turns_in_hand", text: "Turns held", infoHeader: "Turns held", infoText: "Average number of turns the card is held in hand."},
-			{key: "avg_turn_played_on", text: "Turn played", infoHeader: "Turn played", infoText: "Average turn the card is played on." },
+			{key: "avg_turns_in_hand", text: "Turns held", infoHeader: "Turns held", infoText: "Average number of turns the card was held in hand."},
+			{key: "avg_turn_played_on", text: "Turn played", infoHeader: "Turn played", infoText: "Average turn the card was played on." },
 		];
 
 		return (
