@@ -17,6 +17,8 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import DeckList from "../components/DeckList";
 import { DeckObj } from "../interfaces";
 import CardList from "../components/CardList";
+import TableLoading from "../components/loading/TableLoading";
+import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
 
 interface ArchetypeData {
 	id: number;
@@ -340,6 +342,31 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									/>
 								</div>
 							</div>
+						</Tab>
+						<Tab
+							label="Matchups"
+							id="matchups"
+							hidden={!this.props.user.hasFeature("deck-matchups")}
+						>
+							<DataInjector
+								dataManager={this.dataManager}
+								query={[
+									{
+										key: "archetypeMatchupData",
+										params: {},
+										url: "head_to_head_archetype_matchups",
+									},
+									{
+										key: "archetypeData",
+										params: {},
+										url: "/api/v1/archetypes/",
+									},
+								]}
+							>
+								<TableLoading dataKeys={["archetypeMatchupData", "archetypeData"]}>
+									<ArchetypeMatchups archetypeId={this.props.archetype}/>
+								</TableLoading>
+							</DataInjector>
 						</Tab>
 						<Tab label="Popular Decks" id="similar">
 							{popularDecksList}
