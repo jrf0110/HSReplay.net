@@ -13,7 +13,7 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django_intenum import IntEnumField
-from psycopg2 import DatabaseError
+from psycopg2 import DatabaseError, InternalError
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import func, select
@@ -114,7 +114,18 @@ _md_cache = {}
 def get_redshift_metadata(refresh=False):
 	if "md" not in _md_cache or refresh:
 		md = MetaData()
-		md.reflect(get_redshift_engine())
+
+		try:
+			md.reflect(get_redshift_engine())
+		except InternalError:
+			# We get intermittent cache lookup failures
+			# Due to concurrent modifications of an internal postgres engine cache
+			# AWS suggests waiting and then re-attempting.
+			# https://dba.stackexchange.com/questions/173815/redshift-internalerror-cache-lookup-failed-for-relation
+			time.sleep(5)
+			# We try one more time before raising the exception
+			md.reflect(get_redshift_engine())
+
 		_md_cache["md"] = md
 	return _md_cache["md"]
 
