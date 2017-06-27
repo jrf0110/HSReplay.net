@@ -14,7 +14,8 @@ interface ClassMatchupProps extends React.ClassAttributes<ClassMatchup> {
 
 export default class ClassMatchup extends React.Component<ClassMatchupProps, void> {
 	render(): JSX.Element {
-		const archetypes = this.props.archetypes.map((archetype) => (
+		const data = this.props.archetypes.sort((a, b) => a.name > b.name ? 1 : -1);
+		const archetypes = data.map((archetype) => (
 			<div className="class-matchup-archetype">
 				<span>{archetype.name}</span>
 				{this.winrate(archetype.winrate)}
