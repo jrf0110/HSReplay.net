@@ -353,7 +353,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
 							selectedCards={selectedCards("includedCards")}
 							cardLimit={Limit.NORMAL}
-							onPaste={this.props.user.hasFeature("deckstrings") ? (e) => {
+							onPaste={(e) => {
 								const input = e.clipboardData.getData("text/plain");
 								const lines = input.trim().split("\n").filter((line) => !line.startsWith("#"));
 								let result = null;
@@ -373,7 +373,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 								}
 								cards.sort(sortCards);
 								this.props.setIncludedCards(cards.map((card) => card.dbfId));
-							} : null}
+							}}
 						/>
 					</section>
 					<section id="exclude-cards-filter">
