@@ -11,10 +11,9 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				archetype: 0,
 				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
-				tab: "overview",
+				timeFrame: "LAST_14_DAYS",
 			}}
 		>
 			<MetaOverview

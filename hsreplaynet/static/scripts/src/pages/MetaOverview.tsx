@@ -6,12 +6,8 @@ import UserData from "../UserData";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
 import CardData from "../CardData";
-import { Colors } from "../Colors";
-import Matrix, { Matchup, NumberRow } from "../components/stats/Matrix";
-import { BnetGameType } from "../hearthstone";
-import * as _ from "lodash";
-import IntensitySelector from "../components/stats/controls/IntensitySelector";
-import ColorSchemeSelector from "../components/stats/controls/ColorSchemeSelector";
+import ArchetypeMatrix from "../components/stats/ArchetypeMatrix";
+import DataInjector from "../components/DataInjector";
 
 export interface EvaluatedArchetype {
 	[archetype: string]: number;
@@ -25,8 +21,6 @@ interface MetaOverviewState {
 	hasChangedSampleSize?: boolean;
 	smallestRank?: number;
 	largestRank?: number;
-	colorScheme?: Colors;
-	intensity?: number;
 	fetching?: boolean;
 	archetypes?: any[];
 	selectedArchetype?: string;
@@ -43,9 +37,9 @@ interface MetaOverviewProps {
 	setGameType?: (gameType: string) => void;
 	rankRange?: string;
 	setRankRange?: (rankRange: string) => void;
+	timeFrame?: string;
+	setTimeFrame?: (timeFrame: string) => void;
 	user: UserData;
-	tab?: string;
-	setTab?: (tab: string) => void;
 }
 
 export default class MetaOverview extends React.Component<MetaOverviewProps, MetaOverviewState> {
@@ -64,8 +58,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			hasChangedSampleSize: false,
 			smallestRank: 0,
 			largestRank: 20,
-			colorScheme: Colors.HSREPLAY,
-			intensity: 25,
 			fetching: true,
 			archetypes: [],
 			selectedArchetype: null,
@@ -77,20 +69,10 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		};
 		this.nonce = 0;
 		this.samplesPerDay = this.state.sampleSize / this.state.lookback;
-		this.fetch();
-		fetch("https://hsreplay.net/decks/canonical/json/", {
-			credentials: "include",
-		}).then((response) => {
-			return response.json();
-		}).then((json: any) => {
-			this.setState({
-				archetypes: json,
-			});
-		});
 	}
 
 	fetchArchetypeData() {
-		this.dataManager.get("/api/v1/archetypes/").then((data) => {
+		this.dataManager.get("head_to_head_archetype_matchups").then((data) => {
 			if (data && data.results) {
 				const archetypeData = data.results.filter((x) => !x.name.startsWith("Basic")).sort((a, b) => {
 					if (a.player_class === b.player_class) {
@@ -103,33 +85,9 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 	}
 
 	render(): JSX.Element {
-		if (this.props.cardData) {
-		}
-
 		return <div className="archetype-detail-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
-				<section id="rank-range-filter">
-					<PremiumWrapper
-						name="Deck List Rank Range"
-						isPremium={this.props.user.isPremium()}
-						infoHeader="Rank Range"
-						infoContent="Ready to climb the ladder? Check out how decks perform at certain rank ranges!"
-					>
-						<h2>Rank range</h2>
-						<InfoboxFilterGroup
-							locked={!this.props.user.isPremium()}
-							selectedValue={this.props.rankRange}
-							onClick={(value) => this.props.setRankRange(value)}
-							tabIndex={0} // TODO
-						>
-							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-						</InfoboxFilterGroup>
-					</PremiumWrapper>
-				</section>
 				<section id="game-mode-filter">
 					<h2>Game Mode</h2>
 					<InfoboxFilterGroup
@@ -140,50 +98,61 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</section>
+				<section id="time-frame-filter">
+					<PremiumWrapper isPremium={this.props.user.isPremium()}>
+						<h2>Time Frame</h2>
+						<InfoboxFilterGroup
+							selectedValue={this.props.timeFrame}
+							onClick={(value) => this.props.setTimeFrame(value)}
+						>
+							<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+							<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
+						</InfoboxFilterGroup>
+					</PremiumWrapper>
+				</section>
+				<section id="rank-range-filter">
+					<PremiumWrapper isPremium={this.props.user.isPremium()}>
+						<h2>Rank range</h2>
+						<InfoboxFilterGroup
+							disabled
+							locked={!this.props.user.isPremium()}
+							selectedValue={this.props.rankRange}
+							onClick={(value) => this.props.setRankRange(value)}
+							tabIndex={0}
+						>
+							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+						</InfoboxFilterGroup>
+					</PremiumWrapper>
+				</section>
 			</aside>
 			<main>
-							<div className="row">
-				<div className="col-lg-9 col-md-12">
-					<div className="row">
-						<div className="col-lg-10 col-md-10 col-xs-12">
-							<h2 className="text-center">Matchups</h2>
-							<Matrix
-								matrix={this.state.winrates}
-								sampleSize={this.state.sampleSize}
-								colorScheme={this.state.colorScheme}
-								intensity={this.state.intensity}
-								working={this.state.fetching}
-								select={this.state.selectedArchetype}
-								onSelect={(k) => this.select(k)}
-								popularities={this.state.popularities}
-							/>
-							<ColorSchemeSelector
-								colorScheme={this.state.colorScheme}
-								onChangeColorScheme={(colorScheme: Colors): void => this.setState({colorScheme})}
-							/>
-							<IntensitySelector
-								intensity={this.state.intensity}
-								onChangeIntensity={(intensity: number): void => this.setState({intensity})}
-							/>
+				<div className="row">
+					<div className="col-lg-9 col-md-12">
+						<div className="row">
+							<div className="col-lg-10 col-md-10 col-xs-12">
+								<h2 className="text-center">Matchups</h2>
+								<DataInjector
+									dataManager={this.dataManager}
+									query={{
+										params: {GameType: this.props.gameType, TimeFrame: this.props.timeFrame},
+										url: "head_to_head_archetype_matchups",
+									}}>
+									<ArchetypeMatrix/>
+								</DataInjector>
+							</div>
 						</div>
 					</div>
+					<div className="col-lg-3 col-sm-12">
+						<h2 className="text-center">{this.state.selectedArchetype ? this.state.selectedArchetype : "Archetype"}</h2>
+						{this.renderDecklist()}
+					</div>
 				</div>
-				<div className="col-lg-3 col-sm-12">
-					<h2 className="text-center">{this.state.selectedArchetype ? this.state.selectedArchetype : "Archetype"}</h2>
-					{this.renderDecklist()}
-				</div>
-			</div>
 			</main>
 		</div>;
-	}
-
-	public componentDidUpdate(prevProps: MetaOverviewProps, prevState: MetaOverviewState, prevContext: any): void {
-		if (prevState.smallestRank !== this.state.smallestRank || prevState.largestRank !== this.state.largestRank) {
-			this.fetch();
-		}
-		if (prevState.lookback !== this.state.lookback || prevState.offset !== this.state.offset) {
-			this.fetch();
-		}
 	}
 
 	private renderDecklist(): JSX.Element {
@@ -226,6 +195,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</li>
 			</ul>
 			<h3 className="text-center">Decklist</h3>
+			{/*TODO: update cardlist to use dbfids*/}
 			{/*<CardList
 				cardDb={this.props.cardData}
 				cards={archetype.representative_deck.card_ids}
@@ -233,90 +203,5 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				class=""
 			/>*/}
 		</div>;
-	}
-
-	private select(key: string): void {
-		// search for digest
-		let digest = null;
-		for (let i = 0; i < this.state.archetypes.length; i++) {
-			const archetype = this.state.archetypes[i];
-			if (archetype.name === key) {
-				const deck = archetype.representative_deck;
-				digest = deck.digest;
-			}
-		}
-		if (digest && history && typeof history.pushState === "function") {
-			history.pushState({}, document.title, "?deck_digest=" + digest);
-		}
-		this.setState({
-			selectedArchetype: key,
-		});
-	}
-
-	private buildQueryUrl(): string {
-		const baseUrl = "https://hsreplay.net/cards/winrates/";
-
-		const gametypes = [BnetGameType.BGT_RANKED_STANDARD];
-
-		const params = [];
-		params.push("lookback=" + this.state.lookback);
-		params.push("offset=" + this.state.offset);
-		params.push("game_types=" + gametypes.join(","));
-		params.push("min_rank=" + this.state.smallestRank);
-		params.push("max_rank=" + this.state.largestRank);
-
-		return baseUrl + "?" + params.join("&");
-	}
-
-	private fetch(): void {
-		const nonce = ++this.nonce;
-		const REASON_NONCE_OUTDATED = "Nonce outdated";
-
-		this.setState({
-			fetching: true,
-		});
-
-		fetch(
-			this.buildQueryUrl(),
-			{
-				credentials: "include",
-			},
-		).then((response) => {
-			if (nonce < this.state.visibleNonce) {
-				return Promise.reject(REASON_NONCE_OUTDATED);
-			}
-			return response.json();
-		}).then((json: any) => {
-
-			const winrates = json.win_rates || {};
-
-			let games = {};
-			let max = {};
-			_.forEach(winrates, (row: NumberRow, archetype: string): void => {
-				if (typeof games[archetype] === "undefined") {
-					games[archetype] = 0;
-					max[archetype] = 0;
-				}
-				_.forEach(row, (matchup: Matchup): void => {
-					games[archetype] = matchup.match_count + games[archetype];
-					max[archetype] = Math.max(matchup.match_count, games[archetype]);
-				});
-			});
-
-			this.setState({
-				popularities: json.frequencies || {},
-				winrates,
-				expected_winrates: json.expected_winrates || {},
-				games_per_archetype: games,
-				max_games_per_archetype: max,
-				fetching: this.nonce === nonce ? false : true,
-				visibleNonce: nonce,
-			});
-		}).catch((reason: any) => {
-			if (reason === REASON_NONCE_OUTDATED) {
-				return; // noop
-			}
-			return Promise.reject(reason);
-		});
 	}
 }
