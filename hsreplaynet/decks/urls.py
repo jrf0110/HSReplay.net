@@ -14,6 +14,7 @@ deck_detail = views.DeckDetailView.as_view()
 deck_list = views.DeckListView.as_view()
 trending_decks = views.TrendingDecksView.as_view()
 my_decks = views.MyDecksView.as_view()
+meta_overview = views.MetaOverviewView.as_view()
 
 
 urlpatterns = [
@@ -28,6 +29,7 @@ urlpatterns = [
 	url(r"^decks/trending/", trending_decks, name="trending_decks"),
 	url(r"^decks/canonical/json/$", views.canonical_decks, name="canonical_decks"),
 	url(r"^decks/(?P<id>\w+)/$", deck_detail, name="deck_detail"),
+	url(r"^meta/$", meta_overview, name="meta_overview"),
 ]
 
 api_urlpatterns = [

@@ -11,6 +11,15 @@ from .models import Archetype, Deck
 
 
 ##
+# Meta overview pages
+
+@method_decorator(view_requires_feature_access("meta-overview"), name="dispatch")
+class MetaOverviewView(LoginRequiredMixin, TemplateView):
+	template_name = "meta_overview/meta_overview.html"
+	title = "Meta Overview"
+
+
+##
 # Archetype pages
 
 @method_decorator(view_requires_feature_access("archetype-detail"), name="dispatch")

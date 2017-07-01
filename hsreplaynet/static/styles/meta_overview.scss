@@ -1,0 +1,30 @@
+.meta-overview-container {
+	display: flex;
+
+	@media(max-width: 768px) {
+		flex-direction: column;
+	}
+
+	>main {
+		min-height: calc(100vh - 50px);
+		padding-top: 10px;
+		width: calc(100% - 300px);
+
+		@media(max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+		}
+	}
+
+	>aside {
+		@media(max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+			padding-bottom: 0;
+		}
+	}
+
+	>h3 {
+		border-bottom: 1px solid $darkgrey;
+	}
+}
