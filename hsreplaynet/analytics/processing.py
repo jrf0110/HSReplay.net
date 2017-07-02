@@ -8,8 +8,6 @@ from django.core.cache import caches
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
-from djstripe.models import Subscription
-from hearthsim_identity.accounts.models import BlizzardAccount
 from hearthstone.enums import BnetGameType
 from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
@@ -17,6 +15,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_
+from hearthsim_identity.accounts.models import BlizzardAccount
 from hsredshift.analytics.queries import RedshiftCatalogue
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws.clients import LAMBDA
@@ -232,6 +231,7 @@ def run_local_warm_queries(eligible_queries=None):
 
 def synchronize_all_premium_users():
 	# To be called at the start (or end) of each ETL cycle
+	from djstripe.models import Subscription
 	for subscription in Subscription.objects.all():
 		user = subscription.customer.subscriber
 		synchronize_redshift_premium_accounts_for_user(user)
@@ -246,18 +246,18 @@ def synchronize_redshift_premium_accounts_for_user(user):
 	).all()
 
 	premium_accounts = defaultdict(dict)
-	for premium_account in premium_accounts_query:
-		premium_accounts[premium_account.region][premium_account.account_lo] = premium_account
+	for pa in premium_accounts_query:
+		premium_accounts[pa.region][pa.account_lo] = pa
 
 	if user.is_premium:
 		# User is currently premium
-		# Any BlizzardAccounts attached to user that dont have a premium_account row must be created
+		# Any BlizzardAccounts attached to user without a premium_account must be created
 		for ba in user.blizzard_accounts.all():
 			if ba.account_lo not in premium_accounts[ba.region]:
 
 				# Ensure no other records exist for this hi/lo pair
-				# This could happen if the BlizzardAccount was previously linked to a diff user
-				# And then got updated to point to the current user
+				# This could happen if the BlizzardAccount was previously linked to a
+				# diff user and then got updated to point to the current user
 				session.execute(premium_account.delete().where(
 					premium_account.c.region == ba.region,
 					premium_account.c.account_lo == ba.account_lo
@@ -277,7 +277,7 @@ def synchronize_redshift_premium_accounts_for_user(user):
 		# All premium_account records must be updated to active = True
 		update_stmt = premium_account.update().where(and_(
 			premium_account.c.user_id == user.id,
-			premium_account.c.active == False
+			premium_account.c.active == False  # NOQA
 		)).values(dict(active=True, modified=timezone.now()))
 		session.execute(update_stmt)
 
@@ -286,7 +286,7 @@ def synchronize_redshift_premium_accounts_for_user(user):
 		# All premium_account records with this user_id must be updated to active = False
 		update_stmt = premium_account.update().where(and_(
 			premium_account.c.user_id == user.id,
-			premium_account.c.active == True
+			premium_account.c.active == True  # NOQA
 		)).values(dict(active=False, modified=timezone.now()))
 		session.execute(update_stmt)
 
@@ -295,13 +295,6 @@ def synchronize_redshift_premium_accounts_for_user(user):
 def sync_blizzard_account_to_redshift(sender, instance, **kwargs):
 	if instance.user and instance.user.is_premium:
 		synchronize_redshift_premium_accounts_for_user(instance.user)
-
-
-@receiver(models.signals.post_save, sender=Subscription)
-def sync_subscription_to_redshift(sender, instance, **kwargs):
-	if instance.customer.subscriber:
-		user = instance.customer.subscriber
-		synchronize_redshift_premium_accounts_for_user(user)
 
 
 def fill_personalized_query_queue(contexts, eligible_queries=None):
