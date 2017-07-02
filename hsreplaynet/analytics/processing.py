@@ -259,14 +259,14 @@ def synchronize_redshift_premium_accounts_for_user(user):
 				# This could happen if the BlizzardAccount was previously linked to a
 				# diff user and then got updated to point to the current user
 				session.execute(premium_account.delete().where(and_(
-					premium_account.c.region == ba.region,
+					premium_account.c.region == int(ba.region),
 					premium_account.c.account_lo == ba.account_lo
 				)))
 
 				inserted_at = timezone.now()
 				insert_stmt = premium_account.insert().values({
 					"user_id": user.id,
-					"region": ba.region,
+					"region": int(ba.region),
 					"account_lo": ba.account_lo,
 					"created": inserted_at,
 					"modified": inserted_at,
