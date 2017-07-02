@@ -74,7 +74,7 @@ def _get_query_and_params(request, name):
 					supplied_params["account_lo"] = default_blizzard_account.account_lo
 				else:
 					raise Http404("User does not have any Blizzard Accounts.")
-			else:
+			elif not request.user.is_staff:
 				user_owns_blizzard_account = request.user.blizzard_accounts.filter(
 					region__exact=int(supplied_params["Region"]),
 					account_lo__exact=int(supplied_params["account_lo"])
