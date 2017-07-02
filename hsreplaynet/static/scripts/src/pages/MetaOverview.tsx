@@ -115,7 +115,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					<PremiumWrapper isPremium={this.props.user.isPremium()}>
 						<h2>Rank range</h2>
 						<InfoboxFilterGroup
-							disabled
 							locked={!this.props.user.isPremium()}
 							selectedValue={this.props.rankRange}
 							onClick={(value) => this.props.setRankRange(value)}
@@ -138,7 +137,11 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 								<DataInjector
 									dataManager={this.dataManager}
 									query={{
-										params: {GameType: this.props.gameType, TimeFrame: this.props.timeFrame},
+										params: {
+											GameType: this.props.gameType,
+											RankRange: this.props.rankRange,
+											TimeRange: this.props.timeFrame,
+										},
 										url: "head_to_head_archetype_matchups",
 									}}>
 									<ArchetypeMatrix/>
