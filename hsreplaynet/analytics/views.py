@@ -131,7 +131,7 @@ def fetch_query_results(request, name):
 	if issubclass(parameterized_query.__class__, HttpResponse):
 		return parameterized_query
 
-	return _fetch_query_results(parameterized_query)
+	return _fetch_query_results(parameterized_query, user=request.user)
 
 
 @staff_member_required
@@ -144,10 +144,10 @@ def fetch_local_query_results(request, name):
 	# repeated attempts to run it on lambda are causing it's in-flight status
 	# to always be true.
 	parameterized_query = _get_query_and_params(request, name)
-	return _fetch_query_results(parameterized_query, run_local=True)
+	return _fetch_query_results(parameterized_query, run_local=True, user=request.user)
 
 
-def _fetch_query_results(parameterized_query, run_local=False):
+def _fetch_query_results(parameterized_query, run_local=False, user=None):
 	cache_is_populated = parameterized_query.cache_is_populated
 	is_cache_hit = parameterized_query.result_available
 	triggered_refresh = False
@@ -183,10 +183,20 @@ def _fetch_query_results(parameterized_query, run_local=False):
 			json_dumps_params=json_params
 		)
 	elif cache_is_populated and parameterized_query.is_global:
-		# There is no content for this permutation of parameters
-		# For deck related queries this most likely means that someone hand crafted the URL
-		# Or if it's a card related query, then it's a corner case where there is no data
-		response = HttpResponse(status=204)
+		user_is_premium = user and user.is_premium
+		if parameterized_query.is_personalized and user_is_premium:
+			# Premium users should have cache entries even if the result set is empty
+			# So we should only reach this block if the user just subscribed
+			# And we haven't rerun the global query yet.
+			triggered_refresh = True
+			attempt_request_triggered_query_execution(parameterized_query, run_local)
+			result = {"msg": "Query is processing. Check back later."}
+			response = JsonResponse(result, status=202)
+		else:
+			# There is no content for this permutation of parameters
+			# For deck related queries this most likely means that someone hand crafted the URL
+			# Or if it's a card related query, then it's a corner case where there is no data
+			response = HttpResponse(status=204)
 	else:
 		# The cache is not populated yet for this query.
 		# Perhaps it's a new query or perhaps the cache was recently flushed.
