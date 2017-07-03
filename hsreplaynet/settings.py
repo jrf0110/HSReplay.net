@@ -310,7 +310,7 @@ HSTRACKER_DOWNLOAD_URL = "https://hsdecktracker.net/hstracker/download/?%s" % (H
 INFLUX_ENABLED = True
 UPLOAD_USER_AGENT_BLACKLIST = ()
 
-# WARNING: To change this it must also be updated in isolated.uploaders.py
+S3_DESCRIPTORS_BUCKET = "hsreplaynet-descriptors"
 S3_RAW_LOG_UPLOAD_BUCKET = "hsreplaynet-uploads"
 
 KINESIS_UPLOAD_PROCESSING_STREAM_NAME = "replay-upload-processing-stream"
@@ -323,8 +323,6 @@ KINESIS_STREAM_PROCESSING_THROUGHPUT_SLA_SECONDS = 600
 
 LAMBDA_DEFAULT_EXECUTION_ROLE_NAME = "iam_lambda_execution_role"
 LAMBDA_PRIVATE_EXECUTION_ROLE_NAME = "iam_lambda_private_vpc_execution_role"
-# Orphan descriptor.json files created this many days previously will be automatically reaped.
-LAMBDA_ORPHAN_REAPING_DELAY_DAYS = 3
 
 # How much memory we give to Lambda processing instances by default
 # They only need 128MB but higher memory = better CPU (= less processing time)

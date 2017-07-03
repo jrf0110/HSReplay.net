@@ -181,7 +181,7 @@ class RawUpload(object):
 			self.state = RawUploadState.NEW
 			# Lazy-loaded from S3
 			self._descriptor = None
-			self.descriptor_key = "raw/%s/%s.descriptor.json" % (groups["ts"], self.shortid)
+			self.descriptor_key = "descriptors/%s.json" % (self.shortid)
 		elif groups["prefix"] == "uploads":
 			self.state = RawUploadState.HAS_UPLOAD_EVENT
 			self.descriptor_key = ""
@@ -212,7 +212,9 @@ class RawUpload(object):
 			aws.S3.delete_object(Bucket=self.bucket, Key=self.log_key)
 
 			if self.descriptor_key:
-				aws.S3.delete_object(Bucket=self.bucket, Key=self.descriptor_key)
+				aws.S3.delete_object(
+					Bucket=settings.S3_DESCRIPTORS_BUCKET, Key=self.descriptor_key
+				)
 
 	@staticmethod
 	def from_s3_event(event):
@@ -280,7 +282,9 @@ class RawUpload(object):
 		return self._descriptor
 
 	def _load_descriptor_from_s3(self, key):
-		obj = aws.S3.get_object(Bucket=self.bucket, Key=self.descriptor_key)
+		obj = aws.S3.get_object(
+			Bucket=settings.S3_DESCRIPTORS_BUCKET, Key=self.descriptor_key
+		)
 		return obj["Body"].read().decode("utf-8")
 
 
