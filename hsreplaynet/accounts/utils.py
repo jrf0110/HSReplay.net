@@ -33,7 +33,7 @@ def merge_users(base_user, user):
 	do_queryset(user.socialaccount_set)
 
 	# Webhooks
-	do_queryset(user.webhooks)
+	do_queryset(user.webhook_endpoints)
 
 	# Stripe customers
 
