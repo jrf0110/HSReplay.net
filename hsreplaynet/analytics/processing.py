@@ -4,20 +4,16 @@ import time
 from collections import defaultdict
 from datetime import timedelta
 from django.conf import settings
-from django.core.cache import caches
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 from hearthstone.enums import BnetGameType
 from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_
 from hearthsim_identity.accounts.models import BlizzardAccount
-from hsredshift.analytics.queries import RedshiftCatalogue
 from hsreplaynet.utils import log
+from hsreplaynet.utils.aws import redshift
 from hsreplaynet.utils.aws.clients import LAMBDA
 from hsreplaynet.utils.aws.sqs import write_messages_to_queue
 from hsreplaynet.utils.influx import influx_metric
@@ -63,7 +59,7 @@ def _do_execute_query(parameterized_query, wlm_queue=None):
 	# Distributed dog pile lock pattern
 	# From: https://pypi.python.org/pypi/python-redis-lock
 	log.info("About to attempt acquiring lock...")
-	redis_client = get_redshift_cache_redis_client()
+	redis_client = redshift.get_redshift_cache_redis_client()
 
 	with RedisLock(redis_client, parameterized_query.cache_key, expire=300):
 		# Get a lock with a 5-minute lifetime since that's the maximum duration of a Lambda
@@ -109,7 +105,7 @@ def _do_execute_query_work(parameterized_query, wlm_queue=None):
 
 
 def evict_locks_cache(params):
-	redis_client = get_redshift_cache_redis_client()
+	redis_client = redshift.get_redshift_cache_redis_client()
 	lock_signal_key = _get_lock_signal_key(params.cache_key)
 	redis_client.delete(lock_signal_key)
 
@@ -120,44 +116,9 @@ def _get_lock_signal_key(cache_key):
 
 def _lock_exists(cache_key):
 	lock_signal_key = _get_lock_signal_key(cache_key)
-	redis_client = get_redshift_cache_redis_client()
+	redis_client = redshift.get_redshift_cache_redis_client()
 	lock_signal = redis_client.get(lock_signal_key)
 	return lock_signal is not None
-
-
-def get_redshift_cache():
-	return caches["redshift"]
-
-
-def get_redshift_cache_redis_client():
-	return get_redshift_cache().client.get_client()
-
-
-def get_redshift_engine():
-	return create_engine(
-		settings.REDSHIFT_CONNECTION,
-		poolclass=NullPool,
-		connect_args={"sslmode": "disable"}
-	)
-
-
-def get_redshift_catalogue():
-	cache = get_redshift_cache_redis_client()
-	engine = get_redshift_engine()
-	return RedshiftCatalogue.instance(cache, engine)
-
-
-def get_new_redshift_connection(autocommit=True):
-	conn = get_redshift_engine().connect()
-	if autocommit:
-		conn.execution_options(isolation_level="AUTOCOMMIT")
-	return conn
-
-
-def get_new_redshift_session():
-	Session = sessionmaker()
-	session = Session(bind=get_new_redshift_connection())
-	return session
 
 
 class PremiumUserCacheWarmingContext:
@@ -224,7 +185,7 @@ def run_local_warm_queries(eligible_queries=None):
 	msg = "%i permutations remain after filtering fresh queries" % len(stale_queries)
 	log.info(msg)
 	for msg in stale_queries:
-		query = get_redshift_catalogue().get_query(msg["query_name"])
+		query = redshift.get_redshift_query(msg["query_name"])
 		parameterized_query = query.build_full_params(msg["supplied_parameters"])
 		execute_query(parameterized_query, run_local=True)
 
@@ -242,7 +203,7 @@ def synchronize_all_premium_users():
 
 def _get_premium_accounts():
 	from hsredshift.etl.models import premium_account
-	session = get_new_redshift_session()
+	session = redshift.get_new_redshift_session()
 	premium_accounts_query = session.query(premium_account).all()
 
 	premium_accounts = defaultdict(lambda: defaultdict(dict))
@@ -256,7 +217,7 @@ def synchronize_redshift_premium_accounts_for_user(users):
 	# To be called whenever a new premium subscription is created.
 	from hsredshift.etl.models import premium_account
 	all_premium_accounts = _get_premium_accounts()
-	session = get_new_redshift_session()
+	session = redshift.get_new_redshift_session()
 	for user in users:
 		premium_accounts = all_premium_accounts[user.id]
 		if user.is_premium:
@@ -332,7 +293,7 @@ def get_personalized_queries_for_cache_warming(
 	eligible_queries=None,
 	catalogue=None
 ):
-	redshift_catalogue = catalogue if catalogue else get_redshift_catalogue()
+	redshift_catalogue = catalogue if catalogue else redshift.get_redshift_catalogue()
 	queries = []
 	for query in redshift_catalogue.personalized_queries:
 		is_eligible = eligible_queries is None or query.name in eligible_queries
@@ -377,7 +338,7 @@ def filter_freshly_cached_queries(messages):
 
 	result = []
 	for msg in messages:
-		query = get_redshift_catalogue().get_query(msg["query_name"])
+		query = redshift.get_redshift_query(msg["query_name"])
 		parameterized_query = query.build_full_params(msg["supplied_parameters"])
 
 		if not parameterized_query.result_available or parameterized_query.result_is_stale:
@@ -389,7 +350,7 @@ def filter_freshly_cached_queries(messages):
 
 def get_queries_for_cache_warming(eligible_queries=None):
 	queries = []
-	for query in get_redshift_catalogue().cache_warm_eligible_queries:
+	for query in redshift.get_redshift_catalogue().cache_warm_eligible_queries:
 		is_eligible = eligible_queries is None or query.name in eligible_queries
 		if is_eligible:
 			for permutation in query.generate_cachable_parameter_permutations():
@@ -403,7 +364,7 @@ def get_queries_for_cache_warming(eligible_queries=None):
 def get_concurrent_redshift_query_queue_semaphore(queue_name):
 	concurrency = settings.REDSHIFT_QUERY_QUEUES[queue_name]["concurrency"]
 	concurrent_redshift_query_semaphore = Semaphore(
-		get_redshift_cache_redis_client(),
+		redshift.get_redshift_cache_redis_client(),
 		count=concurrency,
 		namespace=queue_name,
 		stale_client_timeout=300,

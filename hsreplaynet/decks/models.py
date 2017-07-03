@@ -12,8 +12,8 @@ from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from shortuuid.main import int_to_string, string_to_int
-from hsreplaynet.analytics.processing import get_redshift_catalogue
 from hsreplaynet.utils import log
+from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.db import dictfetchall
 
 
@@ -303,7 +303,7 @@ class ArchetypeManager(models.Manager):
 			return None
 
 	def _get_deck_observation_counts_from_redshift(self, format):
-		query = get_redshift_catalogue().get_query("list_decks_by_win_rate")
+		query = get_redshift_query("list_decks_by_win_rate")
 		if format == enums.FormatType.FT_STANDARD:
 			paramiterized_query = query.build_full_params(dict(
 				TimeRange="LAST_30_DAYS",

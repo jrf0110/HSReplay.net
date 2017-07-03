@@ -9,9 +9,9 @@ from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet.decks.models import Deck
 from hsreplaynet.utils import influx, log
+from hsreplaynet.utils.aws.redshift import get_redshift_query
 from .processing import (
 	evict_locks_cache, execute_query, get_concurrent_redshift_query_queue_semaphore,
-	get_redshift_catalogue
 )
 
 
@@ -51,7 +51,7 @@ def fetch_query_result_as_of(request, name):
 
 
 def _get_query_and_params(request, name):
-	query = get_redshift_catalogue().get_query(name)
+	query = get_redshift_query(name)
 	if not query:
 		raise Http404("No query named: %s" % name)
 

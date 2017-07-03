@@ -5,11 +5,11 @@ from threading import Thread
 from django.conf import settings
 from redis_semaphore import NotAvailable
 from hsreplaynet.analytics.processing import (
-	_do_execute_query, get_concurrent_redshift_query_queue_semaphore,
-	get_redshift_catalogue
+	_do_execute_query, get_concurrent_redshift_query_queue_semaphore
 )
 from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import SQS
+from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.aws.sqs import get_messages, get_or_create_queue
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.synchronization import CountDownLatch
@@ -132,7 +132,7 @@ def do_execute_redshift_query(query_name, supplied_params, queue_name):
 	logger.info("Query Name: %s" % query_name)
 	logger.info("Query Params: %s" % supplied_params)
 
-	query = get_redshift_catalogue().get_query(query_name)
+	query = get_redshift_query(query_name)
 	if not query:
 		return False
 
