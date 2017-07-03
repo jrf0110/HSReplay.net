@@ -34,8 +34,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('premium', models.BooleanField()),
-                ('card', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cards.Card')),
-                ('pack', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='packs.Pack')),
+                ('card', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='cards.Card')),
+                ('pack', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='packs.Pack')),
             ],
         ),
         migrations.AddField(

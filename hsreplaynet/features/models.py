@@ -124,7 +124,8 @@ class FeatureInvite(models.Model):
 		blank=True, null=True, help_text="No longer valid after this date."
 	)
 	subscribe_to = models.ForeignKey(
-		"djstripe.Plan", null=True, blank=True, help_text="Auto subscribe to this Stripe Plan"
+		"djstripe.Plan", on_delete=models.SET_NULL, null=True, blank=True,
+		help_text="Auto subscribe to this Stripe Plan"
 	)
 	coupon = models.CharField(max_length=500, blank=True, help_text="Redeem a Stripe Coupon")
 	description = models.TextField(blank=True)

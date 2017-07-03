@@ -9,7 +9,7 @@ class Article(models.Model):
 	slug = models.SlugField(max_length=200)
 	contents = models.TextField(blank=True)
 	excerpt = models.TextField(blank=True, help_text="Defaults to the first paragraph")
-	author = models.ForeignKey(settings.AUTH_USER_MODEL)
+	author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
 	draft = models.BooleanField(default=False, help_text="Drafts are only visible to staff.")
 	listed = models.BooleanField(default=True, help_text="Whether the post appears in lists.")

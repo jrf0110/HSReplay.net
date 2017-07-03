@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
+import django.core.serializers.json
 import django.db.models.deletion
 import django_intenum
 import hsreplaynet.webhooks.models
@@ -99,7 +100,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='webhook',
             name='payload',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default={}),
+            field=django.contrib.postgres.fields.jsonb.JSONField(default={}, encoder=django.core.serializers.json.DjangoJSONEncoder),
             preserve_default=False,
         ),
         migrations.AddField(

@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='featureinvite',
             name='subscribe_to',
-            field=models.ForeignKey(blank=True, help_text='Auto subscribe to this Stripe Plan', null=True, on_delete=django.db.models.deletion.CASCADE, to='djstripe.Plan'),
+            field=models.ForeignKey(blank=True, help_text='Auto subscribe to this Stripe Plan', null=True, on_delete=django.db.models.deletion.SET_NULL, to='djstripe.Plan'),
         ),
         migrations.AlterField(
             model_name='feature',
