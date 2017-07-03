@@ -18,7 +18,7 @@ meta_overview = views.MetaOverviewView.as_view()
 
 
 urlpatterns = [
-	url(r"^archetypes/$", archetype_detail, name="archetype_detail"),
+	url(r"^archetypes/(?P<id>\w+)/(?P<slug>\w+)?$", archetype_detail, name="archetype_detail"),
 	url(r"^cards/$", card_stats, name="card_stats"),
 	url(r"^cards/editor/", card_editor, name="card_editor"),
 	url(r"^cards/mine/$", my_card_stats, name="my_card_stats"),

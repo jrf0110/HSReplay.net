@@ -23,9 +23,23 @@ class MetaOverviewView(LoginRequiredMixin, TemplateView):
 # Archetype pages
 
 @method_decorator(view_requires_feature_access("archetype-detail"), name="dispatch")
-class ArchetypeDetailView(LoginRequiredMixin, TemplateView):
+class ArchetypeDetailView(LoginRequiredMixin, View):
 	template_name = "archetypes/archetype_detail.html"
 	title = "Archetype"
+
+	def get(self, request, id, slug):
+		try:
+			archetype = Archetype.objects.get_by_id(id)
+		except Archetype.DoesNotExist:
+			raise Http404("Archetype does not exist.")
+
+		request.head.title = archetype.name
+
+		context = {
+			"archetype": archetype
+		}
+
+		return render(request, self.template_name, context)
 
 
 ##
