@@ -12,6 +12,7 @@ class IncludeInline(admin.TabularInline):
 class DeckAdmin(admin.ModelAdmin):
 	list_display = ("__str__", "archetype", "created")
 	inlines = (IncludeInline, )
+	readonly_fields = ("shortid", )
 
 	def get_ordering(self, request):
 		return ["-id"]
