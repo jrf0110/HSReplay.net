@@ -134,7 +134,7 @@ class Webhook(models.Model):
 	event = models.ForeignKey(
 		Event, null=True, on_delete=models.SET_NULL, related_name="webhooks"
 	)
-	payload = JSONField()
+	payload = JSONField(encoder=DjangoJSONEncoder)
 	status = IntEnumField(enum=WebhookStatus, default=WebhookStatus.UNKNOWN)
 
 	created = models.DateTimeField(auto_now_add=True)
