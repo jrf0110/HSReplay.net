@@ -42,8 +42,9 @@ interface ArchetypeDetailState {
 }
 
 interface ArchetypeDetailProps {
-	archetype?: number;
-	setArchetype?: (archetype: number) => void;
+	archetypeId: number;
+	archetypeName: string;
+	playerClass: string;
 	cardData: CardData;
 	gameType?: string;
 	setGameType?: (gameType: string) => void;
@@ -147,10 +148,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			});
 		});
 
-		if (!activeArchetypes.some((archetype) => archetype.id === this.props.archetype)) {
-			this.props.setArchetype(activeArchetypes[0].id);
-		}
-
 		this.setState({activeArchetypes});
 	}
 
@@ -188,40 +185,37 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				archetypes.push(<InfoboxFilter value={"-1"}>Unclassified</InfoboxFilter>);
 			}
 
-			if (this.props.archetype !== 0) {
+			selectedArchetype = this.state.activeArchetypes.find((a) => a.id === this.props.archetypeId);
 
-				selectedArchetype = this.state.activeArchetypes.find((a) => a.id === this.props.archetype);
-
-				const decks = this.state.decksByArchetype[this.props.archetype];
-				decks.sort((a, b) => b.total_games - a.total_games);
-				if (decks.length) {
-					chartsDeckId = decks[0].deck_id;
-				}
-				if (this.props.cardData) {
-					const deckObjs: DeckObj[] = [];
-					decks.forEach((deck) => {
-						const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
-						deckObjs.push({
-							cards: cardData,
-							deckId: deck["deck_id"],
-							duration: +deck["avg_game_length_seconds"],
-							numGames: +deck["total_games"],
-							playerClass: deck["playerClass"],
-							winrate: +deck["win_rate"],
-						});
+			const decks = this.state.decksByArchetype["" + this.props.archetypeId];
+			decks.sort((a, b) => b.total_games - a.total_games);
+			if (decks.length) {
+				chartsDeckId = decks[0].deck_id;
+			}
+			if (this.props.cardData) {
+				const deckObjs: DeckObj[] = [];
+				decks.forEach((deck) => {
+					const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
+					deckObjs.push({
+						cards: cardData,
+						deckId: deck["deck_id"],
+						duration: +deck["avg_game_length_seconds"],
+						numGames: +deck["total_games"],
+						playerClass: deck["playerClass"],
+						winrate: +deck["win_rate"],
 					});
+				});
 
-					popularDecksList = (
-						<DeckList
-							decks={deckObjs}
-							pageSize={10}
-							hideTopPager
-							user={this.props.user}
-							dataManager={this.dataManager}
-							showArchetypeSelector={true}
-						/>
-					);
-				}
+				popularDecksList = (
+					<DeckList
+						decks={deckObjs}
+						pageSize={10}
+						hideTopPager
+						user={this.props.user}
+						dataManager={this.dataManager}
+						showArchetypeSelector={true}
+					/>
+				);
 			}
 		}
 
@@ -260,10 +254,10 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 					</InfoboxFilterGroup>
 				</section>
 				<section id="archetypes">
-					<h2>Archetypes</h2>
+					<h2>Archetypes (debug)</h2>
 					<InfoboxFilterGroup
-						selectedValue={"" + this.props.archetype}
-						onClick={(value) => this.props.setArchetype(+value)}
+						selectedValue={"" + this.props.archetypeId}
+						onClick={(value) => location.href = `/archetypes/${value}/`}
 					>
 						{archetypes}
 					</InfoboxFilterGroup>
@@ -364,7 +358,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								]}
 							>
 								<TableLoading dataKeys={["archetypeMatchupData", "archetypeData"]}>
-									<ArchetypeMatchups archetypeId={this.props.archetype}/>
+									<ArchetypeMatchups archetypeId={this.props.archetypeId}/>
 								</TableLoading>
 							</DataInjector>
 						</Tab>

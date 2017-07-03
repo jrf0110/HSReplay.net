@@ -2,7 +2,13 @@
 {% load render_bundle from webpack_loader %}
 
 {% block fullcontent %}
-	<div id="archetype-container"></div>
+	<div
+		id="archetype-container"
+		data-archetype-id="{{ archetype.id }}"
+		data-archetype-name="{{ archetype.name }}"
+		data-archetype-player-class="{{ archetype.player_class.name }}"
+	>
+	</div>
 	{% render_bundle "stats" %}
 	{% render_bundle "archetype_detail" %}
 {% endblock %}
