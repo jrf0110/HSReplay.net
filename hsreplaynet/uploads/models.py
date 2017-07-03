@@ -266,7 +266,15 @@ class RawUpload(object):
 
 	@property
 	def log_url(self):
-		return self._signed_url_for(self._log_key)
+		return aws.S3.generate_presigned_url(
+			"get_object",
+			Params={
+				"Bucket": self.bucket,
+				"Key": self.log_key,
+			},
+			ExpiresIn=60 * 60 * 24,
+			HttpMethod="GET"
+		)
 
 	@property
 	def descriptor(self):
@@ -278,17 +286,6 @@ class RawUpload(object):
 	def _load_descriptor_from_s3(self, key):
 		obj = aws.S3.get_object(Bucket=self.bucket, Key=self.descriptor_key)
 		return obj["Body"].read().decode("utf-8")
-
-	def _signed_url_for(self, key):
-		return aws.S3.generate_presigned_url(
-			"get_object",
-			Params={
-				"Bucket": self.bucket,
-				"Key": key
-			},
-			ExpiresIn=60 * 60 * 24,
-			HttpMethod="GET"
-		)
 
 
 def _generate_upload_path(instance, filename):
