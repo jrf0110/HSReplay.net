@@ -161,9 +161,7 @@ class RawUpload(object):
 	Represents a raw upload in S3.
 	"""
 
-	DESCRIPTOR_KEY_PATTERN = r"raw/(?P<ts>[\d/]{16})/(?P<shortid>\w{22})\.descriptor.json"
-	RAW_LOG_KEY_PATTERN = r"raw/(?P<ts>[\d/]{16})/(?P<shortid>\w{22})\.\w{5,6}.log"
-	HAS_UPLOAD_KEY_PATTERN = r"uploads/(?P<ts>[\d/]{16})/(?P<shortid>\w{22})\.power.log"
+	LOG_KEY_PATTERN = r"(?P<prefix>raw|uploads)/(?P<ts>[\d/]{16})/(?P<shortid>\w{22})\.(?:power|canary)\.log"  # noqa
 	TIMESTAMP_FORMAT = "%Y/%m/%d/%H/%M"
 
 	def __init__(self, bucket, key):
@@ -171,39 +169,27 @@ class RawUpload(object):
 		self._log_key = key
 		self.upload_event = None
 
-		if key.startswith("raw"):
-			self._state = RawUploadState.NEW
+		match = re.match(self.LOG_KEY_PATTERN, key)
+		if not match:
+			raise ValueError("Failed to match key %r to an upload pattern" % (key))
 
-			match = re.match(RawUpload.RAW_LOG_KEY_PATTERN, key)
-			if not match:
-				raise ValueError("Failed to extract shortid and timestamp from key.")
+		groups = match.groupdict()
+		self.shortid = groups["shortid"]
+		self.timestamp = datetime.strptime(groups["ts"], self.TIMESTAMP_FORMAT)
 
-			fields = match.groupdict()
-			self._shortid = fields["shortid"]
-			self._timestamp = datetime.strptime(fields["ts"], RawUpload.TIMESTAMP_FORMAT)
-
-			# These are loaded lazily from S3
+		if groups["prefix"] == "raw":
+			self.state = RawUploadState.NEW
+			# Lazy-loaded from S3
 			self._descriptor = None
-			self.descriptor_key = "raw/%s/%s.descriptor.json" % (fields["ts"], fields["shortid"])
-
-		elif key.startswith("uploads"):
-			self._state = RawUploadState.HAS_UPLOAD_EVENT
-
-			match = re.match(RawUpload.HAS_UPLOAD_KEY_PATTERN, key)
-			if not match:
-				raise ValueError("Failed to extract shortid and timestamp from key.")
-
-			fields = match.groupdict()
-			self._shortid = fields["shortid"]
-			self._timestamp = datetime.strptime(fields["ts"], RawUpload.TIMESTAMP_FORMAT)
-
-			self.upload_event = UploadEvent.objects.get(shortid=self._shortid)
+			self.descriptor_key = "raw/%s/%s.descriptor.json" % (groups["ts"], self.shortid)
+		elif groups["prefix"] == "uploads":
+			self.state = RawUploadState.HAS_UPLOAD_EVENT
+			self.descriptor_key = ""
+			self.upload_event = UploadEvent.objects.get(shortid=self.shortid)
 			self.descriptor_json = self.upload_event.descriptor_data
 			self._descriptor = json.loads(self.descriptor_json)
-			self.descriptor_key = ""
-
 		else:
-			raise ValueError("Invalid key pattern: %r" % (key))
+			assert False
 
 		# If this is changed to True before this RawUpload is sent to a kinesis stream
 		# Then the kinesis lambda will attempt to reprocess instead of exiting early
@@ -275,10 +261,6 @@ class RawUpload(object):
 		return self.shortid
 
 	@property
-	def state(self):
-		return self._state
-
-	@property
 	def log_key(self):
 		return self._log_key
 
@@ -307,14 +289,6 @@ class RawUpload(object):
 			ExpiresIn=60 * 60 * 24,
 			HttpMethod="GET"
 		)
-
-	@property
-	def shortid(self):
-		return self._shortid
-
-	@property
-	def timestamp(self):
-		return self._timestamp
 
 
 def _generate_upload_path(instance, filename):
