@@ -166,7 +166,7 @@ class RawUpload(object):
 
 	def __init__(self, bucket, key):
 		self.bucket = bucket
-		self._log_key = key
+		self.log_key = key
 		self.upload_event = None
 
 		match = re.match(self.LOG_KEY_PATTERN, key)
@@ -259,10 +259,6 @@ class RawUpload(object):
 	def kinesis_partition_key(self):
 		# The partition key is also used as the tracing ID
 		return self.shortid
-
-	@property
-	def log_key(self):
-		return self._log_key
 
 	@property
 	def log_url(self):
