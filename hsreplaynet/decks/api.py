@@ -46,12 +46,13 @@ class DeckSerializer(serializers.ModelSerializer):
 		queryset=Archetype.objects.all(),
 		allow_null=True
 	)
+	digest = serializers.CharField(read_only=True)
 	shortid = serializers.CharField(read_only=True)
 	cards = serializers.SerializerMethodField(read_only=True)
 
 	class Meta:
 		model = Deck
-		fields = ("archetype", "shortid", "cards")
+		fields = ("archetype", "shortid", "cards", "digest")
 
 	def get_cards(self, value):
 		return value.cards.values_list("dbf_id", flat=True)
