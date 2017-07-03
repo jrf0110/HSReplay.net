@@ -34,4 +34,4 @@ def sync_premium_accounts_for_subscription(event, event_data, event_type, event_
 	)
 	if event.customer and event.customer.subscriber:
 		user = event.customer.subscriber
-		synchronize_redshift_premium_accounts_for_user(user)
+		synchronize_redshift_premium_accounts_for_user([user])

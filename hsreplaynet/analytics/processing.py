@@ -232,69 +232,79 @@ def run_local_warm_queries(eligible_queries=None):
 def synchronize_all_premium_users():
 	# To be called at the start (or end) of each ETL cycle
 	from djstripe.models import Subscription
+	users = []
 	for subscription in Subscription.objects.all():
 		user = subscription.customer.subscriber
-		synchronize_redshift_premium_accounts_for_user(user)
+		if user.is_premium:
+			users.append(user)
+	synchronize_redshift_premium_accounts_for_user(users)
 
 
-def synchronize_redshift_premium_accounts_for_user(user):
-	# To be called whenever a new premium subscription is created.
+def _get_premium_accounts():
 	from hsredshift.etl.models import premium_account
 	session = get_new_redshift_session()
-	premium_accounts_query = session.query(premium_account).filter(
-		premium_account.c.user_id == user.id
-	).all()
+	premium_accounts_query = session.query(premium_account).all()
 
-	premium_accounts = defaultdict(dict)
+	premium_accounts = defaultdict(lambda: defaultdict(dict))
 	for pa in premium_accounts_query:
-		premium_accounts[pa.region][pa.account_lo] = pa
+		premium_accounts[pa.user_id][pa.region][pa.account_lo] = pa
 
-	if user.is_premium:
-		# User is currently premium
-		# Any BlizzardAccounts attached to user without a premium_account must be created
-		for ba in user.blizzard_accounts.all():
-			if ba.account_lo not in premium_accounts[ba.region]:
+	return premium_accounts
 
-				# Ensure no other records exist for this hi/lo pair
-				# This could happen if the BlizzardAccount was previously linked to a
-				# diff user and then got updated to point to the current user
-				session.execute(premium_account.delete().where(and_(
-					premium_account.c.region == int(ba.region),
-					premium_account.c.account_lo == ba.account_lo
-				)))
 
-				inserted_at = timezone.now()
-				insert_stmt = premium_account.insert().values({
-					"user_id": user.id,
-					"region": int(ba.region),
-					"account_lo": ba.account_lo,
-					"created": inserted_at,
-					"modified": inserted_at,
-					"active": True
-				})
-				session.execute(insert_stmt)
+def synchronize_redshift_premium_accounts_for_user(users):
+	# To be called whenever a new premium subscription is created.
+	from hsredshift.etl.models import premium_account
+	all_premium_accounts = _get_premium_accounts()
+	session = get_new_redshift_session()
+	for user in users:
+		premium_accounts = all_premium_accounts[user.id]
+		if user.is_premium:
+			# User is currently premium
+			# Any BlizzardAccounts attached to user without a premium_account must be created
+			for ba in user.blizzard_accounts.all():
+				if ba.account_lo not in premium_accounts[ba.region]:
 
-		# All premium_account records must be updated to active = True
-		update_stmt = premium_account.update().where(and_(
-			premium_account.c.user_id == user.id,
-			premium_account.c.active == False  # NOQA
-		)).values(dict(active=True, modified=timezone.now()))
-		session.execute(update_stmt)
+					# Ensure no other records exist for this hi/lo pair
+					# This could happen if the BlizzardAccount was previously linked to a
+					# diff user and then got updated to point to the current user
+					session.execute(premium_account.delete().where(and_(
+						premium_account.c.region == int(ba.region),
+						premium_account.c.account_lo == ba.account_lo
+					)))
 
-	else:
-		# User is not currently premium
-		# All premium_account records with this user_id must be updated to active = False
-		update_stmt = premium_account.update().where(and_(
-			premium_account.c.user_id == user.id,
-			premium_account.c.active == True  # NOQA
-		)).values(dict(active=False, modified=timezone.now()))
-		session.execute(update_stmt)
+					inserted_at = timezone.now()
+					insert_stmt = premium_account.insert().values({
+						"user_id": user.id,
+						"region": int(ba.region),
+						"account_lo": ba.account_lo,
+						"created": inserted_at,
+						"modified": inserted_at,
+						"active": True
+					})
+					session.execute(insert_stmt)
+
+			# All premium_account records must be updated to active = True
+			update_stmt = premium_account.update().where(and_(
+				premium_account.c.user_id == user.id,
+				premium_account.c.active == False  # NOQA
+			)).values(dict(active=True, modified=timezone.now()))
+			session.execute(update_stmt)
+
+		else:
+			# User is not currently premium
+			# All premium_account records with this user_id must be updated to active = False
+			update_stmt = premium_account.update().where(and_(
+				premium_account.c.user_id == user.id,
+				premium_account.c.active == True  # NOQA
+			)).values(dict(active=False, modified=timezone.now()))
+			session.execute(update_stmt)
 
 
 @receiver(models.signals.post_save, sender=BlizzardAccount)
 def sync_blizzard_account_to_redshift(sender, instance, **kwargs):
 	if instance.user and instance.user.is_premium:
-		synchronize_redshift_premium_accounts_for_user(instance.user)
+		synchronize_redshift_premium_accounts_for_user([instance.user])
 
 
 def fill_personalized_query_queue(contexts, eligible_queries=None):
