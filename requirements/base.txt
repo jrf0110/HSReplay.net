@@ -26,3 +26,8 @@ django-redis==4.8.0
 python-redis-lock[django]==3.2.0
 redis-semaphore==0.2.2
 https://github.com/HearthSim/hsredshift/archive/master.tar.gz
+
+# stripe
+
+https://github.com/jleclanche/dj-stripe/archive/master.tar.gz
+https://github.com/jleclanche/django-polymorphic/archive/master.tar.gz

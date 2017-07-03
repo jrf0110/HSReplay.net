@@ -19,7 +19,4 @@ rq==0.8.0
 
 markdown==2.6.8
 
-# stripe
 
-https://github.com/jleclanche/dj-stripe/archive/master.tar.gz
-https://github.com/jleclanche/django-polymorphic/archive/master.tar.gz
