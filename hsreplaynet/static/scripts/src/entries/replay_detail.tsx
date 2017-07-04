@@ -19,13 +19,13 @@ let shortid = document.getElementById("replay-infobox").getAttribute("data-short
 let embedder = new JoustEmbedder();
 
 const container = document.getElementById("joust-container");
-const startPaused = container.getAttribute("data-autoplay") == "false";
+const startPaused = container.getAttribute("data-autoplay") === "false";
 
 // shared url decoding
 if (location.hash) {
-	var ret = location.hash.match(/turn=(\d+)(a|b)/);
+	let ret = location.hash.match(/turn=(\d+)(a|b)/);
 	if (ret) {
-		embedder.turn = ((+ret[1]) * 2) + (+(ret[2] == "b")) - 1;
+		embedder.turn = ((+ret[1]) * 2) + (+(ret[2] === "b")) - 1;
 	}
 	ret = location.hash.match(/reveal=(0|1)/);
 	if (ret) {
@@ -65,7 +65,7 @@ function renderShareDialog() {
 					// deduplicate
 					return;
 				}
-				metrics.writePoint("shares", {count: 1, link_to_turn: linkToTurn}, {network: network});
+				metrics.writePoint("shares", {count: 1, link_to_turn: linkToTurn}, {network});
 				shared[network] = true;
 			}}
 		/>,
@@ -128,7 +128,7 @@ if (playerInfo) {
 	const cardData = new CardData();
 	cardData.load((instance) => {
 		renderPlayerInfo(instance);
-	})
+	});
 }
 
 // fullscreen button for mobile
@@ -158,7 +158,7 @@ ReactDOM.render(
 );
 
 const style = typeof window.getComputedStyle === "function" ? window.getComputedStyle(container) : {};
-if (style["display"] == "none") {
+if (style["display"] === "none") {
 	embedder.launcher.startPaused(true);
 }
 
@@ -193,5 +193,5 @@ if (banner) {
 			eventLabel: "Replay Sidebar Banner",
 			transport: "beacon",
 		});
-	})
+	});
 }
