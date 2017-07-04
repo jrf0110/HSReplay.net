@@ -3,7 +3,7 @@ from hsreplaynet.utils import log
 from hsreplaynet.utils.influx import influx_metric
 
 
-@webhooks.handler("customer.subscription.created")
+# @webhooks.handler("customer.subscription.created")
 def customer_subscription_created_handler(event, event_data, event_type, event_subtype):
 	from hsreplaynet.analytics.processing import (
 		PremiumUserCacheWarmingContext, warm_redshift_cache_for_user_context
