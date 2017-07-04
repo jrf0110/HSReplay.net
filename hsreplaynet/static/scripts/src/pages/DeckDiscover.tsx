@@ -219,6 +219,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						).reduce((a: number, b) => a + b[0] * b[1], 0) / numGames;
 				}
 				decks.push({
+					archetypeId: deck.archetype_id,
 					cards: deck.cards,
 					deckId: deck.deck_id,
 					duration: deck.avg_game_length_seconds,
