@@ -71,10 +71,6 @@ class MockRawUpload(object):
 		return self._shortid
 
 	@property
-	def source_ip(self):
-		return self._descriptor["source_ip"]
-
-	@property
 	def timestamp(self):
 		return self._timestamp
 
@@ -126,7 +122,7 @@ def do_process_raw_upload(raw_upload, is_reprocessing):
 	# Begin asserting correctness
 	created_upload_event = UploadEvent.objects.get(shortid=raw_upload.shortid)
 	assert str(created_upload_event.token.key) == str(raw_upload.auth_token.key)
-	assert created_upload_event.upload_ip == raw_upload.source_ip
+	assert created_upload_event.upload_ip == raw_upload.descriptor["source_ip"]
 
 	replay = created_upload_event.game
 	assert replay.opponent_revealed_deck is not None
