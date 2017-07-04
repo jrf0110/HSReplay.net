@@ -110,7 +110,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			debounce = this.isDebounced(key);
 		}
 
-		if (!this.props.keepDefaults && value === this.props.defaults[key]) {
+		if (!this.props.keepDefaults && _.isEqual(value, this.props.defaults[key])) {
 			value = null;
 		}
 
