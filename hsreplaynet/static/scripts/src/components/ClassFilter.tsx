@@ -23,7 +23,6 @@ interface ClassFilterProps {
 	archetypes?: any[];
 	selectedArchetypes?: string[];
 	archetypesChanged?: (archetypes: string[]) => void;
-	user?: UserData;
 }
 
 export default class ClassFilter extends React.Component<ClassFilterProps, void> {
@@ -75,7 +74,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		});
 
 		let archetypeFilter = null;
-		if (this.props.user && this.props.user.hasFeature("archetype-detail")) {
+		if (this.props.archetypes && UserData.hasFeature("archetype-detail")) {
 			archetypeFilter = (
 				<DataInjector query={{params: {}, url: "/api/v1/archetypes/"}}>
 					<ArchetypeFilter

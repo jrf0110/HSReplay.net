@@ -6,7 +6,7 @@ import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 
 const container = document.getElementById("deck-discover-container");
-const user = new UserData();
+UserData.create();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -24,11 +24,10 @@ const render = (cardData: CardData) => {
 				region: "ALL",
 				timeRange: "LAST_30_DAYS",
 			}}
-			immutable={!user.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange"] : null}
+			immutable={!UserData.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange"] : null}
 		>
 			<DeckDiscover
 				cardData={cardData}
-				user={user}
 			/>
 		</Fragments>,
 		container,

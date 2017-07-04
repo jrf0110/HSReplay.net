@@ -7,7 +7,7 @@ import Fragments from "../components/Fragments";
 
 const cardId = document.getElementById("card-info").getAttribute("data-card-id");
 const dbfId = +document.getElementById("card-info").getAttribute("data-dbf-id");
-const user = new UserData();
+UserData.create();
 
 const render = (cardData: CardData) => {
 	const card = cardData && cardData.fromDbf(dbfId);
@@ -18,14 +18,13 @@ const render = (cardData: CardData) => {
 				opponentClass: "ALL",
 				rankRange: "ALL",
 			}}
-			immutable={!user.isPremium() ? ["opponentClass", "rankRange"] : null}
+			immutable={!UserData.isPremium() ? ["opponentClass", "rankRange"] : null}
 		>
 			<CardDetail
 				card={card}
 				cardData={cardData}
 				cardId={cardId}
 				dbfId={dbfId}
-				userData={user}
 			/>
 		</Fragments>,
 		document.getElementById("card-container"),

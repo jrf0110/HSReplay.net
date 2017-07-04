@@ -8,7 +8,7 @@ import Fragments from "../components/Fragments";
 const archetypeId = document.getElementById("archetype-container").getAttribute("data-archetype-id");
 const archetypeName = document.getElementById("archetype-container").getAttribute("data-archetype-name");
 const playerClass = document.getElementById("archetype-container").getAttribute("data-archetype-player-class");
-const user = new UserData();
+UserData.create();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -21,7 +21,6 @@ const render = (cardData: CardData) => {
 		>
 			<ArchetypeDetail
 				cardData={cardData}
-				user={user}
 				archetypeId={+archetypeId}
 				archetypeName={archetypeName}
 				playerClass={playerClass}

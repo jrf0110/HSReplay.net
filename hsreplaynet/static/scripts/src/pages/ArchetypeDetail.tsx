@@ -50,7 +50,6 @@ interface ArchetypeDetailProps {
 	setGameType?: (gameType: string) => void;
 	rankRange?: string;
 	setRankRange?: (rankRange: string) => void;
-	user: UserData;
 	tab?: string;
 	setTab?: (tab: string) => void;
 }
@@ -179,7 +178,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				);
 			});
 
-			if (this.props.user.hasFeature("archetype-selection")) {
+			if (UserData.hasFeature("archetype-selection")) {
 				archetypes.push(<InfoboxFilter value={"-1"}>Unclassified</InfoboxFilter>);
 			}
 
@@ -209,7 +208,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						decks={deckObjs}
 						pageSize={10}
 						hideTopPager
-						user={this.props.user}
 						showArchetypeSelector={true}
 					/>
 				);
@@ -222,13 +220,11 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				<section id="rank-range-filter">
 					<PremiumWrapper
 						name="Deck List Rank Range"
-						isPremium={this.props.user.isPremium()}
 						infoHeader="Rank Range"
 						infoContent="Ready to climb the ladder? Check out how decks perform at certain rank ranges!"
 					>
 						<h2>Rank range</h2>
 						<InfoboxFilterGroup
-							locked={!this.props.user.isPremium()}
 							selectedValue={this.props.rankRange}
 							onClick={(value) => this.props.setRankRange(value)}
 							tabIndex={0} // TODO
@@ -335,7 +331,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						<Tab
 							label="Matchups"
 							id="matchups"
-							hidden={!this.props.user.hasFeature("deck-matchups")}
+							hidden={!UserData.hasFeature("deck-matchups")}
 						>
 							<DataInjector
 								query={[

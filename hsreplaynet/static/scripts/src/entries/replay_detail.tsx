@@ -106,7 +106,7 @@ if (deleteTarget) {
 
 // Player info
 const playerInfo = document.getElementById("infobox-players-container");
-const user = new UserData();
+UserData.create();
 if (playerInfo) {
 	const gameId = playerInfo.getAttribute("data-game-id");
 	const playerName = playerInfo.getAttribute("data-player-name");
@@ -119,7 +119,6 @@ if (playerInfo) {
 				playerName={playerName}
 				opponentName={opponentName}
 				build={build}
-				user={user}
 				cardData={cards}
 			/>,
 			playerInfo,

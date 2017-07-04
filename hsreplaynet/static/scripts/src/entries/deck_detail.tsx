@@ -10,8 +10,8 @@ const deckId = document.getElementById("deck-info").getAttribute("data-deck-id")
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
 const deckClass = document.getElementById("deck-info").getAttribute("data-deck-class");
 const heroDbfId = +document.getElementById("deck-info").getAttribute("data-hero-id");
-const user = new UserData();
-const defaultAccount = user.getDefaultAccountKey();
+UserData.create();
+const defaultAccount = UserData.getDefaultAccountKey();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -23,7 +23,7 @@ const render = (cardData: CardData) => {
 				selectedClasses: [],
 				tab: "breakdown",
 			}}
-			immutable={!user.isPremium() ? ["selectedClasses", "rankRange"] : null}
+			immutable={!UserData.isPremium() ? ["selectedClasses", "rankRange"] : null}
 		>
 			<DeckDetail
 				adminUrl={adminUrl}
@@ -32,7 +32,6 @@ const render = (cardData: CardData) => {
 				deckClass={deckClass}
 				deckId={deckId}
 				heroDbfId={heroDbfId}
-				user={user}
 			/>
 		</Fragments>,
 		document.getElementById("deck-container"),

@@ -29,7 +29,6 @@ interface DeckDiscoverState {
 
 interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<DeckDiscover> {
 	cardData: CardData;
-	user: UserData;
 	excludedCards?: string[];
 	setExcludedCards?: (excludedCards: string[]) => void;
 	gameType?: string;
@@ -170,7 +169,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					return;
 				}
 				data[key].forEach((deck) => {
-					if (this.props.user.hasFeature("archetype-detail")) {
+					if (UserData.hasFeature("archetype-detail")) {
 						if (deck.archetype_id && archetypes.every((a) => a.id !== "" + deck.archetype_id)) {
 							archetypes.push({id: "" + deck.archetype_id, playerClass: key});
 						}
@@ -266,7 +265,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						pageSize={12}
 						helpMessage="Decks require at least 1000 recorded games in the selected time frame to be listed."
 						showArchetypeSelector={this.props.archetypeSelector === "show"}
-						user={this.props.user}
 					/>
 				</Fragments>
 			);
@@ -313,7 +311,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			});
 		}
 
-		const isPremium = !!this.props.user.isPremium();
+		const isPremium = !!UserData.isPremium();
 		const premiumTabIndex = isPremium ? 0 : -1;
 
 		return (
@@ -353,13 +351,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							archetypes={this.state.availableArchetypes}
 							selectedArchetypes={this.props.archetypes}
 							archetypesChanged={(archetypes) => this.props.setArchetypes(archetypes)}
-							user={this.props.user}
 						/>
 					</section>
 					<section id="opponent-class-filter">
 						<PremiumWrapper
 							name="Deck List Opponent Selection"
-							isPremium={isPremium}
 							infoHeader="Winrate by Opponent"
 							infoContent={
 								<p>
@@ -443,13 +439,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<section id="time-frame-filter">
 						<PremiumWrapper
 							name="Deck List Time Frame"
-							isPremium={isPremium}
 							infoHeader="Time Frame"
 							infoContent="Want to see which decks are hot right now? Look at data from a time frame of your choosing!"
 						>
 							<h2>Time frame</h2>
 							<InfoboxFilterGroup
-								locked={!this.props.user.isPremium()}
+								locked={!UserData.isPremium()}
 								selectedValue={this.props.timeRange}
 								onClick={(value) => this.props.setTimeRange(value)}
 								tabIndex={premiumTabIndex}
@@ -464,13 +459,12 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<section id="rank-range-filter">
 						<PremiumWrapper
 							name="Deck List Rank Range"
-							isPremium={isPremium}
 							infoHeader="Rank Range"
 							infoContent="Ready to climb the ladder? Check out how decks perform at certain rank ranges!"
 						>
 							<h2>Rank range</h2>
 							<InfoboxFilterGroup
-								locked={!this.props.user.isPremium()}
+								locked={!UserData.isPremium()}
 								selectedValue={this.props.rankRange}
 								onClick={(value) => this.props.setRankRange(value)}
 								tabIndex={premiumTabIndex}
@@ -490,7 +484,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								params={this.getParams()}
 							/>
 						</ul>
-						{this.props.user.hasFeature("archetype-selection") && (
+						{UserData.hasFeature("archetype-selection") && (
 							<InfoboxFilterGroup
 								deselectable
 								selectedValue={this.props.archetypeSelector}
@@ -518,7 +512,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	}
 
 	getQueryName(): string {
-		return this.props.user.isPremium() ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
+		return UserData.isPremium() ? "list_decks_by_opponent_win_rate" : "list_decks_by_win_rate";
 	}
 
 	getParams(): any {

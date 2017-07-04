@@ -7,14 +7,12 @@ import { cardSorting, getFragments, getHeroCardId, toPrettyNumber, toTitleCase }
 import DataInjector from "./DataInjector";
 import ArchetypeSelector from "./ArchetypeSelector";
 import UserData from "../UserData";
-import DataManager from "../DataManager";
 import Tooltip from "./Tooltip";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
 	compareWith?: CardObj[];
 	showArchetypeSelector?: boolean;
-	user?: UserData;
 	archetypeName?: string;
 }
 
@@ -86,7 +84,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 		};
 
 		let deckName = null;
-		if (this.props.showArchetypeSelector && this.props.user && this.props.user.hasFeature("archetype-selection")) {
+		if (this.props.showArchetypeSelector && UserData.hasFeature("archetype-selection")) {
 			deckName = (
 				<DataInjector
 					query={[
@@ -98,7 +96,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				</DataInjector>
 			);
 		}
-		else if (this.props.archetypeName && this.props.user.hasFeature("archetype-detail")) {
+		else if (this.props.archetypeName && UserData.hasFeature("archetype-detail")) {
 			deckName = (
 				<span className="deck-name" style={deckNameStyle}>
 					{this.props.archetypeName}

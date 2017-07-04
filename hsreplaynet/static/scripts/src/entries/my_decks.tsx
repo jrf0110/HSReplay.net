@@ -6,8 +6,8 @@ import Fragments from "../components/Fragments";
 import MyDecks from "../pages/MyDecks";
 
 const container = document.getElementById("my-decks-container");
-const user = new UserData();
-const defaultAccount = user.getDefaultAccountKey();
+UserData.create();
+const defaultAccount = UserData.getDefaultAccountKey();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -20,11 +20,10 @@ const render = (cardData: CardData) => {
 				includedSet: "ALL",
 				playerClasses: [],
 			}}
-			immutable={!user.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange"] : null}
+			immutable={!UserData.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange"] : null}
 		>
 			<MyDecks
 				cardData={cardData}
-				user={user}
 			/>
 		</Fragments>,
 		container,

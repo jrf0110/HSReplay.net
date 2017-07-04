@@ -46,7 +46,7 @@ export default class JoustEmbedder {
 		this.launcher = launcher;
 		const release = Joust.release();
 
-		const userdata = new UserData();
+		UserData.create();
 
 		// setup RavenJS/Sentry
 		let logger = null;
@@ -56,7 +56,7 @@ export default class JoustEmbedder {
 				release,
 				environment: JOUST_RAVEN_ENVIRONMENT || "development",
 			}).install();
-			const username = userdata.getUsername();
+			const username = UserData.getUsername();
 			if (username) {
 				raven.setUserContext({username});
 			}
@@ -84,7 +84,7 @@ export default class JoustEmbedder {
 		// setup metadata
 		if (typeof launcher.selectedLocale !== "undefined" && !launcher.selectedLocale) {
 			if (!this.locale) {
-				this.locale = userdata.getLocale();
+				this.locale = UserData.getLocale();
 			}
 			launcher.locale(this.locale || "enUS");
 		}

@@ -2,10 +2,10 @@ import * as React from "react";
 import InfoIcon from "./InfoIcon";
 import {showModal} from "../Premium";
 import {ClickTouch, TooltipContent} from "./Tooltip";
+import UserData from "../UserData";
 
 interface PremiumWrapperProps {
 	name?: string; // used for tracking only
-	isPremium?: boolean;
 	iconStyle?: any;
 	infoHeader?: string;
 	infoContent?: TooltipContent | ClickTouch<TooltipContent>;
@@ -46,7 +46,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		}
 		this.setState((state, props) => ({
 			triggered: state.triggered.filter(
-				(toRemove: PremiumWrapper) => toRemove !== wrapper
+				(toRemove: PremiumWrapper) => toRemove !== wrapper,
 			),
 		}));
 	}
@@ -147,6 +147,6 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 	}
 
 	protected shouldAppear() {
-		return !this.props.isPremium;
+		return !UserData.isPremium();
 	}
 }

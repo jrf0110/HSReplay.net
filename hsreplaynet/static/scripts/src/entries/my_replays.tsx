@@ -1,12 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {image, cardArt} from "../helpers";
+import {cardArt, image} from "../helpers";
 import MyReplays from "../pages/MyReplays";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 
-const user = new UserData();
-let username = user.getUsername();
+UserData.create();
+let username = UserData.getUsername();
 
 // override username from url if available
 const query = location.search;

@@ -11,11 +11,11 @@ export default class CardData {
 	}
 
 	public load(cb: (cardData: CardData) => void) {
-		const userdata = new UserData();
-		const locale = cookie.get("joust_locale", userdata.getLocale());
+		UserData.create();
+		const locale = cookie.get("joust_locale", UserData.getLocale());
 		const hsjson = new HearthstoneJSON();
 		hsjson.getLatest(locale).then((data: any[]) => {
-			data.forEach(card => {
+			data.forEach((card) => {
 				this.modify && this.modify(card);
 				this.byDbfId[card.dbfId] = card;
 				this.byCardId[card.id] = card;

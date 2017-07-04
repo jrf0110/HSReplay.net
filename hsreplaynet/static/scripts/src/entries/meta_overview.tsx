@@ -5,7 +5,7 @@ import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import MetaOverview from "../pages/MetaOverview";
 
-const user = new UserData();
+UserData.create();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -18,7 +18,6 @@ const render = (cardData: CardData) => {
 		>
 			<MetaOverview
 				cardData={cardData}
-				user={user}
 			/>
 		</Fragments>,
 		document.getElementById("meta-overview-container"),

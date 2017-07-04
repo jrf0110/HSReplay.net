@@ -47,7 +47,6 @@ interface CardDiscoverState {
 
 interface CardDiscoverProps extends FragmentChildProps, React.ClassAttributes<CardDiscover> {
 	cardData: CardData;
-	user: UserData;
 	viewType: ViewType;
 	accounts?: Account[];
 
@@ -181,7 +180,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	getAllowedValues(): any {
-		return this.props.user.isPremium() ? this.allowedValuesPremium : this.allowedValues;
+		return UserData.isPremium() ? this.allowedValuesPremium : this.allowedValues;
 	}
 
 	onSearchScroll(): void {
@@ -579,8 +578,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		}
 		else {
-			const isPremium = !!this.props.user.isPremium();
-			const premiumTabIndex = isPremium ? 0 : -1;
+			const premiumTabIndex = UserData.isPremium() ? 0 : -1;
 			filters.push(
 				<h2>Deck Class</h2>,
 				<ClassFilter
@@ -601,13 +599,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				modeFilter,
 				<PremiumWrapper
 					name="Card List Time Frame"
-					isPremium={isPremium}
 					infoHeader="Time Frame"
 					infoContent="Get the most recent data on which cards are hot right now!"
 				>
 					<InfoboxFilterGroup
 						header="Time Frame"
-						locked={!isPremium}
+						locked={!UserData.isPremium()}
 						selectedValue={this.props.timeRange}
 						onClick={(value) => this.props.setTimeRange(value)}
 						tabIndex={premiumTabIndex}
@@ -620,13 +617,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</PremiumWrapper>,
 				<PremiumWrapper
 					name="Card List Rank Range"
-					isPremium={isPremium}
 					infoHeader="Rank Range"
 					infoContent="Check out which cards are played at certain rank ranges on the ranked ladder!"
 				>
 					<InfoboxFilterGroup
 						header="Rank Range"
-						locked={!isPremium}
+						locked={!UserData.isPremium()}
 						onClick={(value) => this.props.setRankRange(value)}
 						selectedValue={this.props.gameType !== "ARENA" && this.props.rankRange}
 						disabled={this.props.gameType === "ARENA"}
@@ -673,7 +669,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						header="Accounts"
 						selectedValue={this.props.account}
 						onClick={(value) => {
-							this.props.user.setDefaultAccount(value);
+							UserData.setDefaultAccount(value);
 							this.props.setAccount(value);
 						}}
 						tabIndex={accounts.length > 1 ? 0 : -1}

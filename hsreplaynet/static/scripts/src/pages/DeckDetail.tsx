@@ -62,7 +62,6 @@ interface DeckDetailProps {
 	deckId: string;
 	deckName?: string;
 	heroDbfId: number;
-	user: UserData;
 	tab?: string;
 	setTab?: (tab: string) => void;
 	selectedClasses?: FilterOption[];
@@ -96,7 +95,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	fetchPersonalDeckSummary(props?: DeckDetailProps) {
-		if (this.props.user.hasFeature("personal-deck-stats")) {
+		if (UserData.hasFeature("personal-deck-stats")) {
 			DataManager.get("single_account_lo_decks_summary", this.getPersonalParams(props)).then((data) => {
 				this.setState({
 					hasPeronalData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
@@ -142,7 +141,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			));
 		}
 
-		const isPremium = this.props.user.isPremium();
+		const isPremium = UserData.isPremium();
 		const premiumTabIndex = isPremium ? 0 : -1;
 
 		const premiumMulligan = (
@@ -152,11 +151,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		);
 
 		let accountFilter = null;
-		if (this.props.user.isPremium()
-			&& this.props.user.getAccounts().length > 0
-			&& this.props.user.hasFeature("personal-deck-stats")) {
+		if (isPremium && UserData.getAccounts().length > 0 && UserData.hasFeature("personal-deck-stats")) {
 			const accounts = [];
-			this.props.user.getAccounts().forEach((acc) => {
+			UserData.getAccounts().forEach((acc) => {
 				accounts.push(
 					<InfoboxFilter value={acc.region + "-" + acc.lo}>
 						{acc.display}
@@ -169,7 +166,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						header="Accounts"
 						selectedValue={this.props.account}
 						onClick={(value) => {
-							this.props.user.setDefaultAccount(value);
+							UserData.setDefaultAccount(value);
 							this.props.setAccount(value);
 						}}
 						tabIndex={accounts.length > 1 ? 0 : -1}
@@ -217,7 +214,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		let filters = null;
 		let header = null;
-		const hasPersonalData = this.props.user.hasFeature("personal-deck-stats") && this.state.hasPeronalData;
+		const hasPersonalData = UserData.hasFeature("personal-deck-stats") && this.state.hasPeronalData;
 		if (this.state.hasData === false) {
 			header = (
 				<h4 className="message-wrapper" id="message-no-data">This deck does not have enough data.</h4>
@@ -238,7 +235,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		else {
 			if (this.state.hasData !== false) {
 				filters = [
-					<PremiumWrapper name="Single Deck Opponent Selection" isPremium={isPremium}>
+					<PremiumWrapper name="Single Deck Opponent Selection">
 						<h2>Select your opponent</h2>
 						<ClassFilter
 							filters="All"
@@ -251,7 +248,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</PremiumWrapper>,
 					<PremiumWrapper
 						name="Single Deck Rank Range"
-						isPremium={isPremium}
 						infoHeader="Deck breakdown rank range"
 						infoContent={[
 							<p>Check out how this deck performs at higher ranks!</p>,
@@ -399,7 +395,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						/>
 					</HideLoading>
 				</DataInjector>
-				{this.props.user.isStaff() && this.props.adminUrl && (
+				{UserData.isStaff() && this.props.adminUrl && (
 					<ul>
 						<li>
 							<span>View in Admin</span>
@@ -409,7 +405,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						</li>
 					</ul>
 				)}
-				{this.props.user.hasFeature("archetype-selection") && (
+				{UserData.hasFeature("archetype-selection") && (
 					<ul>
 						<li>
 							<span>Archetype</span>
@@ -497,14 +493,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</span>
 							)}
 							id="my-statistics"
-							hidden={!this.props.user.hasFeature("personal-deck-stats")}
+							hidden={!UserData.hasFeature("personal-deck-stats")}
 						>
 							{this.getMyStats()}
 						</Tab>
 						<Tab
 							label="Matchups"
 							id="matchups"
-							hidden={!this.props.user.hasFeature("deck-matchups")}
+							hidden={!UserData.hasFeature("deck-matchups")}
 						>
 							<DataInjector
 								fetchCondition={this.isWildDeck() !== undefined}
@@ -542,7 +538,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</span>
 							)}
 							id="deck-counters"
-							hidden={!this.props.user.hasFeature("deck-counters")}
+							hidden={!UserData.hasFeature("deck-counters")}
 						>
 							<DataInjector
 								fetchCondition={this.isWildDeck() !== undefined}
@@ -574,7 +570,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	getMyStats(): JSX.Element {
-		if (!this.props.user.isAuthenticated()) {
+		if (!UserData.isAuthenticated()) {
 			return (
 				<div className="account-login login-bnet">
 					<p>You play this deck? Want to see card statistics based on your games?</p>

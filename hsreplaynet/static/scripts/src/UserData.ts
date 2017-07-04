@@ -29,48 +29,51 @@ export interface Account {
 }
 
 export default class UserData {
-	private _userData: UserDataProps;
-	constructor() {
-		this._userData = Object.assign({}, window["_userdata"]);
+	private static _instance: UserDataProps = null;
+
+	static create() {
+		if (this._instance === null) {
+			this._instance = Object.assign({}, window["_userdata"]);
+		}
 	}
 
-	hasFeature(feature: string): boolean {
+	static hasFeature(feature: string): boolean {
 		return !!(
-			this._userData &&
-			this._userData.features &&
-			this._userData.features[feature] &&
-			this._userData.features[feature].enabled
+			this._instance &&
+			this._instance.features &&
+			this._instance.features[feature] &&
+			this._instance.features[feature].enabled
 		);
 	}
 
-	isPremium(): boolean {
-		return !!(this._userData && this._userData.premium);
+	static isPremium(): boolean {
+		return !!(this._instance && UserData._instance.premium);
 	}
 
-	isAuthenticated(): boolean {
-		return !!(this._userData && this._userData.is_authenticated);
+	static isAuthenticated(): boolean {
+		return !!(this._instance && UserData._instance.is_authenticated);
 	}
 
-	isStaff(): boolean {
-		return !!(this._userData && this._userData.staff);
+	static isStaff(): boolean {
+		return !!(this._instance && UserData._instance.staff);
 	}
 
-	getUsername(): string|null {
-		return this._userData ? this._userData.username : null;
+	static getUsername(): string|null {
+		return this._instance ? UserData._instance.username : null;
 	}
 
-	getLocale(): string|null {
-		return this._userData ? this._userData.locale : null;
+	static getLocale(): string|null {
+		return this._instance ? UserData._instance.locale : null;
 	}
 
-	getAccounts(): Account[] {
-		if (!this._userData) {
+	static getAccounts(): Account[] {
+		if (!this._instance) {
 			return [];
 		}
-		return this._userData.accounts || [];
+		return UserData._instance.accounts || [];
 	}
 
-	getDefaultAccountKey(): string {
+	static getDefaultAccountKey(): string {
 		const accounts = this.getAccounts();
 		if (accounts.length === 0) {
 			return null;
@@ -79,7 +82,7 @@ export default class UserData {
 		return fromCookie || accounts[0].region + "-" + accounts[0].lo;
 	}
 
-	setDefaultAccount(key: string): void {
+	static setDefaultAccount(key: string): void {
 		cookie.set("default-account", key, {path: "/", expires: 365});
 	}
 

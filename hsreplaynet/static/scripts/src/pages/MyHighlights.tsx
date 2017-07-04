@@ -14,7 +14,6 @@ import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
 interface MyHighlightsProps {
 	cardData: CardData;
-	username: string;
 }
 
 export default class MyHighlights extends React.Component<MyHighlightsProps, void> {

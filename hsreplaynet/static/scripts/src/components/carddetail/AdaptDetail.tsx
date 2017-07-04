@@ -20,7 +20,6 @@ interface AdaptDetailProps {
 	data?: TableData;
 	opponentClass: string;
 	setOpponentClass: (opponentClass: string) => void;
-	userData: UserData;
 }
 
 export default class AdaptDetail extends React.Component<AdaptDetailProps, AdaptDetailState> {
@@ -104,14 +103,14 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 			<div className="container-fluid">
 				<div className="row">
 					<div className="opponent-filter-wrapper">
-						<PremiumWrapper name="Single Card Adapt Opponent Selection" isPremium={this.props.userData.isPremium()}>
+						<PremiumWrapper name="Single Card Adapt Opponent Selection">
 							<h3>Opponent class</h3>
 							<ClassFilter
 								filters="All"
 								hideAll
 								minimal
 								selectedClasses={[this.props.opponentClass as FilterOption]}
-								selectionChanged={(selected) => this.props.userData.isPremium() && this.props.setOpponentClass(selected[0])}
+								selectionChanged={(selected) => UserData.isPremium() && this.props.setOpponentClass(selected[0])}
 							/>
 						</PremiumWrapper>
 					</div>

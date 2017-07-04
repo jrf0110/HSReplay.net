@@ -1,7 +1,6 @@
 import * as React from "react";
 import CardList from "./CardList";
 import {GameReplay, GlobalGamePlayer} from "../interfaces";
-import UserData from "../UserData";
 import CardData from "../CardData";
 
 interface PlayerInfoProps {
@@ -9,7 +8,6 @@ interface PlayerInfoProps {
 	gameId: string;
 	opponentName: string;
 	playerName: string;
-	user: UserData;
 	cardData: CardData;
 }
 
@@ -42,7 +40,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 			this.setState({
 				game: json,
 			});
-		})
+		});
 	}
 
 	render(): JSX.Element {

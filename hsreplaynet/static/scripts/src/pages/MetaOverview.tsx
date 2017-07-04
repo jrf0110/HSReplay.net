@@ -39,7 +39,6 @@ interface MetaOverviewProps {
 	setRankRange?: (rankRange: string) => void;
 	timeFrame?: string;
 	setTimeFrame?: (timeFrame: string) => void;
-	user: UserData;
 }
 
 export default class MetaOverview extends React.Component<MetaOverviewProps, MetaOverviewState> {
@@ -97,7 +96,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					</InfoboxFilterGroup>
 				</section>
 				<section id="time-frame-filter">
-					<PremiumWrapper isPremium={this.props.user.isPremium()}>
+					<PremiumWrapper>
 						<h2>Time Frame</h2>
 						<InfoboxFilterGroup
 							selectedValue={this.props.timeFrame}
@@ -110,10 +109,10 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					</PremiumWrapper>
 				</section>
 				<section id="rank-range-filter">
-					<PremiumWrapper isPremium={this.props.user.isPremium()}>
+					<PremiumWrapper>
 						<h2>Rank range</h2>
 						<InfoboxFilterGroup
-							locked={!this.props.user.isPremium()}
+							locked={!UserData.isPremium()}
 							selectedValue={this.props.rankRange}
 							onClick={(value) => this.props.setRankRange(value)}
 							tabIndex={0}

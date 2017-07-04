@@ -4,7 +4,6 @@ import CardData from "../CardData";
 import CardDiscover, {ViewType} from "../pages/CardDiscover";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
-import * as Raven from "raven-js";
 
 const container = document.getElementById("card-container");
 let viewType = ViewType.STATISTICS;
@@ -20,10 +19,9 @@ switch (container.getAttribute("data-view-type")) {
 		break;
 }
 
-const user = new UserData();
-
-const availableAccounts = user.getAccounts();
-const defaultAccount = user.getDefaultAccountKey();
+UserData.create();
+const availableAccounts = UserData.getAccounts();
+const defaultAccount = UserData.getDefaultAccountKey();
 
 if (viewType === ViewType.PERSONAL && !defaultAccount) {
 	if (typeof ga === "function") {
@@ -60,11 +58,10 @@ const render = (cardData: CardData) => {
 				sortDirection: "descending",
 			}}
 			debounce="text"
-			immutable={user.isPremium() ? null : ["rankRange", "timeRange"]}
+			immutable={UserData.isPremium() ? null : ["rankRange", "timeRange"]}
 		>
 			<CardDiscover
 				cardData={cardData}
-				user={user}
 				viewType={viewType}
 				accounts={availableAccounts}
 			/>

@@ -27,7 +27,6 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	setPage?: (page: number) => void;
 	helpMessage?: string;
 	showArchetypeSelector?: boolean;
-	user?: UserData;
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -71,7 +70,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 	}
 
 	fetchArchetypeDict() {
-		if (this.props.user && this.props.user.hasFeature("archetype-detail")) {
+		if (UserData.hasFeature("archetype-detail")) {
 			DataManager.get("/api/v1/archetypes/").then((data) => {
 				if (data.results) {
 					this.setState({archetypeData: data.results});
@@ -139,7 +138,6 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					compareWith={this.props.compareWith}
 					dustCost={this.cache[deck.deckId].dust}
 					showArchetypeSelector={this.props.showArchetypeSelector}
-					user={this.props.user}
 					noGlobalData={deck.noGlobalData}
 					archetypeName={archetype && archetype.name}
 				/>,

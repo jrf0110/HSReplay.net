@@ -29,7 +29,6 @@ interface MyDecksState {
 
 interface MyDecksProps extends FragmentChildProps, React.ClassAttributes<MyDecks> {
 	cardData: CardData;
-	user: UserData;
 	excludedCards?: string[];
 	setExcludedCards?: (excludedCards: string[]) => void;
 	gameType?: string;
@@ -223,7 +222,6 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					<DeckList
 						decks={this.state.filteredDecks}
 						pageSize={12}
-						user={this.props.user}
 					/>
 				</Fragments>
 			);
@@ -248,7 +246,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 			</button>
 		);
 
-		const accounts = this.props.user.getAccounts().map((acc) => (
+		const accounts = UserData.getAccounts().map((acc) => (
 			<InfoboxFilter value={acc.region + "-" + acc.lo}>
 				{acc.display}
 			</InfoboxFilter>

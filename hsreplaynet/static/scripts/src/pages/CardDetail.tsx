@@ -58,7 +58,6 @@ interface CardDetailProps {
 	setRankRange?: (rankRange: string) => void;
 	setTab?: (tab: string) => void;
 	tab?: string;
-	userData: UserData;
 }
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
@@ -112,7 +111,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	render(): JSX.Element {
-		const isPremium = this.props.userData.isPremium();
+		const isPremium = UserData.isPremium();
 		let content = null;
 		if (this.props.card) {
 			if (!isCollectibleCard(this.props.card)) {
@@ -307,7 +306,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								>
 									<PremiumWrapper
 										name="Single Card Turn Statistics"
-										isPremium={isPremium}
 										iconStyle={{display: "none"}}
 									>
 										{turnCharts}
@@ -386,7 +384,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 											cardData={this.props.cardData}
 											opponentClass={this.props.opponentClass}
 											setOpponentClass={this.props.setOpponentClass}
-											userData={this.props.userData}
 										/>
 									</DataInjector>
 								</Tab>
@@ -474,7 +471,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				</InfoboxFilterGroup>
 				<PremiumWrapper
 					name="Single Card Rank Range"
-					isPremium={isPremium}
 					infoHeader="Rank range"
 					infoContent="Check out how this card performs at higher ranks!"
 				>
