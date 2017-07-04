@@ -29,9 +29,9 @@ def get_new_redshift_connection(autocommit=True):
 	return conn
 
 
-def get_new_redshift_session():
+def get_new_redshift_session(autoflush=False):
 	Session = sessionmaker()
-	session = Session(bind=get_new_redshift_connection())
+	session = Session(bind=get_new_redshift_connection(autocommit=False), autoflush=autoflush)
 	return session
 
 

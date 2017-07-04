@@ -30,8 +30,8 @@ def customer_subscription_created_handler(event, event_data, event_type, event_s
 @webhooks.handler("customer.subscription.created")
 def sync_premium_accounts_for_subscription(event, event_data, event_type, event_subtype):
 	from hsreplaynet.analytics.processing import (
-		synchronize_redshift_premium_accounts_for_user
+		enable_premium_accounts_for_users_in_redshift
 	)
 	if event.customer and event.customer.subscriber:
 		user = event.customer.subscriber
-		synchronize_redshift_premium_accounts_for_user([user])
+		enable_premium_accounts_for_users_in_redshift([user])

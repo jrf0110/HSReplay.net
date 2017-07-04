@@ -190,82 +190,48 @@ def run_local_warm_queries(eligible_queries=None):
 		execute_query(parameterized_query, run_local=True)
 
 
-def synchronize_all_premium_users():
-	# To be called at the start (or end) of each ETL cycle
+def enable_premium_accounts_in_redshift(accounts):
+	from hsredshift.etl.models import premium_account
+	session = redshift.get_new_redshift_session()
+
+	for account in accounts:
+		session.execute(premium_account.delete().where(and_(
+			premium_account.c.region == int(account.region),
+			premium_account.c.account_lo == account.account_lo,
+		)))
+
+		session.execute(premium_account.insert().values({
+			"region": int(account.region),
+			"account_lo": account.account_lo,
+			"user_id": account.user_id,
+			"as_of": timezone.now(),
+			"active": True,
+		}))
+
+	session.commit()
+	session.close()
+
+
+def enable_premium_accounts_for_users_in_redshift(users):
+	accounts = []
+	for user in users:
+		accounts.extend(user.blizzard_accounts.all())
+	enable_premium_accounts_in_redshift(accounts)
+
+
+def enable_all_premium_users_in_redshift():
 	from djstripe.models import Subscription
 	users = []
-	for subscription in Subscription.objects.all():
+	for subscription in Subscription.objects.active():
 		user = subscription.customer.subscriber
-		if user.is_premium:
-			users.append(user)
-	synchronize_redshift_premium_accounts_for_user(users)
-
-
-def _get_premium_accounts():
-	from hsredshift.etl.models import premium_account
-	session = redshift.get_new_redshift_session()
-	premium_accounts_query = session.query(premium_account).all()
-
-	premium_accounts = defaultdict(lambda: defaultdict(dict))
-	for pa in premium_accounts_query:
-		premium_accounts[pa.user_id][pa.region][pa.account_lo] = pa
-
-	return premium_accounts
-
-
-def synchronize_redshift_premium_accounts_for_user(users):
-	# To be called whenever a new premium subscription is created.
-	from hsredshift.etl.models import premium_account
-	all_premium_accounts = _get_premium_accounts()
-	session = redshift.get_new_redshift_session()
-	for user in users:
-		premium_accounts = all_premium_accounts[user.id]
-		if user.is_premium:
-			# User is currently premium
-			# Any BlizzardAccounts attached to user without a premium_account must be created
-			for ba in user.blizzard_accounts.all():
-				if ba.account_lo not in premium_accounts[ba.region]:
-
-					# Ensure no other records exist for this hi/lo pair
-					# This could happen if the BlizzardAccount was previously linked to a
-					# diff user and then got updated to point to the current user
-					session.execute(premium_account.delete().where(and_(
-						premium_account.c.region == int(ba.region),
-						premium_account.c.account_lo == ba.account_lo
-					)))
-
-					inserted_at = timezone.now()
-					insert_stmt = premium_account.insert().values({
-						"user_id": user.id,
-						"region": int(ba.region),
-						"account_lo": ba.account_lo,
-						"created": inserted_at,
-						"modified": inserted_at,
-						"active": True
-					})
-					session.execute(insert_stmt)
-
-			# All premium_account records must be updated to active = True
-			update_stmt = premium_account.update().where(and_(
-				premium_account.c.user_id == user.id,
-				premium_account.c.active == False  # NOQA
-			)).values(dict(active=True, modified=timezone.now()))
-			session.execute(update_stmt)
-
-		else:
-			# User is not currently premium
-			# All premium_account records with this user_id must be updated to active = False
-			update_stmt = premium_account.update().where(and_(
-				premium_account.c.user_id == user.id,
-				premium_account.c.active == True  # NOQA
-			)).values(dict(active=False, modified=timezone.now()))
-			session.execute(update_stmt)
+		users.append(user)
+	enable_premium_accounts_for_users_in_redshift(users)
 
 
 @receiver(models.signals.post_save, sender=BlizzardAccount)
 def sync_blizzard_account_to_redshift(sender, instance, **kwargs):
 	if instance.user and instance.user.is_premium:
-		synchronize_redshift_premium_accounts_for_user([instance.user])
+		enable_premium_accounts_in_redshift([instance])
 
 
 def fill_personalized_query_queue(contexts, eligible_queries=None):
