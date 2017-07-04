@@ -18,6 +18,7 @@ import InfoIcon from "../components/InfoIcon";
 import {decode as decodeDeckstring} from "deckstrings";
 
 interface DeckDiscoverState {
+	availableArchetypes?: string[];
 	cardSearchExcludeKey?: number;
 	cardSearchIncludeKey?: number;
 	cards?: any[];
@@ -49,6 +50,8 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setIncludedSet?: (set: string) => void;
 	archetypeSelector?: string;
 	setArchetypeSelector?: (archetypeSelector: string) => void;
+	archetypes?: string[];
+	setArchetypes?: (archetypes: string[]) => void;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -58,6 +61,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	constructor(props: DeckDiscoverProps, state: DeckDiscoverState) {
 		super(props, state);
 		this.state = {
+			availableArchetypes: [],
 			cardSearchExcludeKey: 0,
 			cardSearchIncludeKey: 0,
 			cards: null,
@@ -103,8 +107,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		return totalCost >= 100 ? "control" : (totalCost >= 80 ? "midrange" : "aggro");
 	}
 
-	getDeckElements(): Promise<any[]> {
+	getDeckElements(): Promise<any> {
 		const deckElements = [];
+		const archetypes = [];
 		const playerClasses = this.props.playerClasses;
 		const filteredCards = (key: string): any[] => {
 			const array = this.props[key] || [];
@@ -166,6 +171,14 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					return;
 				}
 				data[key].forEach((deck) => {
+					if (this.props.user.hasFeature("archetype-detail")) {
+						if (deck.archetype_id && archetypes.every((a) => a.id !== "" + deck.archetype_id)) {
+							archetypes.push({id: "" + deck.archetype_id, playerClass: key});
+						}
+						if (this.props.archetypes.length && this.props.archetypes.indexOf("" + deck.archetype_id) === -1) {
+							return;
+						}
+					}
 					const cards = cardList(JSON.parse(deck.deck_list));
 					if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 						return;
@@ -180,7 +193,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					pushDeck(deck, cards);
 				});
 			});
-			return deckElements;
+			return {archetypes, deckElements};
 		});
 	}
 
@@ -188,9 +201,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		if (!this.props.cardData) {
 			return;
 		}
-		this.getDeckElements().then(((deckElements) => {
+		this.getDeckElements().then(((data) => {
 			const decks: DeckObj[] = [];
-			deckElements.forEach((deck) => {
+			data.deckElements.forEach((deck) => {
 				let winrate = deck.win_rate;
 				let numGames = deck.total_games;
 				const opponents = this.props.opponentClasses;
@@ -215,7 +228,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					winrate,
 				});
 			});
-			this.setState({filteredDecks: decks, loading: false});
+			this.setState({availableArchetypes: data.archetypes, filteredDecks: decks, loading: false});
 		})).catch((reason) => {
 			if (reason !== "Params changed" && reason !== 202) {
 				console.error(reason);
@@ -338,6 +351,11 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							multiSelect
 							selectedClasses={this.props.playerClasses}
 							selectionChanged={(selected) => this.props.setPlayerClasses(selected)}
+							archetypes={this.state.availableArchetypes}
+							selectedArchetypes={this.props.archetypes}
+							archetypesChanged={(archetypes) => this.props.setArchetypes(archetypes)}
+							dataManager={this.dataManager}
+							user={this.props.user}
 						/>
 					</section>
 					<section id="opponent-class-filter">

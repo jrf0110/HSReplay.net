@@ -12,6 +12,7 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
+				archetypes: [],
 				archetypeSelector: "",
 				excludedCards: [],
 				gameType: "RANKED_STANDARD",
