@@ -202,6 +202,11 @@
 		}
 	}
 
+	.archetype-filter-wrapper {
+		max-height: 10em;
+		overflow-y: auto;
+	}
+
 	.search-wrapper {
 		padding: 10px;
 	}

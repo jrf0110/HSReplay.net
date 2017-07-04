@@ -1,6 +1,10 @@
 import * as React from "react";
 import {toTitleCase} from "../helpers";
 import ClassIcon from "./ClassIcon";
+import DataInjector from "./DataInjector";
+import DataManager from "../DataManager";
+import ArchetypeFilter from "./ArchetypeFilter";
+import UserData from "../UserData";
 
 export type FilterOption = "ALL" | "DRUID" | "HUNTER" | "MAGE"
 	| "PALADIN" | "PRIEST" | "ROGUE" | "SHAMAN"
@@ -17,6 +21,11 @@ interface ClassFilterProps {
 	tabIndex?: number;
 	selectedClasses: FilterOption[];
 	selectionChanged: (selected: FilterOption[]) => void;
+	archetypes?: any[];
+	selectedArchetypes?: string[];
+	archetypesChanged?: (archetypes: string[]) => void;
+	dataManager?: DataManager;
+	user?: UserData;
 }
 
 export default class ClassFilter extends React.Component<ClassFilterProps, void> {
@@ -37,6 +46,21 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		super(props);
 	}
 
+	componentWillReceiveProps(nextProps: ClassFilterProps) {
+		if (nextProps.archetypes && nextProps.archetypes.length) {
+			const archetypes = nextProps.selectedArchetypes.map((selectedArchetype) => {
+				return nextProps.archetypes.find((a) => a.id === selectedArchetype);
+			});
+
+			const newArchetypes = archetypes.filter((archetype) => {
+				return archetype && nextProps.selectedClasses.indexOf(archetype.playerClass) !== -1;
+			}).map((archetype) => archetype.id);
+			if (newArchetypes !== nextProps.selectedArchetypes) {
+				this.props.archetypesChanged(newArchetypes);
+			}
+		}
+	}
+
 	getAvailableFilters(): FilterOption[] {
 		const fromPreset = this.presets.get(this.props.filters as FilterPreset);
 		return fromPreset || this.props.filters as FilterOption[];
@@ -51,9 +75,29 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 			const selected = this.props.selectedClasses.indexOf(key) !== -1;
 			filters.push(this.buildIcon(key, selected));
 		});
-		return <div className="class-filter-wrapper">
-			{filters}
-		</div>;
+
+		let archetypeFilter = null;
+		if (this.props.dataManager && this.props.user && this.props.user.hasFeature("archetype-detail")) {
+			archetypeFilter = (
+				<DataInjector dataManager={this.props.dataManager} query={{params: {}, url: "/api/v1/archetypes/"}}>
+					<ArchetypeFilter
+						archetypes={this.props.archetypes}
+						playerClasses={this.props.selectedClasses}
+						archetypesChanged={this.props.archetypesChanged}
+						selectedArchetypes={this.props.selectedArchetypes}
+					/>
+				</DataInjector>
+			);
+		}
+
+		return (
+			<div>
+				<div className="class-filter-wrapper">
+					{filters}
+				</div>
+				{archetypeFilter}
+			</div>
+		);
 	}
 
 	buildIcon(className: FilterOption, selected: boolean): JSX.Element {
