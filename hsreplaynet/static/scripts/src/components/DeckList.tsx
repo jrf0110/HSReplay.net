@@ -10,6 +10,10 @@ import {getDustCost, getManaCost} from "../helpers";
 import UserData from "../UserData";
 import DataManager from "../DataManager";
 
+interface DeckListState {
+	archetypeData?: any[];
+}
+
 interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckList> {
 	decks: DeckObj[];
 	pageSize: number;
@@ -27,13 +31,17 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	dataManager?: DataManager;
 }
 
-export default class DeckList extends React.Component<DeckListProps, void> {
+export default class DeckList extends React.Component<DeckListProps, DeckListState> {
 	private cache: any;
 
 	constructor(props: DeckListProps, context) {
 		super(props, context);
+		this.state = {
+			archetypeData: [],
+		};
 		this.cache = {};
 		this.cacheDecks(props.decks);
+		this.fetchArchetypeDict();
 	}
 
 	componentWillReceiveProps(nextProps: DeckListProps) {
@@ -60,6 +68,16 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 				dust: getDustCost(deck.cards),
 				mana: getManaCost(deck.cards),
 			};
+		}
+	}
+
+	fetchArchetypeDict() {
+		if (this.props.dataManager && this.props.user && this.props.user.hasFeature("archetype-detail")) {
+			this.props.dataManager.get("/api/v1/archetypes/").then((data) => {
+				if (data.results) {
+					this.setState({archetypeData: data.results});
+				}
+			});
 		}
 	}
 
@@ -110,6 +128,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 		const deckTiles = [];
 		const visibleDecks = decks.slice(pageOffset, nextPageOffset);
 		visibleDecks.forEach((deck) => {
+			const archetype = this.state.archetypeData.find((x) => x.id === deck.archetypeId);
 			deckTiles.push(
 				<DeckTile
 					cards={deck.cards}
@@ -124,6 +143,7 @@ export default class DeckList extends React.Component<DeckListProps, void> {
 					dataManager={this.props.dataManager}
 					user={this.props.user}
 					noGlobalData={deck.noGlobalData}
+					archetypeName={archetype && archetype.name}
 				/>,
 			);
 		});

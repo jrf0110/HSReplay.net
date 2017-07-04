@@ -16,6 +16,7 @@ interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	showArchetypeSelector?: boolean;
 	user?: UserData;
 	dataManager?: DataManager;
+	archetypeName?: string;
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
@@ -98,6 +99,13 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				>
 					<ArchetypeSelector playerClass={this.props.playerClass}/>
 				</DataInjector>
+			);
+		}
+		else if (this.props.archetypeName && this.props.user.hasFeature("archetype-detail")) {
+			deckName = (
+				<span className="deck-name" style={deckNameStyle}>
+					{this.props.archetypeName}
+				</span>
 			);
 		}
 		else {

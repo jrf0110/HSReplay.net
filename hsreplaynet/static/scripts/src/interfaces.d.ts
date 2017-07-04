@@ -193,6 +193,7 @@ export interface DeckObj {
 	winrate: number;
 	duration: number;
 	noGlobalData?: boolean;
+	archetypeId?: number;
 }
 
 export interface CardObj {
