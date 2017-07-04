@@ -170,24 +170,21 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	raw_upload.prepare_upload_event_log_location(new_bucket, new_log_key)
 
 	upload_metadata = descriptor["upload_metadata"]
-	gateway_headers = {k.lower(): v for k, v in descriptor["gateway_headers"].items()}
-
-	if "user-agent" in gateway_headers:
-		logger.debug("User Agent: %s", gateway_headers["user-agent"])
-	else:
-		logger.debug("User Agent: UNKNOWN")
+	headers = {k.lower(): v for k, v in descriptor["event"].get("headers", {}).items()}
+	user_agent = headers.get("user-agent", "")
+	logger.debug("User Agent: %r", user_agent)
 
 	obj.file = new_log_key
 	obj.descriptor_data = raw_upload.descriptor_json
 	obj.upload_ip = descriptor["source_ip"]
 	obj.canary = "canary" in upload_metadata and upload_metadata["canary"]
-	obj.user_agent = gateway_headers.get("user-agent", "")[:100]
+	obj.user_agent = user_agent[:100]
 	obj.status = UploadEventStatus.VALIDATING
 
 	try:
 		if not obj.user_agent:
 			raise ValidationError("Missing User-Agent header")
-		header = gateway_headers.get("authorization", "")
+		header = headers.get("authorization", "")
 		token = AuthToken.get_token_from_header(header)
 		if not token:
 			msg = "Malformed or Invalid Authorization Header: %r" % (header)
@@ -195,7 +192,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 			raise ValidationError(msg)
 		obj.token = token
 
-		api_key = gateway_headers.get("x-api-key", "")
+		api_key = headers.get("x-api-key", "")
 		if not api_key:
 			raise ValidationError("Missing X-Api-Key header. Please contact us for an API key.")
 		obj.api_key = APIKey.objects.get(api_key=api_key)
