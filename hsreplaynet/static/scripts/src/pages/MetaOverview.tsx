@@ -43,8 +43,6 @@ interface MetaOverviewProps {
 }
 
 export default class MetaOverview extends React.Component<MetaOverviewProps, MetaOverviewState> {
-	private readonly dataManager: DataManager = new DataManager();
-
 	private samplesPerDay: number;
 	private nonce: number;
 
@@ -72,7 +70,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 	}
 
 	fetchArchetypeData() {
-		this.dataManager.get("head_to_head_archetype_matchups").then((data) => {
+		DataManager.get("head_to_head_archetype_matchups").then((data) => {
 			if (data && data.results) {
 				const archetypeData = data.results.filter((x) => !x.name.startsWith("Basic")).sort((a, b) => {
 					if (a.player_class === b.player_class) {
@@ -135,7 +133,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							<div className="col-lg-10 col-md-10 col-xs-12">
 								<h2 className="text-center">Matchups</h2>
 								<DataInjector
-									dataManager={this.dataManager}
 									query={{
 										params: {
 											GameType: this.props.gameType,

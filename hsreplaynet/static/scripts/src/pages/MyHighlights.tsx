@@ -9,7 +9,6 @@ import ChartLoading from "../components/loading/ChartLoading";
 import TableLoading from "../components/loading/TableLoading";
 import BiggestHits from "../components/myhighlights/BiggestHits";
 import HighlightTiles from "../components/myhighlights/HighlightTiles";
-import DataManager from "../DataManager";
 import { RenderData } from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
@@ -19,8 +18,6 @@ interface MyHighlightsProps {
 }
 
 export default class MyHighlights extends React.Component<MyHighlightsProps, void> {
-	readonly dataManager = new DataManager();
-
 	getCard(dbfId: number): any {
 		return this.props.cardData.fromDbf(dbfId || 1720);
 	}
@@ -37,7 +34,6 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 				<h2>Data</h2>
 				<ul>
 					<InfoboxLastUpdated
-						dataManager={this.dataManager}
 						url={"single_account_lo_lifetime_class_performance_over_time"}
 						params={{}}
 					/>
@@ -47,10 +43,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 				<section id="content-header">
 					<div className="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 						<div id="winrate-chart-wrapper">
-							<DataInjector
-								dataManager={this.dataManager}
-								query={{url: "single_account_lo_lifetime_class_performance_over_time", params: {}}}
-							>
+							<DataInjector query={{url: "single_account_lo_lifetime_class_performance_over_time", params: {}}}>
 								<ChartLoading noDataCondition={(data) => data.series[0].data.length < 1}>
 									<ClassArenaChart widthRatio={2}/>
 								</ChartLoading>
@@ -60,7 +53,6 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 					<div className="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 						<div id="winrate-chart-wrapper">
 							<DataInjector
-								dataManager={this.dataManager}
 								query={{url: "single_account_lo_lifetime_class_performance_over_time", params: {}}}
 								modify={(data) => this.buildWinrateChartData(data)}
 							>
@@ -79,7 +71,6 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 					<div className="tab-content">
 						<div id="highlights" className="tab-pane fade in active">
 							<DataInjector
-								dataManager={this.dataManager}
 								query={[
 									{key: "cardStats", url: "single_account_lo_individual_card_stats", params: {}},
 									{key: "ranks", url: "single_account_lo_best_rank_by_season", params: {}},
@@ -91,7 +82,7 @@ export default class MyHighlights extends React.Component<MyHighlightsProps, voi
 							</DataInjector>
 						</div>
 						<div id="biggesthits" className="tab-pane fade">
-							<DataInjector dataManager={this.dataManager} query={{url: "single_account_lo_biggest_hits", params: {}}}>
+							<DataInjector query={{url: "single_account_lo_biggest_hits", params: {}}}>
 								<TableLoading cardData={this.props.cardData}>
 									<BiggestHits/>
 								</TableLoading>

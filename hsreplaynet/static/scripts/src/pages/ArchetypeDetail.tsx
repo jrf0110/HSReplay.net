@@ -56,8 +56,6 @@ interface ArchetypeDetailProps {
 }
 
 export default class ArchetypeDetail extends React.Component<ArchetypeDetailProps, ArchetypeDetailState> {
-	private readonly dataManager: DataManager = new DataManager();
-
 	constructor(props: ArchetypeDetailProps, state: ArchetypeDetailState) {
 		super(props, state);
 		this.state = {
@@ -73,7 +71,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 	}
 
 	fetchArchetypeData() {
-		this.dataManager.get("/api/v1/archetypes/").then((data) => {
+		DataManager.get("/api/v1/archetypes/").then((data) => {
 			if (data && data.results) {
 				const archetypeData = data.results.filter((x) => !x.name.startsWith("Basic")).sort((a, b) => {
 					if (a.player_class === b.player_class) {
@@ -89,7 +87,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 
 	fetchDeckData() {
 		const params = {GameType: this.props.gameType, RankRange: this.props.rankRange, TimeRange: "LAST_30_DAYS"};
-		this.dataManager.get("list_decks_by_win_rate", params).then((data) => {
+		DataManager.get("list_decks_by_win_rate", params).then((data) => {
 			if (data && data.series.data) {
 				const decksByArchetype: DecksByArchetype = {};
 				Object.keys(data.series.data).forEach((playerClass) => {
@@ -212,7 +210,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						pageSize={10}
 						hideTopPager
 						user={this.props.user}
-						dataManager={this.dataManager}
 						showArchetypeSelector={true}
 					/>
 				);
@@ -268,7 +265,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
 							<DataInjector
-								dataManager={this.dataManager}
 								fetchCondition={!!chartsDeckId}
 								query={{url: "single_deck_stats_over_time", params: {GameType: "RANKED_STANDARD", RankRange: "ALL", deck_id: chartsDeckId}}}
 							>
@@ -288,7 +284,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
 							<DataInjector
-								dataManager={this.dataManager}
 								fetchCondition={!!chartsDeckId}
 								query={{url: "single_deck_stats_over_time", params: {GameType: "RANKED_STANDARD", RankRange: "ALL", deck_id: chartsDeckId}}}
 							>
@@ -343,7 +338,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							hidden={!this.props.user.hasFeature("deck-matchups")}
 						>
 							<DataInjector
-								dataManager={this.dataManager}
 								query={[
 									{
 										key: "archetypeMatchupData",

@@ -8,7 +8,6 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
-import DataManager from "../DataManager";
 import {cardSorting, isWildSet, sortCards} from "../helpers";
 import {DeckObj, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
@@ -16,6 +15,7 @@ import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import InfoIcon from "../components/InfoIcon";
 import {decode as decodeDeckstring} from "deckstrings";
+import DataManager from "../DataManager";
 
 interface DeckDiscoverState {
 	availableArchetypes?: string[];
@@ -56,7 +56,6 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
 	private deckListsFragmentsRef;
-	private readonly dataManager: DataManager = new DataManager();
 
 	constructor(props: DeckDiscoverProps, state: DeckDiscoverState) {
 		super(props, state);
@@ -156,10 +155,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		};
 		const params = this.getParams();
 		const query = this.getQueryName();
-		if (!this.dataManager.has(query, params)) {
+		if (!DataManager.has(query, params)) {
 			this.setState({loading: true});
 		}
-		return this.dataManager.get(query, params).then((deckData) => {
+		return DataManager.get(query, params).then((deckData) => {
 			const newParams = this.getParams();
 			if (Object.keys(params).some((key) => params[key] !== newParams[key])) {
 				return Promise.reject("Params changed");
@@ -267,7 +266,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						pageSize={12}
 						helpMessage="Decks require at least 1000 recorded games in the selected time frame to be listed."
 						showArchetypeSelector={this.props.archetypeSelector === "show"}
-						dataManager={this.dataManager}
 						user={this.props.user}
 					/>
 				</Fragments>
@@ -355,7 +353,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							archetypes={this.state.availableArchetypes}
 							selectedArchetypes={this.props.archetypes}
 							archetypesChanged={(archetypes) => this.props.setArchetypes(archetypes)}
-							dataManager={this.dataManager}
 							user={this.props.user}
 						/>
 					</section>
@@ -489,7 +486,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 						<h2>Data</h2>
 						<ul>
 							<InfoboxLastUpdated
-								dataManager={this.dataManager}
 								url={this.getQueryName()}
 								params={this.getParams()}
 							/>

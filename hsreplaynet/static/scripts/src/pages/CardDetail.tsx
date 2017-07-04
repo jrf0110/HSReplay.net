@@ -16,7 +16,6 @@ import ChartLoading from "../components/loading/ChartLoading";
 import HideLoading from "../components/loading/HideLoading";
 import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
-import DataManager from "../DataManager";
 import {
 	getChartScheme, getDustCost, isCollectibleCard,
 	isWildSet, setNames, toPrettyNumber, toTitleCase,
@@ -63,8 +62,6 @@ interface CardDetailProps {
 }
 
 export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
-	private readonly dataManager: DataManager = new DataManager();
-
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
 		this.state = {
@@ -151,7 +148,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper">
 							<DataInjector
-								dataManager={this.dataManager}
 								query={{url: "single_card_stats_over_time", params: this.getParams()}}
 							>
 								<ChartLoading>
@@ -170,7 +166,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper">
 							<DataInjector
-								dataManager={this.dataManager}
 								query={{url: "single_card_stats_over_time", params: this.getParams()}}
 							>
 								<ChartLoading>
@@ -235,7 +230,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<div className="chart-wrapper">
 									{isPremium ?
 										<DataInjector
-											dataManager={this.dataManager}
 											query={turnStatsQuery}
 										>
 											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
@@ -253,7 +247,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<div className="chart-wrapper">
 									{isPremium ?
 										<DataInjector
-											dataManager={this.dataManager}
 											query={turnStatsQuery}
 										>
 											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
@@ -287,7 +280,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							<TabList tab={this.props.tab} setTab={this.props.setTab}>
 								<Tab label="Recommended Decks" id="recommended-decks" disabled={this.isArena()}>
 									<DataInjector
-										dataManager={this.dataManager}
 										query={{
 											params: {GameType: this.props.gameType, RankRange: this.props.rankRange},
 											url: "list_decks_by_win_rate",
@@ -325,7 +317,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									<h3>Class Distribution</h3>
 									<div id="class-chart">
 										<DataInjector
-											dataManager={this.dataManager}
 											query={{url: "single_card_class_distribution_by_include_count", params: this.getParams()}}
 										>
 											<ChartLoading>
@@ -344,7 +335,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									<div className="card-tables">
 										<h3>Most popular targets</h3>
 										<DataInjector
-											dataManager={this.dataManager}
 											query={{url: "single_card_popular_targets", params: this.getParams()}}
 											modify={(data) => this.mergeHeroes(data)}
 										>
@@ -362,7 +352,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									<div className="card-tables">
 										<h3>Most popular Discover choices</h3>
 										<DataInjector
-											dataManager={this.dataManager}
 											query={{url: "single_card_choices_by_winrate", params: this.getParams()}}
 										>
 											<TableLoading>
@@ -385,7 +374,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								</Tab>
 								<Tab label="Adapt" id="adapt" hidden={!this.cardHasAdapt()}>
 									<DataInjector
-										dataManager={this.dataManager}
 										query={{
 											params: this.getParams(),
 											url: (
@@ -411,7 +399,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									}
 								>
 									<DataInjector
-										dataManager={this.dataManager}
 										query={{params: this.getParams(), url: "quest_contributor_stats"}}
 									>
 										<QuestContributors
@@ -425,7 +412,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									hidden={!this.cardIsQuest() || this.isArena()}
 								>
 									<QuestCompletionDetail
-										dataManager={this.dataManager}
 										query={{params: this.getParams(), url: "quest_completion_stats_by_turn"}}
 									/>
 								</Tab>
@@ -512,7 +498,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						Sample size
 						<span className="infobox-value">
 							<DataInjector
-								dataManager={this.dataManager}
 								fetchCondition={!!this.props.card && isCollectibleCard(this.props.card)}
 								query={{url: "single_card_stats_over_time", params: this.getParams()}}
 								modify={(data) => {
@@ -532,7 +517,6 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						<span className="infobox-value">Last 30 days</span>
 					</li>
 					<InfoboxLastUpdated
-						dataManager={this.dataManager}
 						fetchCondition={!!this.props.card && isCollectibleCard(this.props.card)}
 						url={"single_card_stats_over_time"}
 						params={this.getParams()}

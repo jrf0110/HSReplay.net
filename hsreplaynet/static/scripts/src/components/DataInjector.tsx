@@ -1,7 +1,7 @@
 import * as React from "react";
-import DataManager from "../DataManager";
 import { cloneComponent } from "../helpers";
 import { LoadingStatus } from "../interfaces";
+import DataManager from "../DataManager";
 
 interface Data {
 	[key: string]: any;
@@ -21,7 +21,6 @@ export interface Query {
 
 interface DataInjectorProps {
 	query: Query | Query[];
-	dataManager: DataManager;
 	fetchCondition?: boolean;
 	modify?: (data: any) => any;
 }
@@ -89,7 +88,7 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 			return;
 		}
 		const query = this.getQueryArray(props)[index];
-		this.props.dataManager.get(query.url, query.params || {})
+		DataManager.get(query.url, query.params || {})
 			.then((json) => {
 				const newData = Object.assign([], this.state.data);
 				const newStatus = Object.assign([], this.state.status);

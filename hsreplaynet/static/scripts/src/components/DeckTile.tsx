@@ -15,7 +15,6 @@ interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	compareWith?: CardObj[];
 	showArchetypeSelector?: boolean;
 	user?: UserData;
-	dataManager?: DataManager;
 	archetypeName?: string;
 }
 
@@ -87,11 +86,9 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 		};
 
 		let deckName = null;
-		if (this.props.showArchetypeSelector && this.props.user
-			&& this.props.dataManager && this.props.user.hasFeature("archetype-selection")) {
+		if (this.props.showArchetypeSelector && this.props.user && this.props.user.hasFeature("archetype-selection")) {
 			deckName = (
 				<DataInjector
-					dataManager={this.props.dataManager}
 					query={[
 						{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
 						{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},

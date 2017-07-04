@@ -2,7 +2,6 @@ import * as React from "react";
 import { toPrettyNumber } from "../../helpers";
 import { TableData } from "../../interfaces";
 import InfoboxLastUpdated from "../InfoboxLastUpdated";
-import DataManager from "../../DataManager";
 
 interface DeckStatsState {
 	expandWinrate?: boolean;
@@ -10,7 +9,6 @@ interface DeckStatsState {
 
 interface DeckStatsProps {
 	data?: TableData;
-	dataManager: DataManager;
 	deckId?: string;
 	lastUpdatedParams: string;
 	lastUpdatedUrl: string;
@@ -46,7 +44,6 @@ export default class DeckStats extends React.Component<DeckStatsProps, DeckStats
 						<span className="infobox-value">Last 30 days</span>
 					</li>
 					<InfoboxLastUpdated
-						dataManager={this.props.dataManager}
 						url={this.props.lastUpdatedUrl}
 						params={this.props.lastUpdatedParams}
 					/>

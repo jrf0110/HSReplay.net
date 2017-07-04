@@ -100,7 +100,6 @@ const PLACEHOLDER_SPELL = STATIC_URL + "images/loading_spell.png";
 const PLACEHOLDER_WEAPON = STATIC_URL + "images/loading_weapon.png";
 
 export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
-	private readonly dataManager: DataManager = new DataManager();
 	readonly filters = {
 		cost: [0, 1, 2, 3, 4, 5, 6, 7],
 		format: ["standard"],
@@ -161,19 +160,19 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		this.filters.mechanics.sort();
 
 		if (this.props.viewType === ViewType.PERSONAL && this.props.account) {
-			this.dataManager.get("single_account_lo_individual_card_stats", this.getPersonalParams())
+			DataManager.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => this.setState({hasPersonalData: data && data.series.data.ALL.length > 0}));
 		}
 		else if (this.props.viewType === ViewType.STATISTICS) {
 			let played = false;
 			let included = false;
 			const updateHasData = () => played && included && this.setState({hasStatisticsData: true});
-			this.dataManager.get("card_played_popularity_report", this.getParams())
+			DataManager.get("card_played_popularity_report", this.getParams())
 				.then((data) => {
 					played = true;
 					updateHasData();
 				});
-			this.dataManager.get("card_included_popularity_report", this.getParams())
+			DataManager.get("card_included_popularity_report", this.getParams())
 				.then((data) => {
 					included = true;
 					updateHasData();
@@ -251,8 +250,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (this.props.viewType === ViewType.STATISTICS) {
 			const params = this.getParams();
 			const promises = [
-				this.dataManager.get("card_played_popularity_report", params),
-				this.dataManager.get("card_included_popularity_report", params),
+				DataManager.get("card_played_popularity_report", params),
+				DataManager.get("card_included_popularity_report", params),
 			];
 			return Promise.all(promises)
 				.then((data: any[]) => {
@@ -273,7 +272,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				});
 		}
 		else if (this.props.viewType === ViewType.PERSONAL && this.props.account) {
-			return this.dataManager
+			return DataManager
 				.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => {
 					const sparseDict = {};
@@ -328,7 +327,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				content.push(
 					<div className="table-wrapper">
 						<DataInjector
-							dataManager={this.dataManager}
 							query={{params: this.getPersonalParams(), url: "single_account_lo_individual_card_stats"}}
 						>
 							<TableLoading cardData={this.props.cardData}>
@@ -365,7 +363,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			content.push(
 				<div className="table-wrapper">
 					<DataInjector
-						dataManager={this.dataManager}
 						query={[
 							{key: "played", url: "card_played_popularity_report", params: this.getParams()},
 							{key: "included", url: "card_included_popularity_report", params: this.getParams()},
@@ -696,7 +693,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				<h2>Data</h2>,
 				<ul>
 					<InfoboxLastUpdated
-						dataManager={this.dataManager}
 						url={lastUpdatedUrl}
 						params={lastUpdatedParams}
 					/>

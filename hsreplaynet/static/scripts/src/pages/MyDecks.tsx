@@ -46,7 +46,6 @@ interface MyDecksProps extends FragmentChildProps, React.ClassAttributes<MyDecks
 
 export default class MyDecks extends React.Component<MyDecksProps, MyDecksState> {
 	private deckListsFragmentsRef;
-	private readonly dataManager: DataManager = new DataManager();
 
 	constructor(props: MyDecksProps, state: MyDecksState) {
 		super(props, state);
@@ -137,13 +136,13 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 
 		const params = this.getPersonalParams();
 
-		if (!this.dataManager.has("single_account_lo_decks_summary", params)
-			|| !this.dataManager.has("list_decks_by_win_rate", {GameType: this.props.gameType})) {
+		if (!DataManager.has("single_account_lo_decks_summary", params)
+			|| !DataManager.has("list_decks_by_win_rate", {GameType: this.props.gameType})) {
 			this.setState({loading: true});
 		}
 
-		return this.dataManager.get("list_decks_by_win_rate", {GameType: this.props.gameType}).then((deckData) => {
-			return this.dataManager.get("single_account_lo_decks_summary", params).then((data: TableData) => {
+		return DataManager.get("list_decks_by_win_rate", {GameType: this.props.gameType}).then((deckData) => {
+			return DataManager.get("single_account_lo_decks_summary", params).then((data: TableData) => {
 				if (data && data.series) {
 					Object.keys(data.series.data).forEach((playerClass) => {
 						if (this.props.playerClasses.length && this.props.playerClasses.indexOf(playerClass as FilterOption) === -1) {
@@ -224,7 +223,6 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					<DeckList
 						decks={this.state.filteredDecks}
 						pageSize={12}
-						dataManager={this.dataManager}
 						user={this.props.user}
 					/>
 				</Fragments>
@@ -416,7 +414,6 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 								<span className="infobox-value">Last 30 days</span>
 							</li>
 							<InfoboxLastUpdated
-								dataManager={this.dataManager}
 								url={"single_account_lo_decks_summary"}
 								params={this.getPersonalParams()}
 							/>

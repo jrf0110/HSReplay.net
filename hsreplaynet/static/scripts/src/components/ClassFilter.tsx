@@ -2,7 +2,6 @@ import * as React from "react";
 import {toTitleCase} from "../helpers";
 import ClassIcon from "./ClassIcon";
 import DataInjector from "./DataInjector";
-import DataManager from "../DataManager";
 import ArchetypeFilter from "./ArchetypeFilter";
 import UserData from "../UserData";
 
@@ -24,7 +23,6 @@ interface ClassFilterProps {
 	archetypes?: any[];
 	selectedArchetypes?: string[];
 	archetypesChanged?: (archetypes: string[]) => void;
-	dataManager?: DataManager;
 	user?: UserData;
 }
 
@@ -77,9 +75,9 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		});
 
 		let archetypeFilter = null;
-		if (this.props.dataManager && this.props.user && this.props.user.hasFeature("archetype-detail")) {
+		if (this.props.user && this.props.user.hasFeature("archetype-detail")) {
 			archetypeFilter = (
-				<DataInjector dataManager={this.props.dataManager} query={{params: {}, url: "/api/v1/archetypes/"}}>
+				<DataInjector query={{params: {}, url: "/api/v1/archetypes/"}}>
 					<ArchetypeFilter
 						archetypes={this.props.archetypes}
 						playerClasses={this.props.selectedClasses}

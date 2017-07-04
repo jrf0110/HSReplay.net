@@ -1,9 +1,9 @@
 export default class DataManager {
-	private readonly cache = {};
-	private readonly responses = {};
-	private readonly running = {};
+	private static readonly cache = {};
+	private static readonly responses = {};
+	private static readonly running = {};
 
-	private genCacheKey(url: string, params: any): string {
+	private static genCacheKey(url: string, params: any): string {
 		const paramStrings = [];
 		Object.keys(params).forEach((key) => {
 			const value = params[key];
@@ -15,7 +15,7 @@ export default class DataManager {
 		return url + paramStrings.sort().join("");
 	}
 
-	private fullUrl(url: string, params: any): string {
+	private static fullUrl(url: string, params: any): string {
 		url = url.startsWith("/") ? url : "/analytics/query/" + url;
 		if (!url.endsWith("/")) {
 			url += "/";
@@ -29,7 +29,7 @@ export default class DataManager {
 		return url + query;
 	}
 
-	get(url: string, params?: any): Promise<any> {
+	static get(url: string, params?: any): Promise<any> {
 		const cacheKey = this.genCacheKey(url, params || {});
 		if (this.responses[cacheKey] === 200) {
 			return Promise.resolve(this.cache[cacheKey]);
@@ -55,7 +55,7 @@ export default class DataManager {
 		return promise;
 	}
 
-	has(url: string, params?: any): boolean {
+	static has(url: string, params?: any): boolean {
 		return this.cache[this.genCacheKey(url, params || {})] !== undefined;
 	}
 }

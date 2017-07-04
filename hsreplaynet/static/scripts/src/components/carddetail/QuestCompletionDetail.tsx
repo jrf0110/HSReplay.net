@@ -4,11 +4,9 @@ import DataInjector, { Query } from "../DataInjector";
 import ChartLoading from "../loading/ChartLoading";
 import WinrateByTurnLineChart from "../charts/WinrateByTurnLineChart";
 import TurnPlayedBarChart from "../charts/TurnPlayedBarChart";
-import DataManager from "../../DataManager";
 
 interface QuestCompletionDetailProps {
 	query: Query | Query[];
-	dataManager: DataManager;
 }
 
 export default class QuestCompletionDetail extends React.Component<QuestCompletionDetailProps, void> {
@@ -18,10 +16,7 @@ export default class QuestCompletionDetail extends React.Component<QuestCompleti
 				<div className="row">
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper">
-							<DataInjector
-								dataManager={this.props.dataManager}
-								query={this.props.query}
-							>
+							<DataInjector query={this.props.query}>
 								<ChartLoading>
 									<TurnPlayedBarChart
 										opponentClass="ALL"
@@ -37,10 +32,7 @@ export default class QuestCompletionDetail extends React.Component<QuestCompleti
 					</div>
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper">
-							<DataInjector
-								dataManager={this.props.dataManager}
-								query={this.props.query}
-							>
+							<DataInjector query={this.props.query}>
 								<ChartLoading>
 									<WinrateByTurnLineChart
 										opponentClass="ALL"

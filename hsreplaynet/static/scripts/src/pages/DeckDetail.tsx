@@ -74,8 +74,6 @@ interface DeckDetailProps {
 }
 
 export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
-	private readonly dataManager: DataManager = new DataManager();
-
 	constructor(props: DeckDetailProps, state: DeckDetailState) {
 		super(props, state);
 		this.state = {
@@ -99,7 +97,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	fetchPersonalDeckSummary(props?: DeckDetailProps) {
 		if (this.props.user.hasFeature("personal-deck-stats")) {
-			this.dataManager.get("single_account_lo_decks_summary", this.getPersonalParams(props)).then((data) => {
+			DataManager.get("single_account_lo_decks_summary", this.getPersonalParams(props)).then((data) => {
 				this.setState({
 					hasPeronalData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
 				});
@@ -109,7 +107,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailState) {
 		if (!prevProps.cardData && this.props.cardData) {
-			this.dataManager.get("list_deck_inventory").then((data) => {
+			DataManager.get("list_deck_inventory").then((data) => {
 				if (data) {
 					const availableFilters = data.series[this.props.deckId];
 					const gameTypes = availableFilters && Object.keys(availableFilters);
@@ -280,7 +278,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
 							<DataInjector
-								dataManager={this.dataManager}
 								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
 							>
@@ -300,7 +297,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper wide">
 							<DataInjector
-								dataManager={this.dataManager}
 								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
 							>
@@ -323,7 +319,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="col-lg-5 col-md-6 col-sm-12 col-xs-12">
 						<ManaCurve cards={cards}/>
 						<DataInjector
-							dataManager={this.dataManager}
 							fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
 							query={[
 								{
@@ -392,7 +387,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				{filters}
 				{accountFilter}
 				<DataInjector
-					dataManager={this.dataManager}
 					fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 					query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType(), RankRange: this.rankRange()}}}
 				>
@@ -400,7 +394,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<DeckStats
 							playerClass={this.props.deckClass}
 							deckId={this.props.deckId}
-							dataManager={this.dataManager}
 							lastUpdatedUrl="single_deck_stats_over_time"
 							lastUpdatedParams={this.getParams()}
 						/>
@@ -422,7 +415,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							<span>Archetype</span>
 							<span className="infobox-value">
 								<DataInjector
-									dataManager={this.dataManager}
 									query={[
 										{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
 										{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
@@ -447,7 +439,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<Tab label="Breakdown" id="breakdown" hidden={this.state.hasData === false}>
 							<div className="table-wrapper">
 								<DataInjector
-									dataManager={this.dataManager}
 									fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 									query={[
 										{
@@ -483,7 +474,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						</Tab>
 						<Tab label="Similar Decks" id="similar">
 							<DataInjector
-								dataManager={this.dataManager}
 								fetchCondition={this.isWildDeck() !== undefined}
 								query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType(), RankRange: this.rankRange()}}}
 							>
@@ -517,7 +507,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							hidden={!this.props.user.hasFeature("deck-matchups")}
 						>
 							<DataInjector
-								dataManager={this.dataManager}
 								fetchCondition={this.isWildDeck() !== undefined}
 								query={[
 									{
@@ -556,7 +545,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							hidden={!this.props.user.hasFeature("deck-counters")}
 						>
 							<DataInjector
-								dataManager={this.dataManager}
 								fetchCondition={this.isWildDeck() !== undefined}
 								query={[
 									{
@@ -602,7 +590,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return (
 			<div className="table-wrapper">
 				<DataInjector
-					dataManager={this.dataManager}
 					fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
 					query={{
 						params: {deck_id: this.props.deckId, gameType: this.gameType()},

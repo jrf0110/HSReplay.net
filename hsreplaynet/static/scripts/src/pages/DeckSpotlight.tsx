@@ -3,7 +3,6 @@ import CardData from "../CardData";
 import DataInjector from "../components/DataInjector";
 import TableLoading from "../components/loading/TableLoading";
 import TrendingDecksList from "../components/trending/TrendingDecksList";
-import DataManager from "../DataManager";
 import HideLoading from "../components/loading/HideLoading";
 import Tooltip from "../components/Tooltip";
 import PropRemapper from "../components/utils/PropRemapper";
@@ -14,8 +13,6 @@ interface DeckSpotlightProps {
 }
 
 export default class DeckSpotlight extends React.Component<DeckSpotlightProps, void> {
-	private readonly dataManager: DataManager = new DataManager();
-
 	render(): JSX.Element {
 		return (
 			<div id="deck-spotlight">
@@ -26,7 +23,6 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, v
 					>
 						Last updated&nbsp;
 						<DataInjector
-							dataManager={this.dataManager}
 							query={{url: "trending_decks_by_popularity", params: {}}}
 							modify={(data) => data && data.as_of ? new Date(data.as_of) : null}
 						>
@@ -40,7 +36,7 @@ export default class DeckSpotlight extends React.Component<DeckSpotlightProps, v
 				</span>
 				<h1>Trending Decks</h1>
 				<h3>Here's a selection of decks which have been rising in popularity over the last 48 hours.</h3>
-				<DataInjector dataManager={this.dataManager} query={{url: "trending_decks_by_popularity", params: {}}}>
+				<DataInjector query={{url: "trending_decks_by_popularity", params: {}}}>
 					<TableLoading cardData={this.props.cardData}>
 						<TrendingDecksList />
 					</TableLoading>
