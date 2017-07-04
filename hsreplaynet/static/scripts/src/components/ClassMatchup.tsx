@@ -28,7 +28,7 @@ export default class ClassMatchup extends React.Component<ClassMatchupProps, voi
 					<span className={"player-class " + this.props.playerClass.toLowerCase()}>
 							{toTitleCase(this.props.playerClass)}
 					</span>
-					<span className="pull-right">{this.props.totalWinrate && `${this.props.totalWinrate.toFixed(2)}%}`}</span>
+					<span className="pull-right">{this.props.totalWinrate && `${this.props.totalWinrate.toFixed(2)}%`}</span>
 				</div>
 				{archetypes}
 			</div>
