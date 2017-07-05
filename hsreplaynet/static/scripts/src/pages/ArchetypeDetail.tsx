@@ -19,6 +19,7 @@ import { DeckObj } from "../interfaces";
 import CardList from "../components/CardList";
 import TableLoading from "../components/loading/TableLoading";
 import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
+import ArchetypeDistributionPieChart from "../components/archetypedetail/ArchetypeDistributionPieChart";
 
 interface ArchetypeData {
 	id: number;
@@ -298,7 +299,27 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				<section id="page-content">
 					<TabList tab={this.props.tab} setTab={this.props.setTab}>
 						<Tab label="Overview" id="overview">
-							<div className="col-lg-3 col-md-6 col-sm-12 col-xs-12 col-lg-offset-3">
+							<div className="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+								<div className="archetype-chart">
+									<DataInjector
+										query={[
+											{key: "matchupData", params: {}, url: "archetype_popularity_distribution_stats"},
+											{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+										]}
+									>
+										<ChartLoading
+											dataKeys={["matchupData", "archetypeData"]}
+											noDataCondition={(data) => !data}
+										>
+											<ArchetypeDistributionPieChart
+												playerClass={this.props.playerClass}
+												selectedArchetypeId={"" + this.props.archetypeId}
+											/>
+										</ChartLoading>
+									</DataInjector>
+								</div>
+							</div>
+							<div className="col-lg-3 col-md-6 col-sm-12 col-xs-12">
 								<div className="card-list-wrapper">
 									<h3>Core Cards</h3>
 									<CardList
@@ -362,6 +383,3 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		</div>;
 	}
 }
-;
-;
-;

@@ -802,3 +802,39 @@ export function sortCards(a, b): number {
 	}
 	return a["cost"] > b["cost"] ? 1 : -1;
 }
+
+export function hexToHsl(hex: string): number[] {
+	if (hex.startsWith("#")) {
+		hex = hex.substr(1);
+	}
+	const red = parseInt(hex.substr(0, 2), 16) / 255;
+	const green = parseInt(hex.substr(2, 2), 16) / 255;
+	const blue = parseInt(hex.substr(4, 2), 16) / 255;
+	const vMax = Math.max(red, green, blue);
+	const vMin = Math.min(red, green, blue);
+	const lightness = (vMax + vMin) / 2;
+	if (vMax === vMin) {
+		return [0, 0, lightness * 100];
+	}
+	else {
+		const delta = vMax - vMin;
+		const saturation = lightness > 0.5 ? delta / (2 - vMax - vMin) : delta / (vMax + vMin);
+		let hue = 0;
+		switch (vMax) {
+			case red:
+				hue = (green - blue) / delta + (green < blue ? 6 : 0);
+				break;
+			case green:
+				hue = (blue - red) / delta + 2;
+				break;
+			case blue:
+				hue = (red - green) / delta + 4;
+				break;
+		}
+		return [hue * 60, saturation * 100, lightness * 100];
+	}
+}
+
+export function stringifyHsl(h: number, s: number, l: number): string {
+	return `hsl(${Math.floor(h)},${Math.floor(s)}%,${Math.floor(l)}%)`;
+}
