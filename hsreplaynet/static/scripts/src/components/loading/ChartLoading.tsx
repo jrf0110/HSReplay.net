@@ -6,6 +6,7 @@ import {LoadingStatus, RenderData} from "../../interfaces";
 interface ChartLoadingProps {
 	cardData?: CardData;
 	data?: RenderData;
+	dataKeys?: string[];
 	noDataCondition?: (data: RenderData) => boolean;
 	status?: LoadingStatus;
 	widthRatio?: number;
@@ -47,7 +48,10 @@ export default class ChartLoading extends React.Component<ChartLoadingProps, voi
 		}
 
 		const noDataCondition = this.props.noDataCondition || ((data) => data.series[0].data.length < 2);
-		if (this.props.data.series.length === 0 || noDataCondition(this.props.data)) {
+		const noData = (this.props.dataKeys || ["data"]).every((key) => {
+			return this.props[key].series.length === 0 || noDataCondition(this.props[key]);
+		});
+		if (noData) {
 			return <h3 className="chart-message-wrapper">No available data.</h3>;
 		}
 		return null;
