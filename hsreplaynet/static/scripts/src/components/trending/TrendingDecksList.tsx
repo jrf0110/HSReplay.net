@@ -21,6 +21,7 @@ export default class TrendingDecksList extends React.Component<TrendingDecksList
 			const cards = JSON.parse(deck["deck_list"]);
 			const deckList = cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
 			decks.push({
+				archetypeId: deck.archetype_id,
 				cards: deckList,
 				deckId: deck["shortid"],
 				duration: +deck["avg_game_length_seconds"],

@@ -194,6 +194,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				decks.forEach((deck) => {
 					const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
 					deckObjs.push({
+						archetypeId: deck.archetype_id,
 						cards: cardData,
 						deckId: deck["deck_id"],
 						duration: +deck["avg_game_length_seconds"],

@@ -23,6 +23,7 @@ export default class DeckCountersList extends React.Component<DeckCountersListPr
 
 					// This is currently using global stats for everything but the winrate
 					decks.push({
+						archetypeId: deck.archetype_id,
 						cards: cardData,
 						deckId: deck.deck_id,
 						duration: +deck.avg_game_length_seconds,

@@ -50,6 +50,7 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 		byDistance.forEach((deck) => {
 			const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
 			decks.push({
+				archetypeId: deck.deck.archetype_id,
 				cards: cardData,
 				deckId: deck.deck["deck_id"],
 				duration: +deck.deck["avg_game_length_seconds"],
