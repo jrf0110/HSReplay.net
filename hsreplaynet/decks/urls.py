@@ -18,12 +18,16 @@ meta_overview = views.MetaOverviewView.as_view()
 
 
 urlpatterns = [
-	url(r"^archetypes/(?P<id>\w+)/(?P<slug>\w+)?", archetype_detail, name="archetype_detail"),
+	url(
+		r"^archetypes/(?P<id>\w+)/(?P<slug>[\w-]+)?",
+		archetype_detail,
+		name="archetype_detail"
+	),
 	url(r"^cards/$", card_stats, name="card_stats"),
 	url(r"^cards/editor/", card_editor, name="card_editor"),
 	url(r"^cards/mine/$", my_card_stats, name="my_card_stats"),
 	url(r"^cards/gallery/$", card_gallery, name="card_gallery"),
-	url(r"^cards/(?P<pk>\w+)/(?P<slug>\w+)?", card_detail, name="card_detail"),
+	url(r"^cards/(?P<pk>\w+)/(?P<slug>[\w-]+)?", card_detail, name="card_detail"),
 	url(r"^decks/$", deck_list, name="deck_list"),
 	url(r"^decks/mine/$", my_decks, name="my_decks"),
 	url(r"^decks/trending/", trending_decks, name="trending_decks"),
