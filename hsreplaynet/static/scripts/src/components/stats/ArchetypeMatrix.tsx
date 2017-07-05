@@ -11,7 +11,8 @@ interface ArchetypeMatrixState {
 }
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
-	data?: any;
+	matchupData?: any;
+	popularityData?: any;
 }
 
 export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProps, ArchetypeMatrixState> {
@@ -24,7 +25,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 	}
 
 	render(): JSX.Element {
-		if (!this.props.data) {
+		if (!this.props.matchupData || !this.props.popularityData) {
 			return <h3 className="message-wrapper">Loading...</h3>;
 		}
 
@@ -32,14 +33,23 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		const popularities = {};
 		const archetypes = [];
 
-		const playerClassMatchups = this.props.data.series.data;
+		const updatePopularity = (playerClass: string, archetypeId: number, archetypeName: string) => {
+			const archetype = this.props.popularityData.series.data[playerClass].find(((a) => {
+				return a.archetype_id === archetypeId;
+			}));
+			popularities[archetypeName] = archetype ? archetype.pct_of_total : 0;
+		};
+
+		const playerClassMatchups = this.props.matchupData.series.data;
 		Object.keys(playerClassMatchups).forEach((playerClass) => {
 			playerClassMatchups[playerClass].forEach((matchup) => {
 				if (archetypes.indexOf(matchup.friendly_archetype) === -1) {
 					archetypes.push(matchup.friendly_archetype);
+					popularities[matchup.friendly_archetype] = this.getPopularity(matchup.friendly_archetype_id);
 				}
 				if (archetypes.indexOf(matchup.opponent_archetype) === -1) {
 					archetypes.push(matchup.opponent_archetype);
+					popularities[matchup.opponent_archetype] = this.getPopularity(matchup.opponent_archetype_id);
 				}
 			});
 		});
@@ -48,7 +58,6 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 
 		archetypes.forEach((friendly) => {
 			matrix[friendly] = {};
-			popularities[friendly] = {};
 			archetypes.forEach((opponent) => {
 				matrix[friendly][opponent] = {
 					f_wr_vs_o: 0,
@@ -56,7 +65,6 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 					is_mirror: friendly === opponent,
 					match_count: 0,
 				};
-
 			});
 		});
 
@@ -94,6 +102,22 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 			</div>
 		);
 	}
+
+	private getPopularity(archetypeId: number): number {
+		let archetype = null;
+		Object.keys(this.props.popularityData.series.data).some((playerClass) => {
+			this.props.popularityData.series.data[playerClass].some((a) => {
+				if (a.archetype_id === archetypeId) {
+					archetype = a;
+					return true;
+				}
+			});
+			if (archetype) {
+				return true;
+			}
+		});
+		return archetype ? archetype.pct_of_total : 0;
+	};
 
 	private select(key: string): void {
 		// TODO

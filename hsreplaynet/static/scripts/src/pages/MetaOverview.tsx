@@ -82,6 +82,12 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 	}
 
 	render(): JSX.Element {
+		const params = {
+			GameType: this.props.gameType,
+			RankRange: this.props.rankRange,
+			TimeRange: this.props.timeFrame,
+		};
+
 		return <div className="archetype-detail-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
@@ -132,14 +138,11 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							<div className="col-lg-10 col-md-10 col-xs-12">
 								<h2 className="text-center">Matchups</h2>
 								<DataInjector
-									query={{
-										params: {
-											GameType: this.props.gameType,
-											RankRange: this.props.rankRange,
-											TimeRange: this.props.timeFrame,
-										},
-										url: "head_to_head_archetype_matchups",
-									}}>
+									query={[
+										{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+										{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+									]}
+								>
 									<ArchetypeMatrix/>
 								</DataInjector>
 							</div>

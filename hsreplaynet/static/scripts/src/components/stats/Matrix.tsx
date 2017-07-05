@@ -202,7 +202,7 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 				transform={"translate(" + (-1.7 * mult) + " " + (cellOffsetY - mult / 3)+ ") rotate(315" +
 				 " " + rowcount * mult +" 0)"}
 				className={vClassNames.join(" ")}
-			>{class1 + (this.props.popularities[class1] ? " (" + (this.props.popularities[class1] * 100).toFixed(1) + "%)" : "")}</text>);
+			>{class1 + (this.props.popularities[class1] ? " (" + (this.props.popularities[class1]).toFixed(1) + "%)" : "")}</text>);
 
 			if (this.props.select === key) {
 				selections.push(<rect
@@ -342,6 +342,6 @@ export default class Matrix extends React.Component<MatrixProps, MatrixState> {
 	private clearHighlight(): void {
 		this.setState({
 			highlight: [],
-		})
+		});
 	}
 }
