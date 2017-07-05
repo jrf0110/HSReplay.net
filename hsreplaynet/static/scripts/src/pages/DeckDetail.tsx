@@ -1,5 +1,5 @@
+import {SortDirection} from "../components/SortableTable";
 import PremiumWrapper from "../components/PremiumWrapper";
-import TableLoading from "../components/loading/TableLoading";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
@@ -14,9 +14,9 @@ import ChartLoading from "../components/loading/ChartLoading";
 import HideLoading from "../components/loading/HideLoading";
 import CardData from "../CardData";
 import * as React from "react";
-import {SortDirection} from "../components/SortableTable";
+import TableLoading from "../components/loading/TableLoading";
 import DataManager from "../DataManager";
-import {getDustCost, getHeroCardId, isWildSet, toTitleCase} from "../helpers";
+import { getArchetypeUrl, getDustCost, getHeroCardId, isWildSet, toTitleCase } from "../helpers";
 import { CardObj, RenderData, TableData } from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
@@ -56,6 +56,8 @@ interface DeckDetailProps {
 	account?: string;
 	setAccount?: (account: string) => void;
 	adminUrl: string;
+	archetypeId?: string;
+	archetypeName?: string;
 	cardData: CardData;
 	deckCards: string;
 	deckClass: string;
@@ -139,6 +141,18 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<CardDetailPieChart data={data} customViewbox="0 30 400 310" removeEmpty/>
 				</div>
 			));
+		}
+
+		let archetypeInfo = null;
+		if (this.props.archetypeName && UserData.hasFeature("archetype-detail")) {
+			archetypeInfo = (
+				<li>
+					Archetype
+					<a className="infobox-value" href={getArchetypeUrl(this.props.archetypeId, this.props.archetypeName)}>
+						{this.props.archetypeName}
+					</a>
+				</li>
+			);
 		}
 
 		const isPremium = UserData.isPremium();
@@ -375,6 +389,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							{toTitleCase(this.props.deckClass)}
 						</a>
 					</li>
+					{archetypeInfo}
 					<li>
 						Cost
 						<span className="infobox-value">{dustCost ? dustCost + " Dust" : "Counting…"}</span>

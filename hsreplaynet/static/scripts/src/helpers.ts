@@ -739,6 +739,10 @@ export function getCardUrl(card: any) {
 	return `/cards/${card.dbfId}/${slugify(card.name)}/`;
 }
 
+export function getArchetypeUrl(id: string|number, name: string): string {
+	return `/archetypes/${id}/${slugify(name)}/`;
+}
+
 function slugify(str: string): string {
 	return str.replace(/[^\w\s-]/g, "")
 		.trim().toLowerCase()

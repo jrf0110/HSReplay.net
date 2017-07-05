@@ -10,6 +10,8 @@ const deckId = document.getElementById("deck-info").getAttribute("data-deck-id")
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
 const deckClass = document.getElementById("deck-info").getAttribute("data-deck-class");
 const heroDbfId = +document.getElementById("deck-info").getAttribute("data-hero-id");
+const archetypeId = document.getElementById("deck-info").getAttribute("data-archetype-id");
+const archetypeName = document.getElementById("deck-info").getAttribute("data-archetype-name");
 UserData.create();
 const defaultAccount = UserData.getDefaultAccountKey();
 
@@ -27,6 +29,8 @@ const render = (cardData: CardData) => {
 		>
 			<DeckDetail
 				adminUrl={adminUrl}
+				archetypeId={archetypeId}
+				archetypeName={archetypeName}
 				cardData={cardData}
 				deckCards={cards}
 				deckClass={deckClass}
