@@ -6,6 +6,7 @@ from django.views.generic import DetailView, TemplateView, View
 from django_hearthstone.cards.models import Card
 from hearthstone.enums import CardClass
 from hsreplaynet.features.decorators import view_requires_feature_access
+from hsreplaynet.features.models import Feature
 from hsreplaynet.utils.html import RequestMetaMixin
 from .models import Archetype, Deck
 
@@ -127,7 +128,14 @@ class DeckDetailView(View):
 		if len(cards) != 30:
 			raise Http404("Deck list is too small.")
 
-		request.head.title = str(deck)
+		try:
+			feature = Feature.objects.get(name="archetype-detail")
+		except Feature.DoesNotExist:
+			has_feature = False
+		else:
+			has_feature = feature.enabled_for_user(request.user)
+
+		request.head.title = "%s Deck" % str(deck.archetype) if has_feature else str(deck)
 
 		if deck.deck_class:
 			deck_url = request.build_absolute_uri(deck.get_absolute_url())
