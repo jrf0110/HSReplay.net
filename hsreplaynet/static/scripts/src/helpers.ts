@@ -736,10 +736,13 @@ export function cloneComponent(component, props) {
 };
 
 export function getCardUrl(card: any) {
-	let slug = card.name.replace(/[^\w\s-]/g, "")
+	return `/cards/${card.dbfId}/${slugify(card.name)}/`;
+}
+
+function slugify(str: string): string {
+	return str.replace(/[^\w\s-]/g, "")
 		.trim().toLowerCase()
 		.replace(/[-\s]+/g, "-");
-	return `/cards/${card.dbfId}/${slug}/`;
 }
 
 export function getCookie(name: string): string {
