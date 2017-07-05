@@ -159,7 +159,9 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 								return;
 							}
 							deck.player_class = playerClass;
-							deck.noGlobalData = deckData.series.data[playerClass].every((d) => d.deck_id !== deck.deck_id);
+							const globalDeck = deckData.series.data[playerClass].find((d) => d.deck_id === deck.deck_id);
+							deck.noGlobalData = !globalDeck;
+							deck.archetype_id = deck.archetype_id || globalDeck && globalDeck.archetype_id;
 							pushDeck(deck, cards);
 						});
 					});
@@ -176,6 +178,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 		this.getDeckElements().then(((deckElements) => {
 			const decks: DeckObj[] = deckElements.map((deck) => {
 				return {
+					archetypeId: deck.archetype_id,
 					cards: deck.cards,
 					deckId: deck.deck_id,
 					duration: deck.avg_game_length_seconds,
