@@ -93,11 +93,14 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 		const query = this.getQueryArray(props)[index];
 		DataManager.get(query.url, query.params || {})
 			.then((json) => {
-				const newData = Object.assign([], this.state.data);
-				const newStatus = Object.assign([], this.state.status);
-				newData[query.key || DEFAULT_DATA_KEY] = props.modify ? props.modify(json) : json;
-				newStatus[index] = STATUS_SUCCESS;
-				this.setState({data: newData, status: newStatus});
+				const queries = this.getQueryArray(this.props);
+				if (queries.some((q) => this.queryEquals(q, query))) {
+					const newData = Object.assign([], this.state.data);
+					const newStatus = Object.assign([], this.state.status);
+					newData[query.key || DEFAULT_DATA_KEY] = props.modify ? props.modify(json) : json;
+					newStatus[index] = STATUS_SUCCESS;
+					this.setState({data: newData, status: newStatus});
+				}
 			}, (status) => {
 				if (status === STATUS_PROCESSING) {
 					if (this.state.retryCount[index] < MAX_RETRY_COUNT) {
