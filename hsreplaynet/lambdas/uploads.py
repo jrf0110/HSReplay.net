@@ -25,7 +25,7 @@ from hsreplaynet.utils.synchronization import CountDownLatch
 	cpu_seconds=180,
 	memory=settings.LAMBDA_PROCESSING_MEMORY_MB,
 	stream_name="replay-upload-processing-stream",
-	stream_batch_size=100,
+	stream_batch_size=20,
 )
 def process_replay_upload_stream_handler(event, context):
 	"""
