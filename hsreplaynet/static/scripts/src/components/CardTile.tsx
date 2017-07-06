@@ -8,7 +8,6 @@ interface CardTileProps {
 	disableTooltip?: boolean;
 	height?: number;
 	hideGem?: boolean;
-	rarityColored?: boolean;
 	noLink?: boolean;
 }
 
@@ -61,10 +60,7 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 		let gem = null;
 		if (!this.props.hideGem) {
 			const gemClassNames = ["card-gem"];
-
-			if (this.props.rarityColored) {
-				gemClassNames.push("rarity-" + (this.props.card.rarity || "free").toLowerCase());
-			}
+			gemClassNames.push("rarity-" + (this.props.card.rarity || "free").toLowerCase());
 
 			gem = (
 				<div className={gemClassNames.join(" ")} style={gemStyle}>

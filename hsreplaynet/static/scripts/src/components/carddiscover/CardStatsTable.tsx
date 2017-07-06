@@ -88,7 +88,7 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 			rows.push(
 				<tr>
 					<td className="card-cell">
-						<CardTile card={obj.card} count={1} rarityColored height={34}/>
+						<CardTile card={obj.card} count={1} height={34}/>
 					</td>
 					<td>
 						{obj.includedPopularity ? toDynamicFixed(obj.includedPopularity) + "%" : "0%"}

@@ -10,7 +10,6 @@ interface CardListProps {
 	cardData: CardData;
 	cardList: CardId[];
 	cardHeight?: number;
-	rarityColored?: boolean;
 	name: string;
 	heroes: number[];
 	showButton?: boolean;
@@ -53,7 +52,6 @@ export default class CardList extends React.Component<CardListProps, any> {
 						card={card}
 						count={count}
 						height={cardHeight}
-						rarityColored={this.props.rarityColored}
 						noLink={!this.props.clickable}
 					/>,
 				);

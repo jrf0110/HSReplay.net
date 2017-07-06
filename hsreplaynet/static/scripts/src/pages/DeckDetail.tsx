@@ -220,7 +220,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					cardList={dbfIds}
 					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
 					heroes={[this.props.heroDbfId]}
-					rarityColored
 					clickable
 				/>
 			</div>

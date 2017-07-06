@@ -29,7 +29,6 @@ export default class DeckBreakdownTableRow extends React.Component<DeckBreakdown
 				height={34}
 				card={this.props.cardObj.card}
 				count={this.props.cardObj.count}
-				rarityColored
 			/>
 		</td>);
 		const mulligan = winrateData(this.props.baseMulliganWinrate, +this.props.row["opening_hand_win_rate"], 5);

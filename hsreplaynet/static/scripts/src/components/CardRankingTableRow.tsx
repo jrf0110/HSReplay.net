@@ -21,7 +21,6 @@ export default class CardRankingTableRow extends React.Component<CardRankingTabl
 				height={34}
 				card={this.props.card}
 				count={1}
-				rarityColored
 				customText={this.props.customCardText}
 				disableTooltip={this.props.noLink}
 				noLink={this.props.noLink}

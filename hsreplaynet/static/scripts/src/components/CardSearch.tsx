@@ -59,7 +59,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 					}}
 					onMouseEnter={() => this.setState({selectedIndex: index})}
 				>
-					<CardTile card={card} count={1} height={34} rarityColored noLink/>
+					<CardTile card={card} count={1} height={34} noLink/>
 				</li>,
 			);
 		});
@@ -265,7 +265,6 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 						card={card}
 						count={count}
 						height={34}
-						rarityColored
 						noLink
 					/>
 					<button
