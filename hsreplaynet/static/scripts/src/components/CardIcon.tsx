@@ -69,7 +69,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 
 			if (this.state.backgroundLoaded) {
 				style.backgroundImage = `url(${this.buildBackgroundImageUrl()})`;
-				style.backgroundPositionX = this.baseOffset * (size / this.baseSize) + "px";
+				style.backgroundPosition = this.baseOffset * (size / this.baseSize) + "px 0";
 				style.backgroundSize = this.baseBackgroundWidth * (size / this.baseSize) + "px " + (size - 2) + "px";
 
 				if (this.props.mark !== undefined) {
