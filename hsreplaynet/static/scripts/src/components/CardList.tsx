@@ -14,7 +14,6 @@ interface CardListProps {
 	heroes: number[];
 	showButton?: boolean;
 	id?: number;
-	clickable?: boolean;
 	deckClass?: string;
 	format?: number;
 }
@@ -52,7 +51,6 @@ export default class CardList extends React.Component<CardListProps, any> {
 						card={card}
 						count={count}
 						height={cardHeight}
-						noLink={!this.props.clickable}
 					/>,
 				);
 			}

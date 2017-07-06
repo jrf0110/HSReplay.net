@@ -77,7 +77,6 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							name={this.pluralize(this.state.game.opposing_player.name) + " " + deckClass}
 							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
 							id={1}
-							clickable
 						/>,
 					);
 				}
@@ -104,7 +103,6 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							name={this.pluralize(this.state.game.friendly_player.name) + " " + deckClass}
 							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
 							id={2}
-							clickable
 						/>,
 					);
 				}
