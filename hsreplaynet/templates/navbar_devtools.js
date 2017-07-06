@@ -22,6 +22,7 @@ function toggle(name, enabled) {
 		headers: {"X-CSRFToken": csrftoken},
 		url: `/api/v1/features/${name}/`,
 		data: {enabled: !enabled},
+		success: () => window.location.reload(),
 	})
 }
 
@@ -31,7 +32,7 @@ function add(feature) {
 		const enabled = feature.enabled_for_user;
 		$("#devtools-features-header").after(`
 			<li>
-				<a href="" class="set-feature" onclick="toggle('${name}', ${enabled})" style="white-space:normal">
+				<a href="#" class="set-feature" onclick="toggle('${name}', ${enabled})" style="white-space:normal">
 					${enabled ? "✔" : ""}
 					${name}
 					<span class="pull-right" style="color:lightgray">
