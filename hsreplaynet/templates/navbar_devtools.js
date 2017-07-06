@@ -27,11 +27,13 @@ function toggle(name, enabled) {
 
 function add(feature) {
 	if (feature.status !== "OFF") {
+		const name = feature.name;
+		const enabled = feature.enabled_for_user;
 		$("#devtools-features-header").after(`
 			<li>
-				<a href="" class="set-feature" onclick="toggle('${feature.name}', ${feature.enabled_for_user})">
-					${feature.enabled_for_user ? "✔" : ""}
-					${feature.name}
+				<a href="" class="set-feature" onclick="toggle('${name}', ${enabled})" style="white-space:normal">
+					${enabled ? "✔" : ""}
+					${name}
 					<span class="pull-right" style="color:lightgray">
 						${feature.status}
 					</span>
