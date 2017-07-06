@@ -158,7 +158,7 @@ class Webhook(models.Model):
 			LAMBDA.invoke(
 				FunctionName="trigger_webhook",
 				InvocationType="Event",
-				Payload=json.dumps({"webhook": self.pk}),
+				Payload=json.dumps({"webhook": str(self.pk)}),
 			)
 		else:
 			self.deliver()
