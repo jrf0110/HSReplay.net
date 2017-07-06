@@ -99,6 +99,12 @@ class Feature(models.Model):
 			user.groups.add(self.authorized_group)
 			return True
 
+	def remove_user(self, user):
+		group = self.authorized_group
+		if group in user.groups.all():
+			user.groups.remove(self.authorized_group)
+			return True
+
 	@property
 	def authorized_group_name(self):
 		return "feature:%s:preview" % self.name
