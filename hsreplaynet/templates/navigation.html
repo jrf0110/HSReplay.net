@@ -72,29 +72,14 @@
 									<span class="caret"></span>
 								</a>
 								<ul class="dropdown-menu" style="width:25em">
+									<li><a href="" id="free-mode">Freemode</a></li>
+									<li role="separator" class="divider"></li>
 									<li class="dropdown-header" id="devtools-features-header">My Features</li>
 									<li role="separator" class="divider"></li>
 									<li><a href="{% url 'admin:features_feature_changelist' %}">Edit Features</a></li>
 								</ul>
 							</li>
 							<script type="text/javascript">{% include "navbar_devtools.js" %}</script>
-						{% endif %}
-						{% feature "freemode_toggle" as ft_freemode %}{% if ft_freemode.enabled %}
-							<li><a href="" id="free-mode">Freemode</a></li>
-							<script type="text/javascript">
-								const freeMode = document.cookie.indexOf("free-mode") !== -1;
-								if (freeMode) {
-									$("#free-mode").css("color", "red")
-								}
-								document.getElementById("free-mode").onclick = function() {
-									if (freeMode) {
-										document.cookie = "free-mode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
-									}
-									else {
-										document.cookie = "free-mode=true; expires=Thu, 01 Jan 2018 00:00:00 UTC; path=/";
-									}
-								};
-							</script>
 						{% endif %}
 
 						{% feature "profiles" as ft_profiles %}{% if ft_profiles.enabled %}

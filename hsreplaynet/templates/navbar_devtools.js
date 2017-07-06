@@ -43,3 +43,17 @@ function add(feature) {
 
 $.get("/api/v1/features/", (data) => data.results.forEach(add));
 
+
+// Freemode toggle
+const freeMode = document.cookie.indexOf("free-mode") !== -1;
+if (freeMode) {
+	$("#free-mode").append("<span class='pull-right' style='color:red'>ACTIVE</span>")
+}
+document.getElementById("free-mode").onclick = function() {
+	if (freeMode) {
+		document.cookie = "free-mode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+	}
+	else {
+		document.cookie = "free-mode=true; expires=Thu, 01 Jan 2018 00:00:00 UTC; path=/";
+	}
+};
