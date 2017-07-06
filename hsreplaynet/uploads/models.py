@@ -8,6 +8,7 @@ from enum import IntEnum
 from threading import Lock, Thread
 from uuid import uuid4
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
@@ -257,6 +258,22 @@ def _generate_upload_key(ts, shortid, suffix="power.log"):
 	return "uploads/%s/%s.%s" % (timestamp, shortid, suffix)
 
 
+class Descriptor(models.Model):
+	shortid = ShortUUIDField("Short ID", primary_key=True)
+	descriptor = JSONField()
+	created = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.shortid
+
+	@property
+	def upload_event(self):
+		try:
+			return UploadEvent.objects.get(shortid=self.shortid)
+		except UploadEvent.DoesNotExist:
+			return None
+
+
 class UploadEvent(models.Model):
 	"""
 	Represents a game upload, before the creation of the game itself.
@@ -286,6 +303,9 @@ class UploadEvent(models.Model):
 	log_stream_name = models.CharField(max_length=64, blank=True)
 	log_group_name = models.CharField(max_length=64, blank=True)
 	updated = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.shortid
 
 	@property
 	def log_upload_date(self):
@@ -345,9 +365,6 @@ class UploadEvent(models.Model):
 		if g:
 			self._game = g
 			self.game_id = g.id
-
-	def __str__(self):
-		return self.shortid
 
 	@property
 	def cloudwatch_url(self):
