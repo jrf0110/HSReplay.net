@@ -63,6 +63,21 @@
 					{% if user.is_authenticated %}
 						{% if user.is_staff %}
 							<li><a href="{% url 'admin:index' %}">Admin</a></li>
+							<li>
+								<a
+									href="#" class="dropdown-toggle" data-toggle="dropdown"
+									role="button" aria-haspopup="true" aria-expanded="false"
+								>
+									Devtools
+									<span class="caret"></span>
+								</a>
+								<ul class="dropdown-menu" style="width:25em">
+									<li class="dropdown-header" id="devtools-features-header">My Features</li>
+									<li role="separator" class="divider"></li>
+									<li><a href="{% url 'admin:features_feature_changelist' %}">Edit Features</a></li>
+								</ul>
+							</li>
+							<script type="text/javascript">{% include "navbar_devtools.js" %}</script>
 						{% endif %}
 						{% feature "freemode_toggle" as ft_freemode %}{% if ft_freemode.enabled %}
 							<li><a href="" id="free-mode">Freemode</a></li>

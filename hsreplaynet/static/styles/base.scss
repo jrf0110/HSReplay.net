@@ -120,6 +120,11 @@ body, html {
 			}
 		}
 
+		&.open > a {
+			background-color: transparent;
+			color: $lighterblue;
+		}
+
 		@media (min-width: 768px) {
 			&.active > a {
 				border-bottom: 3px solid $lighterblue;
