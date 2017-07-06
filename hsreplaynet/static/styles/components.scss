@@ -659,7 +659,18 @@ table .info-icon {
 	}
 
 	.class-matchup-archetype {
-		padding: 5px 5px 0 5px;
 		border-bottom: 1px solid lightgray;
+		color: black;
+		display: block;
+		padding: 5px 5px 0 5px;
+	}
+
+	.class-matchup-archetype:hover, .class-matchup-archetype:active {
+		text-decoration: unset;
+		background: #f1f2f4;
+	}
+
+	.class-matchup-archetype:visited {
+		color: black;
 	}
 }

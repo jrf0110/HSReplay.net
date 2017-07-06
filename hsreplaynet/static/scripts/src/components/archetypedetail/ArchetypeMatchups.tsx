@@ -25,6 +25,7 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 					opponentClasses[opponentPlayerClass] = [];
 				}
 				opponentClasses[opponentPlayerClass].push({
+					id: matchup.opponent_archetype_id,
 					name: matchup.opponent_archetype,
 					winrate: matchup.win_rate,
 				});

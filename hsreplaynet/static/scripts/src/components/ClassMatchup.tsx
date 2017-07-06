@@ -1,7 +1,8 @@
 import * as React from "react";
-import { toTitleCase, winrateData } from "../helpers";
+import { getArchetypeUrl, toTitleCase, winrateData } from "../helpers";
 
 export interface ArchetypeData {
+	id: string;
 	name: string;
 	winrate: number;
 };
@@ -16,17 +17,17 @@ export default class ClassMatchup extends React.Component<ClassMatchupProps, voi
 	render(): JSX.Element {
 		const data = this.props.archetypes.sort((a, b) => a.name > b.name ? 1 : -1);
 		const archetypes = data.map((archetype) => (
-			<div className="class-matchup-archetype">
+			<a className="class-matchup-archetype" href={getArchetypeUrl(archetype.id, archetype.name)}>
 				<span>{archetype.name}</span>
 				{this.winrate(archetype.winrate)}
-			</div>
+			</a>
 		));
 
 		return (
 			<div className="class-matchup col-xs-12 col-sm-12 col-md-6 col-lg-4">
 				<div className="class-matchup-header">
 					<span className={"player-class " + this.props.playerClass.toLowerCase()}>
-							{toTitleCase(this.props.playerClass)}
+						{toTitleCase(this.props.playerClass)}
 					</span>
 					<span className="pull-right">{this.props.totalWinrate && `${this.props.totalWinrate.toFixed(2)}%`}</span>
 				</div>
