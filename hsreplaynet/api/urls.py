@@ -20,7 +20,6 @@ router.register(r"tokens", AuthTokenViewSet)
 router.register(r"webhooks", WebhookViewSet)
 
 urlpatterns = [
-	url(r"^v1/", include(router.urls)),
 	url(r"^v1/games/$", views.GameReplayList.as_view()),
 	url(r"^v1/games/(?P<shortid>.+)/$", views.GameReplayDetail.as_view()),
 	url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
@@ -30,3 +29,5 @@ urlpatterns += accounts_urlpatterns
 urlpatterns += decks_urlpatterns
 urlpatterns += comments_urlpatterns
 urlpatterns += analytics_urlpatterns
+
+urlpatterns += [url(r"v1/", include(router.urls))]
