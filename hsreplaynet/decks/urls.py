@@ -6,7 +6,6 @@ archetype_detail = views.ArchetypeDetailView.as_view()
 
 card_detail = views.CardDetailView.as_view()
 card_editor = views.CardEditorView.as_view()
-card_gallery = views.CardGalleryView.as_view()
 card_stats = views.CardStatsView.as_view()
 my_card_stats = views.MyCardStatsView.as_view()
 
@@ -26,7 +25,6 @@ urlpatterns = [
 	url(r"^cards/$", card_stats, name="card_stats"),
 	url(r"^cards/editor/", card_editor, name="card_editor"),
 	url(r"^cards/mine/$", my_card_stats, name="my_card_stats"),
-	url(r"^cards/gallery/$", card_gallery, name="card_gallery"),
 	url(r"^cards/(?P<pk>\w+)/(?P<slug>[\w-]+)?", card_detail, name="card_detail"),
 	url(r"^decks/$", deck_list, name="deck_list"),
 	url(r"^decks/mine/$", my_decks, name="my_decks"),

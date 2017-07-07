@@ -29,17 +29,12 @@ interface CardFilters {
 	type: any;
 }
 
-export const enum ViewType {
-	CARDS,
-	STATISTICS,
-	PERSONAL,
-};
-
 interface CardDiscoverState {
 	account?: string;
 	cards?: any[];
 	filteredCards?: any[];
 	filterCounts?: CardFilters;
+	galleryView?: boolean;
 	hasPersonalData?: boolean;
 	hasStatisticsData?: boolean;
 	numCards?: number;
@@ -48,7 +43,7 @@ interface CardDiscoverState {
 
 interface CardDiscoverProps extends FragmentChildProps, React.ClassAttributes<CardDiscover> {
 	cardData: CardData;
-	viewType: ViewType;
+	personal: boolean;
 	accounts?: Account[];
 
 	text?: string;
@@ -141,41 +136,17 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			cards: null,
 			filterCounts: null,
 			filteredCards: [],
+			galleryView: false,
 			hasPersonalData: false,
 			hasStatisticsData: false,
 			numCards: 24,
 			showFilters: false,
 		};
-		switch (this.props.viewType) {
-			case ViewType.CARDS:
-				const minion = new Image();
-				minion.src = PLACEHOLDER_MINION;
-				const spell = new Image();
-				spell.src = PLACEHOLDER_SPELL;
-				const weapon = new Image();
-				weapon.src = PLACEHOLDER_WEAPON;
-				break;
-		}
 		this.filters.mechanics.sort();
 
-		if (this.props.viewType === ViewType.PERSONAL && this.state.account) {
+		if (this.props.personal && this.state.account) {
 			DataManager.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => this.setState({hasPersonalData: data && data.series.data.ALL.length > 0}));
-		}
-		else if (this.props.viewType === ViewType.STATISTICS) {
-			let played = false;
-			let included = false;
-			const updateHasData = () => played && included && this.setState({hasStatisticsData: true});
-			DataManager.get("card_played_popularity_report", this.getParams())
-				.then((data) => {
-					played = true;
-					updateHasData();
-				});
-			DataManager.get("card_included_popularity_report", this.getParams())
-				.then((data) => {
-					included = true;
-					updateHasData();
-				});
 		}
 	}
 
@@ -212,7 +183,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			this.updateFilteredCards();
 		}
 
-		if (!this.state.filteredCards || !_.eq(prevState.cards, this.state.cards)) {
+		if (!this.state.filteredCards || !_.eq(prevState.cards, this.state.cards)
+			|| this.state.account !== prevState.account
+			|| this.state.galleryView !== prevState.galleryView) {
 			this.updateFilteredCards();
 		}
 	}
@@ -246,7 +219,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 	getSparseFilterDicts(): Promise<any> {
 		// build dictionaries from the tabledata to optimize lookup time when filtering
-		if (this.props.viewType === ViewType.STATISTICS) {
+		if (this.isStatsView()) {
 			const params = this.getParams();
 			const promises = [
 				DataManager.get("card_played_popularity_report", params),
@@ -270,7 +243,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					return [];
 				});
 		}
-		else if (this.props.viewType === ViewType.PERSONAL && this.state.account) {
+		else if (this.props.personal && this.state.account) {
 			return DataManager
 				.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => {
@@ -301,8 +274,36 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 	}
 
+	componentWillUpdate(nextProps: CardDiscoverProps, nextState: CardDiscoverState) {
+		if (!this.props.personal && this.state.galleryView !== nextState.galleryView) {
+			if (nextState.galleryView) {
+				const minion = new Image();
+				minion.src = PLACEHOLDER_MINION;
+				const spell = new Image();
+				spell.src = PLACEHOLDER_SPELL;
+				const weapon = new Image();
+				weapon.src = PLACEHOLDER_WEAPON;
+			}
+			else {
+				let played = false;
+				let included = false;
+				const updateHasData = () => played && included && this.setState({hasStatisticsData: true});
+				DataManager.get("card_played_popularity_report", this.getParams())
+					.then((data) => {
+						played = true;
+						updateHasData();
+					});
+				DataManager.get("card_included_popularity_report", this.getParams())
+					.then((data) => {
+						included = true;
+						updateHasData();
+					});
+			}
+		}
+	}
+
 	render(): JSX.Element {
-		const viewType = this.props.viewType;
+		const isStatsView = this.isStatsView();
 		const content = [];
 
 		let showMoreButton = null;
@@ -321,7 +322,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		}
 
-		if (viewType === ViewType.PERSONAL) {
+		if (this.props.personal) {
 			if (this.state.account) {
 				content.push(
 					<div className="table-wrapper">
@@ -358,7 +359,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				);
 			}
 		}
-		else if (viewType === ViewType.STATISTICS) {
+		else if (isStatsView) {
 			content.push(
 				<div className="table-wrapper">
 					<DataInjector
@@ -541,11 +542,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 	buildFilters(): JSX.Element[] {
 		const showReset = this.props.canBeReset;
-		const viewType = this.props.viewType;
+		const isStatsView = this.isStatsView();
 
 		const filters = [
 			<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
-				{viewType === ViewType.CARDS ? "Gallery" : (viewType === ViewType.STATISTICS ? "Cards" : "My Cards")}
+				{this.props.personal ? "My Cards" : (isStatsView ? "Cards" : "Gallery")}
 			</ResetHeader>,
 		];
 
@@ -565,7 +566,20 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				</section>
 		);
 
-		if (viewType === ViewType.CARDS || viewType === ViewType.PERSONAL) {
+		if (!this.props.personal) {
+			filters.push(
+				<InfoboxFilterGroup
+					header="Display"
+					selectedValue={this.state.galleryView ? "gallery" : "statistics"}
+					onClick={(value) => this.setState({galleryView: value === "gallery"})}
+				>
+					<InfoboxFilter value="statistics">Statistics view</InfoboxFilter>
+					<InfoboxFilter value="gallery">Gallery view</InfoboxFilter>
+				</InfoboxFilterGroup>,
+			);
+		}
+
+		if (this.props.personal || !isStatsView) {
 			filters.push(
 				<h2>Class</h2>,
 				<ClassFilter
@@ -637,7 +651,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		}
 
-		if (viewType === ViewType.PERSONAL) {
+		if (this.props.personal) {
 			filters.push(modeFilter);
 			filters.push(
 				<InfoboxFilterGroup
@@ -654,7 +668,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			);
 		}
 
-		if (viewType === ViewType.PERSONAL && this.props.accounts.length > 0) {
+		if (this.props.personal && this.props.accounts.length > 0) {
 			const accounts = [];
 			this.props.accounts.forEach((acc) => {
 				accounts.push(
@@ -680,11 +694,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		}
 
-		if (viewType === ViewType.STATISTICS || (viewType === ViewType.PERSONAL && this.state.account)) {
-			const lastUpdatedUrl = viewType === ViewType.STATISTICS
+		if (isStatsView || (this.props.personal && this.state.account)) {
+			const lastUpdatedUrl = isStatsView
 				? "card_played_popularity_report"
 				: "single_account_lo_individual_card_stats";
-			const lastUpdatedParams = viewType === ViewType.STATISTICS ? this.getParams() : this.getPersonalParams();
+			const lastUpdatedParams = isStatsView ? this.getParams() : this.getPersonalParams();
 			filters.push(
 				<h2>Data</h2>,
 				<ul>
@@ -839,9 +853,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		}
 
-		const viewType = this.props.viewType;
+		const isStatsView = this.isStatsView();
 
-		if (viewType === ViewType.STATISTICS) {
+		if (isStatsView) {
 			const exclude = this.props.exclude;
 			if (exclude === "neutral" && card.playerClass === "NEUTRAL") {
 				return true;
@@ -864,14 +878,14 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		}
 
-		if (viewType === ViewType.PERSONAL && sparseDicts.length) {
+		if (this.props.personal && sparseDicts.length) {
 			const playedOrIncluded = sparseDicts[0][card.dbfId];
 			if (!playedOrIncluded) {
 				return true;
 			}
 		}
 
-		if (viewType === ViewType.STATISTICS && sparseDicts.length) {
+		if (isStatsView && sparseDicts.length) {
 			const included = sparseDicts[0][card.dbfId];
 			const played = sparseDicts[1][card.dbfId];
 			if (!included || !played || +included < 0.01 || +played < 0.01) {
@@ -882,7 +896,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		let filter = false;
 
 		Object.keys(this.filters).forEach((key) => {
-			if (viewType === ViewType.STATISTICS && key === "playerClass") {
+			if (isStatsView && key === "playerClass") {
 				return;
 			}
 			if (key === excludeFilter) {
@@ -941,5 +955,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	onSortChanged(sortBy, sortDirection): void {
 		this.props.setSortBy(sortBy);
 		this.props.setSortDirection(sortDirection);
+	}
+
+	isStatsView(): boolean {
+		return !this.props.personal && !this.state.galleryView;
 	}
 }

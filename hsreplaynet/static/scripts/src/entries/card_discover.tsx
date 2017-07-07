@@ -1,29 +1,18 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
-import CardDiscover, {ViewType} from "../pages/CardDiscover";
+import CardDiscover from "../pages/CardDiscover";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 
 const container = document.getElementById("card-container");
-let viewType = ViewType.STATISTICS;
-switch (container.getAttribute("data-view-type")) {
-	case "statistics":
-		viewType = ViewType.STATISTICS;
-		break;
-	case "personal":
-		viewType = ViewType.PERSONAL;
-		break;
-	case "cards":
-		viewType = ViewType.CARDS;
-		break;
-}
+const personal = container.getAttribute("data-view-type") === "personal";
 
 UserData.create();
 const availableAccounts = UserData.getAccounts();
 const defaultAccount = UserData.getDefaultAccountKey();
 
-if (viewType === ViewType.PERSONAL && !defaultAccount) {
+if (personal && !defaultAccount) {
 	if (typeof ga === "function") {
 		ga("send", {
 			hitType: "event",
@@ -45,7 +34,7 @@ const render = (cardData: CardData) => {
 				gameType: "RANKED_STANDARD",
 				playerClass: "ALL",
 				rankRange: "ALL",
-				timeRange: viewType === ViewType.PERSONAL ? "LAST_30_DAYS" : "LAST_14_DAYS",
+				timeRange: personal ? "LAST_30_DAYS" : "LAST_14_DAYS",
 				exclude: "",
 				cost: [],
 				rarity: [],
@@ -61,7 +50,7 @@ const render = (cardData: CardData) => {
 		>
 			<CardDiscover
 				cardData={cardData}
-				viewType={viewType}
+				personal={personal}
 				accounts={availableAccounts}
 			/>
 		</Fragments>,

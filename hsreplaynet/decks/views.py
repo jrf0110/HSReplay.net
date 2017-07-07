@@ -58,13 +58,6 @@ class MyCardStatsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	title = "My Cards"
 
 
-class CardGalleryView(RequestMetaMixin, TemplateView):
-	template_name = "cards/card_gallery.html"
-	title = "Hearthstone Card Gallery"
-	description = "View all collectible cards in Hearthstone. Filter by cost, rarity, " \
-		"set, type, race and mechanics. Examine detailed statistics for any card."
-
-
 @method_decorator(view_requires_feature_access("cardeditor"), name="dispatch")
 class CardEditorView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_editor.html"
