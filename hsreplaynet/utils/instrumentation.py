@@ -4,7 +4,6 @@ from functools import wraps
 from django.conf import settings
 from django.utils.timezone import now
 from raven.contrib.django.raven_compat.models import client as sentry
-from hsreplaynet.uploads.models import RawUpload
 from . import log
 from .influx import influx_timer
 
@@ -31,7 +30,9 @@ def get_tracing_id(event):
 		event_data = records[0]
 
 		if "s3" in event_data:
+			from hsreplaynet.uploads.models import RawUpload
 			# We are in the process_s3_object Lambda
+			# FIXME: Shouldn't depend on RawUpload.
 			s3_event = event_data["s3"]
 			raw_upload = RawUpload.from_s3_event(s3_event)
 			return raw_upload.shortid
