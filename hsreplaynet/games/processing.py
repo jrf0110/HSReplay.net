@@ -505,7 +505,14 @@ def update_global_players(global_game, entity_tree, meta, upload_event):
 		except IntegrityError as e:
 			# This will happen if cards in the deck are not in the DB
 			# For example, during a patch release
-			influx_metric("replay_deck_create_failure", {"global_game_id": global_game.id})
+			influx_metric("replay_deck_create_failure", {
+				"count": 1,
+				"build": meta["build"],
+				"global_game_id": global_game.id,
+				"server_ip": meta.get("server_ip", ""),
+				"upload_ip": upload_event.upload_ip,
+				"error": str(e),
+			})
 			log.exception("Could not create deck for player %r", player)
 			global_game.tainted_decks = True
 			# Replace with an empty deck
