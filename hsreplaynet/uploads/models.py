@@ -25,6 +25,7 @@ from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import redshift, streams
 from hsreplaynet.utils.fields import ShortUUIDField
 from hsreplaynet.utils.influx import influx_metric, influx_timer
+from hsreplaynet.utils.instrumentation import error_handler
 from hsreplaynet.utils.synchronization import advisory_lock
 
 
@@ -127,6 +128,7 @@ class RawUpload(object):
 		self.bucket = bucket
 		self.log_key = key
 		self.upload_event = None
+		self._descriptor_on_s3 = False
 
 		match = re.match(self.LOG_KEY_PATTERN, key)
 		if not match:
@@ -140,10 +142,8 @@ class RawUpload(object):
 			self.state = RawUploadState.NEW
 			# Lazy-loaded from S3
 			self._descriptor = None
-			self.descriptor_key = "descriptors/%s.json" % (self.shortid)
 		elif groups["prefix"] == "uploads":
 			self.state = RawUploadState.HAS_UPLOAD_EVENT
-			self.descriptor_key = ""
 			self.upload_event = UploadEvent.objects.get(shortid=self.shortid)
 			self.descriptor_json = self.upload_event.descriptor_data
 			self._descriptor = json.loads(self.descriptor_json)
@@ -170,9 +170,9 @@ class RawUpload(object):
 			log.debug("Deleting files from S3")
 			aws.S3.delete_object(Bucket=self.bucket, Key=self.log_key)
 
-			if self.descriptor_key:
+			if self._descriptor_on_s3:
 				aws.S3.delete_object(
-					Bucket=settings.S3_DESCRIPTORS_BUCKET, Key=self.descriptor_key
+					Bucket=settings.S3_DESCRIPTORS_BUCKET, Key=self.descriptor_s3_key
 				)
 
 	@staticmethod
@@ -202,6 +202,10 @@ class RawUpload(object):
 			result.attempt_reprocessing = data["attempt_reprocessing"]
 
 		return result
+
+	@property
+	def descriptor_s3_key(self):
+		return "descriptors/%s.json" % (self.shortid)
 
 	@property
 	def kinesis_data(self):
@@ -236,15 +240,29 @@ class RawUpload(object):
 	@property
 	def descriptor(self):
 		if self._descriptor is None:
-			self.descriptor_json = self._load_descriptor_from_s3(self.descriptor_key)
-			self._descriptor = json.loads(self.descriptor_json)
+			self._load_descriptor()
 		return self._descriptor
 
-	def _load_descriptor_from_s3(self, key):
+	def _load_descriptor(self):
+		try:
+			self._load_descriptor_from_postgres()
+		except Descriptor.DoesNotExist:
+			self._load_descriptor_from_s3()
+		except Exception as e:
+			error_handler(e)
+			self._load_descriptor_from_s3()
+
+	def _load_descriptor_from_postgres(self):
+		obj = Descriptor.objects.get(shortid=self.shortid)
+		self._descriptor = obj.descriptor
+		self.descriptor_json = json.dumps(self._descriptor)
+
+	def _load_descriptor_from_s3(self):
 		obj = aws.S3.get_object(
-			Bucket=settings.S3_DESCRIPTORS_BUCKET, Key=self.descriptor_key
+			Bucket=settings.S3_DESCRIPTORS_BUCKET, Key=self.descriptor_s3_key
 		)
-		return obj["Body"].read().decode("utf-8")
+		self.descriptor_json = obj["Body"].read().decode("utf-8")
+		self._descriptor = json.loads(self.descriptor_json)
 
 
 def _generate_upload_path(instance, filename):
@@ -1746,7 +1764,6 @@ class RedshiftStagingTrackTable(models.Model):
 		return RedshiftETLTask(task_name, self.do_cleanup)
 
 	def do_cleanup(self):
-		from hsreplaynet.utils.instrumentation import error_handler
 		if self.stage != RedshiftETLStage.CLEANING_UP:
 			self.stage = RedshiftETLStage.CLEANING_UP
 			self.cleaning_up_started_at = timezone.now()
