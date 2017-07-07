@@ -1,3 +1,4 @@
+import boto3
 from django.conf import settings
 from .clients import KINESIS, LAMBDA, S3
 
@@ -121,3 +122,12 @@ def list_all_objects_in(bucket, prefix=None):
 					ContinuationToken=list_response["NextContinuationToken"]
 				)
 				objects += list_response["Contents"]
+
+
+def get_bucket_size(bucket_name):
+	count = 0
+	bucket = boto3.resource("s3").Bucket(bucket_name)
+	for obj in bucket.objects.all():
+		count += 1
+
+	return count

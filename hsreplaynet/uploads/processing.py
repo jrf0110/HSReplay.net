@@ -46,14 +46,7 @@ def generate_raw_uploads_for_processing(attempt_reprocessing, limit=None):
 
 
 def current_raw_upload_bucket_size():
-	return sum(1 for upload in _list_raw_uploads_by_prefix("raw"))
-
-
-def _list_raw_uploads_by_prefix(prefix):
-	for object in aws.list_all_objects_in(settings.S3_RAW_LOG_UPLOAD_BUCKET, prefix=prefix):
-		key = object["Key"]
-		if key.endswith(".log"):  # Just emit one message per power.log / canary.log
-			yield RawUpload(settings.S3_RAW_LOG_UPLOAD_BUCKET, key)
+	return aws.get_bucket_size(settings.S3_RAW_LOG_UPLOAD_BUCKET)
 
 
 def _generate_raw_uploads_from_events(events):
