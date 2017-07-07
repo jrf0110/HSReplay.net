@@ -334,23 +334,18 @@ def get_firehose_role_arn():
 	return role["Role"]["Arn"]
 
 
-def get_redshift_cluster_jdbc_url():
-	template = "jdbc:redshift://%s:%s/%s"
-	return template % (settings.REDSHIFT_HOST, settings.REDSHIFT_PORT, settings.REDSHIFT_DB)
-
-
 def create_firehose_stream(stream_name, table_name):
 	return FIREHOSE.create_delivery_stream(
 		DeliveryStreamName=stream_name,
 		RedshiftDestinationConfiguration={
 			"RoleARN": get_firehose_role_arn(),
-			"ClusterJDBCURL": get_redshift_cluster_jdbc_url(),
+			"ClusterJDBCURL": settings.REDSHIFT_DATABASE["JDBC_URL"],
 			"CopyCommand": {
 				"DataTableName": table_name,
 				"CopyOptions": "GZIP COMPUPDATE OFF STATUPDATE OFF"
 			},
-			"Username": settings.REDSHIFT_USER,
-			"Password": settings.REDSHIFT_PASSWORD,
+			"Username": settings.REDSHIFT_DATABASE["USER"],
+			"Password": settings.REDSHIFT_DATABASE["PASSWORD"],
 			"S3Configuration": {
 				"RoleARN": get_firehose_role_arn(),
 				"BucketARN": "arn:aws:s3:::%s" % (settings.REDSHIFT_STAGING_BUCKET),

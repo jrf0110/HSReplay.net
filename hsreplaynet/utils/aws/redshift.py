@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.cache import caches
 from sqlalchemy import create_engine
+from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from hsredshift.analytics.queries import RedshiftCatalogue
@@ -15,10 +16,16 @@ def get_redshift_cache_redis_client():
 
 
 def get_redshift_engine():
+	db = settings.REDSHIFT_DATABASE
+	url = URL(
+		db["ENGINE"],
+		username=db["USER"], password=db["PASSWORD"],
+		host=db["HOST"], port=db["PORT"],
+		database=db["NAME"]
+	)
 	return create_engine(
-		settings.REDSHIFT_CONNECTION,
-		poolclass=NullPool,
-		connect_args={"sslmode": "disable"}
+		url, poolclass=NullPool,
+		connect_args=settings.REDSHIFT_DATABASE["OPTIONS"]
 	)
 
 
