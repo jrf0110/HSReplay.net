@@ -19,6 +19,7 @@ import Tooltip from "../components/Tooltip";
 import {decode as decodeDeckstring} from "deckstrings";
 
 interface MyDecksState {
+	account?: string;
 	cardSearchExcludeKey?: number;
 	cardSearchIncludeKey?: number;
 	cards?: any[];
@@ -35,8 +36,6 @@ interface MyDecksProps extends FragmentChildProps, React.ClassAttributes<MyDecks
 	setGameType?: (gameType: string) => void;
 	includedCards?: string[];
 	setIncludedCards?: (includedCards: string[]) => void;
-	account?: string;
-	setAccount?: (account: string) => void;
 	playerClasses?: FilterOption[];
 	setPlayerClasses?: (playerClasses: FilterOption[]) => void;
 	includedSet?: string;
@@ -49,6 +48,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 	constructor(props: MyDecksProps, state: MyDecksState) {
 		super(props, state);
 		this.state = {
+			account: UserData.getDefaultAccountKey(),
 			cardSearchExcludeKey: 0,
 			cardSearchIncludeKey: 0,
 			cards: null,
@@ -61,10 +61,10 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 
 	componentDidUpdate(prevProps: MyDecksProps, prevState: MyDecksState) {
 		if (
+			this.state.account !== prevState.account ||
 			this.props.excludedCards !== prevProps.excludedCards ||
 			this.props.gameType !== prevProps.gameType ||
 			this.props.includedCards !== prevProps.includedCards ||
-			this.props.account !== prevProps.account ||
 			!_.eq(this.props.playerClasses, prevProps.playerClasses) ||
 			this.props.cardData !== prevProps.cardData ||
 			this.props.includedSet !== prevProps.includedSet
@@ -390,8 +390,11 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					<section id="account-filter">
 						<InfoboxFilterGroup
 							header="Account"
-							selectedValue={this.props.account}
-							onClick={(value) => this.props.setAccount(value)}
+							selectedValue={this.state.account}
+							onClick={(account) => {
+								UserData.setDefaultAccount(account);
+								this.setState({account});
+							}}
 							tabIndex={accounts.length > 1 ? 0 : -1}
 						>
 							{accounts}
@@ -437,14 +440,13 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 		);
 	}
 
-	getPersonalParams(props?: MyDecksProps): any {
-		props = props || this.props;
+	getPersonalParams(): any {
 		const getRegion = (account: string) => account && account.split("-")[0];
 		const getLo = (account: string) => account && account.split("-")[1];
 		return {
-			GameType: props.gameType,
-			Region: getRegion(props.account),
-			account_lo: getLo(props.account),
+			GameType: this.props.gameType,
+			Region: getRegion(this.state.account),
+			account_lo: getLo(this.state.account),
 		};
 	}
 }

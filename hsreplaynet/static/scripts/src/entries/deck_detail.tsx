@@ -13,13 +13,11 @@ const heroDbfId = +document.getElementById("deck-info").getAttribute("data-hero-
 const archetypeId = document.getElementById("deck-info").getAttribute("data-archetype-id");
 const archetypeName = document.getElementById("deck-info").getAttribute("data-archetype-name");
 UserData.create();
-const defaultAccount = UserData.getDefaultAccountKey();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				account: defaultAccount,
 				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
 				selectedClasses: [],

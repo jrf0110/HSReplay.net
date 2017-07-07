@@ -7,13 +7,11 @@ import MyDecks from "../pages/MyDecks";
 
 const container = document.getElementById("my-decks-container");
 UserData.create();
-const defaultAccount = UserData.getDefaultAccountKey();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				account: defaultAccount,
 				excludedCards: [],
 				gameType: "RANKED_STANDARD",
 				includedCards: [],

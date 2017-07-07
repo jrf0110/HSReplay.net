@@ -40,7 +40,6 @@ const render = (cardData: CardData) => {
 		<Fragments
 			defaults={{
 				text: "",
-				account: defaultAccount,
 				showSparse: false,
 				format: "",
 				gameType: "RANKED_STANDARD",

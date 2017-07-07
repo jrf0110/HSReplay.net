@@ -36,6 +36,7 @@ export const enum ViewType {
 };
 
 interface CardDiscoverState {
+	account?: string;
 	cards?: any[];
 	filteredCards?: any[];
 	filterCounts?: CardFilters;
@@ -52,8 +53,6 @@ interface CardDiscoverProps extends FragmentChildProps, React.ClassAttributes<Ca
 
 	text?: string;
 	setText?: (text: string, debounce?: boolean) => void;
-	account?: string;
-	setAccount?: (account: string) => void;
 	showSparse?: boolean;
 	setShowSparse?: (showSparse: boolean) => void;
 	format?: string;
@@ -138,6 +137,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
 		super(props, state);
 		this.state = {
+			account: UserData.getDefaultAccountKey(),
 			cards: null,
 			filterCounts: null,
 			filteredCards: [],
@@ -158,7 +158,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 		this.filters.mechanics.sort();
 
-		if (this.props.viewType === ViewType.PERSONAL && this.props.account) {
+		if (this.props.viewType === ViewType.PERSONAL && this.state.account) {
 			DataManager.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => this.setState({hasPersonalData: data && data.series.data.ALL.length > 0}));
 		}
@@ -270,7 +270,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					return [];
 				});
 		}
-		else if (this.props.viewType === ViewType.PERSONAL && this.props.account) {
+		else if (this.props.viewType === ViewType.PERSONAL && this.state.account) {
 			return DataManager
 				.get("single_account_lo_individual_card_stats", this.getPersonalParams())
 				.then((data) => {
@@ -322,7 +322,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 
 		if (viewType === ViewType.PERSONAL) {
-			if (this.props.account) {
+			if (this.state.account) {
 				content.push(
 					<div className="table-wrapper">
 						<DataInjector
@@ -667,10 +667,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				filters.push(
 					<InfoboxFilterGroup
 						header="Accounts"
-						selectedValue={this.props.account}
-						onClick={(value) => {
-							UserData.setDefaultAccount(value);
-							this.props.setAccount(value);
+						selectedValue={this.state.account}
+						onClick={(account) => {
+							UserData.setDefaultAccount(account);
+							this.setState({account});
 						}}
 						tabIndex={accounts.length > 1 ? 0 : -1}
 					>
@@ -680,7 +680,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		}
 
-		if (viewType === ViewType.STATISTICS || (viewType === ViewType.PERSONAL && this.props.account)) {
+		if (viewType === ViewType.STATISTICS || (viewType === ViewType.PERSONAL && this.state.account)) {
 			const lastUpdatedUrl = viewType === ViewType.STATISTICS
 				? "card_played_popularity_report"
 				: "single_account_lo_individual_card_stats";
@@ -932,8 +932,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		const getLo = (account: string) => account && account.split("-")[1];
 		return {
 			GameType: this.props.gameType,
-			Region: getRegion(this.props.account),
-			account_lo: getLo(this.props.account),
+			Region: getRegion(this.state.account),
+			account_lo: getLo(this.state.account),
 			TimeRange: this.props.timeRange,
 		};
 	}

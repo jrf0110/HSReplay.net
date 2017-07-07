@@ -41,6 +41,7 @@ interface AvailableFilters {
 }
 
 interface DeckDetailState {
+	account?: string;
 	availableFilters?: AvailableFilters;
 	expandWinrate?: boolean;
 	hasData?: boolean;
@@ -53,8 +54,6 @@ interface DeckDetailState {
 }
 
 interface DeckDetailProps {
-	account?: string;
-	setAccount?: (account: string) => void;
 	adminUrl: string;
 	archetypeId?: string;
 	archetypeName?: string;
@@ -78,6 +77,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	constructor(props: DeckDetailProps, state: DeckDetailState) {
 		super(props, state);
 		this.state = {
+			account: UserData.getDefaultAccountKey(),
 			availableFilters: {},
 			expandWinrate: false,
 			hasData: undefined,
@@ -90,15 +90,15 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		this.fetchPersonalDeckSummary();
 	}
 
-	componentWillReceiveProps(nextProps: DeckDetailProps, nextState: DeckDetailState) {
-		if (nextProps.account !== this.props.account) {
-			this.fetchPersonalDeckSummary(nextProps);
+	componentWillUpdate(nextProps: DeckDetailProps, nextState: DeckDetailState) {
+		if (nextState.account !== this.state.account) {
+			this.fetchPersonalDeckSummary(nextState);
 		}
 	}
 
-	fetchPersonalDeckSummary(props?: DeckDetailProps) {
+	fetchPersonalDeckSummary(state?: DeckDetailState) {
 		if (UserData.hasFeature("personal-deck-stats")) {
-			DataManager.get("single_account_lo_decks_summary", this.getPersonalParams(props)).then((data) => {
+			DataManager.get("single_account_lo_decks_summary", this.getPersonalParams(state)).then((data) => {
 				this.setState({
 					hasPeronalData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
 				});
@@ -178,10 +178,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				accountFilter = (
 					<InfoboxFilterGroup
 						header="Accounts"
-						selectedValue={this.props.account}
-						onClick={(value) => {
-							UserData.setDefaultAccount(value);
-							this.props.setAccount(value);
+						selectedValue={this.state.account}
+						onClick={(account) => {
+							UserData.setDefaultAccount(account);
+							this.setState({account});
 						}}
 						tabIndex={accounts.length > 1 ? 0 : -1}
 					>
@@ -668,14 +668,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		};
 	}
 
-	getPersonalParams(props?: DeckDetailProps): any {
-		props = props || this.props;
+	getPersonalParams(state?: DeckDetailState): any {
+		state = state || this.state;
 		const getRegion = (account: string) => account && account.split("-")[0];
 		const getLo = (account: string) => account && account.split("-")[1];
 		return {
 			GameType: this.gameType(),
-			Region: getRegion(props.account),
-			account_lo: getLo(props.account),
+			Region: getRegion(state.account),
+			account_lo: getLo(state.account),
 		};
 	}
 
