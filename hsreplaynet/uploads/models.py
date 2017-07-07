@@ -128,6 +128,7 @@ class RawUpload(object):
 		self.bucket = bucket
 		self.log_key = key
 		self.upload_event = None
+		self._descriptor_on_postgres = False
 		self._descriptor_on_s3 = False
 
 		match = re.match(self.LOG_KEY_PATTERN, key)
@@ -174,6 +175,9 @@ class RawUpload(object):
 				aws.S3.delete_object(
 					Bucket=settings.S3_DESCRIPTORS_BUCKET, Key=self.descriptor_s3_key
 				)
+
+			if self._descriptor_on_postgres:
+				Descriptor.objects.filter(shortid=self.shortid).delete()
 
 	@staticmethod
 	def from_s3_event(event):
@@ -256,6 +260,7 @@ class RawUpload(object):
 		obj = Descriptor.objects.get(shortid=self.shortid)
 		self._descriptor = obj.descriptor
 		self.descriptor_json = json.dumps(self._descriptor)
+		self._descriptor_on_postgres = True
 
 	def _load_descriptor_from_s3(self):
 		obj = aws.S3.get_object(
@@ -263,6 +268,7 @@ class RawUpload(object):
 		)
 		self.descriptor_json = obj["Body"].read().decode("utf-8")
 		self._descriptor = json.loads(self.descriptor_json)
+		self._descriptor_on_s3 = True
 
 
 def _generate_upload_path(instance, filename):
