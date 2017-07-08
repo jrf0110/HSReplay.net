@@ -11,6 +11,8 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
+				ascending: "false",
+				sortBy: "class",
 				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
 				timeFrame: "LAST_14_DAYS",

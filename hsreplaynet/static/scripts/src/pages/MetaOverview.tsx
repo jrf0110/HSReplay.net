@@ -33,6 +33,10 @@ interface MetaOverviewState {
 
 interface MetaOverviewProps {
 	cardData: CardData;
+	ascending?: string;
+	setAscending?: (ascending: string) => void;
+	sortBy?: string;
+	setSortBy?: (sortBy: string) => void;
 	gameType?: string;
 	setGameType?: (gameType: string) => void;
 	rankRange?: string;
@@ -130,6 +134,23 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
 				</section>
+				<InfoboxFilterGroup
+					header="Sorting [debug]"
+					selectedValue={this.props.sortBy}
+					onClick={(value) => this.props.setSortBy(value)}
+				>
+					<InfoboxFilter value="class">Class</InfoboxFilter>
+					<InfoboxFilter value="popularity">Popularity</InfoboxFilter>
+					<InfoboxFilter value="winrate">Winrate</InfoboxFilter>
+				</InfoboxFilterGroup>
+				<InfoboxFilterGroup
+					header="Direction [debug]"
+					selectedValue={this.props.ascending}
+					onClick={(value) => this.props.setAscending(value)}
+				>
+					<InfoboxFilter value="true">Ascending</InfoboxFilter>
+					<InfoboxFilter value="false">Descending</InfoboxFilter>
+				</InfoboxFilterGroup>
 			</aside>
 			<main>
 				<h2 className="text-center">Matchups</h2>
@@ -140,7 +161,12 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
 					]}
 				>
-					<ArchetypeHeadToHead />
+					<ArchetypeHeadToHead
+						ascending={this.props.ascending}
+						setAscending={this.props.setAscending}
+						sortBy={this.props.sortBy}
+						setSortBy={this.props.setSortBy}
+					/>
 				</DataInjector>
 			</main>
 		</div>;

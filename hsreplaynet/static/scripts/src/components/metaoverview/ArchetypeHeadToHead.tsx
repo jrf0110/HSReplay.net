@@ -8,6 +8,10 @@ interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadTo
 	archetypeData?: any;
 	matchupData?: any;
 	popularityData?: any;
+	ascending?: string;
+	setAscending?: (ascending: string) => void;
+	sortBy?: string;
+	setSortBy?: (prop: string) => void;
 }
 
 interface ArchetypeHeadToHeadState {
@@ -29,12 +33,20 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			return null;
 		}
 
-		const archetypes: ArchetypeData[] = [];
+		const archetypeData: ArchetypeData[] = [];
 
-		const archetypeIds = this.getAllArchetypeIds();
-		archetypeIds.forEach((friendly: ApiArchetype) => {
+		const archetypes = this.getAllArchetypes();
+		const popularities = {};
+
+		archetypes.forEach((archetype) => {
+			popularities[archetype.id] = this.getPopularity(archetype);
+		});
+
+		this.sortArchetypes(archetypes, popularities);
+
+		archetypes.forEach((friendly: ApiArchetype) => {
 			const matchups: MatchupData[] = [];
-			archetypeIds.forEach((opponent: ApiArchetype) => {
+			archetypes.forEach((opponent: ApiArchetype) => {
 				const apiMatchup = this.getMatchup(friendly, opponent);
 				matchups.push({
 					friendlyId: friendly.id,
@@ -47,27 +59,46 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					winrate: apiMatchup.win_rate,
 				});
 			});
-			const apiPopularity = this.getPopularity(friendly);
-			archetypes.push({
+			const popularity = popularities[friendly.id];
+			archetypeData.push({
 				id: friendly.id,
 				matchups,
 				name: friendly.name,
 				playerClass: friendly.player_class,
-				popularityClass: apiPopularity.pct_of_class,
-				popularityTotal: apiPopularity.pct_of_total,
-				winrate: apiPopularity.win_rate,
+				popularityClass: popularity.pct_of_class,
+				popularityTotal: popularity.pct_of_total,
+				winrate: popularity.win_rate,
 			});
 		});
 
 		return (
 			<ArchetypeMatrix
-				archetypes={archetypes}
+				archetypes={archetypeData}
 				favorites={this.state.favorites}
 				ignoredColumns={this.state.ignoredColumns}
 				onFavoriteChanged={(archetypeId) => this.onFavoriteChanged(archetypeId)}
 				onIgnoredColumnChanged={(archetypeId) => this.onIgnoredColumnChanged(archetypeId)}
 			/>
 		);
+	}
+
+	sortArchetypes(archetypes: ApiArchetype[], popularities: any) {
+		const direction = this.props.ascending === "true" ? -1 : 1;
+
+		const compare = (a: ApiArchetype, b: ApiArchetype): number => {
+			if (this.props.sortBy === "popularity") {
+				return popularities[a.id].pct_of_total - popularities[b.id].pct_of_total;
+			}
+			if (this.props.sortBy === "winrate") {
+				return popularities[a.id].win_rate - popularities[b.id].win_rate;
+			}
+			return a.player_class > b.player_class ? 1 : -1;
+		};
+
+		archetypes.sort((a: ApiArchetype, b: ApiArchetype) => {
+			const value = compare(a, b) || (a.name > b.name ? 1 : -1);
+			return value * direction;
+		});
 	}
 
 	onFavoriteChanged(archetypeId: number) {
@@ -94,7 +125,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		UserData.setSetting("archetype-ignored", ignoredColumns);
 	}
 
-	getAllArchetypeIds(): ApiArchetype[] {
+	getAllArchetypes(): ApiArchetype[] {
 		const matchupData = this.props.matchupData.series.data;
 		const archetypeIds = [];
 		Object.keys(matchupData).forEach((playerClass: string) => {
