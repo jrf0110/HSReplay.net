@@ -3,7 +3,6 @@ import { ArchetypeData } from "../../interfaces";
 
 interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	archetypeData: ArchetypeData;
-	isFavorite: boolean;
 	isIgnored: boolean;
 }
 

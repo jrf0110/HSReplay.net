@@ -26,13 +26,35 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		this.props.archetypes.forEach((archetype) => {
 			const isIgnored = this.props.ignoredColumns.indexOf(archetype.id) !== -1;
 			if (this.props.favorites.indexOf(archetype.id) === -1) {
-				headers.push(<ColumnHeader archetypeData={archetype} isFavorite={false} isIgnored={isIgnored}/>);
-				rows.push(<MatchupRow archetypeData={archetype} ignoredColumns={this.props.ignoredColumns} />);
+				headers.push(
+					<ColumnHeader
+						archetypeData={archetype}
+						isIgnored={isIgnored}
+					/>,
+				);
+				rows.push(
+					<MatchupRow
+						archetypeData={archetype}
+						isFavorite={false}
+						ignoredColumns={this.props.ignoredColumns}
+					/>,
+				);
 				popularities.push(<ColumnFooter archetypeData={archetype} />);
 			}
 			else {
-				favoriteHeaders.push(<ColumnHeader archetypeData={archetype} isFavorite={true} isIgnored={isIgnored}/>);
-				favoriteRows.push(<MatchupRow archetypeData={archetype} ignoredColumns={this.props.ignoredColumns} />);
+				favoriteHeaders.push(
+					<ColumnHeader
+						archetypeData={archetype}
+						isIgnored={isIgnored}
+					/>,
+				);
+				favoriteRows.push(
+					<MatchupRow
+						archetypeData={archetype}
+						isFavorite={true}
+						ignoredColumns={this.props.ignoredColumns}
+					/>,
+				);
 				favoritePopularities.push(<ColumnFooter archetypeData={archetype} />);
 			}
 		});
