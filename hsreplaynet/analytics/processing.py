@@ -190,6 +190,46 @@ def run_local_warm_queries(eligible_queries=None):
 		execute_query(parameterized_query, run_local=True)
 
 
+_eligible_decks_cache = {}
+
+
+def deck_is_eligible_for_global_stats(deck):
+	return deck.digest in _get_global_stats_eligible_decks()
+
+
+def _get_global_stats_eligible_decks():
+
+	query = redshift.get_redshift_query("list_decks_by_win_rate")
+	standard_query = query.build_full_params(dict(
+		TimeRange="LAST_30_DAYS",
+		GameType="RANKED_STANDARD",
+	))
+	wild_query = query.build_full_params(dict(
+		TimeRange="LAST_30_DAYS",
+		GameType="RANKED_WILD",
+	))
+
+	digest_cache_missing = _eligible_decks_cache.get("eligible_decks", None) is None
+	standard_as_of = _eligible_decks_cache.get("standard_as_of", None)
+	standard_is_stale = standard_as_of != standard_query.result_as_of
+	wild_as_of = _eligible_decks_cache.get("wild_as_of", None)
+	wild_is_stale = wild_as_of != wild_query.result_as_of
+
+	if digest_cache_missing or standard_is_stale or wild_is_stale:
+		result = set()
+		for player_class, decks in standard_query.response_payload["series"]["data"].items():
+			for deck in decks:
+				result.add(deck["digest"])
+		for player_class, decks in wild_query.response_payload["series"]["data"].items():
+			for deck in decks:
+				result.add(deck["digest"])
+		_eligible_decks_cache["standard_as_of"] = standard_query.result_as_of
+		_eligible_decks_cache["wild_as_of"] = standard_query.result_as_of
+		_eligible_decks_cache["eligible_decks"] = result
+
+	return _eligible_decks_cache["eligible_decks"]
+
+
 def enable_premium_accounts_in_redshift(accounts):
 	from hsredshift.etl.models import premium_account
 	session = redshift.get_new_redshift_session()

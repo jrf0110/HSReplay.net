@@ -11,7 +11,8 @@ from hsreplaynet.decks.models import Deck
 from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from .processing import (
-	evict_locks_cache, execute_query, get_concurrent_redshift_query_queue_semaphore,
+	deck_is_eligible_for_global_stats, evict_locks_cache,
+	execute_query, get_concurrent_redshift_query_queue_semaphore,
 )
 
 
@@ -56,6 +57,7 @@ def _get_query_and_params(request, name):
 		raise Http404("No query named: %s" % name)
 
 	supplied_params = request.GET.dict()
+	deck = None
 	if "deck_id" in supplied_params and not supplied_params["deck_id"].isdigit():
 		# We got sent a shortid, so we need to translate it into a deck_id int
 		try:
@@ -102,6 +104,9 @@ def _get_query_and_params(request, name):
 			# Anonymous or Fake Users Can Never Request Personal Stats
 			return HttpResponseForbidden()
 	else:
+		if deck and not deck_is_eligible_for_global_stats(deck):
+			raise Http404("Deck is not eligible for global stats")
+
 		try:
 			parameterized_query = query.build_full_params(supplied_params)
 		except InvalidOrMissingQueryParameterError as e:
