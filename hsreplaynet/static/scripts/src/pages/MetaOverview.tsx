@@ -6,8 +6,8 @@ import UserData from "../UserData";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
 import CardData from "../CardData";
-import ArchetypeMatrix from "../components/metaoverview/ArchetypeMatrix";
 import DataInjector from "../components/DataInjector";
+import ArchetypeHeadToHead from "../components/metaoverview/ArchetypeHeadToHead";
 
 export interface EvaluatedArchetype {
 	[archetype: string]: number;
@@ -139,11 +139,12 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 								<h2 className="text-center">Matchups</h2>
 								<DataInjector
 									query={[
+										{key: "archetypeData", params, url: "/api/v1/archetypes/"},
 										{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
 										{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
 									]}
 								>
-									<ArchetypeMatrix />
+									<ArchetypeHeadToHead />
 								</DataInjector>
 							</div>
 						</div>

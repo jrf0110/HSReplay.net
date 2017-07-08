@@ -1,9 +1,11 @@
 import * as React from "react";
 import MatchupRow from "./MatchupRow";
 import ColumnHeader from "./ColumnHeader";
-import Bar from "./Bar";
+import { ArchetypeData } from "../../interfaces";
+import ColumnFooter from "./ColumnFooter";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
+	archetypes: ArchetypeData[];
 }
 
 interface ArchetypeMatrixState {
@@ -12,25 +14,27 @@ interface ArchetypeMatrixState {
 export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProps, ArchetypeMatrixState> {
 	render() {
 
-		const archetypes = [{},{},{},{},{}];
+		const headers = [];
+		const rows = [];
+		const popularities = [];
+
+		this.props.archetypes.forEach((archetype) => {
+			headers.push(<ColumnHeader archetypeData={archetype}/>);
+			rows.push(<MatchupRow archetypeData={archetype}/>);
+			popularities.push(<ColumnFooter archetypeData={archetype}/>);
+		});
 
 		return (
 			<table>
 				<tr>
 					<th>Class</th>
-					{archetypes.map(() => <ColumnHeader />)}
+					{headers}
 					<th>EWR</th>
 				</tr>
-				{archetypes.map(() => <MatchupRow />)}
+				{rows}
 				<tr>
 					<th>Popularity</th>
-					{archetypes.map(() => (
-						<td>
-							<Bar total={100} value={50} />
-							<br />
-							50.00%
-						</td>
-					))}
+					{popularities}
 				</tr>
 			</table>
 		);
