@@ -8,6 +8,7 @@ interface MatchupRowProps extends React.ClassAttributes<MatchupRow> {
 	archetypeData: ArchetypeData;
 	ignoredColumns: number[];
 	isFavorite: boolean;
+	onFavoriteChanged: (archetypeId: number) => void;
 }
 
 interface MatchupRowState {
@@ -21,7 +22,11 @@ export default class MatchupRow extends React.Component<MatchupRowProps, Matchup
 		});
 		return (
 			<tr>
-				<RowHeader archetypeData={this.props.archetypeData}/>
+				<RowHeader
+					archetypeData={this.props.archetypeData}
+					isFavorite={this.props.isFavorite}
+					onClick={() => this.props.onFavoriteChanged(this.props.archetypeData.id)}
+				/>
 				{cells}
 				<RowFooter archetypeData={this.props.archetypeData}/>
 			</tr>
