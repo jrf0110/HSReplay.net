@@ -6,7 +6,7 @@ import UserData from "../UserData";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
 import CardData from "../CardData";
-import ArchetypeMatrix from "../components/stats/ArchetypeMatrix";
+import ArchetypeMatrix from "../components/metaoverview/ArchetypeMatrix";
 import DataInjector from "../components/DataInjector";
 
 export interface EvaluatedArchetype {
@@ -143,7 +143,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 										{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
 									]}
 								>
-									<ArchetypeMatrix/>
+									<ArchetypeMatrix />
 								</DataInjector>
 							</div>
 						</div>
