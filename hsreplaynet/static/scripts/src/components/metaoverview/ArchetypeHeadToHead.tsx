@@ -50,24 +50,25 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					opponentId: opponent.id,
 					opponentName: opponent.name,
 					opponentPlayerClass: opponent.player_class,
-					totalGames: apiMatchup.total_games,
-					winrate: apiMatchup.win_rate,
+					totalGames: apiMatchup && apiMatchup.total_games,
+					winrate: apiMatchup && apiMatchup.win_rate,
 				});
-				if (this.state.ignoredColumns.indexOf(opponent.id) === -1) {
+				if (apiMatchup && this.state.ignoredColumns.indexOf(opponent.id) === -1) {
 					effectiveWinrate += apiMatchup.win_rate * apiMatchup.total_games;
 					totalGames += apiMatchup.total_games;
 				}
 			});
 			effectiveWinrate = Math.round(effectiveWinrate / (totalGames / 100)) / 100;
 			const popularity = this.getPopularity(friendly);
+			console.log(popularity.archetype_id, popularity.pct_of_total);
 			archetypeData.push({
 				id: friendly.id,
 				matchups,
 				name: friendly.name,
 				playerClass: friendly.player_class,
-				popularityClass: popularity.pct_of_class,
-				popularityTotal: popularity.pct_of_total,
-				winrate: popularity.win_rate,
+				popularityClass: popularity ? popularity.pct_of_class : 0,
+				popularityTotal: popularity ? popularity.pct_of_total : 0,
+				winrate: popularity ? popularity.win_rate : 0,
 				effectiveWinrate,
 			});
 		});
