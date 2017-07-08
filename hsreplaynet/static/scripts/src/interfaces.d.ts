@@ -205,6 +205,27 @@ export interface MyDecks {
 	[deckId: string]: any;
 }
 
+export interface Archetype {
+	id: number;
+	name: string;
+	player_class: string;
+}
+
+export interface ArchetypeMatchupData {
+	friendly_archetype: Archetype;
+	opponent_archetype: Archetype;
+	win_rate: number;
+	total_games: number;
+}
+
+export interface ArchetypePopularity {
+	archetype: Archetype;
+	total_games: number;
+	win_rate: number;
+	pct_of_class: number;
+	pct_of_total: number;
+}
+
 export type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
 export type RankRange = "ALL" | "LEGEND_ONLY" | "ONE_THROUGH_FIVE" | "SIX_THROUGH_TEN" | "ELEVEN_THROUGH_FIFTEEN" | "SIXTEEN_THROUGH_TWENTY" | "TWENTYONE_THROUGH_TWENTYFIVE" | "LEGEND_THROUGH_TEN" | "ELEVEN_THROUGH_TWENTYFIVE";
 export type Region = "ALL" | "REGION_US" | "REGION_EU" | "REGION_KR" | "REGION_CN";
