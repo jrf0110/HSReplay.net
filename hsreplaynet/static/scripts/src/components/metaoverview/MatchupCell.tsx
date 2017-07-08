@@ -3,6 +3,7 @@ import { MatchupData } from "../../interfaces";
 
 interface MatchupCellProps extends React.ClassAttributes<MatchupCell> {
 	matchupData: MatchupData;
+	isIgnored: boolean;
 }
 
 interface MatchupCellState {

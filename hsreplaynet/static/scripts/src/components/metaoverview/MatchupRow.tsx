@@ -6,6 +6,7 @@ import RowFooter from "./RowFooter";
 
 interface MatchupRowProps extends React.ClassAttributes<MatchupRow> {
 	archetypeData: ArchetypeData;
+	ignoredColumns: number[];
 }
 
 interface MatchupRowState {
@@ -14,7 +15,8 @@ interface MatchupRowState {
 export default class MatchupRow extends React.Component<MatchupRowProps, MatchupRowState> {
 	render() {
 		const cells = this.props.archetypeData.matchups.map((matchup) => {
-			return <MatchupCell matchupData={matchup}/>;
+			const isIgnored = this.props.ignoredColumns.indexOf(matchup.opponentId) !== -1;
+			return <MatchupCell matchupData={matchup} isIgnored={isIgnored}/>;
 		});
 		return (
 			<tr>
