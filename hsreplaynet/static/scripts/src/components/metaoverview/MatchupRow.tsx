@@ -7,6 +7,7 @@ import RowFooter from "./RowFooter";
 interface MatchupRowProps extends React.ClassAttributes<MatchupRow> {
 	archetypeData: ArchetypeData;
 	ignoredColumns: number[];
+	isFavorite: boolean;
 }
 
 interface MatchupRowState {
