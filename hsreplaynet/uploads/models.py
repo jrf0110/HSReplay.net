@@ -14,8 +14,7 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django_intenum import IntEnumField
-from psycopg2 import DatabaseError, InternalError
-from sqlalchemy import MetaData
+from psycopg2 import DatabaseError
 from sqlalchemy.sql import func, select
 from hsredshift.etl.models import create_staging_table, list_staging_eligible_tables
 from hsredshift.etl.views import (
@@ -72,6 +71,9 @@ _md_cache = {}
 
 
 def get_redshift_metadata(refresh=False):
+	from sqlalchemy import MetaData
+	from sqlalchemy.exc import InternalError
+
 	if "md" not in _md_cache or refresh:
 		md = MetaData()
 
