@@ -1,6 +1,8 @@
 import * as React from "react";
+import { ArchetypeData } from "../../interfaces";
 
 interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
+	archetypeData: ArchetypeData;
 }
 
 interface ColumnHeaderState {
@@ -9,7 +11,7 @@ interface ColumnHeaderState {
 export default class ColumnHeader extends React.Component<ColumnHeaderProps, ColumnHeaderState> {
 	render() {
 		return (
-			<th>Quest Rogue</th>
+			<th>{this.props.archetypeData.name}</th>
 		);
 	}
 }

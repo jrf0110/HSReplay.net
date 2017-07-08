@@ -205,21 +205,42 @@ export interface MyDecks {
 	[deckId: string]: any;
 }
 
-export interface Archetype {
+export interface ArchetypeData {
+	matchups: MatchupData[];
+	id: number;
+	name: string;
+	playerClass: string
+	popularityTotal: number;
+	popularityClass: number;
+	winrate: number;
+}
+
+export interface MatchupData {
+	friendlyId: number;
+	friendlyName: string;
+	friendlyPlayerClass: string;
+	opponentId: number;
+	opponentName: string;
+	opponentPlayerClass: string;
+	winrate: number;
+	totalGames: number;
+}
+
+export interface ApiArchetype {
 	id: number;
 	name: string;
 	player_class: string;
 }
 
-export interface ArchetypeMatchupData {
-	friendly_archetype: Archetype;
-	opponent_archetype: Archetype;
+export interface ApiArchetypeMatchupData {
+	friendly_archetype_id: number;
+	opponent_archetype_id: number;
 	win_rate: number;
 	total_games: number;
 }
 
-export interface ArchetypePopularity {
-	archetype: Archetype;
+export interface ApiArchetypePopularity {
+	archetype_id: number;
 	total_games: number;
 	win_rate: number;
 	pct_of_class: number;

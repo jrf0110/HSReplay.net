@@ -1,9 +1,11 @@
 import * as React from "react";
 import RowHeader from "./RowHeader";
 import MatchupCell from "./MatchupCell";
-import Bar from "./Bar";
+import { ArchetypeData } from "../../interfaces";
+import RowFooter from "./RowFooter";
 
 interface MatchupRowProps extends React.ClassAttributes<MatchupRow> {
+	archetypeData: ArchetypeData;
 }
 
 interface MatchupRowState {
@@ -11,17 +13,14 @@ interface MatchupRowState {
 
 export default class MatchupRow extends React.Component<MatchupRowProps, MatchupRowState> {
 	render() {
-		const matchups = [{},{},{},{},{}];
-
+		const cells = this.props.archetypeData.matchups.map((matchup) => {
+			return <MatchupCell matchupData={matchup}/>;
+		});
 		return (
 			<tr>
-				<RowHeader />
-				{matchups.map((matchup) => <MatchupCell />)}
-				<td>
-					<Bar total={100} value={50} />
-					<br />
-					100.00%
-				</td>
+				<RowHeader archetypeData={this.props.archetypeData}/>
+				{cells}
+				<RowFooter archetypeData={this.props.archetypeData}/>
 			</tr>
 		);
 	}
