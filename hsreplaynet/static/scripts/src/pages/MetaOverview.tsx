@@ -132,28 +132,16 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</section>
 			</aside>
 			<main>
-				<div className="row">
-					<div className="col-lg-9 col-md-12">
-						<div className="row">
-							<div className="col-lg-10 col-md-10 col-xs-12">
-								<h2 className="text-center">Matchups</h2>
-								<DataInjector
-									query={[
-										{key: "archetypeData", params, url: "/api/v1/archetypes/"},
-										{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-										{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
-									]}
-								>
-									<ArchetypeHeadToHead />
-								</DataInjector>
-							</div>
-						</div>
-					</div>
-					<div className="col-lg-3 col-sm-12">
-						<h2 className="text-center">{this.state.selectedArchetype ? this.state.selectedArchetype : "Archetype"}</h2>
-						{this.renderDecklist()}
-					</div>
-				</div>
+				<h2 className="text-center">Matchups</h2>
+				<DataInjector
+					query={[
+						{key: "archetypeData", params, url: "/api/v1/archetypes/"},
+						{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+						{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+					]}
+				>
+					<ArchetypeHeadToHead />
+				</DataInjector>
 			</main>
 		</div>;
 	}
