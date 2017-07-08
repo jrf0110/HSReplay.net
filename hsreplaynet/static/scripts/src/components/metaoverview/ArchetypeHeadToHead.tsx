@@ -10,9 +10,19 @@ interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadTo
 }
 
 interface ArchetypeHeadToHeadState {
+	favorites: number[];
+	ignoredColumns: number[];
 }
 
 export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadToHeadProps, ArchetypeHeadToHeadState> {
+	constructor(props: ArchetypeHeadToHeadProps, state: ArchetypeHeadToHeadState) {
+		super();
+		this.state = {
+			favorites: [],
+			ignoredColumns: [],
+		};
+	}
+
 	render() {
 		if (!this.props.matchupData || !this.props.popularityData || !this.props.archetypeData) {
 			return null;
@@ -48,7 +58,13 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			});
 		});
 
-		return <ArchetypeMatrix archetypes={archetypes}/>;
+		return (
+			<ArchetypeMatrix
+				archetypes={archetypes}
+				favorites={this.state.favorites}
+				ignoredColumns={this.state.ignoredColumns}
+			/>
+		);
 	}
 
 	getAllArchetypeIds(): ApiArchetype[] {
