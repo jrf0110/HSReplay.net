@@ -13,9 +13,9 @@ export default class RowFooter extends React.Component<RowFooterProps, RowFooter
 	render() {
 		return (
 			<td>
-				<Bar total={100} value={this.props.archetypeData.winrate} />
+				<Bar total={100} value={this.props.archetypeData.effectiveWinrate} />
 				<br />
-				{this.props.archetypeData.winrate}%
+				{this.props.archetypeData.effectiveWinrate}%
 			</td>
 		);
 	}

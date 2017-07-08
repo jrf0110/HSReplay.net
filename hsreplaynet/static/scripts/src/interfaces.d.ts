@@ -213,6 +213,7 @@ export interface ArchetypeData {
 	popularityTotal: number;
 	popularityClass: number;
 	winrate: number;
+	effectiveWinrate: number;
 }
 
 export interface MatchupData {

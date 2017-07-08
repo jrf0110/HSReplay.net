@@ -36,16 +36,11 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		const archetypeData: ArchetypeData[] = [];
 
 		const archetypes = this.getAllArchetypes();
-		const popularities = {};
-
-		archetypes.forEach((archetype) => {
-			popularities[archetype.id] = this.getPopularity(archetype);
-		});
-
-		this.sortArchetypes(archetypes, popularities);
 
 		archetypes.forEach((friendly: ApiArchetype) => {
 			const matchups: MatchupData[] = [];
+			let effectiveWinrate = 0;
+			let totalGames = 0;
 			archetypes.forEach((opponent: ApiArchetype) => {
 				const apiMatchup = this.getMatchup(friendly, opponent);
 				matchups.push({
@@ -58,8 +53,13 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					totalGames: apiMatchup.total_games,
 					winrate: apiMatchup.win_rate,
 				});
+				if (this.state.ignoredColumns.indexOf(opponent.id) === -1) {
+					effectiveWinrate += apiMatchup.win_rate * apiMatchup.total_games;
+					totalGames += apiMatchup.total_games;
+				}
 			});
-			const popularity = popularities[friendly.id];
+			effectiveWinrate = Math.round(effectiveWinrate / (totalGames / 100)) / 100;
+			const popularity = this.getPopularity(friendly);
 			archetypeData.push({
 				id: friendly.id,
 				matchups,
@@ -68,7 +68,15 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				popularityClass: popularity.pct_of_class,
 				popularityTotal: popularity.pct_of_total,
 				winrate: popularity.win_rate,
+				effectiveWinrate,
 			});
+		});
+
+		this.sortArchetypes(archetypeData);
+
+		const sortedIds = archetypeData.map((archetype) => archetype.id);
+		archetypeData.forEach((archetype) => {
+			archetype.matchups = sortedIds.map((id) => archetype.matchups.find((m) => m.opponentId === id));
 		});
 
 		return (
@@ -82,20 +90,20 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		);
 	}
 
-	sortArchetypes(archetypes: ApiArchetype[], popularities: any) {
+	sortArchetypes(archetypes: ArchetypeData[]) {
 		const direction = this.props.ascending === "true" ? -1 : 1;
 
-		const compare = (a: ApiArchetype, b: ApiArchetype): number => {
+		const compare = (a: ArchetypeData, b: ArchetypeData): number => {
 			if (this.props.sortBy === "popularity") {
-				return popularities[a.id].pct_of_total - popularities[b.id].pct_of_total;
+				return a.popularityTotal - b.popularityTotal;
 			}
 			if (this.props.sortBy === "winrate") {
-				return popularities[a.id].win_rate - popularities[b.id].win_rate;
+				return a.effectiveWinrate - b.effectiveWinrate;
 			}
-			return a.player_class > b.player_class ? 1 : -1;
+			return a.playerClass > b.playerClass ? 1 : -1;
 		};
 
-		archetypes.sort((a: ApiArchetype, b: ApiArchetype) => {
+		archetypes.sort((a: ArchetypeData, b: ArchetypeData) => {
 			const value = compare(a, b) || (a.name > b.name ? 1 : -1);
 			return value * direction;
 		});
