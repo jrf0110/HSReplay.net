@@ -311,40 +311,59 @@ class ArchetypeManager(models.Manager):
 		self.update_signatures_for_format(enums.FormatType.FT_WILD, archetype=archetype)
 
 	def update_signatures_for_format(self, game_format, archetype):
-		deck_observation_counts = self._get_deck_observation_counts_from_redshift(game_format)
-		card_prevalance_counts = {}
-		digests = list(deck_observation_counts.keys())
-		deck_occurences = 0
+		observation_counts = self._get_deck_observation_counts_from_redshift(game_format)
+		digests = list(observation_counts.keys())
 
-		for deck in Deck.objects.filter(digest__in=digests, archetype_id=archetype.id):
-			obs_count = deck_observation_counts[deck.digest]
-			deck_occurences += obs_count
-			for card in deck:
-				if card not in card_prevalance_counts:
-					card_prevalance_counts[card] = 0
-				card_prevalance_counts[card] += obs_count
+		includes = Include.objects.filter(
+			deck__digest__in=digests,
+			deck__archetype_id=archetype.id
+		).values("deck__digest", "card__card_id", "card__dbf_id", "count")
+
+		matching_decks = {}
+		for include in includes:
+			digest = include["deck__digest"]
+			if digest not in includes:
+				includes[digest] = []
+			includes[digest].append({
+				"card_id": include["card__card_id"],
+				"dbf_id": include["card__dbf_id"],
+				"count": include["count"],
+			})
+
+		components = self.get_signature_components(matching_decks, observation_counts)
 
 		signature = Signature.objects.create(
 			archetype=archetype, format=game_format, as_of=timezone.now()
 		)
-
-		components = self.get_signature_components(card_prevalance_counts, deck_occurences)
 		for card, weight in components:
 			SignatureComponent.objects.create(
-				signature=signature, card=card, weight=weight
+				signature=signature, card_id=card["card_id"], weight=weight
 			)
 
-	def get_signature_components(self, card_prevalence_counts, deck_occurences):
+	def get_signature_components(self, matching_decks, observation_counts):
+		card_prevalence_counts = {}
+		deck_occurences = 0
 		ret = []
 
-		for card, observation_count in card_prevalence_counts.items():
+		for digest, cards in matching_decks.items():
+			obs_count = observation_counts[digest]
+			deck_occurences += obs_count
+			for include in cards:
+				key = (include["card_id"], include["dbf_id"])
+				if key not in card_prevalence_counts:
+					card_prevalence_counts[key] = 0
+				card_prevalence_counts[key] += obs_count
+
+		for (card_id, dbf_id), observation_count in card_prevalence_counts.items():
 			prevalence = float(observation_count) / deck_occurences
+
 			if prevalence >= settings.ARCHETYPE_CORE_CARD_THRESHOLD:
 				weight = settings.ARCHETYPE_CORE_CARD_WEIGHT
-				ret.append(card, weight)
+				ret.append({"card_id": card_id, "dbf_id": dbf_id}, weight)
+
 			elif prevalence >= settings.ARCHETYPE_TECH_CARD_THRESHOLD:
 				weight = settings.ARCHETYPE_TECH_CARD_WEIGHT
-				ret.append(card, weight)
+				ret.append({"card_id": card_id, "dbf_id": dbf_id}, weight)
 
 		return ret
 
