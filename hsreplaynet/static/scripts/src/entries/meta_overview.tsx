@@ -11,10 +11,10 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				ascending: "true",
-				sortBy: "popularity",
 				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
+				sortBy: "popularity",
+				sortDirection: "descending",
 				timeFrame: "LAST_14_DAYS",
 			}}
 		>

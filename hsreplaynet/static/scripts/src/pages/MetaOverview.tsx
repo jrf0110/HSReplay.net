@@ -8,6 +8,7 @@ import * as React from "react";
 import CardData from "../CardData";
 import DataInjector from "../components/DataInjector";
 import ArchetypeHeadToHead from "../components/metaoverview/ArchetypeHeadToHead";
+import { SortDirection } from "../interfaces";
 
 export interface EvaluatedArchetype {
 	[archetype: string]: number;
@@ -33,8 +34,8 @@ interface MetaOverviewState {
 
 interface MetaOverviewProps {
 	cardData: CardData;
-	ascending?: string;
-	setAscending?: (ascending: string) => void;
+	sortDirection?: SortDirection;
+	setSortDirection?: (ascending: SortDirection) => void;
 	sortBy?: string;
 	setSortBy?: (sortBy: string) => void;
 	gameType?: string;
@@ -145,8 +146,8 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					]}
 				>
 					<ArchetypeHeadToHead
-						ascending={this.props.ascending}
-						setAscending={this.props.setAscending}
+						sortDirection={this.props.sortDirection}
+						setSortDirection={this.props.setSortDirection}
 						sortBy={this.props.sortBy}
 						setSortBy={this.props.setSortBy}
 					/>

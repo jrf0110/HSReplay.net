@@ -8,8 +8,8 @@ interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadTo
 	archetypeData?: any;
 	matchupData?: any;
 	popularityData?: any;
-	ascending?: string;
-	setAscending?: (ascending: string) => void;
+	sortDirection?: SortDirection;
+	setSortDirection?: (ascending: SortDirection) => void;
 	sortBy?: string;
 	setSortBy?: (prop: string) => void;
 }
@@ -89,9 +89,9 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				onFavoriteChanged={(archetypeId) => this.onFavoriteChanged(archetypeId)}
 				onIgnoredColumnChanged={(archetypeId) => this.onIgnoredColumnChanged(archetypeId)}
 				sortBy={this.props.sortBy}
-				sortDirection={this.props.ascending === "true" ? "ascending" : "descending"}
+				sortDirection={this.props.sortDirection}
 				onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
-					this.props.setAscending(sortDirection === "ascending" ? "true" : "false");
+					this.props.setSortDirection(sortDirection);
 					this.props.setSortBy(sortBy);
 				}}
 			/>
@@ -99,7 +99,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 	}
 
 	sortArchetypes(archetypes: ArchetypeData[]) {
-		const direction = this.props.ascending === "true" ? -1 : 1;
+		const direction = this.props.sortDirection === "ascending" ? 1 : -1;
 
 		const compare = (a: ArchetypeData, b: ArchetypeData): number => {
 			if (this.props.sortBy === "popularity") {
