@@ -213,7 +213,11 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					}
 				});
 
-				this.setState({filteredCards, filterCounts: this.filterCounts(filteredByProp as CardFilters)});
+				this.setState({
+					filteredCards,
+					filterCounts: this.filterCounts(filteredByProp as CardFilters),
+					hasStatisticsData: true,
+				});
 			});
 	}
 
@@ -283,21 +287,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				spell.src = PLACEHOLDER_SPELL;
 				const weapon = new Image();
 				weapon.src = PLACEHOLDER_WEAPON;
-			}
-			else {
-				let played = false;
-				let included = false;
-				const updateHasData = () => played && included && this.setState({hasStatisticsData: true});
-				DataManager.get("card_played_popularity_report", this.getParams())
-					.then((data) => {
-						played = true;
-						updateHasData();
-					});
-				DataManager.get("card_included_popularity_report", this.getParams())
-					.then((data) => {
-						included = true;
-						updateHasData();
-					});
 			}
 		}
 	}
