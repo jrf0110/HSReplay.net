@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ArchetypeData } from "../../interfaces";
 import { getArchetypeUrl } from "../../helpers";
+import Feature from "../Feature";
 
 interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeData;
@@ -33,12 +34,14 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 					</div>
 					{this.props.archetypeData.name}
 				</div>
-				<a
-					href={getArchetypeUrl(this.props.archetypeData.id, this.props.archetypeData.name)}
-					target="_blank"
-				>
-					<span className="glyphicon glyphicon-new-window"/>
-				</a>
+				<Feature feature="archetype-detail">
+					<a
+						href={getArchetypeUrl(this.props.archetypeData.id, this.props.archetypeData.name)}
+						target="_blank"
+					>
+						<span className="glyphicon glyphicon-new-window"/>
+					</a>
+				</Feature>
 			</th>
 		);
 	}
