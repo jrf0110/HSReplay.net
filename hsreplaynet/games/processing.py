@@ -281,7 +281,7 @@ def handle_upload_event_exception(e, upload_event):
 	"""
 	if isinstance(e, ParsingError):
 		return UploadEventStatus.PARSING_ERROR, False
-	elif isinstance(e, (GameTooShort, EntityTreeExporter.EntityNotFound)):
+	elif isinstance(e, (GameTooShort, EntityTreeExporter.EntityNotFound, MissingPlayerData)):
 		return UploadEventStatus.UNSUPPORTED, False
 	elif isinstance(e, UnsupportedReplay):
 		return UploadEventStatus.UNSUPPORTED, True
