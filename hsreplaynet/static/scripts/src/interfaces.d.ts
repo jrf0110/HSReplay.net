@@ -1,4 +1,5 @@
 import {PlayState} from "./hearthstone";
+import {TooltipContent} from "./components/Tooltip";
 
 export interface User {
 	id: number;
@@ -277,4 +278,3 @@ export interface TableHeaderProps {
 	sortable?: boolean;
 	classNames?: string[];
 }
-
