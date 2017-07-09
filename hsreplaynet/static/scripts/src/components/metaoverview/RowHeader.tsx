@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ArchetypeData } from "../../interfaces";
+import { getArchetypeUrl } from "../../helpers";
 
 interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeData;
@@ -20,20 +21,24 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 		}
 
 		return (
-			<th
-				className="matchup-row-header"
-				onClick={() => this.props.onFavoriteClick()}
-			>
-				<div className="class-icon-wrapper">
-					<img
-						className="class-icon"
-						src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
-					/>
-					<span className={favIconClasses.join(" ")}/>
-					{activeFavIcon}
+			<th className="matchup-row-header">
+				<div className="archetype" onClick={() => this.props.onFavoriteClick()}>
+					<div className="class-icon-wrapper">
+						<img
+							className="class-icon"
+							src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
+						/>
+						<span className={favIconClasses.join(" ")}/>
+						{activeFavIcon}
+					</div>
+					{this.props.archetypeData.name}
 				</div>
-				{this.props.archetypeData.name}
-				<span className="glyphicon glyphicon-new-window"/>
+				<a
+					href={getArchetypeUrl(this.props.archetypeData.id, this.props.archetypeData.name)}
+					target="_blank"
+				>
+					<span className="glyphicon glyphicon-new-window"/>
+				</a>
 			</th>
 		);
 	}

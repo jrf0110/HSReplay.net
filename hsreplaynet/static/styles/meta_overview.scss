@@ -22,6 +22,14 @@
 				cursor: pointer;
 				line-height: 40px;
 
+				.archetype {
+					float: left;
+					overflow-x: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					width: 13em;
+				}
+
 				.class-icon {
 					height: 32px;
 					width: 32px;
@@ -63,11 +71,16 @@
 				.glyphicon-new-window {
 					color: gray;
 					float: right;
+					line-height: 25px;
 					margin: 0.5em;
+				}
+
+				.glyphicon-new-window:hover {
+					color: black;
 				}
 			}
 
-			.matchup-row-header:hover {
+			.archetype:hover {
 				.class-icon, .active-favorite {
 					visibility: hidden;
 				}
