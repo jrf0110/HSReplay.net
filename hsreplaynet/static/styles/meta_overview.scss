@@ -18,19 +18,62 @@
 		.archetype-matrix {
 			.matchup-row-header {
 				min-width: 15em;
-				text-align: right;
+				text-align: left;
 				cursor: pointer;
+				line-height: 40px;
+
+				.class-icon {
+					height: 32px;
+					width: 32px;
+				}
+
+				.class-icon:hover {
+					opacity: 0;
+				}
 
 				.glyphicon-star {
-					color: lightgray;
-					padding: 0.5em;
+					color: goldenrod;
+					position: absolute;
+					text-align: center;
 
-					&.favorite {
-						color: goldenrod;
+					&.favorite-toggle {
+						font-size: 26px;
+						left: 0;
+						top: 9px;
+						visibility: hidden;
+						width: 32px;
+
+					}
+
+					&.active-favorite {
+						font-size: 18px;
+						right: 0;
+						width: 12px;
+
 					}
 				}
-				.glyphicon-star:hover {
-					color: goldenrod;
+
+				.class-icon-wrapper {
+					float: left;
+					width: 32px;
+					position: relative;
+					margin: 0 0.5em;
+				}
+
+				.glyphicon-new-window {
+					color: gray;
+					float: right;
+					margin: 0.5em;
+				}
+			}
+
+			.matchup-row-header:hover {
+				.class-icon, .active-favorite {
+					visibility: hidden;
+				}
+
+				.favorite-toggle {
+					visibility: visible;
 
 					&.favorite {
 						color: gray;
