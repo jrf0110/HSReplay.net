@@ -250,16 +250,6 @@ class ArchetypeManager(models.Manager):
 		JOIN signatures s ON s.signature_id = c.signature_id;
 	"""
 
-	def archetypes_for_class(self, player_class, format):
-		result = {}
-
-		for archetype in Archetype.objects.filter(player_class=player_class):
-			canonical_decks = archetype.get_canonical_decks(format)
-			if canonical_decks:
-				result[archetype] = canonical_decks
-
-		return result
-
 	def _fetch_signature_weights(self, archetypes, game_format):
 		archetype_ids_for_class = ",".join([str(a.id) for a in archetypes])
 		query = self.SIGNATURE_COMPONENTS_QUERY_TEMPLATE.format(
