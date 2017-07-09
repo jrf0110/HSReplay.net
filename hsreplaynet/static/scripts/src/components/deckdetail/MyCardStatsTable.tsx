@@ -1,8 +1,8 @@
 import * as React from "react";
 import { cardObjSorting, cardSorting, winrateData } from "../../helpers";
-import { TableData } from "../../interfaces";
+import { SortDirection, TableData } from "../../interfaces";
 import CardTile from "../CardTile";
-import { default as SortableTable, SortDirection } from "../SortableTable";
+import SortableTable from "../SortableTable";
 
 interface MyCardStatsTableProps {
 	cards: any[];
@@ -75,7 +75,7 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 				sortBy={sortBy}
 				sortDirection={sortDirection}
 				onSortChanged={this.props.onSortChanged}
-				headers={this.tableHeaders.filter((x) => hiddenColumns.indexOf(x.key) === -1)}
+				headers={this.tableHeaders.filter((x) => hiddenColumns.indexOf(x.sortKey) === -1)}
 			>
 				{rows}
 			</SortableTable>
@@ -83,53 +83,53 @@ export default class MyCardStatsTable extends React.Component<MyCardStatsTablePr
 	}
 
 	readonly tableHeaders = [
-		{key: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
+		{sortKey: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
 		{
 			infoHeader: "Total games",
 			infoText: "Number of games you played with a deck that included the card.",
-			key: "totalGames",
+			sortKey: "totalGames",
 			text: "Total games",
 		},
 		{
 			infoHeader: "Winrate",
 			infoText: "Winrate of decks including the card.",
-			key: "winrate",
+			sortKey: "winrate",
 			text: "Winrate",
 		},
 		{
 			infoHeader: "Times played",
 			infoText: "Number of times you played the card.",
-			key: "timesPlayed",
+			sortKey: "timesPlayed",
 			text: "Times played",
 		},
 		{
 			infoHeader: "Distinct decks",
 			infoText: "Number of distinct decks you included the card in.",
-			key: "distinctDecks",
+			sortKey: "distinctDecks",
 			text: "Distinct decks",
 		},
 		{
 			infoHeader: "Damage done",
 			infoText: "Total amount of damage the card has dealt. Does not include overkills.",
-			key: "damageDone",
+			sortKey: "damageDone",
 			text: "Damage done",
 		},
 		{
 			infoHeader: "Healing done",
 			infoText: "Total amount of healing the card has done. Does not include overhealing.",
-			key: "healingDone",
+			sortKey: "healingDone",
 			text: "Healing done",
 		},
 		{
 			infoHeader: "Heroes killed",
 			infoText: "Number of heroes the card has killed.",
-			key: "heroesKilled",
+			sortKey: "heroesKilled",
 			text: "Heroes killed",
 		},
 		{
 			infoHeader: "Minions killed",
 			infoText: "Number of minions the card has killed.",
-			key: "minionsKilled",
+			sortKey: "minionsKilled",
 			text: "Minions killed",
 		},
 	];

@@ -265,3 +265,16 @@ export interface FragmentChildProps {
 	canBeReset?: boolean;
 	reset?: () => void;
 }
+
+export type SortDirection = "ascending" | "descending";
+
+export interface TableHeaderProps {
+	sortKey: string;
+	text: string;
+	defaultSortDirection?: SortDirection;
+	infoHeader?: string;
+	infoText?: TooltipContent;
+	sortable?: boolean;
+	classNames?: string[];
+}
+

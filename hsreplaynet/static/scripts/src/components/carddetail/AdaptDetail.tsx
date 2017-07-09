@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TableData } from "../../interfaces";
+import { SortDirection, TableData, TableHeaderProps } from "../../interfaces";
 import ClassFilter, { FilterOption } from "../ClassFilter";
 import UserData from "../../UserData";
 import PremiumWrapper from "../PremiumWrapper";
@@ -7,7 +7,7 @@ import CardData from "../../CardData";
 import CardTile from "../CardTile";
 import { winrateData } from "../../helpers";
 import Pager from "../Pager";
-import SortableTable, { SortDirection, TableHeader } from "../SortableTable";
+import SortableTable from "../SortableTable";
 
 interface AdaptDetailState {
 	page?: number;
@@ -76,15 +76,15 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 			}
 		}
 
-		const headers: TableHeader[] = [
-			{key: "rank", text: "Rank", sortable: false, classNames: ["hidden-xs"]},
-			{key: "adaptations", text: "Adaptations", sortable: false},
+		const headers: TableHeaderProps[] = [
+			{sortKey: "rank", text: "Rank", sortable: false, classNames: ["hidden-xs"]},
+			{sortKey: "adaptations", text: "Adaptations", sortable: false},
 		];
 		Array.from({length: adaptations - 1},
-			(x, index) => headers.push({key: "adaptations-" + index, text: "", sortable: false}));
+			(x, index) => headers.push({sortKey: "adaptations-" + index, text: "", sortable: false}));
 		headers.push(
-			{key: "win_rate", text: "Winrate"},
-			{key: "popularity", text: "Popularity"},
+			{sortKey: "win_rate", text: "Winrate"},
+			{sortKey: "popularity", text: "Popularity"},
 		);
 
 		const table = (

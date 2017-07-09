@@ -1,8 +1,8 @@
 import * as React from "react";
 import { cardObjSorting, cardSorting, toDynamicFixed, toPrettyNumber, winrateData } from "../../helpers";
-import { TableData } from "../../interfaces";
+import { SortDirection, TableData } from "../../interfaces";
 import CardTile from "../CardTile";
-import SortableTable, { SortDirection } from "../SortableTable";
+import SortableTable from "../SortableTable";
 
 interface CardsTableProps {
 	cards: any[];
@@ -114,12 +114,12 @@ export default class CardStatsTable extends React.Component<CardsTableProps, voi
 		}
 
 		const tableHeaders = [
-			{key: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
-			{key: "includedPopularity", text: "In % of decks", infoHeader: "Included in % of decks", infoText: "Percentage of decks that include at least one copy of the card."},
-			{key: "includedCount", text: "Copies", infoHeader: "Copies in deck", infoText: "Average number of copies in a deck."},
-			{key: "includedWinrate", text: "Deck winrate", infoHeader: "Deck Winrate", infoText: "Average winrate of decks that include this card."},
-			{key: "timesPlayed", text: "Times played", infoHeader: "Times played", infoText: "Number of times the card was played."},
-			{key: "playedWinrate", text: "Played winrate", infoHeader: "Winrate when played", infoText: "Average winrate of matches where the card was played."},
+			{sortKey: "card", text: "Card", defaultSortDirection: "ascending" as SortDirection},
+			{sortKey: "includedPopularity", text: "In % of decks", infoHeader: "Included in % of decks", infoText: "Percentage of decks that include at least one copy of the card."},
+			{sortKey: "includedCount", text: "Copies", infoHeader: "Copies in deck", infoText: "Average number of copies in a deck."},
+			{sortKey: "includedWinrate", text: "Deck winrate", infoHeader: "Deck Winrate", infoText: "Average winrate of decks that include this card."},
+			{sortKey: "timesPlayed", text: "Times played", infoHeader: "Times played", infoText: "Number of times the card was played."},
+			{sortKey: "playedWinrate", text: "Played winrate", infoHeader: "Winrate when played", infoText: "Average winrate of matches where the card was played."},
 		];
 
 		return (
