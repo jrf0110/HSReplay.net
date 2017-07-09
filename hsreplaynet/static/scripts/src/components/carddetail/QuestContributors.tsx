@@ -1,10 +1,10 @@
 import * as React from "react";
-import { TableData } from "../../interfaces";
+import { SortDirection, TableData, TableHeaderProps } from "../../interfaces";
 import CardData from "../../CardData";
 import CardTile from "../CardTile";
 import { toDynamicFixed, winrateData } from "../../helpers";
 import Pager from "../Pager";
-import SortableTable, { SortDirection, TableHeader } from "../SortableTable";
+import SortableTable from "../SortableTable";
 
 interface QuestContributorsState {
 	page?: number;
@@ -58,9 +58,9 @@ export default class QuestContributors extends React.Component<QuestContributors
 			});
 		}
 
-		const headers: TableHeader[] = [
+		const headers: TableHeaderProps[] = [
 			{
-				key: "card",
+				sortKey: "card",
 				text: "Contributor",
 				sortable: false,
 				infoHeader: "Contributor",
@@ -79,25 +79,25 @@ export default class QuestContributors extends React.Component<QuestContributors
 				],
 			},
 			{
-				key: "win_rate",
+				sortKey: "win_rate",
 				text: "Played Winrate",
 				infoHeader: "Played Winrate",
 				infoText: "Average winrate of games where the card contributed to the quest.",
 			},
 			{
-				key: "popularity",
+				sortKey: "popularity",
 				text: "Popularity",
 				infoHeader: "Popularity",
 				infoText: "Total percentage of quest progress made by the card.",
 			},
 			{
-				key: "median_turn_completed",
+				sortKey: "median_turn_completed",
 				text: "Median Turn",
 				infoHeader: "Median Turn Completed",
 				infoText: "Turn this quest is most commonly completed on when the card contributed the progress.",
 			},
 			{
-				key: "quest_completion_frequency",
+				sortKey: "quest_completion_frequency",
 				text: "Completed",
 				infoHeader: "Completion Frequency",
 				infoText: "Frequency of this quest being completed when the card contributed to the progress.",

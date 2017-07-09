@@ -1,7 +1,7 @@
 import * as React from "react";
-import { TableData } from "../../interfaces";
+import { SortDirection, TableData } from "../../interfaces";
 import { toTitleCase, winrateData } from "../../helpers";
-import SortableTable, { SortDirection } from "../SortableTable";
+import SortableTable from "../SortableTable";
 
 interface WinrateBreakdownTableState {
 	sortBy?: string;
@@ -64,12 +64,12 @@ export default class WinrateBreakdownTable extends React.Component<WinrateBreakd
 
 		const tableHeaders = [
 			{
-				key: "opponent",
+				sortKey: "opponent",
 				text: "Opponent",
 				defaultSortDirection: "ascending" as SortDirection,
 			},
 			{
-				key: "winrate",
+				sortKey: "winrate",
 				text: "Winrate",
 				infoHeader: "Winrate",
 				infoText: "Winrate of the deck versus the given opponent.",

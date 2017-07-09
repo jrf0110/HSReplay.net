@@ -11,12 +11,11 @@ import * as _ from "lodash";
 import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
-import {SortDirection} from "../components/SortableTable";
 import DataManager from "../DataManager";
 import {cardSorting, cleanText, isWildSet, setNames, slangToCardId, toTitleCase} from "../helpers";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
-import {FragmentChildProps, LoadingStatus} from "../interfaces";
+import { FragmentChildProps, LoadingStatus, SortDirection } from "../interfaces";
 
 interface CardFilters {
 	cost: any;
