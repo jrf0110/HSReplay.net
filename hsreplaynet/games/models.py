@@ -11,14 +11,12 @@ from hsreplaynet.utils.fields import PlayerIDField, ShortUUIDField
 from hsreplaynet.utils.synchronization import acquire_redshift_lock, release_redshift_lock
 
 
-def _generate_upload_path(timestamp, shortid):
-	ts = timestamp.strftime("%Y/%m/%d/%H/%M")
-	return "replays/%s/%s.hsreplay.xml" % (ts, shortid)
+def _generate_upload_path(shortid):
+	return "replays/%s.hsreplay.xml" % (shortid)
 
 
 def generate_upload_path(instance, filename):
-	ts = instance.global_game.match_start
-	return _generate_upload_path(ts, instance.shortid)
+	return _generate_upload_path(instance.shortid)
 
 
 class GlobalGame(models.Model):

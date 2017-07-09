@@ -165,7 +165,7 @@ def find_or_create_replay(parser, entity_tree, meta, upload_event, global_game, 
 	client_handle = meta.get("client_handle") or None
 	existing_replay = upload_event.game
 	shortid = existing_replay.shortid if existing_replay else upload_event.shortid
-	replay_xml_path = _generate_upload_path(global_game.match_start, shortid)
+	replay_xml_path = _generate_upload_path(shortid)
 	log.debug("Will save replay %r to %r", shortid, replay_xml_path)
 
 	# The user that owns the replay
