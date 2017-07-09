@@ -86,8 +86,8 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				archetypes={archetypeData}
 				favorites={this.state.favorites}
 				ignoredColumns={this.state.ignoredColumns}
-				onFavoriteChanged={(archetypeId) => this.onFavoriteChanged(archetypeId)}
-				onIgnoredColumnChanged={(archetypeId) => this.onIgnoredColumnChanged(archetypeId)}
+				onFavoriteChanged={(archetypeId: number, favorite: boolean) => this.onFavoriteChanged(archetypeId, favorite)}
+				onIgnoreChanged={(archetypeId: number, ignore: boolean) => this.onIgnoreChanged(archetypeId, ignore)}
 				sortBy={this.props.sortBy}
 				sortDirection={this.props.sortDirection}
 				onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
@@ -122,25 +122,21 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		return this.state.favorites.indexOf(archetypeId) !== -1;
 	}
 
-	onFavoriteChanged(archetypeId: number) {
+	onFavoriteChanged(archetypeId: number, favorite: boolean) {
 		let favorites = this.state.favorites.slice();
-		if (favorites.indexOf(archetypeId) === -1) {
+		favorites = favorites.filter((id) => id !== archetypeId);
+		if (favorite) {
 			favorites.push(archetypeId);
-		}
-		else {
-			favorites = favorites.filter((id) => id !== archetypeId);
 		}
 		this.setState({favorites});
 		UserData.setSetting("archetype-favorites", favorites);
 	}
 
-	onIgnoredColumnChanged(archetypeId: number) {
+	onIgnoreChanged(archetypeId: number, ignore: boolean) {
 		let ignoredColumns = this.state.ignoredColumns.slice();
-		if (ignoredColumns.indexOf(archetypeId) === -1) {
+		ignoredColumns = ignoredColumns.filter((id) => id !== archetypeId);
+		if (ignore) {
 			ignoredColumns.push(archetypeId);
-		}
-		else {
-			ignoredColumns = ignoredColumns.filter((id) => id !== archetypeId);
 		}
 		this.setState({ignoredColumns});
 		UserData.setSetting("archetype-ignored", ignoredColumns);

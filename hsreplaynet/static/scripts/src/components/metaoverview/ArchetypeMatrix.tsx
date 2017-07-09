@@ -9,8 +9,8 @@ interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
 	favorites: number[];
 	ignoredColumns: number[];
-	onFavoriteChanged: (archetypeId: number) => void;
-	onIgnoredColumnChanged: (archetypeId: number) => void;
+	onFavoriteChanged: (archetypeId: number, favorite: boolean) => void;
+	onIgnoreChanged: (archetypeId: number, ignore: boolean) => void;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
 	sortBy: string;
 	sortDirection: SortDirection;
@@ -28,14 +28,14 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		const popularities = [];
 		const favoritePopularities = [];
 
-		this.props.archetypes.forEach((archetype) => {
+		this.props.archetypes.forEach((archetype: ArchetypeData) => {
 			const isIgnored = this.props.ignoredColumns.indexOf(archetype.id) !== -1;
 			if (this.props.favorites.indexOf(archetype.id) === -1) {
 				headers.push(
 					<ColumnHeader
 						archetypeData={archetype}
 						isIgnored={isIgnored}
-						onIgnoredChanged={this.props.onIgnoredColumnChanged}
+						onIgnoredChanged={(ignore: boolean) => this.props.onIgnoreChanged(archetype.id, ignore)}
 					/>,
 				);
 				rows.push(
@@ -43,7 +43,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 						archetypeData={archetype}
 						isFavorite={false}
 						ignoredColumns={this.props.ignoredColumns}
-						onFavoriteChanged={this.props.onFavoriteChanged}
+						onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}
 					/>,
 				);
 				popularities.push(<ColumnFooter archetypeData={archetype} />);
@@ -53,7 +53,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 					<ColumnHeader
 						archetypeData={archetype}
 						isIgnored={isIgnored}
-						onIgnoredChanged={this.props.onIgnoredColumnChanged}
+						onIgnoredChanged={(ignore: boolean) => this.props.onIgnoreChanged(archetype.id, ignore)}
 					/>,
 				);
 				favoriteRows.push(
@@ -61,7 +61,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 						archetypeData={archetype}
 						isFavorite={true}
 						ignoredColumns={this.props.ignoredColumns}
-						onFavoriteChanged={this.props.onFavoriteChanged}
+						onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}
 					/>,
 				);
 				favoritePopularities.push(<ColumnFooter archetypeData={archetype} />);
