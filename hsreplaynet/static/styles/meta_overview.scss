@@ -125,6 +125,13 @@
 					}
 				}
 			}
+			.matchup-cell {
+				text-align: center;
+
+				&.ignored {
+					filter: saturate(0);
+				}
+			}
 		}
 	}
 

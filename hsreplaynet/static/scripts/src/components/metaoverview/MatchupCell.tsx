@@ -17,6 +17,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, Match
 		let color = "black";
 		let backgroundColor = "white";
 		const winrate = this.props.matchupData.winrate || 0;
+		const classNames = ["matchup-cell"];
 
 		if(this.props.matchupData.friendlyId === this.props.matchupData.opponentId) {
 			// mirror match
@@ -30,15 +31,16 @@ export default class MatchupCell extends React.Component<MatchupCellProps, Match
 		else {
 			// not enough data
 			backgroundColor = "rgb(200,200,200)";
-			label = "-";
+			label = "~";
 		}
 
 		if(this.props.isIgnored) {
-			backgroundColor = "rgb(200, 200, 200)";
+			classNames.push("ignored");
 		}
 
 		return (
 			<td
+				className={classNames.join(" ")}
 				style={{color, backgroundColor}}
 			>
 				{label}
