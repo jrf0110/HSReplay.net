@@ -1110,7 +1110,7 @@ class RedshiftStagingTrack(models.Model):
 
 	def schedule_global_query_cache_warming(self):
 		from hsreplaynet.analytics.processing import fill_global_query_queue
-		fill_global_query_queue(filter_fresh_queries=False)
+		fill_global_query_queue()
 
 	def refresh_track_state(self):
 		if self.stage == RedshiftETLStage.ERROR:
@@ -1132,7 +1132,7 @@ class RedshiftStagingTrack(models.Model):
 			self.track_cleanup_end_at = timezone.now()
 			self.save()
 			self.capture_track_finished_metrics()
-			self.schedule_global_query_cache_warming()
+			# self.schedule_global_query_cache_warming()
 			return False, None
 
 		if self._any_tables_are_in_stage(RedshiftETLStage.CLEANING_UP):
