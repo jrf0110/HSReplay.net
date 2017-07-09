@@ -384,22 +384,6 @@ class Archetype(models.Model):
 		else:
 			return None
 
-	def get_canonical_decks(self, format=enums.FormatType.FT_STANDARD, as_of=None):
-		if as_of is None:
-			canonicals = self.canonical_decks.filter(
-				format=format,
-			).order_by("-created").prefetch_related("deck__includes").all()
-		else:
-			canonicals = self.canonical_decks.filter(
-				format=format,
-				created__lte=as_of
-			).order_by("-created").prefetch_related("deck__includes").all()
-
-		if canonicals:
-			return [c.deck for c in canonicals]
-		else:
-			return None
-
 	def get_signature(self, game_format=enums.FormatType.FT_STANDARD, as_of=None):
 		if as_of is None:
 			return self.signature_set.filter(
@@ -449,30 +433,3 @@ class SignatureComponent(models.Model):
 		on_delete=models.PROTECT
 	)
 	weight = models.FloatField(default=0.0)
-
-
-class CanonicalDeck(models.Model):
-	"""
-	The CanonicalDeck for an Archetype is the list of cards that is most commonly
-	associated with that Archetype.
-
-	The canonical deck for an Archetype may evolve incrementally over time and is likely to
-	evolve more rapidly when new card sets are first released.
-	"""
-
-	id = models.BigAutoField(primary_key=True)
-	archetype = models.ForeignKey(
-		Archetype,
-		related_name="canonical_decks",
-		on_delete=models.CASCADE
-	)
-	deck = models.ForeignKey(
-		Deck,
-		related_name="canonical_for_archetypes",
-		on_delete=models.PROTECT
-	)
-	created = models.DateTimeField(auto_now_add=True)
-	format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
-
-	class Meta:
-		db_table = "cards_canonicaldeck"

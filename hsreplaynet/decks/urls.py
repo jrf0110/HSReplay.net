@@ -29,7 +29,6 @@ urlpatterns = [
 	url(r"^decks/$", deck_list, name="deck_list"),
 	url(r"^decks/mine/$", my_decks, name="my_decks"),
 	url(r"^decks/trending/", trending_decks, name="trending_decks"),
-	url(r"^decks/canonical/json/$", views.canonical_decks, name="canonical_decks"),
 	url(r"^decks/(?P<id>\w+)/$", deck_detail, name="deck_detail"),
 	url(r"^meta/$", meta_overview, name="meta_overview"),
 ]

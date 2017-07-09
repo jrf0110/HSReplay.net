@@ -29,18 +29,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='CanonicalDeck',
-            fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('format', django_intenum.IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=2, validators=[django_intenum.IntEnumValidator(hearthstone.enums.FormatType)])),
-                ('archetype', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='canonical_decks', to='decks.Archetype')),
-            ],
-            options={
-                'db_table': 'cards_canonicaldeck',
-            },
-        ),
-        migrations.CreateModel(
             name='Deck',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
@@ -87,11 +75,6 @@ class Migration(migrations.Migration):
             model_name='deck',
             name='cards',
             field=models.ManyToManyField(through='decks.Include', to='cards.Card'),
-        ),
-        migrations.AddField(
-            model_name='canonicaldeck',
-            name='deck',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='canonical_for_archetypes', to='decks.Deck'),
         ),
         migrations.AlterUniqueTogether(
             name='include',

@@ -1,10 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404, JsonResponse
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
 from django_hearthstone.cards.models import Card
-from hearthstone.enums import CardClass
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.features.models import Feature
 from hsreplaynet.utils.html import RequestMetaMixin
@@ -170,28 +169,3 @@ class TrendingDecksView(RequestMetaMixin, TemplateView):
 	title = "Trending Hearthstone Decks"
 	description = "Find the up-and-coming decks with rising popularity in Hearthstone " \
 		"for each class updated every single day."
-
-
-def canonical_decks(request):
-	result = []
-	archetypes = Archetype.objects.prefetch_related(
-		"canonical_decks__deck__includes"
-	).all()
-	for archetype in archetypes:
-		record = {
-			"name": archetype.name,
-			"archetype_id": archetype.id,
-			"player_class_id": archetype.player_class,
-			"player_class_name": CardClass(archetype.player_class).name
-		}
-
-		canonical_deck = archetype.canonical_decks.order_by("-created").first()
-		if canonical_deck:
-			record["representative_deck"] = {
-				"card_ids": canonical_deck.deck.card_id_list(),
-				"digest": canonical_deck.deck.digest
-			}
-
-		result.append(record)
-
-	return JsonResponse(result, safe=False)
