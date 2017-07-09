@@ -58,10 +58,16 @@ class DeckSerializer(serializers.ModelSerializer):
 		return value.cards.values_list("dbf_id", flat=True)
 
 	def update(self, instance, validated_data):
-		should_update_archetype = instance.archetype != validated_data["archetype"]
+		old_archetype = instance.archetype
+		new_archetype = validated_data["archetype"]
 		result = super(DeckSerializer, self).update(instance, validated_data)
-		if should_update_archetype and instance.archetype:
-			Archetype.objects.update_signatures(archetype=instance.archetype)
+
+		if old_archetype != new_archetype:
+			if old_archetype:
+				Archetype.objects.update_signatures(archetype=old_archetype)
+			if new_archetype:
+				Archetype.objects.update_signatures(archetype=new_archetype)
+
 		return result
 
 
