@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
 from django_hearthstone.cards.models import Card
@@ -29,10 +29,7 @@ class ArchetypeDetailView(LoginRequiredMixin, View):
 	title = "Archetype"
 
 	def get(self, request, id, slug):
-		try:
-			archetype = Archetype.objects.get_by_id(id)
-		except Archetype.DoesNotExist:
-			raise Http404("Archetype does not exist.")
+		archetype = get_object_or_404(Archetype, id=id)
 
 		request.head.title = archetype.name
 

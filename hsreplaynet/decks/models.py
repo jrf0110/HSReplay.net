@@ -250,13 +250,6 @@ class ArchetypeManager(models.Manager):
 		JOIN signatures s ON s.signature_id = c.signature_id;
 	"""
 
-	def get_by_id(self, id):
-		try:
-			archetype = Archetype.objects.get(id=id)
-		except:
-			raise Archetype.DoesNotExist
-		return archetype
-
 	def archetypes_for_class(self, player_class, format):
 		result = {}
 
