@@ -60,7 +60,6 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			});
 			effectiveWinrate = Math.round(effectiveWinrate / (totalGames / 100)) / 100;
 			const popularity = this.getPopularity(friendly);
-			console.log(popularity.archetype_id, popularity.pct_of_total);
 			archetypeData.push({
 				id: friendly.id,
 				matchups,
