@@ -324,38 +324,29 @@ class ArchetypeManager(models.Manager):
 					card_prevalance_counts[card] = 0
 				card_prevalance_counts[card] += obs_count
 
-		msg1 = "Generating new %s signature for archetype: %s"
-		log.info(msg1 % (game_format.name, archetype.name))
-		msg2 = "Deck occurances contributing to signature: %s"
-		log.info(msg2 % str(deck_occurences))
 		signature = Signature.objects.create(
 			archetype=archetype, format=game_format, as_of=timezone.now()
 		)
 
-		for card, observation_count in card_prevalance_counts.items():
-			prevalance = float(observation_count) / deck_occurences
+		components = self.get_signature_components(card_prevalance_counts, deck_occurences)
+		for card, weight in components:
+			SignatureComponent.objects.create(
+				signature=signature, card=card, weight=weight
+			)
 
-			if prevalance >= settings.ARCHETYPE_CORE_CARD_THRESHOLD:
-				log.info(
-					"card: %s with prevalence: %s is CORE" % (card.name, prevalance)
-				)
-				SignatureComponent.objects.create(
-					signature=signature,
-					card=card,
-					weight=settings.ARCHETYPE_CORE_CARD_WEIGHT * prevalance
-				)
-			elif prevalance >= settings.ARCHETYPE_TECH_CARD_THRESHOLD:
-				log.info(
-					"card: %s with prevalence: %s is TECH" % (card.name, prevalance)
-				)
-				SignatureComponent.objects.create(
-					signature=signature,
-					card=card,
-					weight=settings.ARCHETYPE_TECH_CARD_WEIGHT * prevalance
-				)
-			else:
-				msg3 = "card: %s with prevalence: %s is DISCARD"
-				log.info(msg3 % (card.name, prevalance))
+	def get_signature_components(self, card_prevalence_counts, deck_occurences):
+		ret = []
+
+		for card, observation_count in card_prevalence_counts.items():
+			prevalence = float(observation_count) / deck_occurences
+			if prevalence >= settings.ARCHETYPE_CORE_CARD_THRESHOLD:
+				weight = settings.ARCHETYPE_CORE_CARD_WEIGHT
+				ret.append(card, weight)
+			elif prevalence >= settings.ARCHETYPE_TECH_CARD_THRESHOLD:
+				weight = settings.ARCHETYPE_TECH_CARD_WEIGHT
+				ret.append(card, weight)
+
+		return ret
 
 
 class Archetype(models.Model):
