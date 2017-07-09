@@ -14,6 +14,30 @@
 			max-width: 100%;
 			width: 100%;
 		}
+
+		.archetype-matrix {
+			.matchup-row-header {
+				min-width: 15em;
+				text-align: right;
+				cursor: pointer;
+
+				.glyphicon-star {
+					color: lightgray;
+					padding: 0.5em;
+
+					&.favorite {
+						color: goldenrod;
+					}
+				}
+				.glyphicon-star:hover {
+					color: goldenrod;
+
+					&.favorite {
+						color: gray;
+					}
+				}
+			}
+		}
 	}
 
 	>aside {

@@ -4,7 +4,7 @@ import { ArchetypeData } from "../../interfaces";
 interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeData;
 	isFavorite?: boolean;
-	onClick: () => void;
+	onFavoriteClick: () => void;
 }
 
 interface RowHeaderState {
@@ -12,9 +12,21 @@ interface RowHeaderState {
 
 export default class RowHeader extends React.Component<RowHeaderProps, RowHeaderState> {
 	render() {
-		const style = this.props.isFavorite ? {background: "goldenrod"} : {};
+		const favIconClasses = ["glyphicon glyphicon-star"];
+		if (this.props.isFavorite) {
+			favIconClasses.push("favorite");
+		}
+
 		return (
-			<th style={style} onClick={() => this.props.onClick()}>{this.props.archetypeData.name}</th>
+			<th
+				className="matchup-row-header"
+			>
+				{this.props.archetypeData.name}
+				<span
+					className={favIconClasses.join(" ")}
+					onClick={() => this.props.onFavoriteClick()}
+				/>
+			</th>
 		);
 	}
 }
