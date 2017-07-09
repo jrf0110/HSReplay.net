@@ -21,6 +21,15 @@
 				width: 32px;
 			}
 
+			.matchup-row td {
+				text-align: center;
+				border: solid 1px $offwhite;
+
+				&.ignored {
+					filter: saturate(0);
+				}
+			}
+
 			.matchup-row-header {
 				min-width: 15em;
 				text-align: left;
@@ -127,13 +136,6 @@
 					.class-icon {
 						filter: saturate(0.5);
 					}
-				}
-			}
-			.matchup-cell {
-				text-align: center;
-
-				&.ignored {
-					filter: saturate(0);
 				}
 			}
 		}
