@@ -21,7 +21,7 @@ export default class MatchupRow extends React.Component<MatchupRowProps, Matchup
 			return <MatchupCell matchupData={matchup} isIgnored={isIgnored}/>;
 		});
 		return (
-			<tr>
+			<tr className="matchup-row">
 				<RowHeader
 					archetypeData={this.props.archetypeData}
 					isFavorite={this.props.isFavorite}

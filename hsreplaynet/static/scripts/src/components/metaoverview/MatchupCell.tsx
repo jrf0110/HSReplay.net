@@ -2,6 +2,7 @@ import * as React from "react";
 import { MatchupData } from "../../interfaces";
 import { toDynamicFixed, getColorString } from "../../helpers";
 import {Colors} from "../../Colors";
+import Tooltip from "../Tooltip";
 
 interface MatchupCellProps extends React.ClassAttributes<MatchupCell> {
 	matchupData: MatchupData;
@@ -13,15 +14,16 @@ interface MatchupCellState {
 
 export default class MatchupCell extends React.Component<MatchupCellProps, MatchupCellState> {
 	render() {
-		let label = "";
+		let label: string|JSX.Element = "";
 		let color = "black";
 		let backgroundColor = "white";
 		const winrate = this.props.matchupData.winrate || 0;
-		const classNames = ["matchup-cell"];
+		const classNames = [];
 
 		if(this.props.matchupData.friendlyId === this.props.matchupData.opponentId) {
 			// mirror match
-			backgroundColor = getColorString(Colors.HSREPLAY, 50, winrate / 100, true);
+			label = <Tooltip content="Mirror&nbsp;matchup" simple>⟋</Tooltip>;
+			backgroundColor = "rgb(200,200,200)";
 		}
 		else if(this.props.matchupData.totalGames > 100) {
 			// actual matchup
@@ -30,8 +32,8 @@ export default class MatchupCell extends React.Component<MatchupCellProps, Match
 		}
 		else {
 			// not enough data
-			backgroundColor = "rgb(200,200,200)";
 			label = "~";
+			backgroundColor = "rgb(200,200,200)";
 		}
 
 		if(this.props.isIgnored) {
