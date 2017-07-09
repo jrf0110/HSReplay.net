@@ -4,7 +4,7 @@ import { ArchetypeData } from "../../interfaces";
 interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	archetypeData: ArchetypeData;
 	isIgnored: boolean;
-	onIgnoredChanged: (archetypeId: number) => void;
+	onIgnoredChanged: (ignore: boolean) => void;
 }
 
 interface ColumnHeaderState {
@@ -19,7 +19,7 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 		return (
 			<th
 				className={classNames.join(" ")}
-				onClick={() => this.props.onIgnoredChanged(this.props.archetypeData.id)}
+				onClick={() => this.props.onIgnoredChanged(!this.props.isIgnored)}
 			>
 				{this.props.archetypeData.name}
 				<img
