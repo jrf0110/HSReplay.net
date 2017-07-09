@@ -1,8 +1,9 @@
 import * as React from "react";
 import MatchupRow from "./MatchupRow";
 import ColumnHeader from "./ColumnHeader";
-import { ArchetypeData } from "../../interfaces";
+import { ArchetypeData, SortDirection } from "../../interfaces";
 import ColumnFooter from "./ColumnFooter";
+import SortHeader from "../SortHeader";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
@@ -10,6 +11,9 @@ interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	ignoredColumns: number[];
 	onFavoriteChanged: (archetypeId: number) => void;
 	onIgnoredColumnChanged: (archetypeId: number) => void;
+	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
+	sortBy: string;
+	sortDirection: SortDirection;
 }
 
 interface ArchetypeMatrixState {
@@ -17,7 +21,6 @@ interface ArchetypeMatrixState {
 
 export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProps, ArchetypeMatrixState> {
 	render() {
-
 		const headers = [];
 		const favoriteHeaders = [];
 		const rows = [];
@@ -68,19 +71,33 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		return (
 			<table className="archetype-matrix">
 				<tr>
-					<th>Class</th>
+					{this.getSortHeader("class", "Archetype", "ascending")}
 					{favoriteHeaders}
 					{headers}
-					<th>EWR</th>
+					{this.getSortHeader("winrate", "Effective Winrate")}
 				</tr>
 				{favoriteRows}
 				{rows}
 				<tr>
-					<th>Popularity</th>
+					{this.getSortHeader("popularity", "Popularity")}
 					{favoritePopularities}
 					{popularities}
 				</tr>
 			</table>
+		);
+	}
+
+	getSortHeader(key: string, text: string, direction?: SortDirection): JSX.Element {
+		return (
+			<SortHeader
+				active={this.props.sortBy === key}
+				defaultSortDirection={direction || "descending"}
+				direction={this.props.sortDirection}
+				sortKey={key}
+				text={text}
+				onClick={this.props.onSortChanged}
+				classNames={["text-center"]}
+			/>
 		);
 	}
 }
