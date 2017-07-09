@@ -1,6 +1,6 @@
 import * as React from "react";
 import ArchetypeMatrix from "./ArchetypeMatrix";
-import { ApiArchetype, ApiArchetypeMatchupData, ApiArchetypePopularity, ArchetypeData, MatchupData } from "../../interfaces";
+import { ApiArchetype, ApiArchetypeMatchupData, ApiArchetypePopularity, ArchetypeData, MatchupData, SortDirection } from "../../interfaces";
 import { getPlayerClassFromId } from "../../helpers";
 import UserData from "../../UserData";
 
@@ -88,6 +88,12 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				ignoredColumns={this.state.ignoredColumns}
 				onFavoriteChanged={(archetypeId) => this.onFavoriteChanged(archetypeId)}
 				onIgnoredColumnChanged={(archetypeId) => this.onIgnoredColumnChanged(archetypeId)}
+				sortBy={this.props.sortBy}
+				sortDirection={this.props.ascending === "true" ? "ascending" : "descending"}
+				onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
+					this.props.setAscending(sortDirection === "ascending" ? "true" : "false");
+					this.props.setSortBy(sortBy);
+				}}
 			/>
 		);
 	}
