@@ -12,7 +12,6 @@ from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from shortuuid.main import int_to_string, string_to_int
-from hsreplaynet.utils import log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.db import dictfetchall
 
@@ -322,15 +321,19 @@ class ArchetypeManager(models.Manager):
 		matching_decks = {}
 		for include in includes:
 			digest = include["deck__digest"]
-			if digest not in includes:
-				includes[digest] = []
-			includes[digest].append({
+			if digest not in matching_decks:
+				matching_decks[digest] = []
+			matching_decks[digest].append({
 				"card_id": include["card__card_id"],
 				"dbf_id": include["card__dbf_id"],
 				"count": include["count"],
 			})
 
-		components = self.get_signature_components(matching_decks, observation_counts)
+		thresholds = {
+			settings.ARCHETYPE_CORE_CARD_THRESHOLD: settings.ARCHETYPE_CORE_CARD_WEIGHT,
+			settings.ARCHETYPE_TECH_CARD_THRESHOLD: settings.ARCHETYPE_TECH_CARD_WEIGHT,
+		}
+		components = self.get_signature_components(matching_decks, observation_counts, thresholds)
 
 		signature = Signature.objects.create(
 			archetype=archetype, format=game_format, as_of=timezone.now()
@@ -340,7 +343,7 @@ class ArchetypeManager(models.Manager):
 				signature=signature, card_id=card["card_id"], weight=weight
 			)
 
-	def get_signature_components(self, matching_decks, observation_counts):
+	def get_signature_components(self, matching_decks, observation_counts, thresholds):
 		card_prevalence_counts = {}
 		deck_occurences = 0
 		ret = []
@@ -354,16 +357,18 @@ class ArchetypeManager(models.Manager):
 					card_prevalence_counts[key] = 0
 				card_prevalence_counts[key] += obs_count
 
+		if not deck_occurences:
+			# Could not find any matching deck, break early
+			return ret
+
 		for (card_id, dbf_id), observation_count in card_prevalence_counts.items():
 			prevalence = float(observation_count) / deck_occurences
 
-			if prevalence >= settings.ARCHETYPE_CORE_CARD_THRESHOLD:
-				weight = settings.ARCHETYPE_CORE_CARD_WEIGHT
-				ret.append({"card_id": card_id, "dbf_id": dbf_id}, weight)
-
-			elif prevalence >= settings.ARCHETYPE_TECH_CARD_THRESHOLD:
-				weight = settings.ARCHETYPE_TECH_CARD_WEIGHT
-				ret.append({"card_id": card_id, "dbf_id": dbf_id}, weight)
+			for threshold in sorted(thresholds.keys, reverse=True):
+				if prevalence >= threshold:
+					weight = thresholds[threshold]
+					ret.append({"card_id": card_id, "dbf_id": dbf_id}, weight)
+					break
 
 		return ret
 
