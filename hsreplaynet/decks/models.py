@@ -62,7 +62,10 @@ class DeckManager(models.Manager):
 		return enums.CardClass.INVALID
 
 	def classify_deck_with_archetype(self, deck, player_class, game_format):
-		archetype = Archetype.objects.classify_deck(deck, player_class, game_format)
+		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
+		archetype = Archetype.objects.classify_deck(
+			deck, player_class, game_format, distance_cutoff
+		)
 		if archetype:
 			deck.archetype = archetype
 			deck.save()
@@ -277,14 +280,13 @@ class ArchetypeManager(models.Manager):
 				result[record["archetype_id"]][record["card_id"]] = record["weight"]
 			return result
 
-	def classify_deck(self, deck, player_class, game_format):
+	def classify_deck(self, deck, player_class, game_format, distance_cutoff):
 		distances = []
-		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
-		archetypes_for_class = list(Archetype.objects.filter(player_class=player_class).all())
+		archetypes_for_class = list(Archetype.objects.filter(player_class=player_class))
 		if not archetypes_for_class:
-			return None
-		signature_weights = self._fetch_signature_weights(archetypes_for_class, game_format)
+			return
 
+		signature_weights = self._fetch_signature_weights(archetypes_for_class, game_format)
 		card_counts = {i.card_id: i.count for i in deck.includes.all()}
 		for archetype in archetypes_for_class:
 			distance = 0
@@ -296,11 +298,9 @@ class ArchetypeManager(models.Manager):
 			if distance and distance >= distance_cutoff:
 				distances.append((archetype, distance))
 
-		distances = sorted(distances, key=lambda t: t[1], reverse=True)
 		if distances:
+			distances = sorted(distances, key=lambda t: t[1], reverse=True)
 			return distances[0][0]
-		else:
-			return None
 
 	def _get_deck_observation_counts_from_redshift(self, format):
 		query = get_redshift_query("list_decks_by_win_rate")
