@@ -16,6 +16,11 @@
 		}
 
 		.archetype-matrix {
+			.class-icon {
+				height: 32px;
+				width: 32px;
+			}
+
 			.matchup-row-header {
 				min-width: 15em;
 				text-align: left;
@@ -28,11 +33,6 @@
 					text-overflow: ellipsis;
 					white-space: nowrap;
 					width: 13em;
-				}
-
-				.class-icon {
-					height: 32px;
-					width: 32px;
 				}
 
 				.class-icon:hover {
@@ -78,18 +78,50 @@
 				.glyphicon-new-window:hover {
 					color: black;
 				}
-			}
 
-			.archetype:hover {
-				.class-icon, .active-favorite {
-					visibility: hidden;
+				.archetype:hover {
+					.class-icon, .active-favorite {
+						visibility: hidden;
+					}
+
+					.favorite-toggle {
+						visibility: visible;
+
+						&.favorite {
+							color: gray;
+						}
+					}
+				}
+			}
+			.matchup-column-header {
+				cursor: pointer;
+				max-width: 5em;
+				min-width: 5em;
+				padding: 0.5em;
+				text-align: center;
+				vertical-align: bottom;
+
+				&.ignored {
+					text-decoration: line-through;
+					color: gray;
+
+					.class-icon {
+						filter: saturate(0);
+					}
+				}
+			}
+			.matchup-column-header:hover {
+				text-decoration: line-through;
+
+				.class-icon {
+					filter: saturate(0);
 				}
 
-				.favorite-toggle {
-					visibility: visible;
+				&.ignored {
+					text-decoration: unset;
 
-					&.favorite {
-						color: gray;
+					.class-icon {
+						filter: saturate(0.5);
 					}
 				}
 			}

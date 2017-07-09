@@ -12,9 +12,21 @@ interface ColumnHeaderState {
 
 export default class ColumnHeader extends React.Component<ColumnHeaderProps, ColumnHeaderState> {
 	render() {
-		const style = this.props.isIgnored ? {background: "lightgray"} : {};
+		const classNames = ["matchup-column-header"];
+		if (this.props.isIgnored) {
+			classNames.push("ignored");
+		}
 		return (
-			<th style={style} onClick={() => this.props.onIgnoredChanged(this.props.archetypeData.id)}>{this.props.archetypeData.name}</th>
+			<th
+				className={classNames.join(" ")}
+				onClick={() => this.props.onIgnoredChanged(this.props.archetypeData.id)}
+			>
+				{this.props.archetypeData.name}
+				<img
+					className="class-icon"
+					src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
+				/>
+			</th>
 		);
 	}
 }
