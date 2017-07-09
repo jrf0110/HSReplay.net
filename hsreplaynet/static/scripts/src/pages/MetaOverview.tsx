@@ -92,7 +92,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			TimeRange: this.props.timeFrame,
 		};
 
-		return <div className="archetype-detail-container">
+		return <div className="meta-overview-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
 				<section id="game-mode-filter">

@@ -66,7 +66,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		});
 
 		return (
-			<table>
+			<table className="archetype-matrix">
 				<tr>
 					<th>Class</th>
 					{favoriteHeaders}
