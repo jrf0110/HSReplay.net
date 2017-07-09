@@ -101,6 +101,10 @@
 				text-align: center;
 				vertical-align: bottom;
 
+				.class-icon {
+					margin: 0.3em 0;
+				}
+
 				&.ignored {
 					text-decoration: line-through;
 					color: gray;
