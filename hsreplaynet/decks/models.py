@@ -303,7 +303,7 @@ class ArchetypeManager(models.Manager):
 			for deck in decks:
 				observations[deck["digest"]] = deck["total_games"]
 
-		return data
+		return observations
 
 	def update_signatures(self, archetype):
 		self.update_signatures_for_format(enums.FormatType.FT_STANDARD, archetype=archetype)
@@ -364,7 +364,7 @@ class ArchetypeManager(models.Manager):
 		for (card_id, dbf_id), observation_count in card_prevalence_counts.items():
 			prevalence = float(observation_count) / deck_occurences
 
-			for threshold in sorted(thresholds.keys, reverse=True):
+			for threshold in sorted(thresholds.keys(), reverse=True):
 				if prevalence >= threshold:
 					weight = thresholds[threshold]
 					ret.append({"card_id": card_id, "dbf_id": dbf_id}, weight)
