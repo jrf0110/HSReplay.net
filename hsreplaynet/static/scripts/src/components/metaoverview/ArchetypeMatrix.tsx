@@ -4,9 +4,11 @@ import ColumnHeader from "./ColumnHeader";
 import { ArchetypeData, SortDirection } from "../../interfaces";
 import ColumnFooter from "./ColumnFooter";
 import SortHeader from "../SortHeader";
+import CardData from "../../CardData";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
+	cardData: CardData;
 	favorites: number[];
 	ignoredColumns: number[];
 	onFavoriteChanged: (archetypeId: number, favorite: boolean) => void;
@@ -41,6 +43,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 				rows.push(
 					<MatchupRow
 						archetypeData={archetype}
+						cardData={this.props.cardData}
 						isFavorite={false}
 						ignoredColumns={this.props.ignoredColumns}
 						onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}
@@ -59,6 +62,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 				favoriteRows.push(
 					<MatchupRow
 						archetypeData={archetype}
+						cardData={this.props.cardData}
 						isFavorite={true}
 						ignoredColumns={this.props.ignoredColumns}
 						onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}

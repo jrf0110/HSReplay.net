@@ -3,9 +3,11 @@ import ArchetypeMatrix from "./ArchetypeMatrix";
 import { ApiArchetype, ApiArchetypeMatchupData, ApiArchetypePopularity, ArchetypeData, MatchupData, SortDirection } from "../../interfaces";
 import { getPlayerClassFromId } from "../../helpers";
 import UserData from "../../UserData";
+import CardData from "../../CardData";
 
 interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadToHead> {
 	archetypeData?: any;
+	cardData: CardData;
 	matchupData?: any;
 	popularityData?: any;
 	sortDirection?: SortDirection;
@@ -84,6 +86,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		return (
 			<ArchetypeMatrix
 				archetypes={archetypeData}
+				cardData={this.props.cardData}
 				favorites={this.state.favorites}
 				ignoredColumns={this.state.ignoredColumns}
 				onFavoriteChanged={(archetypeId: number, favorite: boolean) => this.onFavoriteChanged(archetypeId, favorite)}
