@@ -40,6 +40,8 @@ interface MyDecksProps extends FragmentChildProps, React.ClassAttributes<MyDecks
 	setPlayerClasses?: (playerClasses: FilterOption[]) => void;
 	includedSet?: string;
 	setIncludedSet?: (set: string) => void;
+	timeRange?: string;
+	setTimeRange?: (timeRange: string) => void;
 }
 
 export default class MyDecks extends React.Component<MyDecksProps, MyDecksState> {
@@ -67,7 +69,8 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 			this.props.includedCards !== prevProps.includedCards ||
 			!_.eq(this.props.playerClasses, prevProps.playerClasses) ||
 			this.props.cardData !== prevProps.cardData ||
-			this.props.includedSet !== prevProps.includedSet
+			this.props.includedSet !== prevProps.includedSet ||
+			this.props.timeRange !== prevProps.timeRange
 		) {
 			this.updateFilteredDecks();
 			this.deckListsFragmentsRef && this.deckListsFragmentsRef.reset("page");
@@ -410,13 +413,21 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 							<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</section>
+					<section id="time-frame-filter">
+						<h2>Time Frame</h2>
+						<InfoboxFilterGroup
+							selectedValue={this.props.timeRange}
+							onClick={(value) => this.props.setTimeRange(value)}
+						>
+							<InfoboxFilter value="PREVIOUS_SEASON">Previous Season</InfoboxFilter>
+							<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
+							<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+							<InfoboxFilter value="LAST_60_DAYS">Last 60 days</InfoboxFilter>
+						</InfoboxFilterGroup>
+					</section>
 					<section id="side-bar-data">
 						<h2>Data</h2>
 						<ul>
-							<li>
-								Time frame
-								<span className="infobox-value">Last 30 days</span>
-							</li>
 							<InfoboxLastUpdated
 								url={"single_account_lo_decks_summary"}
 								params={this.getPersonalParams()}
@@ -444,9 +455,10 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 		const getRegion = (account: string) => account && account.split("-")[0];
 		const getLo = (account: string) => account && account.split("-")[1];
 		return {
-			GameType: this.props.gameType,
 			Region: getRegion(this.state.account),
 			account_lo: getLo(this.state.account),
+			GameType: this.props.gameType,
+			TimeRange: this.props.timeRange,
 		};
 	}
 }

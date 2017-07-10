@@ -16,9 +16,9 @@ const render = (cardData: CardData) => {
 				gameType: "RANKED_STANDARD",
 				includedCards: [],
 				includedSet: "ALL",
+				timeRange: "LAST_30_DAYS",
 				playerClasses: [],
 			}}
-			immutable={!UserData.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange"] : null}
 		>
 			<MyDecks
 				cardData={cardData}
