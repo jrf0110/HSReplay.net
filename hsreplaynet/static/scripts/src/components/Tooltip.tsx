@@ -10,6 +10,7 @@ export interface ClickTouch<T> {
 interface TooltipState {
 	hovering?: boolean;
 	clientX?: number;
+	clientY?: number;
 	isTouchDevice: boolean;
 }
 
@@ -19,12 +20,17 @@ interface TooltipProps {
 	content?: TooltipContent | ClickTouch<TooltipContent>;
 	header?: string;
 	simple?: boolean;
+	noBackground?: boolean;
 }
 
 export default class Tooltip extends React.Component<TooltipProps, TooltipState> {
+	tooltip: HTMLDivElement;
+
 	constructor(props: TooltipProps, state: TooltipState) {
 		super(props, state);
 		this.state = {
+			clientX: 0,
+			clientY: 0,
 			hovering: false,
 			isTouchDevice: false,
 		};
@@ -33,17 +39,27 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 	render(): JSX.Element {
 		let tooltip = null;
 		if (this.state.hovering) {
+			const tooltipStyle = {};
 			const tooltipClassNames = ["hsreplay-tooltip"];
+			if (this.props.noBackground) {
+				tooltipClassNames.push("no-background");
+			}
 			if (this.props.centered) {
 				tooltipClassNames.push("centered");
 			}
 			else {
-				const left = this.state.clientX < window.innerWidth / 2;
-				if (left) {
-					tooltipClassNames.push("left");
+				if (this.tooltip) {
+					tooltipStyle["top"] = Math.max(0, this.state.clientY - this.tooltip.getBoundingClientRect().height);
 				}
 				else {
-					tooltipClassNames.push("right");
+					tooltipStyle["visibility"] = "hidden";
+				}
+				const left = this.state.clientX < window.innerWidth / 2;
+				if (left) {
+					tooltipStyle["left"] = (this.state.clientX + 20) + "px";
+				}
+				else {
+					tooltipStyle["right"] = (window.innerWidth - this.state.clientX) + "px";
 				}
 			}
 			const content = [];
@@ -57,7 +73,16 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 					content.push(selectedContent);
 				}
 			}
-			tooltip = <div id="tooltip-body" className={tooltipClassNames.join(" ")}>{content}</div>;
+			tooltip = (
+				<div
+					id="tooltip-body"
+					className={tooltipClassNames.join(" ")}
+					style={tooltipStyle}
+					ref={(ref) => this.tooltip = ref}
+				>
+					{content}
+				</div>
+			);
 		}
 
 		let classNames = ["tooltip-wrapper"];
@@ -68,12 +93,15 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			classNames.push("simple-tooltip");
 		}
 
-		const cancel = () => this.setState({hovering: false});
+		const cancel = () => {
+			this.tooltip = undefined;
+			this.setState({hovering: false});
+		};
 
 		return (
 			<div
 				className={classNames.join(" ")}
-				onMouseOver={(e) => this.setState({hovering: true, clientX: e.clientX})}
+				onMouseMove={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
 				onMouseOut={cancel}
 				onTouchStart={() => this.setState({isTouchDevice: true})}
 				aria-describedby={this.state.hovering ? "tooltip-body" : null}
@@ -85,11 +113,11 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 	}
 
 	protected getSelectedContent(): TooltipContent {
-		if(typeof this.props.content !== "object") {
+		if (typeof this.props.content !== "object") {
 			return this.props.content;
 		}
 
-		if(!this.props.content.hasOwnProperty("click") && !this.props.content.hasOwnProperty("touch")) {
+		if (!this.props.content.hasOwnProperty("click") && !this.props.content.hasOwnProperty("touch")) {
 			return this.props.content as TooltipContent;
 		}
 
