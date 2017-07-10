@@ -14,7 +14,7 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django_intenum import IntEnumField
-from psycopg2 import DatabaseError
+from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import func, select
 from hsredshift.etl.models import create_staging_table, list_staging_eligible_tables
 from hsredshift.etl.views import (
