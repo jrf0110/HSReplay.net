@@ -146,6 +146,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					]}
 				>
 					<ArchetypeHeadToHead
+						cardData={this.props.cardData}
 						sortDirection={this.props.sortDirection}
 						setSortDirection={this.props.setSortDirection}
 						sortBy={this.props.sortBy}
