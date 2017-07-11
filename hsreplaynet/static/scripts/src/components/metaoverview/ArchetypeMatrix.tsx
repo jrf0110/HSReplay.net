@@ -24,67 +24,41 @@ interface ArchetypeMatrixState {
 export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProps, ArchetypeMatrixState> {
 	render() {
 		const headers = [];
-		const favoriteHeaders = [];
 		const rows = [];
-		const favoriteRows = [];
 		const popularities = [];
-		const favoritePopularities = [];
 
 		this.props.archetypes.forEach((archetype: ArchetypeData) => {
 			const isIgnored = this.props.ignoredColumns.indexOf(archetype.id) !== -1;
-			if (this.props.favorites.indexOf(archetype.id) === -1) {
-				headers.push(
-					<ColumnHeader
-						archetypeData={archetype}
-						isIgnored={isIgnored}
-						onIgnoredChanged={(ignore: boolean) => this.props.onIgnoreChanged(archetype.id, ignore)}
-					/>,
-				);
-				rows.push(
-					<MatchupRow
-						archetypeData={archetype}
-						cardData={this.props.cardData}
-						isFavorite={false}
-						ignoredColumns={this.props.ignoredColumns}
-						onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}
-					/>,
-				);
-				popularities.push(<ColumnFooter archetypeData={archetype} />);
-			}
-			else {
-				favoriteHeaders.push(
-					<ColumnHeader
-						archetypeData={archetype}
-						isIgnored={isIgnored}
-						onIgnoredChanged={(ignore: boolean) => this.props.onIgnoreChanged(archetype.id, ignore)}
-					/>,
-				);
-				favoriteRows.push(
-					<MatchupRow
-						archetypeData={archetype}
-						cardData={this.props.cardData}
-						isFavorite={true}
-						ignoredColumns={this.props.ignoredColumns}
-						onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}
-					/>,
-				);
-				favoritePopularities.push(<ColumnFooter archetypeData={archetype} />);
-			}
+			const isFavorite = this.props.favorites.indexOf(archetype.id) !== -1;
+			headers.push(
+				<ColumnHeader
+					archetypeData={archetype}
+					isIgnored={isIgnored}
+					onIgnoredChanged={(ignore: boolean) => this.props.onIgnoreChanged(archetype.id, ignore)}
+				/>,
+			);
+			rows.push(
+				<MatchupRow
+					archetypeData={archetype}
+					cardData={this.props.cardData}
+					isFavorite={isFavorite}
+					ignoredColumns={this.props.ignoredColumns}
+					onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}
+				/>,
+			);
+			popularities.push(<ColumnFooter archetypeData={archetype} />);
 		});
 
 		return (
 			<table className="archetype-matrix">
 				<tr>
 					{this.getSortHeader("class", "Archetype", "ascending")}
-					{favoriteHeaders}
 					{headers}
 					{this.getSortHeader("winrate", "Effective Winrate")}
 				</tr>
-				{favoriteRows}
 				{rows}
 				<tr>
 					{this.getSortHeader("popularity", "Popularity")}
-					{favoritePopularities}
 					{popularities}
 				</tr>
 			</table>
