@@ -252,9 +252,10 @@ class ArchetypeManager(models.Manager):
 		SELECT
 			s.archetype_id,
 			c.dbf_id,
-			c.weight
-		FROM decks_signaturecomponent c
-		JOIN signatures s ON s.signature_id = c.signature_id;
+			sc.weight
+		FROM decks_signaturecomponent sc
+		JOIN signatures s ON s.signature_id = sc.signature_id
+		JOIN card c on c.card_id = sc.card_id;
 	"""
 
 	def get_signature_weights(self, archetype_ids, game_format):
