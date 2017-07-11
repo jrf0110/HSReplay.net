@@ -8,11 +8,13 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.timezone import now
 from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from hsarchetypes import classify_deck, get_signature_components
 from shortuuid.main import int_to_string, string_to_int
+from hsreplaynet.utils.aws.clients import FIREHOSE
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.db import dictfetchall
 
@@ -180,6 +182,23 @@ class Deck(models.Model):
 
 	def get_absolute_url(self):
 		return reverse("deck_detail", kwargs={"id": self.shortid})
+
+	def sync_archetype_to_firehose(self):
+		timestamp = now().replace(tzinfo=None)
+		record = "{deck_id}|{archetype_id}|{as_of}\n".format(
+			deck_id=str(self.id),
+			archetype_id=str(self.archetype_id or ""),
+			as_of=timestamp.isoformat(sep=" "),
+		)
+
+		result = FIREHOSE.put_record(
+			DeliveryStreamName=settings.ARCHETYPE_FIREHOSE_STREAM_NAME,
+			Record={
+				"Data": record.encode("utf-8"),
+			}
+		)
+
+		return result
 
 	def card_dbf_id_list(self):
 		result = []
