@@ -76,8 +76,7 @@ class DeckManager(models.Manager):
 			deck.card_dbf_id_list(), archetype_ids, signature_weights, distance_cutoff
 		)
 		if archetype_id:
-			deck.archetype_id = archetype_id
-			deck.save()
+			deck.update_archetype(archetype_id)
 
 	def get_by_shortid(self, shortid):
 		try:
@@ -182,6 +181,25 @@ class Deck(models.Model):
 
 	def get_absolute_url(self):
 		return reverse("deck_detail", kwargs={"id": self.shortid})
+
+	def update_archetype(self, archetype, save=True):
+		"""
+		Set the archetype field and save to the database,
+		then call sync_archetype_to_firehose() to replicate the
+		archetype update into Redshift.
+		"""
+		if isinstance(archetype, Archetype):
+			archetype_id = archetype.id
+		else:
+			archetype_id = archetype
+		if self.archetype_id == archetype_id:
+			return False
+		self.archetype_id = archetype_id
+		if save:
+			self.save()
+		self.sync_archetype_to_firehose()
+
+		return True
 
 	def sync_archetype_to_firehose(self):
 		timestamp = now().replace(tzinfo=None)

@@ -68,6 +68,8 @@ class DeckSerializer(serializers.ModelSerializer):
 			if new_archetype:
 				Archetype.objects.update_signatures(archetype=new_archetype)
 
+			instance.sync_archetype_to_firehose()
+
 		return result
 
 
