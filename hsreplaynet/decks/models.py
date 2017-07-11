@@ -63,14 +63,16 @@ class DeckManager(models.Manager):
 
 	def classify_deck_with_archetype(self, deck, player_class, game_format):
 		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
-		available_archetypes = list(Archetype.objects.filter(player_class=player_class))
-		signature_weights = self._fetch_signature_weights(available_archetypes, game_format)
-		card_counts = {i.dbf_id: i.count for i in deck.includes.all()}
-		archetype = Archetype.objects.classify_deck(
-			card_counts, available_archetypes, signature_weights, distance_cutoff
+		archetype_ids = list(
+			Archetype.objects.filter(player_class=player_class).values_list("id", flat=True)
 		)
-		if archetype:
-			deck.archetype = archetype
+		signature_weights = self._fetch_signature_weights(archetype_ids, game_format)
+		card_counts = {i.dbf_id: i.count for i in deck.includes.all()}
+		archetype_id = Archetype.objects.classify_deck(
+			card_counts, archetype_ids, signature_weights, distance_cutoff
+		)
+		if archetype_id:
+			deck.archetype_id = archetype_id
 			deck.save()
 
 	def get_by_shortid(self, shortid):
@@ -253,10 +255,10 @@ class ArchetypeManager(models.Manager):
 		JOIN signatures s ON s.signature_id = c.signature_id;
 	"""
 
-	def _fetch_signature_weights(self, archetypes, game_format):
-		archetype_ids_for_class = ",".join([str(a.id) for a in archetypes])
+	def _fetch_signature_weights(self, archetype_ids, game_format):
+		archetype_ids_sql_list = ",".join(str(id) for id in archetype_ids)
 		query = self.SIGNATURE_COMPONENTS_QUERY_TEMPLATE.format(
-			archetype_ids=archetype_ids_for_class,
+			archetype_ids=archetype_ids_sql_list,
 			format=str(int(game_format))
 		)
 		with connection.cursor() as cursor:
@@ -266,17 +268,17 @@ class ArchetypeManager(models.Manager):
 				result[record["archetype_id"]][record["dbf_id"]] = record["weight"]
 			return result
 
-	def classify_deck(self, deck, available_archetypes, signature_weights, distance_cutoff):
+	def classify_deck(self, deck, archetype_ids, signature_weights, distance_cutoff):
 		distances = []
-		for archetype in available_archetypes:
+		for archetype_id in archetype_ids:
 			distance = 0
-			if archetype.id in signature_weights:
-				for dbf_id, weight in signature_weights[archetype.id].items():
+			if archetype_id in signature_weights:
+				for dbf_id, weight in signature_weights[archetype_id].items():
 					if dbf_id in deck:
 						distance += (deck[dbf_id] * weight)
 
 			if distance and distance >= distance_cutoff:
-				distances.append((archetype, distance))
+				distances.append((archetype_id, distance))
 
 		if distances:
 			distances = sorted(distances, key=lambda t: t[1], reverse=True)
