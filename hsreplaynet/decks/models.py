@@ -11,7 +11,7 @@ from django.utils.functional import cached_property
 from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
-from hsarchetypes import get_signature_components
+from hsarchetypes import classify_deck, get_signature_components
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.db import dictfetchall
@@ -68,7 +68,7 @@ class DeckManager(models.Manager):
 		)
 		signature_weights = self._fetch_signature_weights(archetype_ids, game_format)
 		card_counts = {i.dbf_id: i.count for i in deck.includes.all()}
-		archetype_id = Archetype.objects.classify_deck(
+		archetype_id = classify_deck(
 			card_counts, archetype_ids, signature_weights, distance_cutoff
 		)
 		if archetype_id:
@@ -267,22 +267,6 @@ class ArchetypeManager(models.Manager):
 			for record in dictfetchall(cursor):
 				result[record["archetype_id"]][record["dbf_id"]] = record["weight"]
 			return result
-
-	def classify_deck(self, deck, archetype_ids, signature_weights, distance_cutoff):
-		distances = []
-		for archetype_id in archetype_ids:
-			distance = 0
-			if archetype_id in signature_weights:
-				for dbf_id, weight in signature_weights[archetype_id].items():
-					if dbf_id in deck:
-						distance += (deck[dbf_id] * weight)
-
-			if distance and distance >= distance_cutoff:
-				distances.append((archetype_id, distance))
-
-		if distances:
-			distances = sorted(distances, key=lambda t: t[1], reverse=True)
-			return distances[0][0]
 
 	def _get_deck_observation_counts_from_redshift(self, format):
 		query = get_redshift_query("list_decks_by_win_rate")
