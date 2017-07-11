@@ -6,6 +6,7 @@ import {Grid, ScrollSync, AutoSizer} from "react-virtualized";
 import MatchupCell from "./MatchupCell";
 import scrollbarSize from 'dom-helpers/util/scrollbarSize'
 import ColumnHeader from "./ColumnHeader";
+import RowHeader from "./RowHeader";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
@@ -90,8 +91,8 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 			</table>
 		);*/
 
-		const headerCellWidth = 150;
-		const headerCellHeight = 100;
+		const headerCellWidth = 250;
+		const headerCellHeight = 132;
 
 		const cellWidth = 70;
 		const cellHeight = 40;
@@ -106,10 +107,19 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 									<div style={{position: "absolute", top: 0, left: headerCellWidth}}>
 										<Grid
 											cellRenderer={({columnIndex, key, style}) => {
+												const archetype = archetypes[columnIndex];
+												const isIgnored = this.props.ignoredColumns.indexOf(archetype.id) !== -1;
+
 												return (
-													<div className="cell" key={key} style={style}>
-														{archetypes[columnIndex].name}
-													</div>
+													<ColumnHeader
+														archetypeData={archetype}
+														isIgnored={isIgnored}
+														onIgnoredChanged={(ignore: boolean) =>
+															this.props.onIgnoreChanged(archetype.id, ignore)
+														}
+														key={key}
+														style={style}
+													/>
 												);
 											}}
 											width={width - headerCellWidth - cellWidth - scrollbarSize()}
@@ -119,8 +129,10 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											rowCount={1}
 											rowHeight={headerCellHeight}
 											scrollLeft={scrollLeft}
-											className={"matchup-header-row"}
+											className={"matchup-header"}
 										/>
+										<div className={"gradient gradient-left" + (scrollLeft <= 0 ? " gradient-hidden" : "")}></div>
+										<div className={"gradient gradient-right" + (scrollbarSize() + clientWidth + scrollLeft >= scrollWidth ? " gradient-hidden" : "")}></div>
 									</div>
 									<div className="matchup-header-row-cell" style={{position: "absolute", top: 0, right: 0, height: headerCellHeight, width: cellWidth}}>
 										EWR
@@ -128,10 +140,20 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 									<div style={{position: "absolute", top: headerCellHeight, left: 0}}>
 										<Grid
 											cellRenderer={({key, rowIndex, style}) => {
+												const archetype = archetypes[rowIndex];
+												const isFavorite = this.props.favorites.indexOf(archetype.id) !== -1;
+
 												return (
-													<div className="cell" key={key} style={style}>
-														{archetypes[rowIndex].name}
-													</div>
+													<RowHeader
+														archetypeData={archetype}
+														isFavorite={isFavorite}
+														onFavoriteChanged={(favorite: boolean) =>
+															this.props.onFavoriteChanged(archetype.id, favorite)
+														}
+														cardData={this.props.cardData}
+														key={key}
+														style={style}
+													/>
 												);
 											}}
 											width={headerCellWidth}
@@ -141,17 +163,25 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											rowCount={archetypes.length}
 											rowHeight={cellHeight}
 											scrollTop={scrollTop}
-											className={"matchup-header-column"}
+											className={"matchup-header"}
 										/>
+										<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}></div>
+										<div className={"gradient gradient-bottom" + (scrollbarSize() + clientHeight + scrollTop >= scrollHeight ? " gradient-hidden" : "")}></div>
 									</div>
 									<div style={{position: "absolute", top: headerCellHeight, left: headerCellWidth}}>
 										<Grid
 											cellRenderer={({columnIndex, key, rowIndex, style}) => {
 												const archetype = archetypes[rowIndex];
 												const matchup = archetype.matchups[columnIndex];
+												const isIgnored = this.props.ignoredColumns.indexOf(matchup.opponentId) !== -1;
 
 												return (
-													<MatchupCell key={key} style={style} matchupData={matchup} isIgnored={false} />
+													<MatchupCell
+														key={key}
+														style={style}
+														matchupData={matchup}
+														isIgnored={isIgnored}
+													/>
 												);
 											}}
 											scrollToAlignment="start"
@@ -182,7 +212,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											rowCount={1}
 											rowHeight={cellHeight}
 											scrollLeft={scrollLeft}
-											className={"matchup-header-row"}
+											className={"matchup-header"}
 										/>
 									</div>
 									<div style={{position: "absolute", right: 0, top: headerCellHeight}}>
@@ -199,7 +229,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											rowCount={archetypes.length}
 											rowHeight={cellHeight}
 											scrollTop={scrollTop}
-											className={"matchup-header-column"}
+											className={"matchup-header"}
 										/>
 									</div>
 								</div>

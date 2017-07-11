@@ -35,7 +35,7 @@ export default class MatchupRow extends React.Component<MatchupRowProps, Matchup
 					archetypeData={this.props.archetypeData}
 					cardData={this.props.cardData}
 					isFavorite={this.props.isFavorite}
-					onFavoriteClick={() => this.props.onFavoriteChanged(!this.props.isFavorite)}
+					onFavoriteChanged={(favorite) => this.props.onFavoriteChanged(favorite)}
 				/>
 				{cells}
 				<RowFooter archetypeData={this.props.archetypeData}/>

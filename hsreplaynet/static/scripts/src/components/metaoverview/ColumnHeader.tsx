@@ -5,6 +5,7 @@ interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	archetypeData: ArchetypeData;
 	isIgnored: boolean;
 	onIgnoredChanged: (ignore: boolean) => void;
+	style?: any;
 }
 
 interface ColumnHeaderState {
@@ -19,7 +20,10 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 		return (
 			<div
 				className={classNames.join(" ")}
-				onClick={() => this.props.onIgnoredChanged(!this.props.isIgnored)}
+				onClick={() => {
+					this.props.onIgnoredChanged(!this.props.isIgnored)
+				}}
+				style={this.props.style}
 			>
 				{this.props.archetypeData.name}
 				<img

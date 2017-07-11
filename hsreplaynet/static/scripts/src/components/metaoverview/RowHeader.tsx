@@ -11,7 +11,8 @@ interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeData;
 	cardData: CardData;
 	isFavorite?: boolean;
-	onFavoriteClick: () => void;
+	onFavoriteChanged: (favorite: boolean) => void;
+	style?: any;
 }
 
 interface RowHeaderState {
@@ -27,8 +28,8 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 		}
 
 		return (
-			<th className="matchup-row-header">
-				<div className="archetype" onClick={() => this.props.onFavoriteClick()}>
+			<div className="matchup-row-header" style={this.props.style}>
+				<div className="archetype" onClick={() => this.props.onFavoriteChanged(!this.props.isFavorite)}>
 					<div className="class-icon-wrapper">
 						<img
 							className="class-icon"
@@ -49,7 +50,7 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 						</Tooltip>
 					</a>
 				</Feature>
-			</th>
+			</div>
 		);
 	}
 
