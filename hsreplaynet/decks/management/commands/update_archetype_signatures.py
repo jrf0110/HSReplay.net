@@ -3,6 +3,6 @@ from hsreplaynet.decks.models import Archetype
 
 
 class Command(BaseCommand):
-
 	def handle(self, *args, **options):
-		Archetype.objects.update_signatures()
+		for archetype in Archetype.objects.all():
+			Archetype.objects.update_signatures()
