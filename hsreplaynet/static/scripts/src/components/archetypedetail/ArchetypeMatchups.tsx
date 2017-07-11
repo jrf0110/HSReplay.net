@@ -26,7 +26,7 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 				}
 				opponentClasses[opponentPlayerClass].push({
 					id: matchup.opponent_archetype_id,
-					name: matchup.opponent_archetype,
+					name: this.getArchetypeName(matchup.opponent_archetype_id),
 					winrate: matchup.win_rate,
 				});
 			}
@@ -57,6 +57,14 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 		const archetype = this.props.archetypeData.results.find((x) => x.id === archetypeId);
 		if (archetype && archetype.player_class) {
 			return getPlayerClassFromId(archetype.player_class);
+		}
+		return null;
+	}
+
+	getArchetypeName(archetypeId: number): string {
+		const archetype = this.props.archetypeData.results.find((x) => x.id === archetypeId);
+		if (archetype) {
+			return archetype.name;
 		}
 		return null;
 	}
