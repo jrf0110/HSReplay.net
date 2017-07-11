@@ -66,6 +66,9 @@ class DeckManager(models.Manager):
 		archetype_ids = list(
 			Archetype.objects.filter(player_class=player_class).values_list("id", flat=True)
 		)
+		if not archetype_ids:
+			return
+
 		signature_weights = Archetype.objects.get_signature_weights(archetype_ids, game_format)
 		card_counts = {i.dbf_id: i.count for i in deck.includes.all()}
 		archetype_id = classify_deck(
