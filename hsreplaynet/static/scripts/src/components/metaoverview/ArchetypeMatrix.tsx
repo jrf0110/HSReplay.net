@@ -27,9 +27,15 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		const rows = [];
 		const popularities = [];
 
-		this.props.archetypes.forEach((archetype: ArchetypeData) => {
+		const numFavorites = this.props.favorites.length;
+
+		this.props.archetypes.forEach((archetype: ArchetypeData, index: number) => {
 			const isIgnored = this.props.ignoredColumns.indexOf(archetype.id) !== -1;
 			const isFavorite = this.props.favorites.indexOf(archetype.id) !== -1;
+
+			// Data is sorted by favorites
+			const lastFavorite = index === numFavorites - 1;
+
 			headers.push(
 				<ColumnHeader
 					archetypeData={archetype}
@@ -42,6 +48,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 					archetypeData={archetype}
 					cardData={this.props.cardData}
 					isFavorite={isFavorite}
+					lastFavorite={lastFavorite}
 					ignoredColumns={this.props.ignoredColumns}
 					onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}
 				/>,
