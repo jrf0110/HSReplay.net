@@ -70,9 +70,8 @@ class DeckManager(models.Manager):
 			return
 
 		signature_weights = Archetype.objects.get_signature_weights(archetype_ids, game_format)
-		card_counts = {i.dbf_id: i.count for i in deck.includes.all()}
 		archetype_id = classify_deck(
-			card_counts, archetype_ids, signature_weights, distance_cutoff
+			deck.card_dbf_id_list(), archetype_ids, signature_weights, distance_cutoff
 		)
 		if archetype_id:
 			deck.archetype_id = archetype_id
