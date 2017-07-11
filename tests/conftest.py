@@ -110,7 +110,9 @@ def upload_event():
 			"Authorization": "Token beh7141d-c437-4bfe-995e-1b3a975094b1",
 		},
 		"body": base64.b64encode('{"player1_rank": 5}'.encode("utf8")).decode("ascii"),
-		"source_ip": "127.0.0.1",
+		"event": {
+			"source_ip": "127.0.0.1",
+		},
 	}
 
 
