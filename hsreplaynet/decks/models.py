@@ -65,7 +65,7 @@ class DeckManager(models.Manager):
 		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
 		available_archetypes = list(Archetype.objects.filter(player_class=player_class))
 		signature_weights = self._fetch_signature_weights(available_archetypes, game_format)
-		card_counts = {i.card_id: i.count for i in deck.includes.all()}
+		card_counts = {i.dbf_id: i.count for i in deck.includes.all()}
 		archetype = Archetype.objects.classify_deck(
 			card_counts, available_archetypes, signature_weights, distance_cutoff
 		)
@@ -247,7 +247,7 @@ class ArchetypeManager(models.Manager):
 		)
 		SELECT
 			s.archetype_id,
-			c.card_id,
+			c.dbf_id,
 			c.weight
 		FROM decks_signaturecomponent c
 		JOIN signatures s ON s.signature_id = c.signature_id;
@@ -263,7 +263,7 @@ class ArchetypeManager(models.Manager):
 			cursor.execute(query)
 			result = defaultdict(dict)
 			for record in dictfetchall(cursor):
-				result[record["archetype_id"]][record["card_id"]] = record["weight"]
+				result[record["archetype_id"]][record["dbf_id"]] = record["weight"]
 			return result
 
 	def classify_deck(self, deck, available_archetypes, signature_weights, distance_cutoff):
@@ -271,9 +271,9 @@ class ArchetypeManager(models.Manager):
 		for archetype in available_archetypes:
 			distance = 0
 			if archetype.id in signature_weights:
-				for card_id, weight in signature_weights[archetype.id].items():
-					if card_id in deck:
-						distance += (deck[card_id] * weight)
+				for dbf_id, weight in signature_weights[archetype.id].items():
+					if dbf_id in deck:
+						distance += (deck[dbf_id] * weight)
 
 			if distance and distance >= distance_cutoff:
 				distances.append((archetype, distance))
