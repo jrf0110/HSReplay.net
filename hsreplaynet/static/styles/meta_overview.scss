@@ -151,8 +151,9 @@
 
 			tfoot > tr {
 				td {
-					border: 1px solid $offwhite;
-					border-top: 5px solid $offwhite;
+					padding-top: 10px;
+					border-left: 1px solid $offwhite;
+					border-right: 1px solid $offwhite;
 
 					.bar-body {
 						height: 4em;
