@@ -251,11 +251,10 @@ class ArchetypeManager(models.Manager):
 		)
 		SELECT
 			s.archetype_id,
-			c.dbf_id,
+			sc.card_dbf_id,
 			sc.weight
 		FROM decks_signaturecomponent sc
-		JOIN signatures s ON s.signature_id = sc.signature_id
-		JOIN card c on c.card_id = sc.card_id;
+		JOIN signatures s ON s.signature_id = sc.signature_id;
 	"""
 
 	def get_signature_weights(self, archetype_ids, game_format):
@@ -268,7 +267,7 @@ class ArchetypeManager(models.Manager):
 			cursor.execute(query)
 			result = defaultdict(dict)
 			for record in dictfetchall(cursor):
-				result[record["archetype_id"]][record["dbf_id"]] = record["weight"]
+				result[record["archetype_id"]][record["card_dbf_id"]] = record["weight"]
 			return result
 
 	def _get_deck_observation_counts_from_redshift(self, format):
@@ -327,7 +326,7 @@ class ArchetypeManager(models.Manager):
 		)
 		for card, weight in components:
 			SignatureComponent.objects.create(
-				signature=signature, card_id=card["card_id"], weight=weight
+				signature=signature, card_id=card["dbf_id"], weight=weight
 			)
 
 
@@ -401,8 +400,7 @@ class SignatureComponent(models.Model):
 		on_delete=models.CASCADE
 	)
 	card = models.ForeignKey(
-		Card,
+		Card, on_delete=models.PROTECT, to_field="dbf_id", db_column="card_dbf_id",
 		related_name="signature_components",
-		on_delete=models.PROTECT
 	)
 	weight = models.FloatField(default=0.0)

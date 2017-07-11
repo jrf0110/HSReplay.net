@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('weight', models.FloatField(default=0.0)),
-                ('card', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='signature_components', to='cards.Card')),
+                ('card', models.ForeignKey(db_column='card_dbf_id', on_delete=django.db.models.deletion.PROTECT, related_name='signature_components', to='cards.Card', to_field='dbf_id')),
                 ('signature', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='components', to='decks.Signature')),
             ],
         ),
