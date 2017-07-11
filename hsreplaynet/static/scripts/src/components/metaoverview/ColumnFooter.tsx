@@ -1,6 +1,6 @@
 import * as React from "react";
-import Bar from "./Bar";
-import { ArchetypeData } from "../../interfaces";
+import Bar, {BarDirection} from "./Bar";
+import {ArchetypeData} from "../../interfaces";
 
 interface ColumnFooterProps extends React.ClassAttributes<ColumnFooter> {
 	archetypeData: ArchetypeData;
@@ -13,9 +13,12 @@ export default class ColumnFooter extends React.Component<ColumnFooterProps, Col
 	render() {
 		return (
 			<td>
-				<Bar total={100} value={this.props.archetypeData.popularityClass} />
-				<br />
-				{this.props.archetypeData.popularityTotal}%
+				<Bar
+					total={100}
+					value={this.props.archetypeData.popularityClass}
+					direction={BarDirection.VERTICAL}
+					label={`${this.props.archetypeData.popularityClass}%`}
+				/>
 			</td>
 		);
 	}
