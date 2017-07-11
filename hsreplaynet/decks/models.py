@@ -66,7 +66,7 @@ class DeckManager(models.Manager):
 		archetype_ids = list(
 			Archetype.objects.filter(player_class=player_class).values_list("id", flat=True)
 		)
-		signature_weights = self._fetch_signature_weights(archetype_ids, game_format)
+		signature_weights = Archetype.objects.get_signature_weights(archetype_ids, game_format)
 		card_counts = {i.dbf_id: i.count for i in deck.includes.all()}
 		archetype_id = classify_deck(
 			card_counts, archetype_ids, signature_weights, distance_cutoff
@@ -255,7 +255,7 @@ class ArchetypeManager(models.Manager):
 		JOIN signatures s ON s.signature_id = c.signature_id;
 	"""
 
-	def _fetch_signature_weights(self, archetype_ids, game_format):
+	def get_signature_weights(self, archetype_ids, game_format):
 		archetype_ids_sql_list = ",".join(str(id) for id in archetype_ids)
 		query = self.SIGNATURE_COMPONENTS_QUERY_TEMPLATE.format(
 			archetype_ids=archetype_ids_sql_list,
