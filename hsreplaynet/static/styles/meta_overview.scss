@@ -39,17 +39,15 @@
 			}
 
 			.matchup-row-header {
-				min-width: 15em;
-				text-align: left;
 				cursor: pointer;
+				display: flex;
 				line-height: 40px;
 
 				.archetype {
-					float: left;
+					flex: 1;
 					overflow-x: hidden;
 					text-overflow: ellipsis;
 					white-space: nowrap;
-					width: 13em;
 				}
 
 				.class-icon:hover {
@@ -88,7 +86,6 @@
 				.glyphicon-new-window {
 					cursor: pointer;
 					color: gray;
-					float: right;
 					line-height: 25px;
 					margin: 0.5em;
 				}
