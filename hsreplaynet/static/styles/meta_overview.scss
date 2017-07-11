@@ -38,6 +38,10 @@
 				}
 			}
 
+			.last-favorite {
+				border-bottom: 5px solid $offwhite;
+			}
+
 			.matchup-row-header {
 				cursor: pointer;
 				display: flex;

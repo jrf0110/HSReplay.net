@@ -10,6 +10,7 @@ interface MatchupRowProps extends React.ClassAttributes<MatchupRow> {
 	cardData: CardData;
 	ignoredColumns: number[];
 	isFavorite: boolean;
+	lastFavorite: boolean;
 	onFavoriteChanged: (favorite: boolean) => void;
 }
 
@@ -22,8 +23,14 @@ export default class MatchupRow extends React.Component<MatchupRowProps, Matchup
 			const isIgnored = this.props.ignoredColumns.indexOf(matchup.opponentId) !== -1;
 			return <MatchupCell matchupData={matchup} isIgnored={isIgnored}/>;
 		});
+
+		const classNames = ["matchup-row"];
+		if (this.props.lastFavorite) {
+			classNames.push("last-favorite");
+		}
+
 		return (
-			<tr className="matchup-row">
+			<tr className={classNames.join(" ")}>
 				<RowHeader
 					archetypeData={this.props.archetypeData}
 					cardData={this.props.cardData}
