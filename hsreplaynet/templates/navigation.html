@@ -35,18 +35,30 @@
 								<span class="hidden-sm">Trending</span>
 							</a>
 						</li>
+
+						{% feature "meta-overview" as ft_meta %}{% if ft_meta.enabled %}
+							<li{% nav_active 'meta_overview' %}>
+								<a href="{% url 'meta_overview' %}" id="navbar-link-cards">
+									<span class="glyphicon glyphicon-random"></span>
+									<span class="hidden-sm">Meta</span>
+								</a>
+							</li>
+						{% endif %}
+
 						<li{% nav_active 'deck_list' %}>
 							<a href="{% url 'deck_list' %}" id="navbar-link-decks">
 								<span class="glyphicon glyphicon-th-list"></span>
 								<span class="hidden-sm">Decks</span>
 							</a>
 						</li>
+
 						<li{% nav_active 'card_stats' %}>
 							<a href="{% url 'card_stats' %}" id="navbar-link-cards">
 								<span class="glyphicon glyphicon-stats"></span>
 								<span class="hidden-sm">Cards</span>
 							</a>
 						</li>
+
 						<li{% nav_active 'premium' css='active active-premium' %} id="navbar-link-premium">
 							<a href="{% url 'premium' %}" class="text-premium">Premium</a>
 						</li>
