@@ -115,9 +115,8 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		};
 
 		archetypes.sort((a: ArchetypeData, b: ArchetypeData) => {
-			const favorite = +this.isFavorite(a.id) - +this.isFavorite(b.id);
-			const value = favorite || compare(a, b) || (a.name > b.name ? 1 : -1);
-			return value * direction;
+			const favorite = +this.isFavorite(b.id) - +this.isFavorite(a.id);
+			return favorite || (compare(a, b) || (a.name > b.name ? 1 : -1)) * direction;
 		});
 	}
 
