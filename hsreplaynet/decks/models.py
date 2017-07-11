@@ -11,6 +11,7 @@ from django.utils.functional import cached_property
 from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
+from hsarchetypes import get_signature_components
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.db import dictfetchall
@@ -333,7 +334,7 @@ class ArchetypeManager(models.Manager):
 			settings.ARCHETYPE_CORE_CARD_THRESHOLD: settings.ARCHETYPE_CORE_CARD_WEIGHT,
 			settings.ARCHETYPE_TECH_CARD_THRESHOLD: settings.ARCHETYPE_TECH_CARD_WEIGHT,
 		}
-		components = self.get_signature_components(matching_decks, observation_counts, thresholds)
+		components = get_signature_components(matching_decks, observation_counts, thresholds)
 
 		signature = Signature.objects.create(
 			archetype=archetype, format=game_format, as_of=timezone.now()
@@ -342,35 +343,6 @@ class ArchetypeManager(models.Manager):
 			SignatureComponent.objects.create(
 				signature=signature, card_id=card["card_id"], weight=weight
 			)
-
-	def get_signature_components(self, matching_decks, observation_counts, thresholds):
-		card_prevalence_counts = {}
-		deck_occurences = 0
-		ret = []
-
-		for digest, cards in matching_decks.items():
-			obs_count = observation_counts[digest]
-			deck_occurences += obs_count
-			for include in cards:
-				key = (include["card_id"], include["dbf_id"])
-				if key not in card_prevalence_counts:
-					card_prevalence_counts[key] = 0
-				card_prevalence_counts[key] += obs_count
-
-		if not deck_occurences:
-			# Could not find any matching deck, break early
-			return ret
-
-		for (card_id, dbf_id), observation_count in card_prevalence_counts.items():
-			prevalence = float(observation_count) / deck_occurences
-
-			for threshold in sorted(thresholds.keys(), reverse=True):
-				if prevalence >= threshold:
-					weight = thresholds[threshold]
-					ret.append(({"card_id": card_id, "dbf_id": dbf_id}, weight))
-					break
-
-		return ret
 
 
 class Archetype(models.Model):
