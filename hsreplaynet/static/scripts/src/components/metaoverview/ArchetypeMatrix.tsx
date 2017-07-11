@@ -1,10 +1,11 @@
 import * as React from "react";
-import MatchupRow from "./MatchupRow";
-import ColumnHeader from "./ColumnHeader";
-import { ArchetypeData, SortDirection } from "../../interfaces";
-import ColumnFooter from "./ColumnFooter";
+import {ArchetypeData, SortDirection} from "../../interfaces";
 import SortHeader from "../SortHeader";
 import CardData from "../../CardData";
+import {Grid, ScrollSync, AutoSizer} from "react-virtualized";
+import MatchupCell from "./MatchupCell";
+import scrollbarSize from 'dom-helpers/util/scrollbarSize'
+import ColumnHeader from "./ColumnHeader";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
@@ -29,7 +30,9 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 
 		const numFavorites = this.props.favorites.length;
 
-		this.props.archetypes.forEach((archetype: ArchetypeData, index: number) => {
+		const {archetypes} = this.props;
+
+		/*this.props.archetypes.forEach((archetype: ArchetypeData, index: number) => {
 			const isIgnored = this.props.ignoredColumns.indexOf(archetype.id) !== -1;
 			const isFavorite = this.props.favorites.indexOf(archetype.id) !== -1;
 
@@ -54,25 +57,167 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 				/>,
 			);
 			popularities.push(<ColumnFooter archetypeData={archetype} />);
-		});
+		});*/
 
-		return (
+		/*return (
 			<table className="archetype-matrix">
 				<tr>
 					{this.getSortHeader("class", "Archetype", "ascending")}
 					{headers}
-					{this.getSortHeader("winrate", "Effective Winrate")}
+					{this.getSortHeader(
+						"winrate",
+						"EWR",
+						null,
+						"Effective Winrate",
+						"The expected winrate against all active archetypes, weighted by their popularity.",
+					)}
 				</tr>
-				{rows}
-				<tr>
-					{this.getSortHeader("popularity", "Popularity")}
-					{popularities}
-				</tr>
+				<tbody style={{height: "50vh"}}>
+					{rows}
+				</tbody>
+				<tfoot>
+					<tr>
+						{this.getSortHeader(
+							"popularity",
+							"Popularity",
+							null,
+							"Popularity on Ladder",
+							"The percentage of decks played that belong to this archetype.",
+						)}
+						{popularities}
+					</tr>
+				</tfoot>
 			</table>
+		);*/
+
+		const headerCellWidth = 150;
+		const headerCellHeight = 100;
+
+		const cellWidth = 70;
+		const cellHeight = 40;
+
+		return (
+			<div style={{height: "calc(100vh - 150px)", margin: "0 15px"}}>
+				<AutoSizer>
+					{({height, width}) => (
+						<ScrollSync>
+							{({ clientHeight, clientWidth, onScroll, scrollHeight, scrollLeft, scrollTop, scrollWidth }) => (
+								<div className="matchup-matrix">
+									<div style={{position: "absolute", top: 0, left: headerCellWidth}}>
+										<Grid
+											cellRenderer={({columnIndex, key, style}) => {
+												return (
+													<div className="cell" key={key} style={style}>
+														{archetypes[columnIndex].name}
+													</div>
+												);
+											}}
+											width={width - headerCellWidth - cellWidth - scrollbarSize()}
+											height={headerCellHeight}
+											columnCount={archetypes.length}
+											columnWidth={cellWidth}
+											rowCount={1}
+											rowHeight={headerCellHeight}
+											scrollLeft={scrollLeft}
+											className={"matchup-header-row"}
+										/>
+									</div>
+									<div className="matchup-header-row-cell" style={{position: "absolute", top: 0, right: 0, height: headerCellHeight, width: cellWidth}}>
+										EWR
+									</div>
+									<div style={{position: "absolute", top: headerCellHeight, left: 0}}>
+										<Grid
+											cellRenderer={({key, rowIndex, style}) => {
+												return (
+													<div className="cell" key={key} style={style}>
+														{archetypes[rowIndex].name}
+													</div>
+												);
+											}}
+											width={headerCellWidth}
+											height={height - headerCellHeight - cellHeight - scrollbarSize()}
+											columnCount={1}
+											columnWidth={headerCellWidth}
+											rowCount={archetypes.length}
+											rowHeight={cellHeight}
+											scrollTop={scrollTop}
+											className={"matchup-header-column"}
+										/>
+									</div>
+									<div style={{position: "absolute", top: headerCellHeight, left: headerCellWidth}}>
+										<Grid
+											cellRenderer={({columnIndex, key, rowIndex, style}) => {
+												const archetype = archetypes[rowIndex];
+												const matchup = archetype.matchups[columnIndex];
+
+												return (
+													<MatchupCell key={key} style={style} matchupData={matchup} isIgnored={false} />
+												);
+											}}
+											scrollToAlignment="start"
+											scrollToColumn={0}
+											scrollToRow={0}
+											width={width - headerCellWidth - cellWidth}
+											height={height - headerCellHeight - cellHeight}
+											columnCount={archetypes.length}
+											columnWidth={cellWidth}
+											rowCount={archetypes.length}
+											rowHeight={cellHeight}
+											scrollTop={scrollTop}
+											onScroll={onScroll}
+											className={"matchup-matrix"}
+										/>
+									</div>
+									<div style={{position: "absolute", bottom: 0, left: headerCellWidth}}>
+										<Grid
+											cellRenderer={({columnIndex, key, rowIndex, style}) => {
+												return (
+													<div className="cell" key={key} style={style}>{columnIndex}</div>
+												);
+											}}
+											width={width - headerCellWidth - cellWidth - scrollbarSize()}
+											height={cellHeight}
+											columnCount={archetypes.length}
+											columnWidth={cellWidth}
+											rowCount={1}
+											rowHeight={cellHeight}
+											scrollLeft={scrollLeft}
+											className={"matchup-header-row"}
+										/>
+									</div>
+									<div style={{position: "absolute", right: 0, top: headerCellHeight}}>
+										<Grid
+											cellRenderer={({columnIndex, key, rowIndex, style}) => {
+												return (
+													<div className="cell" key={key} style={style}>{rowIndex}</div>
+												);
+											}}
+											width={cellWidth}
+											height={height - headerCellHeight - cellHeight - scrollbarSize()}
+											columnCount={1}
+											columnWidth={cellWidth}
+											rowCount={archetypes.length}
+											rowHeight={cellHeight}
+											scrollTop={scrollTop}
+											className={"matchup-header-column"}
+										/>
+									</div>
+								</div>
+							)}
+						</ScrollSync>
+					)}
+				</AutoSizer>
+			</div>
 		);
 	}
 
-	getSortHeader(key: string, text: string, direction?: SortDirection): JSX.Element {
+	getSortHeader(
+		key: string,
+		text: string,
+		direction?: SortDirection,
+		infoHeader?: string,
+		infoText?: string
+	): JSX.Element {
 		return (
 			<SortHeader
 				active={this.props.sortBy === key}
@@ -82,6 +227,8 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 				text={text}
 				onClick={this.props.onSortChanged}
 				classNames={["text-center"]}
+				infoHeader={infoHeader}
+				infoText={infoText}
 			/>
 		);
 	}

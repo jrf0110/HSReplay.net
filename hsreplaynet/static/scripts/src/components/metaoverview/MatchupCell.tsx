@@ -7,18 +7,16 @@ import Tooltip from "../Tooltip";
 interface MatchupCellProps extends React.ClassAttributes<MatchupCell> {
 	matchupData: MatchupData;
 	isIgnored: boolean;
+	style?: any;
 }
 
-interface MatchupCellState {
-}
-
-export default class MatchupCell extends React.Component<MatchupCellProps, MatchupCellState> {
+export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 	render() {
 		let label: string|JSX.Element = "";
 		let color = "black";
 		let backgroundColor = "white";
 		const winrate = this.props.matchupData.winrate || 0;
-		const classNames = [];
+		const classNames = ["matchup-cell"];
 
 		if (this.props.matchupData.friendlyId === this.props.matchupData.opponentId) {
 			// mirror match
@@ -59,12 +57,12 @@ export default class MatchupCell extends React.Component<MatchupCellProps, Match
 		}
 
 		return (
-			<td
+			<div
 				className={classNames.join(" ")}
-				style={{color, backgroundColor}}
+				style={{color, backgroundColor, ...this.props.style}}
 			>
 				{label}
-			</td>
+			</div>
 		);
 	}
 }

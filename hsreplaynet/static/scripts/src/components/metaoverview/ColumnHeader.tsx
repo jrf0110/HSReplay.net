@@ -17,7 +17,7 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 			classNames.push("ignored");
 		}
 		return (
-			<th
+			<div
 				className={classNames.join(" ")}
 				onClick={() => this.props.onIgnoredChanged(!this.props.isIgnored)}
 			>
@@ -26,7 +26,7 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 					className="class-icon"
 					src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
 				/>
-			</th>
+			</div>
 		);
 	}
 }
