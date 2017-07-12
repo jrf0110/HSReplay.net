@@ -44,7 +44,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, Match
 						</table>
 					)}
 				>
-					{`${toDynamicFixed(winrate, 2)}%`}
+					{`${winrate.toFixed(2)}%`}
 				</Tooltip>
 			);
 		}
