@@ -601,7 +601,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<DataInjector
 					fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
 					query={{
-						params: {deck_id: this.props.deckId, gameType: this.gameType()},
+						params: {
+							deck_id: this.props.deckId,
+							...this.getPersonalParams(),
+						},
 						url: "single_account_lo_individual_card_stats_for_deck",
 					}}
 				>
