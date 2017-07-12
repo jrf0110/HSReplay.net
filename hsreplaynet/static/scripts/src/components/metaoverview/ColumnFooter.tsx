@@ -4,22 +4,23 @@ import {ArchetypeData} from "../../interfaces";
 
 interface ColumnFooterProps extends React.ClassAttributes<ColumnFooter> {
 	archetypeData: ArchetypeData;
+	style?: any;
 }
 
-interface ColumnFooterState {
-}
-
-export default class ColumnFooter extends React.Component<ColumnFooterProps, ColumnFooterState> {
+export default class ColumnFooter extends React.Component<ColumnFooterProps, {}> {
 	render() {
 		return (
-			<td>
+			<div
+				className="matchup-column-footer"
+				style={this.props.style}
+			>
 				<Bar
 					total={100}
 					value={this.props.archetypeData.popularityClass}
 					direction={BarDirection.VERTICAL}
 					label={`${this.props.archetypeData.popularityClass}%`}
 				/>
-			</td>
+			</div>
 		);
 	}
 }

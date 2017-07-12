@@ -4,10 +4,11 @@ import SortHeader from "../SortHeader";
 import CardData from "../../CardData";
 import {Grid, ScrollSync, AutoSizer} from "react-virtualized";
 import MatchupCell from "./MatchupCell";
-import scrollbarSize from 'dom-helpers/util/scrollbarSize'
+import scrollbarSize from "dom-helpers/util/scrollbarSize"
 import ColumnHeader from "./ColumnHeader";
 import RowHeader from "./RowHeader";
 import RowFooter from "./RowFooter";
+import ColumnFooter from "./ColumnFooter";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
@@ -39,6 +40,8 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 
 		const cellWidth = 70;
 		const cellHeight = 40;
+
+		const footerCellHeight = 80;
 
 		return (
 			<div style={{height: "calc(100vh - 150px)", margin: "0 15px"}}>
@@ -84,8 +87,8 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											scrollLeft={scrollLeft}
 											className={"matchup-header"}
 										/>
-										<div className={"gradient gradient-left" + (scrollLeft <= 0 ? " gradient-hidden" : "")}></div>
-										<div className={"gradient gradient-right" + (scrollbarSize() + clientWidth + scrollLeft >= scrollWidth ? " gradient-hidden" : "")}></div>
+										<div className={"gradient gradient-left gradient-fade" + (scrollLeft <= 0 ? " gradient-hidden" : "")}></div>
+										<div className={"gradient gradient-right gradient-fade" + (scrollbarSize() + clientWidth + scrollLeft >= scrollWidth ? " gradient-hidden" : "")}></div>
 									</div>
 									<div className="matchup-header-cell matchup-header-top-right"
 										 style={{
@@ -123,7 +126,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												);
 											}}
 											width={headerCellWidth}
-											height={height - headerCellHeight - cellHeight - scrollbarSize()}
+											height={height - headerCellHeight - footerCellHeight - scrollbarSize()}
 											columnCount={1}
 											columnWidth={headerCellWidth}
 											rowCount={archetypes.length}
@@ -154,7 +157,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											scrollToColumn={0}
 											scrollToRow={0}
 											width={width - headerCellWidth - cellWidth}
-											height={height - headerCellHeight - cellHeight}
+											height={height - headerCellHeight - footerCellHeight}
 											columnCount={archetypes.length}
 											columnWidth={cellWidth}
 											rowCount={archetypes.length}
@@ -170,7 +173,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											position: "absolute",
 											bottom: 0,
 											left: 0,
-											height: cellHeight,
+											height: footerCellHeight,
 											width: headerCellWidth,
 										}}
 									>
@@ -184,20 +187,23 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 									</div>
 									<div style={{position: "absolute", bottom: 0, left: headerCellWidth}}>
 										<Grid
-											cellRenderer={({columnIndex, key, rowIndex, style}) => {
-												return (
-													<div className="cell" key={key} style={style}>{columnIndex}</div>
-												);
-											}}
+											cellRenderer={({columnIndex, key, style}) => (
+												<ColumnFooter
+													archetypeData={archetypes[columnIndex]}
+													style={style}
+												/>
+											)}
 											width={width - headerCellWidth - cellWidth - scrollbarSize()}
-											height={cellHeight}
+											height={footerCellHeight}
 											columnCount={archetypes.length}
 											columnWidth={cellWidth}
 											rowCount={1}
-											rowHeight={cellHeight}
+											rowHeight={footerCellHeight}
 											scrollLeft={scrollLeft}
 											className={"matchup-header"}
 										/>
+										<div className={"gradient gradient-left" + (scrollLeft <= 0 ? " gradient-hidden" : "")}></div>
+										<div className={"gradient gradient-right" + (scrollbarSize() + clientWidth + scrollLeft >= scrollWidth ? " gradient-hidden" : "")}></div>
 									</div>
 									<div style={{position: "absolute", right: 0, top: headerCellHeight}}>
 										<Grid
@@ -211,7 +217,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												);
 											}}
 											width={cellWidth}
-											height={height - headerCellHeight - cellHeight - scrollbarSize()}
+											height={height - headerCellHeight - footerCellHeight - scrollbarSize()}
 											columnCount={1}
 											columnWidth={cellWidth}
 											rowCount={archetypes.length}

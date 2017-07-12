@@ -242,6 +242,16 @@
 			}
 		}
 	}
+
+	.matchup-column-footer {
+		padding-top: 5px;
+		padding-right: 1px;
+		font-weight: bold;
+
+		.bar-body {
+			height: 4em;
+		}
+	}
 }
 
 .matchup-header {
@@ -408,14 +418,22 @@
 
 	&.gradient-left {
 		left: 0;
-		background: linear-gradient(-45deg, transparent, $offwhite),
+		background: linear-gradient(to left, transparent, #ddd);
+
+		&.gradient-fade {
+			background: linear-gradient(-45deg, transparent, $offwhite),
 			linear-gradient(to left, transparent, #ddd);
+		}
 	}
 
 	&.gradient-right {
 		right: 0;
-		background: linear-gradient(45deg, transparent, $offwhite),
-			linear-gradient(to right, transparent, #ddd);
+		background: linear-gradient(to right, transparent, #ddd);
+
+		&.gradient-fade {
+			background: linear-gradient(45deg, transparent, $offwhite),
+				linear-gradient(to right, transparent, #ddd);
+		}
 	}
 
 	&.gradient-hidden {
