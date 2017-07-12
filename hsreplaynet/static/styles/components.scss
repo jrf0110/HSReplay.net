@@ -3,7 +3,7 @@
 	text-transform: none;
 }
 
-table .info-icon {
+table .info-icon, .sort-header .info-icon {
 	margin-left: 0.3em;
 }
 
@@ -432,18 +432,6 @@ table .info-icon {
 }
 
 .table-sortable {
-	th {
-		&.th-sortable {
-			outline: none;
-			cursor: pointer;
-			user-select: none;
-
-			&:focus:not(:active) {
-				color: $lighterblue;
-			}
-		}
-	}
-
 	td {
 		font-weight: bold;
 	}
@@ -464,6 +452,17 @@ table .info-icon {
 		}
 	}
 }
+
+.sort-header {
+	outline: none;
+	cursor: pointer;
+	user-select: none;
+
+	&:focus:not(:active) {
+		color: $lighterblue;
+	}
+}
+
 
 .table > tbody > tr > td.card-cell {
 	padding-top: 0;

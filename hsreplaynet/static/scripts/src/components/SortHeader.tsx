@@ -7,11 +7,18 @@ interface SortHeaderProps extends TableHeaderProps, React.ClassAttributes<SortHe
 	active?: boolean;
 	direction?: SortDirection;
 	onClick?: (key: string, direction: SortDirection) => void;
+	element?: JSX.Element;
 }
 
 export default class SortHeader extends React.Component<SortHeaderProps, void> {
 	render(): JSX.Element {
 		let info = null;
+		let {text, element} = this.props;
+
+		if (!element) {
+			element = <th />;
+		}
+
 		if (this.props.infoText) {
 			info = (
 				<InfoIcon header={this.props.infoHeader} content={this.props.infoText} />
@@ -25,29 +32,26 @@ export default class SortHeader extends React.Component<SortHeaderProps, void> {
 		}
 		const classNames = this.props.classNames ? this.props.classNames : [];
 		if (sort !== null) {
-			classNames.push("th-sortable");
+			classNames.push("sort-header");
 		}
-		return (
-			<th
-				className={classNames.join(" ")}
-				onClick={sort !== null ? (event) => {
-					if (event && event.currentTarget) {
-						event.currentTarget.blur();
-					}
+
+		const props = {
+			className: classNames.join(" "),
+			onClick: sort !== null ? (event) => {
+				if (event && event.currentTarget) {
+					event.currentTarget.blur();
+				}
+				this.props.onClick(this.props.sortKey, this.getNextDirection());
+			} : null,
+			onKeyPress: (event) => {
+				if (event.which === 13) {
 					this.props.onClick(this.props.sortKey, this.getNextDirection());
-				} : null}
-				onKeyPress={(event) => {
-					if (event.which === 13) {
-						this.props.onClick(this.props.sortKey, this.getNextDirection());
-					}
-				}}
-				tabIndex={sort !== null ? 0 : null}
-			>
-				{this.props.text}
-				{sort}
-				{info}
-			</th>
-		);
+				}
+			},
+			tabIndex: sort !== null ? 0 : null,
+		};
+
+		return React.cloneElement(element, props, text, sort, info);
 	}
 
 	getNextDirection(): SortDirection {
