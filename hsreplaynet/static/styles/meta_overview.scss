@@ -303,7 +303,6 @@
 	justify-content: space-between;
 	align-items: center;
 	padding: 5px;
-
 	font-weight: bold;
 
 	.archetype {
@@ -314,6 +313,7 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		cursor: pointer;
 
 		&:hover {
 			.class-icon, .active-favorite {
@@ -336,19 +336,18 @@
 		text-align: center;
 
 		&.favorite-toggle {
-			font-size: 26px;
-			left: 0;
-			top: 9px;
+			font-size: 2em;
+			left: 0.1em;
+			top: 0.1em;
 			visibility: hidden;
 			width: 32px;
-
 		}
 
 		&.active-favorite {
 			font-size: 18px;
 			right: 0;
 			width: 12px;
-
+			text-shadow: 0px 0px 3px black;
 		}
 	}
 
