@@ -7,6 +7,7 @@ import MatchupCell from "./MatchupCell";
 import scrollbarSize from 'dom-helpers/util/scrollbarSize'
 import ColumnHeader from "./ColumnHeader";
 import RowHeader from "./RowHeader";
+import RowFooter from "./RowFooter";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
@@ -33,64 +34,6 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 
 		const {archetypes} = this.props;
 
-		/*this.props.archetypes.forEach((archetype: ArchetypeData, index: number) => {
-			const isIgnored = this.props.ignoredColumns.indexOf(archetype.id) !== -1;
-			const isFavorite = this.props.favorites.indexOf(archetype.id) !== -1;
-
-			// Data is sorted by favorites
-			const lastFavorite = index === numFavorites - 1;
-
-			headers.push(
-				<ColumnHeader
-					archetypeData={archetype}
-					isIgnored={isIgnored}
-					onIgnoredChanged={(ignore: boolean) => this.props.onIgnoreChanged(archetype.id, ignore)}
-				/>,
-			);
-			rows.push(
-				<MatchupRow
-					archetypeData={archetype}
-					cardData={this.props.cardData}
-					isFavorite={isFavorite}
-					lastFavorite={lastFavorite}
-					ignoredColumns={this.props.ignoredColumns}
-					onFavoriteChanged={(favorite: boolean) => this.props.onFavoriteChanged(archetype.id, favorite)}
-				/>,
-			);
-			popularities.push(<ColumnFooter archetypeData={archetype} />);
-		});*/
-
-		/*return (
-			<table className="archetype-matrix">
-				<tr>
-					{this.getSortHeader("class", "Archetype", "ascending")}
-					{headers}
-					{this.getSortHeader(
-						"winrate",
-						"EWR",
-						null,
-						"Effective Winrate",
-						"The expected winrate against all active archetypes, weighted by their popularity.",
-					)}
-				</tr>
-				<tbody style={{height: "50vh"}}>
-					{rows}
-				</tbody>
-				<tfoot>
-					<tr>
-						{this.getSortHeader(
-							"popularity",
-							"Popularity",
-							null,
-							"Popularity on Ladder",
-							"The percentage of decks played that belong to this archetype.",
-						)}
-						{popularities}
-					</tr>
-				</tfoot>
-			</table>
-		);*/
-
 		const headerCellWidth = 250;
 		const headerCellHeight = 132;
 
@@ -104,6 +47,16 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 						<ScrollSync>
 							{({ clientHeight, clientWidth, onScroll, scrollHeight, scrollLeft, scrollTop, scrollWidth }) => (
 								<div className="matchup-matrix">
+									<div className="matchup-header-cell matchup-header-top-left"
+										 style={{
+											 position: "absolute",
+											 top: 0,
+											 left: 0,
+											 height: headerCellHeight,
+											 width: headerCellWidth,
+										 }}>
+										{this.getSortHeader("class", "Archetype", "ascending")}
+									</div>
 									<div style={{position: "absolute", top: 0, left: headerCellWidth}}>
 										<Grid
 											cellRenderer={({columnIndex, key, style}) => {
@@ -134,8 +87,21 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 										<div className={"gradient gradient-left" + (scrollLeft <= 0 ? " gradient-hidden" : "")}></div>
 										<div className={"gradient gradient-right" + (scrollbarSize() + clientWidth + scrollLeft >= scrollWidth ? " gradient-hidden" : "")}></div>
 									</div>
-									<div className="matchup-header-row-cell" style={{position: "absolute", top: 0, right: 0, height: headerCellHeight, width: cellWidth}}>
-										EWR
+									<div className="matchup-header-cell matchup-header-top-right"
+										 style={{
+											 position: "absolute",
+											 top: 0,
+											 right: 0,
+											 height: headerCellHeight,
+											 width: cellWidth,
+										 }}>
+										{this.getSortHeader(
+											"winrate",
+											"EWR",
+											null,
+											"Effective Winrate",
+											"The expected winrate against all active archetypes, weighted by their popularity.",
+										)}
 									</div>
 									<div style={{position: "absolute", top: headerCellHeight, left: 0}}>
 										<Grid
@@ -198,6 +164,24 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											className={"matchup-matrix"}
 										/>
 									</div>
+									<div
+										className="matchup-header-cell matchup-header-bottom-left"
+										style={{
+											position: "absolute",
+											bottom: 0,
+											left: 0,
+											height: cellHeight,
+											width: headerCellWidth,
+										}}
+									>
+										{this.getSortHeader(
+											"popularity",
+											"Popularity",
+											null,
+											"Popularity on Ladder",
+											"The percentage of decks played that belong to this archetype.",
+										)}
+									</div>
 									<div style={{position: "absolute", bottom: 0, left: headerCellWidth}}>
 										<Grid
 											cellRenderer={({columnIndex, key, rowIndex, style}) => {
@@ -217,9 +201,13 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 									</div>
 									<div style={{position: "absolute", right: 0, top: headerCellHeight}}>
 										<Grid
-											cellRenderer={({columnIndex, key, rowIndex, style}) => {
+											cellRenderer={({key, rowIndex, style}) => {
 												return (
-													<div className="cell" key={key} style={style}>{rowIndex}</div>
+													<RowFooter
+														archetypeData={archetypes[rowIndex]}
+														key={key}
+														style={style}
+													/>
 												);
 											}}
 											width={cellWidth}
@@ -259,6 +247,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 				classNames={["text-center"]}
 				infoHeader={infoHeader}
 				infoText={infoText}
+				element={<div />}
 			/>
 		);
 	}

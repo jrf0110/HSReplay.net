@@ -37,7 +37,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 							</tr>
 							<tr>
 								<th>Games:</th>
-								<td>{this.props.matchupData.totalGames}</td>
+								<td>{this.props.matchupData.totalGames || 0}</td>
 							</tr>
 						</table>
 					)}

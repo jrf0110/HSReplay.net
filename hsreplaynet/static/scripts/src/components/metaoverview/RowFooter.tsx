@@ -6,15 +6,14 @@ import {Colors} from "../../Colors";
 
 interface RowFooterProps extends React.ClassAttributes<RowFooter> {
 	archetypeData?: ArchetypeData;
+	style?: any;
 }
 
-interface RowFooterState {
-}
-
-export default class RowFooter extends React.Component<RowFooterProps, RowFooterState> {
+export default class RowFooter extends React.Component<RowFooterProps, {}> {
 	render() {
 		const style = {
 			backgroundColor: "transparent",
+			...this.props.style,
 		};
 
 		const winrate = this.props.archetypeData.effectiveWinrate;
@@ -23,9 +22,9 @@ export default class RowFooter extends React.Component<RowFooterProps, RowFooter
 		style.backgroundColor = color;
 
 		return (
-			<td className="row-footer" style={style}>
+			<div className="row-footer" style={style}>
 				{`${winrate}%`}
-			</td>
+			</div>
 		);
 	}
 }

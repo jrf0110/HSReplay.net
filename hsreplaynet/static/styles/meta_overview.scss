@@ -167,7 +167,7 @@
 				}
 			}
 
-			.th-sortable {
+			.sort-header {
 				outline: none;
 				cursor: pointer;
 				user-select: none;
@@ -422,7 +422,7 @@
 	}
 }
 
-.matchup-cell {
+.matchup-cell, .row-footer {
 	display: flex;
 	text-align: center;
 	flex-direction: column;
@@ -431,8 +431,29 @@
 
 	border-bottom: solid 1px $offwhite;
 	border-right: solid 1px $offwhite;
+}
 
+.matchup-cell {
 	&.ignored {
 		filter: saturate(0);
+	}
+}
+
+.matchup-header-cell {
+	display: flex;
+	text-align: center;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	font-weight: bold;
+
+	&.matchup-header-top-left, &.matchup-header-top-right {
+		align-items: flex-end;
+		padding-bottom: 0.5em;
+	}
+
+
+	.sort-header {
+		white-space: nowrap;
 	}
 }
