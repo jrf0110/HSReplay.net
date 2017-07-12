@@ -25,7 +25,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 		}
 		else if (this.props.matchupData.totalGames > 100) {
 			// actual matchup
-			backgroundColor = getColorString(Colors.HSREPLAY, 50, winrate / 100, false);
+			backgroundColor = getColorString(Colors.REDORANGEGREEN, 70, winrate / 100, false);
 			label = (
 				<Tooltip
 					simple

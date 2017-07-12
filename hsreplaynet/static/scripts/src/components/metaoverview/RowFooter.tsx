@@ -17,7 +17,7 @@ export default class RowFooter extends React.Component<RowFooterProps, {}> {
 		};
 
 		const winrate = this.props.archetypeData.effectiveWinrate;
-		const color = getColorString(Colors.HSREPLAY, 50, winrate / 100, false);
+		const color = getColorString(Colors.REDORANGEGREEN, 80, winrate / 100, false);
 
 		style.backgroundColor = color;
 
