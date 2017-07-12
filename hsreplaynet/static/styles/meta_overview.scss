@@ -247,9 +247,10 @@
 		padding-top: 5px;
 		padding-right: 1px;
 		font-weight: bold;
+		height: 100%;
 
-		.bar-body {
-			height: 4em;
+		.bar, .bar-body {
+			height: 100%;
 		}
 	}
 }
