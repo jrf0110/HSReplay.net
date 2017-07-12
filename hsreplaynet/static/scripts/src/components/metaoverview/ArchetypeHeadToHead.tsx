@@ -39,6 +39,8 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 
 		const archetypes = this.getAllArchetypes();
 
+		let maxPopularity = null;
+
 		archetypes.forEach((friendly: ApiArchetype) => {
 			const matchups: MatchupData[] = [];
 			let effectiveWinrate = 0;
@@ -73,6 +75,9 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					winrate: popularity.win_rate,
 					effectiveWinrate,
 				});
+				if(maxPopularity === null || popularity.pct_of_total > maxPopularity) {
+					maxPopularity = popularity.pct_of_total;
+				}
 			}
 		});
 
@@ -91,6 +96,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				ignoredColumns={this.state.ignoredColumns}
 				onFavoriteChanged={(archetypeId: number, favorite: boolean) => this.onFavoriteChanged(archetypeId, favorite)}
 				onIgnoreChanged={(archetypeId: number, ignore: boolean) => this.onIgnoreChanged(archetypeId, ignore)}
+				maxPopularity={maxPopularity}
 				sortBy={this.props.sortBy}
 				sortDirection={this.props.sortDirection}
 				onSortChanged={(sortBy: string, sortDirection: SortDirection) => {

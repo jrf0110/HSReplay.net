@@ -15,6 +15,7 @@ interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	cardData: CardData;
 	favorites: number[];
 	ignoredColumns: number[];
+	maxPopularity?: number;
 	onFavoriteChanged: (archetypeId: number, favorite: boolean) => void;
 	onIgnoreChanged: (archetypeId: number, ignore: boolean) => void;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
@@ -190,6 +191,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											cellRenderer={({columnIndex, key, style}) => (
 												<ColumnFooter
 													archetypeData={archetypes[columnIndex]}
+													max={this.props.maxPopularity}
 													style={style}
 												/>
 											)}
