@@ -26,6 +26,8 @@ interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 interface ArchetypeMatrixState {
 }
 
+const offWhite = "#fbf7f6";
+
 export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProps, ArchetypeMatrixState> {
 	render() {
 		const headers = [];
@@ -43,6 +45,8 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		const cellHeight = 40;
 
 		const footerCellHeight = 80;
+
+		const spacerSize = 5;
 
 		return (
 			<div style={{height: "calc(100vh - 150px)", margin: "0 15px"}}>
@@ -113,6 +117,10 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												const archetype = archetypes[rowIndex];
 												const isFavorite = this.props.favorites.indexOf(archetype.id) !== -1;
 
+												if (this.isLastFavorite(rowIndex)) {
+													style["border-bottom"] = spacerSize + "px solid " + offWhite;
+												}
+
 												return (
 													<RowHeader
 														archetypeData={archetype}
@@ -131,7 +139,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											columnCount={1}
 											columnWidth={headerCellWidth}
 											rowCount={archetypes.length}
-											rowHeight={cellHeight}
+											rowHeight={({index}) => cellHeight + (this.isLastFavorite(index) ? spacerSize : 0)}
 											scrollTop={scrollTop}
 											className={"matchup-header"}
 										/>
@@ -144,6 +152,9 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												const archetype = archetypes[rowIndex];
 												const matchup = archetype.matchups[columnIndex];
 												const isIgnored = this.props.ignoredColumns.indexOf(matchup.opponentId) !== -1;
+												if (this.isLastFavorite(rowIndex)) {
+													style["border-bottom"] = spacerSize + "px solid " + offWhite;
+												}
 
 												return (
 													<MatchupCell
@@ -162,7 +173,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											columnCount={archetypes.length}
 											columnWidth={cellWidth}
 											rowCount={archetypes.length}
-											rowHeight={cellHeight}
+											rowHeight={({index}) => cellHeight + (this.isLastFavorite(index) ? spacerSize : 0)}
 											scrollTop={scrollTop}
 											onScroll={onScroll}
 											className={"matchup-matrix"}
@@ -210,6 +221,9 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 									<div style={{position: "absolute", right: 0, top: headerCellHeight}}>
 										<Grid
 											cellRenderer={({key, rowIndex, style}) => {
+												if (this.isLastFavorite(rowIndex)) {
+													style["border-bottom"] = spacerSize + "px solid " + offWhite;
+												}
 												return (
 													<RowFooter
 														archetypeData={archetypes[rowIndex]}
@@ -223,7 +237,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											columnCount={1}
 											columnWidth={cellWidth}
 											rowCount={archetypes.length}
-											rowHeight={cellHeight}
+											rowHeight={({index}) => cellHeight + (this.isLastFavorite(index) ? spacerSize : 0)}
 											scrollTop={scrollTop}
 											className={"matchup-header"}
 										/>
@@ -235,6 +249,10 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 				</AutoSizer>
 			</div>
 		);
+	}
+
+	isLastFavorite(index: number) {
+		return index === this.props.favorites.length - 1;
 	}
 
 	getSortHeader(
