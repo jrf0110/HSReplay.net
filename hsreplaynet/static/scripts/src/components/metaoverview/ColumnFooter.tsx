@@ -16,9 +16,9 @@ export default class ColumnFooter extends React.Component<ColumnFooterProps, {}>
 			>
 				<Bar
 					total={100}
-					value={this.props.archetypeData.popularityClass}
+					value={this.props.archetypeData.popularityTotal}
 					direction={BarDirection.VERTICAL}
-					label={`${this.props.archetypeData.popularityClass}%`}
+					label={`${this.props.archetypeData.popularityTotal}%`}
 				/>
 			</div>
 		);
