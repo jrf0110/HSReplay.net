@@ -36,6 +36,25 @@ def evict_all_from_cache(request, name):
 
 
 @staff_member_required
+def refresh_query_from_cache(request, name):
+	parameterized_query = _get_query_and_params(request, name)
+	parameterized_query.mark_stale()
+
+	# Clear out any lingering dogpile locks on this query
+	evict_locks_cache(parameterized_query)
+
+	return _fetch_query_results(parameterized_query, user=request.user)
+
+
+@staff_member_required
+def refresh_all_from_cache(request, name):
+	parameterized_query = _get_query_and_params(request, name)
+	parameterized_query.mark_all_stale()
+
+	return _fetch_query_results(parameterized_query, user=request.user)
+
+
+@staff_member_required
 def release_semaphore(request, name):
 	semaphore = get_concurrent_redshift_query_queue_semaphore(name)
 	if semaphore:

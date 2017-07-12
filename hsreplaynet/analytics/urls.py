@@ -20,6 +20,14 @@ urlpatterns = [
 		name="analytics_evict_all_from_cache"
 	),
 	url(
+		r"^refresh/(?P<name>\w+)/$", views.refresh_query_from_cache,
+		name="analytics_refresh_from_cache"
+	),
+	url(
+		r"^refreshall/(?P<name>\w+)/$", views.refresh_all_from_cache,
+		name="analytics_refresh_all_from_cache"
+	),
+	url(
 		r"^release/semaphore/(?P<name>\w+)/$", views.release_semaphore,
 		name="analytics_release_semaphore"
 	),
