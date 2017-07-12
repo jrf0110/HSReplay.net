@@ -1,4 +1,5 @@
 import {PlayState} from "./hearthstone";
+import {TooltipContent} from "./components/Tooltip";
 
 export interface User {
 	id: number;
@@ -205,6 +206,49 @@ export interface MyDecks {
 	[deckId: string]: any;
 }
 
+export interface ArchetypeData {
+	matchups: MatchupData[];
+	id: number;
+	name: string;
+	playerClass: string
+	popularityTotal: number;
+	popularityClass: number;
+	winrate: number;
+	effectiveWinrate: number;
+}
+
+export interface MatchupData {
+	friendlyId: number;
+	friendlyName: string;
+	friendlyPlayerClass: string;
+	opponentId: number;
+	opponentName: string;
+	opponentPlayerClass: string;
+	winrate: number;
+	totalGames: number;
+}
+
+export interface ApiArchetype {
+	id: number;
+	name: string;
+	player_class: string;
+}
+
+export interface ApiArchetypeMatchupData {
+	friendly_archetype_id: number;
+	opponent_archetype_id: number;
+	win_rate: number;
+	total_games: number;
+}
+
+export interface ApiArchetypePopularity {
+	archetype_id: number;
+	total_games: number;
+	win_rate: number;
+	pct_of_class: number;
+	pct_of_total: number;
+}
+
 export type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
 export type RankRange = "ALL" | "LEGEND_ONLY" | "ONE_THROUGH_FIVE" | "SIX_THROUGH_TEN" | "ELEVEN_THROUGH_FIFTEEN" | "SIXTEEN_THROUGH_TWENTY" | "TWENTYONE_THROUGH_TWENTYFIVE" | "LEGEND_THROUGH_TEN" | "ELEVEN_THROUGH_TWENTYFIVE";
 export type Region = "ALL" | "REGION_US" | "REGION_EU" | "REGION_KR" | "REGION_CN";
@@ -221,4 +265,16 @@ export const enum LoadingStatus {
 export interface FragmentChildProps {
 	canBeReset?: boolean;
 	reset?: () => void;
+}
+
+export type SortDirection = "ascending" | "descending";
+
+export interface TableHeaderProps {
+	sortKey: string;
+	text: string;
+	defaultSortDirection?: SortDirection;
+	infoHeader?: string;
+	infoText?: TooltipContent;
+	sortable?: boolean;
+	classNames?: string[];
 }

@@ -482,6 +482,11 @@ export function getColorString(
 			neutral = [50, 20, 50];
 			negative = [0, 100, 65.7];
 			break;
+		case Colors.REDORANGEGREEN:
+			positive = [120, 60, 50];
+			neutral = [30, 100, 100];
+			negative = [0, 100, 65.7];
+			break;
 		case Colors.ORANGEBLUE:
 			positive = [202, 100, 50];
 			neutral = [null, 100, 100];

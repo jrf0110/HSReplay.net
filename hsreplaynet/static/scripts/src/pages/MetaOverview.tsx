@@ -6,8 +6,9 @@ import UserData from "../UserData";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
 import CardData from "../CardData";
-import ArchetypeMatrix from "../components/stats/ArchetypeMatrix";
 import DataInjector from "../components/DataInjector";
+import ArchetypeHeadToHead from "../components/metaoverview/ArchetypeHeadToHead";
+import { SortDirection } from "../interfaces";
 
 export interface EvaluatedArchetype {
 	[archetype: string]: number;
@@ -33,6 +34,10 @@ interface MetaOverviewState {
 
 interface MetaOverviewProps {
 	cardData: CardData;
+	sortDirection?: SortDirection;
+	setSortDirection?: (ascending: SortDirection) => void;
+	sortBy?: string;
+	setSortBy?: (sortBy: string) => void;
 	gameType?: string;
 	setGameType?: (gameType: string) => void;
 	rankRange?: string;
@@ -88,7 +93,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			TimeRange: this.props.timeFrame,
 		};
 
-		return <div className="archetype-detail-container">
+		return <div className="meta-overview-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
 				<section id="game-mode-filter">
@@ -132,27 +137,22 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</section>
 			</aside>
 			<main>
-				<div className="row">
-					<div className="col-lg-9 col-md-12">
-						<div className="row">
-							<div className="col-lg-10 col-md-10 col-xs-12">
-								<h2 className="text-center">Matchups</h2>
-								<DataInjector
-									query={[
-										{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-										{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
-									]}
-								>
-									<ArchetypeMatrix/>
-								</DataInjector>
-							</div>
-						</div>
-					</div>
-					<div className="col-lg-3 col-sm-12">
-						<h2 className="text-center">{this.state.selectedArchetype ? this.state.selectedArchetype : "Archetype"}</h2>
-						{this.renderDecklist()}
-					</div>
-				</div>
+				<h2 className="text-center">Matchups</h2>
+				<DataInjector
+					query={[
+						{key: "archetypeData", params, url: "/api/v1/archetypes/"},
+						{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+						{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+					]}
+				>
+					<ArchetypeHeadToHead
+						cardData={this.props.cardData}
+						sortDirection={this.props.sortDirection}
+						setSortDirection={this.props.setSortDirection}
+						sortBy={this.props.sortBy}
+						setSortBy={this.props.setSortBy}
+					/>
+				</DataInjector>
 			</main>
 		</div>;
 	}

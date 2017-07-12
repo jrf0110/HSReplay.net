@@ -13,6 +13,8 @@ const render = (cardData: CardData) => {
 			defaults={{
 				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
+				sortBy: "popularity",
+				sortDirection: "descending",
 				timeFrame: "LAST_14_DAYS",
 			}}
 		>

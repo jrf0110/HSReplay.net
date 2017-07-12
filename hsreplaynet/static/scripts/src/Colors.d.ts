@@ -3,6 +3,7 @@ export const enum Colors {
 	REDGREEN2,
 	REDGREEN3,
 	REDGREEN4,
+	REDORANGEGREEN,
 	ORANGEBLUE,
 	HSREPLAY,
 }

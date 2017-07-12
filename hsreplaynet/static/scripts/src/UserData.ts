@@ -1,4 +1,5 @@
 import {cookie} from "cookie_js";
+import Settings from "./Settings";
 
 interface UserDataProps {
 	accounts: Account[];
@@ -30,6 +31,7 @@ export interface Account {
 
 export default class UserData {
 	private static _instance: UserDataProps = null;
+	private static _settings = new Settings();
 
 	static create() {
 		if (this._instance === null) {
@@ -86,4 +88,11 @@ export default class UserData {
 		cookie.set("default-account", key, {path: "/", expires: 365});
 	}
 
+	static getSetting(key: string): any {
+		return this._settings.get(key);
+	}
+
+	static setSetting(key: string, value: any) {
+		return this._settings.set(key, value);
+	}
 }

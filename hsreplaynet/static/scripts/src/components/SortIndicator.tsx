@@ -1,5 +1,5 @@
 import * as React from "react";
-import {SortDirection} from "./SortableTable";
+import { SortDirection } from "../interfaces";
 
 interface SortIndicatorProps {
 	className?: string;
@@ -14,7 +14,7 @@ export default class SortIndicator extends React.Component<SortIndicatorProps, v
 
 		if (this.props.direction !== null) {
 			className += " primary";
-			if (this.props.direction == "ascending") {
+			if (this.props.direction === "ascending") {
 				classNameAsc += " active";
 			}
 			else {

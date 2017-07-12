@@ -3,7 +3,7 @@
 	text-transform: none;
 }
 
-table .info-icon {
+table .info-icon, .sort-header .info-icon {
 	margin-left: 0.3em;
 }
 
@@ -23,29 +23,28 @@ table .info-icon {
 		font-weight: normal;
 		margin-top: 10px;
 		min-width: 250px;
+		max-width: 300px;
 		padding: 8px 8px;
-		position: absolute;
-		top: 100%;
+		position: fixed;
+		white-space: normal;
 		z-index: 1000;
 
 		&.centered {
 			left: 50%;
 			transform: translate(-50%, 0);
+			position: absolute;
+			top: 100%;
 		}
 
-		&.left {
-			left: 0;
-		}
-
-		&.right {
-			right: 0;
+		&.no-background {
+			background: transparent;
+			border: unset;
 		}
 
 		h4 {
 			font-size: 1em;
 			font-weight: bold;
 			margin: 0 0 0.3em 0;
-			white-space: nowrap;
 		}
 
 		p {
@@ -433,18 +432,6 @@ table .info-icon {
 }
 
 .table-sortable {
-	th {
-		&.th-sortable {
-			outline: none;
-			cursor: pointer;
-			user-select: none;
-
-			&:focus:not(:active) {
-				color: $lighterblue;
-			}
-		}
-	}
-
 	td {
 		font-weight: bold;
 	}
@@ -465,6 +452,17 @@ table .info-icon {
 		}
 	}
 }
+
+.sort-header {
+	outline: none;
+	cursor: pointer;
+	user-select: none;
+
+	&:focus:not(:active) {
+		color: $lighterblue;
+	}
+}
+
 
 .table > tbody > tr > td.card-cell {
 	padding-top: 0;
