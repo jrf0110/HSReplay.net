@@ -427,7 +427,12 @@ export function sliceZeros(input: string): string {
 export function toPrettyNumber(n: number): string {
 	const divisor = 10 ** (Math.floor(Math.log10(n)) - 1);
 	n = Math.floor(n / divisor) * divisor;
-	return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	return commaSeparate(n);
+}
+
+export function commaSeparate(n: number|string): string {
+	const str = typeof n === "string" ? n : n.toString();
+	return str.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 export function toTimeSeries(series: ChartSeries): ChartSeries {

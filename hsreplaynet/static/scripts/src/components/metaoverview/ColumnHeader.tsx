@@ -13,7 +13,7 @@ interface ColumnHeaderState {
 
 export default class ColumnHeader extends React.Component<ColumnHeaderProps, ColumnHeaderState> {
 	render() {
-		const classNames = ["matchup-column-header"];
+		const classNames = ["matchup-column-header matchup-column-header-archetype"];
 		if (this.props.isIgnored) {
 			classNames.push("ignored");
 		}
@@ -21,7 +21,7 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 			<div
 				className={classNames.join(" ")}
 				onClick={() => {
-					this.props.onIgnoredChanged(!this.props.isIgnored)
+					this.props.onIgnoredChanged(!this.props.isIgnored);
 				}}
 				style={this.props.style}
 			>

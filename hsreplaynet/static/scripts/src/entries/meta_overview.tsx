@@ -12,9 +12,12 @@ const render = (cardData: CardData) => {
 		<Fragments
 			defaults={{
 				gameType: "RANKED_STANDARD",
+				popularitySortBy: "total",
+				popularitySortDirection: "descending",
 				rankRange: "ALL",
 				sortBy: "popularity",
 				sortDirection: "descending",
+				tab: "matchups",
 				timeFrame: "LAST_14_DAYS",
 			}}
 		>

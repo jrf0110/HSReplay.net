@@ -9,6 +9,9 @@ import CardData from "../CardData";
 import DataInjector from "../components/DataInjector";
 import ArchetypeHeadToHead from "../components/metaoverview/ArchetypeHeadToHead";
 import { SortDirection } from "../interfaces";
+import TabList from "../components/layout/TabList";
+import Tab from "../components/layout/Tab";
+import ArchetypePopularity from "../components/metaoverview/popularity/ArchetypePopularity";
 
 export interface EvaluatedArchetype {
 	[archetype: string]: number;
@@ -34,6 +37,10 @@ interface MetaOverviewState {
 
 interface MetaOverviewProps {
 	cardData: CardData;
+	popularitySortBy?: string;
+	setPopularitySortBy?: (popularitySortBy: string) => void;
+	popularitySortDirection?: SortDirection;
+	setPopularitySortDirection?: (ascending: SortDirection) => void;
 	sortDirection?: SortDirection;
 	setSortDirection?: (ascending: SortDirection) => void;
 	sortBy?: string;
@@ -44,6 +51,8 @@ interface MetaOverviewProps {
 	setRankRange?: (rankRange: string) => void;
 	timeFrame?: string;
 	setTimeFrame?: (timeFrame: string) => void;
+	tab?: string;
+	setTab?: (tab: string) => void;
 }
 
 export default class MetaOverview extends React.Component<MetaOverviewProps, MetaOverviewState> {
@@ -93,6 +102,11 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			TimeRange: this.props.timeFrame,
 		};
 
+		const popularityParams = {
+			GameType: this.props.gameType,
+			TimeRange: this.props.timeFrame,
+		};
+
 		return <div className="meta-overview-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
@@ -127,6 +141,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							selectedValue={this.props.rankRange}
 							onClick={(value) => this.props.setRankRange(value)}
 							tabIndex={0}
+							disabled={this.props.tab === "popularity"}
 						>
 							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
@@ -137,22 +152,41 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</section>
 			</aside>
 			<main>
-				<h2 className="text-center">Matchups</h2>
-				<DataInjector
-					query={[
-						{key: "archetypeData", params, url: "/api/v1/archetypes/"},
-						{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-						{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
-					]}
-				>
-					<ArchetypeHeadToHead
-						cardData={this.props.cardData}
-						sortDirection={this.props.sortDirection}
-						setSortDirection={this.props.setSortDirection}
-						sortBy={this.props.sortBy}
-						setSortBy={this.props.setSortBy}
-					/>
-				</DataInjector>
+				<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
+					<Tab id="matchups" label="Matchups">
+						<DataInjector
+							query={[
+								{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+								{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+								{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+							]}
+						>
+							<ArchetypeHeadToHead
+								cardData={this.props.cardData}
+								sortDirection={this.props.sortDirection}
+								setSortDirection={this.props.setSortDirection}
+								sortBy={this.props.sortBy}
+								setSortBy={this.props.setSortBy}
+							/>
+						</DataInjector>
+					</Tab>
+					<Tab id="popularity" label="Popularity">
+						<DataInjector
+							query={[
+								{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+								{key: "popularityData", params: popularityParams, url: "archetype_popularity_by_rank"},
+							]}
+						>
+							<ArchetypePopularity
+								cardData={this.props.cardData}
+								sortDirection={this.props.sortDirection}
+								setSortDirection={this.props.setSortDirection}
+								sortBy={this.props.popularitySortBy}
+								setSortBy={this.props.setPopularitySortBy}
+							/>
+						</DataInjector>
+					</Tab>
+				</TabList>
 			</main>
 		</div>;
 	}

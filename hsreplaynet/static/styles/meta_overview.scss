@@ -30,7 +30,7 @@
 }
 
 .archetype-matrix-container {
-	height: calc(100vh - 150px);
+	height: calc(100vh - 130px);
 	margin: 0 15px;
 
 	.class-icon {
@@ -127,30 +127,33 @@
 			margin: 0.3em 0;
 		}
 
-		&.ignored {
-			text-decoration: line-through;
-			color: gray;
-
-			.class-icon {
-				filter: saturate(0);
-			}
-		}
-
-		&:hover {
-			text-decoration: line-through;
-
-			.class-icon {
-				filter: saturate(0);
-			}
-
+		&.matchup-column-header-archetype {
 			&.ignored {
-				text-decoration: unset;
+				text-decoration: line-through;
+				color: gray;
 
 				.class-icon {
-					filter: saturate(0.5);
+					filter: saturate(0);
+				}
+			}
+
+			&:hover {
+				text-decoration: line-through;
+
+				.class-icon {
+					filter: saturate(0);
+				}
+
+				&.ignored {
+					text-decoration: unset;
+
+					.class-icon {
+						filter: saturate(0.5);
+					}
 				}
 			}
 		}
+
 	}
 
 	.matchup-row-header {
@@ -170,18 +173,31 @@
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
-			cursor: pointer;
 
-			&:hover {
-				.class-icon, .active-favorite {
-					visibility: hidden;
+			.class-icon-wrapper {
+				width: 32px;
+				position: relative;
+				margin: 0 0.5em;
+
+				.class-icon {
+					height: 2.25em;
 				}
+			}
 
-				.favorite-toggle {
-					visibility: visible;
+			&.matchup-archetype {
+				cursor: pointer;
 
-					&.favorite {
-						color: gray;
+				&:hover {
+					.class-icon, .active-favorite {
+						visibility: hidden;
+					}
+
+					.favorite-toggle {
+						visibility: visible;
+
+						&.favorite {
+							color: gray;
+						}
 					}
 				}
 			}
@@ -205,20 +221,6 @@
 				right: 0;
 				width: 12px;
 				text-shadow: 0px 0px 3px black;
-			}
-		}
-
-		.class-icon-wrapper {
-			width: 32px;
-			position: relative;
-			margin: 0 0.5em;
-
-			.class-icon{
-				height: 2.25em;
-
-				&:hover {
-					opacity: 0;
-				}
 			}
 		}
 
@@ -362,6 +364,12 @@
 
 		.input-popularity {
 			width: 100%;
+		}
+
+		&.matchup-column-footer-games {
+			font-weight: normal;
+			line-height: 30px;
+			text-align: center;
 		}
 	}
 }
