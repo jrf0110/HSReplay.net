@@ -29,6 +29,10 @@ interface ArchetypeMatrixState {
 const offWhite = "#fbf7f6";
 
 export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProps, ArchetypeMatrixState> {
+	private rowHeaders: Grid = null;
+	private matchupCells: Grid = null;
+	private rowFooters: Grid = null;
+
 	render() {
 		const headers = [];
 		const rows = [];
@@ -125,9 +129,10 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 													<RowHeader
 														archetypeData={archetype}
 														isFavorite={isFavorite}
-														onFavoriteChanged={(favorite: boolean) =>
-															this.props.onFavoriteChanged(archetype.id, favorite)
-														}
+														onFavoriteChanged={(favorite: boolean) => {
+															this.props.onFavoriteChanged(archetype.id, favorite);
+															this.recomputeGridSize();
+														}}
 														cardData={this.props.cardData}
 														key={key}
 														style={style}
@@ -142,6 +147,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											rowHeight={({index}) => cellHeight + (this.isLastFavorite(index) ? spacerSize : 0)}
 											scrollTop={scrollTop}
 											className={"matchup-header"}
+											ref={(ref) => this.rowHeaders = ref}
 										/>
 										<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}></div>
 										<div className={"gradient gradient-bottom" + (scrollbarSize() + clientHeight + scrollTop >= scrollHeight ? " gradient-hidden" : "")}></div>
@@ -177,6 +183,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											scrollTop={scrollTop}
 											onScroll={onScroll}
 											className={"matchup-matrix"}
+											ref={(ref) => this.matchupCells = ref}
 										/>
 									</div>
 									<div
@@ -240,6 +247,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											rowHeight={({index}) => cellHeight + (this.isLastFavorite(index) ? spacerSize : 0)}
 											scrollTop={scrollTop}
 											className={"matchup-header"}
+											ref={(ref) => this.rowFooters = ref}
 										/>
 									</div>
 								</div>
@@ -249,6 +257,12 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 				</AutoSizer>
 			</div>
 		);
+	}
+
+	recomputeGridSize() {
+		this.rowHeaders && this.rowHeaders.recomputeGridSize();
+		this.matchupCells && this.matchupCells.recomputeGridSize();
+		this.rowFooters && this.rowFooters.recomputeGridSize();
 	}
 
 	isLastFavorite(index: number) {
