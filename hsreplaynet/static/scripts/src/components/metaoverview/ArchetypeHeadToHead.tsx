@@ -163,7 +163,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				}
 			});
 		});
-		return archetypeIds.map((id) => this.getApiArchetype(id));
+		return archetypeIds.map((id) => this.getApiArchetype(id)).filter((x) => x !== undefined);
 	}
 
 	getApiArchetype(id: number): ApiArchetype {
