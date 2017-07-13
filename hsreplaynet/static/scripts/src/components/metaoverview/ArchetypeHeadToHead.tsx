@@ -37,7 +37,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 
 		const archetypeData: ArchetypeData[] = [];
 
-		const archetypes = this.getAllArchetypes();
+		const {archetypeIds, archetypes} = this.getAllArchetypes();
 
 		let maxPopularity = null;
 
@@ -75,7 +75,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					winrate: popularity.win_rate,
 					effectiveWinrate,
 				});
-				if(maxPopularity === null || popularity.pct_of_total > maxPopularity) {
+				if (maxPopularity === null || popularity.pct_of_total > maxPopularity) {
 					maxPopularity = popularity.pct_of_total;
 				}
 			}
@@ -88,14 +88,21 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			archetype.matchups = sortedIds.map((id) => archetype.matchups.find((m) => m.opponentId === id));
 		});
 
+		const favorites = this.state.favorites.filter((id) => archetypeIds.indexOf(id) !== -1);
+		const ignored = this.state.ignoredColumns.filter((id) => archetypeIds.indexOf(id) !== -1);
+
 		return (
 			<ArchetypeMatrix
 				archetypes={archetypeData}
 				cardData={this.props.cardData}
-				favorites={this.state.favorites}
-				ignoredColumns={this.state.ignoredColumns}
-				onFavoriteChanged={(archetypeId: number, favorite: boolean) => this.onFavoriteChanged(archetypeId, favorite)}
-				onIgnoreChanged={(archetypeId: number, ignore: boolean) => this.onIgnoreChanged(archetypeId, ignore)}
+				favorites={favorites}
+				ignoredColumns={ignored}
+				onFavoriteChanged={
+					(archetypeId: number, favorite: boolean) => this.onFavoriteChanged(archetypeId, favorite, archetypeIds)
+				}
+				onIgnoreChanged={
+					(archetypeId: number, ignore: boolean) => this.onIgnoreChanged(archetypeId, ignore, archetypeIds)
+				}
 				maxPopularity={maxPopularity}
 				sortBy={this.props.sortBy}
 				sortDirection={this.props.sortDirection}
@@ -130,8 +137,9 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		return this.state.favorites.indexOf(archetypeId) !== -1;
 	}
 
-	onFavoriteChanged(archetypeId: number, favorite: boolean) {
+	onFavoriteChanged(archetypeId: number, favorite: boolean, allArchetypes: number[]) {
 		let favorites = this.state.favorites.slice();
+		favorites = favorites.filter((id) => allArchetypes.indexOf(id) !== -1);
 		favorites = favorites.filter((id) => id !== archetypeId);
 		if (favorite) {
 			favorites.push(archetypeId);
@@ -140,8 +148,9 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		UserData.setSetting("archetype-favorites", favorites);
 	}
 
-	onIgnoreChanged(archetypeId: number, ignore: boolean) {
+	onIgnoreChanged(archetypeId: number, ignore: boolean, allArchetypes: number[]) {
 		let ignoredColumns = this.state.ignoredColumns.slice();
+		ignoredColumns = ignoredColumns.filter((id) => allArchetypes.indexOf(id) !== -1);
 		ignoredColumns = ignoredColumns.filter((id) => id !== archetypeId);
 		if (ignore) {
 			ignoredColumns.push(archetypeId);
@@ -150,7 +159,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		UserData.setSetting("archetype-ignored", ignoredColumns);
 	}
 
-	getAllArchetypes(): ApiArchetype[] {
+	getAllArchetypes(): {archetypeIds: number[], archetypes: ApiArchetype[]} {
 		const matchupData = this.props.matchupData.series.data;
 		const archetypeIds = [];
 		Object.keys(matchupData).forEach((playerClass: string) => {
@@ -163,7 +172,10 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				}
 			});
 		});
-		return archetypeIds.map((id) => this.getApiArchetype(id)).filter((x) => x !== undefined);
+		return {
+			archetypeIds,
+			archetypes: archetypeIds.map((id) => this.getApiArchetype(id)).filter((x) => x !== undefined),
+		};
 	}
 
 	getApiArchetype(id: number): ApiArchetype {
