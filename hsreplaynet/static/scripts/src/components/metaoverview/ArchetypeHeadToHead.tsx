@@ -148,12 +148,15 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			if (this.props.sortBy === "winrate") {
 				return a.effectiveWinrate - b.effectiveWinrate;
 			}
+			if (a.playerClass === b.playerClass) {
+				return 0;
+			}
 			return a.playerClass > b.playerClass ? 1 : -1;
 		};
 
 		archetypes.sort((a: ArchetypeData, b: ArchetypeData) => {
 			const favorite = +this.isFavorite(b.id) - +this.isFavorite(a.id);
-			return favorite || (compare(a, b) || (a.name > b.name ? 1 : -1)) * direction;
+			return favorite || (compare(a, b) * direction) || (a.name > b.name ? 1 : -1);
 		});
 	}
 
