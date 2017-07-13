@@ -39,6 +39,7 @@ class UserSerializer(serializers.Serializer):
 	id = serializers.IntegerField(read_only=True)
 	battletag = serializers.SerializerMethodField()
 	username = serializers.SerializerMethodField()
+	is_premium = serializers.SerializerMethodField()
 
 	def get_battletag(self, instance):
 		if "request" in self.context and self.context["request"].user == instance:
@@ -47,6 +48,10 @@ class UserSerializer(serializers.Serializer):
 	def get_username(self, instance):
 		if "request" in self.context and self.context["request"].user == instance:
 			return instance.username
+
+	def get_is_premium(self, instance):
+		if "request" in self.context and self.context["request"].user == instance:
+			return instance.is_premium
 
 	def to_representation(self, instance):
 		if instance.is_fake:

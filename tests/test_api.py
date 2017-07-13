@@ -195,6 +195,7 @@ def test_oauth_api(admin_user, client, settings):
 	assert response.status_code == 201
 	data = response.json()
 	assert data["user"]["username"] == "admin"
+	assert data["user"]["is_premium"] is False
 	assert data["url"] == webhook_callback_url
 	obj = WebhookEndpoint.objects.get(uuid=data["uuid"])
 	assert obj.url == webhook_callback_url
