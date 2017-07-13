@@ -1,10 +1,10 @@
+import MatchupCell from "./MatchupCell";
 import * as React from "react";
-import {ArchetypeData, SortDirection} from "../../interfaces";
 import SortHeader from "../SortHeader";
 import CardData from "../../CardData";
-import {Grid, ScrollSync, AutoSizer} from "react-virtualized";
-import MatchupCell from "./MatchupCell";
-import scrollbarSize from "dom-helpers/util/scrollbarSize"
+import {AutoSizer, Grid, ScrollSync} from "react-virtualized";
+import {ArchetypeData, SortDirection} from "../../interfaces";
+import scrollbarSize from "dom-helpers/util/scrollbarSize";
 import ColumnHeader from "./ColumnHeader";
 import RowHeader from "./RowHeader";
 import RowFooter from "./RowFooter";
@@ -13,6 +13,10 @@ import ColumnFooter from "./ColumnFooter";
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
 	cardData: CardData;
+	customWeights: any;
+	onCustomWeightsChanged: (archetypeId: number, popularity: number) => void;
+	useCustomWeights: boolean;
+	onUseCustomWeightsChanged: (useCustomPopularities: boolean) => void;
 	favorites: number[];
 	ignoredColumns: number[];
 	maxPopularity?: number;
@@ -158,6 +162,9 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												const archetype = archetypes[rowIndex];
 												const matchup = archetype.matchups[columnIndex];
 												const isIgnored = this.props.ignoredColumns.indexOf(matchup.opponentId) !== -1;
+												const hasNoCustomData = this.props.useCustomWeights
+													&& !this.props.customWeights[matchup.opponentId];
+
 												if (this.isLastFavorite(rowIndex)) {
 													style["border-bottom"] = spacerSize + "px solid " + offWhite;
 												}
@@ -167,7 +174,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 														key={key}
 														style={style}
 														matchupData={matchup}
-														isIgnored={isIgnored}
+														isIgnored={isIgnored || hasNoCustomData}
 													/>
 												);
 											}}
@@ -194,6 +201,10 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											left: 0,
 											height: footerCellHeight,
 											width: headerCellWidth,
+											display: "flex",
+											flexDirection: "column",
+											verticalAlign: "middle",
+											justifyContent: "center",
 										}}
 									>
 										{this.getSortHeader(
@@ -203,16 +214,34 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 											"Popularity on Ladder",
 											"The percentage of decks played that belong to this archetype.",
 										)}
+										<label style={{marginTop: "1px"}}>
+											<input
+												type="checkbox"
+												onChange={
+													() => this.props.onUseCustomWeightsChanged(!this.props.useCustomWeights)
+												}
+												checked={this.props.useCustomWeights}
+											/>
+											&nbsp;Custom&nbsp;weights
+										</label>
 									</div>
 									<div style={{position: "absolute", bottom: 0, left: headerCellWidth}}>
 										<Grid
-											cellRenderer={({columnIndex, key, style}) => (
-												<ColumnFooter
-													archetypeData={archetypes[columnIndex]}
-													max={this.props.maxPopularity}
-													style={style}
-												/>
-											)}
+											cellRenderer={({columnIndex, key, style}) => {
+												const archetype = archetypes[columnIndex];
+												return (
+													<ColumnFooter
+														archetypeData={archetype}
+														max={this.props.maxPopularity}
+														style={style}
+														customWeight={this.props.customWeights[archetype.id] || 0}
+														useCustomWeight={this.props.useCustomWeights}
+														onCustomWeightChanged={(popularity: number) => {
+															this.props.onCustomWeightsChanged(archetype.id, popularity);
+														}}
+													/>
+												);
+											}}
 											width={width - headerCellWidth - cellWidth - scrollbarSize()}
 											height={footerCellHeight}
 											columnCount={archetypes.length}
@@ -274,7 +303,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		text: string,
 		direction?: SortDirection,
 		infoHeader?: string,
-		infoText?: string
+		infoText?: string,
 	): JSX.Element {
 		return (
 			<SortHeader

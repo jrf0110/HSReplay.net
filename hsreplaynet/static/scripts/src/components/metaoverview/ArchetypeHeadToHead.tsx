@@ -1,6 +1,13 @@
 import * as React from "react";
 import ArchetypeMatrix from "./ArchetypeMatrix";
-import { ApiArchetype, ApiArchetypeMatchupData, ApiArchetypePopularity, ArchetypeData, MatchupData, SortDirection } from "../../interfaces";
+import {
+	ApiArchetype,
+	ApiArchetypeMatchupData,
+	ApiArchetypePopularity,
+	ArchetypeData,
+	MatchupData,
+	SortDirection,
+} from "../../interfaces";
 import { getPlayerClassFromId } from "../../helpers";
 import UserData from "../../UserData";
 import CardData from "../../CardData";
@@ -17,16 +24,20 @@ interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadTo
 }
 
 interface ArchetypeHeadToHeadState {
+	customWeights: any;
 	favorites: number[];
 	ignoredColumns: number[];
+	useCustomWeights: boolean;
 }
 
 export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadToHeadProps, ArchetypeHeadToHeadState> {
 	constructor(props: ArchetypeHeadToHeadProps, state: ArchetypeHeadToHeadState) {
 		super();
 		this.state = {
+			customWeights: UserData.getSetting("archetype-custom-popularities") || {},
 			favorites: UserData.getSetting("archetype-favorites") || [],
 			ignoredColumns: UserData.getSetting("archetype-ignored") || [],
+			useCustomWeights: false,
 		};
 	}
 
@@ -36,10 +47,10 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		}
 
 		const archetypeData: ArchetypeData[] = [];
-
 		const {archetypeIds, archetypes} = this.getAllArchetypes();
 
 		let maxPopularity = null;
+		const useCustomWeights = this.state.useCustomWeights;
 
 		archetypes.forEach((friendly: ApiArchetype) => {
 			const matchups: MatchupData[] = [];
@@ -58,8 +69,9 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					winrate: apiMatchup && apiMatchup.win_rate,
 				});
 				if (apiMatchup && this.state.ignoredColumns.indexOf(opponent.id) === -1) {
-					effectiveWinrate += apiMatchup.win_rate * apiMatchup.total_games;
-					totalGames += apiMatchup.total_games;
+					const factor = useCustomWeights ? (this.state.customWeights[opponent.id] || 0) : apiMatchup.total_games;
+					effectiveWinrate += apiMatchup.win_rate * factor;
+					totalGames += factor;
 				}
 			});
 			effectiveWinrate = Math.round(effectiveWinrate / (totalGames / 100)) / 100;
@@ -75,9 +87,12 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					winrate: popularity.win_rate,
 					effectiveWinrate,
 				});
-				if (maxPopularity === null || popularity.pct_of_total > maxPopularity) {
+				if (!useCustomWeights && (!maxPopularity || popularity.pct_of_total > maxPopularity)) {
 					maxPopularity = popularity.pct_of_total;
 				}
+			}
+			if (useCustomWeights && (!maxPopularity || this.state.customWeights[friendly.id] > maxPopularity)) {
+				maxPopularity = this.state.customWeights[friendly.id];
 			}
 		});
 
@@ -95,6 +110,12 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			<ArchetypeMatrix
 				archetypes={archetypeData}
 				cardData={this.props.cardData}
+				customWeights={this.state.customWeights}
+				onCustomWeightsChanged={(archetypeId: number, popularity: number) => {
+					this.onCustomPopularitiesChanged(archetypeId, popularity, archetypeIds);
+				}}
+				useCustomWeights={this.state.useCustomWeights}
+				onUseCustomWeightsChanged={(useCustomWeights: boolean) => this.setState({useCustomWeights})}
 				favorites={favorites}
 				ignoredColumns={ignored}
 				onFavoriteChanged={
@@ -119,6 +140,9 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 
 		const compare = (a: ArchetypeData, b: ArchetypeData): number => {
 			if (this.props.sortBy === "popularity") {
+				if (this.state.useCustomWeights) {
+					return (this.state.customWeights[a.id] || 0) - (this.state.customWeights[b.id] || 0);
+				}
 				return a.popularityTotal - b.popularityTotal;
 			}
 			if (this.props.sortBy === "winrate") {
@@ -135,6 +159,18 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 
 	isFavorite(archetypeId: number): boolean {
 		return this.state.favorites.indexOf(archetypeId) !== -1;
+	}
+
+	onCustomPopularitiesChanged(archetypeId: number, popularity: number, allArchetypes: number[]) {
+		const customWeights = Object.assign({}, this.state.customWeights);
+		Object.keys(customWeights).forEach((id) => {
+			if (allArchetypes.indexOf(+id) === -1) {
+				delete customWeights[id];
+			}
+		});
+		customWeights["" + archetypeId] = popularity;
+		this.setState({customWeights});
+		UserData.setSetting("archetype-custom-popularities", customWeights);
 	}
 
 	onFavoriteChanged(archetypeId: number, favorite: boolean, allArchetypes: number[]) {
