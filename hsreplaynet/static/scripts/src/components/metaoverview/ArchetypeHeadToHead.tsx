@@ -202,18 +202,18 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		const archetypeIds = [];
 		const matchupData = this.props.matchupData.series.data;
 		Object.keys(matchupData).forEach((friendlyId: string) => {
-			if (archetypeIds.indexOf(friendlyId) === -1) {
-				archetypeIds.push(friendlyId);
+			if (archetypeIds.indexOf(+friendlyId) === -1) {
+				archetypeIds.push(+friendlyId);
 			}
 			Object.keys(matchupData[friendlyId]).forEach((opponentId: string) => {
-				if (archetypeIds.indexOf(opponentId) === -1) {
-					archetypeIds.push(opponentId);
+				if (archetypeIds.indexOf(+opponentId) === -1) {
+					archetypeIds.push(+opponentId);
 				}
 			});
 		});
 		return {
 			archetypeIds,
-			archetypes: archetypeIds.map((id) => this.getApiArchetype(+id)).filter((x) => x !== undefined),
+			archetypes: archetypeIds.map((id) => this.getApiArchetype(id)).filter((x) => x !== undefined),
 		};
 	}
 
