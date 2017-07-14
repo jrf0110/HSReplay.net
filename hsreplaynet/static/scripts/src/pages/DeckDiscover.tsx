@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as _ from "lodash";
 import CardData from "../CardData";
-import CardSearch, {Limit} from "../components/CardSearch";
+import CardSearch from "../components/CardSearch";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DeckList from "../components/DeckList";
 import InfoboxFilter from "../components/InfoboxFilter";
@@ -16,6 +16,7 @@ import Fragments from "../components/Fragments";
 import InfoIcon from "../components/InfoIcon";
 import {decode as decodeDeckstring} from "deckstrings";
 import DataManager from "../DataManager";
+import {Limit} from "../components/ObjectSearch";
 
 interface DeckDiscoverState {
 	availableArchetypes?: string[];
@@ -390,7 +391,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							availableCards={filteredCards}
 							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
 							selectedCards={selectedCards("includedCards")}
-							cardLimit={Limit.NORMAL}
+							cardLimit={Limit.DOUBLE}
 							onPaste={(e) => {
 								const input = e.clipboardData.getData("text/plain");
 								const lines = input.trim().split("\n").filter((line) => !line.startsWith("#"));

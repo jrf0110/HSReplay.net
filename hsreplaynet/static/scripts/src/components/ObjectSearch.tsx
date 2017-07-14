@@ -1,0 +1,282 @@
+import * as React from "react";
+
+export const enum Limit {
+	SINGLE,
+	DOUBLE,
+	UNLIMITED,
+}
+
+interface ObjectSearchState {
+	searchText?: string;
+	searchHasFocus?: boolean;
+	searchCount?: number;
+	selectedIndex?: number;
+}
+
+interface ObjectSearchProps<T> extends React.ClassAttributes<ObjectSearch<T>> {
+	getFilteredObjects: (query: string) => T[];
+	getObjectElement: (object: T, count?: number) => JSX.Element;
+	getObjectKey: (object: T) => string;
+	id: string;
+	noDataText: string;
+	objectLimit?: Limit;
+	placeholder: string;
+	sorting: (a: T, b: T) => number;
+	label?: string;
+	onPaste?: (e: any) => any;
+	showOnFocus?: boolean;
+	selectedObjects?: T[];
+	onObjectsChanged?: (objects: T[]) => void;
+	onObjectSelected?: (object: T) => void;
+	getMaxCount?: (object: T) => number;
+}
+
+export default class ObjectSearch<T> extends React.Component<ObjectSearchProps<T>, ObjectSearchState> {
+	readonly defaultCount = 10;
+	private search: HTMLDivElement;
+	private input: HTMLInputElement;
+	private objectList: HTMLUListElement;
+
+	constructor(props: ObjectSearchProps<T>, state: ObjectSearchState) {
+		super(props, state);
+		this.state = {
+			searchCount: this.defaultCount,
+			searchHasFocus: false,
+			searchText: "",
+			selectedIndex: 0,
+		};
+	}
+
+	render(): JSX.Element {
+		const objects = [];
+		const matches = this.props.getFilteredObjects(this.state.searchText);
+		matches.slice(0, this.state.searchCount).forEach((object: T, index: number) => {
+			const selected = this.state.selectedIndex === index;
+			objects.push(
+				<li
+					className={selected ? "selected" : undefined}
+					key={this.props.getObjectKey(object)}
+					onMouseDown={(event) => {
+						if (event.button !== 0) {
+							event.preventDefault();
+							return;
+						}
+						this.objectSelected(object);
+					}}
+					onMouseEnter={() => this.setState({selectedIndex: index})}
+				>
+					{this.props.getObjectElement(object)}
+				</li>,
+			);
+		});
+
+		if (this.state.searchText && !matches.length) {
+			objects.push(
+				<li>
+					<div className="search-message">{this.props.noDataText}</div>
+				</li>,
+			);
+		}
+
+		const onSearchScroll = (event: React.UIEvent<HTMLDivElement>) => {
+			if (event.target["scrollTop"] + 200 >= event.target["scrollHeight"]) {
+				if (matches.length > this.state.searchCount) {
+					this.setState({searchCount: this.state.searchCount + this.defaultCount});
+				}
+			}
+		};
+
+		let searchResults = null;
+		if (this.state.searchHasFocus) {
+			if (this.props.showOnFocus || objects.length && this.state.searchText.length) {
+				searchResults = (
+					<div
+						className="card-search-results"
+						onScroll={onSearchScroll}
+						ref={(search) => this.search = search}
+					>
+						<ul ref={(ref) => this.objectList = ref}>
+							{objects}
+						</ul>
+					</div>
+				);
+			}
+		}
+
+		let clear = null;
+		if (this.state.searchText) {
+			clear = (
+				<span
+					className="glyphicon glyphicon-remove form-control-feedback"
+					onClick={() => this.setState({searchText: ""})}
+				/>
+			);
+		}
+
+		let selectedObjects = null;
+		if (this.props.selectedObjects) {
+			selectedObjects = (
+				<ul>
+					{this.getSelectedObjects()}
+				</ul>
+			);
+		}
+
+		return (
+			<div className="card-search search-wrapper">
+				<div className="form-group has-feedback">
+					<input
+						id={this.props.id}
+						aria-labelledby={this.props.label}
+						ref={(input) => this.input = input}
+						className="form-control"
+						type="search"
+						placeholder={this.props.placeholder}
+						onFocus={() => this.setState({searchHasFocus: true})}
+						onBlur={() => this.setState({searchHasFocus: false})}
+						value={this.state.searchText}
+						onChange={(e) => this.setState({
+							searchText: e.target["value"],
+							selectedIndex: 0,
+						})}
+						onKeyDown={(e) => this.onKeyDown(e, objects.length)}
+						aria-autocomplete="list"
+						onPaste={this.props.onPaste}
+					/>
+					{clear}
+				</div>
+				{searchResults}
+				{selectedObjects}
+			</div>
+		);
+	}
+
+	componentDidUpdate(prevProps: ObjectSearchProps<T>, prevState: ObjectSearchState) {
+		if (prevState.searchText !== this.state.searchText) {
+			if (this.search) {
+				this.search["scrollTop"] = 0;
+			}
+		}
+	}
+
+	objectSelected(object: T): void {
+		if (this.props.onObjectSelected) {
+			this.props.onObjectSelected(object);
+		}
+		if (this.props.onObjectsChanged) {
+			const selected = this.props.selectedObjects || [];
+			if (selected.indexOf(object) === -1) {
+				const newSelectedObjects = selected.concat([object]);
+				newSelectedObjects.sort(this.props.sorting);
+				this.props.onObjectsChanged(newSelectedObjects);
+			}
+		}
+		this.setState({searchText: "", searchCount: this.defaultCount, selectedIndex: 0});
+	};
+
+	onKeyDown(event: React.KeyboardEvent<HTMLInputElement>, numObjects: number): void {
+		let height = 35;
+		if (this.objectList && this.objectList.children && this.objectList.children.length) {
+			const child = this.objectList.children[0];
+			const bounds = child.getBoundingClientRect();
+			height = bounds.height - 1;
+		}
+		let valid = true;
+		switch (event.key) {
+			case "ArrowDown":
+				if (!this.search) {
+					return;
+				}
+				this.setState({selectedIndex: Math.min(numObjects - 1, this.state.selectedIndex + 1)});
+				if (this.search["scrollTop"] === 0) {
+					this.search["scrollTop"] += 5;
+				}
+				this.search["scrollTop"] += height;
+				break;
+			case "ArrowUp":
+				if (!this.search) {
+					return;
+				}
+				this.setState({selectedIndex: Math.max(0, this.state.selectedIndex - 1)});
+				this.search["scrollTop"] -= height;
+				break;
+			case "Enter":
+				const filteredObjects = this.props.getFilteredObjects(this.state.searchText);
+				if (!filteredObjects.length) {
+					return;
+				}
+				this.objectSelected(filteredObjects[this.state.selectedIndex]);
+				break;
+			default:
+				valid = false;
+				break;
+		}
+		if (valid) {
+			event.preventDefault();
+		}
+	}
+
+	getSelectedObjects(): JSX.Element[] {
+		if (!this.props.selectedObjects) {
+			return null;
+		}
+
+		const objects = {};
+		this.props.selectedObjects.forEach((object: T) => {
+			const key = this.props.getObjectKey(object);
+			if (typeof objects[key] !== "undefined") {
+				objects[key].count++;
+			}
+			else {
+				objects[key] = {
+					object,
+					count: 1,
+				};
+			}
+		});
+
+		return Object.keys(objects).map((key) => {
+			const object = objects[key].object;
+			const count = objects[key].count;
+			const updateObject = (newValue: number) => {
+				let updatedCount = count;
+				let newSelectedObjects = this.props.selectedObjects.slice(0);
+				while (updatedCount < newValue) {
+					newSelectedObjects.push(object);
+					updatedCount++;
+				}
+				while (updatedCount > newValue) {
+					let index = this.props.selectedObjects.lastIndexOf(object);
+					newSelectedObjects.splice(index, 1);
+					updatedCount--;
+				}
+				this.props.onObjectsChanged(newSelectedObjects);
+			};
+
+			const maxCount = this.props.getMaxCount ? this.props.getMaxCount(object) : 1;
+
+			return (
+				<li>
+					{this.props.getObjectElement(object, count)}
+					<button
+						onClick={() => updateObject(count - 1)}
+						className="btn btn-danger"
+					>
+						<span
+							className={"glyphicon glyphicon-minus"}
+						/>
+					</button>
+					{this.props.objectLimit !== Limit.SINGLE ? <button
+						onClick={() => updateObject(count + 1)}
+						className="btn btn-primary"
+						disabled={maxCount > 0 && count + 1 > maxCount}
+					>
+						<span
+							className="glyphicon glyphicon-plus"
+						/>
+					</button> : null}
+				</li>
+			);
+		});
+	}
+}
