@@ -321,6 +321,29 @@
 			padding-bottom: 0.5em;
 		}
 
+		&.matchup-header-archetype {
+			align-items: center;
+			justify-content: flex-end;
+			flex-direction: column;
+
+			.object-search {
+				width: 100%;
+				padding: 10px 10px 0 10px;
+
+				.form-group {
+					margin-bottom: 0;
+				}
+
+				.object-search-results li {
+					text-align: left;
+
+					&.selected {
+						background: lightblue
+					}
+
+				}
+			}
+		}
 
 		.sort-header {
 			white-space: nowrap;
@@ -347,7 +370,7 @@
 		vertical-align: middle;
 		justify-content: center;
 
-		.custom-weight.checkbox {
+		.custom-weight-checkbox {
 			margin-top: 5px;
 		}
 	}

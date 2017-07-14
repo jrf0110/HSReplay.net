@@ -9,6 +9,7 @@ import ColumnHeader from "./ColumnHeader";
 import RowHeader from "./RowHeader";
 import RowFooter from "./RowFooter";
 import ColumnFooter from "./ColumnFooter";
+import ArchetypeSearch from "../ArchetypeSearch";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
@@ -55,10 +56,20 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 							{({ clientHeight, clientWidth, onScroll, scrollHeight, scrollLeft, scrollTop, scrollWidth }) => (
 								<div className="matchup-matrix">
 									<div
-										className="matchup-header-cell matchup-header-top-left"
+										className="matchup-header-cell matchup-header-top-left matchup-header-archetype"
 										style={{height: headerCellHeight, width: headerCellWidth}}
 									>
 										{this.getSortHeader("class", "Archetype", "ascending")}
+										<ArchetypeSearch
+											availableArchetypes={archetypes.map((a) => {
+												return {
+													id: a.id,
+													name: a.name,
+													player_class: a.playerClass,
+												};
+											}).sort((a, b) => a.name > b.name ? 1 : -1)}
+											onArchetypeSelected={(archetype) => this.props.onFavoriteChanged(archetype.id, true)}
+										/>
 									</div>
 									<div className="grid-container grid-container-top" style={{left: headerCellWidth}}>
 										<Grid
