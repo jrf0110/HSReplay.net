@@ -27,7 +27,7 @@ export default class CardSearch extends React.Component<CardSearchProps, CardSea
 				id={this.props.id}
 				label={this.props.label}
 				noDataText="No cards found"
-				objectLimit={this.props.cardLimit || Limit.DOUBLE}
+				objectLimit={this.props.cardLimit !== undefined ? this.props.cardLimit : Limit.DOUBLE}
 				onObjectsChanged={this.props.onCardsChanged}
 				onPaste={this.props.onPaste}
 				placeholder={this.props.onPaste ? "Search for cards or paste deck…" : "Search for cards…"}
