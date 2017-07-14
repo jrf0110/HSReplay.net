@@ -341,6 +341,14 @@ class ArchetypeManager(models.Manager):
 			deck__archetype_id=archetype.id
 		).values("deck__digest", "card__card_id", "card__dbf_id", "count")
 
+		other_archetypes = Archetype.objects.filter(
+			player_class=archetype.player_class
+		).exclude(id=archetype.id)
+
+		other_signatures = {a.id: {
+			c.card_id: c.weight for c in a.get_signature(game_format).components.all()
+		} for a in other_archetypes}
+
 		matching_decks = {}
 		for include in includes:
 			digest = include["deck__digest"]
@@ -356,7 +364,9 @@ class ArchetypeManager(models.Manager):
 			settings.ARCHETYPE_CORE_CARD_THRESHOLD: settings.ARCHETYPE_CORE_CARD_WEIGHT,
 			settings.ARCHETYPE_TECH_CARD_THRESHOLD: settings.ARCHETYPE_TECH_CARD_WEIGHT,
 		}
-		components = get_signature_components(matching_decks, observation_counts, thresholds)
+		components = get_signature_components(
+			matching_decks, observation_counts, thresholds, other_signatures
+		)
 
 		signature = Signature.objects.create(
 			archetype=archetype, format=game_format, as_of=timezone.now()
