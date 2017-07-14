@@ -199,21 +199,21 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 	}
 
 	getAllArchetypes(): {archetypeIds: number[], archetypes: ApiArchetype[]} {
-		const matchupData = this.props.matchupData.series.data;
 		const archetypeIds = [];
-		Object.keys(matchupData).forEach((playerClass: string) => {
-			matchupData[playerClass].forEach((matchup: ApiArchetypeMatchupData) => {
-				if (archetypeIds.indexOf(matchup.friendly_archetype_id) === -1) {
-					archetypeIds.push(matchup.friendly_archetype_id);
-				}
-				if (archetypeIds.indexOf(matchup.opponent_archetype_id) === -1) {
-					archetypeIds.push(matchup.opponent_archetype_id);
+		const matchupData = this.props.matchupData.series.data;
+		Object.keys(matchupData).forEach((friendlyId: string) => {
+			if (archetypeIds.indexOf(friendlyId) === -1) {
+				archetypeIds.push(friendlyId);
+			}
+			Object.keys(matchupData[friendlyId]).forEach((opponentId: string) => {
+				if (archetypeIds.indexOf(opponentId) === -1) {
+					archetypeIds.push(opponentId);
 				}
 			});
 		});
 		return {
 			archetypeIds,
-			archetypes: archetypeIds.map((id) => this.getApiArchetype(id)).filter((x) => x !== undefined),
+			archetypes: archetypeIds.map((id) => this.getApiArchetype(+id)).filter((x) => x !== undefined),
 		};
 	}
 
@@ -227,9 +227,8 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 	}
 
 	getMatchup(friendly: ApiArchetype, opponent: ApiArchetype): ApiArchetypeMatchupData {
-		return this.props.matchupData.series.data[friendly.player_class].find((m) => {
-			return m.friendly_archetype_id === friendly.id && m.opponent_archetype_id === opponent.id;
-		});
+		const matchupData = this.props.matchupData.series.data["" + friendly.id];
+		return matchupData && matchupData["" + opponent.id];
 	}
 
 	getPopularity(archetype: ApiArchetype): ApiArchetypePopularity {

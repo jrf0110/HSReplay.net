@@ -82,19 +82,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		this.samplesPerDay = this.state.sampleSize / this.state.lookback;
 	}
 
-	fetchArchetypeData() {
-		DataManager.get("head_to_head_archetype_matchups").then((data) => {
-			if (data && data.results) {
-				const archetypeData = data.results.filter((x) => !x.name.startsWith("Basic")).sort((a, b) => {
-					if (a.player_class === b.player_class) {
-						return a.name > b.name ? 1 : -1;
-					}
-					return a.player_class - b.player_class;
-				});
-			}
-		});
-	}
-
 	render(): JSX.Element {
 		const params = {
 			GameType: this.props.gameType,

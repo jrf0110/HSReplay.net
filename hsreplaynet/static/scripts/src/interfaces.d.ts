@@ -235,8 +235,6 @@ export interface ApiArchetype {
 }
 
 export interface ApiArchetypeMatchupData {
-	friendly_archetype_id: number;
-	opponent_archetype_id: number;
 	win_rate: number;
 	total_games: number;
 }

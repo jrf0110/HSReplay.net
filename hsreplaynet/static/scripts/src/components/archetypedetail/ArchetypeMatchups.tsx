@@ -1,6 +1,7 @@
 import * as React from "react";
 import ClassMatchup from "../ClassMatchup";
 import { getPlayerClassFromId } from "../../helpers";
+import {ApiArchetype} from "../../interfaces";
 
 interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
 	archetypeId: number;
@@ -11,22 +12,23 @@ interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups
 export default class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, void> {
 	render(): JSX.Element {
 		const matchupsTiles = [];
-		const playerClass = this.getPlayerClassName(this.props.archetypeId);
-		if (!playerClass) {
-			return <h3 className="message-wrapper">Something went wrong.</h3>;
+
+		const archetypeMatchups = this.props.archetypeMatchupData.series.data["" + this.props.archetypeId];
+		if (!archetypeMatchups) {
+			return <h3 className="message-wrapper">No data available.</h3>;
 		}
-		const classMatchups = this.props.archetypeMatchupData.series.data[playerClass];
-		const archetypeMatchups = classMatchups.filter((matchup) => matchup.friendly_archetype_id === this.props.archetypeId);
+
 		const opponentClasses = {};
-		archetypeMatchups.forEach((matchup) => {
-			const opponentPlayerClass = this.getPlayerClassName(matchup.opponent_archetype_id);
-			if (opponentPlayerClass) {
-				if (!opponentClasses[opponentPlayerClass]) {
-					opponentClasses[opponentPlayerClass] = [];
+		Object.keys(archetypeMatchups).forEach((opponentId) => {
+			const opponentArchetype = this.getArchetype(+opponentId);
+			if (opponentArchetype) {
+				const matchup = archetypeMatchups[opponentId];
+				if (!opponentClasses[opponentArchetype.player_class]) {
+					opponentClasses[opponentArchetype.player_class] = [];
 				}
-				opponentClasses[opponentPlayerClass].push({
-					id: matchup.opponent_archetype_id,
-					name: this.getArchetypeName(matchup.opponent_archetype_id),
+				opponentClasses[opponentArchetype.player_class].push({
+					id: opponentArchetype.id,
+					name: opponentArchetype.name,
 					winrate: matchup.win_rate,
 				});
 			}
@@ -53,19 +55,12 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 		return <h3 className="message-wrapper">No data available.</h3>;
 	}
 
-	getPlayerClassName(archetypeId: number): string {
+	getArchetype(archetypeId: number): ApiArchetype {
 		const archetype = this.props.archetypeData.results.find((x) => x.id === archetypeId);
-		if (archetype && archetype.player_class) {
-			return getPlayerClassFromId(archetype.player_class);
-		}
-		return null;
-	}
-
-	getArchetypeName(archetypeId: number): string {
-		const archetype = this.props.archetypeData.results.find((x) => x.id === archetypeId);
-		if (archetype) {
-			return archetype.name;
-		}
-		return null;
+		return {
+			id: archetype.id,
+			name: archetype.name,
+			player_class: getPlayerClassFromId(archetype.player_class),
+		};
 	}
 }
