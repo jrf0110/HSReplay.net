@@ -102,8 +102,9 @@ label>input {
 	}
 }
 
-.card-search {
+.object-search {
 	position: relative;
+	font-weight: normal;
 
 	.card-tile {
 		margin-top: 0;
@@ -137,7 +138,7 @@ label>input {
 		}
 	}
 
-	.card-search-results {
+	.object-search-results {
 		background: white;
 		border: 1px solid gray;
 		max-height: 200px;
@@ -153,9 +154,13 @@ label>input {
 			margin-bottom: 0px;
 			padding-left: 0px;
 
-			> li .search-message {
-				color: gray;
-				text-align: center;
+			> li {
+				cursor: pointer;
+
+				.search-message {
+					color: gray;
+					text-align: center;
+				}
 			}
 
 			.selected .card-tile {

@@ -7,10 +7,10 @@ export const enum Limit {
 }
 
 interface ObjectSearchState {
-	searchText?: string;
-	searchHasFocus?: boolean;
 	searchCount?: number;
+	searchText?: string;
 	selectedIndex?: number;
+	showSearchResults?: boolean;
 }
 
 interface ObjectSearchProps<T> extends React.ClassAttributes<ObjectSearch<T>> {
@@ -41,9 +41,9 @@ export default class ObjectSearch<T> extends React.Component<ObjectSearchProps<T
 		super(props, state);
 		this.state = {
 			searchCount: this.defaultCount,
-			searchHasFocus: false,
 			searchText: "",
 			selectedIndex: 0,
+			showSearchResults: false,
 		};
 	}
 
@@ -87,11 +87,11 @@ export default class ObjectSearch<T> extends React.Component<ObjectSearchProps<T
 		};
 
 		let searchResults = null;
-		if (this.state.searchHasFocus) {
+		if (this.state.showSearchResults) {
 			if (this.props.showOnFocus || objects.length && this.state.searchText.length) {
 				searchResults = (
 					<div
-						className="card-search-results"
+						className="object-search-results"
 						onScroll={onSearchScroll}
 						ref={(search) => this.search = search}
 					>
@@ -123,7 +123,7 @@ export default class ObjectSearch<T> extends React.Component<ObjectSearchProps<T
 		}
 
 		return (
-			<div className="card-search search-wrapper">
+			<div className="object-search search-wrapper">
 				<div className="form-group has-feedback">
 					<input
 						id={this.props.id}
@@ -132,8 +132,9 @@ export default class ObjectSearch<T> extends React.Component<ObjectSearchProps<T
 						className="form-control"
 						type="search"
 						placeholder={this.props.placeholder}
-						onFocus={() => this.setState({searchHasFocus: true})}
-						onBlur={() => this.setState({searchHasFocus: false})}
+						onFocus={() => this.setState({showSearchResults: true})}
+						onClick={() => this.setState({showSearchResults: true})}
+						onBlur={() => this.setState({showSearchResults: false})}
 						value={this.state.searchText}
 						onChange={(e) => this.setState({
 							searchText: e.target["value"],
@@ -171,7 +172,12 @@ export default class ObjectSearch<T> extends React.Component<ObjectSearchProps<T
 				this.props.onObjectsChanged(newSelectedObjects);
 			}
 		}
-		this.setState({searchText: "", searchCount: this.defaultCount, selectedIndex: 0});
+		this.setState({
+			searchCount: this.defaultCount,
+			showSearchResults: false,
+			searchText: "",
+			selectedIndex: 0,
+		});
 	};
 
 	onKeyDown(event: React.KeyboardEvent<HTMLInputElement>, numObjects: number): void {
@@ -187,7 +193,10 @@ export default class ObjectSearch<T> extends React.Component<ObjectSearchProps<T
 				if (!this.search) {
 					return;
 				}
-				this.setState({selectedIndex: Math.min(numObjects - 1, this.state.selectedIndex + 1)});
+				this.setState({
+					showSearchResults: true,
+					selectedIndex: Math.min(numObjects - 1, this.state.selectedIndex + 1),
+				});
 				if (this.search["scrollTop"] === 0) {
 					this.search["scrollTop"] += 5;
 				}
@@ -197,18 +206,28 @@ export default class ObjectSearch<T> extends React.Component<ObjectSearchProps<T
 				if (!this.search) {
 					return;
 				}
-				this.setState({selectedIndex: Math.max(0, this.state.selectedIndex - 1)});
+				this.setState({
+					showSearchResults: true,
+					selectedIndex: Math.max(0, this.state.selectedIndex - 1),
+				});
 				this.search["scrollTop"] -= height;
 				break;
 			case "Enter":
+				if (!this.state.showSearchResults) {
+					return;
+				}
 				const filteredObjects = this.props.getFilteredObjects(this.state.searchText);
 				if (!filteredObjects.length) {
 					return;
 				}
 				this.objectSelected(filteredObjects[this.state.selectedIndex]);
 				break;
+			case "Escape":
+				this.setState({showSearchResults: false});
+				break;
 			default:
 				valid = false;
+				this.setState({showSearchResults: true});
 				break;
 		}
 		if (valid) {
