@@ -3,7 +3,7 @@ import * as React from "react";
 import SortHeader from "../SortHeader";
 import CardData from "../../CardData";
 import {AutoSizer, Grid, ScrollSync} from "react-virtualized";
-import {ArchetypeData, SortDirection} from "../../interfaces";
+import {ApiArchetype, ArchetypeData, SortDirection} from "../../interfaces";
 import scrollbarSize from "dom-helpers/util/scrollbarSize";
 import ColumnHeader from "./ColumnHeader";
 import RowHeader from "./RowHeader";
@@ -13,6 +13,7 @@ import ArchetypeSearch from "../ArchetypeSearch";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
+	allArchetypes: ApiArchetype[];
 	cardData: CardData;
 	customWeights: any;
 	onCustomWeightsChanged: (archetypeId: number, popularity: number) => void;
@@ -39,7 +40,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 	private rowFooters: Grid = null;
 
 	render() {
-		const {archetypes} = this.props;
+		const archetypes = this.props.archetypes;
 
 		const headerCellWidth = 250;
 		const headerCellHeight = 132;
@@ -61,13 +62,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 									>
 										{this.getSortHeader("class", "Archetype", "ascending")}
 										<ArchetypeSearch
-											availableArchetypes={archetypes.map((a) => {
-												return {
-													id: a.id,
-													name: a.name,
-													player_class: a.playerClass,
-												};
-											}).sort((a, b) => a.name > b.name ? 1 : -1)}
+											availableArchetypes={this.props.allArchetypes.slice().sort((a, b) => a.name > b.name ? 1 : -1)}
 											onArchetypeSelected={(archetype) => this.props.onFavoriteChanged(archetype.id, true)}
 										/>
 									</div>

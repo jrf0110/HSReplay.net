@@ -30,6 +30,8 @@ interface ArchetypeHeadToHeadState {
 	useCustomWeights: boolean;
 }
 
+const popularityCutoff = 1;
+
 export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadToHeadProps, ArchetypeHeadToHeadState> {
 	constructor(props: ArchetypeHeadToHeadProps, state: ArchetypeHeadToHeadState) {
 		super();
@@ -52,11 +54,17 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		let maxPopularity = null;
 		const useCustomWeights = this.state.useCustomWeights;
 
-		archetypes.forEach((friendly: ApiArchetype) => {
+		const visibleArchetypes = archetypes.filter((archetype) => {
+			const popularity = this.getPopularity(archetype);
+			return popularity && (popularity.pct_of_total >= popularityCutoff || this.isFavorite(archetype.id));
+		});
+
+		visibleArchetypes.forEach((friendly: ApiArchetype) => {
 			const matchups: MatchupData[] = [];
 			let effectiveWinrate = 0;
 			let totalGames = 0;
-			archetypes.forEach((opponent: ApiArchetype) => {
+
+			visibleArchetypes.forEach((opponent: ApiArchetype) => {
 				const apiMatchup = this.getMatchup(friendly, opponent);
 				matchups.push({
 					friendlyId: friendly.id,
@@ -74,7 +82,10 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					totalGames += factor;
 				}
 			});
+
 			effectiveWinrate = Math.round(effectiveWinrate / (totalGames / 100)) / 100;
+
+			// Todo: optimize this to only call getPopularity once (see visibleArchetypes filtering)
 			const popularity = this.getPopularity(friendly);
 			if (popularity && popularity.pct_of_total > 0) {
 				archetypeData.push({
@@ -91,6 +102,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					maxPopularity = popularity.pct_of_total;
 				}
 			}
+
 			if (useCustomWeights && (!maxPopularity || this.state.customWeights[friendly.id] > maxPopularity)) {
 				maxPopularity = this.state.customWeights[friendly.id];
 			}
@@ -109,6 +121,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		return (
 			<ArchetypeMatrix
 				archetypes={archetypeData}
+				allArchetypes={archetypes}
 				cardData={this.props.cardData}
 				customWeights={this.state.customWeights}
 				onCustomWeightsChanged={(archetypeId: number, popularity: number) => {
