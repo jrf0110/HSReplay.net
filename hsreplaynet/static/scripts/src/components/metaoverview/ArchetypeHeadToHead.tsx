@@ -31,6 +31,7 @@ interface ArchetypeHeadToHeadState {
 	favorites?: number[];
 	ignoredColumns?: number[];
 	maxPopularity?: number;
+	sortedIds?: number[];
 	useCustomWeights?: boolean;
 }
 
@@ -47,8 +48,16 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			favorites: UserData.getSetting("archetype-favorites") || [],
 			ignoredColumns: UserData.getSetting("archetype-ignored") || [],
 			maxPopularity: 0,
+			sortedIds: [],
 			useCustomWeights: false,
 		};
+	}
+
+	componentDidMount() {
+		if (this.props.sortBy === "none") {
+			// switch to default sorting of page is loaded with "sortBy=none"
+			this.props.setSortBy("popularity");
+		}
 	}
 
 	componentWillReceiveProps(nextProps: ArchetypeHeadToHeadProps) {
@@ -74,7 +83,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				}}
 				useCustomWeights={this.state.useCustomWeights}
 				onUseCustomWeightsChanged={(useCustomWeights: boolean) => {
-					this.setState({useCustomWeights}, () => this.updateData(this.props));
+					this.setState({useCustomWeights}, () => this.props.setSortBy("none"));
 				}}
 				favorites={this.state.favorites.filter((id) => this.state.sortedIds.indexOf(id) !== -1)}
 				ignoredColumns={this.state.ignoredColumns.filter((id) => this.state.sortedIds.indexOf(id) !== -1)}
@@ -96,7 +105,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 	}
 
 	updateData(props: ArchetypeHeadToHeadProps) {
-		const archetypeData: ArchetypeData[] = [];
+		let archetypeData: ArchetypeData[] = [];
 		const {archetypeIds, apiArchetypes} = this.getAllArchetypes(props.matchupData, props.archetypeData);
 
 		let maxPopularity = null;
@@ -159,13 +168,15 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			}
 		});
 
-		this.sortArchetypes(
-			archetypeData,
-			props.sortDirection,
-			props.sortBy,
-		);
+		let sortedIds = this.state.sortedIds;
+		if (props.sortBy === "none") {
+			archetypeData = this.state.sortedIds.map((id) => archetypeData.find((a) => a.id === id));
+		}
+		else {
+			this.sortArchetypes(archetypeData, props.sortDirection, props.sortBy);
+			sortedIds = archetypeData.map((archetype) => archetype.id);
+		}
 
-		const sortedIds = archetypeData.map((archetype) => archetype.id);
 		archetypeData.forEach((archetype) => {
 			archetype.matchups = sortedIds.map((id) => archetype.matchups.find((m) => m.opponentId === id));
 		});
@@ -174,6 +185,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			apiArchetypes,
 			archetypeData,
 			maxPopularity,
+			sortedIds,
 		});
 	}
 
@@ -214,8 +226,15 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			}
 		});
 		customWeights["" + archetypeId] = popularity;
-		this.setState({customWeights}, () => this.updateData(this.props));
 		UserData.setSetting("archetype-custom-popularities", customWeights);
+		this.setState({customWeights}, () => {
+			if (this.props.sortBy === "popularity" || this.props.sortBy === "winrate") {
+				this.props.setSortBy("none");
+			}
+			else {
+				this.updateData(this.props);
+			}
+		});
 	}
 
 	onFavoriteChanged(archetypeId: number, favorite: boolean) {
@@ -225,7 +244,35 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		if (favorite) {
 			favorites.push(archetypeId);
 		}
-		this.setState({favorites}, () => this.updateData(this.props));
+		const newState = {favorites};
+		if (this.props.sortBy === "none") {
+			// archetypes will not be re-sorted, we need to sort favorites manually
+			const favs = [];
+			const nonFavs = [];
+			let sortedIds = this.state.sortedIds.slice();
+			if (favorite && sortedIds.indexOf(archetypeId) === -1) {
+				// new favorite that is below cutoff
+				sortedIds.push(archetypeId);
+			}
+			else if (!favorite) {
+				const archetype = this.state.archetypeData.find((a) => a.id === archetypeId);
+				if (archetype.popularityTotal < popularityCutoff) {
+					// favorite is below cutoff, so remove entirely
+					sortedIds = sortedIds.filter((id) => id !== archetypeId);
+				}
+			}
+			// split into favorites/non-favorites while keeping existing sorting
+			sortedIds.forEach((id) => {
+				if (favorites.indexOf(id) === -1) {
+					nonFavs.push(id);
+				}
+				else {
+					favs.push(id);
+				}
+			});
+			newState["sortedIds"] = favs.concat(nonFavs);
+		}
+		this.setState(newState, () => this.updateData(this.props));
 		UserData.setSetting("archetype-favorites", favorites);
 	}
 
@@ -236,8 +283,15 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		if (ignore) {
 			ignoredColumns.push(archetypeId);
 		}
-		this.setState({ignoredColumns}, () => this.updateData(this.props));
 		UserData.setSetting("archetype-ignored", ignoredColumns);
+		this.setState({ignoredColumns}, () => {
+			if (this.props.sortBy === "winrate") {
+				this.props.setSortBy("none");
+			}
+			else {
+				this.updateData(this.props);
+			}
+		});
 	}
 
 	getAllArchetypes(matchupData: any, archetypeData: any): {archetypeIds: number[], apiArchetypes: ApiArchetype[]} {
