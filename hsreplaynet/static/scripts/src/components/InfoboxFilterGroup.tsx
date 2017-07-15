@@ -22,21 +22,21 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 		super(props, state);
 		this.state = {
 			collapsed: props.collapsed,
-		}
+		};
 	}
 
 	render(): JSX.Element {
-		const selected = value => {
-			if (!this.props.selectedValue) {
+		const selected = (value) => {
+			if (!this.props.selectedValue || this.props.disabled) {
 				return false;
 			}
 			if (typeof this.props.selectedValue === "string") {
 				return this.props.selectedValue === value;
 			}
 			return this.props.selectedValue.indexOf(value) !== -1;
-		}
+		};
 
-		const cloneWidthProps = child => {
+		const cloneWidthProps = (child) => {
 			return React.cloneElement(child, Object.assign({}, child.props, {
 				selected: selected(typeof child.props === "object" ? child.props.value : ""),
 				onClick: typeof child.props.onClick !== "undefined" ? child.props.onClick : this.props.onClick,
@@ -55,10 +55,10 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 			if (collapsible) {
 				headerClassName = "collapsible";
 				if (this.state.collapsed) {
-					icon = <span className="glyphicon glyphicon-menu-down"/>
+					icon = <span className="glyphicon glyphicon-menu-down"/>;
 				}
 				else {
-					icon = <span className="glyphicon glyphicon-menu-up"/>
+					icon = <span className="glyphicon glyphicon-menu-up"/>;
 				}
 			}
 			const toggle = () => this.setState({collapsed: !this.state.collapsed});
@@ -66,7 +66,7 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 				<h2
 					className={headerClassName}
 					onClick={(event) => {
-						if(!collapsible) {
+						if (!collapsible) {
 							return;
 						}
 
