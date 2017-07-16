@@ -1,7 +1,6 @@
 
 import PremiumWrapper from "../components/PremiumWrapper";
 import InfoboxFilter from "../components/InfoboxFilter";
-import DataManager from "../DataManager";
 import UserData from "../UserData";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
@@ -13,26 +12,7 @@ import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import ArchetypePopularity from "../components/metaoverview/popularity/ArchetypePopularity";
 
-export interface EvaluatedArchetype {
-	[archetype: string]: number;
-}
-
 interface MetaOverviewState {
-	popularities?: EvaluatedArchetype;
-	winrates?: any;
-	expected_winrates?: EvaluatedArchetype;
-	sampleSize?: number;
-	hasChangedSampleSize?: boolean;
-	smallestRank?: number;
-	largestRank?: number;
-	fetching?: boolean;
-	archetypes?: any[];
-	selectedArchetype?: string;
-	visibleNonce?: number;
-	lookback?: number;
-	offset?: number;
-	max_games_per_archetype?: EvaluatedArchetype;
-	games_per_archetype?: EvaluatedArchetype;
 }
 
 interface MetaOverviewProps {
@@ -56,30 +36,11 @@ interface MetaOverviewProps {
 }
 
 export default class MetaOverview extends React.Component<MetaOverviewProps, MetaOverviewState> {
-	private samplesPerDay: number;
-	private nonce: number;
 
 	constructor(props: MetaOverviewProps, context: any) {
 		super(props, context);
 		this.state = {
-			popularities: {},
-			winrates: {},
-			expected_winrates: {},
-			sampleSize: 100,
-			hasChangedSampleSize: false,
-			smallestRank: 0,
-			largestRank: 20,
-			fetching: true,
-			archetypes: [],
-			selectedArchetype: null,
-			visibleNonce: 0,
-			lookback: 7,
-			offset: 0,
-			games_per_archetype: {},
-			max_games_per_archetype: {},
 		};
-		this.nonce = 0;
-		this.samplesPerDay = this.state.sampleSize / this.state.lookback;
 	}
 
 	render(): JSX.Element {
@@ -175,56 +136,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					</Tab>
 				</TabList>
 			</main>
-		</div>;
-	}
-
-	private renderDecklist(): JSX.Element {
-		const key = this.state.selectedArchetype;
-
-		if (!key) {
-			return <p className="text-center">Select an Archetype…</p>;
-		}
-		if (!this.props.cardData) {
-			return <p className="text-center">Loading cards…</p>;
-		}
-
-		const archetype = this.state.archetypes.find((archetype: any) => archetype.name === key);
-
-		if (!archetype || !archetype.representative_deck) {
-			return <div className="alert alert-error" role="alert">Missing Archetype data</div>;
-		}
-
-		let winrate = this.state.expected_winrates && this.state.expected_winrates[key] ? (this.state.expected_winrates[key] * 100).toFixed(2) : null;
-		let popularity = this.state.popularities && this.state.popularities[key] ? (this.state.popularities[key] * 100).toFixed(1) : null;
-
-		if (popularity && this.state.popularities[key] < 0.001) {
-			popularity = "<0.1";
-		}
-
-		return <div className="text-center">
-			<h3 className="text-center">Details</h3>
-			<ul className="list-group text-left">
-				<li className="list-group-item">
-					<span className="badge badge-blue">{+this.state.games_per_archetype[key]}</span>
-					Games
-				</li>
-				<li className="list-group-item">
-					<span className="badge badge-blue">{popularity ? popularity + "%" : "unknown"}</span>
-					Popularity
-				</li>
-				<li className="list-group-item">
-					<span className="badge badge-blue">{winrate ? winrate + "%" : "unknown"}</span>
-					Expected Winrate
-				</li>
-			</ul>
-			<h3 className="text-center">Decklist</h3>
-			{/*TODO: update cardlist to use dbfids*/}
-			{/*<CardList
-				cardDb={this.props.cardData}
-				cards={archetype.representative_deck.card_ids}
-				name={archetype.name}
-				class=""
-			/>*/}
 		</div>;
 	}
 }
