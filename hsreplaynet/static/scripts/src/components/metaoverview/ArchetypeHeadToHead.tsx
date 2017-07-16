@@ -11,11 +11,13 @@ import {
 import { getPlayerClassFromId } from "../../helpers";
 import UserData from "../../UserData";
 import CardData from "../../CardData";
+import ArchetypeList from "./ArchetypeList";
 
 interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadToHead> {
 	archetypeData?: any;
 	cardData: CardData;
 	matchupData?: any;
+	mobileView: boolean;
 	popularityData?: any;
 	sortDirection?: SortDirection;
 	setSortDirection?: (ascending: SortDirection) => void;
@@ -72,11 +74,28 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			return null;
 		}
 
+		const commonProps = {
+			allArchetypes: this.state.apiArchetypes,
+			archetypes: this.state.archetypeData,
+			cardData: this.props.cardData,
+			favorites: this.state.favorites.filter((id) => this.state.sortedIds.indexOf(id) !== -1),
+			maxPopularity: this.state.maxPopularity,
+			onFavoriteChanged: (archetypeId: number, favorite: boolean) => this.onFavoriteChanged(archetypeId, favorite),
+			onSortChanged: (sortBy: string, sortDirection: SortDirection) => {
+				this.props.setSortDirection(sortDirection);
+				this.props.setSortBy(sortBy);
+			},
+			sortBy: this.props.sortBy,
+			sortDirection: this.props.sortDirection,
+		};
+
+		if (this.props.mobileView) {
+			return <ArchetypeList {...commonProps}/>;
+
+		}
+
 		return (
 			<ArchetypeMatrix
-				archetypes={this.state.archetypeData}
-				allArchetypes={this.state.apiArchetypes}
-				cardData={this.props.cardData}
 				customWeights={this.state.customWeights}
 				onCustomWeightsChanged={(archetypeId: number, popularity: number) => {
 					this.onCustomPopularitiesChanged(archetypeId, popularity);
@@ -92,21 +111,11 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 						}
 					});
 				}}
-				favorites={this.state.favorites.filter((id) => this.state.sortedIds.indexOf(id) !== -1)}
 				ignoredColumns={this.state.ignoredColumns.filter((id) => this.state.sortedIds.indexOf(id) !== -1)}
-				onFavoriteChanged={
-					(archetypeId: number, favorite: boolean) => this.onFavoriteChanged(archetypeId, favorite)
-				}
 				onIgnoreChanged={
 					(archetypeId: number, ignore: boolean) => this.onIgnoreChanged(archetypeId, ignore)
 				}
-				maxPopularity={this.state.maxPopularity}
-				sortBy={this.props.sortBy}
-				sortDirection={this.props.sortDirection}
-				onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
-					this.props.setSortDirection(sortDirection);
-					this.props.setSortBy(sortBy);
-				}}
+				{...commonProps}
 			/>
 		);
 	}

@@ -13,6 +13,7 @@ import Tab from "../components/layout/Tab";
 import ArchetypePopularity from "../components/metaoverview/popularity/ArchetypePopularity";
 
 interface MetaOverviewState {
+	mobileView?: boolean;
 }
 
 interface MetaOverviewProps {
@@ -35,11 +36,14 @@ interface MetaOverviewProps {
 	setTab?: (tab: string) => void;
 }
 
+const mobileWidth = 530;
+
 export default class MetaOverview extends React.Component<MetaOverviewProps, MetaOverviewState> {
 
 	constructor(props: MetaOverviewProps, context: any) {
 		super(props, context);
 		this.state = {
+			mobileView: window.innerWidth <= mobileWidth,
 		};
 	}
 
@@ -54,6 +58,56 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			GameType: this.props.gameType,
 			TimeRange: this.props.timeFrame,
 		};
+
+		let content = null;
+
+		const headToHead = (
+			<DataInjector
+				query={[
+					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+					{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+					{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+				]}
+			>
+				<ArchetypeHeadToHead
+					cardData={this.props.cardData}
+					mobileView={this.state.mobileView}
+					setSortBy={this.props.setSortBy}
+					setSortDirection={this.props.setSortDirection}
+					sortBy={this.props.sortBy}
+					sortDirection={this.props.sortDirection}
+				/>
+			</DataInjector>
+		);
+
+		if (this.state.mobileView) {
+			content = headToHead;
+		}
+		else {
+			content = (
+				<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
+					<Tab id="matchups" label="Matchups">
+						{headToHead}
+					</Tab>
+					<Tab id="popularity" label="Popularity">
+						<DataInjector
+							query={[
+								{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+								{key: "popularityData", params: popularityParams, url: "archetype_popularity_by_rank"},
+							]}
+						>
+							<ArchetypePopularity
+								cardData={this.props.cardData}
+								sortDirection={this.props.sortDirection}
+								setSortDirection={this.props.setSortDirection}
+								sortBy={this.props.popularitySortBy}
+								setSortBy={this.props.setPopularitySortBy}
+							/>
+						</DataInjector>
+					</Tab>
+				</TabList>
+			);
+		}
 
 		return <div className="meta-overview-container">
 			<aside className="infobox">
@@ -100,42 +154,26 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</section>
 			</aside>
 			<main>
-				<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
-					<Tab id="matchups" label="Matchups">
-						<DataInjector
-							query={[
-								{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-								{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-								{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
-							]}
-						>
-							<ArchetypeHeadToHead
-								cardData={this.props.cardData}
-								sortDirection={this.props.sortDirection}
-								setSortDirection={this.props.setSortDirection}
-								sortBy={this.props.sortBy}
-								setSortBy={this.props.setSortBy}
-							/>
-						</DataInjector>
-					</Tab>
-					<Tab id="popularity" label="Popularity">
-						<DataInjector
-							query={[
-								{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-								{key: "popularityData", params: popularityParams, url: "archetype_popularity_by_rank"},
-							]}
-						>
-							<ArchetypePopularity
-								cardData={this.props.cardData}
-								sortDirection={this.props.sortDirection}
-								setSortDirection={this.props.setSortDirection}
-								sortBy={this.props.popularitySortBy}
-								setSortBy={this.props.setPopularitySortBy}
-							/>
-						</DataInjector>
-					</Tab>
-				</TabList>
+				{content}
 			</main>
 		</div>;
+	}
+
+	componentWillMount() {
+		window.addEventListener("resize", this.onResize);
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.onResize);
+	}
+
+	onResize = () => {
+		const width = window.innerWidth;
+		if (this.state.mobileView && width > mobileWidth) {
+			this.setState({mobileView: false});
+		}
+		else if (!this.state.mobileView && width <= mobileWidth) {
+			this.setState({mobileView: true});
+		}
 	}
 }
