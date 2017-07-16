@@ -83,7 +83,14 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				}}
 				useCustomWeights={this.state.useCustomWeights}
 				onUseCustomWeightsChanged={(useCustomWeights: boolean) => {
-					this.setState({useCustomWeights}, () => this.props.setSortBy("none"));
+					this.setState({useCustomWeights}, () => {
+						if (this.props.sortBy !== "none") {
+							this.props.setSortBy("none");
+						}
+						else {
+							this.updateData(this.props);
+						}
+					});
 				}}
 				favorites={this.state.favorites.filter((id) => this.state.sortedIds.indexOf(id) !== -1)}
 				ignoredColumns={this.state.ignoredColumns.filter((id) => this.state.sortedIds.indexOf(id) !== -1)}
