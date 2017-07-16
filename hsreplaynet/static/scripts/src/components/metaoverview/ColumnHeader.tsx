@@ -3,9 +3,11 @@ import { ArchetypeData } from "../../interfaces";
 
 interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	archetypeData: ArchetypeData;
+	highlight?: boolean;
 	isIgnored: boolean;
 	onIgnoredChanged: (ignore: boolean) => void;
 	style?: any;
+	onHover?: (hovering: boolean) => void;
 }
 
 interface ColumnHeaderState {
@@ -17,6 +19,9 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 		if (this.props.isIgnored) {
 			classNames.push("ignored");
 		}
+		if (this.props.highlight) {
+			classNames.push("highlight");
+		}
 		return (
 			<div
 				className={classNames.join(" ")}
@@ -24,6 +29,8 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 					this.props.onIgnoredChanged(!this.props.isIgnored);
 				}}
 				style={this.props.style}
+				onMouseEnter={() => this.props.onHover(true)}
+				onMouseLeave={() => this.props.onHover(false)}
 			>
 				{this.props.archetypeData.name}
 				<img

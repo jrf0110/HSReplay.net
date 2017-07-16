@@ -5,9 +5,12 @@ import {Colors} from "../../Colors";
 import Tooltip from "../Tooltip";
 
 interface MatchupCellProps extends React.ClassAttributes<MatchupCell> {
+	highlightColumn?: boolean;
+	highlightRow?: boolean;
 	matchupData: MatchupData;
 	isIgnored: boolean;
 	style?: any;
+	onHover?: (hovering: boolean) => void;
 }
 
 export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
@@ -56,10 +59,20 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 			classNames.push("ignored");
 		}
 
+		if (this.props.highlightRow) {
+			classNames.push("highlight-row");
+		}
+
+		if (this.props.highlightColumn) {
+			classNames.push("highlight-column");
+		}
+
 		return (
 			<div
 				className={classNames.join(" ")}
 				style={{color, backgroundColor, ...this.props.style}}
+				onMouseEnter={() => this.props.onHover(true)}
+				onMouseLeave={() => this.props.onHover(false)}
 			>
 				{label}
 			</div>

@@ -30,6 +30,8 @@ interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 }
 
 interface ArchetypeMatrixState {
+	highlightColumn?: number;
+	highlightRow?: number;
 }
 
 const offWhite = "#fbf7f6";
@@ -38,6 +40,14 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 	private rowHeaders: Grid = null;
 	private matchupCells: Grid = null;
 	private rowFooters: Grid = null;
+
+	constructor(props: ArchetypeMatrixProps, state: ArchetypeMatrixState) {
+		super();
+		this.state = {
+			highlightColumn: null,
+			highlightRow: null,
+		};
+	}
 
 	render() {
 		const archetypes = this.props.archetypes;
@@ -75,12 +85,14 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												return (
 													<ColumnHeader
 														archetypeData={archetype}
+														highlight={this.state.highlightColumn === columnIndex}
 														isIgnored={isIgnored}
 														onIgnoredChanged={(ignore: boolean) =>
 															this.props.onIgnoreChanged(archetype.id, ignore)
 														}
 														key={key}
 														style={style}
+														onHover={(hovering: boolean) => this.onHover(hovering, columnIndex, columnIndex)}
 													/>
 												);
 											}}
@@ -121,6 +133,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												return (
 													<RowHeader
 														archetypeData={archetype}
+														highlight={this.state.highlightRow === rowIndex}
 														isFavorite={isFavorite}
 														onFavoriteChanged={(favorite: boolean) => {
 															this.props.onFavoriteChanged(archetype.id, favorite);
@@ -129,6 +142,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 														cardData={this.props.cardData}
 														key={key}
 														style={style}
+														onHover={(hovering: boolean) => this.onHover(hovering, rowIndex, rowIndex)}
 													/>
 												);
 											}}
@@ -164,6 +178,9 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 														style={style}
 														matchupData={matchup}
 														isIgnored={isIgnored || hasNoCustomData}
+														highlightColumn={this.state.highlightColumn === columnIndex}
+														highlightRow={this.state.highlightRow === rowIndex}
+														onHover={(hovering: boolean) => this.onHover(hovering, columnIndex, rowIndex)}
 													/>
 												);
 											}}
@@ -211,6 +228,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												return (
 													<ColumnFooter
 														archetypeData={archetype}
+														highlight={this.state.highlightColumn === columnIndex}
 														max={this.props.maxPopularity}
 														style={style}
 														customWeight={this.props.customWeights[archetype.id] || 0}
@@ -218,6 +236,8 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 														onCustomWeightChanged={(popularity: number) => {
 															this.props.onCustomWeightsChanged(archetype.id, popularity);
 														}}
+														onHover={(hovering: boolean) => this.onHover(hovering, columnIndex, columnIndex)}
+														onInputFocus={(hovering: boolean) => this.onHover(hovering, columnIndex, columnIndex)}
 													/>
 												);
 											}}
@@ -242,8 +262,10 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												return (
 													<RowFooter
 														archetypeData={archetypes[rowIndex]}
+														highlight={this.state.highlightRow === rowIndex}
 														key={key}
 														style={style}
+														onHover={(hovering: boolean) => this.onHover(hovering, rowIndex, rowIndex)}
 													/>
 												);
 											}}
@@ -275,6 +297,30 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 
 	isLastFavorite(index: number) {
 		return index === this.props.favorites.length - 1;
+	}
+
+	onHover(hovering: boolean, column?: number, row?: number) {
+		let highlightColumn = undefined;
+		let highlightRow = undefined;
+		if (hovering) {
+			if (column !== undefined) {
+				highlightColumn = column;
+			}
+			if (row !== undefined) {
+				highlightRow = row;
+			}
+		}
+		else {
+			if (column !== undefined && this.state.highlightColumn === column) {
+				highlightColumn = null;
+			}
+			if (row !== undefined && this.state.highlightRow === row) {
+				highlightRow = null;
+			}
+		}
+		if (highlightColumn !== undefined || highlightRow !== undefined) {
+			this.setState({highlightColumn, highlightRow});
+		}
 	}
 
 	getSortHeader(

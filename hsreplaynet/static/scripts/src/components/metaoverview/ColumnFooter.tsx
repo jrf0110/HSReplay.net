@@ -4,11 +4,14 @@ import {ArchetypeData} from "../../interfaces";
 
 interface ColumnFooterProps extends React.ClassAttributes<ColumnFooter> {
 	archetypeData: ArchetypeData;
+	highlight?: boolean;
 	max?: number;
 	style?: any;
 	customWeight: number;
 	useCustomWeight: boolean;
 	onCustomWeightChanged: (popularity: number) => void;
+	onHover?: (hovering: boolean) => void;
+	onInputFocus?: (focus: boolean) => void;
 }
 
 interface ColumnFooterState {
@@ -39,8 +42,14 @@ export default class ColumnFooter extends React.Component<ColumnFooterProps, Col
 					type="text"
 					value={this.state.text}
 					onChange={(event) => this.setState({text: event.target.value})}
-					onFocus={(event: any) => event.target.select()}
-					onBlur={(event) => this.onCustomPopularityChanged(event)}
+					onFocus={(event: any) => {
+						event.target.select();
+						this.props.onInputFocus(true);
+					}}
+					onBlur={(event) => {
+						this.onCustomPopularityChanged(event);
+						this.props.onInputFocus(false);
+					}}
 					onKeyPress={(event) => {
 						if (event.which === 13) {
 							this.onCustomPopularityChanged(event);
@@ -50,12 +59,19 @@ export default class ColumnFooter extends React.Component<ColumnFooterProps, Col
 			);
 		}
 
+		const classNames = ["matchup-column-footer"];
+		if (this.props.highlight) {
+			classNames.push("highlight");
+		}
+
 		const value = this.props.useCustomWeight ? this.props.customWeight : this.props.archetypeData.popularityTotal;
 
 		return (
 			<div
-				className="matchup-column-footer"
+				className={classNames.join(" ")}
 				style={this.props.style}
+				onMouseEnter={() => this.props.onHover(true)}
+				onMouseLeave={() => this.props.onHover(false)}
 			>
 				<Bar
 					total={this.props.max ? this.props.max : 100}

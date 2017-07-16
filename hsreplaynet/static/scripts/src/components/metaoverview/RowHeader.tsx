@@ -9,10 +9,12 @@ import ArchetypeCardList from "./ArchetypeCardList";
 
 interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeData;
+	highlight?: boolean;
 	cardData: CardData;
 	isFavorite?: boolean;
 	onFavoriteChanged: (favorite: boolean) => void;
 	style?: any;
+	onHover?: (hovering: boolean) => void;
 }
 
 interface RowHeaderState {
@@ -26,9 +28,18 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 			favIconClasses.push("favorite");
 			activeFavIcon = <span className="glyphicon glyphicon-star active-favorite"/>;
 		}
+		const classNames = ["matchup-row-header"];
+		if (this.props.highlight) {
+			classNames.push("highlight");
+		}
 
 		return (
-			<div className="matchup-row-header" style={this.props.style}>
+			<div
+				className={classNames.join(" ")}
+				style={this.props.style}
+				onMouseEnter={() => this.props.onHover(true)}
+				onMouseLeave={() => this.props.onHover(false)}
+			>
 				<div className="archetype matchup-archetype" onClick={() => this.props.onFavoriteChanged(!this.props.isFavorite)}>
 					<div className="class-icon-wrapper">
 						<img

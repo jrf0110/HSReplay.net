@@ -5,7 +5,9 @@ import {Colors} from "../../Colors";
 
 interface RowFooterProps extends React.ClassAttributes<RowFooter> {
 	archetypeData?: ArchetypeData;
+	highlight?: boolean;
 	style?: any;
+	onHover?: (hovering: boolean) => void;
 }
 
 export default class RowFooter extends React.Component<RowFooterProps, {}> {
@@ -22,8 +24,18 @@ export default class RowFooter extends React.Component<RowFooterProps, {}> {
 
 		style.backgroundColor = color;
 
+		const classNames = ["row-footer"];
+		if (this.props.highlight) {
+			classNames.push("highlight");
+		}
+
 		return (
-			<div className="row-footer" style={style}>
+			<div
+				className={classNames.join(" ")}
+				style={style}
+				onMouseEnter={() => this.props.onHover(true)}
+				onMouseLeave={() => this.props.onHover(false)}
+			>
 				{label}
 			</div>
 		);
