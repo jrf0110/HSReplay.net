@@ -1,4 +1,3 @@
-
 import PremiumWrapper from "../components/PremiumWrapper";
 import InfoboxFilter from "../components/InfoboxFilter";
 import UserData from "../UserData";
@@ -28,12 +27,14 @@ interface MetaOverviewProps {
 	setSortBy?: (sortBy: string) => void;
 	gameType?: string;
 	setGameType?: (gameType: string) => void;
-	rankRange?: string;
-	setRankRange?: (rankRange: string) => void;
 	timeFrame?: string;
 	setTimeFrame?: (timeFrame: string) => void;
 	tab?: string;
 	setTab?: (tab: string) => void;
+	minRank?: number;
+	setMinRank?: (minRank: number) => void;
+	maxRank?: number;
+	setMaxRank?: (maxRank: number) => void;
 }
 
 const mobileWidth = 530;
@@ -50,8 +51,9 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 	render(): JSX.Element {
 		const params = {
 			GameType: this.props.gameType,
-			RankRange: this.props.rankRange,
 			TimeRange: this.props.timeFrame,
+			min_rank: this.props.minRank,
+			max_rank: this.props.maxRank,
 		};
 
 		const popularityParams = {
@@ -109,6 +111,15 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			);
 		}
 
+		const ranks = {
+			0: "Legend",
+			5: "5",
+			10: "10",
+			15: "15",
+			20: "20",
+			25: "25",
+		};
+
 		return <div className="meta-overview-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
@@ -138,19 +149,14 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</section>
 				<section id="rank-range-filter">
 					<PremiumWrapper>
-						<h2>Rank range</h2>
-						<InfoboxFilterGroup
-							locked={!UserData.isPremium()}
-							selectedValue={this.props.rankRange}
-							onClick={(value) => this.props.setRankRange(value)}
-							tabIndex={0}
-							disabled={this.props.tab === "popularity"}
-						>
-							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-						</InfoboxFilterGroup>
+						<h2>Rank Range</h2>
+						<select value={this.props.minRank} onChange={(e) => this.props.setMinRank(+e.target.value)}>
+							{Object.keys(ranks).map((key) => <option value={key}>{ranks[key]}</option>)}
+						</select>
+						-
+						<select value={this.props.maxRank} onChange={(e) => this.props.setMaxRank(+e.target.value)}>
+							{Object.keys(ranks).map((key) => <option value={key}>{ranks[key]}</option>)}
+						</select>
 					</PremiumWrapper>
 				</section>
 			</aside>

@@ -19,6 +19,8 @@ const render = (cardData: CardData) => {
 				sortDirection: "descending",
 				tab: "matchups",
 				timeFrame: "LAST_14_DAYS",
+				minRank: 0,
+				maxRank: 25,
 			}}
 		>
 			<MetaOverview
