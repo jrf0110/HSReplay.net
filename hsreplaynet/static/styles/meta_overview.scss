@@ -310,13 +310,13 @@
 		}
 
 		&.highlight-row {
-			border-top: 2px solid $lighterblue;
-			border-bottom: 2px solid $lighterblue;
+			border-top: 2px solid gray;
+			border-bottom: 2px solid gray;
 		}
 
 		&.highlight-column {
-			border-left: 2px solid $lighterblue;
-			border-right: 2px solid $lighterblue;
+			border-left: 2px solid gray;
+			border-right: 2px solid gray;
 		}
 	}
 
@@ -414,15 +414,15 @@
 
 	.matchup-column-header, .matchup-column-footer {
 		&.highlight {
-			border-left: 2px solid $lighterblue;
-			border-right: 2px solid $lighterblue;
+			border-left: 2px solid gray;
+			border-right: 2px solid gray;
 		}
 	}
 
 	.matchup-row-header, .row-footer, {
 		&.highlight {
-			border-top: 2px solid $lighterblue;
-			border-bottom: 2px solid $lighterblue;
+			border-top: 2px solid gray;
+			border-bottom: 2px solid gray;
 		}
 	}
 }
