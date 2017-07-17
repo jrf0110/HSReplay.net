@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import { ArchetypeData } from "../../interfaces";
 
 interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
@@ -14,6 +15,15 @@ interface ColumnHeaderState {
 }
 
 export default class ColumnHeader extends React.Component<ColumnHeaderProps, ColumnHeaderState> {
+	shouldComponentUpdate(nextProps: ColumnHeaderProps): boolean {
+		return (
+			this.props.highlight !== nextProps.highlight
+			|| this.props.isIgnored !== nextProps.isIgnored
+			|| this.props.archetypeData.id !== nextProps.archetypeData.id
+			|| !_.isEqual(this.props.style, nextProps.style)
+		);
+	}
+
 	render() {
 		const classNames = ["matchup-column-header matchup-column-header-archetype"];
 		if (this.props.isIgnored) {

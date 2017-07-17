@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import {ArchetypeData} from "../../interfaces";
 import {getColorString} from "../../helpers";
 import {Colors} from "../../Colors";
@@ -11,6 +12,15 @@ interface RowFooterProps extends React.ClassAttributes<RowFooter> {
 }
 
 export default class RowFooter extends React.Component<RowFooterProps, {}> {
+	shouldComponentUpdate(nextProps: RowFooterProps): boolean {
+		return (
+			this.props.highlight !== nextProps.highlight
+			|| this.props.archetypeData.id !== nextProps.archetypeData.id
+			|| this.props.archetypeData.effectiveWinrate !== nextProps.archetypeData.effectiveWinrate
+			|| !_.isEqual(this.props.style, nextProps.style)
+		);
+	}
+
 	render() {
 		const style = {
 			backgroundColor: "transparent",

@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import { ArchetypeData } from "../../interfaces";
 import { getArchetypeUrl } from "../../helpers";
 import Feature from "../Feature";
@@ -21,6 +22,15 @@ interface RowHeaderState {
 }
 
 export default class RowHeader extends React.Component<RowHeaderProps, RowHeaderState> {
+	shouldComponentUpdate(nextProps: RowHeaderProps): boolean {
+		return (
+			this.props.highlight !== nextProps.highlight
+			|| this.props.isFavorite !== nextProps.isFavorite
+			|| this.props.archetypeData.id !== nextProps.archetypeData.id
+			|| !_.isEqual(this.props.style, nextProps.style)
+		);
+	}
+
 	render() {
 		let activeFavIcon = null;
 		const favIconClasses = ["glyphicon glyphicon-star favorite-toggle"];

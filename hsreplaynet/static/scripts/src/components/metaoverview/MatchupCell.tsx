@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import { MatchupData } from "../../interfaces";
 import { getColorString, toDynamicFixed } from "../../helpers";
 import {Colors} from "../../Colors";
@@ -14,6 +15,16 @@ interface MatchupCellProps extends React.ClassAttributes<MatchupCell> {
 }
 
 export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
+	shouldComponentUpdate(nextProps: MatchupCellProps): boolean {
+		return (
+			this.props.highlightColumn !== nextProps.highlightColumn
+			|| this.props.highlightRow !== nextProps.highlightRow
+			|| this.props.isIgnored !== nextProps.isIgnored
+			|| !_.isEqual(this.props.style, nextProps.style)
+			|| !_.isEqual(this.props.matchupData, nextProps.matchupData)
+		);
+	}
+
 	render() {
 		let label: string|JSX.Element = "";
 		let color = "black";

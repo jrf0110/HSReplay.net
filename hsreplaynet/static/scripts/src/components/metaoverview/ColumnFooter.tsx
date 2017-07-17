@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import Bar, {BarDirection} from "./Bar";
 import {ArchetypeData} from "../../interfaces";
 
@@ -24,6 +25,19 @@ export default class ColumnFooter extends React.Component<ColumnFooterProps, Col
 		this.state = {
 			text: "" + props.customWeight,
 		};
+	}
+
+	shouldComponentUpdate(nextProps: ColumnFooterProps, nextState: ColumnFooterState): boolean {
+		return (
+			this.props.highlight !== nextProps.highlight
+			|| this.props.archetypeData.id !== nextProps.archetypeData.id
+			|| this.props.archetypeData.popularityTotal !== nextProps.archetypeData.popularityTotal
+			|| this.props.max !== nextProps.max
+			|| this.props.customWeight !== nextProps.customWeight
+			|| this.props.useCustomWeight !== nextProps.useCustomWeight
+			|| !_.isEqual(this.props.style, nextProps.style)
+			|| this.state.text !== nextState.text
+		);
 	}
 
 	componentWillReceiveProps(nextProps: ColumnFooterProps) {
