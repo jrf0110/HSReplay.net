@@ -129,6 +129,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							selectedValue={this.props.timeFrame}
 							onClick={(value) => this.props.setTimeFrame(value)}
 						>
+							<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
 							<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
 							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
 							<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
