@@ -1,45 +1,42 @@
-
+import { DeckObj } from "../interfaces";
 import CardData from "../CardData";
-import * as React from "react";
+import {AutoSizer} from "react-virtualized";
 import DataManager from "../DataManager";
 import UserData from "../UserData";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import DataInjector from "../components/DataInjector";
 import ChartLoading from "../components/loading/ChartLoading";
-import PopularityLineChart from "../components/charts/PopularityLineChart";
-import InfoIcon from "../components/InfoIcon";
-import WinrateLineChart from "../components/charts/WinrateLineChart";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import InfoboxFilter from "../components/InfoboxFilter";
-import { getPlayerClassFromId, toTitleCase } from "../helpers";
 import PremiumWrapper from "../components/PremiumWrapper";
 import DeckList from "../components/DeckList";
-import { DeckObj } from "../interfaces";
-import CardList from "../components/CardList";
+import * as React from "react";
 import TableLoading from "../components/loading/TableLoading";
 import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
 import ArchetypeDistributionPieChart from "../components/archetypedetail/ArchetypeDistributionPieChart";
+import WinrateTile from "../components/tiles/WinrateTile";
+import PopularityTile from "../components/tiles/PopularityTile";
+import MatchupTile from "../components/tiles/MatchupTile";
+import DeckTile from "../components/tiles/DeckTile";
+import PopularityLineChart from "../components/charts/PopularityLineChart";
+import InfoIcon from "../components/InfoIcon";
+import WinrateLineChart from "../components/charts/WinrateLineChart";
+import { getHeroCardId } from "../helpers";
+import CardList from "../components/CardList";
 
-interface ArchetypeData {
-	id: number;
-	name: string;
-	player_class: number;
+export interface Signature {
 	core?: number[];
 	tech1?: number[];
 	tech2?: number[];
-}
-
-interface DecksByArchetype {
-	[id: number]: any[];
+	prevalences?: any[];
 }
 
 interface ArchetypeDetailState {
-	activeArchetypes?: ArchetypeData[];
-	archetypeData?: ArchetypeData[];
 	deckData?: any;
-	decksByArchetype?: DecksByArchetype;
-	selectedArchetype?: number;
+	chartsDeckId?: string;
+	popularDecks?: DeckObj[];
+	signature?: Signature;
 }
 
 interface ArchetypeDetailProps {
@@ -59,166 +56,111 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 	constructor(props: ArchetypeDetailProps, state: ArchetypeDetailState) {
 		super(props, state);
 		this.state = {
-			activeArchetypes: null,
-			archetypeData: null,
+			chartsDeckId: "",
 			deckData: null,
-			decksByArchetype: null,
-			selectedArchetype: 0,
+			popularDecks: [],
+			signature: {core: [], tech1: [], tech2: [], prevalences: []},
 		};
 
-		this.fetchArchetypeData();
-		this.fetchDeckData();
+		this.fetchDeckData(props);
 	}
 
-	fetchArchetypeData() {
-		DataManager.get("/api/v1/archetypes/").then((data) => {
-			if (data && data.results) {
-				const archetypeData = data.results.filter((x) => !x.name.startsWith("Basic")).sort((a, b) => {
-					if (a.player_class === b.player_class) {
-						return a.name > b.name ? 1 : -1;
-					}
-					return a.player_class - b.player_class;
-				});
-				this.setState({archetypeData});
-				this.updateActiveArchetypes();
-			}
-		});
-	}
-
-	fetchDeckData() {
-		const params = {GameType: this.props.gameType, RankRange: this.props.rankRange, TimeRange: "LAST_30_DAYS"};
+	fetchDeckData(props: ArchetypeDetailProps) {
+		const params = {GameType: props.gameType, RankRange: props.rankRange};
 		DataManager.get("list_decks_by_win_rate", params).then((data) => {
-			if (data && data.series.data) {
-				const decksByArchetype: DecksByArchetype = {};
-				Object.keys(data.series.data).forEach((playerClass) => {
-					data.series.data[playerClass].forEach((deck) => {
-						deck.playerClass = playerClass;
-						deck.cards = JSON.parse(deck["deck_list"]);
-						const id = deck.archetype_id === null ? -1 : deck.archetype_id;
-						if (!decksByArchetype[id]) {
-							decksByArchetype[id] = [];
-						}
-						decksByArchetype[id].push(deck);
-					});
-				});
-				this.setState({deckData: data.series.data, decksByArchetype});
-				this.updateActiveArchetypes();
+			if (data) {
+				this.setState({deckData: data.series.data}, () => this.updateData());
 			}
 		});
 	}
 
-	updateActiveArchetypes() {
-		if (!this.state.deckData || !this.state.archetypeData) {
+	updateData() {
+		const signature = {core: [], tech1: [], tech2: [], prevalences: []};
+		const decks = [];
+		const deckObjs: DeckObj[] = [];
+
+		Object.keys(this.state.deckData).forEach((playerClass) => {
+			this.state.deckData[playerClass].forEach((deck) => {
+				if (deck.archetype_id === this.props.archetypeId) {
+					const d = Object.assign({}, deck);
+					d.playerClass = playerClass;
+					d.cards = JSON.parse(d["deck_list"]);
+					decks.push(d);
+				}
+			});
+		});
+
+		if (decks.length === 0) {
 			return;
 		}
 
-		const activeArchetypes = this.state.archetypeData.filter((archetype) => {
-			return Object.keys(this.state.deckData).some((playerClass) => {
-				return this.state.deckData[playerClass].some((deck) => {
-					return deck.archetype_id === archetype.id;
-				});
+		decks.sort((a, b) => b.total_games - a.total_games);
+
+		const cardCounts = {};
+		decks.forEach((deck) => {
+			deck.cards.forEach((card) => {
+				cardCounts[card[0]] = (cardCounts[card[0]] || 0) + 1;
 			});
 		});
+		Object.keys(cardCounts).forEach((dbfId) => {
+			const prevalence = cardCounts[dbfId] / decks.length;
+			if (prevalence >= 0.8) {
+				signature.core.push(+dbfId);
+			}
+			else if (prevalence >= 0.6) {
+				signature.tech1.push(+dbfId);
+			}
+			else if (prevalence >= 0.3) {
+				signature.tech2.push(+dbfId);
+			}
+			signature.prevalences.push({dbfId, prevalence});
+		});
 
-		activeArchetypes.forEach((archetype) => {
-			const counts = {};
-			const decks = this.state.decksByArchetype[archetype.id];
+		if (this.props.cardData) {
 			decks.forEach((deck) => {
-				deck.cards.forEach((card) => {
-					counts[card[0]] = (counts[card[0]] || 0) + 1;
+				const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
+				deckObjs.push({
+					archetypeId: deck.archetype_id,
+					cards: cardData,
+					deckId: deck["deck_id"],
+					duration: +deck["avg_game_length_seconds"],
+					numGames: +deck["total_games"],
+					playerClass: deck["playerClass"],
+					winrate: +deck["win_rate"],
 				});
 			});
-			archetype.core = [];
-			archetype.tech1 = [];
-			archetype.tech2 = [];
-			const cards = Object.keys(counts);
-			cards.forEach((dbfId) => {
-				const prevalence = counts[dbfId] / decks.length;
-				if (prevalence >= 0.8) {
-					archetype.core.push(+dbfId);
-				}
-				else if (prevalence >= 0.6) {
-					archetype.tech1.push(+dbfId);
-				}
-				else if (prevalence >= 0.3) {
-					archetype.tech2.push(+dbfId);
-				}
-			});
-		});
+		}
 
-		this.setState({activeArchetypes});
+		this.setState({
+			chartsDeckId: decks && decks.length && decks[0].deck_id,
+			popularDecks: deckObjs,
+			signature,
+		});
 	}
 
 	componentWillReceiveProps(nextProps: ArchetypeDetailProps, nextState: ArchetypeDetailState) {
-	}
-
-	componentDidUpdate(prevProps: ArchetypeDetailProps, prevState: ArchetypeDetailState) {
+		if (this.props.gameType !== nextProps.gameType || this.props.rankRange !== nextProps.rankRange) {
+			this.fetchDeckData(nextProps);
+		}
+		if (!this.props.cardData && nextProps.cardData && this.state.deckData) {
+			this.updateData();
+		}
 	}
 
 	render(): JSX.Element {
-		if (this.props.cardData) {
-		}
-
-		let chartsDeckId = null;
-		let popularDecksList = null;
-		let selectedArchetype = null;
-
-		let archetypes = [];
-		if (this.state.activeArchetypes) {
-			archetypes = this.state.activeArchetypes.map((archetype) => {
-				const playerClass = getPlayerClassFromId(archetype.player_class).toLowerCase();
-				return (
-					<InfoboxFilter value={"" + archetype.id}>
-						<img
-							alt={toTitleCase(playerClass)}
-							className="player-class-icon"
-							src={STATIC_URL + `images/64x/class-icons/${playerClass}.png`}
-						/>
-						{archetype.name}
-					</InfoboxFilter>
-				);
-			});
-
-			if (UserData.hasFeature("archetype-selection")) {
-				archetypes.push(<InfoboxFilter value={"-1"}>Unclassified</InfoboxFilter>);
-			}
-
-			selectedArchetype = this.state.activeArchetypes.find((a) => a.id === this.props.archetypeId);
-
-			const decks = this.state.decksByArchetype["" + this.props.archetypeId];
-			decks.sort((a, b) => b.total_games - a.total_games);
-			if (decks.length) {
-				chartsDeckId = decks[0].deck_id;
-			}
-			if (this.props.cardData) {
-				const deckObjs: DeckObj[] = [];
-				decks.forEach((deck) => {
-					const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
-					deckObjs.push({
-						archetypeId: deck.archetype_id,
-						cards: cardData,
-						deckId: deck["deck_id"],
-						duration: +deck["avg_game_length_seconds"],
-						numGames: +deck["total_games"],
-						playerClass: deck["playerClass"],
-						winrate: +deck["win_rate"],
-					});
-				});
-
-				popularDecksList = (
-					<DeckList
-						decks={deckObjs}
-						pageSize={10}
-						hideTopPager
-						showArchetypeSelector={true}
-					/>
-				);
-			}
-		}
+		const {GameType, RankRange, deck_id} = {
+			GameType: this.props.gameType, RankRange: this.props.rankRange, deck_id: this.state.chartsDeckId,
+		};
+		const chartParams = {GameType, RankRange, deck_id};
+		const params = {GameType, RankRange};
 
 		return <div className="archetype-detail-container">
 			<aside className="infobox">
-				<h1>Archetype Detail</h1>
+				<h1>{this.props.archetypeName}</h1>
+				<img
+					className="hero-image"
+					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.playerClass, true) + ".jpg"}
+				/>
 				<section id="rank-range-filter">
 					<PremiumWrapper
 						name="Deck List Rank Range"
@@ -229,7 +171,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						<InfoboxFilterGroup
 							selectedValue={this.props.rankRange}
 							onClick={(value) => this.props.setRankRange(value)}
-							tabIndex={0} // TODO
+							tabIndex={0}
 						>
 							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
@@ -248,53 +190,79 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</section>
-				<section id="archetypes">
-					<h2>Archetypes (debug)</h2>
-					<InfoboxFilterGroup
-						selectedValue={"" + this.props.archetypeId}
-						onClick={(value) => location.href = `/archetypes/${value}/`}
-					>
-						{archetypes}
-					</InfoboxFilterGroup>
-				</section>
 			</aside>
 			<main>
 				<section id="content-header">
-					<div className="col-lg-6 col-md-6">
-						<div className="chart-wrapper wide">
+					<div className="container-fluid">
+						<div className="row">
 							<DataInjector
-								fetchCondition={!!chartsDeckId}
-								query={{url: "single_deck_stats_over_time", params: {GameType: "RANKED_STANDARD", RankRange: "ALL", deck_id: chartsDeckId}}}
+								fetchCondition={!!this.state.chartsDeckId}
+								query={{key: "chartData", url: "single_deck_stats_over_time", params: chartParams}}
 							>
-								<ChartLoading>
-									<PopularityLineChart
-										widthRatio={2}
-										maxYDomain={10}
-									/>
-								</ChartLoading>
+								<WinrateTile winrate={51.42} />
 							</DataInjector>
-							<InfoIcon
-								header="Popularity over time"
-								content="Percentage of games played with this deck."
-							/>
+							<DataInjector
+								fetchCondition={!!this.state.chartsDeckId}
+								query={[
+									{key: "chartData", url: "single_deck_stats_over_time", params: chartParams},
+									{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+								]}
+							>
+								<PopularityTile
+									archetypeId={this.props.archetypeId}
+									playerClass={this.props.playerClass}
+								/>
+							</DataInjector>
+							<DataInjector
+								query={[
+									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes"},
+								]}
+							>
+								<MatchupTile
+									archetypeId={this.props.archetypeId}
+									matchup="best"
+									title="Best Matchup"
+								/>
+							</DataInjector>
+							<DataInjector
+								query={[
+									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes"},
+								]}
+							>
+								<MatchupTile
+									archetypeId={this.props.archetypeId}
+									matchup="worst"
+									title="Worst Matchup"
+								/>
+							</DataInjector>
+							<DataInjector
+								query={{key: "deckData", params, url: "list_decks_by_win_rate"}}
+							>
+								<DeckTile
+									archetypeId={this.props.archetypeId}
+									bestProp={"popularity"}
+									cardData={this.props.cardData}
+									playerClass={this.props.playerClass}
+									signature={this.state.signature}
+									title="Most popular deck"
+								/>
+							</DataInjector>
+							<DataInjector
+								query={{key: "deckData", params, url: "list_decks_by_win_rate"}}
+							>
+								<DeckTile
+									archetypeId={this.props.archetypeId}
+									bestProp={"winrate"}
+									cardData={this.props.cardData}
+									playerClass={this.props.playerClass}
+									signature={this.state.signature}
+									title="Best performing deck"
+								/>
+							</DataInjector>
 						</div>
 					</div>
-					<div className="col-lg-6 col-md-6">
-						<div className="chart-wrapper wide">
-							<DataInjector
-								fetchCondition={!!chartsDeckId}
-								query={{url: "single_deck_stats_over_time", params: {GameType: "RANKED_STANDARD", RankRange: "ALL", deck_id: chartsDeckId}}}
-							>
-								<ChartLoading>
-									<WinrateLineChart widthRatio={2} />
-								</ChartLoading>
-							</DataInjector>
-							<InfoIcon
-								header="Winrate over time"
-								content="Percentage of games won with this deck."
-							/>
-						</div>
-					</div>,
 				</section>
 				<section id="page-content">
 					<TabList tab={this.props.tab} setTab={this.props.setTab}>
@@ -303,7 +271,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								<div className="archetype-chart">
 									<DataInjector
 										query={[
-											{key: "matchupData", params: {}, url: "archetype_popularity_distribution_stats"},
+											{key: "matchupData", params, url: "archetype_popularity_distribution_stats"},
 											{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
 										]}
 									>
@@ -324,7 +292,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									<h3>Core Cards</h3>
 									<CardList
 										cardData={this.props.cardData}
-										cardList={selectedArchetype ? selectedArchetype.core : []}
+										cardList={this.state.signature.core}
 										name=""
 										heroes={[]}
 									/>
@@ -336,14 +304,14 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									<h4>Popular</h4>
 									<CardList
 										cardData={this.props.cardData}
-										cardList={selectedArchetype ? selectedArchetype.tech1 : []}
+										cardList={this.state.signature.tech1}
 										name=""
 										heroes={[]}
 									/>
 									<h4>Occasional</h4>
 									<CardList
 										cardData={this.props.cardData}
-										cardList={selectedArchetype ? selectedArchetype.tech2 : []}
+										cardList={this.state.signature.tech2}
 										name=""
 										heroes={[]}
 									/>
@@ -357,16 +325,8 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						>
 							<DataInjector
 								query={[
-									{
-										key: "archetypeMatchupData",
-										params: {},
-										url: "head_to_head_archetype_matchups",
-									},
-									{
-										key: "archetypeData",
-										params: {},
-										url: "/api/v1/archetypes/",
-									},
+									{key: "archetypeMatchupData", params, url: "head_to_head_archetype_matchups"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
 								]}
 							>
 								<TableLoading dataKeys={["archetypeMatchupData", "archetypeData"]}>
@@ -375,7 +335,63 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</DataInjector>
 						</Tab>
 						<Tab label="Popular Decks" id="similar">
-							{popularDecksList}
+							<DeckList
+								decks={this.state.popularDecks}
+								pageSize={10}
+								hideTopPager
+								showArchetypeSelector={true}
+							/>
+						</Tab>
+						<Tab label="Over time data" id="overtime">
+							<div className="over-time-chart">
+								<AutoSizer>
+									{({width}) => (
+										<div>
+											<DataInjector
+												fetchCondition={!!this.state.chartsDeckId}
+												query={{url: "single_deck_stats_over_time", params: chartParams}}
+											>
+												<ChartLoading>
+													<PopularityLineChart
+														maxYDomain={10}
+														width={width}
+														height={300}
+														absolute
+													/>
+												</ChartLoading>
+											</DataInjector>
+											<InfoIcon
+												header="Popularity over time"
+												content="Percentage of games played with this deck."
+											/>
+										</div>
+									)}
+								</AutoSizer>
+							</div>
+							<div className="over-time-chart">
+								<AutoSizer>
+									{({width}) => (
+										<div>
+											<DataInjector
+												fetchCondition={!!this.state.chartsDeckId}
+												query={{url: "single_deck_stats_over_time", params: chartParams}}
+											>
+												<ChartLoading>
+													<WinrateLineChart
+														width={width}
+														height={300}
+														absolute
+													/>
+												</ChartLoading>
+											</DataInjector>
+											<InfoIcon
+												header="Popularity over time"
+												content="Percentage of games played with this deck."
+											/>
+										</div>
+									)}
+								</AutoSizer>
+							</div>
 						</Tab>
 					</TabList>
 				</section>
