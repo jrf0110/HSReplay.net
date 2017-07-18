@@ -13,12 +13,16 @@ interface WinrateLineChartProps {
 	data?: RenderData;
 	title?: string;
 	widthRatio?: number;
+	width?: number;
+	height?: number;
+	absolute?: boolean;
 }
 
 export default class WinrateLineChart extends React.Component<WinrateLineChartProps, any> {
 
 	render(): JSX.Element {
-		const width = 150 * (this.props.widthRatio || 3);
+		const height = this.props.height || 150;
+		const width = Math.max(0, this.props.width) || height * (this.props.widthRatio || 3);
 		const series = toTimeSeries(this.props.data.series.find((x) => x.name === "winrates_over_time") || this.props.data.series[0]);
 
 		// This is a temporary solution to remove very low volume data points from the Un'Goro launch
@@ -41,33 +45,37 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 
 		const filterId = _.uniqueId("winrate-by-time-gradient-");
 
+		const factor = height / 150;
+		const fontSize = factor * 8;
+		const padding = {left: 40 * factor, top: 10 * factor, right: 20 * factor, bottom: 30 * factor};
+
 		return (
-			<svg viewBox={"0 0 " + width + " 150"}>
+			<svg viewBox={"0 0 " + width + " " + height} style={this.props.absolute && {position: "absolute"}}>
 				<defs>
 					<WinLossGradient id={filterId} metadata={metadata} />
 				</defs>,
 				<VictoryChart
-					height={150}
+					height={height}
 					width={width}
-					domainPadding={{x: 0, y: 10}}
-					padding={{left: 40, top: 10, right: 20, bottom: 30}}
+					domainPadding={{x: 0, y: 10 * factor}}
+					padding={padding}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
 					containerComponent={<VictoryVoronoiContainer
 						dimension="x"
 						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
-						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} />}
+						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor} />}
 					/>}
 				>
 					<VictoryAxis
 						scale="time"
 						tickValues={metadata.seasonTicks}
 						tickFormat={(tick) => moment(tick).add(1, "day").format("MMMM")}
-						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}
+						style={{axisLabel: {fontSize}, tickLabels: {fontSize}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryAxis
 						dependentAxis
 						label={"Winrate"}
-						axisLabelComponent={<VictoryLabel dy={-1} dx={20} />}
+						axisLabelComponent={<VictoryLabel dy={-1 * factor} dx={20 * factor} />}
 						tickValues={[50].concat(metadata.yDomain)}
 						tickFormat={(tick) => {
 							if (tick === 50) {
@@ -82,15 +90,15 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 							return metadata.toFixed(tick) + "%";
 						}}
 						style={{
-							axisLabel: {fontSize: 8},
-							tickLabels: {fontSize: 8},
+							axisLabel: {fontSize},
+							tickLabels: {fontSize},
 							grid: {stroke: (tick) => tick === 50 ? "gray" : (minAbove50 && isMinTick(tick) || maxBelow50 && isMaxTick(tick) ? "transparent" : "lightgray")},
 							axis: {visibility: "hidden"},
 						}}
 					/>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
+						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
 						interpolation="monotoneX"
 					/>
 				</VictoryChart>

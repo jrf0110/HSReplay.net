@@ -13,6 +13,9 @@ interface PopularityLineChartProps{
 	data?: RenderData;
 	maxYDomain: 10 | 100;
 	widthRatio?: number;
+	width?: number;
+	height?: number;
+	absolute?: boolean;
 }
 
 export default class PopularityLineChart extends React.Component<PopularityLineChartProps, any> {
@@ -20,7 +23,8 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 	private readonly colorMax = "rgba(255, 128, 0, 1.0)";
 
 	render(): JSX.Element {
-		const width = 150 * (this.props.widthRatio || 3);
+		const height = this.props.height || 150;
+		const width = Math.max(0, this.props.width) || height * (this.props.widthRatio || 3);
 
 		const series = toTimeSeries(this.props.data.series.find((x) => x.name === "popularity_over_time") || this.props.data.series[0]);
 
@@ -34,8 +38,12 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 
 		const filterId = _.uniqueId("popularity-gradient-");
 
+		const factor = height / 150;
+		const fontSize = factor * 8;
+		const padding = {left: 40 * factor, top: 10 * factor, right: 20 * factor, bottom: 30 * factor};
+
 		return (
-			<svg viewBox={"0 0 " + width + " 150"}>
+			<svg viewBox={"0 0 " + width + " " + height} style={this.props.absolute && {position: "absolute"}}>
 				<defs>
 					<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
 						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
@@ -43,35 +51,35 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 					</linearGradient>
 				</defs>
 				<VictoryChart
-					height={150}
+					height={height}
 					width={width}
-					domainPadding={{x: 0, y: 10}}
+					domainPadding={{x: 0, y: 10 * factor}}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
-					padding={{left: 40, top: 10, right: 20, bottom: 30}}
+					padding={padding}
 					containerComponent={<VictoryVoronoiContainer
 						dimension="x"
 						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
-						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} />}
+						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor}/>}
 					/>}
 				>
 					<VictoryAxis
 						scale="time"
 						tickValues={metadata.seasonTicks}
 						tickFormat={(tick) => moment(tick).add(1, "day").format("MMMM")}
-						style={{axisLabel: {fontSize: 8}, tickLabels: {fontSize: 8}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}
+						style={{axisLabel: {fontSize}, tickLabels: {fontSize}, grid: {stroke: "gray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryAxis
 						dependentAxis
 						scale="sqrt"
 						label={"Popularity"}
-						axisLabelComponent={<VictoryLabel dy={-1} dx={20} />}
+						axisLabelComponent={<VictoryLabel dy={-1 * factor} dx={20 * factor} />}
 						tickValues={this.props.maxYDomain === 10 ? [0, 0.5, 2, 5, 10] : [0, 5, 20, 50, 100]}
 						tickFormat={(tick) => metadata.toFixed(tick) + "%"}
-						style={{axisLabel: {fontSize: 8} , tickLabels: {fontSize: 8}, grid: {stroke: (d) => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
+						style={{axisLabel: {fontSize} , tickLabels: {fontSize}, grid: {stroke: (d) => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: metadata.yDomain[0]}; })}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
+						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
 						interpolation="monotoneX"
 					/>
 				</VictoryChart>

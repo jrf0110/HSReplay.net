@@ -1,5 +1,4 @@
 import * as React from "react";
-import {VictoryPortal} from "victory";
 import {Point} from "victory-core";
 
 interface HighlightPointComponentProps {
@@ -9,9 +8,10 @@ interface HighlightPointComponentProps {
 export default class HighlightPointComponent extends React.Component<HighlightPointComponentProps, any> {
 	render() {
 		const datum = Object.assign({}, this.props.datum);
+		const factor = this.props.sizeFactor || 1;
 		return <Point
 			active={true}
-			size={1}
+			size={1 * factor}
 			symbol="circle"
 			style={{
 				stroke: "black",
