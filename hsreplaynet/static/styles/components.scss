@@ -672,3 +672,74 @@ table .info-icon, .sort-header .info-icon {
 		color: black;
 	}
 }
+
+
+.tile {
+	text-align: center;
+	border: 1px solid black;
+	height: 250px;
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 20px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+	&.winrate-tile {
+	}
+
+	.tile-title {
+		// font-weight: bold;
+		text-transform: uppercase;
+		font-size: 1.3em;
+		text-align: center;
+		border-bottom: 1px solid black;
+		background: $blue;
+		color: white;
+		padding: 5px 0;
+	}
+
+	.tile-content {
+		display: flex;
+		justify-content: center;
+		flex-direction: column;
+		flex-grow: 1;
+
+		>h2 {
+			margin-top: 0;
+		}
+
+		>h3 {
+			margin-top: 0;
+		}
+	}
+
+	.tile-chart {
+		height: 50px;
+		// border-top: 1px solid black;
+	}
+
+	.stats-table {
+		font-size: 1.5em;
+		display: flex;
+		justify-content: center;
+		padding-top: 15px;
+
+		th {
+			padding-right: 10px;
+		}
+	}
+
+	&.matchup-tile {
+		.player-class {
+			padding-left: 50px;
+			font-size: 1.8em;
+		}
+	}
+
+	&.deck-tile {
+		.tech-cards {
+			margin: 0 25px;
+			display: flex;
+			justify-content: space-around;
+		}
+	}
+}
