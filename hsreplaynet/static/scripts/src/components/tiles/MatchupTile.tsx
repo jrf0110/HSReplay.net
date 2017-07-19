@@ -1,8 +1,9 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { getPlayerClassFromId, winrateData } from "../../helpers";
+import { getArchetypeUrl, getPlayerClassFromId, winrateData } from "../../helpers";
 
 interface MatchupTileState {
+	archetypeId?: number;
 	games?: number;
 	name?: string;
 	playerClass?: string;
@@ -52,6 +53,7 @@ export default class MatchupTile extends React.Component<MatchupTileProps, Match
 				const opponentData = props.archetypeData.results.find((archetype) => archetype.id === +id);
 				if (opponentData) {
 					return {
+						archetypeId: +id,
 						games: matchups[id].total_games,
 						name: opponentData.name,
 						playerClass: getPlayerClassFromId(opponentData.player_class),
@@ -69,7 +71,7 @@ export default class MatchupTile extends React.Component<MatchupTileProps, Match
 		const wrData = winrateData(50, this.state.winrate, 3);
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-				<div className="tile matchup-tile">
+				<a className="tile matchup-tile" href={getArchetypeUrl(this.state.archetypeId, this.state.name)}>
 					<div className="tile-title">
 						{this.props.title}
 					</div>
@@ -92,7 +94,7 @@ export default class MatchupTile extends React.Component<MatchupTileProps, Match
 							</table>
 						</div>
 					</div>
-				</div>
+				</a>
 			</div>
 		);
 	}

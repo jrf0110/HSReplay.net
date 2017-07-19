@@ -199,7 +199,11 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								fetchCondition={!!this.state.chartsDeckId}
 								query={{key: "chartData", url: "single_deck_stats_over_time", params: chartParams}}
 							>
-								<WinrateTile winrate={51.42} />
+								<WinrateTile
+									onClick={() => this.props.setTab("overtime")}
+									tabName="overtime"
+									winrate={51.42}
+								/>
 							</DataInjector>
 							<DataInjector
 								fetchCondition={!!this.state.chartsDeckId}
@@ -210,7 +214,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							>
 								<PopularityTile
 									archetypeId={this.props.archetypeId}
+									onClick={() => this.props.setTab("overtime")}
 									playerClass={this.props.playerClass}
+									tabName="overtime"
 								/>
 							</DataInjector>
 							<DataInjector

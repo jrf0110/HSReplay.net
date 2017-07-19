@@ -7,8 +7,10 @@ interface WinrateTileState {
 }
 
 interface WinrateTileProps extends React.ClassAttributes<WinrateTile> {
-	winrate: number;
 	chartData?: any;
+	onClick?: () => void;
+	tabName?: string;
+	winrate: number;
 }
 
 export default class WinrateTile extends React.Component<WinrateTileProps, WinrateTileState> {
@@ -46,7 +48,14 @@ export default class WinrateTile extends React.Component<WinrateTileProps, Winra
 
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-				<div className="tile winrate-tile">
+				<a
+					className="tile winrate-tile"
+					href={"#tab=" + this.props.tabName}
+					onClick={(event) => {
+						event.preventDefault();
+						this.props.onClick();
+					}}
+				>
 					<div className="tile-title">
 						Winrate
 					</div>
@@ -56,7 +65,7 @@ export default class WinrateTile extends React.Component<WinrateTileProps, Winra
 					<div className="tile-chart">
 						{chart}
 					</div>
-				</div>
+				</a>
 			</div>
 		);
 	}

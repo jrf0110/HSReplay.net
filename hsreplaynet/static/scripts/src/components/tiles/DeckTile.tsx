@@ -7,6 +7,7 @@ import { Signature } from "../../pages/ArchetypeDetail";
 
 interface DeckTileState {
 	cards?: any[];
+	deckId?: string;
 	games?: number;
 	winrate?: number;
 }
@@ -26,6 +27,7 @@ export default class DeckTile extends React.Component<DeckTileProps, DeckTileSta
 		super(props, state);
 		this.state = {
 			cards: [],
+			deckId: "",
 			games: 0,
 			winrate: 50,
 		};
@@ -82,6 +84,7 @@ export default class DeckTile extends React.Component<DeckTileProps, DeckTileSta
 
 			this.setState({
 				cards,
+				deckId: decks[0].deck_id,
 				games: decks[0].total_games,
 				winrate: decks[0].win_rate,
 			});
@@ -93,7 +96,7 @@ export default class DeckTile extends React.Component<DeckTileProps, DeckTileSta
 		const wrData = winrateData(50, this.state.winrate, 3);
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-				<div className="tile deck-tile">
+				<a className="tile deck-tile" href={`/decks/${this.state.deckId}/`}>
 					<div className="tile-title">
 						{this.props.title}
 					</div>
@@ -114,7 +117,7 @@ export default class DeckTile extends React.Component<DeckTileProps, DeckTileSta
 							</table>
 						</div>
 					</div>
-				</div>
+				</a>
 			</div>
 		);
 	}

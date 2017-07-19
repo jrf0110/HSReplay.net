@@ -11,8 +11,10 @@ interface PopularityTileState {
 interface PopularityTileProps extends React.ClassAttributes<PopularityTile> {
 	archetypeId?: number;
 	chartData?: any;
+	onClick: () => void;
 	popularityData?: any;
 	playerClass: string;
+	tabName: string;
 }
 
 export default class PopularityTile extends React.Component<PopularityTileProps, PopularityTileState> {
@@ -50,7 +52,14 @@ export default class PopularityTile extends React.Component<PopularityTileProps,
 		}
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-				<div className="tile popularity-tile">
+				<a
+					className="tile popularity-tile"
+					href={"#tab=" + this.props.tabName}
+					onClick={(event) => {
+						event.preventDefault();
+						this.props.onClick();
+					}}
+				>
 					<div className="tile-title">
 						Popularity
 					</div>
@@ -61,7 +70,7 @@ export default class PopularityTile extends React.Component<PopularityTileProps,
 					<div className="tile-chart">
 						{chart}
 					</div>
-				</div>
+				</a>
 			</div>
 		);
 	}
