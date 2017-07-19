@@ -539,15 +539,22 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 				if deck.size == 30:
 					prefix_tree.observe(
 						deck.id,
+						deck.card_dbf_id_list(),
 						play_sequence_data
 					)
 				else:
-					full_deck_id = prefix_tree.lookup(play_sequence_data)
+					full_deck_id = prefix_tree.lookup(
+						deck.card_dbf_id_list(),
+						play_sequence_data
+					)
 					influx_metric("deck_prediction_lookup", {
 						"success": full_deck_id is not None,
 						"full_deck_id": full_deck_id,
 						"deck_id": deck.id,
+						"game_id": global_game.id,
+						"missing_cards": 30 - deck.size
 					})
+
 			except:
 				# While prototyping never let failures here disrupt processing
 				pass
