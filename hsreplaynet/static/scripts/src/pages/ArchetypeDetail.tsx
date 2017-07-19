@@ -24,6 +24,7 @@ import InfoIcon from "../components/InfoIcon";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import { getHeroCardId } from "../helpers";
 import CardList from "../components/CardList";
+import RankTile from "../components/tiles/RankTile";
 
 export interface Signature {
 	core?: number[];
@@ -241,6 +242,24 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									archetypeId={this.props.archetypeId}
 									matchup="worst"
 									title="Worst Matchup"
+								/>
+							</DataInjector>
+							<DataInjector
+								query={{key: "popularityData", params: {}, url: "archetype_popularity_by_rank"}}
+							>
+								<RankTile
+									archetypeId={this.props.archetypeId}
+									dataProp="winrate"
+									title="Best performing at"
+								/>
+							</DataInjector>
+							<DataInjector
+								query={{key: "popularityData", params: {}, url: "archetype_popularity_by_rank"}}
+							>
+								<RankTile
+									archetypeId={this.props.archetypeId}
+									dataProp="popularity"
+									title="Most popular at"
 								/>
 							</DataInjector>
 							<DataInjector

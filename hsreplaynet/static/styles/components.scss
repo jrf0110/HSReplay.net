@@ -726,7 +726,15 @@ table .info-icon, .sort-header .info-icon {
 
 	.tile-chart {
 		height: 50px;
-		// border-top: 1px solid black;
+	}
+
+	.tile-data {
+		font-size: 1.5em;
+
+		.winrate {
+			font-weight: bold;
+			padding-right: 10px;
+		}
 	}
 
 	.stats-table {
@@ -752,6 +760,14 @@ table .info-icon, .sort-header .info-icon {
 			margin: 0 25px;
 			display: flex;
 			justify-content: space-around;
+		}
+	}
+
+	&.rank-tile {
+		.rank-icon {
+			width: 100px;
+			height: 100px;
+			margin: 0 auto;
 		}
 	}
 }
