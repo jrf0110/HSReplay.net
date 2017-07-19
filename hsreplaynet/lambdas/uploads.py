@@ -23,6 +23,7 @@ from hsreplaynet.utils.synchronization import CountDownLatch
 
 @instrumentation.lambda_handler(
 	cpu_seconds=180,
+	requires_vpc_access=True,
 	memory=settings.LAMBDA_PROCESSING_MEMORY_MB,
 	stream_name="replay-upload-processing-stream",
 	stream_batch_size=20,
@@ -85,6 +86,7 @@ def process_replay_upload_stream_handler(event, context):
 
 @instrumentation.lambda_handler(
 	cpu_seconds=180,
+	requires_vpc_access=True,
 	memory=settings.LAMBDA_PROCESSING_MEMORY_MB,
 )
 def process_single_replay_upload_stream_handler(event, context):
@@ -112,6 +114,7 @@ def process_single_replay_upload_stream_handler(event, context):
 @instrumentation.lambda_handler(
 	cpu_seconds=180,
 	name="ProcessS3CreateObjectV1",
+	requires_vpc_access=True,
 	memory=settings.LAMBDA_PROCESSING_MEMORY_MB,
 )
 def process_s3_create_handler(event, context):
