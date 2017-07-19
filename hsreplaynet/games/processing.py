@@ -481,8 +481,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 	players = {}
 	prefix_tree = deck_prefix_tree()
 	if prefix_tree:
-		# exporter.export_play_sequences()
-		play_sequences = None
+		play_sequences = exporter.export_play_sequences()
 	else:
 		play_sequences = None
 
