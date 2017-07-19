@@ -3,6 +3,7 @@ from hashlib import sha1
 from io import StringIO
 from dateutil.parser import parse as dateutil_parse
 from django.conf import settings
+from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -24,6 +25,7 @@ from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.utils.instrumentation import error_handler
+from hsreplaynet.utils.prediction import DeckPrefixTree
 from .models import (
 	_generate_upload_path, GameReplay, GlobalGame, GlobalGamePlayer, ReplayAlias
 )
@@ -54,6 +56,14 @@ def get_replay_url(shortid):
 	# Not using get_absolute_url() to avoid tying into Django
 	# (not necessarily avail on lambda)
 	return "https://hsreplay.net/replay/%s" % (shortid)
+
+
+def deck_prefix_tree():
+	try:
+		redis_client = caches["decks"].client.get_client()
+		return DeckPrefixTree(redis_client)
+	except:
+		return None
 
 
 def get_valid_match_start(match_start, upload_date):
@@ -466,9 +476,15 @@ def _is_decklist_superset(superset_decklist, subset_decklist):
 	return s1.issuperset(s2)
 
 
-def update_global_players(global_game, entity_tree, meta, upload_event):
+def update_global_players(global_game, entity_tree, meta, upload_event, exporter):
 	# Fill the player metadata and objects
 	players = {}
+	prefix_tree = deck_prefix_tree()
+	if prefix_tree:
+		# exporter.export_play_sequences()
+		play_sequences = None
+	else:
+		play_sequences = None
 
 	for player in entity_tree.players:
 		player_meta = meta.get("player%i" % (player.player_id), {})
@@ -517,6 +533,25 @@ def update_global_players(global_game, entity_tree, meta, upload_event):
 			global_game.tainted_decks = True
 			# Replace with an empty deck
 			deck, _ = Deck.objects.get_or_create_from_id_list([])
+
+		if play_sequences:
+			try:
+				play_sequence_data = play_sequences[player.player_id]
+				if deck.size == 30:
+					prefix_tree.observe(
+						deck.id,
+						play_sequence_data
+					)
+				else:
+					full_deck_id = prefix_tree.lookup(play_sequence_data)
+					influx_metric("deck_prediction_lookup", {
+						"success": full_deck_id is not None,
+						"full_deck_id": full_deck_id,
+						"deck_id": deck.id,
+					})
+			except:
+				# While prototyping never let failures here disrupt processing
+				pass
 
 		# Create the BlizzardAccount first
 		defaults = {
@@ -609,7 +644,7 @@ def do_process_upload_event(upload_event):
 
 	# Create/Update the global game object and its players
 	global_game, global_game_created = find_or_create_global_game(entity_tree, meta)
-	players = update_global_players(global_game, entity_tree, meta, upload_event)
+	players = update_global_players(global_game, entity_tree, meta, upload_event, exporter)
 
 	# Create/Update the replay object itself
 	replay, game_replay_created = find_or_create_replay(
