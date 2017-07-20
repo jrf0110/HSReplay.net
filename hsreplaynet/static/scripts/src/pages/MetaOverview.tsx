@@ -140,6 +140,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						<RankRangeFilter
 							rankRange={this.props.rankRange}
 							onChange={(rankRange) => this.props.setRankRange(rankRange)}
+							disabled={this.props.tab !== "matchups"}
 						/>
 					</PremiumWrapper>
 				</section>

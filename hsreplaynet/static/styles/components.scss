@@ -773,27 +773,25 @@ table .info-icon, .sort-header .info-icon {
 }
 
 .rank-range-filter-ranks {
-	display: flex;
-
 	> .infobox-filter-group {
-		flex: 1;
+		li {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			padding: 0 0 0 1em;
 
-		&:first-child li {
-			border-right: 1px solid #0c223e;
+			> span {
+				padding: 0.5em 0;
+			}
+
+			button {
+				border-right: black solid 1px;
+
+				&:first-child {
+					border-left: black solid 1px;
+				}
+			}
 		}
-
-		&:last-child li {
-			text-align: right;
-		}
-	}
-
-	> .rank-range-filter-through {
-		border-top: 1px solid #0c223e;
-		font-weight: bold;
-		text-align: center;
-	}
-
-	&.equal > .infobox-filter-group:first-child li.selected {
-		border-right: none;
 	}
 }
