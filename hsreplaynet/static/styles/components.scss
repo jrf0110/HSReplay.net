@@ -771,3 +771,29 @@ table .info-icon, .sort-header .info-icon {
 		}
 	}
 }
+
+.rank-range-filter-ranks {
+	display: flex;
+
+	> .infobox-filter-group {
+		flex: 1;
+
+		&:first-child li {
+			border-right: 1px solid #0c223e;
+		}
+
+		&:last-child li {
+			text-align: right;
+		}
+	}
+
+	> .rank-range-filter-through {
+		border-top: 1px solid #0c223e;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	&.equal > .infobox-filter-group:first-child li.selected {
+		border-right: none;
+	}
+}

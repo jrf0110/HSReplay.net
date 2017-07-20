@@ -463,7 +463,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							infoHeader="Rank Range"
 							infoContent="Ready to climb the ladder? Check out how decks perform at certain rank ranges!"
 						>
-							<h2>Rank range</h2>
+							<h2>Rank Range</h2>
 							<InfoboxFilterGroup
 								locked={!UserData.isPremium()}
 								selectedValue={this.props.rankRange}

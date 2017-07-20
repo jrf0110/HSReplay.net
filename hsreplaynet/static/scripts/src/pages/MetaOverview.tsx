@@ -1,6 +1,5 @@
 import PremiumWrapper from "../components/PremiumWrapper";
 import InfoboxFilter from "../components/InfoboxFilter";
-import UserData from "../UserData";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
 import CardData from "../CardData";
@@ -10,6 +9,7 @@ import { SortDirection } from "../interfaces";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import ArchetypePopularity from "../components/metaoverview/popularity/ArchetypePopularity";
+import RankRangeFilter from "../components/RankRangeFilter";
 
 interface MetaOverviewState {
 	mobileView?: boolean;
@@ -31,10 +31,8 @@ interface MetaOverviewProps {
 	setTimeFrame?: (timeFrame: string) => void;
 	tab?: string;
 	setTab?: (tab: string) => void;
-	minRank?: number;
-	setMinRank?: (minRank: number) => void;
-	maxRank?: number;
-	setMaxRank?: (maxRank: number) => void;
+	rankRange?: string;
+	setRankRange?: (rankRange: string) => void;
 }
 
 const mobileWidth = 530;
@@ -50,10 +48,9 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 
 	render(): JSX.Element {
 		const params = {
+			RankRange: this.props.rankRange,
 			GameType: this.props.gameType,
 			TimeRange: this.props.timeFrame,
-			min_rank: this.props.minRank,
-			max_rank: this.props.maxRank,
 		};
 
 		const popularityParams = {
@@ -111,15 +108,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			);
 		}
 
-		const ranks = {
-			0: "Legend",
-			5: "5",
-			10: "10",
-			15: "15",
-			20: "20",
-			25: "25",
-		};
-
 		return <div className="meta-overview-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
@@ -149,14 +137,10 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</section>
 				<section id="rank-range-filter">
 					<PremiumWrapper>
-						<h2>Rank Range</h2>
-						<select value={this.props.minRank} onChange={(e) => this.props.setMinRank(+e.target.value)}>
-							{Object.keys(ranks).map((key) => <option value={key}>{ranks[key]}</option>)}
-						</select>
-						-
-						<select value={this.props.maxRank} onChange={(e) => this.props.setMaxRank(+e.target.value)}>
-							{Object.keys(ranks).map((key) => <option value={key}>{ranks[key]}</option>)}
-						</select>
+						<RankRangeFilter
+							rankRange={this.props.rankRange}
+							onChange={(rankRange) => this.props.setRankRange(rankRange)}
+						/>
 					</PremiumWrapper>
 				</section>
 			</aside>
