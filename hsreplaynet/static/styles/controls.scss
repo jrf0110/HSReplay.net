@@ -161,6 +161,10 @@ label>input {
 					color: gray;
 					text-align: center;
 				}
+
+				> .card-tile {
+					cursor: inherit;
+				}
 			}
 
 			.selected .card-tile {
