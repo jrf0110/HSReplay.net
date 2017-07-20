@@ -37,6 +37,7 @@ interface ArchetypeMatrixState {
 const offWhite = "#fbf7f6";
 
 export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProps, ArchetypeMatrixState> {
+	private container: HTMLDivElement = null;
 	private rowHeaders: Grid = null;
 	private matchupCells: Grid = null;
 	private rowFooters: Grid = null;
@@ -60,12 +61,46 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		const spacerSize = 5;
 
 		return (
-			<div className="archetype-matrix-container">
+			<div
+				className="archetype-matrix-container"
+				style={{
+					backgroundColor: "white",
+				}}
+				ref={(ref) => this.container = ref}
+			>
 				<AutoSizer>
 					{({height, width}) => (
 						<ScrollSync>
 							{({ clientHeight, clientWidth, onScroll, scrollHeight, scrollLeft, scrollTop, scrollWidth }) => (
 								<div className="matchup-matrix">
+									<div
+										style={{
+											position: "absolute",
+											top: "0",
+											right: "0",
+											zIndex: 9999,
+										}}
+									>
+										<button
+											className="btn btn-default"
+											onClick={() => {
+												if (!this.container) {
+													return;
+												}
+
+												let element: any = this.container;
+
+												if (element.requestFullscreen) {
+													element.requestFullscreen();
+												} else if (element.mozRequestFullScreen) {
+													element.mozRequestFullScreen();
+												} else if (element.webkitRequestFullScreen) {
+													element.webkitRequestFullScreen((Element as any).ALLOW_KEYBOARD_INPUT);
+												}
+											}}>
+											<span className="glyphicon glyphicon-fullscreen"></span>
+										</button>
+									</div>
 									<div
 										className="matchup-header-cell matchup-header-top-left matchup-header-archetype"
 										style={{height: headerCellHeight, width: headerCellWidth}}
