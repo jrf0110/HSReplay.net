@@ -53,7 +53,9 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 					Create a new deck in Hearthstone, or
 					paste it into our own Hearthstone&nbsp;Deck&nbsp;Tracker.
 				</p>}
+				belowCursor
 				centered
+				yOffset={20}
 			>
 				<span
 					id={this.state.elementId}

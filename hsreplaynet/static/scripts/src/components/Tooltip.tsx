@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 
 export type TooltipContent = string | JSX.Element | JSX.Element[];
 
@@ -15,16 +16,20 @@ interface TooltipState {
 }
 
 interface TooltipProps {
+	belowCursor?: boolean;
 	centered?: boolean;
 	className?: string;
 	content?: TooltipContent | ClickTouch<TooltipContent>;
 	header?: string;
-	simple?: boolean;
+	id?: string;
 	noBackground?: boolean;
+	simple?: boolean;
+	yOffset?: number;
 }
 
 export default class Tooltip extends React.Component<TooltipProps, TooltipState> {
 	tooltip: HTMLDivElement;
+	tooltipContainer: Element;
 
 	constructor(props: TooltipProps, state: TooltipState) {
 		super(props, state);
@@ -36,61 +41,93 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 		};
 	}
 
-	render(): JSX.Element {
-		let tooltip = null;
+	componentDidUpdate() {
 		if (this.state.hovering) {
-			const tooltipStyle = {};
-			const tooltipClassNames = ["hsreplay-tooltip"];
-			if (this.props.noBackground) {
-				tooltipClassNames.push("no-background");
+			if (!this.tooltipContainer) {
+				this.tooltipContainer = document.createElement("div");
+				this.tooltipContainer.className = "tooltip-container";
+				document.body.appendChild(this.tooltipContainer);
 			}
-			if (this.props.centered) {
-				tooltipClassNames.push("centered");
-			}
-			else {
-				if (this.tooltip) {
-					tooltipStyle["top"] = Math.max(0, this.state.clientY - this.tooltip.getBoundingClientRect().height);
-				}
-				else {
-					tooltipStyle["visibility"] = "hidden";
-				}
-				const left = this.state.clientX < window.innerWidth / 2;
-				if (left) {
-					tooltipStyle["left"] = (this.state.clientX + 20) + "px";
-				}
-				else {
-					tooltipStyle["right"] = (window.innerWidth - this.state.clientX) + "px";
-				}
-			}
-			const content = [];
-			this.props.header && content.push(<h4>{this.props.header}</h4>);
-			if (this.props.content) {
-				const selectedContent = this.getSelectedContent();
-				if (typeof selectedContent === "string") {
-					content.push(<p>{selectedContent}</p>);
-				}
-				else {
-					content.push(selectedContent);
-				}
-			}
-			tooltip = (
-				<div
-					id="tooltip-body"
-					className={tooltipClassNames.join(" ")}
-					style={tooltipStyle}
-					ref={(ref) => this.tooltip = ref}
-				>
-					{content}
-				</div>
-			);
+			this.renderTooltip();
 		}
+		else {
+			this.removeTooltipContainer();
+		}
+	}
 
-		let classNames = ["tooltip-wrapper"];
-		if (this.props.className) {
-			classNames.push(this.props.className);
+	componentWillUnmount() {
+		this.removeTooltipContainer();
+	}
+
+	removeTooltipContainer() {
+		if (this.tooltipContainer) {
+			ReactDOM.unmountComponentAtNode(this.tooltipContainer);
+			document.body.removeChild(this.tooltipContainer);
+			this.tooltipContainer = undefined;
+		}
+	}
+
+	renderTooltip() {
+		const classNames = ["hsreplay-tooltip"];
+		if (this.props.noBackground) {
+			classNames.push("no-background");
 		}
 		if (this.props.simple) {
 			classNames.push("simple-tooltip");
+		}
+
+		const style = {};
+		if (this.tooltip) {
+			const height = this.tooltip.getBoundingClientRect().height;
+			let top = this.state.clientY;
+			if (!this.props.belowCursor) {
+				top -= height;
+			}
+			top += this.props.yOffset || 0;
+			style["top"] = Math.min(window.innerHeight - height, Math.max(0, top));
+		}
+		else {
+			style["visibility"] = "hidden";
+		}
+		if (this.tooltip && this.props.centered) {
+			const width = this.tooltip.getBoundingClientRect().width;
+			style["left"] = Math.min(window.innerWidth - width, Math.max(0, this.state.clientX - width / 2));
+		}
+		else if (this.state.clientX < window.innerWidth / 2) {
+			style["left"] = this.state.clientX + 20;
+		}
+		else {
+			style["right"] = window.innerWidth - this.state.clientX;
+		}
+
+		const content = [];
+		this.props.header && content.push(<h4>{this.props.header}</h4>);
+		if (this.props.content) {
+			const selectedContent = this.getSelectedContent();
+			if (typeof selectedContent === "string") {
+				content.push(<p>{selectedContent}</p>);
+			}
+			else {
+				content.push(selectedContent);
+			}
+		}
+
+		ReactDOM.render((
+			<div
+				id={this.props.id}
+				className={classNames.join(" ")}
+				style={style}
+				ref={(ref) => this.tooltip = ref}
+			>
+				{content}
+			</div>
+		), this.tooltipContainer);
+	}
+
+	render(): JSX.Element {
+		let classNames = ["tooltip-wrapper"];
+		if (this.props.className) {
+			classNames.push(this.props.className);
 		}
 
 		const cancel = () => {
@@ -104,10 +141,9 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 				onMouseMove={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
 				onMouseOut={cancel}
 				onTouchStart={() => this.setState({isTouchDevice: true})}
-				aria-describedby={this.state.hovering ? "tooltip-body" : null}
+				aria-describedby={this.state.hovering ? this.props.id : null}
 			>
 				{this.props.children}
-				{tooltip}
 			</div>
 		);
 	}

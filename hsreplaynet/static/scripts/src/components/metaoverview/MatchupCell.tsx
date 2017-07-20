@@ -43,6 +43,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 			label = (
 				<Tooltip
 					simple
+					id="tooltip-matchup-cell"
 					content={(
 						<table>
 							<tr>
