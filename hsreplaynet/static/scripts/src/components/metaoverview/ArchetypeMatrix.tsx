@@ -300,27 +300,27 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 	}
 
 	onHover(hovering: boolean, column?: number, row?: number) {
-		let highlightColumn = undefined;
-		let highlightRow = undefined;
-		if (hovering) {
-			if (column !== undefined) {
-				highlightColumn = column;
-			}
-			if (row !== undefined) {
-				highlightRow = row;
-			}
-		}
-		else {
-			if (column !== undefined && this.state.highlightColumn === column) {
-				highlightColumn = null;
-			}
-			if (row !== undefined && this.state.highlightRow === row) {
-				highlightRow = null;
-			}
-		}
-		if (highlightColumn !== undefined || highlightRow !== undefined) {
-			this.setState({highlightColumn, highlightRow});
-		}
+		// let highlightColumn = undefined;
+		// let highlightRow = undefined;
+		// if (hovering) {
+		// 	if (column !== undefined) {
+		// 		highlightColumn = column;
+		// 	}
+		// 	if (row !== undefined) {
+		// 		highlightRow = row;
+		// 	}
+		// }
+		// else {
+		// 	if (column !== undefined && this.state.highlightColumn === column) {
+		// 		highlightColumn = null;
+		// 	}
+		// 	if (row !== undefined && this.state.highlightRow === row) {
+		// 		highlightRow = null;
+		// 	}
+		// }
+		// if (highlightColumn !== undefined || highlightRow !== undefined) {
+		// 	this.setState({highlightColumn, highlightRow});
+		// }
 	}
 
 	getSortHeader(
