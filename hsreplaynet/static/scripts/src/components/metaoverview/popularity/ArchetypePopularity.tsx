@@ -38,8 +38,13 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 
 		const games = [];
 		let maxGames = 0;
+		let numRanks = 0;
 		const ranks = Object.keys(metaData);
 		ranks.forEach((rank) => {
+			if (+rank > 20) {
+				return;
+			}
+			numRanks++;
 			const totalGames = metaData[rank].total_games;
 			if (totalGames > maxGames) {
 				maxGames = totalGames;
@@ -54,6 +59,9 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 			let totalGames = 0;
 
 			Object.keys(popularityData).forEach((rank: string) => {
+				if (+rank > 20) {
+					return;
+				}
 				const data = popularityData[rank].find((pData) => {
 					return pData.archetype_id === archetype.id;
 				});
@@ -101,7 +109,7 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 					this.props.setSortDirection(sortDirection);
 					this.props.setSortBy(sortBy);
 				}}
-				numRanks={ranks.length}
+				numRanks={numRanks}
 			/>
 		);
 	}

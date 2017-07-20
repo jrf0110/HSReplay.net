@@ -42,7 +42,9 @@ export default class RankTile extends React.Component<RankTileProps, RankTileSta
 
 		const data = props.popularityData.series.data;
 		const rankData = Object.keys(data).map((rank) => {
-			return data[rank].find((archetype) => archetype.archetype_id === props.archetypeId);
+			if (+rank <= 20) {
+				return data[rank].find((archetype) => archetype.archetype_id === props.archetypeId);
+			}
 		}).filter((x) => x !== undefined);
 		if (!rankData.length) {
 			return;
