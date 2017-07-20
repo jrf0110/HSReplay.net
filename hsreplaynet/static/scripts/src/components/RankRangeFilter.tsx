@@ -156,7 +156,7 @@ export default class RankRangeFilter extends React.Component<RankRangeFilterProp
 							this.props.onChange(newKey);
 						}}
 					>
-						<span className="glyphicon glyphicon-arrow-left" />
+						<span className="glyphicon glyphicon-chevron-left" />
 					</button>
 					<button
 						className="btn btn-primary"
@@ -179,7 +179,7 @@ export default class RankRangeFilter extends React.Component<RankRangeFilterProp
 							this.props.onChange(newKey);
 						}}
 					>
-						<span className="glyphicon glyphicon-arrow-right" />
+						<span className="glyphicon glyphicon-chevron-right" />
 					</button>
 				</div>
 			</InfoboxFilter>
@@ -206,7 +206,7 @@ export default class RankRangeFilter extends React.Component<RankRangeFilterProp
 							this.props.onChange(newKey);
 						}}
 					>
-						<span className="glyphicon glyphicon-arrow-left" />
+						<span className="glyphicon glyphicon-chevron-left" />
 					</button>
 					<button
 						className="btn btn-primary"
@@ -217,7 +217,7 @@ export default class RankRangeFilter extends React.Component<RankRangeFilterProp
 							this.props.onChange(newKey);
 						}}
 					>
-						<span className="glyphicon glyphicon-arrow-right" />
+						<span className="glyphicon glyphicon-chevron-right" />
 					</button>
 				</div>
 			</InfoboxFilter>
