@@ -198,12 +198,15 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						<div className="row">
 							<DataInjector
 								fetchCondition={!!this.state.chartsDeckId}
-								query={{key: "chartData", url: "single_deck_stats_over_time", params: chartParams}}
+								query={[
+									{key: "chartData", url: "single_deck_stats_over_time", params: chartParams},
+									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+								]}
 							>
 								<WinrateTile
+									archetypeId={this.props.archetypeId}
 									onClick={() => this.props.setTab("overtime")}
 									tabName="overtime"
-									winrate={51.42}
 								/>
 							</DataInjector>
 							<DataInjector
