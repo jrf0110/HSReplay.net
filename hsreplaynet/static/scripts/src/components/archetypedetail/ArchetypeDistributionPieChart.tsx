@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getArchetypeUrl, getHeroColor, hexToHsl, stringifyHsl, toTitleCase } from "../../helpers";
+import { getArchetypeUrl, getHeroColor, getPieTranslate, hexToHsl, stringifyHsl, toTitleCase } from "../../helpers";
 import { VictoryLabel, VictoryLegend, VictoryPie } from "victory";
 
 interface ArchetypeDistributionPieChartProps extends React.ClassAttributes<ArchetypeDistributionPieChart> {
@@ -16,6 +16,9 @@ interface ArchetypeDistributionPieChartState {
 const pageBackground: string = "#fbf7f6";
 
 export default class ArchetypeDistributionPieChart extends React.Component<ArchetypeDistributionPieChartProps, ArchetypeDistributionPieChartState> {
+	private readonly pieSize = 400;
+	private readonly piePadding = {top: 10, bottom: 10, left: 80, right: 80};
+
 	constructor(props: ArchetypeDistributionPieChartProps, state: ArchetypeDistributionPieChartState) {
 		super(props, state);
 		this.state = {
@@ -34,12 +37,13 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 			const id = archetype.archetype_id;
 			const selected = id === this.props.selectedArchetypeId;
 			const scale = selected ? 1.1 : (this.state.hovering === id ? 1.05 : 1.0);
+			const translate = getPieTranslate(this.pieSize, this.pieSize, this.piePadding);
 			return {
 				archetypeId: id,
 				isSelectedArchetype: id === this.props.selectedArchetypeId,
 				stroke: pageBackground,
 				strokeWidth: selected ? 2 : 0,
-				transform: `scale(${scale})`,
+				transform: translate + ` scale(${scale})`,
 				x: this.getArchetypeName(id),
 				y: archetype.pct_of_class,
 			};
@@ -78,21 +82,13 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 							return (d.y).toFixed(1) + "%";
 						}
 					}}
-					height={400}
-					width={400}
-					padding={{top: 10, bottom: 10, left: 80, right: 80}}
+					height={this.pieSize}
+					width={this.pieSize}
+					padding={this.piePadding}
 					data={data}
 					style={{
 						data: {
 							cursor: (prop) => prop.isSelectedArchetype ? "inherit" : "pointer",
-							fill: (prop) => prop.fill,
-							stroke: (prop) => prop.stroke,
-							style: (prop) => {
-								return {
-									strokeWidth: prop.strokeWidth,
-									transform: prop.transform,
-								};
-							},
 							transition: "transform .2s ease-in-out",
 						},
 					}}

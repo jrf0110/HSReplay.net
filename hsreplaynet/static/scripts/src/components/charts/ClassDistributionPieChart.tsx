@@ -1,7 +1,7 @@
 import * as React from "react";
 import { GameReplay } from "../../interfaces";
-import { VictoryPie, VictoryContainer} from "victory";
-import { getHeroColor } from "../../helpers";
+import { VictoryContainer, VictoryPie} from "victory";
+import { getHeroColor, getPieTranslate } from "../../helpers";
 
 interface ClassDistributionPieChartState {
 	hoveringSlice: any;
@@ -18,7 +18,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 		super();
 		this.state = {
 			hoveringSlice: null,
-		}
+		};
 	}
 	render(): JSX.Element {
 		let text = "";
@@ -33,7 +33,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 		const total = this.state.hoveringSlice ? this.state.hoveringSlice.y : numGames;
 		text += " game" + (!this.props.loading && total === 1 ? "" : "s");
 		if (this.props.loading) {
-			text += " [Loading…]"
+			text += " [Loading…]";
 		}
 		else if (numGames) {
 			let winrate = 0;
@@ -42,7 +42,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 			}
 			else {
 				let count = 0;
-				data.forEach(d => {
+				data.forEach((d) => {
 					winrate += d.winrate * d.y;
 					count += d.y;
 				});
@@ -50,19 +50,29 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 			}
 			text += " - " + Math.round(100.0 * winrate) + "% winrate";
 		}
+
+		const pieSize = 400;
+		const padding = {top: 0, bottom: 10, left: 80, right: 80};
+		const translate = getPieTranslate(pieSize, pieSize, padding);
+
 		return (
 			<div className="chart-wrapper">
 				<VictoryPie
 					containerComponent={<VictoryContainer title={""}/>}
 					data={data}
 					style={{
-						data: {fill: (d) => d.color || getHeroColor(d.xName), strokeWidth: 2, transition: "transform .2s ease-in-out"},
+						data: {
+							fill: (d) => d.color || getHeroColor(d.xName),
+							strokeWidth: 2,
+							transform: translate,
+							transition: "transform .2s ease-in-out",
+						},
 						labels: {fill: "#FFFFFF", fontSize: 20},
 					}}
-					padding={{top: 0, bottom: 10, left: 80, right: 80}}
+					padding={padding}
 					padAngle={2}
 					innerRadius={10}
-					labels={d => this.props.loading ? null : (Math.round(1000 / numGames * d.y) / 10 + "%")}
+					labels={(d) => this.props.loading ? null : (Math.round(1000 / numGames * d.y) / 10 + "%")}
 					events={[{
 						target: "data",
 						eventHandlers: {
@@ -71,15 +81,15 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 									mutation: (props) => {
 										this.setState({hoveringSlice: props.slice.data});
 										return {
-											style: Object.assign({}, props.style, {stroke: "white", transform: "scale(1.05)"})
+											style: Object.assign({}, props.style, {stroke: "white", transform: translate + " scale(1.05)"}),
 										};
-									}
-								}]
+									},
+								}];
 							},
 							onMouseOut: () => {
 								this.setState({hoveringSlice: null});
 								return [{
-									mutation: () => null
+									mutation: () => null,
 								}];
 							},
 							onClick: () => {
@@ -87,10 +97,10 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 									this.props.onPieceClicked(this.state.hoveringSlice.x.toLowerCase());
 								}
 								return [{
-									mutation: () => null
+									mutation: () => null,
 								}];
-							}
-						}
+							},
+						},
 					}]}
 				/>
 				<h5 style={{textAlign: "center", marginTop: "-20px"}}>
