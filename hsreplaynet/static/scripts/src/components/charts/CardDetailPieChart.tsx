@@ -1,6 +1,6 @@
 import * as React from "react";
-import {VictoryContainer, VictoryLabel, VictoryLegend, VictoryPie, VictoryTheme} from "victory";
-import {getChartScheme, toTitleCase} from "../../helpers";
+import {VictoryContainer, VictoryLabel, VictoryLegend, VictoryPie} from "victory";
+import { getChartScheme, getPieTranslate, toTitleCase } from "../../helpers";
 import {ChartScheme, RenderData} from "../../interfaces";
 
 interface CardDetailPieChartProps {
@@ -15,6 +15,8 @@ interface CardDetailPieChartProps {
 }
 
 export default class CardDetailPieChart extends React.Component<CardDetailPieChartProps, void> {
+	private readonly pieSize = 400;
+
 	render(): JSX.Element {
 		const series = this.props.data.series[0];
 		let data = series.data;
@@ -62,7 +64,7 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 		if (this.props.sortByValue) {
 			data = data.sort((a, b) => {
 				let o = [a.x, b.x].indexOf("other");
-				if(o !== -1) {
+				if (o !== -1) {
 					return -2 * o + 1;
 				}
 				return a.y > b.y ? -1 : 1;
@@ -77,22 +79,26 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 			});
 		}
 
+		const padding = {top: 0, bottom: 10, left: 120, right: 90};
+		const transform = getPieTranslate(this.pieSize, this.pieSize, padding);
+
 		return <svg viewBox={this.props.customViewbox || "0 0 400 400"}>
 			<VictoryPie
 				containerComponent={<VictoryContainer title="" />}
 				animate={{duration: 300}}
 				labels={(d) => {
-					if(d.x === "other" && this.props.percentage) {
-						return "<" + (d.y).toFixed(0) + "%"
+					if (d.x === "other" && this.props.percentage) {
+						return "<" + (d.y).toFixed(0) + "%";
 					}
-					return this.props.percentage ? ((d.y).toFixed(1) + "%") : d.y
+					return this.props.percentage ? ((d.y).toFixed(1) + "%") : d.y;
 				}}
-				height={400}
-				width={400}
-				padding={{top: 0, bottom: 10, left: 120, right: 80}}
+				height={this.pieSize}
+				width={this.pieSize}
+				padding={padding}
 				data={data}
 				style={{
 					data: {
+						transform,
 						transition: "transform .2s ease-in-out",
 						fill,
 						stoke: stroke,
@@ -107,7 +113,7 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 								return [{
 									mutation: (props) => {
 										return {
-											style: Object.assign({}, props.style, {transform: "scale(1.1)"}),
+											style: Object.assign({}, props.style, {transform: transform + " scale(1.1)"}),
 										};
 									},
 								}];
