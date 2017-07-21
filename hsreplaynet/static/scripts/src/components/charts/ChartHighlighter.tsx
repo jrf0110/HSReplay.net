@@ -1,7 +1,7 @@
 import * as React from "react";
 import PropMultiplexer from "./PropMultiplexer";
 import HighlightPointComponent from "./HighlightPointComponent";
-import {VictoryTooltip} from "victory";
+import {Flyout, VictoryLabel, VictoryTooltip} from "victory";
 
 interface ChartHighlighterProps {
 	xCenter: number;
@@ -17,19 +17,21 @@ export default class ChartHighlighter extends React.Component<ChartHighlighterPr
 				cornerRadius={0}
 				pointerLength={0}
 				padding={0}
-				dx={(d) => (d.x > this.props.xCenter ? -38 : 38) * factor}
-				dy={-7.5 * factor}
+				orientation={(d) => d.x > this.props.xCenter ? "left" : "right"}
+				dx={8}
 				style={{
 					fill: "white",
 					fontSize: 6 * factor,
 					padding: 5 * factor,
 				}}
 				flyoutStyle={{
+					fill: "rgba(0, 0, 0, 0.8)",
 					stroke: "white",
 					strokeWidth: 0,
-					fill: "rgba(0, 0, 0, 0.8)",
 				}}
 				activateData={true}
+				labelComponent={<VictoryLabel dy={8}/>}
+				flyoutComponent={<Flyout dy={-8}/>}
 			/>,
 		]);
 	}

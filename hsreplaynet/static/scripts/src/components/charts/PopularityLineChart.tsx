@@ -4,7 +4,7 @@ import * as React from "react";
 import {
 	VictoryArea, VictoryAxis, VictoryChart, VictoryLabel,
 } from "victory";
-import {VictoryVoronoiContainer} from "victory";
+import { VictoryClipContainer, VictoryVoronoiContainer } from "victory";
 import {getChartMetaData, sliceZeros, toDynamicFixed, toTimeSeries} from "../../helpers";
 import {RenderData} from "../../interfaces";
 import ChartHighlighter from "./ChartHighlighter";
@@ -41,6 +41,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 		const factor = height / 150;
 		const fontSize = factor * 8;
 		const padding = {left: 40 * factor, top: 10 * factor, right: 20 * factor, bottom: 30 * factor};
+		const yCenter = height / 2 - (padding.bottom - padding.top) / 2;
 
 		return (
 			<svg viewBox={"0 0 " + width + " " + height} style={this.props.absolute && {position: "absolute"}}>
@@ -56,11 +57,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 					domainPadding={{x: 0, y: 10 * factor}}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
 					padding={padding}
-					containerComponent={<VictoryVoronoiContainer
-						dimension="x"
-						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
-						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor}/>}
-					/>}
+					containerComponent={<VictoryVoronoiContainer dimension="x" />}
 				>
 					<VictoryAxis
 						scale="time"
@@ -72,15 +69,25 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 						dependentAxis
 						scale="sqrt"
 						label={"Popularity"}
-						axisLabelComponent={<VictoryLabel dy={-1 * factor} dx={20 * factor} />}
+						axisLabelComponent={
+							<VictoryLabel
+								textAnchor="middle"
+								verticalAnchor="middle"
+								x={fontSize / 2 * factor}
+								y={yCenter}
+							/>
+						}
 						tickValues={this.props.maxYDomain === 10 ? [0, 0.5, 2, 5, 10] : [0, 5, 20, 50, 100]}
 						tickFormat={(tick) => metadata.toFixed(tick) + "%"}
 						style={{axisLabel: {fontSize} , tickLabels: {fontSize}, grid: {stroke: (d) => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
 					<VictoryArea
-						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: metadata.yDomain[0]}; })}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
+						data={series.data.map((p) => ({x: p.x, y: p.y, _y0: metadata.yDomain[0]}))}
+						groupComponent={<VictoryClipContainer clipPadding={5}/>}
 						interpolation="monotoneX"
+						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor}/>}
+						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
+						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
 					/>
 				</VictoryChart>
 			</svg>

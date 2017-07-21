@@ -110,7 +110,11 @@ declare module "victory" {
 
 	export interface VictoryAreaProps extends VictoryMultiLabeableProps {}
 
+	export class Flyout extends React.Component<any, any> {}
+
 	export class VictoryVoronoiContainer extends React.Component<any, any> {}
+
+	export class VictoryClipContainer extends React.Component<any, any> {}
 
 	export class VictoryPortal extends React.Component<any, any> {}
 

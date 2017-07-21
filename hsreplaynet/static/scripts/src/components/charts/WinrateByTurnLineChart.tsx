@@ -46,7 +46,12 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 		const filterId = _.uniqueId("winrate-by-turn-gradient-");
 		const blurId = _.uniqueId("winrate-gaussian-blur-");
 
-		return <svg viewBox={"0 0 " + width + " 150"}>
+		const height = 150;
+		const fontSize = 8;
+		const padding = {left: 40, top: 10, right: 20, bottom: 40};
+		const yCenter = height / 2 - (padding.bottom - padding.top) / 2;
+
+		return <svg viewBox={"0 0 " + width + " " + height}>
 			<defs>
 				<WinLossGradient id={filterId} metadata={metaData} />
 				<filter id={blurId}>
@@ -55,20 +60,20 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 			</defs>
 			<svg filter={this.props.premiumLocked && `url(#${blurId})`}>
 				<VictoryChart
-					height={150}
+					height={height}
 					width={width}
-					containerComponent={<VictoryContainer title={""}/>}
 					domainPadding={{x: 5, y: 10}}
-					padding={{left: 40, top: 10, right: 20, bottom: 40}}
+					padding={padding}
 					domain={{x: metaData.xDomain, y: yDomain}}
+					containerComponent={<VictoryVoronoiContainer dimension="x" />}
 				>
 					<VictoryAxis
 						tickCount={series.data.length}
 						tickFormat={(tick) => tick}
 						label="Turn"
 						style={{
-							axisLabel: {fontSize: 8},
-							tickLabels: {fontSize: 8},
+							axisLabel: {fontSize},
+							tickLabels: {fontSize},
 							grid: {stroke: "lightgray"},
 							axis: {visibility: "hidden"},
 						}}
@@ -76,7 +81,14 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					<VictoryAxis
 						dependentAxis
 						label="Winrate"
-						axisLabelComponent={<VictoryLabel dy={-1} dx={30} />}
+						axisLabelComponent={
+							<VictoryLabel
+								textAnchor="middle"
+								verticalAnchor="middle"
+								x={fontSize / 2}
+								y={yCenter}
+							/>
+						}
 						tickValues={yTicks}
 						tickFormat={(tick) => {
 							if (tick === 50) {
@@ -86,25 +98,22 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 						}}
 						style={{
 							axis: {visibility:  "hidden"},
-							axisLabel: {fontSize: 8},
+							axisLabel: {fontSize},
 							grid: {stroke: (tick) => tick === 50 ? "gray" : "lightgray"},
-							tickLabels: {fontSize: 8},
+							tickLabels: {fontSize},
 						}}
 					/>
 					<VictoryScatter
 						data={series.data}
 						symbol="circle"
 						size={1}
+						labels={(d) => "Turn " + d.x + "\n" + d.y + "%"}
+						labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
 					/>
 					<VictoryArea
-						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
+						data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 50}))}
 						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
 						interpolation="monotoneX"
-						containerComponent={<VictoryVoronoiContainer
-							dimension="x"
-							labels={(d) => "Turn " + d.x + "\n" + d.y + "%"}
-							labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
-						/>}
 					/>
 				</VictoryChart>
 			</svg>
