@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import moment from "moment";
 import * as React from "react";
 import {
-	VictoryArea, VictoryAxis, VictoryChart, VictoryLabel, VictoryVoronoiContainer,
+	VictoryArea, VictoryAxis, VictoryChart, VictoryClipContainer, VictoryLabel, VictoryVoronoiContainer,
 } from "victory";
 import {getChartMetaData, sliceZeros, toDynamicFixed, toTimeSeries} from "../../helpers";
 import {RenderData} from "../../interfaces";
@@ -48,6 +48,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		const factor = height / 150;
 		const fontSize = factor * 8;
 		const padding = {left: 40 * factor, top: 10 * factor, right: 20 * factor, bottom: 30 * factor};
+		const yCenter = height / 2 - (padding.bottom - padding.top) / 2;
 
 		return (
 			<svg viewBox={"0 0 " + width + " " + height} style={this.props.absolute && {position: "absolute"}}>
@@ -62,8 +63,6 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
 					containerComponent={<VictoryVoronoiContainer
 						dimension="x"
-						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
-						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor} />}
 					/>}
 				>
 					<VictoryAxis
@@ -75,7 +74,14 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					<VictoryAxis
 						dependentAxis
 						label={"Winrate"}
-						axisLabelComponent={<VictoryLabel dy={-1 * factor} dx={20 * factor} />}
+						axisLabelComponent={
+							<VictoryLabel
+								textAnchor="middle"
+								verticalAnchor="middle"
+								x={fontSize / 2 * factor}
+								y={yCenter}
+							/>
+						}
 						tickValues={[50].concat(metadata.yDomain)}
 						tickFormat={(tick) => {
 							if (tick === 50) {
@@ -97,9 +103,12 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 						}}
 					/>
 					<VictoryArea
-						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
+						data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 50}))}
+						groupComponent={<VictoryClipContainer clipPadding={5}/>}
 						interpolation="monotoneX"
+						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor} />}
+						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
+						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
 					/>
 				</VictoryChart>
 			</svg>

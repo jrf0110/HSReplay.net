@@ -27,8 +27,13 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 		const filterId = _.uniqueId("turn-played-gradient-");
 		const blurId = _.uniqueId("popularity-gaussian-blur-");
 
+		const height = 150;
+		const fontSize = 8;
+		const padding = {left: 40, top: 10, right: 20, bottom: 40};
+		const yCenter = height / 2 - (padding.bottom - padding.top) / 2;
+
 		return (
-			<svg viewBox={"0 0 " + width + " 150"}>
+			<svg viewBox={"0 0 " + width + " " + height}>
 				<defs>
 					<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
 						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
@@ -40,20 +45,20 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 				</defs>
 				<svg filter={this.props.premiumLocked && `url(#${blurId})`}>
 					<VictoryChart
-						height={150}
-						width={width}
-						containerComponent={<VictoryContainer title={""}/>}
-						domainPadding={[5, 5]}
 						domain={{x: metaData.xDomain, y: [0, metaData.yDomain[1]]}}
-						padding={{left: 40, top: 10, right: 20, bottom: 40}}
-						>
+						domainPadding={5}
+						height={height}
+						padding={padding}
+						width={width}
+						containerComponent={<VictoryVoronoiContainer dimension="x" />}
+					>
 						<VictoryAxis
 							label="Turn"
 							tickCount={series.data.length}
 							tickFormat={(tick) => tick}
 							style={{
-								axisLabel: {fontSize: 8},
-								tickLabels: {fontSize: 8},
+								axisLabel: {fontSize},
+								tickLabels: {fontSize},
 								grid: {stroke: "lightgray"},
 								axis: {visibility: "hidden"},
 							}}
@@ -61,12 +66,19 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 						<VictoryAxis
 							dependentAxis
 							label={"Popularity"}
-							axisLabelComponent={<VictoryLabel dy={-1} dx={30} />}
+							axisLabelComponent={
+								<VictoryLabel
+									textAnchor="middle"
+									verticalAnchor="middle"
+									x={fontSize / 2}
+									y={yCenter}
+								/>
+							}
 							tickValues={[0, metaData.yCenter, metaData.yDomain[1]]}
 							tickFormat={(tick) => Math.round(+tick) + " %"}
 							style={{
-								axisLabel: {fontSize: 8},
-								tickLabels: {fontSize: 8},
+								axisLabel: {fontSize},
+								tickLabels: {fontSize},
 								grid: {stroke: (d) => d === metaData.yCenter ? "gray" : "lightgray"},
 								axis: {visibility: "hidden"},
 							}}
@@ -74,16 +86,13 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 						<VictoryScatter
 							data={series.data}
 							size={1}
+							labels={(d) => "Turn " + d.x + "\n" + d.y + "%"}
+							labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
 						/>
 						<VictoryArea
-							data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 0};})}
+							data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 0}))}
 							style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
 							interpolation="monotoneX"
-							containerComponent={<VictoryVoronoiContainer
-								dimension="x"
-								labels={(d) => "Turn " + d.x + "\n" + d.y + "%"}
-								labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
-							/>}
 						/>
 					</VictoryChart>
 				</svg>

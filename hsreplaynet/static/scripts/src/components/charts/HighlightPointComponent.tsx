@@ -10,8 +10,8 @@ export default class HighlightPointComponent extends React.Component<HighlightPo
 		const datum = Object.assign({}, this.props.datum);
 		const factor = this.props.sizeFactor || 1;
 		return <Point
-			active={true}
-			size={1 * factor}
+			active={this.props.active}
+			size={(this.props.active ? 1 : 0) * factor}
 			symbol="circle"
 			style={{
 				stroke: "black",
@@ -19,7 +19,7 @@ export default class HighlightPointComponent extends React.Component<HighlightPo
 				pointerEvents: "none",
 			}}
 			x={this.props.x}
-			y={this.props.y}
+			y={this.props.y + 10}
 		/>;
 	}
 }
