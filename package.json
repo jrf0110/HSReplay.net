@@ -34,7 +34,7 @@
 		"tether-shepherd": "^1.8.1",
 		"ts-loader": "^2.0.3",
 		"typescript": "^2.2.2",
-		"victory": "^0.18.3",
+		"victory": "^0.21.2",
 		"webpack": "^2.3.3",
 		"webpack-bundle-tracker": "^0.2.0",
 		"whatwg-fetch": "^2.0.3"
