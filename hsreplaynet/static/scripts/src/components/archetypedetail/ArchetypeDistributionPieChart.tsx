@@ -21,12 +21,14 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 	private getChartData(): any {
 		const archetypes = this.props.matchupData.series.data[this.props.playerClass];
 		const data = archetypes.map((archetype) => {
-			const selected = "" + archetype.archetype_id === this.props.selectedArchetypeId;
+			const id = archetype.archetype_id;
+			const selected = id === this.props.selectedArchetypeId;
 			return {
+				isSelectedArchetype: id === this.props.selectedArchetypeId,
 				stroke: pageBackground,
 				strokeWidth: selected ? 2 : 0,
 				transform: selected ? "scale(1.1)" : "scale(1.0)",
-				x: this.getArchetypeName(archetype.archetype_id),
+				x: this.getArchetypeName(id),
 				y: archetype.pct_of_class,
 			};
 		});
@@ -57,7 +59,11 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 		return (
 			<svg viewBox="0 0 400 600">
 				<VictoryPie
-					labels={(d) => ((d.y).toFixed(1) + "%")}
+					labels={(d) => {
+						if (d.y >= 5 || d.isSelectedArchetype) {
+							return (d.y).toFixed(1) + "%";
+						}
+					}}
 					height={400}
 					width={400}
 					padding={{top: 10, bottom: 10, left: 80, right: 80}}
