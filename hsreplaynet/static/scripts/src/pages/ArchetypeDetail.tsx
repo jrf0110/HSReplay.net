@@ -35,7 +35,6 @@ export interface Signature {
 
 interface ArchetypeDetailState {
 	deckData?: any;
-	chartsDeckId?: string;
 	popularDecks?: DeckObj[];
 	signature?: Signature;
 }
@@ -57,7 +56,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 	constructor(props: ArchetypeDetailProps, state: ArchetypeDetailState) {
 		super(props, state);
 		this.state = {
-			chartsDeckId: "",
 			deckData: null,
 			popularDecks: [],
 			signature: {core: [], tech1: [], tech2: [], prevalences: []},
@@ -119,7 +117,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 
 		if (this.props.cardData) {
 			decks.forEach((deck) => {
-				const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
+				const cardData = deck.cards.map((c) => ({card: this.props.cardData.fromDbf(c[0]), count: c[1]}));
 				deckObjs.push({
 					archetypeId: deck.archetype_id,
 					cards: cardData,
@@ -133,7 +131,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		}
 
 		this.setState({
-			chartsDeckId: decks && decks.length && decks[0].deck_id,
 			popularDecks: deckObjs,
 			signature,
 		});
@@ -149,10 +146,10 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 	}
 
 	render(): JSX.Element {
-		const {GameType, RankRange, deck_id} = {
-			GameType: this.props.gameType, RankRange: this.props.rankRange, deck_id: this.state.chartsDeckId,
+		const {GameType, RankRange, archetype_id} = {
+			GameType: this.props.gameType, RankRange: this.props.rankRange, archetype_id: this.props.archetypeId,
 		};
-		const chartParams = {GameType, RankRange, deck_id};
+		const chartParams = {GameType, RankRange, archetype_id};
 		const params = {GameType, RankRange};
 
 		return <div className="archetype-detail-container">
@@ -197,9 +194,8 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 					<div className="container-fluid">
 						<div className="row">
 							<DataInjector
-								fetchCondition={!!this.state.chartsDeckId}
 								query={[
-									{key: "chartData", url: "single_deck_stats_over_time", params: chartParams},
+									{key: "chartData", url: "single_archetype_stats_over_time", params: chartParams},
 									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
 								]}
 							>
@@ -210,9 +206,8 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								/>
 							</DataInjector>
 							<DataInjector
-								fetchCondition={!!this.state.chartsDeckId}
 								query={[
-									{key: "chartData", url: "single_deck_stats_over_time", params: chartParams},
+									{key: "chartData", url: "single_archetype_stats_over_time", params: chartParams},
 									{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
 								]}
 							>
@@ -376,8 +371,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									{({width}) => (
 										<div>
 											<DataInjector
-												fetchCondition={!!this.state.chartsDeckId}
-												query={{url: "single_deck_stats_over_time", params: chartParams}}
+												query={{url: "single_archetype_stats_over_time", params: chartParams}}
 											>
 												<ChartLoading>
 													<PopularityLineChart
@@ -390,7 +384,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 											</DataInjector>
 											<InfoIcon
 												header="Popularity over time"
-												content="Percentage of games played with this deck."
+												content="Percentage of all decks that are classified as this archetype."
 											/>
 										</div>
 									)}
@@ -401,8 +395,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									{({width}) => (
 										<div>
 											<DataInjector
-												fetchCondition={!!this.state.chartsDeckId}
-												query={{url: "single_deck_stats_over_time", params: chartParams}}
+												query={{url: "single_archetype_stats_over_time", params: chartParams}}
 											>
 												<ChartLoading>
 													<WinrateLineChart
@@ -413,8 +406,8 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 												</ChartLoading>
 											</DataInjector>
 											<InfoIcon
-												header="Popularity over time"
-												content="Percentage of games played with this deck."
+												header="Winrate over time"
+												content="Percentage of games won with this archetype."
 											/>
 										</div>
 									)}
