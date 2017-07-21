@@ -309,7 +309,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 										>
 											<ArchetypeDistributionPieChart
 												playerClass={this.props.playerClass}
-												selectedArchetypeId={"" + this.props.archetypeId}
+												selectedArchetypeId={this.props.archetypeId}
 											/>
 										</ChartLoading>
 									</DataInjector>
