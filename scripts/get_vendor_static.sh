@@ -43,7 +43,7 @@ wget --no-verbose "$SOURCE" -O "$OUTFILE"
 
 # React
 
-VERSION="15.4.2"
+VERSION="15.6.1"
 BASEURL="https://cdnjs.cloudflare.com/ajax/libs/react/$VERSION"
 
 OUTFILE="$STATICDIR/react.min.js"
@@ -58,7 +58,7 @@ wget --no-verbose "$SOURCE" -O "$OUTFILE"
 # Raven
 
 PKGNAME="raven"
-VERSION="3.14.0"
+VERSION="3.17.0"
 SOURCE="https://cdn.ravenjs.com/$VERSION/$PKGNAME.min.js"
 OUTFILE="$STATICDIR/$PKGNAME.min.js"
 
