@@ -44,3 +44,5 @@ def test_deck_oracle():
 
 	most_popular = list(sorted(actuals.items(), key=lambda t: t[1], reverse=True))
 	assert most_popular[0][0] == oracle.predict()
+
+	assert oracle.deck_count == len(actuals.keys())

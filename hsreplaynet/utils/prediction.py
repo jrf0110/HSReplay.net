@@ -253,6 +253,10 @@ class DeckPrefixTree:
 		self.storage = DeckStorage(self, self.redis, self.config)
 		self.root = TreeNode(self, None, self.redis, 0, None, self.config)
 
+	def visualize(self, dot):
+		# dot should be a graphviz DiGraph
+		pass
+
 	def observe(self, deck_id, dbf_list, play_sequences):
 		self.storage.store(deck_id, dbf_list)
 		return self.root.observe(deck_id, copy(play_sequences))
@@ -424,3 +428,13 @@ class TreeNode:
 			return self.attempt_predict(dbf_list, play_sequences)
 		else:
 			return None
+
+
+# if __name__ == '__main__':
+# 	import redis
+# 	from graphviz import Digraph
+# 	r = redis.StrictRedis()
+# 	dot = Digraph(comment='HSReplay.net Decks')
+# 	tree = DeckPrefixTree(r)
+# 	tree.visualize(dot)
+# 	dot.render('./hsreplaynet_decks.gv', view=True)
