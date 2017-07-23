@@ -27,8 +27,16 @@ class Command(BaseCommand):
 		if input(question).lower() != "y":
 			raise CommandError("Not merging archetypes.")
 
+		deck_ids = Deck.objects.filter(archetype=to_merge).values_list("id", flat=True)
+		self.stdout.write("Found %i decks to update" % (len(deck_ids)))
+
 		updated = Deck.objects.filter(archetype=to_merge).update(archetype=base)
-		self.stdout.write("Updated %i decks" % (updated))
+		self.stdout.write("Updated archetype on %i decks" % (updated))
+
+		for id in deck_ids:
+			deck = Deck.objects.get(id=id)
+			self.stdout.write("Syncing deck %r to firehose" % (id))
+			deck.sync_archetype_to_firehose()
 
 		self.stdout.write("Deleting %r" % (to_merge))
 		to_merge.delete()
