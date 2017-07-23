@@ -7,6 +7,10 @@ interface Data {
 	[key: string]: any;
 }
 
+interface Extractor {
+	[prop: string]: (prop: any, props?: any) => any;
+}
+
 interface DataInjectorState {
 	data: Data[];
 	retryCount: number[];
@@ -23,6 +27,7 @@ interface DataInjectorProps {
 	query: Query | Query[];
 	fetchCondition?: boolean;
 	modify?: (data: any) => any;
+	extract?: Extractor;
 }
 
 const DEFAULT_DATA_KEY = "data";
@@ -141,11 +146,23 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 			}
 			return LoadingStatus.LOADING;
 		};
+
 		const childProps = {status: getStatus(this.state.status)};
 		this.getQueryArray(this.props).forEach((query) => {
 			const key = query.key || DEFAULT_DATA_KEY;
 			childProps[key] = this.state.data[key];
 		});
+
+		if (this.props.extract) {
+			Object.keys(this.props.extract).forEach((prop) => {
+				if (childProps[prop]) {
+					const newProps = this.props.extract[prop](childProps[prop], childProps);
+					delete childProps[prop];
+					Object.assign(childProps, newProps);
+				}
+			});
+		}
+
 		return cloneComponent(this.props.children, childProps);
 	}
 }
