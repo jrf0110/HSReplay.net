@@ -22,7 +22,7 @@ import DeckTile from "../components/tiles/DeckTile";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import InfoIcon from "../components/InfoIcon";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
-import { getHeroCardId } from "../helpers";
+import {getHeroCardId, getPlayerClassFromId} from "../helpers";
 import CardList from "../components/CardList";
 import RankTile from "../components/tiles/RankTile";
 
@@ -198,11 +198,11 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									{key: "chartData", url: "single_archetype_stats_over_time", params: chartParams},
 									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
 								]}
+								extract={{matchupData: this.extractMatchupData}}
 							>
 								<WinrateTile
-									archetypeId={this.props.archetypeId}
+									href="#tab=overtime"
 									onClick={() => this.props.setTab("overtime")}
-									tabName="overtime"
 								/>
 							</DataInjector>
 							<DataInjector
@@ -210,12 +210,12 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									{key: "chartData", url: "single_archetype_stats_over_time", params: chartParams},
 									{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
 								]}
+								extract={{popularityData: this.extractPopularityData}}
 							>
 								<PopularityTile
-									archetypeId={this.props.archetypeId}
+									href="#tab=overtime"
 									onClick={() => this.props.setTab("overtime")}
 									playerClass={this.props.playerClass}
-									tabName="overtime"
 								/>
 							</DataInjector>
 							<DataInjector
@@ -223,10 +223,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes"},
 								]}
+								extract={{matchupData: this.matchupTileExtractor(true)}}
 							>
 								<MatchupTile
-									archetypeId={this.props.archetypeId}
-									matchup="best"
 									title="Best Matchup"
 								/>
 							</DataInjector>
@@ -235,52 +234,45 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes"},
 								]}
+								extract={{matchupData: this.matchupTileExtractor(false)}}
 							>
 								<MatchupTile
-									archetypeId={this.props.archetypeId}
-									matchup="worst"
 									title="Worst Matchup"
 								/>
 							</DataInjector>
 							<DataInjector
 								query={{key: "popularityData", params: {}, url: "archetype_popularity_by_rank"}}
+								extract={{popularityData: this.rankTileExtractor("win_rate")}}
 							>
 								<RankTile
-									archetypeId={this.props.archetypeId}
-									dataProp="winrate"
+									href="/meta/"
 									title="Best performing at"
+									type="performance"
 								/>
 							</DataInjector>
 							<DataInjector
 								query={{key: "popularityData", params: {}, url: "archetype_popularity_by_rank"}}
+								extract={{popularityData: this.rankTileExtractor("pct_of_rank")}}
 							>
 								<RankTile
-									archetypeId={this.props.archetypeId}
-									dataProp="popularity"
+									href="/meta/#tab=popularity"
 									title="Most popular at"
+									type="popularity"
 								/>
 							</DataInjector>
 							<DataInjector
 								query={{key: "deckData", params, url: "list_decks_by_win_rate"}}
+								extract={{deckData: this.deckTileExtractor("total_games")}}
 							>
 								<DeckTile
-									archetypeId={this.props.archetypeId}
-									bestProp={"popularity"}
-									cardData={this.props.cardData}
-									playerClass={this.props.playerClass}
-									signature={this.state.signature}
 									title="Most popular deck"
 								/>
 							</DataInjector>
 							<DataInjector
 								query={{key: "deckData", params, url: "list_decks_by_win_rate"}}
+								extract={{deckData: this.deckTileExtractor("win_rate")}}
 							>
 								<DeckTile
-									archetypeId={this.props.archetypeId}
-									bestProp={"winrate"}
-									cardData={this.props.cardData}
-									playerClass={this.props.playerClass}
-									signature={this.state.signature}
 									title="Best performing deck"
 								/>
 							</DataInjector>
@@ -418,5 +410,102 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				</section>
 			</main>
 		</div>;
+	}
+
+	extractMatchupData = (matchupData) => {
+		const data = matchupData.series.metadata["" + this.props.archetypeId];
+		if (data) {
+			return {games: data.total_games, winrate: data.win_rate};
+		}
+	}
+
+	extractPopularityData = (popularityData) => {
+		const classData = popularityData.series.data[this.props.playerClass];
+		const archetype = classData && classData.find((a) => a.archetype_id === this.props.archetypeId);
+		if (archetype) {
+			return {popularity: archetype.pct_of_class};
+		}
+	}
+
+	matchupTileExtractor(best: boolean) {
+		return (matchupData, props) => {
+			if (!props.archetypeData) {
+				return;
+			}
+			const matchups = matchupData.series.data["" + this.props.archetypeId];
+			if (matchups) {
+				const data = Object.keys(matchups).map((id) => {
+					const opponentData = props.archetypeData.results.find((archetype) => archetype.id === +id);
+					if (opponentData) {
+						return {
+							archetypeId: +id,
+							archetypeName: opponentData.name,
+							games: matchups[id].total_games,
+							playerClass: getPlayerClassFromId(opponentData.player_class),
+							winrate: matchups[id].win_rate,
+						};
+					}
+				}).filter((x) => x !== undefined);
+				data.sort((a, b) => b.winrate - a.winrate);
+				const index = best ? 0 : data.length - 1;
+				return {...data[index]};
+			}
+		};
+	}
+
+	rankTileExtractor(sortProp: string) {
+		return (popularityData) => {
+			const data = popularityData.series.data;
+			const rankData = Object.keys(data).map((rank) => {
+				if (+rank <= 20) {
+					return data[rank].find((archetype) => archetype.archetype_id === this.props.archetypeId);
+				}
+			}).filter((x) => x !== undefined);
+			if (rankData.length) {
+				rankData.sort((a, b) => b[sortProp] - a[sortProp] || (a.rank - b.rank));
+				return {
+					popularity: rankData[0].pct_of_rank,
+					rank: rankData[0].rank,
+					winrate: rankData[0].win_rate,
+				};
+			}
+		};
+	}
+
+	deckTileExtractor(sortProp: string) {
+		return (deckData) => {
+			if (!this.props.cardData || !this.state.signature) {
+				return;
+			}
+			const classDecks = deckData.series.data[this.props.playerClass];
+			if (!classDecks) {
+				return;
+			}
+			const decks = classDecks.filter((deck) => deck.archetype_id === this.props.archetypeId);
+			if (decks.length > 0) {
+				decks.sort((a, b) => {
+					return b[sortProp] - a[sortProp] || (a.deck_id > b.deck_id ? 1 : -1);
+				});
+				const prevalences = this.state.signature.prevalences.slice().map(({dbfId, prevalence}) => {
+					return {card: this.props.cardData.fromDbf(dbfId), prevalence};
+				}).sort((a, b) => {
+					return a.prevalence - b.prevalence || (a.card.name > b.card.name ? 1 : -1);
+				});
+				const deckCards = JSON.parse(decks[0].deck_list).map((c) => c[0]);
+				const dbfIds = [];
+				prevalences.forEach(({card}) => {
+					if (deckCards.indexOf(card.dbfId) !== -1 && dbfIds.length < 4) {
+						dbfIds.push(card.dbfId);
+					}
+				});
+				const cards = dbfIds.map((dbfId) => this.props.cardData.fromDbf(dbfId));
+				return {
+					cards,
+					deckId: decks[0].deck_id,
+					games: decks[0].total_games,
+					winrate: decks[0].win_rate,
+				};
+			}
+		};
 	}
 }

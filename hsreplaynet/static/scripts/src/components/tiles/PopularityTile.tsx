@@ -1,39 +1,17 @@
 import * as React from "react";
-import * as _ from "lodash";
 import {AutoSizer} from "react-virtualized";
-import { toTitleCase } from "../../helpers";
+import {toTitleCase} from "../../helpers";
 import PopularityLineChart from "./PopularityLineChart";
 
-interface PopularityTileState {
+interface PopularityTileProps extends React.ClassAttributes<PopularityTile> {
+	chartData?: any;
+	href: string;
+	onClick?: () => void;
+	playerClass: string;
 	popularity?: number;
 }
 
-interface PopularityTileProps extends React.ClassAttributes<PopularityTile> {
-	archetypeId?: number;
-	chartData?: any;
-	onClick: () => void;
-	popularityData?: any;
-	playerClass: string;
-	tabName: string;
-}
-
-export default class PopularityTile extends React.Component<PopularityTileProps, PopularityTileState> {
-	constructor(props: PopularityTileProps, state: PopularityTileState) {
-		super(props, state);
-		this.state = {
-			popularity: 0,
-		};
-	}
-
-	componentWillReceiveProps(nextProps: PopularityTileProps) {
-		if (nextProps.popularityData && !_.isEqual(this.props.popularityData, nextProps.popularityData)) {
-			const classData = nextProps.popularityData.series.data[this.props.playerClass];
-			const archetype = classData && classData.find((a) => a.archetype_id === this.props.archetypeId);
-			if (archetype) {
-				this.setState({popularity: archetype.pct_of_class});
-			}
-		}
-	}
+export default class PopularityTile extends React.Component<PopularityTileProps, void> {
 
 	render(): JSX.Element {
 		let chart = null;
@@ -50,22 +28,32 @@ export default class PopularityTile extends React.Component<PopularityTileProps,
 				</AutoSizer>
 			);
 		}
+
+		let content = null;
+		if (this.props.popularity !== undefined) {
+			content = [
+				<h1>{this.props.popularity}%</h1>,
+				<h3>of {toTitleCase(this.props.playerClass)} decks</h3>,
+			];
+		}
+
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
 				<a
 					className="tile popularity-tile"
-					href={"#tab=" + this.props.tabName}
+					href={this.props.href}
 					onClick={(event) => {
-						event.preventDefault();
-						this.props.onClick();
+						if (this.props.onClick) {
+							event.preventDefault();
+							this.props.onClick();
+						}
 					}}
 				>
 					<div className="tile-title">
 						Popularity
 					</div>
 					<div className="tile-content">
-						<h1>{this.state.popularity}%</h1>
-						<h3>of {toTitleCase(this.props.playerClass)} decks</h3>
+						{content}
 					</div>
 					<div className="tile-chart">
 						{chart}

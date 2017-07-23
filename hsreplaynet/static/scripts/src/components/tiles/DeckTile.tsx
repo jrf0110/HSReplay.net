@@ -1,121 +1,48 @@
 import * as React from "react";
-import * as _ from "lodash";
-import { winrateData } from "../../helpers";
-import CardData from "../../CardData";
+import {winrateData} from "../../helpers";
 import CardIcon from "../CardIcon";
-import { Signature } from "../../pages/ArchetypeDetail";
 
-interface DeckTileState {
+interface DeckTileProps extends React.ClassAttributes<DeckTile> {
 	cards?: any[];
 	deckId?: string;
 	games?: number;
+	title: string;
 	winrate?: number;
 }
 
-interface DeckTileProps extends React.ClassAttributes<DeckTile> {
-	playerClass: string;
-	title: string;
-	cardData: CardData;
-	deckData?: any;
-	signature: Signature;
-	archetypeId: number;
-	bestProp: "winrate" | "popularity";
-}
-
-export default class DeckTile extends React.Component<DeckTileProps, DeckTileState> {
-	constructor(props: DeckTileProps, state: DeckTileState) {
-		super(props, state);
-		this.state = {
-			cards: [],
-			deckId: "",
-			games: 0,
-			winrate: 50,
-		};
-	}
-
-	componentDidMount() {
-		this.updateData(this.props);
-	}
-
-	componentWillReceiveProps(nextProps: DeckTileProps) {
-		if (
-			!this.props.cardData && nextProps.cardData
-			|| !_.isEqual(this.props.deckData, nextProps.deckData)
-			|| !_.isEqual(this.props.signature, nextProps.signature)
-		) {
-			this.updateData(nextProps);
-		}
-	}
-
-	updateData(props: DeckTileProps) {
-		if (!props.deckData || !props.cardData) {
-			return;
-		}
-
-		const deckData = props.deckData.series.data[props.playerClass];
-		if (!deckData) {
-			return;
-		}
-
-		const decks = deckData.filter((deck) => deck.archetype_id === props.archetypeId);
-		if (decks.length > 0) {
-			const sortProp = props.bestProp === "winrate" ? "win_rate" : "total_games";
-			decks.sort((a, b) => {
-				return b[sortProp] - a[sortProp] || (a.deck_id > b.deck_id ? 1 : -1);
-			});
-
-			const prevalences = props.signature.prevalences.slice().map(({dbfId, prevalence}) => {
-				return {card: props.cardData.fromDbf(dbfId), prevalence};
-			}).sort((a, b) => {
-				return a.prevalence - b.prevalence || (a.card.name > b.card.name ? 1 : -1);
-			});
-
-			// console.log(prevalences.map((x) => x.prevalence + " " + x.card.name));
-
-			const deckCards = JSON.parse(decks[0].deck_list).map((c) => c[0]);
-			const dbfIds = [];
-			prevalences.forEach(({card}) => {
-				if (deckCards.indexOf(card.dbfId) !== -1 && dbfIds.length < 4) {
-					dbfIds.push(card.dbfId);
-				}
-			});
-
-			const cards = dbfIds.map((dbfId) => props.cardData.fromDbf(dbfId));
-
-			this.setState({
-				cards,
-				deckId: decks[0].deck_id,
-				games: decks[0].total_games,
-				winrate: decks[0].win_rate,
-			});
-		}
-	}
-
+export default class DeckTile extends React.Component<DeckTileProps, void> {
 	render(): JSX.Element {
-		const cardIcons = this.state.cards.map((card) => <CardIcon card={card} size={50}/>);
-		const wrData = winrateData(50, this.state.winrate, 3);
+		let content = null;
+		if (this.props.cards && this.props.deckId && this.props.games !== undefined && this.props.winrate !== undefined) {
+			const cardIcons = this.props.cards.map((card) => <CardIcon card={card} size={50}/>);
+			const wrData = winrateData(50, this.props.winrate, 3);
+			content = [
+				<div className="tech-cards">
+					{cardIcons}
+				</div>,
+				<div className="stats-table">
+					<table>
+						<tr>
+							<th>Winrate:</th>
+							<td style={{color: wrData.color}}>{this.props.winrate}%</td>
+						</tr>
+						<tr>
+							<th>Games:</th>
+							<td>{this.props.games}</td>
+						</tr>
+					</table>
+				</div>,
+			];
+		}
+
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-				<a className="tile deck-tile" href={`/decks/${this.state.deckId}/`}>
+				<a className="tile deck-tile" href={`/decks/${this.props.deckId}/`}>
 					<div className="tile-title">
 						{this.props.title}
 					</div>
 					<div className="tile-content">
-						<div className="tech-cards">
-							{cardIcons}
-						</div>
-						<div className="stats-table">
-							<table>
-								<tr>
-									<th>Winrate:</th>
-									<td style={{color: wrData.color}}>{this.state.winrate}%</td>
-								</tr>
-								<tr>
-									<th>Games:</th>
-									<td>{this.state.games}</td>
-								</tr>
-							</table>
-						</div>
+						{content}
 					</div>
 				</a>
 			</div>

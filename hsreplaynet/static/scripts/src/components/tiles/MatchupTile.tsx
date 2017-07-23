@@ -1,98 +1,54 @@
 import * as React from "react";
-import * as _ from "lodash";
-import { getArchetypeUrl, getPlayerClassFromId, winrateData } from "../../helpers";
+import {getArchetypeUrl, winrateData} from "../../helpers";
 
-interface MatchupTileState {
+interface MatchupTileProps extends React.ClassAttributes<MatchupTile> {
 	archetypeId?: number;
+	archetypeName?: string;
 	games?: number;
-	name?: string;
 	playerClass?: string;
+	title: string;
 	winrate?: number;
 }
 
-interface MatchupTileProps extends React.ClassAttributes<MatchupTile> {
-	archetypeId: number;
-	archetypeData?: any;
-	matchupData?: any;
-	title: string;
-	matchup: "best"|"worst";
-}
-
-export default class MatchupTile extends React.Component<MatchupTileProps, MatchupTileState> {
-	constructor(props: MatchupTileProps, state: MatchupTileState) {
-		super(props, state);
-		this.state = {
-			games: 0,
-			name: "",
-			playerClass: "",
-			winrate: 0,
-		};
-	}
-
-	componentDidMount() {
-		this.updateData(this.props);
-	}
-
-	componentWillReceiveProps(nextProps: MatchupTileProps) {
-		if (
-			!_.isEqual(this.props.archetypeData, nextProps.archetypeData)
-			|| !_.isEqual(this.props.matchupData, nextProps.matchupData)
-		) {
-			this.updateData(nextProps);
-		}
-	}
-
-	updateData(props: MatchupTileProps) {
-		if (!props.archetypeData || !props.matchupData) {
-			return;
-		}
-
-		const matchups = props.matchupData.series.data["" + props.archetypeId];
-		if (matchups) {
-			const matchupData = Object.keys(matchups).map((id) => {
-				const opponentData = props.archetypeData.results.find((archetype) => archetype.id === +id);
-				if (opponentData) {
-					return {
-						archetypeId: +id,
-						games: matchups[id].total_games,
-						name: opponentData.name,
-						playerClass: getPlayerClassFromId(opponentData.player_class),
-						winrate: matchups[id].win_rate,
-					};
-				}
-			}).filter((x) => x !== undefined);
-			matchupData.sort((a, b) => b.winrate - a.winrate);
-			const index = props.matchup === "best" ? 0 : matchupData.length - 1;
-			this.setState({...matchupData[index]});
-		}
-	}
-
+export default class MatchupTile extends React.Component<MatchupTileProps, void> {
 	render(): JSX.Element {
-		const wrData = winrateData(50, this.state.winrate, 3);
+		let content = null;
+		if (this.props.playerClass && this.props.games !== undefined && this.props.winrate !== undefined) {
+			const wrData = winrateData(50, this.props.winrate, 3);
+			content = [
+				<div>
+					<span className={`player-class ${this.props.playerClass.toLowerCase()}`}>
+						{this.props.archetypeName}
+					</span>
+				</div>,
+				<div className="stats-table">
+					<table>
+						<tr>
+							<th>Winrate:</th>
+							<td style={{color: wrData.color}}>{this.props.winrate}%</td>
+						</tr>
+						<tr>
+							<th>Games:</th>
+							<td>{this.props.games}</td>
+						</tr>
+					</table>
+				</div>,
+			];
+		}
+
+		let href = null;
+		if (this.props.archetypeId && this.props.archetypeName) {
+			href = getArchetypeUrl(this.props.archetypeId, this.props.archetypeName);
+		}
+
 		return (
-			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-				<a className="tile matchup-tile" href={getArchetypeUrl(this.state.archetypeId, this.state.name)}>
+			<div className="col-xs-12 col-sm-6 col-d-4 col-lg-3">
+				<a className="tile matchup-tile" href={href}>
 					<div className="tile-title">
 						{this.props.title}
 					</div>
 					<div className="tile-content">
-						<div>
-							<span className={`player-class ${this.state.playerClass.toLowerCase()}`}>
-								{this.state.name}
-							</span>
-						</div>
-						<div className="stats-table">
-							<table>
-								<tr>
-									<th>Winrate:</th>
-									<td style={{color: wrData.color}}>{this.state.winrate}%</td>
-								</tr>
-								<tr>
-									<th>Games:</th>
-									<td>{this.state.games}</td>
-								</tr>
-							</table>
-						</div>
+						{content}
 					</div>
 				</a>
 			</div>
