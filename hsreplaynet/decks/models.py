@@ -111,6 +111,9 @@ class Deck(models.Model):
 		"decks.Archetype", on_delete=models.SET_NULL, blank=True, null=True
 	)
 	size = models.IntegerField(null=True)
+	guessed_full_deck = models.ForeignKey(
+		"decks.Deck", on_delete=models.PROTECT, null=True, blank=True
+	)
 
 	class Meta:
 		db_table = "cards_deck"

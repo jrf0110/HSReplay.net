@@ -36,6 +36,7 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now_add=True, null=True)),
                 ('size', models.IntegerField(null=True)),
                 ('archetype', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='decks.Archetype')),
+                ('guessed_full_deck', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='decks.Deck')),
             ],
             options={
                 'db_table': 'cards_deck',
