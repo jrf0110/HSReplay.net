@@ -1,6 +1,8 @@
+from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.db import connections
 from django.utils.timezone import now
+from hsreplaynet.uploads.models import Descriptor
 from hsreplaynet.utils.influx import influx_metric
 
 
@@ -31,3 +33,8 @@ class Command(BaseCommand):
 
 		self.stdout.write("Deleted %i successful upload events" % (successful_reaped))
 		self.stdout.write("Deleted %i unsuccessful upload events" % (unsuccessful_reaped))
+
+		descriptors = Descriptor.objects.filter(created__lt=ts - timedelta(days=14))
+		deleted_descriptors = descriptors.delete()
+
+		self.stdout.write("Deleted %i descriptors" % (deleted_descriptors))
