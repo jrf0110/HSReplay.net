@@ -1114,6 +1114,9 @@ class RedshiftStagingTrack(models.Model):
 		from hsreplaynet.analytics.processing import fill_global_query_queue
 		fill_global_query_queue()
 
+	def _all_staging_tables_are_empty(self):
+		return all(t.is_empty() for t in self.tables.all() if not t.is_materialized_view)
+
 	def refresh_track_state(self):
 		if self.stage == RedshiftETLStage.ERROR:
 			# We never automatically move a track out of error once it has
@@ -1127,6 +1130,15 @@ class RedshiftStagingTrack(models.Model):
 			# If the table previously launched a long running operation
 			# This is where we check to see if completed.
 			table.refresh_table_state()
+
+		if self._all_staging_tables_are_empty():
+			# If all the staging tables have no data
+			# The likely processing was paused for the entire track ETL cycle
+			# So we can short circuit this track to the cleanup stage.
+			for table in self.tables.all():
+				if table.stage < RedshiftETLStage.ANALYZE_COMPLETE:
+					table.stage = RedshiftETLStage.ANALYZE_COMPLETE
+					table.save()
 
 		if self._all_tables_are_in_stage(RedshiftETLStage.FINISHED):
 			# If all the child tables are finished, then the track is always finished.
@@ -1487,6 +1499,10 @@ class RedshiftStagingTrackTable(models.Model):
 	class Meta:
 		unique_together = ("track", "target_table")
 
+	def is_empty(self):
+		has_size = self.final_staging_table_size is not None
+		return has_size and self.final_staging_table_size == 0
+
 	@property
 	def firehose_stream_is_active(self):
 		description = streams.get_delivery_stream_description(self.firehose_stream)
@@ -1533,6 +1549,7 @@ class RedshiftStagingTrackTable(models.Model):
 			# There is no need to analyze since there are no records in the table.
 			self.min_game_date = self.track.min_game_date
 			self.max_game_date = self.track.max_game_date
+			self.stage = RedshiftETLStage.GATHERING_STATS_COMPLETE
 			self.save()
 
 	def get_deduplication_task(self):
@@ -2177,6 +2194,8 @@ class RedshiftStagingTrackTable(models.Model):
 
 			if self.final_staging_table_size is not None and self.deduped_table_size is not None:
 				previous_track_dupes = self.final_staging_table_size - self.deduped_table_size
+			else:
+				previous_track_dupes = None
 
 			if new_record_count is not None:
 				inter_track_dupes = self.deduped_table_size - new_record_count
