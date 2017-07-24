@@ -315,7 +315,9 @@ class UploadEvent(models.Model):
 	game_id = models.BigIntegerField(null=True, blank=True, db_column="game_id")
 	created = models.DateTimeField(auto_now_add=True, db_index=True)
 	upload_ip = models.GenericIPAddressField(null=True)
-	status = IntEnumField(enum=UploadEventStatus, default=UploadEventStatus.UNKNOWN)
+	status = IntEnumField(
+		enum=UploadEventStatus, default=UploadEventStatus.UNKNOWN, db_index=True
+	)
 	tainted = models.BooleanField(default=False)
 	error = models.TextField(blank=True)
 	traceback = models.TextField(blank=True)
