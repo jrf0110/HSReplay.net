@@ -21,12 +21,6 @@ class ArchetypeSerializer(serializers.ModelSerializer):
 		fields = ("id", "name", "player_class")
 
 
-class ArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = ArchetypeTrainingDeck
-		fields = ("id", "deck", "archetype", "is_validation_deck")
-
-
 class DeckCreationSerializer(serializers.Serializer):
 	shortid = serializers.CharField(read_only=True)
 	format = serializers.IntegerField(min_value=0)
@@ -79,6 +73,21 @@ class DeckSerializer(serializers.ModelSerializer):
 		return result
 
 
+class ArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
+	archetype = ArchetypeSerializer()
+	deck = DeckSerializer()
+
+	class Meta:
+		model = ArchetypeTrainingDeck
+		fields = ("id", "deck", "archetype", "is_validation_deck")
+
+
+class CreateArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ArchetypeTrainingDeck
+		fields = ("id", "deck", "archetype", "is_validation_deck")
+
+
 class GetOrCreateDeckView(APIView):
 	authentication_classes = ()
 	permission_classes = ()
@@ -125,4 +134,8 @@ class ArchetypeTrainingDeckViewSet(
 	authentication_classes = (SessionAuthentication, )
 	permission_classes = (UserHasFeature("archetype-training"), )
 	queryset = ArchetypeTrainingDeck.objects.all()
-	serializer_class = ArchetypeTrainingDeckSerializer
+
+	def get_serializer_class(self):
+		if self.request.method == "POST":
+			return CreateArchetypeTrainingDeckSerializer
+		return ArchetypeTrainingDeckSerializer
