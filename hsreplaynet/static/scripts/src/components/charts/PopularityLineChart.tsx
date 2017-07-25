@@ -8,6 +8,7 @@ import { VictoryClipContainer, VictoryVoronoiContainer } from "victory";
 import {getChartMetaData, sliceZeros, toDynamicFixed, toTimeSeries} from "../../helpers";
 import {RenderData} from "../../interfaces";
 import ChartHighlighter from "./ChartHighlighter";
+import SvgDefsWrapper from "./SvgDefsWrapper";
 
 interface PopularityLineChartProps{
 	data?: RenderData;
@@ -44,13 +45,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 		const yCenter = height / 2 - (padding.bottom - padding.top) / 2;
 
 		return (
-			<svg viewBox={"0 0 " + width + " " + height} style={this.props.absolute && {position: "absolute"}}>
-				<defs>
-					<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
-						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
-						<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
-					</linearGradient>
-				</defs>
+			<div style={this.props.absolute && {position: "absolute", width: "100%", height: "100%"}}>
 				<VictoryChart
 					height={height}
 					width={width}
@@ -81,16 +76,25 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 						tickFormat={(tick) => metadata.toFixed(tick) + "%"}
 						style={{axisLabel: {fontSize} , tickLabels: {fontSize}, grid: {stroke: (d) => d === metadata.yCenter ? "gray" : "lightgray"}, axis: {visibility: "hidden"}}}
 					/>
-					<VictoryArea
-						data={series.data.map((p) => ({x: p.x, y: p.y, _y0: metadata.yDomain[0]}))}
-						groupComponent={<VictoryClipContainer clipPadding={5}/>}
-						interpolation="monotoneX"
-						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor}/>}
-						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
-					/>
+					<SvgDefsWrapper
+						defs={(
+							<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
+								<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
+								<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
+							</linearGradient>
+						)}
+					>
+						<VictoryArea
+							data={series.data.map((p) => ({x: p.x, y: p.y, _y0: metadata.yDomain[0]}))}
+							groupComponent={<VictoryClipContainer clipPadding={5}/>}
+							interpolation="monotoneX"
+							labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor}/>}
+							labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
+							style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
+						/>
+					</SvgDefsWrapper>
 				</VictoryChart>
-			</svg>
+			</div>
 		);
 	}
 }
