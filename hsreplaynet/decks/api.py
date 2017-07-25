@@ -136,6 +136,6 @@ class ArchetypeTrainingDeckViewSet(
 	queryset = ArchetypeTrainingDeck.objects.all()
 
 	def get_serializer_class(self):
-		if self.request.method == "POST":
+		if self.request.method in ["PATCH", "POST"]:
 			return CreateArchetypeTrainingDeckSerializer
 		return ArchetypeTrainingDeckSerializer
