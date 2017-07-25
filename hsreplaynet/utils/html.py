@@ -43,7 +43,6 @@ class HTMLHead:
 		self.favicon = "images/favicon.ico"
 		self.add_stylesheets(
 			"vendor/bootstrap/css/bootstrap.min.css",
-			"styles/main.css",
 			"https://fonts.googleapis.com/css?family=Noto+Sans:400,700",
 		)
 

@@ -7,6 +7,7 @@ const fs = require("fs");
 const spawnSync = require("child_process").spawnSync;
 const url = require("url");
 const _ = require("lodash");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const exportSettings = [
 	"STATIC_URL",
@@ -105,6 +106,9 @@ module.exports = (env) => {
 		minChunks: 3,
 	}));
 
+	entriesFlat["main"] = (path.join(__dirname, "hsreplaynet/static/styles", "main.scss"));
+	const extractSCSS = new ExtractTextPlugin("main.css");
+
 	return {
 		context: __dirname,
 		entry: entriesFlat,
@@ -135,7 +139,11 @@ module.exports = (env) => {
 							loader: "ts-loader",
 						},
 					],
-				}
+				},
+				{
+					test: /\.scss$/,
+					use: extractSCSS.extract(["css-loader", "sass-loader"])
+				},
 			],
 		},
 		externals: {
@@ -147,10 +155,11 @@ module.exports = (env) => {
 		plugins: [
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
 			new webpack.DefinePlugin(settings),
+			extractSCSS,
 		].concat(commons),
 		watchOptions: {
 			// required in the Vagrant setup due to Vagrant inotify not working
-			poll: 1000
+			poll: 1000,
 		},
 	};
 };
