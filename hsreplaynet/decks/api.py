@@ -58,7 +58,7 @@ class DeckSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Deck
-		fields = ("archetype", "shortid", "cards", "digest")
+		fields = ("id", "archetype", "shortid", "cards", "digest")
 
 	def get_cards(self, value):
 		return value.cards.values_list("dbf_id", flat=True)
