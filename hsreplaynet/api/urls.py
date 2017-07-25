@@ -4,7 +4,7 @@ from hsreplaynet.accounts.api import AuthTokenViewSet
 from hsreplaynet.accounts.urls import api_urlpatterns as accounts_urlpatterns
 from hsreplaynet.analytics.urls import api_urlpatterns as analytics_urlpatterns
 from hsreplaynet.comments.urls import api_urlpatterns as comments_urlpatterns
-from hsreplaynet.decks.api import ArchetypeViewSet
+from hsreplaynet.decks.api import ArchetypeTrainingDeckViewSet, ArchetypeViewSet
 from hsreplaynet.decks.urls import api_urlpatterns as decks_urlpatterns
 from hsreplaynet.features.api import FeatureViewSet
 from hsreplaynet.features.urls import api_urlpatterns as features_urlpatterns
@@ -16,6 +16,7 @@ from . import views
 router = DefaultRouter()
 router.register(r"agents", views.APIKeyViewSet)
 router.register(r"archetypes", ArchetypeViewSet)
+router.register(r"archetype-training", ArchetypeTrainingDeckViewSet)
 router.register(r"features", FeatureViewSet)
 router.register(r"uploads", views.UploadEventViewSet)
 router.register(r"packs", PackViewSet)
