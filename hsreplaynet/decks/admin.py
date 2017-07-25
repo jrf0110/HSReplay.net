@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Archetype, Deck, Include
+from .models import Archetype, ArchetypeTrainingDeck, Deck, Include
 
 
 class IncludeInline(admin.TabularInline):
@@ -30,3 +30,8 @@ class ArchetypeAdmin(admin.ModelAdmin):
 
 	def get_ordering(self, request):
 		return ["player_class", "name"]
+
+
+@admin.register(ArchetypeTrainingDeck)
+class ArchetypeTrainingDeckAdmin(admin.ModelAdmin):
+	raw_id_fields = ("deck", )

@@ -378,6 +378,8 @@ class Archetype(models.Model):
 	E.g. 'Freeze Mage', 'Miracle Rogue', 'Pirate Warrior', 'Zoolock', 'Control Priest'
 	"""
 
+	MINIMUM_REQUIRED_VALIDATION_DECKS = 5
+
 	id = models.BigAutoField(primary_key=True)
 	objects = ArchetypeManager()
 	name = models.CharField(max_length=250, blank=True)
@@ -389,12 +391,14 @@ class Archetype(models.Model):
 	def __str__(self):
 		return self.name
 
+	def is_configured(self):
+		min_decks = self.MINIMUM_REQUIRED_VALIDATION_DECKS
+		return self.training_decks.filter(validation_deck=True).count() >= min_decks
+
 	def distance(self, deck, game_format):
 		signature = self.get_signature(game_format)
 		if signature:
 			return signature.distance(deck)
-		else:
-			return None
 
 	def get_signature(self, game_format=enums.FormatType.FT_STANDARD, as_of=None):
 		if as_of is None:
@@ -406,6 +410,14 @@ class Archetype(models.Model):
 				format=int(game_format),
 				as_of__lte=as_of
 			).order_by("-as_of").first()
+
+
+class ArchetypeTrainingDeck(models.Model):
+	deck = models.ForeignKey(Deck, on_delete=models.PROTECT)
+	archetype = models.ForeignKey(
+		Archetype, on_delete=models.PROTECT, related_name="training_decks"
+	)
+	is_validation_deck = models.BooleanField()
 
 
 class Signature(models.Model):
