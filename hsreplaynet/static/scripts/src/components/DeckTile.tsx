@@ -184,17 +184,13 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 		if (UserData.hasFeature("archetype-training")) {
 			items.push(
 				<DataInjector
-					query={[
-						{key: "trainingData", url: "/api/v1/archetype-training/", params: {}},
-						{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
-					]}
+					query={{key: "trainingData", url: "/api/v1/archetype-training/", params: {}}}
 					extract={{
 						trainingData: (trainingData) => {
 							const data = trainingData.results.find((d) => d.deck.shortid === this.props.deckId);
 							if (data) {
 								return {
 									trainingData: {
-										archetype: data.deck.archetype,
 										deck: data.deck.id,
 										id: data.id,
 										is_validation_deck: data.is_validation_deck,
@@ -206,7 +202,6 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				>
 					<HideLoading>
 						<ArchetypeTrainingSettings
-							activeArchetype={this.props.archetypeId}
 							deckId={this.props.deckId}
 							playerClass={this.props.playerClass}
 						/>

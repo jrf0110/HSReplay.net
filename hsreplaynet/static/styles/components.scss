@@ -332,14 +332,9 @@ table .info-icon, .sort-header .info-icon {
 					cursor: default;
 					display: flex;
 					padding: 2px;
-					>* {
-						margin-right: 5px;
-					}
 
 					.training-data {
-						border-left: 1px solid gray;
 						display: flex;
-						padding-left: 5px;
 
 						label {
 							margin: 0 0 0 5px;
