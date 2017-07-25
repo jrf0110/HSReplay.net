@@ -142,7 +142,15 @@ module.exports = (env) => {
 				},
 				{
 					test: /\.scss$/,
-					use: extractSCSS.extract(["css-loader", "sass-loader"])
+					use: extractSCSS.extract([
+						{
+							loader: "css-loader",
+							options: {
+								minimize: true,
+							}
+						},
+						"sass-loader"
+					])
 				},
 			],
 		},
