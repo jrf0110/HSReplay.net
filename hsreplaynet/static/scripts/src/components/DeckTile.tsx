@@ -121,6 +121,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 					backgroundImage: "url(https://art.hearthstonejson.com/v1/256x/"
 						+ getHeroCardId(this.props.playerClass, true) + ".jpg)",
 				}}
+				key={this.props.deckId}
 			>
 				<a href={"/decks/" + this.props.deckId + "/" + getFragments(["gameType", "rankRange"])}>
 					<div className="deck-tile">
