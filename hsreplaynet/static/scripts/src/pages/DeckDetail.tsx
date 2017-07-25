@@ -427,8 +427,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 										{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
 										{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
 									]}
+									extract={{
+										deckData: (data) => ({defaultSelectedArchetype: data.archetype}),
+									}}
 								>
-									<ArchetypeSelector playerClass={this.props.deckClass}/>
+									<ArchetypeSelector
+										deckId={this.props.deckId}
+										playerClass={this.props.deckClass}
+									/>
 								</DataInjector>
 							</span>
 						</li>

@@ -4,16 +4,19 @@ import ManaCurve from "./ManaCurve";
 import moment from "moment";
 import {CardObj, DeckObj} from "../interfaces";
 import { cardSorting, getFragments, getHeroCardId, toPrettyNumber, toTitleCase } from "../helpers";
-import DataInjector from "./DataInjector";
 import ArchetypeSelector from "./ArchetypeSelector";
 import UserData from "../UserData";
 import Tooltip from "./Tooltip";
+import DataInjector from "./DataInjector";
+import ArchetypeTrainingSettings from "./ArchetypeTrainingSettings";
+import HideLoading from "./loading/HideLoading";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
 	compareWith?: CardObj[];
 	showArchetypeSelector?: boolean;
 	archetypeName?: string;
+	archetypeId?: number;
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
@@ -84,19 +87,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 		};
 
 		let deckName = null;
-		if (this.props.showArchetypeSelector && UserData.hasFeature("archetype-selection")) {
-			deckName = (
-				<DataInjector
-					query={[
-						{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
-						{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
-					]}
-				>
-					<ArchetypeSelector playerClass={this.props.playerClass}/>
-				</DataInjector>
-			);
-		}
-		else if (this.props.archetypeName && UserData.hasFeature("archetype-detail")) {
+		if (this.props.archetypeName && UserData.hasFeature("archetype-detail")) {
 			deckName = (
 				<span className="deck-name" style={deckNameStyle}>
 					{this.props.archetypeName}
@@ -132,7 +123,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				}}
 			>
 				<a href={"/decks/" + this.props.deckId + "/" + getFragments(["gameType", "rankRange"])}>
-					<div>
+					<div className="deck-tile">
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							{deckName}
 							{dustCost !== null ? <span className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span> : null}
@@ -159,8 +150,76 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 							</ul>
 						</div>
 					</div>
+					{this.archetypeSettings()}
 				</a>
 			</li>
 		);
+	}
+
+	archetypeSettings(): JSX.Element {
+		if (!this.props.showArchetypeSelector) {
+			return null;
+		}
+
+		const items = [];
+		if (UserData.hasFeature("archetype-selection")) {
+			items.push(
+				<DataInjector
+					query={[
+						{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
+						{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
+					]}
+					extract={{
+						deckData: (data) => ({defaultSelectedArchetype: data.archetype}),
+					}}
+				>
+					<ArchetypeSelector
+						deckId={this.props.deckId}
+						playerClass={this.props.playerClass}
+					/>
+				</DataInjector>,
+			);
+		}
+		if (UserData.hasFeature("archetype-training")) {
+			items.push(
+				<DataInjector
+					query={[
+						{key: "trainingData", url: "/api/v1/archetype-training/", params: {}},
+						{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
+					]}
+					extract={{
+						trainingData: (trainingData) => {
+							const data = trainingData.results.find((d) => d.deck.shortid === this.props.deckId);
+							if (data) {
+								return {
+									trainingData: {
+										archetype: data.deck.archetype,
+										deck: data.deck.id,
+										id: data.id,
+										is_validation_deck: data.is_validation_deck,
+									},
+								};
+							}
+						},
+					}}
+				>
+					<HideLoading>
+						<ArchetypeTrainingSettings
+							activeArchetype={this.props.archetypeId}
+							deckId={this.props.deckId}
+							playerClass={this.props.playerClass}
+						/>
+					</HideLoading>
+				</DataInjector>,
+			);
+		}
+		if (items.length) {
+			return (
+				<div className="archetype-settings" onClick={(e) => e.preventDefault()}>
+					{items}
+				</div>
+			);
+		}
+		return null;
 	}
 }

@@ -209,7 +209,6 @@ table .info-icon, .sort-header .info-icon {
 
 		>li {
 			border-bottom: 1px solid $darkgrey;
-			height: 85px;
 			line-height: 34px;
 			background-position: 0 -42px;
 			background-repeat: no-repeat;
@@ -217,11 +216,10 @@ table .info-icon, .sort-header .info-icon {
 			>a {
 				background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.7) 100px, $offwhite 256px);
 				display: block;
-				height: 100%;
 				color: black;
 
-				>div {
-					height: 100%;
+				.deck-tile {
+					height: 85px;
 					display: flex;
 					padding-top: 10px;
 
@@ -324,6 +322,32 @@ table .info-icon, .sort-header .info-icon {
 
 						.glyphicon {
 							top: 2px;
+						}
+					}
+				}
+
+				.archetype-settings {
+					background: rgba(0, 0, 0, 0.03);
+					border-top: 1px solid gray;
+					cursor: default;
+					display: flex;
+					padding: 2px;
+					>* {
+						margin-right: 5px;
+					}
+
+					.training-data {
+						border-left: 1px solid gray;
+						display: flex;
+						padding-left: 5px;
+
+						label {
+							margin: 0 0 0 5px;
+							font-weight: normal;
+
+							&.disabled {
+								color: gray;
+							}
 						}
 					}
 				}
@@ -783,5 +807,25 @@ table .info-icon, .sort-header .info-icon {
 				}
 			}
 		}
+	}
+}
+
+.loading-spinner {
+	display: flex;
+	align-items: center;
+	margin-left: 5px;
+
+	@keyframes rotate {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(359deg);
+		}
+	}
+
+	.glyphicon {
+		animation: rotate 2s infinite linear;
+		color: $blue;
 	}
 }

@@ -139,6 +139,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					showArchetypeSelector={this.props.showArchetypeSelector}
 					noGlobalData={deck.noGlobalData}
 					archetypeName={archetype && archetype.name}
+					archetypeId={archetype && archetype.id}
 				/>,
 			);
 		});
