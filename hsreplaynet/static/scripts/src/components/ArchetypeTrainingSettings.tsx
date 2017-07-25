@@ -1,6 +1,5 @@
 import * as React from "react";
 import {LoadingStatus} from "../interfaces";
-import ArchetypeSelector from "./ArchetypeSelector";
 import {fetchCSRF} from "../helpers";
 import DataManager from "../DataManager";
 import LoadingSpinner from "./LoadingSpinner";
@@ -8,7 +7,6 @@ import LoadingSpinner from "./LoadingSpinner";
 interface TrainingData {
 	id?: number;
 	deck: number;
-	archetype: number;
 	is_validation_deck: boolean;
 }
 
@@ -18,8 +16,6 @@ interface ArchetypeTrainingSettingsState {
 }
 
 interface ArchetypeTrainingSettingsProps {
-	activeArchetype?: number;
-	archetypeData?: any;
 	deckData?: any;
 	deckId: string;
 	playerClass: string;
@@ -44,21 +40,9 @@ export default class ArchetypeTrainingSettings extends React.Component<Archetype
 		return this.state.trainingData ? this.state.trainingData.is_validation_deck : false;
 	}
 
-	selectedArchetype() {
-		return this.state.trainingData && this.state.trainingData.archetype;
-	}
-
 	render(): JSX.Element {
 		return (
 			<div className="training-data">
-				<ArchetypeSelector
-					archetypeData={this.props.archetypeData}
-					deckId={this.props.deckId}
-					playerClass={this.props.playerClass}
-					selectedArchetype={this.selectedArchetype()}
-					onSelectedArchetypeChanged={(id) => this.onSelectedArchetypeChanged(id)}
-					disabled={this.state.working}
-				/>
 				<label className={this.state.working ? "disabled" : undefined}>
 					<input
 						type="checkbox"
@@ -113,7 +97,6 @@ export default class ArchetypeTrainingSettings extends React.Component<Archetype
 	createOrUpdate(diff?: any) {
 		this.getNumericDeckId().then((deck: number) => {
 			const data = {
-				archetype: this.selectedArchetype() || this.props.activeArchetype,
 				deck,
 				id: this.state.trainingData && this.state.trainingData.id,
 				is_validation_deck: this.isValidationDeck(),
