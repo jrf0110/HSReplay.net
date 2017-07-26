@@ -303,3 +303,17 @@ export interface TableHeaderProps {
 	sortable?: boolean;
 	classNames?: string[];
 }
+
+export interface ApiTrainingData {
+	id: number;
+	deck: ApiTrainingDataDeck;
+	is_validation_deck: boolean;
+}
+
+export interface ApiTrainingDataDeck {
+	id: number;
+	archetype: number;
+	shortid: string;
+	cards: number[];
+	digest: string;
+}

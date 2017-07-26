@@ -9,7 +9,7 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import {cardSorting, isWildSet, sortCards} from "../helpers";
-import {DeckObj, FragmentChildProps} from "../interfaces";
+import {ApiTrainingData, DeckObj, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
@@ -52,6 +52,8 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setArchetypeSelector?: (archetypeSelector: string) => void;
 	archetypes?: string[];
 	setArchetypes?: (archetypes: string[]) => void;
+	trainingData?: string;
+	setTrainingData?: (trainingData: string) => void;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -82,7 +84,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.props.region !== prevProps.region ||
 			this.props.timeRange !== prevProps.timeRange ||
 			this.props.cardData !== prevProps.cardData ||
-			this.props.includedSet !== prevProps.includedSet
+			this.props.includedSet !== prevProps.includedSet ||
+			this.props.trainingData !== prevProps.trainingData
 		) {
 			this.updateFilteredDecks();
 			this.deckListsFragmentsRef && this.deckListsFragmentsRef.reset("page");
@@ -159,41 +162,59 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.setState({loading: true});
 		}
 		return DataManager.get(query, params).then((deckData) => {
-			const newParams = this.getParams();
-			if (Object.keys(params).some((key) => params[key] !== newParams[key])) {
-				return Promise.reject("Params changed");
-			}
-
-			const data = deckData.series.data;
-			Object.keys(data).forEach((key) => {
-				if (playerClasses.length && playerClasses.indexOf(key as FilterOption) === -1) {
-					return;
+			return this.getTrainingData().then((trainingData) => {
+				const newParams = this.getParams();
+				if (Object.keys(params).some((key) => params[key] !== newParams[key])) {
+					return Promise.reject("Params changed");
 				}
-				data[key].forEach((deck) => {
-					if (UserData.hasFeature("archetype-detail")) {
-						if (deck.archetype_id && archetypes.every((a) => a.id !== "" + deck.archetype_id)) {
-							archetypes.push({id: "" + deck.archetype_id, playerClass: key});
+
+				const data = deckData.series.data;
+				Object.keys(data).forEach((key) => {
+					if (playerClasses.length && playerClasses.indexOf(key as FilterOption) === -1) {
+						return;
+					}
+					data[key].forEach((deck) => {
+						if (trainingData.length){
+							const trainingDeck = trainingData.find((x) => x.deck.shortid === deck.deck_id);
+							if (!trainingDeck || this.props.trainingData === "validation" && !trainingDeck.is_validation_deck) {
+								return;
+							}
 						}
-						if (this.props.archetypes.length && this.props.archetypes.indexOf("" + deck.archetype_id) === -1) {
+						if (UserData.hasFeature("archetype-detail")) {
+							if (deck.archetype_id && archetypes.every((a) => a.id !== "" + deck.archetype_id)) {
+								archetypes.push({id: "" + deck.archetype_id, playerClass: key});
+							}
+							if (this.props.archetypes.length && this.props.archetypes.indexOf("" + deck.archetype_id) === -1) {
+								return;
+							}
+						}
+						const cards = cardList(JSON.parse(deck.deck_list));
+						if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 							return;
 						}
-					}
-					const cards = cardList(JSON.parse(deck.deck_list));
-					if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
-						return;
-					}
-					if (
-						this.props.includedSet !== "ALL" &&
-						cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
-					) {
-						return;
-					}
-					deck.player_class = key;
-					pushDeck(deck, cards);
+						if (
+							this.props.includedSet !== "ALL" &&
+							cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
+						) {
+							return;
+						}
+						deck.player_class = key;
+						pushDeck(deck, cards);
+					});
 				});
+
+				return Promise.resolve({archetypes, deckElements});
 			});
-			return {archetypes, deckElements};
 		});
+	}
+
+	getTrainingData(): Promise<ApiTrainingData[]> {
+		if (this.props.trainingData) {
+			return DataManager.get("/api/v1/archetype-training/").then((data) => {
+				return Promise.resolve(data.results);
+			});
+		}
+		return Promise.resolve([]);
 	}
 
 	updateFilteredDecks(): void {
@@ -485,13 +506,24 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								params={this.getParams()}
 							/>
 						</ul>
-						{UserData.hasFeature("archetype-selection") && (
+						{(UserData.hasFeature("archetype-selection") || UserData.hasFeature("archetype-training")) && (
 							<InfoboxFilterGroup
 								deselectable
 								selectedValue={this.props.archetypeSelector}
 								onClick={(value) => this.props.setArchetypeSelector(value)}
 							>
 								<InfoboxFilter value="show">Show archetype selection</InfoboxFilter>
+							</InfoboxFilterGroup>
+						)}
+						{UserData.hasFeature("archetype-training") && (
+							<InfoboxFilterGroup
+								header="Archetype training"
+								deselectable
+								selectedValue={this.props.trainingData}
+								onClick={(value) => this.props.setTrainingData(value)}
+							>
+								<InfoboxFilter value="training">Training decks only</InfoboxFilter>
+								<InfoboxFilter value="validation">Validation decks only</InfoboxFilter>
 							</InfoboxFilterGroup>
 						)}
 					</section>

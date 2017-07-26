@@ -23,6 +23,7 @@ const render = (cardData: CardData) => {
 				rankRange: "ALL",
 				region: "ALL",
 				timeRange: "LAST_30_DAYS",
+				trainingData: "",
 			}}
 			immutable={!UserData.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange"] : null}
 		>
