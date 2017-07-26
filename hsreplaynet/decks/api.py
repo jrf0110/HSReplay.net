@@ -16,9 +16,14 @@ from .models import Archetype, ArchetypeTrainingDeck, Deck
 
 
 class ArchetypeSerializer(serializers.ModelSerializer):
+	player_class_name = serializers.SerializerMethodField()
+
 	class Meta:
 		model = Archetype
-		fields = ("id", "name", "player_class")
+		fields = ("id", "name", "player_class", "player_class_name")
+
+	def get_player_class_name(self, instance):
+		return instance.player_class.name
 
 
 class DeckCreationSerializer(serializers.Serializer):
