@@ -139,7 +139,7 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			<div
 				className={classNames.join(" ")}
 				onMouseMove={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
-				onMouseOut={cancel}
+				onMouseLeave={cancel}
 				onTouchStart={() => this.setState({isTouchDevice: true})}
 				aria-describedby={this.state.hovering ? this.props.id : null}
 			>
