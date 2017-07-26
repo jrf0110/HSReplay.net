@@ -1,5 +1,6 @@
 import * as React from "react";
 import { getCardUrl, getFragments } from "../helpers";
+import Tooltip from "./Tooltip";
 
 interface CardTileProps {
 	card: any;
@@ -11,22 +12,7 @@ interface CardTileProps {
 	noLink?: boolean;
 }
 
-interface CardTileState {
-	clientX?: number;
-	clientY?: number;
-	hovering?: boolean;
-}
-
-export default class CardTile extends React.Component<CardTileProps, CardTileState> {
-	constructor(props: CardTileProps, state: CardTileState) {
-		super(props, state);
-		this.state = {
-			clientX: 0,
-			clientY: 0,
-			hovering: false,
-		};
-	}
-
+export default class CardTile extends React.Component<CardTileProps, void> {
 	public render(): JSX.Element {
 		const baseHeight = 34;
 		const baseCountWidth = 24;
@@ -70,49 +56,37 @@ export default class CardTile extends React.Component<CardTileProps, CardTileSta
 		}
 
 		let tooltip = null;
-		if (!this.props.disableTooltip && this.state.hovering) {
-			const imageStyle = {
-				top: Math.max(0, this.state.clientY - 350) + "px",
-			};
-			const left = this.state.clientX < window.innerWidth / 2;
-			if (left) {
-				imageStyle["left"] = (this.state.clientX + 20) + "px";
-			}
-			else {
-				imageStyle["right"] = (window.innerWidth - this.state.clientX) + "px";
-			}
-
+		if (!this.props.disableTooltip) {
 			tooltip = (
-					<img
-						className="card-image"
-						height={350}
-						src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.card.id + ".png"}
-						style={imageStyle}
-					/>
+				<img
+					className="card-image"
+					src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.card.id + ".png"}
+				/>
 			);
 		}
 
 		const label = this.props.customText || this.props.card.name;
 
 		let tile = (
-			<div
-				className="card-tile"
-				style={tileStyle}
-				onMouseMove={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
-				onMouseLeave={() => this.setState({hovering: false})}
-				aria-label={label}
-			>
-				{tooltip}
-				{gem}
-				<div className="card-frame">
-					<img className="card-asset"
-						 src={"https://art.hearthstonejson.com/v1/tiles/" + this.props.card.id + ".png"}
-						 style={imageStyle} />
-					{countBox}
-					<span className={"card-fade-" + (showCountBox ? "countbox" : "no-countbox")} />
-					<span className="card-name" style={nameStyle}>{label}</span>
+			<Tooltip content={tooltip} noBackground>
+				<div
+					className="card-tile"
+					style={tileStyle}
+					aria-label={label}
+				>
+					{gem}
+					<div className="card-frame">
+						<img
+							className="card-asset"
+							src={"https://art.hearthstonejson.com/v1/tiles/" + this.props.card.id + ".png"}
+							style={imageStyle}
+						/>
+						{countBox}
+						<span className={"card-fade-" + (showCountBox ? "countbox" : "no-countbox")} />
+						<span className="card-name" style={nameStyle}>{label}</span>
+					</div>
 				</div>
-			</div>
+			</Tooltip>
 		);
 
 		if (!this.props.noLink) {

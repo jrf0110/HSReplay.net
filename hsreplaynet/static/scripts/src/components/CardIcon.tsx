@@ -1,5 +1,6 @@
 import * as React from "react";
 import { getCardUrl, getFragments } from "../helpers";
+import Tooltip from "./Tooltip";
 
 interface CardIconProps extends React.ClassAttributes<CardIcon> {
 	card: any;
@@ -10,10 +11,7 @@ interface CardIconProps extends React.ClassAttributes<CardIcon> {
 }
 
 interface CardIconState {
-	clientX?: number;
-	clientY?: number;
 	backgroundLoaded?: boolean;
-	hovering?: boolean;
 }
 
 export default class CardIcon extends React.Component<CardIconProps, CardIconState> {
@@ -24,9 +22,7 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 	constructor(props: CardIconProps, state: CardIconState) {
 		super(props, state);
 		this.state = {
-			clientX: 0,
-			clientY: 0,
-			hovering: false,
+			backgroundLoaded: false,
 		};
 	}
 
@@ -80,41 +76,28 @@ export default class CardIcon extends React.Component<CardIconProps, CardIconSta
 				classNames.push("loading");
 			}
 
-			let tooltip = null;
-			if (this.state.hovering) {
-				const imageStyle = {
-					bottom: Math.min(this.state.clientY - 350, 0),
-				};
-				const left = this.state.clientX < window.innerWidth / 2;
-				imageStyle[left ? "left" : "right"] = "40px";
-
-				tooltip = (
-						<img
-							className="card-image"
-							height={350}
-							src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.card.id + ".png"}
-							style={imageStyle}
-							onMouseEnter={() => this.setState({hovering: false})}
-							alt={this.props.card ? this.props.card.name : null}
-						/>
-				);
-			}
+			const tooltip = (
+				<img
+					className="card-image"
+					src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.card.id + ".png"}
+					alt={this.props.card ? this.props.card.name : null}
+				/>
+			);
 
 			const url = getCardUrl(this.props.card) + getFragments(["gameType", "rankRange"]);
 
 			return (
-				<a href={url} tabIndex={typeof this.props.tabIndex !== "undefined" ? this.props.tabIndex : 0} className="card-icon-link">
-					<div
-						className={classNames.join(" ")}
-						style={style}
-						onMouseEnter={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
-						onMouseLeave={() => this.setState({hovering: false})}
-						aria-label={this.props.card.name + (this.props.mark ? " " + this.props.mark : "")}
-					>
-						{mark}
-						{tooltip}
-					</div>
-				</a>
+				<Tooltip content={tooltip} noBackground>
+					<a href={url} tabIndex={typeof this.props.tabIndex !== "undefined" ? this.props.tabIndex : 0} className="card-icon-link">
+						<div
+							className={classNames.join(" ")}
+							style={style}
+							aria-label={this.props.card.name + (this.props.mark ? " " + this.props.mark : "")}
+						>
+							{mark}
+						</div>
+					</a>
+				</Tooltip>
 			);
 		}
 	}
