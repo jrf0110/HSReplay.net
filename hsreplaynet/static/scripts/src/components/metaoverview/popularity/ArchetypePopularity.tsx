@@ -6,7 +6,6 @@ import {
 	ArchetypeRankPopularity,
 	SortDirection,
 } from "../../../interfaces";
-import { getPlayerClassFromId } from "../../../helpers";
 import CardData from "../../../CardData";
 import PopularityMatrix from "./PopularityMatrix";
 
@@ -75,7 +74,7 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 				rankData.push({
 					archetypeId: archetype.id,
 					archetypeName: archetype.name,
-					playerClass: archetype.player_class,
+					playerClass: archetype.player_class_name,
 					popularityAtRank: data && data.pct_of_rank || 0,
 					rank: +rank,
 					totalGames: data && data.total_games || 0,
@@ -89,7 +88,7 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 				id: archetype.id,
 				rankData,
 				name: archetype.name,
-				playerClass: archetype.player_class,
+				playerClass: archetype.player_class_name,
 				totalPopularity,
 			});
 		});
@@ -150,11 +149,6 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 	}
 
 	getApiArchetype(id: number): ApiArchetype {
-		const archetype = this.props.archetypeData.results.find((a) => a.id === id);
-		return archetype && {
-			id: archetype.id,
-			name: archetype.name,
-			player_class: getPlayerClassFromId(archetype.player_class),
-		};
+		return this.props.archetypeData.results.find((a) => a.id === id);
 	}
 }

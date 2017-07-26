@@ -8,7 +8,6 @@ import {
 	MatchupData,
 	SortDirection,
 } from "../../interfaces";
-import { getPlayerClassFromId } from "../../helpers";
 import UserData from "../../UserData";
 import CardData from "../../CardData";
 import ArchetypeList from "./ArchetypeList";
@@ -145,10 +144,10 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 				matchups.push({
 					friendlyId: friendly.id,
 					friendlyName: friendly.name,
-					friendlyPlayerClass: friendly.player_class,
+					friendlyPlayerClass: friendly.player_class_name,
 					opponentId: opponent.id,
 					opponentName: opponent.name,
-					opponentPlayerClass: opponent.player_class,
+					opponentPlayerClass: opponent.player_class_name,
 					totalGames: apiMatchup && apiMatchup.total_games,
 					winrate: apiMatchup && apiMatchup.win_rate,
 				});
@@ -168,7 +167,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 					id: friendly.id,
 					matchups,
 					name: friendly.name,
-					playerClass: friendly.player_class,
+					playerClass: friendly.player_class_name,
 					popularityClass: popularity.pct_of_class,
 					popularityTotal: popularity.pct_of_total,
 					winrate: popularity.win_rate,
@@ -329,12 +328,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 	}
 
 	getApiArchetype(id: number, archetypeData: any): ApiArchetype {
-		const archetype = archetypeData.results.find((a) => a.id === id);
-		return archetype && {
-			id: archetype.id,
-			name: archetype.name,
-			player_class: getPlayerClassFromId(archetype.player_class),
-		};
+		return archetypeData.results.find((a) => a.id === id);
 	}
 
 	getMatchup(friendly: ApiArchetype, opponent: ApiArchetype, matchupData: any): ApiArchetypeMatchupData {
@@ -343,7 +337,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 	}
 
 	getPopularity(archetype: ApiArchetype, popularityData: any): ApiArchetypePopularity {
-		return popularityData.series.data[archetype.player_class].find((a) => {
+		return popularityData.series.data[archetype.player_class_name].find((a) => {
 			return a.archetype_id === archetype.id;
 		});
 	}

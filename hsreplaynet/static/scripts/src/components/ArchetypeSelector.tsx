@@ -1,5 +1,6 @@
 import * as React from "react";
-import { fetchCSRF, playerClassIds } from "../helpers";
+import {fetchCSRF} from "../helpers";
+import { ApiArchetype } from "../interfaces";
 
 interface ArchetypeSelectorState {
 	selectedArchetype?: number;
@@ -46,8 +47,9 @@ export default class ArchetypeSelector extends React.Component<ArchetypeSelector
 			}
 		};
 
-		const numericPlayerClass = playerClassIds[this.props.playerClass];
-		const playerClassArchetypes = this.props.archetypeData.results.filter((x) => x.player_class === numericPlayerClass);
+		const playerClassArchetypes = this.props.archetypeData.results.filter((archetype: ApiArchetype) => {
+			return archetype.player_class_name === this.props.playerClass;
+		});
 
 		let selectedArchetype = "No Archetype";
 		const archetypeId = this.props.selectedArchetype ||

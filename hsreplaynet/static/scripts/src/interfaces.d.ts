@@ -231,7 +231,8 @@ export interface MatchupData {
 export interface ApiArchetype {
 	id: number;
 	name: string;
-	player_class: string;
+	player_class: number;
+	player_class_name: string;
 }
 
 export interface ApiArchetypeMatchupData {

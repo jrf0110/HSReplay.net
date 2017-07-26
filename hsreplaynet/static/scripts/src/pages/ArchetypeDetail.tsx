@@ -1,5 +1,5 @@
-import { DeckObj } from "../interfaces";
-import CardData from "../CardData";
+import * as React from "react";
+import {ApiArchetype, DeckObj} from "../interfaces";
 import {AutoSizer} from "react-virtualized";
 import DataManager from "../DataManager";
 import UserData from "../UserData";
@@ -11,7 +11,7 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import InfoboxFilter from "../components/InfoboxFilter";
 import PremiumWrapper from "../components/PremiumWrapper";
 import DeckList from "../components/DeckList";
-import * as React from "react";
+import CardData from "../CardData";
 import TableLoading from "../components/loading/TableLoading";
 import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
 import ArchetypeDistributionPieChart from "../components/archetypedetail/ArchetypeDistributionPieChart";
@@ -22,7 +22,7 @@ import DeckTile from "../components/tiles/DeckTile";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import InfoIcon from "../components/InfoIcon";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
-import {getHeroCardId, getPlayerClassFromId} from "../helpers";
+import {getHeroCardId} from "../helpers";
 import CardList from "../components/CardList";
 import RankTile from "../components/tiles/RankTile";
 
@@ -435,13 +435,13 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			const matchups = matchupData.series.data["" + this.props.archetypeId];
 			if (matchups) {
 				const data = Object.keys(matchups).map((id) => {
-					const opponentData = props.archetypeData.results.find((archetype) => archetype.id === +id);
+					const opponentData: ApiArchetype = props.archetypeData.results.find((archetype) => archetype.id === +id);
 					if (opponentData) {
 						return {
 							archetypeId: +id,
 							archetypeName: opponentData.name,
 							games: matchups[id].total_games,
-							playerClass: getPlayerClassFromId(opponentData.player_class),
+							playerClass: opponentData.player_class_name,
 							winrate: matchups[id].win_rate,
 						};
 					}

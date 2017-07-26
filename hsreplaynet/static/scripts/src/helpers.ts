@@ -303,37 +303,6 @@ export const setNames = {
 	"ungoro": "Journey to Un'Goro",
 };
 
-export const playerClasses = [
-	"DRUID",
-	"HUNTER",
-	"MAGE",
-	"PALADIN",
-	"PRIEST",
-	"ROGUE",
-	"SHAMAN",
-	"WARLOCK",
-	"WARRIOR",
-];
-
-export function getPlayerClassFromId(id: number): string {
-	if (id < 2 || id > 10) {
-		return "";
-	}
-	return playerClasses[id - 2];
-}
-
-export const playerClassIds = {
-	DRUID: 2,
-	HUNTER: 3,
-	MAGE: 4,
-	PALADIN: 5,
-	PRIEST: 6,
-	ROGUE: 7,
-	SHAMAN: 8,
-	WARLOCK: 9,
-	WARRIOR: 10,
-};
-
 export function isCollectibleCard(card: any) {
 	return !!card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1;
 }

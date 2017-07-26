@@ -55,7 +55,7 @@ export default class ArchetypeSearch extends React.Component<ArchetypeSearchProp
 	getArchetypeElement(archetype: ApiArchetype): JSX.Element {
 		return (
 			<div
-				className={`player-class ${archetype.player_class.toLowerCase()}`}
+				className={`player-class ${archetype.player_class_name.toLowerCase()}`}
 			>
 				{archetype.name}
 			</div>
