@@ -414,9 +414,6 @@ class Archetype(models.Model):
 
 class ArchetypeTrainingDeck(models.Model):
 	deck = models.ForeignKey(Deck, on_delete=models.PROTECT)
-	archetype = models.ForeignKey(
-		Archetype, on_delete=models.PROTECT, related_name="training_decks"
-	)
 	is_validation_deck = models.BooleanField()
 
 

@@ -79,18 +79,17 @@ class DeckSerializer(serializers.ModelSerializer):
 
 
 class ArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
-	archetype = ArchetypeSerializer()
 	deck = DeckSerializer()
 
 	class Meta:
 		model = ArchetypeTrainingDeck
-		fields = ("id", "deck", "archetype", "is_validation_deck")
+		fields = ("id", "deck", "is_validation_deck")
 
 
 class CreateArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ArchetypeTrainingDeck
-		fields = ("id", "deck", "archetype", "is_validation_deck")
+		fields = ("id", "deck", "is_validation_deck")
 
 
 class GetOrCreateDeckView(APIView):
