@@ -395,6 +395,19 @@ class Archetype(models.Model):
 	def __str__(self):
 		return self.name
 
+	@property
+	def signatures(self):
+		ret = []
+		sigs = self.signature_set.all()
+		for sig in sigs:
+			ret.append({
+				"as_of": sig.as_of,
+				"format": int(sig.format),
+				"components": [(c.card_id, c.weight) for c in sig.components.all()],
+			})
+		return ret
+
+	@property
 	def is_configured(self):
 		min_decks = self.MINIMUM_REQUIRED_VALIDATION_DECKS
 		return self.training_decks.filter(validation_deck=True).count() >= min_decks
