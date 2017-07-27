@@ -1,10 +1,7 @@
-from itertools import chain, permutations
+from itertools import chain
 import fakeredis
-from hsreplaynet.utils.prediction import DeckPrefixTree
-
-
-def dbf_list(play_sequences):
-	return chain.from_iterable(play_sequences)
+from hearthstone.enums import CardClass, FormatType
+from hsreplaynet.utils.prediction import DeckPredictionTree
 
 
 DOOMSAYER = 138
@@ -18,106 +15,78 @@ FROSTBOLT = 662
 
 PLAY_SEQUENCES = {
 	1: [
-		[],
 		[LOOTHOARDER],
 		[LOOTHOARDER],
-		[],
+		[FROSTBOLT],
 		[FROSTNOVA, DOOMSAYER],
-		[BLIZZARD]
 	],
 	2: [
 		[LOOTHOARDER],
 		[LOOTHOARDER],
-		[FIREBALL],  # We Consider Fireball Not In Deck ID: 2
+		[FIREBALL],
 		[FROSTNOVA, DOOMSAYER],
 	]
 }
 
-DECK_1 = [LOOTHOARDER, LOOTHOARDER, FROSTNOVA, DOOMSAYER, BLIZZARD]
-DECK_2 = [LOOTHOARDER, LOOTHOARDER, FROSTNOVA, DOOMSAYER, FIREBALL]
+DECK_1 = [LOOTHOARDER, LOOTHOARDER, FROSTBOLT, FROSTBOLT, FROSTNOVA, DOOMSAYER]
+DECK_2 = [LOOTHOARDER, LOOTHOARDER, FIREBALL, FIREBALL, FROSTNOVA, DOOMSAYER]
 
 
-def test_children():
+def dbf_list(play_sequences):
+	return chain.from_iterable(play_sequences)
+
+
+def to_dbf_map(dbf_list):
+	result = {}
+	for dbf in dbf_list:
+		if dbf not in result:
+			result[dbf] = 0
+		result[dbf] += 1
+	return result
+
+
+def test_prediction_tree():
 	r = fakeredis.FakeStrictRedis()
-	config = dict(
-		use_lua=False,
-		include_current_hour=True,
-		brute_force_cutoff=1,
-		epoch_hour_override=100
-	)
-	tree = DeckPrefixTree(r, config=config)
+	tree = DeckPredictionTree(r, CardClass.DRUID, FormatType.FT_STANDARD)
+	assert tree.tree_name == "DECK_PREDICTION_DRUID_FT_STANDARD"
 
-	DECK = [LOOTHOARDER, LOOTHOARDER, DOOMSAYER, DOOMSAYER, FROSTBOLT, FROSTBOLT]
-	for combo in permutations(DECK, 3):
-		play_sequence = []
-		for card in combo:
-			play_sequence.append([card])
-		tree.observe(1, DECK, play_sequence)
+	assert tree.lookup({}, []).predicted_deck_id is None
 
-	assert r.exists("ROOT_children")
-	assert r.exists("ROOT_100")
-	assert r.sismember("ROOT_children", LOOTHOARDER)
-	assert r.sismember("ROOT_children", FROSTBOLT)
-	assert r.sismember("ROOT_children", DOOMSAYER)
-	assert r.scard("ROOT_children") == 3
+	tree.observe(1, to_dbf_map(DECK_1), PLAY_SEQUENCES[1])
+	lookup_result_1 = tree.lookup(
+		to_dbf_map(dbf_list(PLAY_SEQUENCES[1])),
+		PLAY_SEQUENCES[1][:-1]
+	).predicted_deck_id
+	assert lookup_result_1 == 1
 
-	assert r.exists("ROOT|138_children")
-	assert r.exists("ROOT|138_100")
-	assert r.sismember("ROOT|138_children", LOOTHOARDER)
-	assert r.sismember("ROOT|138_children", FROSTBOLT)
-	assert r.sismember("ROOT|138_children", DOOMSAYER)
-	assert r.scard("ROOT|138_children") == 3
+	tree.observe(2, to_dbf_map(DECK_2), PLAY_SEQUENCES[2])
+	lookup_result_2 = tree.lookup(
+		to_dbf_map(dbf_list(PLAY_SEQUENCES[2])),
+		PLAY_SEQUENCES[2][:-1]
+	).predicted_deck_id
+	assert lookup_result_2 == 2
 
+	# Check that a popularity tie results in None
+	lookup_result_3 = tree.lookup(
+		to_dbf_map(dbf_list(PLAY_SEQUENCES[2][:1])),
+		PLAY_SEQUENCES[2][:1]
+	).predicted_deck_id
+	assert lookup_result_3 is None
 
-def test_prefix_tree():
-	r = fakeredis.FakeStrictRedis()
-	config = dict(use_lua=False, include_current_hour=True, brute_force_trigger=1)
-	tree = DeckPrefixTree(r, config=config)
+	# Add an observation to break the tie
+	tree.observe(2, to_dbf_map(DECK_2), PLAY_SEQUENCES[2])
+	lookup_result_4 = tree.lookup(
+		to_dbf_map(dbf_list(PLAY_SEQUENCES[2][:1])),
+		PLAY_SEQUENCES[2][:1]
+	).predicted_deck_id
+	assert lookup_result_4 == 2
 
-	assert tree.lookup([], []) is None
-
-	tree.observe(1, DECK_1, PLAY_SEQUENCES[1])
-	# Lookups against the ROOT node will tell you the global most popular deck
-	assert tree.lookup([], [], force=True) == 1
-
-	# Assert all the prefixes of observed game sequences return the expected deck
-	for i in range(0, len(PLAY_SEQUENCES[1])):
-		play_sequence_prefix = PLAY_SEQUENCES[1][:i]
-		expected = 1 if i >= tree.config["minimum_prediction_depth"] else None
-		result = tree.lookup(dbf_list(play_sequence_prefix), play_sequence_prefix)
-		assert result == expected
-
+	# Check that an unobserved play sequence returns None
 	UNOBSERVED_PLAY_SEQUENCE = [
-		[],
-		[],
-		[DOOMSAYER]
+		[BLIZZARD]
 	]
-
-	assert tree.lookup(dbf_list(UNOBSERVED_PLAY_SEQUENCE), UNOBSERVED_PLAY_SEQUENCE) is None
-
-	tree.observe(2, DECK_2, PLAY_SEQUENCES[2])
-
-	# Assert the common prefix between the two decks now returns None
-	# Since it can't tell which deck is more popular
-	for i in range(0, 3):
-		play_sequence_prefix = PLAY_SEQUENCES[1][:i]
-		result = tree.lookup(dbf_list(play_sequence_prefix), play_sequence_prefix)
-		assert result is None
-
-	# Assert that once the prefixes branch each deck is returned
-	assert tree.lookup(dbf_list(PLAY_SEQUENCES[1][:4]), PLAY_SEQUENCES[1][:4]) == 1
-	assert tree.lookup(dbf_list(PLAY_SEQUENCES[2][:4]), PLAY_SEQUENCES[2][:4]) == 2
-
-	# Now observe deck 1 again to make it more popular
-	tree.observe(1, DECK_1, PLAY_SEQUENCES[1])
-	assert tree.lookup([], [], force=True) == 1
-
-	# Assert the common prefix now returns 1
-	for i in range(0, 3):
-		play_sequence_prefix = PLAY_SEQUENCES[1][:i]
-		result = tree.lookup(dbf_list(play_sequence_prefix), play_sequence_prefix)
-		expected = 1 if i >= tree.config["minimum_prediction_depth"] else None
-		assert result == expected
-
-	# Assert 2 is still returned after the common prefix
-	assert tree.lookup(dbf_list(PLAY_SEQUENCES[2][:4]), PLAY_SEQUENCES[2][:4]) == 2
+	lookup_result_5 = tree.lookup(
+		to_dbf_map(dbf_list(UNOBSERVED_PLAY_SEQUENCE)),
+		UNOBSERVED_PLAY_SEQUENCE
+	).predicted_deck_id
+	assert lookup_result_5 is None

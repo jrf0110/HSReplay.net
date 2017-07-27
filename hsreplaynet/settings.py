@@ -424,6 +424,11 @@ WEBHOOKS = {
 }
 
 
+FULL_DECK_PREDICTION_ENABLED = True
+DECK_PREDICTION_MINIMUM_CARDS = 5
+# Set false to increase redis brute force search efficiency
+INCLUDE_CURRENT_HOUR_IN_LOOKUP = True
+
 
 # Used in some pages such as /downloads
 FONTAWESOME_CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"

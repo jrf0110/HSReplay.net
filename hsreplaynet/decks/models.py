@@ -231,6 +231,10 @@ class Deck(models.Model):
 
 		return result
 
+	def dbf_map(self):
+		includes = self.includes.values_list("card__dbf_id", "count")
+		return {id: count for id, count in includes}
+
 	def card_id_list(self):
 		result = []
 

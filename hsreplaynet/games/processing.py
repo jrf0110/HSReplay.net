@@ -10,7 +10,7 @@ from django.core.files.storage import default_storage
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django_hearthstone.cards.models import Card
-from hearthstone.enums import BnetGameType, BnetRegion, CardType, GameTag
+from hearthstone.enums import BnetGameType, BnetRegion, CardType, FormatType, GameTag
 from hslog import __version__ as hslog_version, LogParser
 from hslog.exceptions import MissingPlayerData, ParsingError
 from hslog.export import EntityTreeExporter, FriendlyPlayerExporter
@@ -25,7 +25,7 @@ from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.utils.instrumentation import error_handler
-from hsreplaynet.utils.prediction import DeckPrefixTree
+from hsreplaynet.utils.prediction import DeckPredictionTree
 from .models import (
 	_generate_upload_path, GameReplay, GlobalGame, GlobalGamePlayer, ReplayAlias
 )
@@ -58,10 +58,10 @@ def get_replay_url(shortid):
 	return "https://hsreplay.net/replay/%s" % (shortid)
 
 
-def deck_prefix_tree():
+def deck_prediction_tree(player_class, format):
 	try:
 		redis_client = caches["decks"].client.get_client()
-		return DeckPrefixTree(redis_client)
+		return DeckPredictionTree(redis_client, player_class, format)
 	except:
 		return None
 
@@ -479,11 +479,7 @@ def _is_decklist_superset(superset_decklist, subset_decklist):
 def update_global_players(global_game, entity_tree, meta, upload_event, exporter):
 	# Fill the player metadata and objects
 	players = {}
-	prefix_tree = deck_prefix_tree()
-	if prefix_tree:
-		play_sequences = exporter.export_play_sequences()
-	else:
-		play_sequences = None
+	play_sequences = exporter.export_play_sequences()
 
 	for player in entity_tree.players:
 		player_meta = meta.get("player%i" % (player.player_id), {})
@@ -533,27 +529,67 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 			# Replace with an empty deck
 			deck, _ = Deck.objects.get_or_create_from_id_list([])
 
-		if play_sequences:
+		eligible_formats = [FormatType.FT_STANDARD, FormatType.FT_WILD]
+		is_eligible_format = global_game.format in eligible_formats
+		if settings.FULL_DECK_PREDICTION_ENABLED and is_eligible_format:
 			try:
+				player_class = Deck.objects._convert_hero_id_to_player_class(player_hero_id)
+				prediction_tree = deck_prediction_tree(player_class, global_game.format)
 				play_sequence_data = play_sequences[player.player_id]
 				if deck.size == 30:
-					prefix_tree.observe(
+					prediction_tree.observe(
 						deck.id,
-						deck.card_dbf_id_list(),
+						deck.dbf_map(),
 						play_sequence_data
 					)
-				else:
-					full_deck_id = prefix_tree.lookup(
-						deck.card_dbf_id_list(),
-						play_sequence_data
+
+				elif deck.size >= settings.DECK_PREDICTION_MINIMUM_CARDS:
+					res = prediction_tree.lookup(
+						deck.dbf_map(),
+						play_sequence_data,
 					)
-					influx_metric("deck_prediction_lookup", {
-						"success": full_deck_id is not None,
-						"full_deck_id": full_deck_id,
-						"deck_id": deck.id,
+					predicted_deck_id = res.predicted_deck_id
+
+					fields = {
+						"actual_deck_id": deck.id,
+						"deck_size": deck.size,
+						"actual_deck": repr(deck),
 						"game_id": global_game.id,
-						"missing_cards": 30 - deck.size
-					})
+						"predicted_deck_id": res.predicted_deck_id,
+						"sequence": res.play_sequence,
+						"match_attempts": res.match_attempts,
+						"tie": res.tie
+					}
+
+					if res.predicted_deck_id:
+						predicted_deck = Deck.objects.get(
+							id=res.predicted_deck_id
+						)
+						fields["predicted_deck"] = repr(predicted_deck)
+
+					if res.node:
+						fields["node"] = res.node.fully_qualified_label
+						fields["depth"] = res.node.depth
+
+						popularity = res.popularity_distribution.popularity(
+							res.predicted_deck_id
+						)
+						fields["predicted_deck_popularity"] = popularity
+
+						deck_count = res.popularity_distribution.size()
+						fields["distribution_deck_count"] = deck_count
+
+						observation_count = res.popularity_distribution.observations()
+						fields["distribution_observation_count"] = observation_count
+
+					influx_metric(
+						"deck_prediction",
+						fields,
+						missing_cards=30 - deck.size,
+						player_class=player_class.name,
+						format=global_game.format.name,
+						made_prediction=predicted_deck_id is not None
+					)
 
 			except:
 				# While prototyping never let failures here disrupt processing
