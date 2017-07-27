@@ -70,7 +70,7 @@ class Command(BaseCommand):
 			"start_date": start_ts,
 			"end_date": end_ts
 		}
-		compiled_statement = REDSHIFT_QUERY.stmt.params(params).compile(bind=conn)
+		compiled_statement = REDSHIFT_QUERY.params(params).compile(bind=conn)
 		for row in conn.execute(compiled_statement):
 			as_of = row["match_start"]
 			deck_id = row["deck_id"]

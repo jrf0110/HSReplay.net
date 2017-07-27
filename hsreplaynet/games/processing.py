@@ -525,24 +525,31 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 		if settings.FULL_DECK_PREDICTION_ENABLED and is_eligible_format:
 			try:
 				player_class = Deck.objects._convert_hero_id_to_player_class(player_hero_id)
-				prediction_tree = deck_prediction_tree(player_class, global_game.format)
+				tree = deck_prediction_tree(player_class, global_game.format)
 				played_cards_for_player = played_cards[player.player_id]
 
-				min_cards = settings.DECK_PREDICTION_MINIMUM_CARDS
-				played_card_dbfs = [c.dbf_id for c in played_cards_for_player][:min_cards]
-				played_card_names = [c.name for c in played_cards_for_player][:min_cards]
+				# 5 played cards partitions a 14 day window into buckets of ~ 500 or less
+				# We can search through ~ 2,000 decks in 100ms so that gives us plenty of headroom
+				min_played_cards = tree.max_depth - 1
 
-				has_enough_observed_cards = deck.size >= min_cards
-				has_enough_played_cards = len(played_card_dbfs) >= min_cards
+				# We can control via settings the minumum number of cards we need
+				# To know about in the deck list before we attempt to guess the full deck
+				min_observed_cards = settings.DECK_PREDICTION_MINIMUM_CARDS
+
+				played_card_dbfs = [c.dbf_id for c in played_cards_for_player][:min_played_cards]
+				played_card_names = [c.name for c in played_cards_for_player][:min_played_cards]
+
+				has_enough_observed_cards = deck.size >= min_observed_cards
+				has_enough_played_cards = len(played_card_dbfs) >= min_played_cards
 
 				if deck.size == 30:
-					prediction_tree.observe(
+					tree.observe(
 						deck.id,
 						deck.dbf_map(),
 						played_card_dbfs
 					)
 				elif has_enough_observed_cards and has_enough_played_cards:
-					res = prediction_tree.lookup(
+					res = tree.lookup(
 						deck.dbf_map(),
 						played_card_dbfs,
 					)
