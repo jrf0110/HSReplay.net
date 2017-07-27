@@ -60,6 +60,9 @@ class RedisPopularityDistribution:
 		return "%s:%s" % (self.namespace, self.name)
 
 	def increment(self, key, as_of=None):
+		if as_of and not isinstance(as_of, datetime):
+			raise ValueError("as_of must be a datetime")
+
 		ts = as_of if as_of else datetime.utcnow()
 		start_token = self._to_start_token(ts)
 		end_token = self._to_end_token(ts)

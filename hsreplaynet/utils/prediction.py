@@ -2,12 +2,21 @@ from copy import copy
 from datetime import datetime, timedelta
 from math import ceil, floor, pow
 from django.conf import settings
+from django.core.cache import caches
 from hsreplaynet.utils.redis import (
 	DEFAULT_TTL,
 	RedisIntegerMapStorage,
 	RedisPopularityDistribution,
 	RedisTree
 )
+
+
+def deck_prediction_tree(player_class, format):
+	try:
+		redis_client = caches["decks"].client.get_client()
+		return DeckPredictionTree(redis_client, player_class, format)
+	except:
+		return None
 
 
 class PredictionResult:

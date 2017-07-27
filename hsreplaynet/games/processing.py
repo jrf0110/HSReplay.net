@@ -3,7 +3,6 @@ from hashlib import sha1
 from io import StringIO
 from dateutil.parser import parse as dateutil_parse
 from django.conf import settings
-from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -25,7 +24,7 @@ from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.utils.instrumentation import error_handler
-from hsreplaynet.utils.prediction import DeckPredictionTree
+from hsreplaynet.utils.prediction import deck_prediction_tree
 from .models import (
 	_generate_upload_path, GameReplay, GlobalGame, GlobalGamePlayer, ReplayAlias
 )
@@ -56,14 +55,6 @@ def get_replay_url(shortid):
 	# Not using get_absolute_url() to avoid tying into Django
 	# (not necessarily avail on lambda)
 	return "https://hsreplay.net/replay/%s" % (shortid)
-
-
-def deck_prediction_tree(player_class, format):
-	try:
-		redis_client = caches["decks"].client.get_client()
-		return DeckPredictionTree(redis_client, player_class, format)
-	except:
-		return None
 
 
 def get_valid_match_start(match_start, upload_date):
