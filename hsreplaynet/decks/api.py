@@ -6,7 +6,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.mixins import (
 	CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
@@ -126,9 +126,13 @@ class ArchetypeViewSet(
 	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet
 ):
 	authentication_classes = (SessionAuthentication, )
-	permission_classes = (UserHasFeature("archetype-selection"), )
 	queryset = Archetype.objects.all()
 	serializer_class = ArchetypeSerializer
+
+	def get_permission_classes(self):
+		if self.request.method in SAFE_METHODS:
+			return ()
+		return (UserHasFeature("archetype-selection"), )
 
 
 class ArchetypeTrainingDeckViewSet(
