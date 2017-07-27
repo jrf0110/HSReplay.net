@@ -112,15 +112,15 @@ class DeckPredictionTree:
 
 		return None, None, False, 0
 
-	def observe(self, deck_id, dbf_map, play_sequence):
+	def observe(self, deck_id, dbf_map, play_sequence, as_of=None):
 		self.storage.store(deck_id, dbf_map)
-		return self._observe(deck_id, copy(play_sequence))
+		return self._observe(deck_id, copy(play_sequence), as_of)
 
-	def _observe(self, deck_id, play_sequence):
+	def _observe(self, deck_id, play_sequence, as_of=None):
 		node = self.tree.root
 		while node and node.depth < self.max_depth:
 			popularity_dist = self._popularity_distribution(node)
-			popularity_dist.increment(deck_id)
+			popularity_dist.increment(deck_id, as_of=as_of)
 			if len(play_sequence):
 				next_sequence = play_sequence.pop(0)
 				node = node.get_child(next_sequence, create=True)

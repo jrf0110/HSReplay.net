@@ -59,13 +59,13 @@ class RedisPopularityDistribution:
 	def __repr__(self):
 		return "%s:%s" % (self.namespace, self.name)
 
-	def increment(self, key):
-		current_ts = datetime.utcnow()
-		start_token = self._to_start_token(current_ts)
-		end_token = self._to_end_token(current_ts)
+	def increment(self, key, as_of=None):
+		ts = as_of if as_of else datetime.utcnow()
+		start_token = self._to_start_token(ts)
+		end_token = self._to_end_token(ts)
 
 		bucket_key = self._bucket_key(start_token, end_token)
-		expire_at = self._to_expire_at(current_ts)
+		expire_at = self._to_expire_at(ts)
 
 		if self.use_lua:
 			args = [bucket_key, self.max_items, key, expire_at]
