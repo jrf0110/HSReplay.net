@@ -1,8 +1,9 @@
 import json
+from datetime import date, timedelta
 from django.core.management.base import BaseCommand
 from hearthstone.enums import CardClass, FormatType
-from sqlalchemy import DateTime, Integer, String
-from sqlalchemy.sql import text
+from sqlalchemy import Date, Integer, String, TIMESTAMP
+from sqlalchemy.sql import bindparam, text
 from hsreplaynet.utils.aws import redshift
 from hsreplaynet.utils.prediction import deck_prediction_tree
 
@@ -23,8 +24,8 @@ WITH driving_table AS (
 	AND p.game_type IN (2, 30)
 	AND p.full_deck_known
 	AND c.collectible
-	AND b.game_date BETWEEN CURRENT_DATE  - INTERVAL '14 days' AND CURRENT_DATE
-	AND p.game_date BETWEEN CURRENT_DATE  - INTERVAL '14 days' AND CURRENT_DATE
+	AND b.game_date BETWEEN :start_date AND :end_date
+	AND p.game_date BETWEEN :start_date AND :end_date
 ), played_cards AS (
 	SELECT
 		pc.game_id,
@@ -44,10 +45,13 @@ SELECT
 FROM played_cards pc
 JOIN game g ON g.id = pc.game_id
 JOIN player p ON p.game_id = pc.game_id AND p.player_id = pc.player_id
-WHERE g.game_date BETWEEN CURRENT_DATE  - INTERVAL '14 days' AND CURRENT_DATE
-AND p.game_date BETWEEN CURRENT_DATE  - INTERVAL '14 days' AND CURRENT_DATE
-""").columns(
-	match_start=DateTime,
+WHERE g.game_date BETWEEN :start_date AND :end_date
+AND p.game_date BETWEEN :start_date AND :end_date
+""").bindparams(
+	bindparam("start_date", type_=Date),
+	bindparam("end_date", type_=Date),
+).columns(
+	match_start=TIMESTAMP,
 	deck_id=Integer,
 	deck_list=String,
 	player_class=Integer,
@@ -59,7 +63,15 @@ AND p.game_date BETWEEN CURRENT_DATE  - INTERVAL '14 days' AND CURRENT_DATE
 class Command(BaseCommand):
 	def handle(self, *args, **options):
 		conn = redshift.get_new_redshift_connection()
-		for row in conn.execute(REDSHIFT_QUERY):
+		start_ts = date.today() - timedelta(days=14)
+		end_ts = date.today() - timedelta(days=1)
+
+		params = {
+			"start_date": start_ts,
+			"end_date": end_ts
+		}
+		compiled_statement = REDSHIFT_QUERY.stmt.params(params).compile(bind=conn)
+		for row in conn.execute(compiled_statement):
 			as_of = row["match_start"]
 			deck_id = row["deck_id"]
 			dbf_map = {dbf_id: count for dbf_id, count in row["deck_list"]}

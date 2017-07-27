@@ -1,4 +1,4 @@
-from csv import DictWriter
+import csv
 from django.core.management.base import BaseCommand
 from hsreplaynet.utils.influx import influx
 
@@ -9,6 +9,7 @@ SELECT
 FROM deck_prediction
 WHERE time > now() - {hours}h AND made_prediction = 'True';
 """
+
 
 class Command(BaseCommand):
 	def add_arguments(self, parser):
@@ -21,7 +22,7 @@ class Command(BaseCommand):
 		columns = series["columns"][1:]
 		values = series["values"]
 		with open(options["output"], "w") as out:
-			writer = DictWriter(out, fieldnames=columns)
+			writer = csv.DictWriter(out, fieldnames=columns, quoting=csv.QUOTE_ALL)
 			writer.writeheader()
 			for vals in values:
 				row = dict(zip(columns, vals[1:]))
