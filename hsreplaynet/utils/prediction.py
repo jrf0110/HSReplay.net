@@ -2,15 +2,12 @@ from copy import copy
 from datetime import datetime, timedelta
 from math import ceil, floor, pow
 from django.conf import settings
-from hsreplaynet.utils import card_db
 from hsreplaynet.utils.redis import (
 	DEFAULT_TTL,
 	RedisIntegerMapStorage,
 	RedisPopularityDistribution,
 	RedisTree
 )
-
-db = card_db()
 
 
 class PredictionResult:
@@ -26,28 +23,17 @@ class PredictionResult:
 		else:
 			self.popularity_distribution = None
 
-	def pretty_node_label(self):
+	def path(self):
 		stack = []
 		node = self.node
 		while node:
-			if isinstance(node.label, list):
-				label_str = "[%s]" % (", ".join(db[c].name for c in node.label))
-			else:
-				label_str = str(node.label)
-			stack.insert(0, label_str)
+			stack.insert(0, node.label)
 			node = node.parent
-		return "->".join(stack)
-
-	def pretty_play_sequence(self):
-		components = []
-		for sequence in self.play_sequences:
-			seq_str = "[%s]" % (", ".join(db[c].name for c in sorted(sequence)))
-			components.append(seq_str)
-		return "->".join(components)
+		return stack
 
 
 class DeckPredictionTree:
-	def __init__(self, redis, player_class, format, max_depth=10, ttl=DEFAULT_TTL):
+	def __init__(self, redis, player_class, format, max_depth=6, ttl=DEFAULT_TTL):
 		self.redis = redis
 		self.player_class = player_class
 		self.format = format
@@ -76,8 +62,11 @@ class DeckPredictionTree:
 
 		while node and len(play_sequence):
 			stack.insert(0, node)
-			next_sequence = sorted(play_sequence.pop(0))
-			node = node.get_child(next_sequence, create=False)
+			next_sequence = play_sequence.pop(0)
+			next_node = node.get_child(next_sequence, create=False)
+			if next_node:
+				node = next_node
+		stack.insert(0, node)
 
 		# Then start looking for a match starting from the deepest node
 		match_attempts = 0
@@ -133,7 +122,7 @@ class DeckPredictionTree:
 			popularity_dist = self._popularity_distribution(node)
 			popularity_dist.increment(deck_id)
 			if len(play_sequence):
-				next_sequence = sorted(play_sequence.pop(0))
+				next_sequence = play_sequence.pop(0)
 				node = node.get_child(next_sequence, create=True)
 			else:
 				break

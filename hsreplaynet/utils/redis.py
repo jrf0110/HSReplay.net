@@ -53,6 +53,12 @@ class RedisPopularityDistribution:
 		if self.use_lua:
 			self.lua_increment = self.redis.register_script(self.INCREMENT_SCRIPT)
 
+	def __str__(self):
+		return "%s:%s" % (self.namespace, self.name)
+
+	def __repr__(self):
+		return "%s:%s" % (self.namespace, self.name)
+
 	def increment(self, key):
 		current_ts = datetime.utcnow()
 		start_token = self._to_start_token(current_ts)
@@ -301,6 +307,12 @@ class RedisTreeNode:
 		self.key = self._make_key()
 		self.children_key = "%s:CHILDREN" % self.key
 
+	def __str__(self):
+		return self.key
+
+	def __repr__(self):
+		return self.key
+
 	def _make_fully_qualified_label(self):
 		if self.parent:
 			return "%s->%s" % (self.parent.fully_qualified_label, self.label)
@@ -352,3 +364,9 @@ class RedisTree:
 		self.ttl = ttl
 		self.key = "%s:%s" % (self.namespace, self.name)
 		self.root = RedisTreeNode(redis, self, None, "ROOT", 0, ttl=self.ttl)
+
+	def __str__(self):
+		return self.key
+
+	def __repr__(self):
+		return self.key

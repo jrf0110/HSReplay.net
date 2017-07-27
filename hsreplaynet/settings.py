@@ -425,6 +425,9 @@ WEBHOOKS = {
 
 
 FULL_DECK_PREDICTION_ENABLED = True
+# Analysis shows that over a 14 day period
+# A sequence of 5 played cards uniquely identifies a group of
+# Less than 2,000 unique possible decks, which is the brute force search threshold
 DECK_PREDICTION_MINIMUM_CARDS = 5
 # Set false to increase redis brute force search efficiency
 INCLUDE_CURRENT_HOUR_IN_LOOKUP = True

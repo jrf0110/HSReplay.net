@@ -479,7 +479,7 @@ def _is_decklist_superset(superset_decklist, subset_decklist):
 def update_global_players(global_game, entity_tree, meta, upload_event, exporter):
 	# Fill the player metadata and objects
 	players = {}
-	play_sequences = exporter.export_play_sequences()
+	played_cards = exporter.export_played_cards()
 
 	for player in entity_tree.players:
 		player_meta = meta.get("player%i" % (player.player_id), {})
@@ -535,18 +535,25 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 			try:
 				player_class = Deck.objects._convert_hero_id_to_player_class(player_hero_id)
 				prediction_tree = deck_prediction_tree(player_class, global_game.format)
-				play_sequence_data = play_sequences[player.player_id]
+				played_cards_for_player = played_cards[player.player_id]
+
+				min_cards = settings.DECK_PREDICTION_MINIMUM_CARDS
+				played_card_dbfs = [c.dbf_id for c in played_cards_for_player][:min_cards]
+				played_card_names = [c.name for c in played_cards_for_player][:min_cards]
+
+				has_enough_observed_cards = deck.size >= min_cards
+				has_enough_played_cards = len(played_card_dbfs) >= min_cards
+
 				if deck.size == 30:
 					prediction_tree.observe(
 						deck.id,
 						deck.dbf_map(),
-						play_sequence_data
+						played_card_dbfs
 					)
-
-				elif deck.size >= settings.DECK_PREDICTION_MINIMUM_CARDS:
+				elif has_enough_observed_cards and has_enough_played_cards:
 					res = prediction_tree.lookup(
 						deck.dbf_map(),
-						play_sequence_data,
+						played_card_dbfs,
 					)
 					predicted_deck_id = res.predicted_deck_id
 
@@ -554,6 +561,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 						"actual_deck_id": deck.id,
 						"deck_size": deck.size,
 						"game_id": global_game.id,
+						"sequence": "->".join("[%s]" % c for c in played_card_names),
 						"predicted_deck_id": res.predicted_deck_id,
 						"match_attempts": res.match_attempts,
 						"tie": res.tie
@@ -561,7 +569,6 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 
 					if settings.DETAILED_PREDICTION_METRICS:
 						fields["actual_deck"] = repr(deck)
-						fields["sequence"] = res.pretty_play_sequence()
 
 						if res.predicted_deck_id:
 							predicted_deck = Deck.objects.get(
@@ -573,7 +580,15 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 						fields["depth"] = res.node.depth
 
 						if settings.DETAILED_PREDICTION_METRICS:
-							fields["node"] = res.pretty_node_label()
+							node_labels = []
+							for path_dbf_id in res.path():
+								if path_dbf_id == "ROOT":
+									path_str = path_dbf_id
+								else:
+									path_card = Card.objects.get(dbf_id=path_dbf_id)
+									path_str = path_card.name
+								node_labels.append("[%s]" % path_str)
+							fields["node"] = "->".join(node_labels)
 
 							popularity = res.popularity_distribution.popularity(
 								res.predicted_deck_id
