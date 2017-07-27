@@ -10,8 +10,13 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		cutoff = now() - timedelta(days=15)
 
-		deleted_uploadevents = UploadEvent.objects.filter(created__lt=cutoff).delete()
-		self.stdout.write("Deleted %i successful upload events" % (deleted_uploadevents[0]))
-
+		self.stdout.write("Deleting descriptors")
 		deleted_descriptors = Descriptor.objects.filter(created__lt=cutoff).delete()
 		self.stdout.write("Deleted %i descriptors" % (deleted_descriptors[0]))
+
+		self.stdout.write("Deleting upload events")
+		# Using _raw_delete() so that signals and checks aren't performed.
+		# The deleted UploadEvent set can be pretty big, using a simple .delete() may OOM.
+		qs = UploadEvent.objects.filter(created__lt=cutoff)
+		deleted_uploadevents = qs._raw_delete(using=qs.db)
+		self.stdout.write("Deleted %i successful upload events" % (deleted_uploadevents))
