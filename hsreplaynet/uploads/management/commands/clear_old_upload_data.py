@@ -15,8 +15,14 @@ class Command(BaseCommand):
 		self.stdout.write("Deleted %i descriptors" % (deleted_descriptors[0]))
 
 		self.stdout.write("Deleting upload events")
-		# Using _raw_delete() so that signals and checks aren't performed.
-		# The deleted UploadEvent set can be pretty big, using a simple .delete() may OOM.
-		qs = UploadEvent.objects.filter(created__lt=cutoff)
-		deleted_uploadevents = qs._raw_delete(using=qs.db)
-		self.stdout.write("Deleted %i successful upload events" % (deleted_uploadevents))
+		limit = 1000
+		while True:
+			ids = UploadEvent.objects.filter(created__lt=cutoff).values_list("id", )[:limit]
+			qs = UploadEvent.objects.filter(id__in=ids)
+			# Using _raw_delete() so that signals and checks aren't performed.
+			# The deleted UploadEvent set can be pretty big, using a simple .delete() may OOM.
+			deleted = qs._raw_delete(using=qs.db)
+			self.stdout.write("Deleted %i successful upload events" % (deleted))
+			if deleted < limit:
+				self.stdout.write("Stopping")
+				break
