@@ -63,8 +63,14 @@ def test_prediction_tree():
 	lookup_result_2 = tree.lookup(
 		to_dbf_map(dbf_list(PLAY_SEQUENCES[2])),
 		PLAY_SEQUENCES[2][:-1]
-	).predicted_deck_id
-	assert lookup_result_2 == 2
+	)
+	assert lookup_result_2.predicted_deck_id == 2
+
+	# Assert proper formatting for detailed metrics
+	assert lookup_result_2.pretty_node_label() == "ROOT->[Loot Hoarder]->[Loot Hoarder]"
+	expected_pretty_play_sequence = "[Loot Hoarder]->[Loot Hoarder]->[Fireball]"
+	actual_pretty_play_sequence = lookup_result_2.pretty_play_sequence()
+	assert actual_pretty_play_sequence == expected_pretty_play_sequence
 
 	# Check that a popularity tie results in None
 	lookup_result_3 = tree.lookup(

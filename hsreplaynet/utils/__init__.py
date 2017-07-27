@@ -70,3 +70,14 @@ def get_uuid_object_or_404(cls, version=4, **kwargs):
 		except ValueError:
 			raise Http404("Object not found")
 	return get_object_or_404(cls, **kwargs)
+
+
+_CARD_DATA_CACHE = {}
+
+
+def card_db():
+	if "db" not in _CARD_DATA_CACHE:
+		from hearthstone.cardxml import load_dbf
+		db, _ = load_dbf()
+		_CARD_DATA_CACHE["db"] = db
+	return _CARD_DATA_CACHE["db"]

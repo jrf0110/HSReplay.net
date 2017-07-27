@@ -2,12 +2,15 @@ from copy import copy
 from datetime import datetime, timedelta
 from math import ceil, floor, pow
 from django.conf import settings
+from hsreplaynet.utils import card_db
 from hsreplaynet.utils.redis import (
 	DEFAULT_TTL,
 	RedisIntegerMapStorage,
 	RedisPopularityDistribution,
 	RedisTree
 )
+
+db = card_db()
 
 
 class PredictionResult:
@@ -17,11 +20,30 @@ class PredictionResult:
 		self.node = node
 		self.tie = tie
 		self.match_attempts = match_attempts
-		self.play_sequence = "->".join(map(str, map(sorted, sequence)))
+		self.play_sequences = sequence
 		if node:
 			self.popularity_distribution = tree._popularity_distribution(node)
 		else:
 			self.popularity_distribution = None
+
+	def pretty_node_label(self):
+		stack = []
+		node = self.node
+		while node:
+			if isinstance(node.label, list):
+				label_str = "[%s]" % (", ".join(db[c].name for c in node.label))
+			else:
+				label_str = str(node.label)
+			stack.insert(0, label_str)
+			node = node.parent
+		return "->".join(stack)
+
+	def pretty_play_sequence(self):
+		components = []
+		for sequence in self.play_sequences:
+			seq_str = "[%s]" % (", ".join(db[c].name for c in sorted(sequence)))
+			components.append(seq_str)
+		return "->".join(components)
 
 
 class DeckPredictionTree:

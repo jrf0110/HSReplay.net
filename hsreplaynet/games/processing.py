@@ -553,34 +553,38 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 					fields = {
 						"actual_deck_id": deck.id,
 						"deck_size": deck.size,
-						"actual_deck": repr(deck),
 						"game_id": global_game.id,
 						"predicted_deck_id": res.predicted_deck_id,
-						"sequence": res.play_sequence,
 						"match_attempts": res.match_attempts,
 						"tie": res.tie
 					}
 
-					if res.predicted_deck_id:
-						predicted_deck = Deck.objects.get(
-							id=res.predicted_deck_id
-						)
-						fields["predicted_deck"] = repr(predicted_deck)
+					if settings.DETAILED_PREDICTION_METRICS:
+						fields["actual_deck"] = repr(deck)
+						fields["sequence"] = res.pretty_play_sequence()
+
+						if res.predicted_deck_id:
+							predicted_deck = Deck.objects.get(
+								id=res.predicted_deck_id
+							)
+							fields["predicted_deck"] = repr(predicted_deck)
 
 					if res.node:
-						fields["node"] = res.node.fully_qualified_label
 						fields["depth"] = res.node.depth
 
-						popularity = res.popularity_distribution.popularity(
-							res.predicted_deck_id
-						)
-						fields["predicted_deck_popularity"] = popularity
+						if settings.DETAILED_PREDICTION_METRICS:
+							fields["node"] = res.pretty_node_label()
 
-						deck_count = res.popularity_distribution.size()
-						fields["distribution_deck_count"] = deck_count
+							popularity = res.popularity_distribution.popularity(
+								res.predicted_deck_id
+							)
+							fields["predicted_deck_popularity"] = popularity
 
-						observation_count = res.popularity_distribution.observations()
-						fields["distribution_observation_count"] = observation_count
+							deck_count = res.popularity_distribution.size()
+							fields["distribution_deck_count"] = deck_count
+
+							observation_count = res.popularity_distribution.observations()
+							fields["distribution_observation_count"] = observation_count
 
 					influx_metric(
 						"deck_prediction",
