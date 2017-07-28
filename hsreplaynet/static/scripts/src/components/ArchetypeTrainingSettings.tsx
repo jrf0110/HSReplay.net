@@ -43,29 +43,37 @@ export default class ArchetypeTrainingSettings extends React.Component<Archetype
 	render(): JSX.Element {
 		return (
 			<div className="training-data">
-				<label className={this.state.working ? "disabled" : undefined}>
+				<label className={this.state.working ? "disabled" : undefined} onClick={this.onTrainingClick}>
 					<input
 						type="checkbox"
 						checked={this.isTrainingDeck()}
 						disabled={this.state.working}
-						onChange={() => this.onIsTrainingDeckChanged(this.state.trainingData === undefined)}
 					/>
 					&nbsp;Training Deck
 				</label>
-				<label className={this.state.working ? "disabled" : undefined}>
+				<label className={this.state.working ? "disabled" : undefined} onClick={this.onValidationClick}>
 					<input
 						type="checkbox"
 						checked={this.isValidationDeck()}
 						disabled={this.state.working}
-						onChange={() =>
-							this.onIsValidationDeckChanged(!this.state.trainingData || !this.state.trainingData.is_validation_deck)
-						}
 					/>
 					&nbsp;Validation Deck
 				</label>
 				<LoadingSpinner active={this.state.working}/>
 			</div>
 		);
+	}
+
+	onTrainingClick = () => {
+		if (!this.state.working) {
+			this.onIsTrainingDeckChanged(this.state.trainingData === undefined);
+		}
+	}
+
+	onValidationClick = () => {
+		if (!this.state.working) {
+			this.onIsValidationDeckChanged(!this.state.trainingData || !this.state.trainingData.is_validation_deck);
+		}
 	}
 
 	onSelectedArchetypeChanged(id: number) {
