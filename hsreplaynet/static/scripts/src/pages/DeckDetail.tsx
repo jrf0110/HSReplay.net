@@ -30,6 +30,7 @@ import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import ArchetypeSelector from "../components/ArchetypeSelector";
 import DeckCountersList from "../components/deckdetail/DeckCountersList";
 import DeckMatchups from "../components/deckdetail/DeckMatchups";
+import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -407,39 +408,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						/>
 					</HideLoading>
 				</DataInjector>
-				{UserData.isStaff() && this.props.adminUrl && (
-					<ul>
-						<li>
-							<span>View in Admin</span>
-							<span className="infobox-value">
-								<a href={this.props.adminUrl}>Admin link</a>
-							</span>
-						</li>
-					</ul>
-				)}
-				{UserData.hasFeature("archetype-selection") && (
-					<ul>
-						<li>
-							<span>Archetype</span>
-							<span className="infobox-value">
-								<DataInjector
-									query={[
-										{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
-										{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
-									]}
-									extract={{
-										deckData: (data) => ({defaultSelectedArchetype: data.archetype}),
-									}}
-								>
-									<ArchetypeSelector
-										deckId={this.props.deckId}
-										playerClass={this.props.deckClass}
-									/>
-								</DataInjector>
-							</span>
-						</li>
-					</ul>
-				)}
+				{this.renderAdminSettings()}
 			</aside>
 			<main>
 				<section id="content-header">
@@ -601,17 +570,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</div>
 			);
 		}
+		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
 		return (
 			<div className="table-wrapper">
 				<DataInjector
 					fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
-					query={{
-						params: {
-							deck_id: this.props.deckId,
-							...this.getPersonalParams(),
-						},
-						url: "single_account_lo_individual_card_stats_for_deck",
-					}}
+					query={{params, url: "single_account_lo_individual_card_stats_for_deck"}}
 				>
 					<TableLoading
 						cardData={this.props.cardData}
@@ -707,5 +671,85 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		});
 
 		return renderData;
+	}
+
+	renderAdminSettings(): JSX.Element {
+		const items = [];
+		if (UserData.isStaff() && this.props.adminUrl) {
+			items.push(
+				<li>
+					<span>View in Admin</span>
+					<span className="infobox-value">
+						<a href={this.props.adminUrl}>Admin link</a>
+					</span>
+				</li>,
+			);
+		}
+		if (UserData.hasFeature("archetype-selection")) {
+			items.push(
+				<li>
+					<span>Archetype</span>
+					<span className="infobox-value">
+						<DataInjector
+							query={[
+								{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
+								{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
+							]}
+							extract={{
+								deckData: (data) => ({defaultSelectedArchetype: data.archetype}),
+							}}
+						>
+							<ArchetypeSelector
+								deckId={this.props.deckId}
+								playerClass={this.props.deckClass}
+							/>
+						</DataInjector>
+					</span>
+				</li>,
+			);
+		}
+		if (UserData.hasFeature("archetype-training")) {
+			items.push(
+			<li>
+				<DataInjector
+					query={{key: "trainingData", url: "/api/v1/archetype-training/", params: {}}}
+					extract={{
+						trainingData: (trainingData) => {
+							const data = trainingData.results.find((d) => d.deck.shortid === this.props.deckId);
+							if (data) {
+								return {
+									trainingData: {
+										deck: data.deck.id,
+										id: data.id,
+										is_validation_deck: data.is_validation_deck,
+									},
+								};
+							}
+						},
+					}}
+				>
+					<HideLoading>
+						<ArchetypeTrainingSettings
+							deckId={this.props.deckId}
+							playerClass={this.props.deckClass}
+						/>
+					</HideLoading>
+				</DataInjector>
+			</li>,
+			);
+		}
+
+		if (items.length === 0) {
+			return null;
+		}
+
+		return (
+			<div>
+				<h2>Admin</h2>
+				<ul>
+					{items}
+				</ul>
+			</div>
+		);
 	}
 }
