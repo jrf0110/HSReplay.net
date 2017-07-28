@@ -140,6 +140,7 @@ class ArchetypeViewSet(
 	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet
 ):
 	authentication_classes = (SessionAuthentication, )
+	pagination_class = None
 	queryset = Archetype.objects.all()
 
 	def get_serializer_class(self):
@@ -158,6 +159,7 @@ class ArchetypeTrainingDeckViewSet(
 	GenericViewSet
 ):
 	authentication_classes = (SessionAuthentication, )
+	pagination_class = None
 	permission_classes = (UserHasFeature("archetype-training"), )
 	queryset = ArchetypeTrainingDeck.objects.all()
 
