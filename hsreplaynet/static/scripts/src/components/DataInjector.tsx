@@ -28,6 +28,7 @@ interface DataInjectorProps {
 	fetchCondition?: boolean;
 	modify?: (data: any) => any;
 	extract?: Extractor;
+	onUpdated?: () => void;
 }
 
 const DEFAULT_DATA_KEY = "data";
@@ -60,6 +61,12 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 		this.getQueryArray(this.props).forEach((query, index) => {
 			this.fetch(this.props, index);
 		});
+	}
+
+	componentDidUpdate() {
+		if (this.props.onUpdated) {
+			this.props.onUpdated();
+		}
 	}
 
 	paramsChanged(current: Query, next: Query) {

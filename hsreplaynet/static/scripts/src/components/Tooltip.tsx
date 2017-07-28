@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import {cloneComponent} from "../helpers";
 
 export type TooltipContent = string | JSX.Element | JSX.Element[];
 
@@ -103,12 +104,19 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 		const content = [];
 		this.props.header && content.push(<h4>{this.props.header}</h4>);
 		if (this.props.content) {
-			const selectedContent = this.getSelectedContent();
+			let selectedContent = this.getSelectedContent();
 			if (typeof selectedContent === "string") {
 				content.push(<p>{selectedContent}</p>);
 			}
 			else {
-				content.push(selectedContent);
+				if (!Array.isArray(selectedContent)) {
+					selectedContent = [selectedContent];
+				}
+				const components = selectedContent.map((component) => {
+					return cloneComponent(component, {onUpdated: () => this.tooltip && this.renderTooltip()});
+				});
+
+				content.push(components);
 			}
 		}
 
