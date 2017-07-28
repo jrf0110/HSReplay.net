@@ -715,7 +715,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					query={{key: "trainingData", url: "/api/v1/archetype-training/", params: {}}}
 					extract={{
 						trainingData: (trainingData) => {
-							const data = trainingData.results.find((d) => d.deck.shortid === this.props.deckId);
+							const data = trainingData.find((d) => d.deck.shortid === this.props.deckId);
 							if (data) {
 								return {
 									trainingData: {

@@ -435,7 +435,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			const matchups = matchupData.series.data["" + this.props.archetypeId];
 			if (matchups) {
 				const data = Object.keys(matchups).map((id) => {
-					const opponentData: ApiArchetype = props.archetypeData.results.find((archetype) => archetype.id === +id);
+					const opponentData: ApiArchetype = props.archetypeData.find((archetype) => archetype.id === +id);
 					if (opponentData) {
 						return {
 							archetypeId: +id,

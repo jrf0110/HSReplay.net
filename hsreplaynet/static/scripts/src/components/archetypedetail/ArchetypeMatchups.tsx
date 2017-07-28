@@ -55,6 +55,6 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 	}
 
 	getArchetype(archetypeId: number): ApiArchetype {
-		return this.props.archetypeData.results.find((x) => x.id === archetypeId);
+		return this.props.archetypeData.find((x) => x.id === archetypeId);
 	}
 }

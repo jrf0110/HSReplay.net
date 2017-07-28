@@ -27,7 +27,7 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 	}
 
 	private getArchetypeName(archetypeId: string): string {
-		const archetype = this.props.archetypeData.results.find((a) => a.id === archetypeId);
+		const archetype = this.props.archetypeData.find((a) => a.id === archetypeId);
 		return archetype ? archetype.name : `Other ${toTitleCase(this.props.playerClass)}`;
 	}
 

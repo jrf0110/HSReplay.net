@@ -16,12 +16,11 @@ export default class ArchetypeFilter extends React.Component<ArchetypeFilterProp
 			return null;
 		}
 
-		const data = this.props.data.results;
 		const archetypes = [];
 		if (this.props.archetypes) {
 			this.props.archetypes.forEach((archetype) => {
 				if (this.props.playerClasses.indexOf(archetype.playerClass) !== -1) {
-					const archetypeData = data.find((a) => "" + a.id === archetype.id);
+					const archetypeData = this.props.data.find((a) => "" + a.id === archetype.id);
 					archetypes.push(
 						<InfoboxFilter value={"" + archetype.id} >
 							<span className={`player-class ${archetype.playerClass.toLowerCase()}`}>

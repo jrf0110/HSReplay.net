@@ -328,7 +328,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 	}
 
 	getApiArchetype(id: number, archetypeData: any): ApiArchetype {
-		return archetypeData.results.find((a) => a.id === id);
+		return archetypeData.find((a) => a.id === id);
 	}
 
 	getMatchup(friendly: ApiArchetype, opponent: ApiArchetype, matchupData: any): ApiArchetypeMatchupData {

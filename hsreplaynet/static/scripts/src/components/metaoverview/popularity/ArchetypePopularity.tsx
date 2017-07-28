@@ -149,6 +149,6 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 	}
 
 	getApiArchetype(id: number): ApiArchetype {
-		return this.props.archetypeData.results.find((a) => a.id === id);
+		return this.props.archetypeData.find((a) => a.id === id);
 	}
 }

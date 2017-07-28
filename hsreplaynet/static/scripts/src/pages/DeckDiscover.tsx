@@ -211,7 +211,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 	getTrainingData(): Promise<ApiTrainingData[]> {
 		if (this.props.trainingData) {
 			return DataManager.get("/api/v1/archetype-training/").then((data) => {
-				return Promise.resolve(data.results);
+				return Promise.resolve(data);
 			});
 		}
 		return Promise.resolve([]);

@@ -71,8 +71,8 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 	fetchArchetypeDict() {
 		if (UserData.hasFeature("archetype-detail")) {
 			DataManager.get("/api/v1/archetypes/").then((data) => {
-				if (data.results) {
-					this.setState({archetypeData: data.results});
+				if (data) {
+					this.setState({archetypeData: data});
 				}
 			});
 		}

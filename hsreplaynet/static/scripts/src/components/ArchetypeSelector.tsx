@@ -47,7 +47,7 @@ export default class ArchetypeSelector extends React.Component<ArchetypeSelector
 			}
 		};
 
-		const playerClassArchetypes = this.props.archetypeData.results.filter((archetype: ApiArchetype) => {
+		const playerClassArchetypes = this.props.archetypeData.filter((archetype: ApiArchetype) => {
 			return archetype.player_class_name === this.props.playerClass;
 		});
 
