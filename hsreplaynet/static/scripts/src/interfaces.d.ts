@@ -233,7 +233,8 @@ export interface ApiArchetype {
 	name: string;
 	player_class: number;
 	player_class_name: string;
-	signatures: ApiArchetypeSignature[];
+	standard_signature?: ApiArchetypeSignature;
+	wild_signature?: ApiArchetypeSignature;
 }
 
 export interface ApiArchetypeSignature {

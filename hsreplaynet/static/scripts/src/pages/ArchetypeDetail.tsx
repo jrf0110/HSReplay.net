@@ -252,7 +252,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							<DataInjector
 								query={[
 									{key: "deckData", params, url: "list_decks_by_win_rate"},
-									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId},
 								]}
 								extract={{deckData: this.deckTileExtractor("total_games")}}
 							>
@@ -263,7 +263,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							<DataInjector
 								query={[
 									{key: "deckData", params, url: "list_decks_by_win_rate"},
-									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId},
 								]}
 								extract={{deckData: this.deckTileExtractor("win_rate")}}
 							>
@@ -298,10 +298,8 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								</div>
 							</div>
 							<DataInjector
-								query={{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"}}
-								extract={{archetypeData: (data) => {
-									return extractSignature(data, this.props.archetypeId, this.props.gameType);
-								}}}
+								query={{key: "data", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId}}
+								extract={{data: (data) => extractSignature(data, this.props.gameType)}}
 							>
 								<ArchetypeSignature cardData={this.props.cardData} />
 							</DataInjector>
@@ -456,7 +454,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			if (!classDecks) {
 				return;
 			}
-			const signatureData = extractSignature(props.archetypeData, archetypeId, gameType);
+			const signatureData = extractSignature(props.archetypeData, gameType);
 			if (!signatureData) {
 				return;
 			}
