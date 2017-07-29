@@ -17,11 +17,12 @@ from .models import Archetype, ArchetypeTrainingDeck, Deck
 
 class ArchetypeSerializer(serializers.ModelSerializer):
 	player_class_name = serializers.SerializerMethodField()
+	url = serializers.ReadOnlyField(source="get_absolute_url")
 
 	class Meta:
 		model = Archetype
 		fields = (
-			"id", "name", "player_class", "player_class_name",
+			"id", "name", "player_class", "player_class_name", "url",
 			"standard_signature", "wild_signature"
 		)
 
@@ -31,10 +32,11 @@ class ArchetypeSerializer(serializers.ModelSerializer):
 
 class ArchetypeListSerializer(ArchetypeSerializer):
 	player_class_name = serializers.SerializerMethodField()
+	url = serializers.ReadOnlyField(source="get_absolute_url")
 
 	class Meta:
 		model = Archetype
-		fields = ("id", "name", "player_class", "player_class_name")
+		fields = ("id", "name", "player_class", "player_class_name", "url")
 
 	def get_player_class_name(self, instance):
 		return instance.player_class.name
