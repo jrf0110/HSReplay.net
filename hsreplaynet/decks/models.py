@@ -471,16 +471,13 @@ class Archetype(models.Model):
 		return self.name
 
 	@property
-	def signatures(self):
-		ret = []
-		sigs = self.signature_set.all()
-		for sig in sigs:
-			ret.append({
-				"as_of": sig.as_of,
-				"format": int(sig.format),
-				"components": [(c.card_id, c.weight) for c in sig.components.all()],
-			})
-		return ret
+	def signature(self):
+		sig = self.signature_set.latest()
+		return {
+			"as_of": sig.as_of,
+			"format": int(sig.format),
+			"components": [(c.card_id, c.weight) for c in sig.components.all()],
+		}
 
 	def is_configured_for_format(self, game_format):
 		num_training = len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(

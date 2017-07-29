@@ -15,20 +15,23 @@ from hsreplaynet.api.permissions import UserHasFeature
 from .models import Archetype, ArchetypeTrainingDeck, Deck
 
 
-class SignatureSerializer(serializers.ListField):
-	weight = serializers.FloatField()
-
-
 class ArchetypeSerializer(serializers.ModelSerializer):
 	player_class_name = serializers.SerializerMethodField()
-	signatures = SignatureSerializer()
 
 	class Meta:
 		model = Archetype
-		fields = ("id", "name", "player_class", "player_class_name", "signatures")
+		fields = ("id", "name", "player_class", "player_class_name", "signature")
 
-	def get_signatures(self, instance):
-		return instance.signature_set.all()
+	def get_player_class_name(self, instance):
+		return instance.player_class.name
+
+
+class ArchetypeListSerializer(ArchetypeSerializer):
+	player_class_name = serializers.SerializerMethodField()
+
+	class Meta:
+		model = Archetype
+		fields = ("id", "name", "player_class", "player_class_name")
 
 	def get_player_class_name(self, instance):
 		return instance.player_class.name
