@@ -12,7 +12,7 @@ from django.utils.timezone import now
 from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
-from hsarchetypes import classify_deck, get_signature_components
+from hsarchetypes import classify_deck, calculate_signature_weights
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils.aws.clients import FIREHOSE
 from hsreplaynet.utils.aws.redshift import get_redshift_query
@@ -64,7 +64,6 @@ class DeckManager(models.Manager):
 		return enums.CardClass.INVALID
 
 	def classify_deck_with_archetype(self, deck, player_class, game_format):
-		distance_cutoff = settings.ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE
 		archetype_ids = list(
 			Archetype.objects.filter(player_class=player_class).values_list("id", flat=True)
 		)
@@ -75,10 +74,9 @@ class DeckManager(models.Manager):
 			archetype_ids,
 			game_format
 		)
-		# TODO: Don't send Distance Cutoff, use default value
-		# TODO: Use deck.dbf_map()
+
 		archetype_id = classify_deck(
-			deck.card_dbf_id_list(), archetype_ids, signature_weights, distance_cutoff
+			deck.dbf_map(), archetype_ids, signature_weights
 		)
 		if archetype_id:
 			deck.update_archetype(archetype_id)
@@ -364,7 +362,7 @@ class ArchetypeManager(models.Manager):
 		training_data = self.get_training_data_for_player_class(game_format, player_class)
 
 		# TODO: Change to use calculate_signature_weights()
-		new_weights = get_signature_components(training_data, thresholds)
+		new_weights = calculate_signature_weights(training_data, thresholds)
 
 		validation_data = self.get_validation_data_for_player_class(game_format, player_class)
 
