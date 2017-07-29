@@ -570,6 +570,9 @@ class Signature(models.Model):
 	class Meta:
 		get_latest_by = "as_of"
 
+	def __str__(self):
+		return "Signature for %s (%s)" % (self.archetype, self.format.name)
+
 	def distance(self, deck):
 		dist = 0
 		card_counts = {i.card_id: i.count for i in deck.includes.all()}
