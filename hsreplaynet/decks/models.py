@@ -572,6 +572,9 @@ class Signature(models.Model):
 	format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
 	as_of = models.DateTimeField()
 
+	class Meta:
+		get_latest_by = "as_of"
+
 	def distance(self, deck):
 		dist = 0
 		card_counts = {i.card_id: i.count for i in deck.includes.all()}
