@@ -10,6 +10,7 @@ import Tooltip from "./Tooltip";
 import DataInjector from "./DataInjector";
 import ArchetypeTrainingSettings from "./ArchetypeTrainingSettings";
 import HideLoading from "./loading/HideLoading";
+import {getAge} from "../PrettyTime";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
@@ -18,6 +19,7 @@ interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	archetypeName?: string;
 	archetypeId?: number;
 	hrefTab?: string;
+	lastPlayed?: Date;
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
@@ -116,6 +118,14 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			);
 		}
 
+		let headerData = null;
+		if (this.props.lastPlayed) {
+			headerData = <span className="last-played">{getAge(this.props.lastPlayed)}</span>;
+		}
+		else if (dustCost !== null) {
+			headerData = <span className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span>;
+		}
+
 		const {hrefTab} = this.props;
 		const tab = hrefTab && {tab: hrefTab};
 		const href = `/decks/${this.props.deckId}/` + getFragments(["gameType", "rankRange"], tab);
@@ -132,7 +142,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 					<div className="deck-tile">
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							{deckName}
-							{dustCost !== null ? <span className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span> : null}
+							{headerData}
 							{noGlobalDataIndicator}
 						</div>
 						<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3">

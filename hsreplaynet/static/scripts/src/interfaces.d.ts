@@ -195,6 +195,7 @@ export interface DeckObj {
 	duration: number;
 	noGlobalData?: boolean;
 	archetypeId?: number;
+	lastPlayed?: Date;
 }
 
 export interface CardObj {

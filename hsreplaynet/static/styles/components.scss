@@ -240,14 +240,18 @@ table .info-icon, .sort-header .info-icon {
 							white-space: pre;
 						}
 
+						.dust-cost, .last-played {
+							font-size: 0.9em;
+							line-height: 20px;
+							margin-left: 40px;
+							opacity: 0.6;
+							white-space: nowrap;
+						}
+
 						.dust-cost {
 							background-size: contain;
 							background-repeat: no-repeat;
-							line-height: 20px;
 							padding-left: 16px;
-							margin-left: 40px;
-							opacity: 0.6;
-							font-size: 0.9em;
 						}
 
 						.win-rate, .game-count, .duration {

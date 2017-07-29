@@ -186,6 +186,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					cards: deck.cards,
 					deckId: deck.deck_id,
 					duration: deck.avg_game_length_seconds,
+					lastPlayed: deck.last_played && new Date(deck.last_played),
 					noGlobalData: deck.noGlobalData,
 					numGames: deck.total_games,
 					playerClass: deck.player_class,
@@ -220,7 +221,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 			content = (
 				<Fragments
 					defaults={{
-						sortBy: "popularity",
+						sortBy: "lastPlayed",
 						sortDirection: "descending",
 						page: 1,
 					}}
@@ -230,6 +231,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						decks={this.state.filteredDecks}
 						pageSize={12}
 						hrefTab={"my-statistics"}
+						lastPlayedColumn
 					/>
 				</Fragments>
 			);

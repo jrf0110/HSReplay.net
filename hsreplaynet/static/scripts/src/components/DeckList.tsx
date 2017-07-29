@@ -27,6 +27,7 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	helpMessage?: string;
 	showArchetypeSelector?: boolean;
 	hrefTab?: string;
+	lastPlayedColumn?: boolean;
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -97,6 +98,9 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 			case "duration":
 				sortProp = "duration";
 				break;
+			case "lastPlayed":
+				sortProp = "lastPlayed";
+				break;
 			case "dust":
 				cacheProp = "dust";
 				break;
@@ -142,6 +146,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					archetypeName={archetype && archetype.name}
 					archetypeId={archetype && archetype.id}
 					hrefTab={this.props.hrefTab}
+					lastPlayed={deck.lastPlayed}
 				/>,
 			);
 		});
@@ -210,6 +215,36 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 
 		const tabIndex = isSortable ? 0 : -1;
 
+		let firstHeader = null;
+		if (this.props.lastPlayedColumn) {
+			firstHeader = (
+				<div
+					className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"}
+					onClick={(e) => onClick("lastPlayed", e)}
+					onKeyPress={(e) => onKeyPress("lastPlayed", e)}
+					tabIndex={tabIndex}
+				>
+					<span>Deck / Last Played</span>
+					{sortIndicator("lastPlayed")}
+					<InfoIcon header="Last Played" content="Time since you last played the deck."/>
+				</div>
+			);
+		}
+		else {
+			firstHeader = (
+				<div
+					className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"}
+					onClick={(e) => onClick("dust", e)}
+					onKeyPress={(e) => onKeyPress("dust", e)}
+					tabIndex={tabIndex}
+				>
+					<span>Deck / Cost</span>
+					{sortIndicator("dust")}
+					<InfoIcon header="Crafting Cost" content="Total amount of dust required to craft the deck."/>
+				</div>
+			);
+		}
+
 		return (
 			<div className="deck-list">
 				{this.props.helpMessage ? (
@@ -221,16 +256,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 				{!this.props.hideTopPager && pager(true)}
 				<div className="clearfix" />
 				<div className="row header-row">
-					<div
-						className={headerSortable + "col-lg-2 col-md-2 col-sm-2 col-xs-6"}
-						onClick={(e) => onClick("dust", e)}
-						onKeyPress={(e) => onKeyPress("dust", e)}
-						tabIndex={tabIndex}
-					>
-						<span>Deck / Cost</span>
-						{sortIndicator("dust")}
-						<InfoIcon header="Crafting Cost" content="Total amount of dust required to craft the deck."/>
-					</div>
+					{firstHeader}
 					<div
 						className={headerSortable + "header-center col-lg-1 col-md-1 col-sm-1 col-xs-3"}
 						onClick={(e) => onClick("winrate", e)}
