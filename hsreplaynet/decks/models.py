@@ -8,6 +8,7 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 from django.utils.timezone import now
 from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
@@ -485,6 +486,9 @@ class Archetype(models.Model):
 			"format": int(sig.format),
 			"components": [(c.card_id, c.weight) for c in sig.components.all()],
 		}
+
+	def get_absolute_url(self):
+		return reverse("archetype_detail", kwargs={"id": self.id, "slug": slugify(self.name)})
 
 	def is_configured_for_format(self, game_format):
 		num_training = len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
