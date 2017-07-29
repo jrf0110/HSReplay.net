@@ -15,6 +15,7 @@ import ArchetypeList from "./ArchetypeList";
 interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadToHead> {
 	archetypeData?: any;
 	cardData: CardData;
+	gameType: string;
 	matchupData?: any;
 	mobileView: boolean;
 	popularityData?: any;
@@ -78,6 +79,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			archetypes: this.state.archetypeData,
 			cardData: this.props.cardData,
 			favorites: this.state.favorites.filter((id) => this.state.sortedIds.indexOf(id) !== -1),
+			gameType: this.props.gameType,
 			maxPopularity: this.state.maxPopularity,
 			onFavoriteChanged: (archetypeId: number, favorite: boolean) => this.onFavoriteChanged(archetypeId, favorite),
 			onSortChanged: (sortBy: string, sortDirection: SortDirection) => {

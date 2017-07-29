@@ -1,4 +1,4 @@
-import {PlayState} from "./hearthstone";
+import {FormatType, PlayState} from "./hearthstone";
 import {TooltipContent} from "./components/Tooltip";
 
 export interface User {
@@ -233,6 +233,13 @@ export interface ApiArchetype {
 	name: string;
 	player_class: number;
 	player_class_name: string;
+	signatures: ApiArchetypeSignature[];
+}
+
+export interface ApiArchetypeSignature {
+	components: [number, number][];
+	as_of: Date;
+	format: FormatType;
 }
 
 export interface ApiArchetypeMatchupData {

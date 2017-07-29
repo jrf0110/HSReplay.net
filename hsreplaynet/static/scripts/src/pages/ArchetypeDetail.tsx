@@ -1,5 +1,5 @@
-import * as React from "react";
-import {ApiArchetype, DeckObj} from "../interfaces";
+import { ApiArchetype, DeckObj } from "../interfaces";
+import TableLoading from "../components/loading/TableLoading";
 import {AutoSizer} from "react-virtualized";
 import DataManager from "../DataManager";
 import UserData from "../UserData";
@@ -12,7 +12,7 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import PremiumWrapper from "../components/PremiumWrapper";
 import DeckList from "../components/DeckList";
 import CardData from "../CardData";
-import TableLoading from "../components/loading/TableLoading";
+import * as React from "react";
 import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
 import ArchetypeDistributionPieChart from "../components/archetypedetail/ArchetypeDistributionPieChart";
 import WinrateTile from "../components/tiles/WinrateTile";
@@ -23,20 +23,13 @@ import PopularityLineChart from "../components/charts/PopularityLineChart";
 import InfoIcon from "../components/InfoIcon";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import {getHeroCardId} from "../helpers";
-import CardList from "../components/CardList";
 import RankTile from "../components/tiles/RankTile";
-
-export interface Signature {
-	core?: number[];
-	tech1?: number[];
-	tech2?: number[];
-	prevalences?: any[];
-}
+import ArchetypeSignature from "../components/archetypedetail/ArchetypeSignature";
+import { extractSignature } from "../extractors";
 
 interface ArchetypeDetailState {
 	deckData?: any;
 	popularDecks?: DeckObj[];
-	signature?: Signature;
 }
 
 interface ArchetypeDetailProps {
@@ -58,7 +51,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		this.state = {
 			deckData: null,
 			popularDecks: [],
-			signature: {core: [], tech1: [], tech2: [], prevalences: []},
 		};
 
 		this.fetchDeckData(props);
@@ -130,10 +122,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			});
 		}
 
-		this.setState({
-			popularDecks: deckObjs,
-			signature,
-		});
+		this.setState({popularDecks: deckObjs});
 	}
 
 	componentWillReceiveProps(nextProps: ArchetypeDetailProps, nextState: ArchetypeDetailState) {
@@ -221,7 +210,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							<DataInjector
 								query={[
 									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-									{key: "archetypeData", params: {}, url: "/api/v1/archetypes"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
 								]}
 								extract={{matchupData: this.matchupTileExtractor(true)}}
 							>
@@ -232,7 +221,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							<DataInjector
 								query={[
 									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-									{key: "archetypeData", params: {}, url: "/api/v1/archetypes"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
 								]}
 								extract={{matchupData: this.matchupTileExtractor(false)}}
 							>
@@ -261,7 +250,10 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								/>
 							</DataInjector>
 							<DataInjector
-								query={{key: "deckData", params, url: "list_decks_by_win_rate"}}
+								query={[
+									{key: "deckData", params, url: "list_decks_by_win_rate"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+								]}
 								extract={{deckData: this.deckTileExtractor("total_games")}}
 							>
 								<DeckTile
@@ -269,7 +261,10 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								/>
 							</DataInjector>
 							<DataInjector
-								query={{key: "deckData", params, url: "list_decks_by_win_rate"}}
+								query={[
+									{key: "deckData", params, url: "list_decks_by_win_rate"},
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+								]}
 								extract={{deckData: this.deckTileExtractor("win_rate")}}
 							>
 								<DeckTile
@@ -302,36 +297,14 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									</DataInjector>
 								</div>
 							</div>
-							<div className="col-lg-3 col-md-6 col-sm-12 col-xs-12">
-								<div className="card-list-wrapper">
-									<h3>Core Cards</h3>
-									<CardList
-										cardData={this.props.cardData}
-										cardList={this.state.signature.core}
-										name=""
-										heroes={[]}
-									/>
-								</div>
-							</div>
-							<div className="col-lg-3 col-md-6 col-sm-12 col-xs-12">
-								<div className="card-list-wrapper">
-									<h3>Tech Choices</h3>
-									<h4>Popular</h4>
-									<CardList
-										cardData={this.props.cardData}
-										cardList={this.state.signature.tech1}
-										name=""
-										heroes={[]}
-									/>
-									<h4>Occasional</h4>
-									<CardList
-										cardData={this.props.cardData}
-										cardList={this.state.signature.tech2}
-										name=""
-										heroes={[]}
-									/>
-								</div>
-							</div>
+							<DataInjector
+								query={{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"}}
+								extract={{archetypeData: (data) => {
+									return extractSignature(data, this.props.archetypeId, this.props.gameType);
+								}}}
+							>
+								<ArchetypeSignature cardData={this.props.cardData} />
+							</DataInjector>
 						</Tab>
 						<Tab
 							label="Matchups"
@@ -473,21 +446,28 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 	}
 
 	deckTileExtractor(sortProp: string) {
-		return (deckData) => {
-			if (!this.props.cardData || !this.state.signature) {
+		return (deckData, props) => {
+			const {cardData, playerClass, archetypeId, gameType} = this.props;
+
+			if (!cardData || !props.archetypeData) {
 				return;
 			}
-			const classDecks = deckData.series.data[this.props.playerClass];
+			const classDecks = deckData.series.data[playerClass];
 			if (!classDecks) {
 				return;
 			}
-			const decks = classDecks.filter((deck) => deck.archetype_id === this.props.archetypeId);
+			const signatureData = extractSignature(props.archetypeData, archetypeId, gameType);
+			if (!signatureData) {
+				return;
+			}
+
+			const decks = classDecks.filter((deck) => deck.archetype_id === archetypeId);
 			if (decks.length > 0) {
 				decks.sort((a, b) => {
 					return b[sortProp] - a[sortProp] || (a.deck_id > b.deck_id ? 1 : -1);
 				});
-				const prevalences = this.state.signature.prevalences.slice().map(({dbfId, prevalence}) => {
-					return {card: this.props.cardData.fromDbf(dbfId), prevalence};
+				const prevalences = signatureData.signature.components.slice().map(([dbfId, prevalence]) => {
+					return {card: cardData.fromDbf(dbfId), prevalence};
 				}).sort((a, b) => {
 					return a.prevalence - b.prevalence || (a.card.name > b.card.name ? 1 : -1);
 				});
@@ -498,7 +478,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						dbfIds.push(card.dbfId);
 					}
 				});
-				const cards = dbfIds.map((dbfId) => this.props.cardData.fromDbf(dbfId));
+				const cards = dbfIds.map((dbfId) => cardData.fromDbf(dbfId));
 				return {
 					cards,
 					deckId: decks[0].deck_id,

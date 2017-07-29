@@ -14,6 +14,7 @@ interface ArchetypeListProps extends React.ClassAttributes<ArchetypeList> {
 	allArchetypes: ApiArchetype[];
 	cardData: CardData;
 	favorites: number[];
+	gameType: string;
 	maxPopularity?: number;
 	onFavoriteChanged: (archetypeId: number, favorite: boolean) => void;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
@@ -105,6 +106,7 @@ export default class ArchetypeList extends React.Component<ArchetypeListProps, A
 												cardData={this.props.cardData}
 												key={key}
 												style={style}
+												gameType={this.props.gameType}
 											/>
 										);
 									}}

@@ -20,6 +20,7 @@ interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	useCustomWeights: boolean;
 	onUseCustomWeightsChanged: (useCustomPopularities: boolean) => void;
 	favorites: number[];
+	gameType: string;
 	ignoredColumns: number[];
 	maxPopularity?: number;
 	onFavoriteChanged: (archetypeId: number, favorite: boolean) => void;
@@ -143,6 +144,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 														key={key}
 														style={style}
 														onHover={(hovering: boolean) => this.onHover(hovering, rowIndex, rowIndex)}
+														gameType={this.props.gameType}
 													/>
 												);
 											}}

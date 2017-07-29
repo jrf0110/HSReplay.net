@@ -70,6 +70,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			>
 				<ArchetypeHeadToHead
 					cardData={this.props.cardData}
+					gameType={this.props.gameType}
 					mobileView={this.state.mobileView}
 					setSortBy={this.props.setSortBy}
 					setSortDirection={this.props.setSortDirection}
@@ -97,6 +98,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						>
 							<ArchetypePopularity
 								cardData={this.props.cardData}
+								gameType={this.props.gameType}
 								sortDirection={this.props.sortDirection}
 								setSortDirection={this.props.setSortDirection}
 								sortBy={this.props.popularitySortBy}

@@ -6,16 +6,18 @@ import Feature from "../Feature";
 import Tooltip from "../Tooltip";
 import DataInjector from "../DataInjector";
 import CardData from "../../CardData";
-import ArchetypeCardList from "./ArchetypeCardList";
+import ArchetypeSignature from "../archetypedetail/ArchetypeSignature";
+import { extractSignature } from "../../extractors";
 
 interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeData;
-	highlight?: boolean;
 	cardData: CardData;
+	gameType: string;
+	highlight?: boolean;
 	isFavorite?: boolean;
 	onFavoriteChanged: (favorite: boolean) => void;
-	style?: any;
 	onHover?: (hovering: boolean) => void;
+	style?: any;
 }
 
 interface RowHeaderState {
@@ -66,7 +68,11 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 						href={getArchetypeUrl(this.props.archetypeData.id, this.props.archetypeData.name)}
 						target="_blank"
 					>
-						<Tooltip content={this.getTooltip()} header={this.props.archetypeData.name}>
+						<Tooltip
+							id="tooltip-archetype-signature"
+							content={this.getTooltip()}
+							header={this.props.archetypeData.name}
+						>
 							<span className="glyphicon glyphicon-new-window"/>
 						</Tooltip>
 					</a>
@@ -78,13 +84,12 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 	getTooltip(): JSX.Element {
 		return (
 			<DataInjector
-				query={{key: "deckData", params: {}, url: "list_decks_by_win_rate"}}
+				query={{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"}}
+				extract={{archetypeData: (data) => {
+					return extractSignature(data, this.props.archetypeData.id, this.props.gameType);
+				}}}
 			>
-				<ArchetypeCardList
-					cardData={this.props.cardData}
-					archetypeId={this.props.archetypeData.id}
-					playerClass={this.props.archetypeData.playerClass}
-				/>
+				<ArchetypeSignature cardData={this.props.cardData} />
 			</DataInjector>
 		);
 	}

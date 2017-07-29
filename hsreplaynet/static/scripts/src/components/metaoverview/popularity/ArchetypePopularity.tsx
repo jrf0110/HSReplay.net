@@ -12,6 +12,7 @@ import PopularityMatrix from "./PopularityMatrix";
 interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopularity> {
 	archetypeData?: any;
 	cardData: CardData;
+	gameType: string;
 	popularityData?: any;
 	sortDirection?: SortDirection;
 	setSortDirection?: (ascending: SortDirection) => void;
@@ -100,6 +101,7 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 				archetypes={archetypeData}
 				cardData={this.props.cardData}
 				games={games}
+				gameType={this.props.gameType}
 				maxGames={maxGames}
 				maxPopuarity={maxPopularity}
 				sortBy={this.props.sortBy}

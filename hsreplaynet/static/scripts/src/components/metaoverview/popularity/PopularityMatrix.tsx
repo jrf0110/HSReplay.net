@@ -14,6 +14,7 @@ interface PopularityMatrixProps extends React.ClassAttributes<PopularityMatrix> 
 	archetypes: ArchetypeRankPopularity[];
 	cardData: CardData;
 	games: number[];
+	gameType: string;
 	maxGames: number;
 	maxPopuarity: number;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
@@ -97,6 +98,7 @@ export default class PopularityMatrix extends React.Component<PopularityMatrixPr
 													<RowHeader
 														archetypeData={archetype}
 														cardData={this.props.cardData}
+														gameType={this.props.gameType}
 														key={key}
 														style={style}
 													/>
