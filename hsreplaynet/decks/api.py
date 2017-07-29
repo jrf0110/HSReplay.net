@@ -20,7 +20,10 @@ class ArchetypeSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Archetype
-		fields = ("id", "name", "player_class", "player_class_name", "signature")
+		fields = (
+			"id", "name", "player_class", "player_class_name",
+			"standard_signature", "wild_signature"
+		)
 
 	def get_player_class_name(self, instance):
 		return instance.player_class.name

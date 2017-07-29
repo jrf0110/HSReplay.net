@@ -469,8 +469,17 @@ class Archetype(models.Model):
 		return self.name
 
 	@property
-	def signature(self):
-		sig = self.signature_set.latest()
+	def standard_signature(self):
+		sig = self.signature_set.filter(format=enums.FormatType.FT_STANDARD).latest()
+		return {
+			"as_of": sig.as_of,
+			"format": int(sig.format),
+			"components": [(c.card_id, c.weight) for c in sig.components.all()],
+		}
+
+	@property
+	def wild_signature(self):
+		sig = self.signature_set.filter(format=enums.FormatType.FT_WILD).latest()
 		return {
 			"as_of": sig.as_of,
 			"format": int(sig.format),
@@ -561,8 +570,7 @@ class ArchetypeTrainingDeck(models.Model):
 class Signature(models.Model):
 	id = models.AutoField(primary_key=True)
 	archetype = models.ForeignKey(
-		Archetype,
-		on_delete=models.CASCADE
+		Archetype, on_delete=models.CASCADE
 	)
 	format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
 	as_of = models.DateTimeField()
@@ -591,9 +599,7 @@ class Signature(models.Model):
 class SignatureComponent(models.Model):
 	id = models.AutoField(primary_key=True)
 	signature = models.ForeignKey(
-		Signature,
-		related_name="components",
-		on_delete=models.CASCADE
+		Signature, on_delete=models.CASCADE, related_name="components",
 	)
 	card = models.ForeignKey(
 		Card, on_delete=models.PROTECT, to_field="dbf_id", db_column="card_dbf_id",
