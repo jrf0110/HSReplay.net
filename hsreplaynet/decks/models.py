@@ -71,7 +71,12 @@ class DeckManager(models.Manager):
 		if not archetype_ids:
 			return
 
-		signature_weights = Archetype.objects.get_signature_weights(archetype_ids, game_format)
+		signature_weights = Archetype.objects.get_signature_weights(
+			archetype_ids,
+			game_format
+		)
+		# TODO: Don't send Distance Cutoff, use default value
+		# TODO: Use deck.dbf_map()
 		archetype_id = classify_deck(
 			deck.card_dbf_id_list(), archetype_ids, signature_weights, distance_cutoff
 		)
@@ -301,6 +306,13 @@ class ArchetypeManager(models.Manager):
 		JOIN signatures s ON s.signature_id = sc.signature_id;
 	"""
 
+	def get_fully_configured_archetypes(self, game_format, player_class):
+		result = []
+		for archetype in Archetype.objects.filter(player_class=player_class).all():
+			if archetype.is_configured_for_format(game_format):
+				result.append(archetype)
+		return result
+
 	def get_signature_weights(self, archetype_ids, game_format):
 		archetype_ids_sql_list = ",".join(str(id) for id in archetype_ids)
 		query = self.SIGNATURE_COMPONENTS_QUERY_TEMPLATE.format(
@@ -335,43 +347,105 @@ class ArchetypeManager(models.Manager):
 
 		return observations
 
-	def update_signatures(self, archetype):
-		self.update_signatures_for_format(enums.FormatType.FT_STANDARD, archetype=archetype)
-		self.update_signatures_for_format(enums.FormatType.FT_WILD, archetype=archetype)
+	def update_signatures(self):
+		for player_class in enums.CardClass:
+			if enums.CardClass.DRUID <= player_class <= enums.CardClass.WARRIOR:
+				self.update_signatures_for_player_class(player_class)
 
-	def update_signatures_for_format(self, game_format, archetype):
-		observation_counts = self._get_deck_observation_counts_from_redshift(game_format)
-		digests = list(observation_counts.keys())
+	def update_signatures_for_player_class(self, player_class):
+		self.update_signatures_for_format(enums.FormatType.FT_STANDARD, player_class=player_class)
+		self.update_signatures_for_format(enums.FormatType.FT_WILD, player_class=player_class)
 
-		includes = Include.objects.filter(
-			deck__digest__in=digests,
-			deck__archetype_id=archetype.id
-		).values("deck__digest", "card__card_id", "card__dbf_id", "count")
-
-		matching_decks = {}
-		for include in includes:
-			digest = include["deck__digest"]
-			if digest not in matching_decks:
-				matching_decks[digest] = []
-			matching_decks[digest].append({
-				"card_id": include["card__card_id"],
-				"dbf_id": include["card__dbf_id"],
-				"count": include["count"],
-			})
-
+	def update_signatures_for_format(self, game_format, player_class):
 		thresholds = {
 			settings.ARCHETYPE_CORE_CARD_THRESHOLD: settings.ARCHETYPE_CORE_CARD_WEIGHT,
 			settings.ARCHETYPE_TECH_CARD_THRESHOLD: settings.ARCHETYPE_TECH_CARD_WEIGHT,
 		}
-		components = get_signature_components(matching_decks, observation_counts, thresholds)
+		training_data = self.get_training_data_for_player_class(game_format, player_class)
 
-		signature = Signature.objects.create(
-			archetype=archetype, format=game_format, as_of=timezone.now()
+		# TODO: Change to use calculate_signature_weights()
+		new_weights = get_signature_components(training_data, thresholds)
+
+		validation_data = self.get_validation_data_for_player_class(game_format, player_class)
+
+		if self.new_weights_pass_validation(new_weights, validation_data):
+			for archetype_id, weights in new_weights.items():
+				signature = Signature.objects.create(
+					archetype=int(archetype_id), format=game_format, as_of=timezone.now()
+				)
+				for dbf_id, weight in weights.items():
+					SignatureComponent.objects.create(
+						signature=signature, card_id=int(dbf_id), weight=weight
+					)
+		else:
+			raise RuntimeError("New Signature Weights Failed Validation")
+
+	def get_training_data_for_player_class(self, game_format, player_class):
+		observation_counts = self._get_deck_observation_counts_from_redshift(game_format)
+		training_decks = ArchetypeTrainingDeck.objects.get_training_decks(
+			game_format,
+			player_class
 		)
-		for card, weight in components:
-			SignatureComponent.objects.create(
-				signature=signature, card_id=card["dbf_id"], weight=weight
-			)
+		training_deck_digests = [d.digest for d in training_decks]
+		digests = [d for d in observation_counts.keys() if d in training_deck_digests]
+
+		configured_archetypes = self.get_fully_configured_archetypes(
+			game_format,
+			player_class
+		)
+		configured_archetype_ids = [a.id for a in configured_archetypes]
+
+		includes = Include.objects.filter(
+			deck__digest__in=digests,
+		).values("deck__digest", "deck__archetype_id", "card__dbf_id", "count")
+
+		training_data = {}
+		for include in includes:
+			archetype_id = include["deck__archetype_id"]
+			if archetype_id not in configured_archetype_ids:
+				continue
+
+			if archetype_id not in training_data:
+				training_data[archetype_id] = {}
+			digest = include["deck__digest"]
+			if digest not in training_data[archetype_id]:
+				training_data[archetype_id][digest] = {
+					"total_games": observation_counts[digest],
+					"cards": {}
+				}
+			dbf = include["card__dbf_id"]
+			count = include["count"]
+			training_data[archetype_id][digest]["cards"][dbf] = count
+
+		return training_data
+
+	def get_validation_data_for_player_class(self, game_format, player_class):
+		validation_decks = ArchetypeTrainingDeck.objects.get_validation_decks(
+			game_format,
+			player_class
+		)
+		validation_data = {}
+		for deck in validation_decks:
+			if deck.archetype.id not in validation_data:
+				validation_data[deck.archetype.id] = {}
+			if deck.digest not in validation_data[deck.archetype.id]:
+				validation_data[deck.archetype.id][deck.digest] = {
+					"cards": deck.dbf_map()
+				}
+		return validation_data
+
+	def new_weights_pass_validation(self, new_weights, validation_data):
+		for expected_id, validation_decks in validation_data.items():
+			for digest, validation_deck in validation_decks.items():
+				deck = validation_deck["cards"]
+				assigned_id = classify_deck(
+					deck,
+					new_weights.keys(),
+					new_weights
+				)
+				if not assigned_id or assigned_id != expected_id:
+					return False
+		return True
 
 
 class Archetype(models.Model):
@@ -382,7 +456,8 @@ class Archetype(models.Model):
 	E.g. 'Freeze Mage', 'Miracle Rogue', 'Pirate Warrior', 'Zoolock', 'Control Priest'
 	"""
 
-	MINIMUM_REQUIRED_VALIDATION_DECKS = 5
+	MINIMUM_REQUIRED_VALIDATION_DECKS = 1
+	MINIMUM_REQUIRED_TRAINING_DECKS = 3
 
 	id = models.BigAutoField(primary_key=True)
 	objects = ArchetypeManager()
@@ -407,10 +482,20 @@ class Archetype(models.Model):
 			})
 		return ret
 
-	@property
-	def is_configured(self):
-		min_decks = self.MINIMUM_REQUIRED_VALIDATION_DECKS
-		return self.training_decks.filter(validation_deck=True).count() >= min_decks
+	def is_configured_for_format(self, game_format):
+		num_training = len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
+			self,
+			game_format,
+			is_validation_deck=False
+		))
+		num_validation = len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
+			self,
+			game_format,
+			is_validation_deck=True
+		))
+		has_min_training_decks = num_training >= self.MINIMUM_REQUIRED_TRAINING_DECKS
+		has_min_validation_decks = num_validation >= self.MINIMUM_REQUIRED_VALIDATION_DECKS
+		return has_min_training_decks and has_min_validation_decks
 
 	def distance(self, deck, game_format):
 		signature = self.get_signature(game_format)
@@ -429,7 +514,51 @@ class Archetype(models.Model):
 			).order_by("-as_of").first()
 
 
+class ArchetypeTrainingDeckManager(models.Manager):
+	TRAINING_DECK_IDS_QUERY = """
+		SELECT
+			d.id AS deck_id
+		FROM decks_archetypetrainingdeck t
+		JOIN cards_deck d ON d.id = t.deck_id
+		WHERE t.is_validation_deck = {is_validation}
+		"""
+
+	def _get_decks(self, is_validation_deck):
+		with connection.cursor() as cursor:
+			cursor.execute(
+				self.TRAINING_DECK_IDS_QUERY.format(is_validation=is_validation_deck)
+			)
+			deck_ids = [record["deck_id"] for record in dictfetchall(cursor)]
+			return Deck.objects.filter(id__in=deck_ids)
+
+	def get_training_decks_for_archetype(self, archetype, game_format, is_validation_deck):
+		result = []
+		training_decks = self._get_training_decks(
+			game_format,
+			archetype.player_class,
+			is_validation_deck
+		)
+		for td in training_decks:
+			if td.archetype == archetype:
+				result.append(td)
+		return result
+
+	def get_training_decks(self, game_format, player_class):
+		return self._get_training_decks(game_format, player_class, is_validation_deck=False)
+
+	def get_validation_decks(self, game_format, player_class):
+		return self._get_training_decks(game_format, player_class, is_validation_deck=True)
+
+	def _get_training_decks(self, game_format, player_class, is_validation_deck):
+		result = []
+		for deck in self._get_decks(is_validation_deck):
+			if deck.format == game_format and deck.deck_class == player_class:
+				result.append(deck)
+		return result
+
+
 class ArchetypeTrainingDeck(models.Model):
+	objects = ArchetypeTrainingDeckManager()
 	deck = models.ForeignKey(Deck, on_delete=models.PROTECT)
 	is_validation_deck = models.BooleanField()
 
