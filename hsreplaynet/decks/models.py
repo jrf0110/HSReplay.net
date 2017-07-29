@@ -13,7 +13,7 @@ from django.utils.timezone import now
 from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
-from hsarchetypes import classify_deck, calculate_signature_weights
+from hsarchetypes import calculate_signature_weights, classify_deck
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils.aws.clients import FIREHOSE
 from hsreplaynet.utils.aws.redshift import get_redshift_query
