@@ -229,6 +229,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					<DeckList
 						decks={this.state.filteredDecks}
 						pageSize={12}
+						hrefTab={"my-statistics"}
 					/>
 				</Fragments>
 			);

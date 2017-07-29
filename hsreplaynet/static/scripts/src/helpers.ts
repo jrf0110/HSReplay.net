@@ -759,13 +759,18 @@ export function fetchCSRF(url: string, options?) {
 	return fetch(url, options);
 }
 
-export function getFragments(keys: string[]) {
+export function getFragments(keys: string[], overwrite?: {[key: string]: string}) {
 	const fragments = Fragments.parseFragmentString(document.location.hash);
 	Object.keys(fragments).forEach((key) => {
 		if (keys.indexOf(key) === -1) {
 			delete fragments[key];
 		}
 	});
+	if (overwrite) {
+		Object.keys(overwrite).forEach((key) => {
+			fragments[key] = overwrite[key];
+		});
+	}
 	if (Object.keys(fragments).length === 0) {
 		return "";
 	}

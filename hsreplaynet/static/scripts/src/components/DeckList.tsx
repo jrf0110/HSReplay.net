@@ -26,6 +26,7 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	setPage?: (page: number) => void;
 	helpMessage?: string;
 	showArchetypeSelector?: boolean;
+	hrefTab?: string;
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -140,6 +141,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					noGlobalData={deck.noGlobalData}
 					archetypeName={archetype && archetype.name}
 					archetypeId={archetype && archetype.id}
+					hrefTab={this.props.hrefTab}
 				/>,
 			);
 		});

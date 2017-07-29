@@ -17,6 +17,7 @@ interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	showArchetypeSelector?: boolean;
 	archetypeName?: string;
 	archetypeId?: number;
+	hrefTab?: string;
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, any> {
@@ -115,6 +116,10 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			);
 		}
 
+		const {hrefTab} = this.props;
+		const tab = hrefTab && {tab: hrefTab};
+		const href = `/decks/${this.props.deckId}/` + getFragments(["gameType", "rankRange"], tab);
+
 		return (
 			<li
 				style={{
@@ -123,7 +128,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				}}
 				key={this.props.deckId}
 			>
-				<a href={"/decks/" + this.props.deckId + "/" + getFragments(["gameType", "rankRange"])}>
+				<a href={href}>
 					<div className="deck-tile">
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							{deckName}
