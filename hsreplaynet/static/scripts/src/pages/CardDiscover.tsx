@@ -319,6 +319,14 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 						>
 							<TableLoading cardData={this.props.cardData}>
 								<MyCardStatsTable
+									hiddenColumns={[
+										"mulliganWinrate",
+										"keepPercent",
+										"drawnWinrate",
+										"playedWinrate",
+										"turnsInHand",
+										"turnPlayed",
+									]}
 									cards={this.state.filteredCards || []}
 									numCards={this.state.numCards}
 									sortBy={this.props.sortBy}
