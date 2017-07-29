@@ -11,22 +11,25 @@ export default class DataManager {
 				paramStrings.push(key + value);
 			}
 		});
-
-		return url + paramStrings.sort().join("");
+		return this.cleanUrl(url) + paramStrings.sort().join("");
 	}
 
 	private static fullUrl(url: string, params: any): string {
-		url = url.startsWith("/") ? url : "/analytics/query/" + url;
-		if (!url.endsWith("/")) {
-			url += "/";
-		}
-
+		url = this.cleanUrl(url);
 		const keys = params ? Object.keys(params) : [];
 		const query = keys.reduce((prev, key, i) => {
 			return prev + (i > 0 ? "&" : "?") + encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
 		}, "");
 
 		return url + query;
+	}
+
+	private static cleanUrl(url: string): string {
+		url = url.startsWith("/") ? url : "/analytics/query/" + url;
+		if (!url.endsWith("/")) {
+			url += "/";
+		}
+		return url;
 	}
 
 	static get(url: string, params?: any): Promise<any> {
