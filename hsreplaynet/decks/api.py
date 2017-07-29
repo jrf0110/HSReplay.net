@@ -144,6 +144,8 @@ class ArchetypeViewSet(
 	def get_serializer_class(self):
 		if self.request.method in ["PATCH", "POST"]:
 			return ArchetypeWriteSerializer
+		if self.action == "list":
+			return ArchetypeListSerializer
 		return ArchetypeSerializer
 
 	def get_permission_classes(self):
