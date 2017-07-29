@@ -226,13 +226,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		let filters = null;
 		let header = null;
-		const hasPersonalData = UserData.hasFeature("personal-deck-stats") && this.state.hasPeronalData;
 		if (this.state.hasData === false) {
 			header = (
 				<h4 className="message-wrapper" id="message-no-data">This deck does not have enough data.</h4>
 			);
-		}
-		if (this.state.hasData === false && hasPersonalData === false) {
+
 			overviewContent.push(
 				<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 					{cardList}
@@ -245,118 +243,116 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			);
 		}
 		else {
-			if (this.state.hasData !== false) {
-				filters = [
-					<PremiumWrapper name="Single Deck Opponent Selection">
-						<h2>Select your opponent</h2>
-						<ClassFilter
-							filters="All"
-							hideAll
-							minimal
-							tabIndex={premiumTabIndex}
-							selectedClasses={this.props.selectedClasses}
-							selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
+			filters = [
+				<PremiumWrapper name="Single Deck Opponent Selection">
+					<h2>Select your opponent</h2>
+					<ClassFilter
+						filters="All"
+						hideAll
+						minimal
+						tabIndex={premiumTabIndex}
+						selectedClasses={this.props.selectedClasses}
+						selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
+					/>
+				</PremiumWrapper>,
+				<PremiumWrapper
+					name="Single Deck Rank Range"
+					infoHeader="Deck breakdown rank range"
+					infoContent={[
+						<p>Check out how this deck performs at higher ranks!</p>,
+						<br/>,
+						<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
+					]}
+				>
+					<h2>Rank range</h2>
+					<InfoboxFilterGroup
+						locked={!isPremium}
+						selectedValue={this.rankRange()}
+						onClick={(rankRange) => this.props.setRankRange(rankRange)}
+						tabIndex={premiumTabIndex}
+					>
+						{infoBoxFilter("LEGEND_ONLY", "Legend only")}
+						{infoBoxFilter("LEGEND_THROUGH_FIVE", "Legend–5")}
+						{infoBoxFilter("LEGEND_THROUGH_TEN", "Legend–10")}
+						{infoBoxFilter("ALL", "Legend–25")}
+					</InfoboxFilterGroup>
+				</PremiumWrapper>,
+			];
+
+			header = [
+				<div className="col-lg-6 col-md-6">
+					<div className="chart-wrapper wide">
+						<DataInjector
+							fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
+							query={{url: "single_deck_stats_over_time", params: this.getParams()}}
+						>
+							<ChartLoading>
+								<PopularityLineChart
+									widthRatio={2}
+									maxYDomain={10}
+								/>
+							</ChartLoading>
+						</DataInjector>
+						<InfoIcon
+							header="Popularity over time"
+							content="Percentage of games played with this deck."
 						/>
-					</PremiumWrapper>,
-					<PremiumWrapper
-						name="Single Deck Rank Range"
-						infoHeader="Deck breakdown rank range"
-						infoContent={[
-							<p>Check out how this deck performs at higher ranks!</p>,
-							<br/>,
-							<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
+					</div>
+				</div>,
+				<div className="col-lg-6 col-md-6">
+					<div className="chart-wrapper wide">
+						<DataInjector
+							fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
+							query={{url: "single_deck_stats_over_time", params: this.getParams()}}
+						>
+							<ChartLoading>
+								<WinrateLineChart widthRatio={2} />
+							</ChartLoading>
+						</DataInjector>
+						<InfoIcon
+							header="Winrate over time"
+							content="Percentage of games won with this deck."
+						/>
+					</div>
+				</div>,
+			];
+
+			overviewContent.push(
+				<div className="col-lg-3 col-md-6 col-sm-12 col-xs-12">
+					{cardList}
+				</div>,
+				<div className="col-lg-5 col-md-6 col-sm-12 col-xs-12">
+					<ManaCurve cards={cards}/>
+					<DataInjector
+						fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
+						query={[
+							{
+								key: "opponentWinrateData",
+								params: this.getParams(),
+								url: "single_deck_base_winrate_by_opponent_class",
+							},
+							{
+								key: "deckListData",
+								params: {GameType: this.gameType(), RankRange: this.rankRange()},
+								url: "list_decks_by_win_rate",
+							},
 						]}
 					>
-						<h2>Rank range</h2>
-						<InfoboxFilterGroup
-							locked={!isPremium}
-							selectedValue={this.rankRange()}
-							onClick={(rankRange) => this.props.setRankRange(rankRange)}
-							tabIndex={premiumTabIndex}
+						<TableLoading
+							dataKeys={["opponentWinrateData", "deckListData"]}
 						>
-							{infoBoxFilter("LEGEND_ONLY", "Legend only")}
-							{infoBoxFilter("LEGEND_THROUGH_FIVE", "Legend–5")}
-							{infoBoxFilter("LEGEND_THROUGH_TEN", "Legend–10")}
-							{infoBoxFilter("ALL", "Legend–25")}
-						</InfoboxFilterGroup>
-					</PremiumWrapper>,
-				];
-
-				header = [
-					<div className="col-lg-6 col-md-6">
-						<div className="chart-wrapper wide">
-							<DataInjector
-								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
-							>
-								<ChartLoading>
-									<PopularityLineChart
-										widthRatio={2}
-										maxYDomain={10}
-									/>
-								</ChartLoading>
-							</DataInjector>
-							<InfoIcon
-								header="Popularity over time"
-								content="Percentage of games played with this deck."
+							<DeckOverviewTable
+								deckId={this.props.deckId}
+								playerClass={this.props.deckClass}
 							/>
-						</div>
-					</div>,
-					<div className="col-lg-6 col-md-6">
-						<div className="chart-wrapper wide">
-							<DataInjector
-								fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-								query={{url: "single_deck_stats_over_time", params: this.getParams()}}
-							>
-								<ChartLoading>
-									<WinrateLineChart widthRatio={2} />
-								</ChartLoading>
-							</DataInjector>
-							<InfoIcon
-								header="Winrate over time"
-								content="Percentage of games won with this deck."
-							/>
-						</div>
-					</div>,
-				];
-
-				overviewContent.push(
-					<div className="col-lg-3 col-md-6 col-sm-12 col-xs-12">
-						{cardList}
-					</div>,
-					<div className="col-lg-5 col-md-6 col-sm-12 col-xs-12">
-						<ManaCurve cards={cards}/>
-						<DataInjector
-							fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
-							query={[
-								{
-									key: "opponentWinrateData",
-									params: this.getParams(),
-									url: "single_deck_base_winrate_by_opponent_class",
-								},
-								{
-									key: "deckListData",
-									params: {GameType: this.gameType(), RankRange: this.rankRange()},
-									url: "list_decks_by_win_rate",
-								},
-							]}
-						>
-							<TableLoading
-								dataKeys={["opponentWinrateData", "deckListData"]}
-							>
-								<DeckOverviewTable
-									deckId={this.props.deckId}
-									playerClass={this.props.deckClass}
-								/>
-							</TableLoading>
-						</DataInjector>
-					</div>,
-					<div className="col-lg-4 col-md-12 col-sm-12 col-xs-12">
-						{deckCharts && deckCharts[0]}
-						{deckCharts && deckCharts[1]}
-					</div>,
-				);
-			}
+						</TableLoading>
+					</DataInjector>
+				</div>,
+				<div className="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+					{deckCharts && deckCharts[0]}
+					{deckCharts && deckCharts[1]}
+				</div>,
+			);
 		}
 
 		return <div className="deck-detail-container">
