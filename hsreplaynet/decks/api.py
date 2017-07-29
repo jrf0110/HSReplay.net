@@ -82,11 +82,6 @@ class DeckSerializer(serializers.ModelSerializer):
 		result = super(DeckSerializer, self).update(instance, validated_data)
 
 		if old_archetype != new_archetype:
-			if old_archetype:
-				Archetype.objects.update_signatures(archetype=old_archetype)
-			if new_archetype:
-				Archetype.objects.update_signatures(archetype=new_archetype)
-
 			instance.sync_archetype_to_firehose()
 
 		return result
