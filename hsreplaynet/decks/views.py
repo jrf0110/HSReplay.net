@@ -139,9 +139,9 @@ class DeckDetailView(View):
 		self.request.head.add_meta({
 			"name": "description",
 			"content": (
-				"Decklist for this %s. Learn how to play it with our mulligan guide "
-				"and find similar decks."
-			) % (deck),
+				"{name} statistics, decklist and counters. "
+				"Import into Hearthstone: {deckstring}"
+			).format(name=str(deck), deckstring=deck.deckstring),
 		})
 
 		context = {
