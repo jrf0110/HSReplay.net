@@ -11,10 +11,13 @@ from hsreplaynet.utils.redis import (
 )
 
 
-def deck_prediction_tree(player_class, format):
+def deck_prediction_tree(player_class, format, redis_client=None):
 	try:
-		redis_client = caches["decks"].client.get_client()
-		return DeckPredictionTree(redis_client, player_class, format)
+		if redis_client:
+			redis = redis_client
+		else:
+			redis = caches["decks"].client.get_client()
+		return DeckPredictionTree(redis, player_class, format)
 	except:
 		return None
 

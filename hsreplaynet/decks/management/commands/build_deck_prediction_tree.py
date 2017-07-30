@@ -1,5 +1,7 @@
 import json
+import time
 from datetime import date, timedelta
+import redis
 from django.core.management.base import BaseCommand
 from hearthstone.enums import CardClass, FormatType
 from sqlalchemy import Date, Integer, String, TIMESTAMP
@@ -61,27 +63,49 @@ AND p.game_date BETWEEN :start_date AND :end_date
 
 
 class Command(BaseCommand):
+	def add_arguments(self, parser):
+		parser.add_argument("--redis_host", nargs=1)
+		parser.add_argument("--look_back", nargs=1)
+
 	def handle(self, *args, **options):
+		print(str(options))
 		conn = redshift.get_new_redshift_connection()
-		start_ts = date.today() - timedelta(days=14)
+
+		lookback_val = options["look_back"]
+		if lookback_val:
+			lookback = int(lookback_val[0])
+		else:
+			lookback = 14
+
 		end_ts = date.today() - timedelta(days=1)
+		start_ts = end_ts - timedelta(days=lookback)
+
+		redis_host = options["redis_host"]
+		if redis_host:
+			redis_client = redis.StrictRedis(host=redis_host[0])
+		else:
+			redis_client = None
 
 		params = {
 			"start_date": start_ts,
 			"end_date": end_ts
 		}
 		compiled_statement = REDSHIFT_QUERY.params(params).compile(bind=conn)
+		start_ts = time.time()
 		for row in conn.execute(compiled_statement):
 			as_of = row["match_start"]
 			deck_id = row["deck_id"]
-			dbf_map = {dbf_id: count for dbf_id, count in row["deck_list"]}
+			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
 			player_class = CardClass(row["player_class"])
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
 			played_cards = json.loads(row["played_cards"])
 
-			deck_prediction_tree(player_class, format).observe(
+			deck_prediction_tree(player_class, format, redis_client=redis_client).observe(
 				deck_id,
 				dbf_map,
 				played_cards,
 				as_of=as_of
 			)
+		end_ts = time.time()
+		duration_seconds = round(end_ts - start_ts)
+		print("Took: %i Seconds" % duration_seconds)
