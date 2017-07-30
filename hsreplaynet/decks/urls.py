@@ -1,6 +1,8 @@
 from django.conf.urls import url
+from django.views.generic import RedirectView
 from . import views
 from .api import DeckDetailView, GetOrCreateDeckView
+
 
 archetype_detail = views.ArchetypeDetailView.as_view()
 
@@ -24,6 +26,7 @@ urlpatterns = [
 	),
 	url(r"^cards/$", card_stats, name="card_stats"),
 	url(r"^cards/editor/", card_editor, name="card_editor"),
+	url(r"^cards/gallery/$", RedirectView.as_view(pattern_name="card_stats", permanent=True)),
 	url(r"^cards/mine/$", my_card_stats, name="my_card_stats"),
 	url(r"^cards/(?P<pk>\w+)/(?P<slug>[\w-]+)?", card_detail, name="card_detail"),
 	url(r"^decks/$", deck_list, name="deck_list"),
