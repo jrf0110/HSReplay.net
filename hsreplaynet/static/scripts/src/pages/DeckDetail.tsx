@@ -15,8 +15,8 @@ import CardData from "../CardData";
 import * as React from "react";
 import TableLoading from "../components/loading/TableLoading";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
-import { getArchetypeUrl, getDustCost, getHeroCardId, isWildSet, toTitleCase } from "../helpers";
-import { CardObj, RenderData, SortDirection, TableData } from "../interfaces";
+import {getArchetypeUrl, getDustCost, getHeroCardId, isWildSet, toTitleCase} from "../helpers";
+import {ApiArchetype, CardObj, RenderData, SortDirection, TableData} from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
 import ManaCurve from "../components/ManaCurve";
@@ -692,13 +692,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
 							]}
 							extract={{
+								archetypeData: (data: ApiArchetype[]) => {
+									const archetypes = data.filter((a) => a.player_class_name === this.props.deckClass);
+									return {archetypes};
+								},
 								deckData: (data) => ({defaultSelectedArchetype: data.archetype}),
 							}}
 						>
-							<ArchetypeSelector
-								deckId={this.props.deckId}
-								playerClass={this.props.deckClass}
-							/>
+							<HideLoading>
+								<ArchetypeSelector deckId={this.props.deckId} />
+							</HideLoading>
 						</DataInjector>
 					</span>
 				</li>,

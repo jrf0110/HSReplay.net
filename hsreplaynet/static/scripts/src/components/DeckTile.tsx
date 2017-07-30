@@ -2,8 +2,8 @@ import * as React from "react";
 import CardIcon from "./CardIcon";
 import ManaCurve from "./ManaCurve";
 import moment from "moment";
-import {CardObj, DeckObj} from "../interfaces";
-import { cardSorting, getFragments, getHeroCardId, toPrettyNumber, toTitleCase } from "../helpers";
+import {ApiArchetype, CardObj, DeckObj} from "../interfaces";
+import {cardSorting, getFragments, getHeroCardId, toPrettyNumber, toTitleCase} from "../helpers";
 import ArchetypeSelector from "./ArchetypeSelector";
 import UserData from "../UserData";
 import Tooltip from "./Tooltip";
@@ -186,13 +186,16 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 						{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
 					]}
 					extract={{
+						archetypeData: (data: ApiArchetype[]) => {
+							const archetypes = data.filter((a) => a.player_class_name === this.props.playerClass);
+							return {archetypes};
+						},
 						deckData: (data) => ({defaultSelectedArchetype: data.archetype}),
 					}}
 				>
-					<ArchetypeSelector
-						deckId={this.props.deckId}
-						playerClass={this.props.playerClass}
-					/>
+					<HideLoading>
+						<ArchetypeSelector deckId={this.props.deckId} />
+					</HideLoading>
 				</DataInjector>,
 			);
 		}
