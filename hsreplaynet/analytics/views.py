@@ -124,7 +124,7 @@ def _get_query_and_params(request, name):
 			return HttpResponseForbidden()
 	else:
 		if deck and not deck_is_eligible_for_global_stats(deck):
-			return HttpResponse(status=204)
+			return HttpResponseForbidden()
 
 		try:
 			parameterized_query = query.build_full_params(supplied_params)
