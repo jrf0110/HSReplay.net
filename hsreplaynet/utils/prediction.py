@@ -7,7 +7,8 @@ from hsreplaynet.utils.redis import (
 	DEFAULT_TTL,
 	RedisIntegerMapStorage,
 	RedisPopularityDistribution,
-	RedisTree
+	RedisTree,
+	SECONDS_PER_DAY
 )
 
 
@@ -44,14 +45,26 @@ class PredictionResult:
 		return stack
 
 
+DEFAULT_POPULARITY_TTL = 7 * SECONDS_PER_DAY
+
+
 class DeckPredictionTree:
-	def __init__(self, redis, player_class, format, max_depth=6, ttl=DEFAULT_TTL):
+	def __init__(
+		self,
+		redis,
+		player_class,
+		format,
+		max_depth=6,
+		ttl=DEFAULT_TTL,
+		popularity_ttl=DEFAULT_POPULARITY_TTL
+	):
 		self.redis = redis
 		self.player_class = player_class
 		self.format = format
 		self.max_depth = max_depth
 		self.ttl = ttl
-		self.storage = RedisIntegerMapStorage(redis, "DECK")
+		self.popularity_ttl = popularity_ttl
+		self.storage = RedisIntegerMapStorage(redis, "DECK", ttl=self.ttl)
 		self.tree_name = "%s_%s_%s" % ("DECK_PREDICTION", player_class.name, format.name)
 		self.tree = RedisTree(redis, self.tree_name, ttl=self.ttl)
 
@@ -143,7 +156,7 @@ class DeckPredictionTree:
 		dist = RedisPopularityDistribution(
 			self.redis,
 			name=node.key,
-			ttl=self.ttl,
+			ttl=self.popularity_ttl,
 			max_items=self._max_collection_size_for_depth(node.depth)
 		)
 		return dist

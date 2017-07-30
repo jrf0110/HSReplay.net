@@ -4,7 +4,8 @@ from redis import StrictRedis
 
 
 SECONDS_PER_HOUR = 3600
-DEFAULT_TTL = 15 * 24 * SECONDS_PER_HOUR  # 15 Days
+SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR
+DEFAULT_TTL = 15 * SECONDS_PER_DAY  # 15 Days
 
 
 class RedisPopularityDistribution:
