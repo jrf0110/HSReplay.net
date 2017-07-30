@@ -72,9 +72,7 @@ class GlobalGameAdmin(admin.ModelAdmin):
 		"__str__", "match_start", "game_type", "build", "server_version",
 		"game_handle", "ladder_season", "scenario_id", "num_turns",
 	)
-	list_filter = (
-		"game_type", "ladder_season", "brawl_season", "build",
-	)
+	list_filter = ("game_type", "format")
 	readonly_fields = ("digest", )
 	search_fields = ("replays__shortid", "players__name")
 	inlines = (GlobalGamePlayerInline, GameReplayInline)
