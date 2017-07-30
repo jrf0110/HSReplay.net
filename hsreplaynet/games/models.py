@@ -261,16 +261,12 @@ class GameReplayManager(models.Manager):
 		Returns None if a replay cannot be found.
 		"""
 		try:
-			return GameReplay.objects.get(shortid=shortid, is_deleted=False)
+			return GameReplay.objects.get(shortid=shortid)
 		except GameReplay.DoesNotExist:
 			try:
-				alias = ReplayAlias.objects.get(shortid=shortid)
-				if not alias.replay.is_deleted:
-					return alias.replay
+				return ReplayAlias.objects.get(shortid=shortid)
 			except ReplayAlias.DoesNotExist:
 				pass
-
-		return None
 
 
 class GameReplay(models.Model):

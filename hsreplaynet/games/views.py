@@ -24,8 +24,8 @@ class ReplayDetailView(View):
 
 	def get(self, request, id):
 		replay = GameReplay.objects.find_by_short_id(id)
-		if not replay:
-			raise Http404("Replay not found")
+		if not replay or replay.is_deleted:
+			raise Http404("Replay not found.")
 
 		# TODO: IP caching in redis
 		replay.views += 1
@@ -75,6 +75,6 @@ class ReplayEmbedView(View):
 	@xframe_options_exempt
 	def get(self, request, id):
 		replay = GameReplay.objects.find_by_short_id(id)
-		if not replay:
-			raise Http404("Replay not found")
+		if not replay or replay.is_deleted:
+			raise Http404("Replay not found.")
 		return render(request, self.template_name, {"replay": replay})
