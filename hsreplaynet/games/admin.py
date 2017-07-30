@@ -79,12 +79,14 @@ class GlobalGameAdmin(admin.ModelAdmin):
 	search_fields = ("replays__shortid", "players__name")
 	inlines = (GlobalGamePlayerInline, GameReplayInline)
 	show_full_result_count = False
-	ordering = None
 	paginator = EstimatedCountPaginator
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
 		return qs.prefetch_related("players")
+
+	def get_ordering(self, instance=None):
+		return []
 
 
 @admin.register(GlobalGamePlayer)
