@@ -81,35 +81,3 @@
 		margin: 0 auto;
 	}
 }
-
-#page-content {
-	.content-tabs {
-		li > a {
-			border-radius: 0;
-			color: $lightblue;
-			font-weight: bold;
-
-			.text-premium {
-				color: $premium-hover;
-			}
-		}
-
-		li.active > a {
-			background: $offwhite;
-			color: black;
-		}
-
-		li.disabled > a {
-			color: #777;
-
-			.text-premium {
-				color: inherit;
-			}
-		}
-	}
-}
-
-.content-tabs {
-	padding: 0 10px;
-
-}

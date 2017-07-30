@@ -828,3 +828,54 @@ table .info-icon, .sort-header .info-icon {
 		color: $blue;
 	}
 }
+
+.content-tabs {
+	padding: 0 5px;
+	border-bottom: 1px solid $blue;
+
+	li {
+		> a {
+			background: $blue;
+			border-radius: 0;
+			color: white;
+			font-weight: bold;
+			margin-right: 5px;
+			margin-top: 2px;
+
+			.text-premium {
+				color: $premium;
+			}
+
+			&:hover {
+				background: $blue;
+				border-color: transparent;
+				color: $lightblue;
+
+				.text-premium {
+					color: $premium-hover;
+				}
+			}
+		}
+
+		&.active {
+			> a, > a:hover, > a:focus {
+				background: $offwhite;
+				border: 1px solid $blue;
+				border-bottom-color: transparent;
+				color: black;
+
+				.text-premium {
+					color: $premium-hover;
+				}
+			}
+		}
+
+		&.disabled > a {
+			color: #777;
+
+			.text-premium {
+				color: inherit;
+			}
+		}
+	}
+}
