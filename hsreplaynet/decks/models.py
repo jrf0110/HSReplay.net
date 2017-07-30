@@ -423,8 +423,18 @@ class ArchetypeManager(models.Manager):
 			game_format,
 			player_class
 		)
+
+		configured_archetypes = self.get_fully_configured_archetypes(
+			game_format,
+			player_class
+		)
+		configured_archetype_ids = [a.id for a in configured_archetypes]
+
 		validation_data = {}
 		for deck in validation_decks:
+			if deck.archetype.id not in configured_archetype_ids:
+				continue
+
 			if deck.archetype.id not in validation_data:
 				validation_data[deck.archetype.id] = {}
 			if deck.digest not in validation_data[deck.archetype.id]:
