@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.conf.urls import include, url
+from django.views.generic import RedirectView
 from .billing.views import PremiumDetailView
 from .games.views import ReplayDetailView, ReplayEmbedView
 from .views import DownloadsView, HomeView
@@ -31,6 +32,7 @@ if not settings.ENV_LAMBDA:
 		url(r"^comments/", include("hsreplaynet.comments.urls")),
 		url(r"^premium/$", PremiumDetailView.as_view(), name="premium"),
 		url(r"^contact/$", flatpage, {"url": "/contact/"}, name="contact_us"),
+		url(r"^about/premium/$", RedirectView.as_view(pattern_name="premium", permanent=True)),
 		url(r"^about/privacy/$", flatpage, {"url": "/about/privacy/"}, name="privacy_policy"),
 		url(r"^about/tos/$", flatpage, {"url": "/about/tos/"}, name="terms_of_service"),
 		url(r"^downloads/", DownloadsView.as_view(), name="downloads"),
