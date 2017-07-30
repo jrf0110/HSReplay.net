@@ -19,7 +19,6 @@
 	>span {
 		margin: 5px 0 0 5px;
 		color: black;
-		cursor: pointer;
 		user-select: none;
 
 		&.selected {
@@ -33,6 +32,10 @@
 			background-color: lightgray;
 			color: gray;
 		}
+	}
+
+	.class-icon {
+		cursor: pointer;
 	}
 
 	.class-icon:hover {
