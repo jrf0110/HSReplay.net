@@ -26,53 +26,58 @@ interface CardTableProps extends SortableProps, React.ClassAttributes<CardTable>
 }
 
 const CELL_HEIGHT = 36;
-const ROW_HEADER_WIDTH = 217;
+const MAX_HEADER_WIDTH = 217;
+const MIN_HEADER_WIDTH = 150;
+const HEADER_SCREEN_RATIO = 0.33;
 
 export default class CardTable extends React.Component<CardTableProps, void> {
 	render(): JSX.Element {
 		return (
 			<div className="card-table-container">
 				<AutoSizer>
-					{({width}) => (
-						<div className="">
-							<div className="grid-container grid-container-top grid-container-left">
-								<div
-									className="card-table-column-header"
-									style={{
-										lineHeight: (CELL_HEIGHT - 1) + "px",
-										textAlign: "center",
-										width: ROW_HEADER_WIDTH,
-									}}
-								>
-									{this.getSortHeader("card", "Card", "ascending")}
+					{({width}) => {
+						const headerWidth = Math.max(MIN_HEADER_WIDTH, Math.min(MAX_HEADER_WIDTH, width  * HEADER_SCREEN_RATIO));
+						return (
+							<div className="">
+								<div className="grid-container grid-container-top grid-container-left">
+									<div
+										className="card-table-column-header"
+										style={{
+											lineHeight: (CELL_HEIGHT - 1) + "px",
+											textAlign: "center",
+											width: headerWidth,
+										}}
+									>
+										{this.getSortHeader("card", "Card", "ascending")}
+									</div>
+								</div>
+								<div className="grid-container grid-container-left" style={{top: CELL_HEIGHT}}>
+									<Grid
+										cellRenderer={this.columnHeaderRenderer}
+										width={headerWidth}
+										height={CELL_HEIGHT * this.props.rowData.length}
+										columnCount={1}
+										columnWidth={headerWidth}
+										rowCount={this.props.rowData.length}
+										rowHeight={CELL_HEIGHT}
+										style={{outline: "none"}}
+									/>
+								</div>
+								<div className="grid-container grid-container-top" style={{left: headerWidth}}>
+									<Grid
+										cellRenderer={this.columnCellRenderer}
+										columnCount={this.props.columns.length}
+										columnWidth={150}
+										height={CELL_HEIGHT * (this.props.rowData.length + 1) + scrollbarSize()}
+										rowCount={this.props.rowData.length + 1}
+										rowHeight={CELL_HEIGHT}
+										width={width - headerWidth}
+										style={{outline: "none"}}
+									/>
 								</div>
 							</div>
-							<div className="grid-container grid-container-left" style={{top: CELL_HEIGHT}}>
-								<Grid
-									cellRenderer={this.columnHeaderRenderer}
-									width={ROW_HEADER_WIDTH}
-									height={CELL_HEIGHT * this.props.rowData.length}
-									columnCount={1}
-									columnWidth={ROW_HEADER_WIDTH}
-									rowCount={this.props.rowData.length}
-									rowHeight={CELL_HEIGHT}
-									style={{outline: "none"}}
-								/>
-							</div>
-							<div className="grid-container grid-container-top" style={{left: ROW_HEADER_WIDTH}}>
-								<Grid
-									cellRenderer={this.columnCellRenderer}
-									columnCount={this.props.columns.length}
-									columnWidth={150}
-									height={CELL_HEIGHT * (this.props.rowData.length + 1) + scrollbarSize()}
-									rowCount={this.props.rowData.length + 1}
-									rowHeight={CELL_HEIGHT}
-									width={width - ROW_HEADER_WIDTH}
-									style={{outline: "none"}}
-								/>
-							</div>
-						</div>
-					)}
+						);
+					}}
 				</AutoSizer>
 			</div>
 		);
