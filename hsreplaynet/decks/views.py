@@ -139,8 +139,8 @@ class DeckDetailView(View):
 		self.request.head.add_meta({
 			"name": "description",
 			"content": (
-				"{name} statistics, decklist and counters. "
-				"Import into Hearthstone: {deckstring}"
+				"{name} stats and decklist."
+				"Import it: {deckstring}"
 			).format(name=str(deck), deckstring=deck.deckstring),
 		})
 
