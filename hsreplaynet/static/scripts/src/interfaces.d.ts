@@ -326,3 +326,9 @@ export interface ApiTrainingDataDeck {
 	cards: number[];
 	digest: string;
 }
+
+export interface SortableProps {
+	sortBy: string;
+	sortDirection: SortDirection;
+	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
+}
