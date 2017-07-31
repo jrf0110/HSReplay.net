@@ -362,7 +362,6 @@ class ArchetypeManager(models.Manager):
 		}
 		training_data = self.get_training_data_for_player_class(game_format, player_class)
 
-		# TODO: Change to use calculate_signature_weights()
 		new_weights = calculate_signature_weights(training_data, thresholds)
 
 		validation_data = self.get_validation_data_for_player_class(game_format, player_class)
@@ -373,7 +372,7 @@ class ArchetypeManager(models.Manager):
 				for archetype_id, weights in new_weights.items():
 					archetype = Archetype.objects.get(id=int(archetype_id))
 					signature = Signature.objects.create(
-						archetype_id=archetype, format=game_format, as_of=current_ts
+						archetype=archetype, format=game_format, as_of=current_ts
 					)
 					for dbf_id, weight in weights.items():
 						SignatureComponent.objects.create(
