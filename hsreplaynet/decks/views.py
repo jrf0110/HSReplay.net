@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
 from django_hearthstone.cards.models import Card
+from hearthstone.enums import CardSet, CardType, Rarity
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.features.models import Feature
 from hsreplaynet.utils.html import RequestMetaMixin
@@ -67,6 +68,44 @@ class CardEditorView(RequestMetaMixin, TemplateView):
 class CardDetailView(DetailView):
 	model = Card
 
+	@staticmethod
+	def get_card_snippet(card):
+		card_class = card.card_class.name.title()
+		cost = "{amount} mana".format(amount=card.cost)
+		cardtype = card.type.name.title()
+		if card.rarity >= Rarity.RARE:
+			rarity = card.rarity.name.title()
+		else:
+			rarity = ""
+
+		if card.type == CardType.HERO:
+			if card.card_set == CardSet.HERO_SKINS:
+				components = [card_class, "Hero Skin"]
+			elif card.cost == 0:
+				if not card.collectible:
+					card_class = "Adventure"
+				components = [card_class, cardtype]
+			else:
+				components = [cost, rarity, card_class, cardtype]
+		elif card.type == CardType.HERO_POWER:
+			cardtype = "Hero Power"
+			if card.cost == 0 and "Passive Hero Power" in card.description:
+				cost = "Passive"
+			components = [cost, card_class, cardtype]
+		elif card.type == CardType.MINION:
+			# if card.hide_stats: stats = "" ...
+			stats = "{atk}/{health}".format(atk=card.atk, health=card.health)
+			components = [cost, stats, rarity, card_class, cardtype]
+		elif card.type == CardType.WEAPON:
+			stats = "{atk}/{health}".format(atk=card.atk, health=card.durability)
+			components = [cost, stats, rarity, card_class, cardtype]
+		elif card.type == CardType.ENCHANTMENT:
+			components = [card_class, cardtype]
+		else:
+			components = [cost, rarity, card_class, cardtype]
+
+		return " ".join(c for c in components if c)
+
 	def get_object(self, queryset=None):
 		if queryset is None:
 			queryset = self.get_queryset()
@@ -90,13 +129,14 @@ class CardDetailView(DetailView):
 		self.request.head.opengraph["og:image:width"] = 256
 		self.request.head.opengraph["og:image:height"] = 256
 
-		if obj.collectible:
-			description = "Statistics about %s, the Hearthstone card. " \
-				"Learn which decks we recommend and how it's played." % (obj.name)
-			self.request.head.add_meta(
-				{"name": "description", "content": description},
-				{"property": "og:description", "content": description},
-			)
+		card_desc = self.get_card_snippet(obj)
+		description = "{card} - {card_desc} - Statistics and decks!".format(
+			card=obj.name, card_desc=card_desc
+		)
+		self.request.head.add_meta(
+			{"name": "description", "content": description},
+			{"property": "og:description", "content": description},
+		)
 
 		return obj
 
