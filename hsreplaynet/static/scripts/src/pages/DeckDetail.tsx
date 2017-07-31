@@ -5,7 +5,6 @@ import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
 import DeckBreakdownTable from "../components/deckdetail/DeckBreakdownTable";
 import DeckStats from "../components/deckdetail/DeckStats";
-import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
 import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
@@ -31,6 +30,7 @@ import ArchetypeSelector from "../components/ArchetypeSelector";
 import DeckCountersList from "../components/deckdetail/DeckCountersList";
 import DeckMatchups from "../components/deckdetail/DeckMatchups";
 import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
+import MyStatisticsCardTable from "../components/deckdetail/MyStatisticsCardTable";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -83,6 +83,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			hasData: undefined,
 			hasPeronalData: undefined,
 			personalSortBy: "card",
+			personalSortDirection: "ascending",
 			showInfo: false,
 			sortBy: "decklist",
 			sortDirection: "ascending",
@@ -566,9 +567,23 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</div>
 			);
 		}
+
+		const cards: CardObj[] = [];
+		if (this.props.cardData) {
+			const dbfIds = {};
+			this.props.deckCards.split(",").map((id) => {
+				dbfIds[id] = (dbfIds[id] || 0) + 1;
+			});
+			Object.keys(dbfIds).forEach((dbfId) => {
+				cards.push({
+					card: this.props.cardData.fromDbf(dbfId),
+					count: dbfIds[dbfId],
+				});
+			});
+		}
+
 		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
 		return (
-			<div className="table-wrapper">
 				<DataInjector
 					fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
 					query={{params, url: "single_account_lo_individual_card_stats_for_deck"}}
@@ -577,14 +592,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						cardData={this.props.cardData}
 						customMessage={this.state.hasPeronalData === false ? "You have not played this deck recently." : null}
 					>
-						<MyCardStatsTable
-							cards={
-								this.props.cardData && this.props.deckCards.split(",").sort()
-									.filter((item, pos, array) => !pos || item !== array[pos - 1])
-									.map((dbfId) => this.props.cardData.fromDbf(dbfId))
-							}
-							hiddenColumns={["totalGames", "winrate", "distinctDecks"]}
-							numCards={30}
+						<MyStatisticsCardTable
+							cards={cards}
 							onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
 								this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
 							}}
@@ -593,7 +602,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						/>
 					</TableLoading>
 				</DataInjector>
-			</div>
 		);
 	}
 
@@ -622,7 +630,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			return false;
 		}
 		return this.state.availableFilters[gameType].indexOf(rankRange) !== -1;
-	};
+	}
 
 	rankRange(): string {
 		return this.hasRankRange(this.props.rankRange) ? this.props.rankRange : "ALL";
