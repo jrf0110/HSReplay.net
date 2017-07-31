@@ -25,6 +25,8 @@ class Article(models.Model):
 	updated = models.DateTimeField(auto_now=True)
 	published = models.DateTimeField(null=True, blank=True)
 
+	base_url = "https://hsreplay.net"
+
 	class Meta:
 		ordering = ("-published", "-created")
 
@@ -52,6 +54,41 @@ class Article(models.Model):
 	@property
 	def tweet_intent_url(self, intent_url="https://twitter.com/intent/tweet"):
 		from urllib.parse import urlencode
-		url = "https://hsreplay.net" + self.get_absolute_url()
+		url = self.base_url + self.get_absolute_url()
 		text = "%s - HSReplay.net" % (self.title)
 		return intent_url + "?" + urlencode({"text": text, "url": url})
+
+	@property
+	def linking_data(self):
+		return {
+			"@context": "http://schema.org",
+			"@type": "NewsArticle",
+			"mainEntityOfPage": {
+				"@type": "WebPage",
+				"@id": self.base_url + self.get_absolute_url(),
+			},
+			"headline": self.title,
+			# "image": {...},
+			"datePublished": (self.published or self.created).isoformat(),
+			"dateModified": self.updated.isoformat(),
+			"author": {
+				"@type": "Person",
+				"name": str(self.author),
+			},
+			"publisher": {
+				"@type": "Organization",
+				"name": "HearthSim",
+				"logo": {
+					"@type": "ImageObject",
+					"url": "https://hearthsim.net/static/hearthsim-logo-small.png",
+					"width": 216,
+					"height": 50,
+				}
+			},
+			"description": self.get_excerpt(),
+		}
+
+	@property
+	def json_ld(self):
+		import json
+		return json.dumps(self.linking_data)

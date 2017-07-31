@@ -3,6 +3,11 @@
 {% load render_bundle from webpack_loader %}
 
 {% block content %}
+<script type="application/ld+json">
+{{ article.json_ld|safe }}
+</script>
+
+
 <div class="article-detail">
 	{% include "articles/article.html" with article=article %}
 </div>
