@@ -32,8 +32,10 @@ const HEADER_SCREEN_RATIO = 0.33;
 
 export default class CardTable extends React.Component<CardTableProps, void> {
 	render(): JSX.Element {
+		const numRows = this.props.rowData.length;
+		const totalHeight = CELL_HEIGHT * (numRows + 1) + scrollbarSize();
 		return (
-			<div className="card-table-container">
+			<div className="card-table-container" style={{height: totalHeight}}>
 				<AutoSizer>
 					{({width}) => {
 						const headerWidth = Math.max(MIN_HEADER_WIDTH, Math.min(MAX_HEADER_WIDTH, width  * HEADER_SCREEN_RATIO));
@@ -55,10 +57,10 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 									<Grid
 										cellRenderer={this.columnHeaderRenderer}
 										width={headerWidth}
-										height={CELL_HEIGHT * this.props.rowData.length}
+										height={numRows * CELL_HEIGHT}
 										columnCount={1}
 										columnWidth={headerWidth}
-										rowCount={this.props.rowData.length}
+										rowCount={numRows}
 										rowHeight={CELL_HEIGHT}
 										style={{outline: "none"}}
 									/>
@@ -68,8 +70,8 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 										cellRenderer={this.columnCellRenderer}
 										columnCount={this.props.columns.length}
 										columnWidth={150}
-										height={CELL_HEIGHT * (this.props.rowData.length + 1) + scrollbarSize()}
-										rowCount={this.props.rowData.length + 1}
+										height={totalHeight}
+										rowCount={numRows + 1}
 										rowHeight={CELL_HEIGHT}
 										width={width - headerWidth}
 										style={{outline: "none"}}
