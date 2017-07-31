@@ -368,9 +368,11 @@ class ArchetypeManager(models.Manager):
 		validation_data = self.get_validation_data_for_player_class(game_format, player_class)
 
 		if self.new_weights_pass_validation(new_weights, validation_data):
+			current_ts = timezone.now()
 			for archetype_id, weights in new_weights.items():
+				archetype = Archetype.objects.get(id=int(archetype_id))
 				signature = Signature.objects.create(
-					archetype=int(archetype_id), format=game_format, as_of=timezone.now()
+					archetype_id=archetype, format=game_format, as_of=current_ts
 				)
 				for dbf_id, weight in weights.items():
 					SignatureComponent.objects.create(
