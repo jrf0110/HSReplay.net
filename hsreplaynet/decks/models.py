@@ -3,7 +3,7 @@ import json
 import string
 from collections import defaultdict
 from django.conf import settings
-from django.db import connection, models
+from django.db import connection, models, transaction
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -368,16 +368,17 @@ class ArchetypeManager(models.Manager):
 		validation_data = self.get_validation_data_for_player_class(game_format, player_class)
 
 		if self.new_weights_pass_validation(new_weights, validation_data):
-			current_ts = timezone.now()
-			for archetype_id, weights in new_weights.items():
-				archetype = Archetype.objects.get(id=int(archetype_id))
-				signature = Signature.objects.create(
-					archetype_id=archetype, format=game_format, as_of=current_ts
-				)
-				for dbf_id, weight in weights.items():
-					SignatureComponent.objects.create(
-						signature=signature, card_id=int(dbf_id), weight=weight
+			with transaction.atomic():
+				current_ts = timezone.now()
+				for archetype_id, weights in new_weights.items():
+					archetype = Archetype.objects.get(id=int(archetype_id))
+					signature = Signature.objects.create(
+						archetype_id=archetype, format=game_format, as_of=current_ts
 					)
+					for dbf_id, weight in weights.items():
+						SignatureComponent.objects.create(
+							signature=signature, card_id=int(dbf_id), weight=weight
+						)
 		else:
 			raise RuntimeError("New Signature Weights Failed Validation")
 
