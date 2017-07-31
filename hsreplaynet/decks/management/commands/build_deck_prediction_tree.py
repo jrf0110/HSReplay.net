@@ -2,6 +2,7 @@ import json
 import time
 from datetime import date, timedelta
 import redis
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from hearthstone.enums import CardClass, FormatType
 from sqlalchemy import Date, Integer, String, TIMESTAMP
@@ -100,12 +101,21 @@ class Command(BaseCommand):
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
 			played_cards = json.loads(row["played_cards"])
 
-			deck_prediction_tree(player_class, format, redis_client=redis_client).observe(
-				deck_id,
-				dbf_map,
-				played_cards,
-				as_of=as_of
-			)
+			tree = deck_prediction_tree(player_class, format, redis_client=redis_client)
+			min_played_cards = tree.max_depth - 1
+			min_observed_cards = settings.DECK_PREDICTION_MINIMUM_CARDS
+			deck_size = sum(dbf_map.values())
+
+			has_enough_observed_cards = deck_size >= min_observed_cards
+			has_enough_played_cards = len(played_cards) >= min_played_cards
+
+			if has_enough_observed_cards and has_enough_played_cards:
+				tree.observe(
+					deck_id,
+					dbf_map,
+					played_cards,
+					as_of=as_of
+				)
 		end_ts = time.time()
 		duration_seconds = round(end_ts - start_ts)
 		print("Took: %i Seconds" % duration_seconds)
