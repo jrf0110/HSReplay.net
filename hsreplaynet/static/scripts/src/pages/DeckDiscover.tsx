@@ -504,7 +504,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							</InfoboxFilterGroup>
 						</PremiumWrapper>
 					</section>
-					<section id="game-mode-filter">
+					<section id="min-games-filter">
 						<h2>Minimum Number Of Games</h2>
 						<InfoboxFilterGroup
 							selectedValue={this.props.minGames}
