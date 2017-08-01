@@ -11,6 +11,7 @@ import {
 import UserData from "../../UserData";
 import CardData from "../../CardData";
 import ArchetypeList from "./ArchetypeList";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadToHead> {
 	archetypeData?: any;
@@ -32,6 +33,7 @@ interface ArchetypeHeadToHeadState {
 	customWeights?: any;
 	favorites?: number[];
 	ignoredColumns?: number[];
+	loading?: boolean;
 	maxPopularity?: number;
 	sortedIds?: number[];
 	useCustomWeights?: boolean;
@@ -49,6 +51,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 			customWeights: UserData.getSetting("archetype-custom-popularities") || {},
 			favorites: UserData.getSetting("archetype-favorites") || [],
 			ignoredColumns: UserData.getSetting("archetype-ignored") || [],
+			loading: true,
 			maxPopularity: 0,
 			sortedIds: [],
 			useCustomWeights: false,
@@ -64,14 +67,15 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 
 	componentWillReceiveProps(nextProps: ArchetypeHeadToHeadProps) {
 		if (!nextProps.matchupData || !nextProps.popularityData || !nextProps.archetypeData) {
+			this.setState({loading: true});
 			return;
 		}
 		this.updateData(nextProps);
 	}
 
-	render() {
-		if (!this.state.archetypeData.length) {
-			return null;
+	render(): JSX.Element {
+		if (this.state.loading) {
+			return <h3 className="message-wrapper">Loading...</h3>;
 		}
 
 		const commonProps = {
@@ -201,6 +205,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		this.setState({
 			apiArchetypes,
 			archetypeData,
+			loading: false,
 			maxPopularity,
 			sortedIds,
 		});

@@ -26,7 +26,7 @@ interface ArchetypePopularityState {
 export default class ArchetypePopularity extends React.Component<ArchetypePopularityProps, ArchetypePopularityState> {
 	render() {
 		if (!this.props.popularityData || !this.props.archetypeData) {
-			return null;
+			return <h3 className="message-wrapper">Loading...</h3>;
 		}
 
 		const archetypeData: ArchetypeRankPopularity[] = [];
