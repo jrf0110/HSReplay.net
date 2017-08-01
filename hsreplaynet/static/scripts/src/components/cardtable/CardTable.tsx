@@ -1,10 +1,10 @@
 import * as React from "react";
-import {AutoSizer, Grid} from "react-virtualized";
+import {AutoSizer, Grid, ScrollSync} from "react-virtualized";
 import { CardObj, SortableProps, SortDirection } from "../../interfaces";
 import scrollbarSize from "dom-helpers/util/scrollbarSize";
 import SortHeader from "../SortHeader";
 import CardTile from "../CardTile";
-import {winrateData} from "../../helpers";
+import {toDynamicFixed, toPrettyNumber, winrateData} from "../../helpers";
 import {CardTableColumn} from "./CardTableColumns";
 import {CardTableRowData} from "./RowDataGenerator";
 
@@ -12,6 +12,8 @@ interface CardTableProps extends SortableProps, React.ClassAttributes<CardTable>
 	baseWinrate?: number;
 	columns: CardTableColumn[];
 	rowData: CardTableRowData[];
+	topInfoRow?: JSX.Element;
+	bottomInfoRow?: JSX.Element;
 }
 
 const CELL_HEIGHT = 36;
@@ -19,12 +21,16 @@ const MIN_COLUMN_WIDTH = 150;
 const MAX_HEADER_WIDTH = 217;
 const MIN_HEADER_WIDTH = 150;
 const HEADER_SCREEN_RATIO = 0.33;
+const INFO_ROW_HEIGHT = 50;
 
 export default class CardTable extends React.Component<CardTableProps, void> {
 	render(): JSX.Element {
+		const {topInfoRow, bottomInfoRow} = this.props;
 		const numColumns = this.props.columns.length;
 		const numRows = this.props.rowData.length;
-		const totalHeight = CELL_HEIGHT * (numRows + 1) + scrollbarSize();
+		const topOffset =  topInfoRow ? INFO_ROW_HEIGHT : 0;
+		const bottomOffset = bottomInfoRow ? INFO_ROW_HEIGHT : 0;
+		const totalHeight = CELL_HEIGHT * (numRows + 1) + scrollbarSize() + topOffset + bottomOffset;
 		return (
 			<div className="card-table-container" style={{height: totalHeight}}>
 				<AutoSizer>
@@ -36,44 +42,68 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 							columnWidth = Math.max(MIN_COLUMN_WIDTH, (width - headerWidth) / numColumns);
 						}
 						return (
-							<div className="">
-								<div className="grid-container grid-container-top grid-container-left">
-									<div
-										className="card-table-column-header"
-										style={{
-											lineHeight: (CELL_HEIGHT - 1) + "px",
-											textAlign: "center",
-											width: headerWidth,
-										}}
-									>
-										{this.getSortHeader("card", "Card", "ascending")}
+							<ScrollSync>
+								{({onScroll, scrollLeft}) => (
+									<div className="">
+										<div className="grid-container grid-container-top grid-container-left">
+											<div
+												className="card-table-column-header"
+												style={{
+													lineHeight: (CELL_HEIGHT - 1) + "px",
+													textAlign: "center",
+													width: headerWidth,
+												}}
+											>
+												{this.getSortHeader("card", "Card", "ascending")}
+											</div>
+										</div>
+										{this.renderInfoRow(topInfoRow, width, CELL_HEIGHT)}
+										{this.renderInfoRow(bottomInfoRow, width, totalHeight - INFO_ROW_HEIGHT - scrollbarSize())}
+										<div className="grid-container grid-container-top" style={{left: headerWidth}}>
+											<Grid
+												cellRenderer={this.columnHeaderRenderer}
+												columnCount={numColumns}
+												columnWidth={columnWidth}
+												height={CELL_HEIGHT}
+												rowCount={1}
+												rowHeight={CELL_HEIGHT}
+												width={width - headerWidth}
+												scrollLeft={scrollLeft}
+												className="card-table-grid card-table-header"
+												style={{}}
+											/>
+										</div>
+										<div className="grid-container grid-container-left" style={{top: CELL_HEIGHT + topOffset}}>
+											<Grid
+												cellRenderer={this.rowHeaderRenderer}
+												width={headerWidth}
+												height={numRows * CELL_HEIGHT}
+												columnCount={1}
+												columnWidth={headerWidth}
+												rowCount={numRows}
+												rowHeight={CELL_HEIGHT}
+												className="card-table-grid"
+												style={{}}
+											/>
+										</div>
+										<div className="grid-container" style={{top: CELL_HEIGHT + topOffset, left: headerWidth}}>
+											<Grid
+												cellRenderer={this.columnCellRenderer}
+												columnCount={numColumns}
+												columnWidth={columnWidth}
+												height={totalHeight - CELL_HEIGHT - topOffset}
+												rowCount={numRows}
+												rowHeight={CELL_HEIGHT}
+												width={width - headerWidth}
+												onScroll={onScroll}
+												scrollLeft={scrollLeft}
+												className="card-table-grid"
+												style={{}}
+											/>
+										</div>
 									</div>
-								</div>
-								<div className="grid-container grid-container-left" style={{top: CELL_HEIGHT}}>
-									<Grid
-										cellRenderer={this.columnHeaderRenderer}
-										width={headerWidth}
-										height={numRows * CELL_HEIGHT}
-										columnCount={1}
-										columnWidth={headerWidth}
-										rowCount={numRows}
-										rowHeight={CELL_HEIGHT}
-										style={{outline: "none", overflowY: "hidden"}}
-									/>
-								</div>
-								<div className="grid-container grid-container-top" style={{left: headerWidth}}>
-									<Grid
-										cellRenderer={this.columnCellRenderer}
-										columnCount={numColumns}
-										columnWidth={columnWidth}
-										height={totalHeight}
-										rowCount={numRows + 1}
-										rowHeight={CELL_HEIGHT}
-										width={width - headerWidth}
-										style={{outline: "none", overflowY: "hidden"}}
-									/>
-								</div>
-							</div>
+								)}
+							</ScrollSync>
 						);
 					}}
 				</AutoSizer>
@@ -81,7 +111,18 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 		);
 	}
 
-	columnHeaderRenderer = ({rowIndex, key, style}) => {
+	renderInfoRow(infoRow: JSX.Element, width: number, top: number): JSX.Element {
+		if (!infoRow) {
+			return null;
+		}
+		return (
+			<div className="grid-container grid-container-left" style={{top, width: width + "px"}}>
+				{infoRow}
+			</div>
+		);
+	}
+
+	rowHeaderRenderer = ({rowIndex, key, style}) => {
 		const {card} = this.props.rowData[rowIndex];
 		if (rowIndex % 2 === 0) {
 			style["background"] = "white";
@@ -93,43 +134,46 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 		);
 	}
 
-	columnCellRenderer = ({columnIndex, rowIndex, key, style}) => {
-		let content = null;
-		let className = null;
+	columnHeaderRenderer = ({columnIndex, key, style}) => {
 		const column = this.props.columns[columnIndex];
-		if (rowIndex === 0) {
-			content = this.getSortHeader(
-				column.sortKey,
-				column.text,
-				column.defaultSortDirection || "descending",
-				column.infoHeader,
-				column.infoText,
-			);
-			className = "card-table-column-header";
-		}
-		else {
-			content = this.props.rowData[rowIndex - 1].values[columnIndex] || (column.winrateData ? "-" : 0);
-			className = "card-table-cell";
+		const content = this.getSortHeader(
+			column.sortKey,
+			column.text,
+			column.defaultSortDirection || "descending",
+			column.infoHeader,
+			column.infoText,
+		);
+		style["line-height"] = CELL_HEIGHT;
+		return (
+			<div className="card-table-column-header" style={style} key={key}>
+				{content}
+			</div>
+		);
+	}
 
-			if (content !== "-") {
-				if (column.winrateData) {
-					const wrdata = winrateData(this.props.baseWinrate || 50, +content, 5);
-					style["color"] = wrdata.color;
-					content = wrdata.tendencyStr + content;
-				}
-				if (column.percent || column.winrateData) {
-					content += "%";
-				}
+	columnCellRenderer = ({columnIndex, rowIndex, key, style}) => {
+		const column = this.props.columns[columnIndex];
+		const rowValues = this.props.rowData[rowIndex].values;
+		let content = rowValues[columnIndex] || (column.winrateData ? "-" : 0);
+
+		if (content !== "-") {
+			if (column.winrateData) {
+				const wrdata = winrateData(this.props.baseWinrate || 50, +content, 5);
+				style["color"] = wrdata.color;
+				content = wrdata.tendencyStr + toDynamicFixed(+content) + "%";
+			}
+			else if (column.percent) {
+				content = toDynamicFixed(+content) + "%";
 			}
 		}
 
 		style["line-height"] = CELL_HEIGHT;
-		if (rowIndex % 2 === 1) {
+		if (rowIndex % 2 === 0) {
 			style["background"] = "white";
 		}
 
 		return (
-			<div className={className} style={style} key={key}>
+			<div className="card-table-cell" style={style} key={key}>
 				{content}
 			</div>
 		);

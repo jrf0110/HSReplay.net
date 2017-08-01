@@ -14,6 +14,8 @@ interface CardTableContainerProps {
 	sortBy: string;
 	sortDirection: SortDirection;
 	numCards?: number;
+	topInfoRow?: JSX.Element;
+	bottomInfoRow?: JSX.Element;
 }
 
 export default class CardTableContainer extends React.Component<CardTableContainerProps, void> {
@@ -38,6 +40,8 @@ export default class CardTableContainer extends React.Component<CardTableContain
 				onSortChanged={this.props.onSortChanged}
 				columns={columns}
 				rowData={rowData}
+				topInfoRow={this.props.topInfoRow}
+				bottomInfoRow={this.props.bottomInfoRow}
 			/>
 		);
 	}

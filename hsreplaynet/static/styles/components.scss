@@ -897,4 +897,13 @@ table .info-icon, .sort-header .info-icon {
 	.card-table-column-header {
 		border-bottom: 1px solid gray;
 	}
+
+	.card-table-grid {
+		outline: none;
+		overflow-y: hidden !important;
+	}
+
+	.card-table-header {
+		overflow-x: hidden !important;
+	}
 }
