@@ -152,8 +152,8 @@ class Deck(models.Model):
 
 	@cached_property
 	def deck_class(self):
-		for include in self.includes.all():
-			card_class = include.card.card_class
+		for val in self.includes.values("card__card_class"):
+			card_class = val["card__card_class"]
 			if card_class not in (enums.CardClass.INVALID, enums.CardClass.NEUTRAL):
 				return card_class
 		return enums.CardClass.INVALID
@@ -167,9 +167,10 @@ class Deck(models.Model):
 
 	@cached_property
 	def format(self):
-		for include in self.includes.select_related("card").all():
-			is_classic = include.card.card_set in (enums.CardSet.EXPERT1, enums.CardSet.CORE)
-			if not is_classic and not include.card.card_set.is_standard:
+		for val in self.includes.values("card__card_set"):
+			card_set = val["card__card_set"]
+			is_classic = card_set in (enums.CardSet.EXPERT1, enums.CardSet.CORE)
+			if not is_classic and not card_set.is_standard:
 				return enums.FormatType.FT_WILD
 		return enums.FormatType.FT_STANDARD
 
@@ -402,7 +403,7 @@ class ArchetypeManager(models.Manager):
 				training_data[deck.archetype.id] = {}
 			if deck.digest not in training_data[deck.archetype.id]:
 				training_data[deck.archetype.id][deck.digest] = {
-					"total_games": observation_counts[deck.digest],
+					"total_games": observation_counts.get(deck.digest, 0),
 					"cards": deck.dbf_map()
 				}
 		return training_data
@@ -428,7 +429,7 @@ class ArchetypeManager(models.Manager):
 				validation_data[deck.archetype.id] = {}
 			if deck.digest not in validation_data[deck.archetype.id]:
 				validation_data[deck.archetype.id][deck.digest] = {
-					"total_games": observation_counts[deck.digest],
+					"total_games": observation_counts.get(deck.digest, 0),
 					"cards": deck.dbf_map()
 				}
 		return validation_data
@@ -525,44 +526,57 @@ class Archetype(models.Model):
 class ArchetypeTrainingDeckManager(models.Manager):
 	TRAINING_DECK_IDS_QUERY = """
 		SELECT
-			d.id AS deck_id
+			i.deck_id,
+			CASE
+				WHEN sum(CASE WHEN c.card_set IN ({wild_sets}) THEN 1 ELSE 0 END) > 0
+				THEN True
+				ELSE False
+			END AS is_wild
 		FROM decks_archetypetrainingdeck t
-		JOIN cards_deck d ON d.id = t.deck_id
+		JOIN cards_include i ON i.deck_id = t.deck_id
+		JOIN card c ON c.card_id = i.card_id
 		WHERE t.is_validation_deck = {is_validation}
-		"""
+		AND c.card_class = {card_class}
+		GROUP BY i.deck_id;
+	"""
 
-	def _get_decks(self, is_validation_deck):
+	def _get_decks(self, game_format, player_class, is_validation_deck):
+		wild_sets = [c for c in enums.CardSet if c.craftable and not c.is_standard]
+		wild_set_ids = ", ".join(str(c.value) for c in wild_sets)
+
 		with connection.cursor() as cursor:
 			cursor.execute(
-				self.TRAINING_DECK_IDS_QUERY.format(is_validation=is_validation_deck)
+				self.TRAINING_DECK_IDS_QUERY.format(
+					is_validation=is_validation_deck,
+					card_class=player_class.value,
+					wild_sets=wild_set_ids
+				)
 			)
-			deck_ids = [record["deck_id"] for record in dictfetchall(cursor)]
+			deck_ids = []
+			is_wild = game_format == enums.FormatType.FT_WILD
+			for record in dictfetchall(cursor):
+				if is_wild == record["is_wild"]:
+					deck_ids.append(record["deck_id"])
+
 			return Deck.objects.filter(id__in=deck_ids)
 
 	def get_training_decks_for_archetype(self, archetype, game_format, is_validation_deck):
 		result = []
-		training_decks = self._get_training_decks(
+		training_decks = self._get_decks(
 			game_format,
 			archetype.player_class,
 			is_validation_deck
 		)
 		for td in training_decks:
-			if td.archetype == archetype:
-				result.append(td)
+			if td.archetype_id == archetype.id:
+					result.append(td)
 		return result
 
 	def get_training_decks(self, game_format, player_class):
-		return self._get_training_decks(game_format, player_class, is_validation_deck=False)
+		return self._get_decks(game_format, player_class, is_validation_deck=False)
 
 	def get_validation_decks(self, game_format, player_class):
-		return self._get_training_decks(game_format, player_class, is_validation_deck=True)
-
-	def _get_training_decks(self, game_format, player_class, is_validation_deck):
-		result = []
-		for deck in self._get_decks(is_validation_deck):
-			if deck.format == game_format and deck.deck_class == player_class:
-				result.append(deck)
-		return result
+		return self._get_decks(game_format, player_class, is_validation_deck=True)
 
 
 class ArchetypeTrainingDeck(models.Model):

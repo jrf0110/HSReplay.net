@@ -119,6 +119,8 @@ class Command(BaseCommand):
 				)
 				print(msg % vals)
 				deck.update_archetype(new_archetype_id)
+			else:
+				print("Processed Deck ID: %i" % deck_id)
 
 		end_timestamp = time.time()
 		duration_seconds = round(end_timestamp - start_timestamp)
