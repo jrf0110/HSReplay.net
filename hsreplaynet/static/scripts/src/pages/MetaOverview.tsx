@@ -10,6 +10,8 @@ import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import ArchetypePopularity from "../components/metaoverview/popularity/ArchetypePopularity";
 import RankRangeFilter from "../components/RankRangeFilter";
+import Feature from "../components/Feature";
+import UserData from "../UserData";
 
 interface MetaOverviewState {
 	mobileView?: boolean;
@@ -33,6 +35,8 @@ interface MetaOverviewProps {
 	setTab?: (tab: string) => void;
 	rankRange?: string;
 	setRankRange?: (rankRange: string) => void;
+	region?: string;
+	setRegion?: (region: string) => void;
 }
 
 const mobileWidth = 530;
@@ -48,13 +52,15 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 
 	render(): JSX.Element {
 		const params = {
-			RankRange: this.props.rankRange,
 			GameType: this.props.gameType,
+			RankRange: this.props.rankRange,
+			Region: this.props.region,
 			TimeRange: this.props.timeFrame,
 		};
 
 		const popularityParams = {
 			GameType: this.props.gameType,
+			Region: this.props.region,
 			TimeRange: this.props.timeFrame,
 		};
 
@@ -127,6 +133,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					<PremiumWrapper>
 						<h2>Time Frame</h2>
 						<InfoboxFilterGroup
+							locked={!UserData.isPremium()}
 							selectedValue={this.props.timeFrame}
 							onClick={(value) => this.props.setTimeFrame(value)}
 						>
@@ -144,6 +151,21 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							onChange={(rankRange) => this.props.setRankRange(rankRange)}
 							disabled={this.props.tab !== "matchups"}
 						/>
+					</PremiumWrapper>
+				</section>
+				<section id="region-filter">
+					<PremiumWrapper>
+						<h2>Region</h2>
+						<InfoboxFilterGroup
+							locked={!UserData.isPremium()}
+							selectedValue={this.props.region}
+							onClick={(value) => this.props.setRegion(value)}
+						>
+							<InfoboxFilter value="ALL">All Regions</InfoboxFilter>
+							<InfoboxFilter value="REGION_US">America</InfoboxFilter>
+							<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>
+							<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>
+						</InfoboxFilterGroup>
 					</PremiumWrapper>
 				</section>
 			</aside>

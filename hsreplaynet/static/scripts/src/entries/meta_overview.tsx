@@ -15,6 +15,7 @@ const render = (cardData: CardData) => {
 				popularitySortBy: "total",
 				popularitySortDirection: "descending",
 				rankRange: "ALL",
+				region: "ALL",
 				sortBy: "popularity",
 				sortDirection: "descending",
 				tab: "matchups",
