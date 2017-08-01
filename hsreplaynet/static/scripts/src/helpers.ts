@@ -701,7 +701,10 @@ export function slangToCardId(slang: string): string|null {
 	return null;
 }
 
-export function toDynamicFixed(value: number, fractionDigits: number = 1) {
+export function toDynamicFixed(value: number, fractionDigits: number = 1): string {
+	if (value === 0) {
+		return "0";
+	}
 	const digits = Math.min(Math.max(0, Math.floor(Math.log10(1 / value))), (7 - fractionDigits)) + fractionDigits;
 	return value.toFixed(digits);
 }
