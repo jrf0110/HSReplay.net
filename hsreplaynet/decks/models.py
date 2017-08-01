@@ -64,8 +64,14 @@ class DeckManager(models.Manager):
 		return enums.CardClass.INVALID
 
 	def classify_deck_with_archetype(self, deck, player_class, game_format):
+		qs = Archetype.objects.filter(player_class=player_class)
+		if game_format == enums.FormatType.FT_STANDARD:
+			qs.filter(active_in_standard=True)
+		else:
+			qs.filter(active_in_wild=True)
+
 		archetype_ids = list(
-			Archetype.objects.filter(player_class=player_class).values_list("id", flat=True)
+			qs.values_list("id", flat=True)
 		)
 		if not archetype_ids:
 			return
