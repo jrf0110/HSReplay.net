@@ -147,20 +147,22 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 			return LoadingStatus.LOADING;
 		};
 
-		const childProps = {status: getStatus(this.state.status)};
-		this.getQueryArray(this.props).forEach((query) => {
-			const key = query.key || DEFAULT_DATA_KEY;
-			childProps[key] = this.state.data[key];
-		});
-
-		if (this.props.extract) {
-			Object.keys(this.props.extract).forEach((prop) => {
-				if (childProps[prop]) {
-					const newProps = this.props.extract[prop](childProps[prop], childProps);
-					delete childProps[prop];
-					Object.assign(childProps, newProps);
-				}
+		const status = getStatus(this.state.status);
+		const childProps = {status};
+		if (status === LoadingStatus.SUCCESS) {
+			this.getQueryArray(this.props).forEach((query) => {
+				const key = query.key || DEFAULT_DATA_KEY;
+				childProps[key] = this.state.data[key];
 			});
+			if (this.props.extract) {
+				Object.keys(this.props.extract).forEach((prop) => {
+					if (childProps[prop]) {
+						const newProps = this.props.extract[prop](childProps[prop], childProps);
+						delete childProps[prop];
+						Object.assign(childProps, newProps);
+					}
+				});
+			}
 		}
 
 		return cloneComponent(this.props.children, childProps);
