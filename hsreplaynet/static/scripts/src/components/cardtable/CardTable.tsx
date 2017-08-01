@@ -58,7 +58,7 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 										columnWidth={headerWidth}
 										rowCount={numRows}
 										rowHeight={CELL_HEIGHT}
-										style={{outline: "none"}}
+										style={{outline: "none", overflowY: "hidden"}}
 									/>
 								</div>
 								<div className="grid-container grid-container-top" style={{left: headerWidth}}>
@@ -70,7 +70,7 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 										rowCount={numRows + 1}
 										rowHeight={CELL_HEIGHT}
 										width={width - headerWidth}
-										style={{outline: "none"}}
+										style={{outline: "none", overflowY: "hidden"}}
 									/>
 								</div>
 							</div>
