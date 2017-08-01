@@ -15,7 +15,8 @@ import DataManager from "../DataManager";
 import {cardSorting, cleanText, isWildSet, setNames, slangToCardId, toTitleCase} from "../helpers";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
-import { FragmentChildProps, LoadingStatus, SortDirection } from "../interfaces";
+import {CardObj, FragmentChildProps, LoadingStatus, SortDirection} from "../interfaces";
+import CardTableContainer from "../components/cardtable/CardTableContainer";
 
 interface CardFilters {
 	cost: any;
@@ -316,24 +317,27 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<div className="table-wrapper">
 						<DataInjector
 							query={{params: this.getPersonalParams(), url: "single_account_lo_individual_card_stats"}}
+							extract={{
+								data: (data) => ({data: data.series.data.ALL}),
+							}}
 						>
-							<TableLoading cardData={this.props.cardData}>
-								<MyCardStatsTable
-									hiddenColumns={[
-										"mulliganWinrate",
-										"keepPercent",
-										"drawnWinrate",
-										"playedWinrate",
-										"turnsInHand",
-										"turnPlayed",
-									]}
-									cards={this.state.filteredCards || []}
-									numCards={this.state.numCards}
-									sortBy={this.props.sortBy}
-									sortDirection={this.props.sortDirection}
-									onSortChanged={(a, b) => this.onSortChanged(a, b)}
-								/>
-							</TableLoading>
+							<CardTableContainer
+								cards={(this.state.filteredCards || []).map((card) => ({card, count: 1}))}
+								columns={[
+									"totalGames",
+									"winrate",
+									"timesPlayed",
+									"distinctDecks",
+									"damageDone",
+									"healingDone",
+									"heroesKilled",
+									"minionsKilled",
+								]}
+								sortBy={this.props.sortBy}
+								sortDirection={this.props.sortDirection}
+								onSortChanged={(a, b) => this.onSortChanged(a, b)}
+								numCards={this.state.numCards}
+							/>
 						</DataInjector>
 					</div>,
 				);

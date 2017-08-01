@@ -2,6 +2,7 @@ import {SortDirection} from "../../interfaces";
 
 export type CardTableColumnKey = (
 	"damageDone"
+	| "distinctDecks"
 	| "drawnWinrate"
 	| "healingDone"
 	| "heroesKilled"
@@ -12,6 +13,8 @@ export type CardTableColumnKey = (
 	| "timesPlayed"
 	| "turnPlayed"
 	| "turnsInHand"
+	| "totalGames"
+	| "winrate"
 );
 
 export interface CardTableColumn {
@@ -106,5 +109,27 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: CardTableColumn}
 		infoText: "Number of minions the card has killed.",
 		sortKey: "minionsKilled",
 		text: "Minions killed",
+	},
+	totalGames: {
+		dataKey: "total_games",
+		infoHeader: "Total games",
+		infoText: "Number of games you played with a deck that included the card.",
+		sortKey: "totalGames",
+		text: "Total games",
+	},
+	winrate: {
+		dataKey: "win_rate",
+		infoHeader: "Winrate",
+		infoText: "Winrate of decks including the card.",
+		sortKey: "winrate",
+		text: "Winrate",
+		winrateData: true,
+	},
+	distinctDecks: {
+		dataKey: "distinct_decks",
+		infoHeader: "Distinct decks",
+		infoText: "Number of distinct decks you included the card in.",
+		sortKey: "distinctDecks",
+		text: "Distinct decks",
 	},
 };
