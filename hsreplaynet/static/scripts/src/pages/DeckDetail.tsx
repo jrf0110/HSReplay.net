@@ -607,7 +607,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						"playedWinrate",
 						"turnsInHand",
 						"turnPlayed",
-						"timesPlayed",
+						"timesPlayedPersonal",
 						"damageDone",
 						"healingDone",
 						"heroesKilled",

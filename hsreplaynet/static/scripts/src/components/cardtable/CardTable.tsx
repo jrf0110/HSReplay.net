@@ -154,7 +154,10 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 	columnCellRenderer = ({columnIndex, rowIndex, key, style}) => {
 		const column = this.props.columns[columnIndex];
 		const rowValues = this.props.rowData[rowIndex].values;
-		let content = rowValues[columnIndex] || (column.winrateData ? "-" : 0);
+		let content = rowValues[columnIndex];
+		if (content === null || content === undefined) {
+			content = (column.winrateData ? "-" : 0);
+		}
 
 		if (content !== "-") {
 			if (column.winrateData) {
@@ -164,6 +167,9 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 			}
 			else if (column.percent) {
 				content = toDynamicFixed(+content) + "%";
+			}
+			else if (column.prettify) {
+				content = toPrettyNumber(+content);
 			}
 		}
 

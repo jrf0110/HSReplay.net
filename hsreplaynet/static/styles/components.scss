@@ -906,4 +906,12 @@ table .info-icon, .sort-header .info-icon {
 	.card-table-header {
 		overflow-x: hidden !important;
 	}
+
+	.info-row {
+		border-bottom: 1px solid lightgray;
+		color: $help;
+		font-weight: normal;
+		height: 50px;
+		line-height: 50px;
+	}
 }

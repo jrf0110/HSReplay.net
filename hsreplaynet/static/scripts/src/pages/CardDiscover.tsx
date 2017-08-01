@@ -1,11 +1,9 @@
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
 import CardData from "../CardData";
-import CardStatsTable from "../components/carddiscover/CardStatsTable";
 import CardImage from "../components/CardImage";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
-import MyCardStatsTable from "../components/deckdetail/MyCardStatsTable";
 import InfoboxFilter from "../components/InfoboxFilter";
 import * as _ from "lodash";
 import TableLoading from "../components/loading/TableLoading";
@@ -326,7 +324,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 								columns={[
 									"totalGames",
 									"winrate",
-									"timesPlayed",
+									"timesPlayedPersonal",
 									"distinctDecks",
 									"damageDone",
 									"healingDone",
@@ -360,6 +358,33 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			}
 		}
 		else if (isStatsView) {
+			const dataKey = this.props.playerClass === "NEUTRAL" ? "ALL" : this.props.playerClass;
+			let topInfoMessage = null;
+			let bottomInfomessage = null;
+			const warnFields = ["includedPopularity", "timesPlayed", "includedWinrate", "playedWinrate"];
+			if (!this.props.showSparse) {
+				const warning = (
+					<div className="info-row text-center">
+						<span className="hidden-xs hidden-sm">Some cards were hidden due to a low amount of data.&nbsp;</span>
+						<a
+							href="#"
+							className="btn btn-default"
+							onClick={(event) => {
+								event.preventDefault();
+								this.props.setShowSparse(true);
+							}}
+						>
+							Show sparse data
+						</a>
+					</div>
+				);
+				if (this.props.sortDirection === "ascending" && warnFields.indexOf(this.props.sortBy) !== -1) {
+					topInfoMessage = warning;
+				}
+				else {
+					bottomInfomessage = warning;
+				}
+			}
 			content.push(
 				<div className="table-wrapper">
 					<DataInjector
@@ -367,20 +392,52 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 							{key: "played", url: "card_played_popularity_report", params: this.getParams()},
 							{key: "included", url: "card_included_popularity_report", params: this.getParams()},
 						]}
+						extract={{
+							played: (played, props) => {
+								if (!props.included) {
+									return null;
+								}
+								const data = {};
+								const set = (dbfId: number, key: string, value: number) => {
+									if (!data[dbfId]) {
+										data[dbfId] = {dbf_id: dbfId};
+									}
+									data[dbfId][key] = value;
+								};
+								played.series.data[dataKey].forEach((playedData) => {
+									const {dbf_id, popularity, win_rate, total} = playedData;
+									set(dbf_id, "played_popularity", +popularity);
+									set(dbf_id, "win_rate_when_played", win_rate);
+									set(dbf_id, "times_played", total);
+								});
+								props.included.series.data[dataKey].forEach((includedData) => {
+									const {count, dbf_id, decks, popularity, win_rate} = includedData;
+									set(dbf_id, "included_count", count);
+									set(dbf_id, "included_decks", decks);
+									set(dbf_id, "included_popularity", popularity);
+									set(dbf_id, "included_winrate", win_rate);
+								});
+								return {data: Object.keys(data).map((key) => data[key])};
+							},
+						}}
 					>
-						<TableLoading cardData={this.props.cardData} dataKeys={["played", "included"]}>
-							<CardStatsTable
-								cards={this.state.filteredCards || []}
-								numCards={this.state.numCards}
-								gameType={this.props.gameType}
-								playerClass={this.props.playerClass}
-								sortBy={this.props.sortBy}
-								sortDirection={this.props.sortDirection}
-								onSortChanged={(a, b) => this.onSortChanged(a, b)}
-								showSparseWarning={!this.props.showSparse}
-								showAll={() => this.props.setShowSparse(true)}
-							/>
-						</TableLoading>
+						<CardTableContainer
+							cards={(this.state.filteredCards || []).map((card) => ({card, count: 1}))}
+							columns={[
+								"includedPopularity",
+								"includedCount",
+								"includedWinrate",
+								"timesPlayedTotal",
+								"playedPopularity",
+								"playedWinrate",
+							]}
+							sortBy={this.props.sortBy}
+							sortDirection={this.props.sortDirection}
+							onSortChanged={(a, b) => this.onSortChanged(a, b)}
+							numCards={this.state.numCards}
+							topInfoRow={topInfoMessage}
+							bottomInfoRow={bottomInfomessage}
+						/>
 					</DataInjector>
 				</div>,
 			);

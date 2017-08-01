@@ -6,14 +6,20 @@ export type CardTableColumnKey = (
 	| "drawnWinrate"
 	| "healingDone"
 	| "heroesKilled"
+	| "includedCount"
+	| "includedPopularity"
+	| "includedWinrate"
 	| "keepPercent"
 	| "minionsKilled"
 	| "mulliganWinrate"
+	| "playedPopularity"
 	| "playedWinrate"
-	| "timesPlayed"
+	| "playedWinrate"
+	| "timesPlayedPersonal"
+	| "timesPlayedTotal"
+	| "totalGames"
 	| "turnPlayed"
 	| "turnsInHand"
-	| "totalGames"
 	| "winrate"
 );
 
@@ -23,6 +29,7 @@ export interface CardTableColumn {
 	infoHeader?: string;
 	infoText?: string;
 	percent?: boolean;
+	prettify?: boolean;
 	sortKey?: string;
 	text: string;
 	winrateData?: boolean;
@@ -75,7 +82,7 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: CardTableColumn}
 		sortKey: "turnPlayed",
 		text: "Turn played",
 	},
-	timesPlayed: {
+	timesPlayedPersonal: {
 		dataKey: "times_played",
 		infoHeader: "Times played",
 		infoText: "Number of times you played the card.",
@@ -131,5 +138,44 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: CardTableColumn}
 		infoText: "Number of distinct decks you included the card in.",
 		sortKey: "distinctDecks",
 		text: "Distinct decks",
+	},
+	includedPopularity: {
+		dataKey: "included_popularity",
+		infoHeader: "Included in % of decks",
+		infoText: "Percentage of decks that include at least one copy of the card.",
+		percent: true,
+		sortKey: "includedPopularity",
+		text: "In % of decks",
+	},
+	includedCount: {
+		dataKey: "included_count",
+		infoHeader: "Copies in deck",
+		infoText: "Average number of copies in a deck.",
+		sortKey: "includedCount",
+		text: "Copies",
+	},
+	includedWinrate: {
+		dataKey: "included_winrate",
+		infoHeader: "Deck Winrate",
+		infoText: "Average winrate of decks that include this card.",
+		sortKey: "includedWinrate",
+		text: "Deck winrate",
+		winrateData: true,
+	},
+	timesPlayedTotal: {
+		dataKey: "times_played",
+		infoHeader: "Times played",
+		infoText: "Number of times the card was played.",
+		prettify: true,
+		sortKey: "timesPlayed",
+		text: "Times played",
+	},
+	playedPopularity: {
+		dataKey: "played_popularity",
+		infoHeader: "% of played cards",
+		infoText: "Percentage of all cards played.",
+		percent: true,
+		sortKey: "timesPlayed",
+		text: "% of played cards",
 	},
 };
