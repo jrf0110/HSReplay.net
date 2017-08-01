@@ -1,6 +1,9 @@
 -- NOTE: The WILD card_set list must be updated when the Hearthstone Zodiac Year Changes.
 -- Currently it is correct for Year Of The Mammoth
 -- If minimum required number of validation decks or training decks changes the HAVING clause must also be updated
+BEGIN;
+
+UPDATE cards_archetype SET active_in_standard = False, active_in_wild = False;
 
 UPDATE cards_archetype SET active_in_standard = True WHERE id IN (
 	WITH deck_format AS (
@@ -24,7 +27,7 @@ UPDATE cards_archetype SET active_in_standard = True WHERE id IN (
 	JOIN cards_archetype a ON a.id = d.archetype_id
 	GROUP BY d.archetype_id, a.name
 	HAVING sum(CASE WHEN df.is_wild = False AND t.is_validation_deck THEN 1 ELSE 0 END) >= 1 AND sum(CASE WHEN df.is_wild = False AND t.is_validation_deck = False THEN 1 ELSE 0 END) >= 3
-)
+);
 
 UPDATE cards_archetype SET active_in_wild = True WHERE id IN (
 	WITH deck_format AS (
@@ -48,4 +51,6 @@ UPDATE cards_archetype SET active_in_wild = True WHERE id IN (
 	JOIN cards_archetype a ON a.id = d.archetype_id
 	GROUP BY d.archetype_id, a.name
 	HAVING sum(CASE WHEN df.is_wild AND t.is_validation_deck THEN 1 ELSE 0 END) >= 1 AND sum(CASE WHEN df.is_wild AND t.is_validation_deck = False THEN 1 ELSE 0 END) >= 3
-)
+);
+
+COMMIT;
