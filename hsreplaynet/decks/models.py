@@ -337,9 +337,9 @@ class ArchetypeManager(models.Manager):
 				result[record["archetype_id"]][record["card_dbf_id"]] = record["weight"]
 			return result
 
-	def _get_deck_observation_counts_from_redshift(self, format):
+	def _list_decks_from_redshift_for_format(self, game_format):
 		query = get_redshift_query("list_decks_by_win_rate")
-		if format == enums.FormatType.FT_STANDARD:
+		if game_format == enums.FormatType.FT_STANDARD:
 			paramiterized_query = query.build_full_params(dict(
 				TimeRange="LAST_30_DAYS",
 				GameType="RANKED_STANDARD",
@@ -350,7 +350,20 @@ class ArchetypeManager(models.Manager):
 				GameType="RANKED_WILD",
 			))
 
-		data = paramiterized_query.response_payload["series"]["data"]
+		return paramiterized_query.response_payload["series"]["data"]
+
+	def _get_deck_archetype_map_from_redshift(self, game_format):
+		data = self._list_decks_from_redshift_for_format(game_format)
+
+		deck_archetype_map = {}
+		for player_class, decks in data.items():
+			for deck in decks:
+				deck_archetype_map[deck["digest"]] = deck["archetype_id"]
+
+		return deck_archetype_map
+
+	def _get_deck_observation_counts_from_redshift(self, game_format):
+		data = self._list_decks_from_redshift_for_format(game_format)
 		observations = {}
 		for player_class, decks in data.items():
 			for deck in decks:
