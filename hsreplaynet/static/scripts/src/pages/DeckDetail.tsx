@@ -3,7 +3,6 @@ import PremiumWrapper from "../components/PremiumWrapper";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
-import DeckBreakdownTable from "../components/deckdetail/DeckBreakdownTable";
 import DeckStats from "../components/deckdetail/DeckStats";
 import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
 import InfoboxFilter from "../components/InfoboxFilter";
@@ -158,12 +157,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const isPremium = UserData.isPremium();
 		const premiumTabIndex = isPremium ? 0 : -1;
-
-		const premiumMulligan = (
-			isPremium &&
-			this.props.selectedClasses.length &&
-			this.props.selectedClasses[0] !== "ALL"
-		);
 
 		let accountFilter = null;
 		if (isPremium && UserData.getAccounts().length > 0 && UserData.hasFeature("personal-deck-stats")) {
@@ -417,40 +410,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							{overviewContent}
 						</Tab>
 						<Tab label="Breakdown" id="breakdown" hidden={this.state.hasData === false}>
-							<div className="table-wrapper">
-								<DataInjector
-									fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-									query={[
-										{
-											key: "mulliganData",
-											params: this.getParams(),
-											url: premiumMulligan ? "single_deck_mulligan_guide_by_class" : "single_deck_mulligan_guide",
-										},
-										{
-											key: premiumMulligan ? "opponentWinrateData" : "winrateData",
-											params: (premiumMulligan ? this.getParams() : {GameType: this.gameType(), RankRange: this.rankRange()}),
-											url: premiumMulligan ? "single_deck_base_winrate_by_opponent_class" : "list_decks_by_win_rate",
-										},
-									]}
-								>
-									<TableLoading
-										cardData={this.props.cardData}
-										dataKeys={["mulliganData", premiumMulligan ? "opponentWinrateData" : "winrateData"]}
-										customMessage={this.state.hasData === false ? "No available data" : undefined}
-									>
-										<DeckBreakdownTable
-											dataKey={this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL"}
-											deckId={this.props.deckId}
-											onSortChanged={(sortBy: string, sortDirection: SortDirection) => this.setState({sortBy, sortDirection})}
-											playerClass={this.props.deckClass}
-											rawCardsList={this.props.deckCards}
-											sortBy={this.state.sortBy}
-											sortDirection={this.state.sortDirection}
-											wildDeck={this.isWildDeck()}
-										/>
-									</TableLoading>
-								</DataInjector>
-							</div>
+							{this.renderMulliganGuideTable()}
 						</Tab>
 						<Tab label="Similar Decks" id="similar">
 							<DataInjector
@@ -551,6 +511,67 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				</section>
 			</main>
 		</div>;
+	}
+
+	renderMulliganGuideTable(): JSX.Element {
+		const premiumMulligan = (
+			UserData.isPremium() &&
+			this.props.selectedClasses.length &&
+			this.props.selectedClasses[0] !== "ALL"
+		);
+
+		const dataKey = this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL";
+
+		return (
+			<DataInjector
+				fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
+				query={[
+					{
+						key: "mulliganData",
+						params: this.getParams(),
+						url: premiumMulligan ? "single_deck_mulligan_guide_by_class" : "single_deck_mulligan_guide",
+					},
+					{
+						key: "winrateData",
+						params: (premiumMulligan ? this.getParams() : {GameType: this.gameType(), RankRange: this.rankRange()}),
+						url: premiumMulligan ? "single_deck_base_winrate_by_opponent_class" : "list_decks_by_win_rate",
+					},
+				]}
+				extract={{
+					mulliganData: (data) => ({data: data.series.data[dataKey]}),
+					winrateData: (data) => {
+						let baseWinrate = 50;
+						if (premiumMulligan) {
+							baseWinrate = +data.series.data[dataKey][0].winrate;
+						}
+						else {
+							const deck = data.series.data[this.props.deckClass].find((x) => x.deck_id === this.props.deckId);
+							if (deck) {
+								baseWinrate = +deck.win_rate;
+							}
+						}
+						return {baseWinrate};
+					},
+				}}
+			>
+				<CardTableContainer
+					cards={this.getCards()}
+					columns={[
+						"mulliganWinrate",
+						"keepPercent",
+						"drawnWinrate",
+						"playedWinrate",
+						"turnsInHand",
+						"turnPlayed",
+					]}
+					onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
+						this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
+					}}
+					sortBy={this.state.personalSortBy}
+					sortDirection={this.state.personalSortDirection as SortDirection}
+				/>
+			</DataInjector>
+		);
 	}
 
 	getMyStats(): JSX.Element {

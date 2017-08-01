@@ -9,6 +9,7 @@ import {CardTableColumn} from "./CardTableColumns";
 import {CardTableRowData} from "./RowDataGenerator";
 
 interface CardTableProps extends SortableProps, React.ClassAttributes<CardTable> {
+	baseWinrate?: number;
 	columns: CardTableColumn[];
 	rowData: CardTableRowData[];
 }
@@ -103,10 +104,15 @@ export default class CardTable extends React.Component<CardTableProps, void> {
 			content = this.props.rowData[rowIndex - 1].values[columnIndex] || (column.winrateData ? "-" : 0);
 			className = "card-table-cell";
 
-			if (column.winrateData && content !== "-") {
-				const wrdata = winrateData(50, +content, 3);
-				style["color"] = wrdata.color;
-				content = wrdata.tendencyStr + content + "%";
+			if (content !== "-") {
+				if (column.winrateData) {
+					const wrdata = winrateData(this.props.baseWinrate || 50, +content, 5);
+					style["color"] = wrdata.color;
+					content = wrdata.tendencyStr + content;
+				}
+				if (column.percent || column.winrateData) {
+					content += "%";
+				}
 			}
 		}
 

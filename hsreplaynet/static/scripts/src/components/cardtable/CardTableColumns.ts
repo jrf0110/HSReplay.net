@@ -19,6 +19,7 @@ export interface CardTableColumn {
 	defaultSortDirection?: SortDirection;
 	infoHeader?: string;
 	infoText?: string;
+	percent?: boolean;
 	sortKey?: string;
 	text: string;
 	winrateData?: boolean;
@@ -37,6 +38,7 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: CardTableColumn}
 		dataKey: "keep_percentage",
 		infoHeader: "Kept",
 		infoText: "Percentage of times the card was kept when presented during mulligan.",
+		percent: true,
 		sortKey: "keepPercent",
 		text: "Kept",
 	},
