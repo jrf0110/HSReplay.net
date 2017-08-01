@@ -548,6 +548,9 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 						deck.dbf_map(),
 						played_card_dbfs
 					)
+					# deck_id == proxy_deck_id for complete decks
+					deck.guessed_full_deck = deck
+					deck.save()
 				elif has_enough_observed_cards and has_enough_played_cards:
 					res = tree.lookup(
 						deck.dbf_map(),
@@ -607,6 +610,10 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 						format=global_game.format.name,
 						made_prediction=predicted_deck_id is not None
 					)
+
+					if predicted_deck_id:
+						deck.guessed_full_deck = Deck.objects.get(id=predicted_deck_id)
+						deck.save()
 
 			except:
 				# While prototyping never let failures here disrupt processing
@@ -869,6 +876,18 @@ def get_game_info(global_game, replay):
 			},
 		}
 	}
+
+	if player1.deck_list.guessed_full_deck:
+		player1_proxy_deck = player1.deck_list.guessed_full_deck
+		player1_proxy_decklist = player1_proxy_deck.as_dbf_json()
+		game_info["players"]["1"]["proxy_deck_id"] = player1_proxy_deck.id
+		game_info["players"]["1"]["proxy_deck_list"] = player1_proxy_decklist
+
+	if player2.deck_list.guessed_full_deck:
+		player2_proxy_deck = player2.deck_list.guessed_full_deck
+		player2_proxy_decklist = player2_proxy_deck.as_dbf_json()
+		game_info["players"]["2"]["proxy_deck_id"] = player2_proxy_deck.id
+		game_info["players"]["2"]["proxy_deck_list"] = player2_proxy_decklist
 
 	return game_info
 
