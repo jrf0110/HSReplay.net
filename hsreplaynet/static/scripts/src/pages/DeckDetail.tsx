@@ -30,7 +30,7 @@ import ArchetypeSelector from "../components/ArchetypeSelector";
 import DeckCountersList from "../components/deckdetail/DeckCountersList";
 import DeckMatchups from "../components/deckdetail/DeckMatchups";
 import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
-import MyStatisticsCardTable from "../components/deckdetail/MyStatisticsCardTable";
+import CardTableContainer from "../components/cardtable/CardTableContainer";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -568,6 +568,41 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			);
 		}
 
+		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
+		return (
+			<DataInjector
+				fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
+				query={{params, url: "single_account_lo_individual_card_stats_for_deck"}}
+				extract={{
+					data: (data) => ({data: data.series.data["ALL"]}),
+				}}
+			>
+				<CardTableContainer
+					cards={this.getCards()}
+					columns={[
+						"mulliganWinrate",
+						"keepPercent",
+						"drawnWinrate",
+						"playedWinrate",
+						"turnsInHand",
+						"turnPlayed",
+						"timesPlayed",
+						"damageDone",
+						"healingDone",
+						"heroesKilled",
+						"minionsKilled",
+					]}
+					onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
+						this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
+					}}
+					sortBy={this.state.personalSortBy}
+					sortDirection={this.state.personalSortDirection as SortDirection}
+				/>
+			</DataInjector>
+		);
+	}
+
+	getCards(): CardObj[] {
 		const cards: CardObj[] = [];
 		if (this.props.cardData) {
 			const dbfIds = {};
@@ -581,28 +616,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				});
 			});
 		}
-
-		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
-		return (
-				<DataInjector
-					fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
-					query={{params, url: "single_account_lo_individual_card_stats_for_deck"}}
-				>
-					<TableLoading
-						cardData={this.props.cardData}
-						customMessage={this.state.hasPeronalData === false ? "You have not played this deck recently." : null}
-					>
-						<MyStatisticsCardTable
-							cards={cards}
-							onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
-								this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
-							}}
-							sortBy={this.state.personalSortBy}
-							sortDirection={this.state.personalSortDirection as SortDirection}
-						/>
-					</TableLoading>
-				</DataInjector>
-		);
+		return cards;
 	}
 
 	isWildDeck(): boolean {

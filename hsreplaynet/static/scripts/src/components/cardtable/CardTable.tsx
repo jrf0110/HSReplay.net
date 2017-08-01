@@ -4,21 +4,9 @@ import { CardObj, SortableProps, SortDirection } from "../../interfaces";
 import scrollbarSize from "dom-helpers/util/scrollbarSize";
 import SortHeader from "../SortHeader";
 import CardTile from "../CardTile";
-import { winrateData } from "../../helpers";
-
-interface CardTableColumn {
-	defaultSortDirection?: SortDirection;
-	infoHeader?: string;
-	infoText?: string;
-	sortKey: string;
-	text: string;
-	winrateData?: boolean;
-}
-
-interface CardTableRowData {
-	card: CardObj;
-	values: Array<number|string>;
-}
+import {winrateData} from "../../helpers";
+import {CardTableColumn} from "./CardTableColumns";
+import {CardTableRowData} from "./RowDataGenerator";
 
 interface CardTableProps extends SortableProps, React.ClassAttributes<CardTable> {
 	columns: CardTableColumn[];
