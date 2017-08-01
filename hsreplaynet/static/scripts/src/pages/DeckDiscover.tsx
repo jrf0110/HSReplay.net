@@ -504,17 +504,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							</InfoboxFilterGroup>
 						</PremiumWrapper>
 					</section>
-					<section id="min-games-filter">
-						<h2>Minimum Number Of Games</h2>
-						<InfoboxFilterGroup
-							selectedValue={this.props.minGames}
-							onClick={(value) => this.props.setMinGames(value)}
-						>
-							<InfoboxFilter value="1000">1000</InfoboxFilter>
-							<InfoboxFilter value="500">500</InfoboxFilter>
-							<InfoboxFilter value="200">200</InfoboxFilter>
-						</InfoboxFilterGroup>
-					</section>
 					<section id="side-bar-data">
 						<h2>Data</h2>
 						<ul>

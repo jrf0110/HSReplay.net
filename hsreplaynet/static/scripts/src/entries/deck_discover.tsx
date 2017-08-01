@@ -18,7 +18,7 @@ const render = (cardData: CardData) => {
 				gameType: "RANKED_STANDARD",
 				includedCards: [],
 				includedSet: "ALL",
-				minGames: "500",
+				minGames: "1000",
 				playerClasses: [],
 				opponentClasses: [],
 				rankRange: "ALL",
