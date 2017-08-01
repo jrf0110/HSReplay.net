@@ -387,40 +387,28 @@ class ArchetypeManager(models.Manager):
 			game_format,
 			player_class
 		)
-		training_deck_digests = [d.digest for d in training_decks]
-		digests = [d for d in observation_counts.keys() if d in training_deck_digests]
 
 		configured_archetypes = self.get_fully_configured_archetypes(
 			game_format,
 			player_class
 		)
-		configured_archetype_ids = [a.id for a in configured_archetypes]
-
-		includes = Include.objects.filter(
-			deck__digest__in=digests,
-		).values("deck__digest", "deck__archetype_id", "card__dbf_id", "count")
 
 		training_data = {}
-		for include in includes:
-			archetype_id = include["deck__archetype_id"]
-			if archetype_id not in configured_archetype_ids:
+		for deck in training_decks:
+			if deck.archetype not in configured_archetypes:
 				continue
 
-			if archetype_id not in training_data:
-				training_data[archetype_id] = {}
-			digest = include["deck__digest"]
-			if digest not in training_data[archetype_id]:
-				training_data[archetype_id][digest] = {
-					"total_games": observation_counts[digest],
-					"cards": {}
+			if deck.archetype.id not in training_data:
+				training_data[deck.archetype.id] = {}
+			if deck.digest not in training_data[deck.archetype.id]:
+				training_data[deck.archetype.id][deck.digest] = {
+					"total_games": observation_counts[deck.digest],
+					"cards": deck.dbf_map()
 				}
-			dbf = include["card__dbf_id"]
-			count = include["count"]
-			training_data[archetype_id][digest]["cards"][dbf] = count
-
 		return training_data
 
 	def get_validation_data_for_player_class(self, game_format, player_class):
+		observation_counts = self._get_deck_observation_counts_from_redshift(game_format)
 		validation_decks = ArchetypeTrainingDeck.objects.get_validation_decks(
 			game_format,
 			player_class
@@ -430,17 +418,17 @@ class ArchetypeManager(models.Manager):
 			game_format,
 			player_class
 		)
-		configured_archetype_ids = [a.id for a in configured_archetypes]
 
 		validation_data = {}
 		for deck in validation_decks:
-			if deck.archetype.id not in configured_archetype_ids:
+			if deck.archetype not in configured_archetypes:
 				continue
 
 			if deck.archetype.id not in validation_data:
 				validation_data[deck.archetype.id] = {}
 			if deck.digest not in validation_data[deck.archetype.id]:
 				validation_data[deck.archetype.id][deck.digest] = {
+					"total_games": observation_counts[deck.digest],
 					"cards": deck.dbf_map()
 				}
 		return validation_data
