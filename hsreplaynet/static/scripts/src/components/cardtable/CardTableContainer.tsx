@@ -4,6 +4,7 @@ import {CardObj, SortDirection, TableData} from "../../interfaces";
 import CardTable from "../cardtable/CardTable";
 import {CardTableColumn, cardTableColumnData, CardTableColumnKey} from "../cardtable/CardTableColumns";
 import {ApiCardStatsData, generateCardTableRowData} from "../cardtable/RowDataGenerator";
+import loadingHandler from "../loading/Loading";
 
 interface CardTableContainerProps {
 	baseWinrate?: number;
@@ -18,13 +19,9 @@ interface CardTableContainerProps {
 	bottomInfoRow?: JSX.Element;
 }
 
-export default class CardTableContainer extends React.Component<CardTableContainerProps, void> {
+class CardTableContainer extends React.Component<CardTableContainerProps, void> {
 	render(): JSX.Element {
 		const {baseWinrate, cards, data, sortBy, sortDirection, numCards} = this.props;
-
-		if (!data) {
-			return <h3 className="message-wrapper">Loading...</h3>;
-		}
 
 		const columns = this.props.columns.map((key) => cardTableColumnData[key]);
 		let rowData = generateCardTableRowData(cards, data, sortBy, sortDirection, columns);
@@ -46,3 +43,5 @@ export default class CardTableContainer extends React.Component<CardTableContain
 		);
 	}
 }
+
+export default loadingHandler(CardTableContainer);

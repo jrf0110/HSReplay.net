@@ -618,6 +618,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					}}
 					sortBy={this.state.personalSortBy}
 					sortDirection={this.state.personalSortDirection as SortDirection}
+					customNoDataMessage="You have not played this deck recently."
 				/>
 			</DataInjector>
 		);
