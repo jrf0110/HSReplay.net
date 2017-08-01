@@ -13,18 +13,22 @@ interface CardTableContainerProps {
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
 	sortBy: string;
 	sortDirection: SortDirection;
+	numCards?: number;
 }
 
 export default class CardTableContainer extends React.Component<CardTableContainerProps, void> {
 	render(): JSX.Element {
-		const {baseWinrate, cards, data, sortBy, sortDirection} = this.props;
+		const {baseWinrate, cards, data, sortBy, sortDirection, numCards} = this.props;
 
 		if (!data) {
 			return <h3 className="message-wrapper">Loading...</h3>;
 		}
 
 		const columns = this.props.columns.map((key) => cardTableColumnData[key]);
-		const rowData = generateCardTableRowData(cards, data, sortBy, sortDirection, columns);
+		let rowData = generateCardTableRowData(cards, data, sortBy, sortDirection, columns);
+		if (numCards !== undefined) {
+			rowData = rowData.slice(0, numCards);
+		}
 
 		return (
 			<CardTable
