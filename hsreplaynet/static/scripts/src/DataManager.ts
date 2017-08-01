@@ -43,16 +43,34 @@ export default class DataManager {
 		if (this.running[cacheKey]) {
 			return this.running[cacheKey];
 		}
-		const promise = fetch(this.fullUrl(url, params || {}), {credentials: "include"})
-			.then((response: Response) => {
-				if (response.status === 200) {
-					this.cache[cacheKey] = response.json();
+
+		let fromLocalStorage = false;
+		let hasLastModified = false;
+		const promise = this.fetchOrLocalStorage(cacheKey, url, params)
+			.then((response: Response|any) => {
+				if (response instanceof Response) {
+					if (response.status === 200) {
+						hasLastModified = !!response.headers.get("last-modified");
+						return response.json();
+					}
+					return Promise.reject(response.status);
 				}
-				if (response.status !== 202) {
-					this.responses[cacheKey] = response.status;
+				fromLocalStorage = true;
+				return Promise.resolve(response);
+			}).then((json) => {
+				this.cache[cacheKey] = json;
+				if (!fromLocalStorage && hasLastModified) {
+					this.toLocalStorage(cacheKey, json);
+				}
+				this.responses[cacheKey] = 200;
+				this.running[cacheKey] = undefined;
+				return Promise.resolve(json);
+			}).catch((status) => {
+				if (status !== 202) {
+					this.responses[cacheKey] = status;
 				}
 				this.running[cacheKey] = undefined;
-				return this.cache[cacheKey] || Promise.reject(response.status);
+				return Promise.reject(status);
 			});
 		this.running[cacheKey] = promise;
 		return promise;
@@ -60,5 +78,33 @@ export default class DataManager {
 
 	static has(url: string, params?: any): boolean {
 		return this.cache[this.genCacheKey(url, params || {})] !== undefined;
+	}
+
+	static fetchOrLocalStorage(cacheKey: string, url: string, params: any): Promise<Response|any> {
+		const headers = new Headers();
+		const localData = this.fromLocalStorage(cacheKey);
+		if (localData) {
+			headers.append("if-modified-since", localData.lastModified);
+			return fetch(this.fullUrl(url, params || {}), {credentials: "include", headers}).then((response: Response) => {
+				if (response.status === 304) {
+					return Promise.resolve(localData.data);
+				}
+				return Promise.resolve(response);
+			});
+		}
+		return fetch(this.fullUrl(url, params || {}), {credentials: "include"});
+	}
+
+	static toLocalStorage(cacheKey: string, data: any) {
+		const json = JSON.stringify({data, lastModified: new Date().toUTCString()});
+		window.localStorage["data-" + cacheKey] = json;
+	}
+
+	static fromLocalStorage(cacheKey: string): any {
+		const json = window.localStorage["data-" + cacheKey];
+		if (json) {
+			return JSON.parse(json);
+		}
+		return undefined;
 	}
 }
