@@ -150,7 +150,7 @@ def user_is_eligible_for_query(user, query, params):
 		return True
 
 
-@cache_control(public=True, max_age=7200)
+@cache_control(public=True, must_revalidate=True, max_age=7200)
 @condition(last_modified_func=fetch_query_result_as_of)
 def fetch_query_results(request, name):
 	parameterized_query = _get_query_and_params(request, name)
