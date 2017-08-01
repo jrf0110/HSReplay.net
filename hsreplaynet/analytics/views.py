@@ -4,6 +4,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import (
 	Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 )
+from django.views.decorators.cache import cache_control
 from django.views.decorators.http import condition
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
@@ -149,6 +150,7 @@ def user_is_eligible_for_query(user, query, params):
 		return True
 
 
+@cache_control(public=True, max_age=7200)
 @condition(last_modified_func=fetch_query_result_as_of)
 def fetch_query_results(request, name):
 	parameterized_query = _get_query_and_params(request, name)
