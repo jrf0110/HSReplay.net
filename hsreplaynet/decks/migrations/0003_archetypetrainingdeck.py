@@ -18,7 +18,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('is_validation_deck', models.BooleanField()),
-                ('archetype', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='training_decks', to='decks.Archetype')),
                 ('deck', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='decks.Deck')),
             ],
         ),
