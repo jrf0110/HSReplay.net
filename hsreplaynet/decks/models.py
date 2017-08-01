@@ -463,6 +463,7 @@ class Archetype(models.Model):
 	objects = ArchetypeManager()
 	name = models.CharField(max_length=250, blank=True)
 	player_class = IntEnumField(enum=enums.CardClass, default=enums.CardClass.INVALID)
+	active = models.BooleanField(default=False)
 
 	class Meta:
 		db_table = "cards_archetype"
