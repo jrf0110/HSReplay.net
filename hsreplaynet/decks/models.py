@@ -321,8 +321,10 @@ class ArchetypeManager(models.Manager):
 		)
 		with connection.cursor() as cursor:
 			cursor.execute(query)
-			result = defaultdict(dict)
+			result = {}
 			for record in dictfetchall(cursor):
+				if record["archetype_id"] not in result:
+					result[record["archetype_id"]] = {}
 				result[record["archetype_id"]][record["card_dbf_id"]] = record["weight"]
 			return result
 
@@ -559,7 +561,7 @@ class ArchetypeTrainingDeckManager(models.Manager):
 				if is_wild == record["is_wild"]:
 					deck_ids.append(record["deck_id"])
 
-			return Deck.objects.filter(id__in=deck_ids)
+			return list(Deck.objects.filter(id__in=deck_ids))
 
 	def get_training_decks_for_archetype(self, archetype, game_format, is_validation_deck):
 		result = []

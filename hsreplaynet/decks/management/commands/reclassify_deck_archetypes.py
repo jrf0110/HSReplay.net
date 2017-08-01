@@ -6,7 +6,7 @@ from hearthstone.enums import CardClass, FormatType
 from hsarchetypes import classify_deck
 from sqlalchemy import Date, Integer, String
 from sqlalchemy.sql import bindparam, text
-from hsreplaynet.decks.models import Archetype, Deck
+from hsreplaynet.decks.models import Archetype, ArchetypeTrainingDeck, Deck
 from hsreplaynet.utils.aws import redshift
 
 
@@ -61,23 +61,37 @@ class Command(BaseCommand):
 		archetype_ids_for_player_class = {}
 		signature_weights = {}
 		archetype_map = {}
+		training_decks = {}
 
 		start_timestamp = time.time()
 		result_set = list(conn.execute(compiled_statement))
-		print("Result Set Size: %i" % len(result_set))
+		total_rows = len(result_set)
+		print("Result Set Size: %i" % total_rows)
 		counter = 0
 		for row in result_set:
 			counter += 1
-			if counter % 100 == 0:
-				current_timestamp = time.time()
-				elapsed_time = round(current_timestamp - start_timestamp)
-				print("Row Number: %i (Elapsed Seconds: %i)" % (counter, elapsed_time))
+			pct_complete = str(round((100.0 * counter / total_rows), 4))
 
 			deck_id = row["deck_id"]
 			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
 			current_archetype_id = row["archetype_id"]
 			player_class = CardClass(row["player_class"])
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
+
+			if format not in training_decks:
+				training_decks[format] = {}
+
+			if player_class not in training_decks[format]:
+				training_decks[format][player_class] = []
+				training_decks[format][player_class].extend(
+					ArchetypeTrainingDeck.objects.get_training_decks(format, player_class)
+				)
+				training_decks[format][player_class].extend(
+					ArchetypeTrainingDeck.objects.get_validation_decks(format, player_class)
+				)
+
+			if deck_id in training_decks[format][player_class]:
+				continue
 
 			if format not in archetype_ids_for_player_class:
 				archetype_ids_for_player_class[format] = {}
@@ -95,11 +109,11 @@ class Command(BaseCommand):
 
 			if player_class not in signature_weights[format]:
 				archetype_ids = archetype_ids_for_player_class[format][player_class]
-				signature_weights = Archetype.objects.get_signature_weights(
+				signature_weight_values = Archetype.objects.get_signature_weights(
 					archetype_ids,
 					format
 				)
-				signature_weights[format][player_class] = signature_weights
+				signature_weights[format][player_class] = signature_weight_values
 
 			archetype_ids = archetype_ids_for_player_class[format][player_class]
 			signature_weights = signature_weights[format][player_class]
@@ -109,18 +123,29 @@ class Command(BaseCommand):
 
 			if new_archetype_id != current_archetype_id:
 				deck = Deck.objects.get(id=deck_id)
-				msg = "Updating Deck ID: %i - %r\nFrom: %s To: %s"
+				if deck.archetype_id != new_archetype_id:
+					msg = "\n(%i, %s) Updating Deck ID: %i - %r\nFrom: %s To: %s"
 
-				vals = (
-					deck_id,
-					deck,
-					archetype_map[current_archetype_id].name if current_archetype_id else "None",
-					archetype_map[new_archetype_id].name if new_archetype_id else "None"
-				)
-				print(msg % vals)
-				deck.update_archetype(new_archetype_id)
-			else:
-				print("Processed Deck ID: %i" % deck_id)
+					if current_archetype_id and current_archetype_id in archetype_map:
+						current_name = archetype_map[current_archetype_id].name
+					else:
+						current_name = "None"
+
+					if new_archetype_id and new_archetype_id in archetype_map:
+						new_name = archetype_map[new_archetype_id].name
+					else:
+						new_name = "None"
+
+					vals = (
+						counter,
+						pct_complete,
+						deck_id,
+						deck,
+						current_name,
+						new_name
+					)
+					print(msg % vals)
+					deck.update_archetype(new_archetype_id)
 
 		end_timestamp = time.time()
 		duration_seconds = round(end_timestamp - start_timestamp)
