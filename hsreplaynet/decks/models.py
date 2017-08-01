@@ -426,10 +426,11 @@ class ArchetypeManager(models.Manager):
 			if deck.archetype.id not in training_data:
 				training_data[deck.archetype.id] = {}
 			if deck.digest not in training_data[deck.archetype.id]:
-				training_data[deck.archetype.id][deck.digest] = {
-					"total_games": observation_counts.get(deck.digest, 0),
-					"cards": deck.dbf_map()
-				}
+				if deck.digest in observation_counts:
+					training_data[deck.archetype.id][deck.digest] = {
+						"total_games": observation_counts[deck.digest],
+						"cards": deck.dbf_map()
+					}
 		return training_data
 
 	def get_validation_data_for_player_class(self, game_format, player_class):
@@ -452,10 +453,11 @@ class ArchetypeManager(models.Manager):
 			if deck.archetype.id not in validation_data:
 				validation_data[deck.archetype.id] = {}
 			if deck.digest not in validation_data[deck.archetype.id]:
-				validation_data[deck.archetype.id][deck.digest] = {
-					"total_games": observation_counts.get(deck.digest, 0),
-					"cards": deck.dbf_map()
-				}
+				if deck.digest in observation_counts:
+					validation_data[deck.archetype.id][deck.digest] = {
+						"total_games": observation_counts[deck.digest],
+						"cards": deck.dbf_map()
+					}
 		return validation_data
 
 	def new_weights_pass_validation(self, new_weights, validation_data):
