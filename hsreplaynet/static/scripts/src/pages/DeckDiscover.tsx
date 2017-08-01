@@ -291,7 +291,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<DeckList
 						decks={this.state.filteredDecks}
 						pageSize={12}
-						helpMessage={`Decks require at least 10 unique pilots and ${this.props.minGames} recorded games in the selected time frame to be listed.`}
+						helpMessage="Decks require at least 1000 recorded games in the selected time frame to be listed."
 						showArchetypeSelector={this.props.archetypeSelector === "show"}
 					/>
 				</Fragments>
