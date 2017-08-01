@@ -1,7 +1,6 @@
 import hashlib
 import json
 import string
-from collections import defaultdict
 from django.conf import settings
 from django.db import connection, models, transaction
 from django.dispatch.dispatcher import receiver
@@ -308,9 +307,13 @@ class ArchetypeManager(models.Manager):
 
 	def get_fully_configured_archetypes(self, game_format, player_class):
 		result = []
-		for archetype in Archetype.objects.filter(player_class=player_class).all():
-			if archetype.is_configured_for_format(game_format):
-				result.append(archetype)
+		for a in Archetype.objects.filter(player_class=player_class).all():
+			if game_format == enums.FormatType.FT_STANDARD and a.active_in_standard:
+				result.append(a)
+
+			if game_format == enums.FormatType.FT_WILD and a.active_in_wild:
+				result.append(a)
+
 		return result
 
 	def get_signature_weights(self, archetype_ids, game_format):
@@ -465,7 +468,8 @@ class Archetype(models.Model):
 	objects = ArchetypeManager()
 	name = models.CharField(max_length=250, blank=True)
 	player_class = IntEnumField(enum=enums.CardClass, default=enums.CardClass.INVALID)
-	active = models.BooleanField(default=False)
+	active_in_standard = models.BooleanField(default=False)
+	active_in_wild = models.BooleanField(default=False)
 
 	class Meta:
 		db_table = "cards_archetype"
@@ -491,23 +495,40 @@ class Archetype(models.Model):
 			"components": [(c.card_id, c.weight) for c in sig.components.all()],
 		}
 
-	def get_absolute_url(self):
-		return reverse("archetype_detail", kwargs={"id": self.id, "slug": slugify(self.name)})
-
-	def is_configured_for_format(self, game_format):
-		num_training = len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
+	@property
+	def wild_training_decks_count(self):
+		return len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
 			self,
-			game_format,
+			enums.FormatType.FT_WILD,
 			is_validation_deck=False
 		))
-		num_validation = len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
+
+	@property
+	def standard_training_decks_count(self):
+		return len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
 			self,
-			game_format,
+			enums.FormatType.FT_STANDARD,
+			is_validation_deck=False
+		))
+
+	@property
+	def wild_validation_decks_count(self):
+		return len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
+			self,
+			enums.FormatType.FT_WILD,
 			is_validation_deck=True
 		))
-		has_min_training_decks = num_training >= self.MINIMUM_REQUIRED_TRAINING_DECKS
-		has_min_validation_decks = num_validation >= self.MINIMUM_REQUIRED_VALIDATION_DECKS
-		return has_min_training_decks and has_min_validation_decks
+
+	@property
+	def standard_validation_decks_count(self):
+		return len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
+			self,
+			enums.FormatType.FT_STANDARD,
+			is_validation_deck=True
+		))
+
+	def get_absolute_url(self):
+		return reverse("archetype_detail", kwargs={"id": self.id, "slug": slugify(self.name)})
 
 	def distance(self, deck, game_format):
 		signature = self.get_signature(game_format)
