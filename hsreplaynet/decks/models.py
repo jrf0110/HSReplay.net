@@ -630,6 +630,97 @@ class ArchetypeTrainingDeck(models.Model):
 	is_validation_deck = models.BooleanField()
 
 
+@receiver(
+	[models.signals.post_save, models.signals.post_delete],
+	sender=ArchetypeTrainingDeck
+)
+def update_archetype_active_flags(sender, instance, **kwargs):
+	UPDATE_SCRIPT = """
+		BEGIN;
+
+		UPDATE cards_archetype SET active_in_standard = False, active_in_wild = False;
+
+		UPDATE cards_archetype SET active_in_standard = True WHERE id IN (
+			WITH deck_format AS (
+				SELECT
+					i.deck_id,
+					CASE
+						WHEN sum(CASE WHEN c.card_set IN ({wild_sets}) THEN 1 ELSE 0 END) > 0
+						THEN True
+						ELSE False
+					END AS is_wild
+				FROM decks_archetypetrainingdeck t
+				JOIN cards_include i ON i.deck_id = t.deck_id
+				JOIN card c ON c.card_id = i.card_id
+				GROUP BY i.deck_id
+			)
+			SELECT
+				d.archetype_id
+			FROM decks_archetypetrainingdeck t
+			JOIN cards_deck d ON d.id = t.deck_id
+			JOIN deck_format df ON df.deck_id = d.id
+			JOIN cards_archetype a ON a.id = d.archetype_id
+			GROUP BY d.archetype_id, a.name
+			HAVING
+				sum(CASE
+						WHEN df.is_wild = False AND t.is_validation_deck
+						THEN 1 ELSE 0
+					END) >= {min_validation_decks}
+				AND
+				sum(CASE
+						WHEN df.is_wild = False AND t.is_validation_deck = False
+						THEN 1 ELSE 0
+					END) >= {min_training_decks}
+		);
+
+		UPDATE cards_archetype SET active_in_wild = True WHERE id IN (
+			WITH deck_format AS (
+				SELECT
+					i.deck_id,
+					CASE
+						WHEN sum(CASE WHEN c.card_set IN ({wild_sets}) THEN 1 ELSE 0 END) > 0
+						THEN True
+						ELSE False
+					END AS is_wild
+				FROM decks_archetypetrainingdeck t
+				JOIN cards_include i ON i.deck_id = t.deck_id
+				JOIN card c ON c.card_id = i.card_id
+				GROUP BY i.deck_id
+			)
+			SELECT
+				d.archetype_id
+			FROM decks_archetypetrainingdeck t
+			JOIN cards_deck d ON d.id = t.deck_id
+			JOIN deck_format df ON df.deck_id = d.id
+			JOIN cards_archetype a ON a.id = d.archetype_id
+			GROUP BY d.archetype_id, a.name
+			HAVING
+				sum(CASE
+						WHEN df.is_wild AND t.is_validation_deck
+						THEN 1 ELSE 0
+					END) >= {min_validation_decks}
+				AND
+				sum(CASE
+						WHEN df.is_wild AND t.is_validation_deck = False
+						THEN 1 ELSE 0
+					END) >= {min_training_decks}
+		);
+
+		COMMIT;
+	"""
+	wild_sets = [c for c in enums.CardSet if c.craftable and not c.is_standard]
+	wild_set_ids = ", ".join(str(c.value) for c in wild_sets)
+
+	with connection.cursor() as cursor:
+		cursor.execute(
+			UPDATE_SCRIPT.format(
+				wild_sets=wild_set_ids,
+				min_validation_decks=Archetype.MINIMUM_REQUIRED_VALIDATION_DECKS,
+				min_training_decks=Archetype.MINIMUM_REQUIRED_TRAINING_DECKS,
+			)
+		)
+
+
 class Signature(models.Model):
 	id = models.AutoField(primary_key=True)
 	archetype = models.ForeignKey(
