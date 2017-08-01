@@ -52,7 +52,9 @@ function sortCardData(
 	else {
 		const key = columns.find((x) => x.sortKey === sortBy).dataKey;
 		cardData.sort((a, b) => {
-			return (b.data[key] - a.data[key]) * direction
+			const aValue = a.data ? a.data[key] : 0;
+			const bValue = b.data ? b.data[key] : 0;
+			return (bValue - aValue) * direction
 				|| (a.card.card.name > b.card.card.name ? -direction : direction);
 		});
 	}
@@ -63,7 +65,7 @@ function generateRowData(cardData: CardData[], columns: CardTableColumn[]): Card
 	return cardData.map(({card, data}) => {
 		return {
 			card: {card: card.card, count: card.count},
-			values: columns.map((x) => data[x.dataKey]),
+			values: columns.map((x) => data ? data[x.dataKey] : 0),
 		};
 	});
 }
