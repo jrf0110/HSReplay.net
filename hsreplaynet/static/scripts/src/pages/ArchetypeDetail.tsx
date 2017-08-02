@@ -1,4 +1,4 @@
-import { ApiArchetype, DeckObj } from "../interfaces";
+import { ApiArchetype, DeckObj, SortDirection } from "../interfaces";
 import TableLoading from "../components/loading/TableLoading";
 import {AutoSizer} from "react-virtualized";
 import DataManager from "../DataManager";
@@ -30,6 +30,9 @@ import { extractSignature } from "../extractors";
 interface ArchetypeDetailState {
 	deckData?: any;
 	popularDecks?: DeckObj[];
+	popularDecksPage: number;
+	popularDecksSortBy: string;
+	popularDecksSortDirection: SortDirection;
 }
 
 interface ArchetypeDetailProps {
@@ -51,6 +54,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		this.state = {
 			deckData: null,
 			popularDecks: [],
+			popularDecksPage: 1,
+			popularDecksSortBy: "popularity",
+			popularDecksSortDirection: "descending",
 		};
 
 		this.fetchDeckData(props);
@@ -84,8 +90,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		if (decks.length === 0) {
 			return;
 		}
-
-		decks.sort((a, b) => b.total_games - a.total_games);
 
 		const cardCounts = {};
 		decks.forEach((deck) => {
@@ -326,6 +330,12 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								pageSize={10}
 								hideTopPager
 								showArchetypeSelector={true}
+								sortBy={this.state.popularDecksSortBy}
+								sortDirection={this.state.popularDecksSortDirection}
+								setSortBy={(sortBy) => this.setState({popularDecksSortBy: sortBy})}
+								setSortDirection={(sortDirection) => this.setState({popularDecksSortDirection: sortDirection})}
+								page={this.state.popularDecksPage}
+								setPage={(page) => this.setState({popularDecksPage: page})}
 							/>
 						</Tab>
 						<Tab label="Over time data" id="overtime">
