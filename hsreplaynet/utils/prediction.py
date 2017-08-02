@@ -104,9 +104,13 @@ class DeckPredictionTree:
 			else:
 				end_ts = datetime.utcnow() - timedelta(hours=1)
 
+			# Do not request more candidates than the maximum amount
+			# That our deck storage system supports brute force search over
+			# - 1 because distribution(limit=..) is inclusive
+			num_candidates = self.storage.max_match_size - 1
 			candidate_decks = popularity_dist.distribution(
 				end_ts=end_ts,
-				limit=self.storage.max_match_size - 1
+				limit=num_candidates
 			)
 
 			sorted_candidates = sorted(
@@ -129,13 +133,13 @@ class DeckPredictionTree:
 				if first_match_popularity > second_match_popularity:
 					return int(first_match), node, False, match_attempts
 				else:
-					return None, None, True, 0
-			elif len(matches) == 1:
-				return int(matches[0]), node, False, match_attempts
-			else:
-				return None, None, False, 0
+					# There is a tie for most popular deck
+					return None, node, True, match_attempts
 
-		return None, None, False, 0
+			if len(matches) == 1:
+				return int(matches[0]), node, False, match_attempts
+
+		return None, None, False, match_attempts
 
 	def observe(self, deck_id, dbf_map, play_sequence, as_of=None):
 		self.storage.store(deck_id, dbf_map)
