@@ -66,18 +66,23 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		const params = {GameType: props.gameType, RankRange: props.rankRange};
 		DataManager.get("list_decks_by_win_rate", params).then((data) => {
 			if (data) {
-				this.setState({deckData: data.series.data}, () => this.updateData());
+				this.setState({deckData: data.series.data}, () => this.updateData(this.props.cardData));
 			}
 		});
 	}
 
-	updateData() {
+	updateData(cardData: CardData) {
+		const {deckData} = this.state;
+		if (!cardData || !deckData) {
+			return;
+		}
+
 		const signature = {core: [], tech1: [], tech2: [], prevalences: []};
 		const decks = [];
 		const deckObjs: DeckObj[] = [];
 
-		Object.keys(this.state.deckData).forEach((playerClass) => {
-			this.state.deckData[playerClass].forEach((deck) => {
+		Object.keys(deckData).forEach((playerClass) => {
+			deckData[playerClass].forEach((deck) => {
 				if (deck.archetype_id === this.props.archetypeId) {
 					const d = Object.assign({}, deck);
 					d.playerClass = playerClass;
@@ -111,20 +116,18 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			signature.prevalences.push({dbfId, prevalence});
 		});
 
-		if (this.props.cardData) {
-			decks.forEach((deck) => {
-				const cardData = deck.cards.map((c) => ({card: this.props.cardData.fromDbf(c[0]), count: c[1]}));
-				deckObjs.push({
-					archetypeId: deck.archetype_id,
-					cards: cardData,
-					deckId: deck["deck_id"],
-					duration: +deck["avg_game_length_seconds"],
-					numGames: +deck["total_games"],
-					playerClass: deck["playerClass"],
-					winrate: +deck["win_rate"],
-				});
+		decks.forEach((deck) => {
+			const cards = deck.cards.map((c) => ({card: this.props.cardData.fromDbf(c[0]), count: c[1]}));
+			deckObjs.push({
+				archetypeId: deck.archetype_id,
+				cards,
+				deckId: deck["deck_id"],
+				duration: +deck["avg_game_length_seconds"],
+				numGames: +deck["total_games"],
+				playerClass: deck["playerClass"],
+				winrate: +deck["win_rate"],
 			});
-		}
+		});
 
 		this.setState({popularDecks: deckObjs});
 	}
@@ -133,8 +136,8 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		if (this.props.gameType !== nextProps.gameType || this.props.rankRange !== nextProps.rankRange) {
 			this.fetchDeckData(nextProps);
 		}
-		if (!this.props.cardData && nextProps.cardData && this.state.deckData) {
-			this.updateData();
+		if (!this.props.cardData && nextProps.cardData && nextState.deckData) {
+			this.updateData(nextProps.cardData);
 		}
 	}
 
