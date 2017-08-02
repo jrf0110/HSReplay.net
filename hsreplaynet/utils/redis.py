@@ -44,8 +44,8 @@ class RedisPopularityDistribution:
 		self.max_items = max_items
 		self.bucket_size = bucket_size
 
-		if self.bucket_size < 2:
-			raise ValueError("bucket_size must be >= 2")
+		if self.bucket_size < 1:
+			raise ValueError("bucket_size must be >= 1")
 
 		if self.bucket_size > self.ttl:
 			raise ValueError("bucket_size cannot be larger than ttl")
@@ -325,6 +325,18 @@ class RedisTreeNode:
 
 	def _make_key(self):
 		return "%s:%s:%s" % (self.tree.key, self.namespace, self.fully_qualified_label)
+
+	def children(self):
+		for member in self.redis.smembers(self.children_key):
+			yield RedisTreeNode(
+				self.redis,
+				self.tree,
+				self,
+				member,
+				self.depth + 1,
+				self.namespace,
+				self.ttl
+			)
 
 	def get_child(self, label, create=False):
 		if self.redis.sismember(self.children_key, label):

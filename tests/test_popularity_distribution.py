@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 from datetime import datetime, timedelta
 from math import ceil
@@ -55,6 +56,82 @@ def test_redis_popularity_distribution():
 
 	assert actual_result == expected_result
 	assert distribution.popularity(expected_result) == 32.0
+
+
+def test_one_second_buckets():
+	r = fakeredis.FakeStrictRedis()
+	bucket_size = 1
+	distribution = RedisPopularityDistribution(
+		r,
+		"DECKS",
+		ttl=3600,
+		bucket_size=bucket_size
+	)
+	current_ts = datetime.utcnow()
+	td = timedelta(microseconds=current_ts.microsecond)
+	t_0 = current_ts - td
+	t_0_token = int(t_0.timestamp())
+
+	start_token = distribution._to_start_token(t_0)
+	assert start_token == t_0_token
+
+	end_token = distribution._to_end_token(t_0)
+	assert end_token == t_0_token
+
+	end_token_from_start_token = distribution._convert_to_end_token(start_token)
+	assert end_token_from_start_token == end_token
+
+	next_token = distribution._next_token(start_token)
+	assert next_token == (start_token + bucket_size)
+
+	t_3 = t_0 + timedelta(seconds=3)
+	buckets = distribution._generate_bucket_tokens_between(
+		start_token,
+		distribution._to_end_token(t_3)
+	)
+	for index, bucket in enumerate(buckets):
+		assert bucket[0] == t_0_token + index
+		assert bucket[1] == bucket[0] + (bucket_size - 1)
+
+
+def test_bucket_sizes_and_ttls():
+	r = fakeredis.FakeStrictRedis()
+	distribution = RedisPopularityDistribution(
+		r,
+		"DECKS",
+		ttl=5,
+		bucket_size=1
+	)
+
+	# Create t_0 as 5 seconds in the past
+	current_ts = datetime.utcnow()
+	td = timedelta(seconds=5, microseconds=current_ts.microsecond)
+	t_0 = current_ts - td
+
+	def t_N(N):
+		return t_0 + timedelta(seconds=N)
+
+	distribution.increment("A", as_of=t_N(1))
+	distribution.increment("B", as_of=t_N(2))
+	distribution.increment("A", as_of=t_N(3))
+	distribution.increment("A", as_of=t_N(4))
+
+	# First assert the full distribution exists
+	expected_distribution = {"A": 3.0, "B": 1.0}
+	actual_distribution = distribution.distribution()
+	assert expected_distribution == actual_distribution
+
+	# Then assert accessing a partial distribution (t_2, t_3) within the full time range
+	expected_distribution = {"A": 1.0, "B": 1.0}
+	actual_distribution = distribution.distribution(start_ts=t_N(2), end_ts=t_N(3))
+	assert expected_distribution == actual_distribution
+
+	# Finally, assert that the first observation of "A" has aged out due to the TTL
+	time.sleep(1)
+
+	expected_distribution = {"A": 2.0, "B": 1}
+	actual_distribution = distribution.distribution()
+	assert expected_distribution == actual_distribution
 
 
 def test_bucket_sizes():
