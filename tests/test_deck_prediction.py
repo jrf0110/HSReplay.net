@@ -66,21 +66,6 @@ def test_prediction_tree():
 	expected_path = ["ROOT"] + PLAY_SEQUENCES[2][:-1]
 	assert lookup_result_2.path() == expected_path
 
-	# Check that a popularity tie results in None
-	lookup_result_3 = tree.lookup(
-		to_dbf_map(PLAY_SEQUENCES[2][:1]),
-		PLAY_SEQUENCES[2][:1]
-	).predicted_deck_id
-	assert lookup_result_3 is None
-
-	# Add an observation to break the tie
-	tree.observe(2, to_dbf_map(DECK_2), PLAY_SEQUENCES[2])
-	lookup_result_4 = tree.lookup(
-		to_dbf_map(PLAY_SEQUENCES[2][:1]),
-		PLAY_SEQUENCES[2][:1]
-	).predicted_deck_id
-	assert lookup_result_4 == 2
-
 	# Check that an unobserved play sequence returns None
 	UNOBSERVED_PLAY_SEQUENCE = [
 		BLIZZARD

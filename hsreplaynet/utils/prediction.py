@@ -1,6 +1,7 @@
 from copy import copy
 from datetime import datetime, timedelta
 from math import ceil, floor, pow
+from random import randrange
 from django.conf import settings
 from django.core.cache import caches
 from hsreplaynet.utils.redis import (
@@ -125,16 +126,28 @@ class DeckPredictionTree:
 
 			if len(matches) > 1:
 				first_match = matches[0]
-				first_match_popularity = popularity_dist.popularity(first_match)
+				first_match_popularity = candidate_decks[first_match]
 				second_match = matches[1]
-				second_match_popularity = popularity_dist.popularity(second_match)
+				second_match_popularity = candidate_decks[second_match]
 
 				# If multiple matches have equal popularity then return None
 				if first_match_popularity > second_match_popularity:
 					return int(first_match), node, False, match_attempts
 				else:
 					# There is a tie for most popular deck
-					return None, node, True, match_attempts
+					if node.depth == 0:
+						# We are at the root so we must make a choice.
+						top_matches = [first_match, second_match]
+						# Get all the decks tied for first place
+						for additional_match in matches[2:]:
+							if candidate_decks[additional_match] == first_match_popularity:
+								top_matches.append(additional_match)
+						final_match = top_matches[randrange(0, len(top_matches))]
+						return int(final_match), node, False, match_attempts
+					else:
+						pass
+						# We are not at the root, so we pass
+						# And let a node higher up the tree decide
 
 			if len(matches) == 1:
 				return int(matches[0]), node, False, match_attempts
