@@ -84,7 +84,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			personalSortBy: "card",
 			personalSortDirection: "ascending",
 			showInfo: false,
-			sortBy: "decklist",
+			sortBy: "card",
 			sortDirection: "ascending",
 		};
 		this.fetchPersonalDeckSummary();
@@ -565,10 +565,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						"turnPlayed",
 					]}
 					onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
-						this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
+						this.setState({sortBy, sortDirection});
 					}}
-					sortBy={this.state.personalSortBy}
-					sortDirection={this.state.personalSortDirection as SortDirection}
+					sortBy={this.state.sortBy}
+					sortDirection={this.state.sortDirection as SortDirection}
 				/>
 			</DataInjector>
 		);
