@@ -4,6 +4,7 @@ from math import ceil, floor, pow
 from random import randrange
 from django.conf import settings
 from django.core.cache import caches
+from hearthstone.enums import CardClass, FormatType
 from hsreplaynet.utils.redis import (
 	DEFAULT_TTL,
 	RedisIntegerMapStorage,
@@ -13,12 +14,14 @@ from hsreplaynet.utils.redis import (
 )
 
 
-def deck_prediction_tree(player_class, format, redis_client=None):
+def deck_prediction_tree(player_class, game_format, redis_client=None):
+	player_class_enum = CardClass(int(player_class))
+	game_format_enum = FormatType(int(game_format))
 	if redis_client:
 		redis = redis_client
 	else:
 		redis = caches["decks"].client.get_client()
-	return DeckPredictionTree(redis, player_class, format)
+	return DeckPredictionTree(redis, player_class_enum, game_format_enum)
 
 
 class PredictionResult:
