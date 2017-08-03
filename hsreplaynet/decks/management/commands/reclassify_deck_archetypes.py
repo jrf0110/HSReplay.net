@@ -1,5 +1,4 @@
 import json
-import time
 from datetime import date, timedelta
 from django.core.management.base import BaseCommand
 from hearthstone.enums import CardClass, FormatType
@@ -37,20 +36,18 @@ REDSHIFT_QUERY = text("""
 
 class Command(BaseCommand):
 	def add_arguments(self, parser):
-		parser.add_argument("--look_back", nargs=1)
+		parser.add_argument("--lookback", nargs="?", type=int, default=14)
+
+	def get_archetype_name(self, archetype_id):
+		if archetype_id in self.archetype_map:
+			return self.archetype_map[archetype_id].name
+		return "(none)"
 
 	def handle(self, *args, **options):
-		print(str(options))
 		conn = redshift.get_new_redshift_connection()
 
-		lookback_val = options["look_back"]
-		if lookback_val:
-			lookback = int(lookback_val[0])
-		else:
-			lookback = 14
-
 		end_ts = date.today()
-		start_ts = end_ts - timedelta(days=lookback)
+		start_ts = end_ts - timedelta(days=options["lookback"])
 
 		params = {
 			"start_date": start_ts,
@@ -60,20 +57,15 @@ class Command(BaseCommand):
 
 		archetype_ids_for_player_class = {}
 		signature_weights = {}
-		archetype_map = {}
+		self.archetype_map = {}
 		training_decks = {}
 
-		start_timestamp = time.time()
 		result_set = list(conn.execute(compiled_statement))
 		total_rows = len(result_set)
-		print("Result Set Size: %i" % total_rows)
-		counter = 0
-		for row in result_set:
-			counter += 1
-			pct_complete = str(round((100.0 * counter / total_rows), 4))
+		self.stdout.write("%i decks to update" % (total_rows))
 
+		for counter, row in enumerate(result_set):
 			deck_id = row["deck_id"]
-			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
 			current_archetype_id = row["archetype_id"]
 			player_class = CardClass(row["player_class"])
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
@@ -91,6 +83,7 @@ class Command(BaseCommand):
 				)
 
 			if deck_id in training_decks[format][player_class]:
+				self.stdout.write("deck_id %r in training decks, skipping" % (deck_id))
 				continue
 
 			if format not in archetype_ids_for_player_class:
@@ -99,7 +92,7 @@ class Command(BaseCommand):
 			if player_class not in archetype_ids_for_player_class[format]:
 				configured_archetypes = []
 				for a in Archetype.objects.filter(player_class=player_class):
-					archetype_map[a.id] = a
+					self.archetype_map[a.id] = a
 					if format == FormatType.FT_WILD and a.active_in_wild:
 						configured_archetypes.append(a.id)
 					elif format == FormatType.FT_STANDARD and a.active_in_standard:
@@ -117,42 +110,30 @@ class Command(BaseCommand):
 				)
 				signature_weights[format][player_class] = signature_weight_values
 
+			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
 			archetype_ids = archetype_ids_for_player_class[format][player_class]
 			signature_weights = signature_weights[format][player_class]
 			new_archetype_id = classify_deck(
 				dbf_map, archetype_ids, signature_weights
 			)
 
-			if new_archetype_id != current_archetype_id:
-				try:
-					deck = Deck.objects.get(id=deck_id)
-				except Deck.DoesNotExist:
-					continue
+			if new_archetype_id == current_archetype_id:
+				self.stdout.write("Deck %r - Nothing to do." % (deck_id))
+				continue
 
-				if deck and deck.archetype_id != new_archetype_id:
-					msg = "\n(%i, %s) Updating Deck ID: %i - %r\nFrom: %s To: %s"
+			current_name = self.get_archetype_name(current_archetype_id)
+			new_name = self.get_archetype_name(new_archetype_id)
 
-					if current_archetype_id and current_archetype_id in archetype_map:
-						current_name = archetype_map[current_archetype_id].name
-					else:
-						current_name = "None"
+			pct_complete = str(round((100.0 * counter / total_rows), 4))
 
-					if new_archetype_id and new_archetype_id in archetype_map:
-						new_name = archetype_map[new_archetype_id].name
-					else:
-						new_name = "None"
+			self.stdout.write("(%i, %s) Updating Deck ID: %i - %s => %s\n" % (
+				counter, pct_complete, deck_id, current_name, new_name
+			))
 
-					vals = (
-						counter,
-						pct_complete,
-						deck_id,
-						deck,
-						current_name,
-						new_name
-					)
-					print(msg % vals)
-					deck.update_archetype(new_archetype_id)
+			try:
+				deck = Deck.objects.get(id=deck_id)
+			except Deck.DoesNotExist:
+				self.stderr.write("Error: Deck id=%r does not exist" % (deck_id))
+				continue
 
-		end_timestamp = time.time()
-		duration_seconds = round(end_timestamp - start_timestamp)
-		print("Took: %i Seconds" % duration_seconds)
+			deck.update_archetype(new_archetype_id)
