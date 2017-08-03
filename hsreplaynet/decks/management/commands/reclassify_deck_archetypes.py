@@ -14,15 +14,15 @@ REDSHIFT_QUERY = text("""
 	SELECT
 		p.game_type,
 		p.player_class,
-		p.deck_id,
+		p.proxy_deck_id AS deck_id,
 		max(m.archetype_id) AS archetype_id,
 		max(p.deck_list) AS deck_list
 	FROM player p
-	LEFT JOIN deck_archetype_map m ON m.deck_id = p.deck_id
+	LEFT JOIN deck_archetype_map m ON m.deck_id = p.proxy_deck_id
 	WHERE p.game_date BETWEEN :start_date AND :end_date
 	AND p.game_type IN (2, 30)
 	AND p.full_deck_known
-	GROUP BY p.game_type, p.player_class, p.deck_id;
+	GROUP BY p.game_type, p.player_class, p.proxy_deck_id;
 """).bindparams(
 	bindparam("start_date", type_=Date),
 	bindparam("end_date", type_=Date),
@@ -100,7 +100,9 @@ class Command(BaseCommand):
 				configured_archetypes = []
 				for a in Archetype.objects.filter(player_class=player_class):
 					archetype_map[a.id] = a
-					if a.is_configured_for_format(format):
+					if format == FormatType.FT_WILD and a.active_in_wild:
+						configured_archetypes.append(a.id)
+					elif format == FormatType.FT_STANDARD and a.active_in_standard:
 						configured_archetypes.append(a.id)
 				archetype_ids_for_player_class[format][player_class] = configured_archetypes
 
@@ -122,8 +124,12 @@ class Command(BaseCommand):
 			)
 
 			if new_archetype_id != current_archetype_id:
-				deck = Deck.objects.get(id=deck_id)
-				if deck.archetype_id != new_archetype_id:
+				try:
+					deck = Deck.objects.get(id=deck_id)
+				except Deck.DoesNotExist:
+					continue
+
+				if deck and deck.archetype_id != new_archetype_id:
 					msg = "\n(%i, %s) Updating Deck ID: %i - %r\nFrom: %s To: %s"
 
 					if current_archetype_id and current_archetype_id in archetype_map:
