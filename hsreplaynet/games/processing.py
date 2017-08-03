@@ -522,104 +522,100 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 
 		eligible_formats = [FormatType.FT_STANDARD, FormatType.FT_WILD]
 		is_eligible_format = global_game.format in eligible_formats
+
 		if settings.FULL_DECK_PREDICTION_ENABLED and is_eligible_format:
-			try:
-				player_class = Deck.objects._convert_hero_id_to_player_class(player_hero_id)
-				tree = deck_prediction_tree(player_class, global_game.format)
-				played_cards_for_player = played_cards[player.player_id]
+			player_class = Deck.objects._convert_hero_id_to_player_class(player_hero_id)
+			tree = deck_prediction_tree(player_class, global_game.format)
+			played_cards_for_player = played_cards[player.player_id]
 
-				# 5 played cards partitions a 14 day window into buckets of ~ 500 or less
-				# We can search through ~ 2,000 decks in 100ms so that gives us plenty of headroom
-				min_played_cards = tree.max_depth - 1
+			# 5 played cards partitions a 14 day window into buckets of ~ 500 or less
+			# We can search through ~ 2,000 decks in 100ms so that gives us plenty of headroom
+			min_played_cards = tree.max_depth - 1
 
-				# We can control via settings the minumum number of cards we need
-				# To know about in the deck list before we attempt to guess the full deck
-				min_observed_cards = settings.DECK_PREDICTION_MINIMUM_CARDS
+			# We can control via settings the minumum number of cards we need
+			# To know about in the deck list before we attempt to guess the full deck
+			min_observed_cards = settings.DECK_PREDICTION_MINIMUM_CARDS
 
-				played_card_dbfs = [c.dbf_id for c in played_cards_for_player][:min_played_cards]
-				played_card_names = [c.name for c in played_cards_for_player][:min_played_cards]
+			played_card_dbfs = [c.dbf_id for c in played_cards_for_player][:min_played_cards]
+			played_card_names = [c.name for c in played_cards_for_player][:min_played_cards]
 
-				has_enough_observed_cards = deck.size >= min_observed_cards
-				has_enough_played_cards = len(played_card_dbfs) >= min_played_cards
+			has_enough_observed_cards = deck.size >= min_observed_cards
+			has_enough_played_cards = len(played_card_dbfs) >= min_played_cards
 
-				if deck.size == 30:
-					tree.observe(
-						deck.id,
-						deck.dbf_map(),
-						played_card_dbfs
-					)
-					# deck_id == proxy_deck_id for complete decks
-					deck.guessed_full_deck = deck
-					deck.save()
-				elif has_enough_observed_cards and has_enough_played_cards:
-					res = tree.lookup(
-						deck.dbf_map(),
-						played_card_dbfs,
-					)
-					predicted_deck_id = res.predicted_deck_id
+			if deck.size == 30:
+				tree.observe(
+					deck.id,
+					deck.dbf_map(),
+					played_card_dbfs
+				)
+				# deck_id == proxy_deck_id for complete decks
+				deck.guessed_full_deck = deck
+				deck.save()
+			elif has_enough_observed_cards and has_enough_played_cards:
+				res = tree.lookup(
+					deck.dbf_map(),
+					played_card_dbfs,
+				)
+				predicted_deck_id = res.predicted_deck_id
 
-					fields = {
-						"actual_deck_id": deck.id,
-						"deck_size": deck.size,
-						"game_id": global_game.id,
-						"sequence": "->".join("[%s]" % c for c in played_card_names),
-						"predicted_deck_id": res.predicted_deck_id,
-						"match_attempts": res.match_attempts,
-						"tie": res.tie
-					}
+				fields = {
+					"actual_deck_id": deck.id,
+					"deck_size": deck.size,
+					"game_id": global_game.id,
+					"sequence": "->".join("[%s]" % c for c in played_card_names),
+					"predicted_deck_id": res.predicted_deck_id,
+					"match_attempts": res.match_attempts,
+					"tie": res.tie
+				}
+
+				if settings.DETAILED_PREDICTION_METRICS:
+					fields["actual_deck"] = repr(deck)
+
+					if res.predicted_deck_id:
+						predicted_deck = Deck.objects.get(
+							id=res.predicted_deck_id
+						)
+						fields["predicted_deck"] = repr(predicted_deck)
+
+				if res.node:
+					fields["depth"] = res.node.depth
 
 					if settings.DETAILED_PREDICTION_METRICS:
-						fields["actual_deck"] = repr(deck)
+						node_labels = []
+						for path_dbf_id in res.path():
+							if path_dbf_id == "ROOT":
+								path_str = path_dbf_id
+							else:
+								path_card = Card.objects.get(dbf_id=path_dbf_id)
+								path_str = path_card.name
+							node_labels.append("[%s]" % path_str)
+						fields["node"] = "->".join(node_labels)
 
-						if res.predicted_deck_id:
-							predicted_deck = Deck.objects.get(
-								id=res.predicted_deck_id
-							)
-							fields["predicted_deck"] = repr(predicted_deck)
+						popularity = res.popularity_distribution.popularity(
+							res.predicted_deck_id
+						)
+						fields["predicted_deck_popularity"] = popularity
 
-					if res.node:
-						fields["depth"] = res.node.depth
+						deck_count = res.popularity_distribution.size()
+						fields["distribution_deck_count"] = deck_count
 
-						if settings.DETAILED_PREDICTION_METRICS:
-							node_labels = []
-							for path_dbf_id in res.path():
-								if path_dbf_id == "ROOT":
-									path_str = path_dbf_id
-								else:
-									path_card = Card.objects.get(dbf_id=path_dbf_id)
-									path_str = path_card.name
-								node_labels.append("[%s]" % path_str)
-							fields["node"] = "->".join(node_labels)
+						observation_count = res.popularity_distribution.observations()
+						fields["distribution_observation_count"] = observation_count
 
-							popularity = res.popularity_distribution.popularity(
-								res.predicted_deck_id
-							)
-							fields["predicted_deck_popularity"] = popularity
+				tree_depth = res.node.depth if res.node else None
+				influx_metric(
+					"deck_prediction",
+					fields,
+					missing_cards=30 - deck.size,
+					player_class=player_class.name,
+					format=global_game.format.name,
+					tree_depth=tree_depth,
+					made_prediction=predicted_deck_id is not None
+				)
 
-							deck_count = res.popularity_distribution.size()
-							fields["distribution_deck_count"] = deck_count
-
-							observation_count = res.popularity_distribution.observations()
-							fields["distribution_observation_count"] = observation_count
-
-					tree_depth = res.node.depth if res.node else None
-					influx_metric(
-						"deck_prediction",
-						fields,
-						missing_cards=30 - deck.size,
-						player_class=player_class.name,
-						format=global_game.format.name,
-						tree_depth=tree_depth,
-						made_prediction=predicted_deck_id is not None
-					)
-
-					if predicted_deck_id:
-						deck.guessed_full_deck = Deck.objects.get(id=predicted_deck_id)
-						deck.save()
-
-			except:
-				# While prototyping never let failures here disrupt processing
-				pass
+				if predicted_deck_id:
+					deck.guessed_full_deck = Deck.objects.get(id=predicted_deck_id)
+					deck.save()
 
 		# Create the BlizzardAccount first
 		defaults = {
