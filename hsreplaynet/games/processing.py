@@ -9,7 +9,9 @@ from django.core.files.storage import default_storage
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django_hearthstone.cards.models import Card
-from hearthstone.enums import BnetGameType, BnetRegion, CardType, FormatType, GameTag
+from hearthstone.enums import (
+	BnetGameType, BnetRegion, CardClass, CardType, FormatType, GameTag
+)
 from hslog import __version__ as hslog_version, LogParser
 from hslog.exceptions import MissingPlayerData, ParsingError
 from hslog.export import EntityTreeExporter, FriendlyPlayerExporter
@@ -539,10 +541,15 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 			played_card_dbfs = [c.dbf_id for c in played_cards_for_player][:min_played_cards]
 			played_card_names = [c.name for c in played_cards_for_player][:min_played_cards]
 
-			has_enough_observed_cards = deck.size >= min_observed_cards
+			if deck.size is not None:
+				deck_size = deck.size
+			else:
+				deck_size = sum(i.count for i in deck.includes.all())
+
+			has_enough_observed_cards = deck_size >= min_observed_cards
 			has_enough_played_cards = len(played_card_dbfs) >= min_played_cards
 
-			if deck.size == 30:
+			if deck_size == 30:
 				tree.observe(
 					deck.id,
 					deck.dbf_map(),
@@ -560,7 +567,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 
 				fields = {
 					"actual_deck_id": deck.id,
-					"deck_size": deck.size,
+					"deck_size": deck_size,
 					"game_id": global_game.id,
 					"sequence": "->".join("[%s]" % c for c in played_card_names),
 					"predicted_deck_id": res.predicted_deck_id,
@@ -606,9 +613,9 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 				influx_metric(
 					"deck_prediction",
 					fields,
-					missing_cards=30 - deck.size,
-					player_class=player_class.name,
-					format=global_game.format.name,
+					missing_cards=30 - deck_size,
+					player_class=CardClass(int(player_class)).name,
+					format=FormatType(int(global_game.format)).name,
 					tree_depth=tree_depth,
 					made_prediction=predicted_deck_id is not None
 				)
@@ -847,6 +854,16 @@ def get_game_info(global_game, replay):
 	else:
 		game_date = timezone.now().date()
 
+	if player1.deck_list.size is None:
+		player1_deck_size = sum(i.count for i in player1.deck_list.includes.all())
+	else:
+		player1_deck_size = player1.deck_list.size
+
+	if player2.deck_list.size is None:
+		player2_deck_size = sum(i.count for i in player2.deck_list.includes.all())
+	else:
+		player2_deck_size = player2.deck_list.size
+
 	game_info = {
 		"game_id": int(global_game.id),
 		"shortid": replay.shortid,
@@ -862,7 +879,7 @@ def get_game_info(global_game, replay):
 				"deck_list": player1_decklist,
 				"rank": 0 if player1.legend_rank else player1.rank if player1.rank else -1,
 				"legend_rank": player1.legend_rank,
-				"full_deck_known": player1.deck_list.size == 30
+				"full_deck_known": player1_deck_size == 30
 			},
 			"2": {
 				"deck_id": int(player2.deck_list.id),
@@ -870,7 +887,7 @@ def get_game_info(global_game, replay):
 				"deck_list": player2_decklist,
 				"rank": 0 if player2.legend_rank else player2.rank if player2.rank else -1,
 				"legend_rank": player2.legend_rank,
-				"full_deck_known": player2.deck_list.size == 30,
+				"full_deck_known": player2_deck_size == 30,
 			},
 		}
 	}
