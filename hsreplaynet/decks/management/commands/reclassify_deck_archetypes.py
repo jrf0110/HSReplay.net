@@ -1,5 +1,6 @@
 import json
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from hearthstone.enums import CardClass, FormatType
 from hsarchetypes import classify_deck
@@ -7,6 +8,7 @@ from sqlalchemy import Date, Integer, String
 from sqlalchemy.sql import bindparam, text
 from hsreplaynet.decks.models import Archetype, ArchetypeTrainingDeck, Deck
 from hsreplaynet.utils.aws import redshift
+from hsreplaynet.utils.aws.clients import FIREHOSE
 
 
 REDSHIFT_QUERY = text("""
@@ -35,6 +37,18 @@ REDSHIFT_QUERY = text("""
 
 
 class Command(BaseCommand):
+	def __init__(self, *args, **kwargs):
+		self.archetype_map = {}
+		self.db_archetypes_to_update = {}
+		self.firehose_buffer = []
+		self.timestamp = datetime.now().isoformat()
+		self.signature_weights = {
+			FormatType.FT_WILD: {},
+			FormatType.FT_STANDARD: {},
+		}
+		self.firehose_batch_size = 500
+		super().__init__(*args, **kwargs)
+
 	def add_arguments(self, parser):
 		parser.add_argument("--lookback", nargs="?", type=int, default=14)
 
@@ -56,8 +70,6 @@ class Command(BaseCommand):
 		compiled_statement = REDSHIFT_QUERY.params(params).compile(bind=conn)
 
 		archetype_ids_for_player_class = {}
-		signature_weights = {}
-		self.archetype_map = {}
 		training_decks = {}
 
 		result_set = list(conn.execute(compiled_statement))
@@ -66,6 +78,10 @@ class Command(BaseCommand):
 
 		for counter, row in enumerate(result_set):
 			deck_id = row["deck_id"]
+			if deck_id is None:
+				self.stderr.write("Got deck_id %r ... skipping" % (deck_id))
+				continue
+
 			current_archetype_id = row["archetype_id"]
 			player_class = CardClass(row["player_class"])
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
@@ -99,22 +115,18 @@ class Command(BaseCommand):
 						configured_archetypes.append(a.id)
 				archetype_ids_for_player_class[format][player_class] = configured_archetypes
 
-			if format not in signature_weights:
-				signature_weights[format] = {}
-
-			if player_class not in signature_weights[format]:
+			if player_class not in self.signature_weights[format]:
 				archetype_ids = archetype_ids_for_player_class[format][player_class]
 				signature_weight_values = Archetype.objects.get_signature_weights(
 					archetype_ids,
 					format
 				)
-				signature_weights[format][player_class] = signature_weight_values
+				self.signature_weights[format][player_class] = signature_weight_values
 
 			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
 			archetype_ids = archetype_ids_for_player_class[format][player_class]
-			signature_weights = signature_weights[format][player_class]
 			new_archetype_id = classify_deck(
-				dbf_map, archetype_ids, signature_weights
+				dbf_map, archetype_ids, self.signature_weights[format][player_class]
 			)
 
 			if new_archetype_id == current_archetype_id:
@@ -126,14 +138,46 @@ class Command(BaseCommand):
 
 			pct_complete = str(round((100.0 * counter / total_rows), 4))
 
-			self.stdout.write("(%i, %s) Updating Deck ID: %i - %s => %s\n" % (
+			self.stdout.write("(%r, %s) Updating Deck ID: %r - %s => %s\n" % (
 				counter, pct_complete, deck_id, current_name, new_name
 			))
 
-			try:
-				deck = Deck.objects.get(id=deck_id)
-			except Deck.DoesNotExist:
-				self.stderr.write("Error: Deck id=%r does not exist" % (deck_id))
-				continue
+			self.buffer_archetype_update(deck_id, new_archetype_id)
 
-			deck.update_archetype(new_archetype_id)
+		self.flush_db_buffer()
+		self.flush_firehose_buffer()
+
+	def buffer_archetype_update(self, deck_id, new_archetype_id):
+		if new_archetype_id not in self.db_archetypes_to_update:
+			self.db_archetypes_to_update[new_archetype_id] = []
+		self.db_archetypes_to_update[new_archetype_id].append(deck_id)
+
+		firehose_record = "{deck_id}|{archetype_id}|{as_of}\n".format(
+			deck_id=str(deck_id),
+			archetype_id=str(new_archetype_id or ""),
+			as_of=self.timestamp,
+		)
+		self.firehose_buffer.append({
+			"Data": firehose_record.encode("utf-8"),
+		})
+
+	def flush_db_buffer(self):
+		for archetype_id, ids in self.db_archetypes_to_update.items():
+			self.stdout.write("Updating %i decks to archetype %r" % (len(ids), archetype_id))
+			Deck.objects.filter(id__in=ids).update(archetype_id=archetype_id)
+
+	def flush_firehose_buffer(self):
+		while self.firehose_buffer:
+			items = self.firehose_buffer[:self.firehose_batch_size]
+			del self.firehose_buffer[:self.firehose_batch_size]
+			self.stdout.write("Writing %i items to Firehose" % (len(items)))
+
+			result = FIREHOSE.put_record_batch(
+				DeliveryStreamName=settings.ARCHETYPE_FIREHOSE_STREAM_NAME,
+				Records=items
+			)
+
+			# re-append failed records to the buffer
+			for record, result in zip(items, result["RequestResponses"]):
+				if "ErrorCode" in result:
+					self.firehose_buffer.append(record)
