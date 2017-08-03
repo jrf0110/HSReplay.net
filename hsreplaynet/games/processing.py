@@ -602,12 +602,14 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 							observation_count = res.popularity_distribution.observations()
 							fields["distribution_observation_count"] = observation_count
 
+					tree_depth = res.node.depth if res.node else None
 					influx_metric(
 						"deck_prediction",
 						fields,
 						missing_cards=30 - deck.size,
 						player_class=player_class.name,
 						format=global_game.format.name,
+						tree_depth=tree_depth,
 						made_prediction=predicted_deck_id is not None
 					)
 
