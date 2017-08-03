@@ -430,7 +430,7 @@ FULL_DECK_PREDICTION_ENABLED = True
 # Less than 2,000 unique possible decks, which is the brute force search threshold
 DECK_PREDICTION_MINIMUM_CARDS = 5
 # Set false to increase redis brute force search efficiency
-INCLUDE_CURRENT_HOUR_IN_LOOKUP = True
+INCLUDE_CURRENT_HOUR_IN_LOOKUP = False
 DETAILED_PREDICTION_METRICS = True
 
 # Used in some pages such as /downloads
