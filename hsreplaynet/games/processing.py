@@ -523,7 +523,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 		eligible_formats = [FormatType.FT_STANDARD, FormatType.FT_WILD]
 		is_eligible_format = global_game.format in eligible_formats
 
-		if settings.FULL_DECK_PREDICTION_ENABLED and is_eligible_format:
+		if settings.FULL_DECK_PREDICTION_ENABLED and is_eligible_format and settings.ENV_AWS:
 			player_class = Deck.objects._convert_hero_id_to_player_class(player_hero_id)
 			tree = deck_prediction_tree(player_class, global_game.format)
 			played_cards_for_player = played_cards[player.player_id]
