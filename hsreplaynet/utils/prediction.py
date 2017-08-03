@@ -55,9 +55,10 @@ class DeckPredictionTree:
 		redis,
 		player_class,
 		format,
-		max_depth=6,
+		max_depth=4,
 		ttl=DEFAULT_TTL,
-		popularity_ttl=DEFAULT_POPULARITY_TTL
+		popularity_ttl=DEFAULT_POPULARITY_TTL,
+		include_current_hour=settings.INCLUDE_CURRENT_HOUR_IN_LOOKUP
 	):
 		self.redis = redis
 		self.player_class = player_class
@@ -65,6 +66,7 @@ class DeckPredictionTree:
 		self.max_depth = max_depth
 		self.ttl = ttl
 		self.popularity_ttl = popularity_ttl
+		self.include_current_hour = include_current_hour
 		self.storage = RedisIntegerMapStorage(redis, "DECK", ttl=self.ttl)
 		self.tree_name = "%s_%s_%s" % ("DECK_PREDICTION", player_class.name, format.name)
 		self.tree = RedisTree(redis, self.tree_name, ttl=self.ttl)
@@ -100,7 +102,7 @@ class DeckPredictionTree:
 			node = stack.pop(0)
 			popularity_dist = self._popularity_distribution(node)
 
-			if settings.INCLUDE_CURRENT_HOUR_IN_LOOKUP:
+			if self.include_current_hour:
 				end_ts = datetime.utcnow()
 			else:
 				end_ts = datetime.utcnow() - timedelta(hours=1)
