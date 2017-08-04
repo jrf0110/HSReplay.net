@@ -38,6 +38,14 @@ class ArchetypeAdmin(admin.ModelAdmin):
 	def get_ordering(self, request):
 		return ["player_class", "name"]
 
+	def set_active_in_wild(self, request, queryset):
+		queryset.update(active_in_wild=True)
+
+	def set_active_in_standard(self, request, queryset):
+		queryset.update(active_in_standard=True)
+
+	actions = (set_active_in_wild, set_active_in_standard)
+
 
 @admin.register(ArchetypeTrainingDeck)
 class ArchetypeTrainingDeckAdmin(admin.ModelAdmin):
