@@ -22,6 +22,7 @@ from hsredshift.etl.exceptions import CorruptReplayDataError, CorruptReplayPacke
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
 from hsreplaynet.decks.models import Deck
+from hsreplaynet.live.distributions import get_player_class_distribution
 from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
@@ -705,6 +706,16 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 	return players
 
 
+def update_player_class_distribution(replay):
+	try:
+		distribution = get_player_class_distribution()
+		opponent = replay.opposing_player
+		player_class = opponent.hero_class_name
+		distribution.increment(player_class, win=opponent.won)
+	except:
+		pass
+
+
 def do_process_upload_event(upload_event):
 	meta = json.loads(upload_event.metadata)
 
@@ -722,6 +733,7 @@ def do_process_upload_event(upload_event):
 		parser, entity_tree, meta, upload_event, global_game, players
 	)
 
+	update_player_class_distribution(replay)
 	can_attempt_redshift_load = False
 
 	if global_game.loaded_into_redshift is None:

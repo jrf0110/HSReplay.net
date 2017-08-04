@@ -10,6 +10,7 @@ urlpatterns = [
 	url(r"^$", HomeView.as_view(), name="home"),
 	url(r"^api/", include("hsreplaynet.api.urls")),
 	url(r"^analytics/", include("hsreplaynet.analytics.urls")),
+	url(r"^live/", include("hsreplaynet.live.urls")),
 	url(r"^games/", include("hsreplaynet.games.urls")),
 	url(r"^uploads/", include("hsreplaynet.uploads.urls")),
 

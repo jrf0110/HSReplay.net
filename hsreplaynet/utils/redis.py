@@ -86,7 +86,7 @@ class RedisPopularityDistribution:
 
 			self.redis.expireat(bucket_key, expire_at)
 
-	def distribution(self, start_ts=None, end_ts=None, limit=None):
+	def distribution(self, start_ts=None, end_ts=None, limit=None, as_percentages=False):
 		start_ts = start_ts if start_ts else self.earliest_available_datetime
 		end_ts = end_ts if end_ts else datetime.utcnow()
 
@@ -102,8 +102,13 @@ class RedisPopularityDistribution:
 		end_token = self._to_end_token(end_ts)
 		bucket_key = self._bucket_key(start_token, end_token)
 		num_items = -1 if not limit else limit
-		data = self.redis.zrevrange(bucket_key, 0, num_items, withscores=True)
-		return {k.decode("utf8"): int(v) for k, v in data}
+		raw_data = self.redis.zrevrange(bucket_key, 0, num_items, withscores=True)
+		data = {k.decode("utf8"): int(v) for k, v in raw_data}
+		if len(data) and as_percentages:
+			total = sum(data.values())
+			return {k: round((100.0 * v / total), 2) for k, v in data}
+		else:
+			return data
 
 	def size(self, start_ts=None, end_ts=None):
 		return len(self.distribution(start_ts, end_ts))
