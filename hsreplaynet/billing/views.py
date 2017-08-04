@@ -51,6 +51,23 @@ class PaymentsMixin:
 		# Otherwise, we only allow immediate cancel if the subscription is not active.
 		return not customer.subscription.is_valid()
 
+	def can_remove_payment_methods(self, customer):
+		"""
+		Returns whether a customer is allowed to remove their payment methods.
+
+		Will always be True if more than one payment method is available.
+		Will be False if there is at least one active subscription, which is
+		not scheduled to be cancelled.
+		"""
+		if customer.sources.count() > 1:
+			return True
+
+		for subscription in customer.subscriptions.all():
+			if not subscription.cancel_at_period_end:
+				return False
+
+		return True
+
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 
@@ -63,6 +80,7 @@ class PaymentsMixin:
 			context["payment_methods"] = customer.sources.all()
 			context["can_cancel"] = self.can_cancel(customer)
 			context["can_cancel_immediately"] = self.can_cancel_immediately(customer)
+			context["can_remove_payment_methods"] = self.can_remove_payment_methods(customer)
 		else:
 			# When anonymous, the customer is None, thus has no payment methods
 			context["payment_methods"] = []
