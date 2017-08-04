@@ -733,7 +733,7 @@ def do_process_upload_event(upload_event):
 		parser, entity_tree, meta, upload_event, global_game, players
 	)
 
-	update_player_class_distribution(replay)
+	# update_player_class_distribution(replay)
 	can_attempt_redshift_load = False
 
 	if global_game.loaded_into_redshift is None:
