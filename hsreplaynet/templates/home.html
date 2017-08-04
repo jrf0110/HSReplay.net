@@ -3,6 +3,7 @@
 {% load socialaccount %}
 {% load web_extras %}
 {% load feature from features %}
+{% load render_bundle from webpack_loader %}
 
 {# Disable error reporting on front page (e.g. don't care about embedded Joust errors) #}
 {% block error_reporting %}
@@ -51,27 +52,52 @@
 		</div>
 	</header>
 
-	<nav class="navbar navbar-default">
+	<article id="statistics">
 		<div class="container">
-			<nav>
-				<ul class="nav navbar-nav">
-					<li><a href="#features">Features</a></li>
-					<li><a href="#how-it-works">How it works</a></li>
-					<li><a href="#faq">FAQ</a></li>
-				</ul>
-			</nav>
+			<header>
+				<h2>Hearthstone deck and card statistics.</h2>
+				<h4>Class winrates from the last 48 hours:</h4>
+			</header>
+			<div class="class-tiles">
+				{% for player_class in player_classes %}
+					<a class="tile class-tile" href="{{ player_class.decklist_url }}" style="background-image:url({{ player_class.image_url }})">
+						<div class="tile-title">
+							<span class="player-class {{ player_class.name|lower }}">{{ player_class.name }}</span>
+						</div>
+						<div class="tile-content">
+							<ul class="class-tile-winrates">
+								<li class="class-tile-winrate" data-winrate="{{ player_class.standard_winrate }}">
+									{% include "snippets/standard_icon.svg" %}
+									{{ player_class.standard_winrate|floatformat:2 }}%
+
+								</li>
+								<li class="class-tile-winrate" data-winrate="{{ player_class.wild_winrate}}">
+									{% include "snippets/wild_icon.svg" %}
+									{{ player_class.wild_winrate|floatformat:2 }}%
+								</li>
+							</ul>
+							<h4 class="class-tile-footer">View top {{ player_class.name }} decks</h3>
+						</div>
+					</a>
+				{% endfor %}
+			</div>
 		</div>
-	</nav>
+		{% feature "live-data" as live_data %}
+		{% if live_data.enabled %}
+			<header>
+				<h4>The last 5 minutes:</h4>
+			</header>
+			<div id="live-data"></div>
+		{% endif %}
+	</article>
 
 	<article id="demo">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-8 col-md-offset-2 col-xs-12 col-xs-offset-0">
 					<header class="text-center">
-						<h2>All your replays in one place.</h2>
-						<p>
-							Try out our super slick Hearthstone replayer:
-						</p>
+						<h2>Share your Hearthstone games!</h2>
+						<h4>Watch and analyze replays right in your browser.</h4>
 					</header>
 					<a href="{% if featured_replay %}{% url 'games_replay_view' id=featured_replay.shortid %}{% else %}{% static 'images/joust-screenshot.jpg' %}{% endif %}">
 						<img src="{% static 'images/joust-thumbnail.jpg' %}" id="feat-joust-screenshot" alt="Joust: View your HSReplays"/>
@@ -81,41 +107,9 @@
 		</div>
 	</article>
 
-	<article id="features" class="promo">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-8 col-md-offset-2 col-xs-12 col-xs-offset-0">
-					<figure class="front-feature">
-						<img src="{% static 'images/front-feat-history.jpg' %}" alt="Match history" height="120" width="190"/>
-						<figcaption>
-							<h2>Share your craziest moments</h2>
-							<p>
-								Your games are live on the site as soon as they finish.
-								Find your best play and easily link it to all your friends.
-							</p>
-						</figcaption>
-						<div class="clearfix"></div>
-					</figure>
-
-					<figure class="front-feature flip">
-						<img src="{% static 'images/front-feat-stats.jpg' %}" alt="Monthly statistics" height="120" width="190"/>
-						<figcaption>
-							<h2>Analyze your gameplay</h2>
-							<p>
-								A clear game history, filterable per season, game type and more.
-								Follow your progress to legend with wins and losses visible at a glance.
-							</p>
-						</figcaption>
-						<div class="clearfix"></div>
-					</figure>
-				</div>
-			</div>
-		</div>
-	</article>
-
 	<article id="how-it-works">
 		<div class="container">
-			<h2 class="text-center">How it works</h2>
+			<h2 class="text-center">Start recording your own replays</h2>
 			<ul class="row home-steps">
 				<li class="col-sm-6">
 					<h3>Step 1:</h3>
@@ -131,20 +125,6 @@
 				</li>
 			</ul>
 		</div>
-	</article>
-
-	<article class="text-center promo">
-		{% if user.is_authenticated %}
-			<h2>You're all set!</h2>
-			<p class="front-pad"><a href="{% url 'my_replays' %}" class="promo-button hero-button">View your replays</a></p>
-		{% else %}
-			<h2>Let's get started:</h2>
-			<p class="front-pad-top">{% include 'login_button.html' %}</p>
-			<p class="help-block">
-				We'll send you to the offical Blizzard site where you can securely log in.<br />
-				Blizzard will redirect you back here once you're done.
-			</p>
-		{% endif %}
 	</article>
 
 	<article id="faq">
@@ -204,5 +184,21 @@
 			</div>
 		</div>
 	</article>
+
+	<article class="text-center promo">
+		{% if user.is_authenticated %}
+			<h2>You're all set!</h2>
+			<p class="front-pad"><a href="{% url 'my_replays' %}" class="promo-button hero-button">View your replays</a></p>
+		{% else %}
+			<h2>Let's get started:</h2>
+			<p class="front-pad-top">{% include 'login_button.html' %}</p>
+			<p class="help-block">
+				We'll send you to the offical Blizzard site where you can securely log in.<br />
+				Blizzard will redirect you back here once you're done.
+			</p>
+		{% endif %}
+	</article>
 </div>
+{% render_bundle "home" %}
+
 {% endblock %}
