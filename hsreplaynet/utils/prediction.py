@@ -6,7 +6,6 @@ from django.conf import settings
 from django.core.cache import caches
 from hearthstone.enums import CardClass, FormatType
 from hsreplaynet.utils.redis import (
-	DEFAULT_TTL,
 	RedisIntegerMapStorage,
 	RedisPopularityDistribution,
 	RedisTree,
@@ -46,7 +45,7 @@ class PredictionResult:
 		return stack
 
 
-DEFAULT_POPULARITY_TTL = 7 * SECONDS_PER_DAY
+DEFAULT_POPULARITY_TTL = 4 * SECONDS_PER_DAY
 
 
 class DeckPredictionTree:
@@ -56,7 +55,7 @@ class DeckPredictionTree:
 		player_class,
 		format,
 		max_depth=4,
-		ttl=DEFAULT_TTL,
+		ttl=DEFAULT_POPULARITY_TTL,
 		popularity_ttl=DEFAULT_POPULARITY_TTL,
 		include_current_hour=settings.INCLUDE_CURRENT_HOUR_IN_LOOKUP
 	):
