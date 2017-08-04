@@ -103,7 +103,7 @@ class RedisPopularityDistribution:
 		bucket_key = self._bucket_key(start_token, end_token)
 		num_items = -1 if not limit else limit
 		data = self.redis.zrevrange(bucket_key, 0, num_items, withscores=True)
-		return {k.decode("utf8"): v for k, v in data}
+		return {k.decode("utf8"): int(v) for k, v in data}
 
 	def size(self, start_ts=None, end_ts=None):
 		return len(self.distribution(start_ts, end_ts))
