@@ -20,6 +20,7 @@ class DeckAdmin(admin.ModelAdmin):
 	list_display = ("__str__", "archetype", "created")
 	inlines = (IncludeInline, )
 	readonly_fields = ("shortid", )
+	raw_id_fields = ("guessed_full_deck", )
 
 	def get_ordering(self, request):
 		return ["-id"]
