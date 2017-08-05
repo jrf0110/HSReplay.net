@@ -1,6 +1,5 @@
 from copy import copy
 from datetime import datetime, timedelta
-from math import ceil, floor, pow
 from random import randrange
 from django.conf import settings
 from django.core.cache import caches
@@ -45,7 +44,7 @@ class PredictionResult:
 		return stack
 
 
-DEFAULT_POPULARITY_TTL = 4 * SECONDS_PER_DAY
+DEFAULT_POPULARITY_TTL = 2 * SECONDS_PER_DAY
 
 
 class DeckPredictionTree:
@@ -175,11 +174,12 @@ class DeckPredictionTree:
 			self.redis,
 			name=node.key,
 			ttl=self.popularity_ttl,
-			max_items=self._max_collection_size_for_depth(node.depth)
+			max_items=self._max_collection_size_for_depth(node.depth),
+			bucket_size=21600  # 6 Hours
 		)
 		return dist
 
-	def _max_collection_size_for_depth(self, depth, min_size=1000.0):
+	def _max_collection_size_for_depth(self, depth, min_size=200.0):
 		# Nodes closer to the root retain more deck state
 		# Since a greater percentage of the global deck volume flows through them
 		# 0 -> min_size * (16 / 2 ** 0) = 16 * min_size
@@ -192,4 +192,6 @@ class DeckPredictionTree:
 		# 7 -> min_size * (16 / 2 ** 3) = 2 * min_size
 		# 8 -> min_size * (16 / 2 ** 4) = 1 * min_size
 		# 9+ = min_size
-		return int(min_size * ceil(16.0 / pow(2.0, floor(depth / 2.0))))
+		# from math import ceil, floor, pow
+		# return int(min_size * ceil(16.0 / pow(2.0, floor(depth / 2.0))))
+		return 2000
