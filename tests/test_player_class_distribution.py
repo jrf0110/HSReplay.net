@@ -8,7 +8,7 @@ from hsreplaynet.live.distributions import get_player_class_distribution
 
 def test_player_class_distribution():
 	redis = fakeredis.FakeStrictRedis()
-	distribution = get_player_class_distribution(redis)
+	distribution = get_player_class_distribution("FT_STANDARD", redis)
 
 	current_ts = datetime.utcnow()
 	# t_0 is 5 minutes in the past
@@ -28,7 +28,7 @@ def test_player_class_distribution():
 			if win:
 				actual_wins[player_class.name] += 1
 			distribution.increment(
-				player_class=player_class.name,
+				key=player_class.name,
 				win=win,
 				as_of=t_i
 			)

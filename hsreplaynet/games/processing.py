@@ -531,6 +531,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 			tree = deck_prediction_tree(player_class, global_game.format)
 			played_cards_for_player = played_cards[player.player_id]
 
+			#capture_played_card_stats(global_game, played_cards_for_player, is_friendly_player)
 			# 5 played cards partitions a 14 day window into buckets of ~ 500 or less
 			# We can search through ~ 2,000 decks in 100ms so that gives us plenty of headroom
 			min_played_cards = tree.max_depth - 1
@@ -708,12 +709,17 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 
 def update_player_class_distribution(replay):
 	try:
-		distribution = get_player_class_distribution()
+		game_type_name = BnetGameType(replay.global_game.game_type).name
+		distribution = get_player_class_distribution(game_type_name)
 		opponent = replay.opposing_player
 		player_class = opponent.hero_class_name
 		distribution.increment(player_class, win=opponent.won)
-	except:
-		pass
+	except Exception as e:
+		error_handler(e)
+
+
+def capture_played_card_stats(global_game, played_cards, is_friendly_player):
+	pass
 
 
 def do_process_upload_event(upload_event):
@@ -733,7 +739,7 @@ def do_process_upload_event(upload_event):
 		parser, entity_tree, meta, upload_event, global_game, players
 	)
 
-	# update_player_class_distribution(replay)
+	update_player_class_distribution(replay)
 	can_attempt_redshift_load = False
 
 	if global_game.loaded_into_redshift is None:

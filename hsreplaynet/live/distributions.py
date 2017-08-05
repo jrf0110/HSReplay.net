@@ -1,31 +1,33 @@
 from django.core.cache import caches
-from hearthstone.enums import CardClass
 from hsreplaynet.utils.redis import RedisPopularityDistribution
 
 
-class PlayerClassPopularityWinDistribution:
-	def __init__(self, redis, ttl=600):
+class PopularityWinrateDistribution:
+	def __init__(self, redis, name, max_items=9, bucket_size=5, ttl=600):
+		self.name = name
+		self.max_items = max_items
+		self.bucket_size = bucket_size
 		self.observations = RedisPopularityDistribution(
 			redis,
-			name="PLAYER_CLASS_OBSERVATIONS",
+			name="%s_OBSERVATIONS" % self.name,
 			namespace="POPULARITY",
 			ttl=ttl,
-			max_items=9,
-			bucket_size=1
+			max_items=self.max_items,
+			bucket_size=self.bucket_size
 		)
 		self.wins = RedisPopularityDistribution(
 			redis,
-			name="PLAYER_CLASS_WINS",
+			name="%s_WINS" % self.name,
 			namespace="POPULARITY",
 			ttl=ttl,
-			max_items=9,
-			bucket_size=1
+			max_items=self.max_items,
+			bucket_size=self.bucket_size
 		)
 
-	def increment(self, player_class, win=False, as_of=None):
-		self.observations.increment(player_class, as_of=as_of)
+	def increment(self, key, win=False, as_of=None):
+		self.observations.increment(key, as_of=as_of)
 		if win:
-			self.wins.increment(player_class, as_of=as_of)
+			self.wins.increment(key, as_of=as_of)
 
 	def distribution(self, start_ts, end_ts):
 		games = self.observations.distribution(
@@ -37,19 +39,19 @@ class PlayerClassPopularityWinDistribution:
 			end_ts=end_ts,
 		)
 		result = {}
-		for i in range(2, 11):
-			player_class = CardClass(i)
-			result[player_class.name] = {
-				"games": games.get(player_class.name, 0),
-				"wins": wins.get(player_class.name, 0)
+		for key, val in games.items():
+			result[key] = {
+				"games": val,
+				"wins": wins.get(key, 0)
 			}
 		return result
 
 
-def get_player_class_distribution(redis_client=None, ttl=600):
+def get_player_class_distribution(game_type, redis_client=None, ttl=600):
 	if redis_client:
 		redis = redis_client
 	else:
-		redis = caches["decks"].client.get_client()
+		redis = caches["live_stats"].client.get_client()
 
-	return PlayerClassPopularityWinDistribution(redis, ttl=ttl)
+	name = "PLAYER_CLASS_%s" % game_type
+	return PopularityWinrateDistribution(redis, name=name, ttl=ttl)
