@@ -179,8 +179,7 @@ class DeckDetailView(View):
 		self.request.head.add_meta({
 			"name": "description",
 			"content": (
-				"{name} stats and decklist."
-				"Import it: {deckstring}"
+				"{name} stats and decklist. Import it: {deckstring}"
 			).format(name=str(deck), deckstring=deck.deckstring),
 		})
 
