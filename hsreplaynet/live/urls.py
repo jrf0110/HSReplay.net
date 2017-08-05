@@ -8,4 +8,9 @@ urlpatterns = [
 		views.fetch_player_class_distribution,
 		name="live_fetch_player_class_distribution"
 	),
+	url(
+		r"^distributions/played_cards/(?P<game_type_name>\w+)$",
+		views.fetch_played_cards_distribution,
+		name="live_fetch_played_cards_distribution"
+	),
 ]

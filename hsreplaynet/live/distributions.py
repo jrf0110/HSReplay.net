@@ -55,3 +55,20 @@ def get_player_class_distribution(game_type, redis_client=None, ttl=600):
 
 	name = "PLAYER_CLASS_%s" % game_type
 	return PopularityWinrateDistribution(redis, name=name, ttl=ttl)
+
+
+def get_played_cards_distribution(game_type, redis_client=None, ttl=600):
+	if redis_client:
+		redis = redis_client
+	else:
+		redis = caches["live_stats"].client.get_client()
+
+	name = "PLAYED_CARDS_%s" % game_type
+	return RedisPopularityDistribution(
+		redis,
+		name=name,
+		namespace="POPULARITY",
+		ttl=ttl,
+		max_items=5000,
+		bucket_size=5
+	)

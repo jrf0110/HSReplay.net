@@ -22,7 +22,9 @@ from hsredshift.etl.exceptions import CorruptReplayDataError, CorruptReplayPacke
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
 from hsreplaynet.decks.models import Deck
-from hsreplaynet.live.distributions import get_player_class_distribution
+from hsreplaynet.live.distributions import (
+	get_played_cards_distribution, get_player_class_distribution
+)
 from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
@@ -523,6 +525,12 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 			# Replace with an empty deck
 			deck, _ = Deck.objects.get_or_create_from_id_list([])
 
+		capture_played_card_stats(
+			global_game,
+			[c.dbf_id for c in played_cards[player.player_id]],
+			is_friendly_player
+		)
+
 		eligible_formats = [FormatType.FT_STANDARD, FormatType.FT_WILD]
 		is_eligible_format = global_game.format in eligible_formats
 
@@ -531,7 +539,6 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 			tree = deck_prediction_tree(player_class, global_game.format)
 			played_cards_for_player = played_cards[player.player_id]
 
-			#capture_played_card_stats(global_game, played_cards_for_player, is_friendly_player)
 			# 5 played cards partitions a 14 day window into buckets of ~ 500 or less
 			# We can search through ~ 2,000 decks in 100ms so that gives us plenty of headroom
 			min_played_cards = tree.max_depth - 1
@@ -719,7 +726,14 @@ def update_player_class_distribution(replay):
 
 
 def capture_played_card_stats(global_game, played_cards, is_friendly_player):
-	pass
+	try:
+		if not is_friendly_player:
+			game_type_name = BnetGameType(global_game.game_type).name
+			dist = get_played_cards_distribution(game_type_name)
+			for dbf_id in played_cards:
+				dist.increment(dbf_id)
+	except Exception as e:
+		error_handler(e)
 
 
 def do_process_upload_event(upload_event):
