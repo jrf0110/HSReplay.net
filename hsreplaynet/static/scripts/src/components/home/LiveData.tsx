@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import CardTile from "../CardTile";
 import CardData from "../../CardData";
 import AnimatedList from "./AnimatedList";
@@ -10,6 +11,7 @@ interface LiveDataState {
 	arenaData: any[];
 	standardData: any[];
 	wildData: any[];
+	doUpdate?: boolean;
 }
 
 interface LiveDataProps extends React.ClassAttributes<LiveData> {
@@ -22,6 +24,7 @@ export default class LiveData extends React.Component<LiveDataProps, LiveDataSta
 		this.state = {
 			arenaData: [],
 			cursor: 0,
+			doUpdate: true,
 			standardData: [],
 			wildData: [],
 		};
@@ -31,24 +34,29 @@ export default class LiveData extends React.Component<LiveDataProps, LiveDataSta
 	}
 
 	fetchData() {
-		DataManager.get("/live/distributions/played_cards/BGT_RANKED_STANDARD", undefined , true).then((response) => {
-			const standardData = response.data;
-			standardData.sort((a, b) => a.ts - b.ts);
-			this.setState({standardData, cursor: 0});
-		});
-		DataManager.get("/live/distributions/played_cards/BGT_RANKED_WILD", undefined, true).then((response) => {
-			const wildData = response.data;
-			wildData.sort((a, b) => a.ts - b.ts);
-			this.setState({wildData, cursor: 0});
-		});
-		DataManager.get("/live/distributions/played_cards/BGT_ARENA", undefined, true).then((response) => {
-			const arenaData = response.data;
-			arenaData.sort((a, b) => a.ts - b.ts);
-			this.setState({arenaData, cursor: 0});
+		[
+			["BGT_ARENA", "arenaData"],
+			["BGT_RANKED_STANDARD", "standardData"],
+			["BGT_RANKED_WILD", "wildData"],
+		].forEach(([gameType, stateName]) => {
+			DataManager.get("/live/distributions/played_cards/" + gameType, undefined , true).then((response) => {
+				const data = response.data;
+				if (data.some((d) => _.isEmpty(d.data))) {
+					this.setState({doUpdate: false});
+					return;
+				}
+				data.sort((a, b) => a.ts - b.ts);
+				const newState = {cursor: 0};
+				newState[stateName] = data;
+				this.setState(newState);
+			});
 		});
 	}
 
 	updateCursor() {
+		if (!this.state.doUpdate) {
+			return;
+		}
 		const {cursor, standardData} = this.state;
 		if (standardData.length > cursor + 1) {
 			this.setState({cursor: cursor + 1});
@@ -60,11 +68,17 @@ export default class LiveData extends React.Component<LiveDataProps, LiveDataSta
 	}
 
 	render(): JSX.Element {
+		if (!this.state.doUpdate) {
+			return null;
+		}
 		const standardItems = this.getListItems(this.state.standardData, "standard");
 		const wildItems = this.getListItems(this.state.wildData, "wild");
 		const arenaItems = this.getListItems(this.state.arenaData, "arena");
 		return (
 			<div className="container">
+				<header>
+					<h4><strong>Cards played</strong> by game mode over the last <strong>5 minutes</strong>:</h4>
+				</header>
 				<div className="row">
 					<div className="col-sm-12 col-md-4">
 						<h4>
