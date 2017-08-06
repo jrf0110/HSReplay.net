@@ -118,12 +118,17 @@ def find_or_create_global_game(entity_tree, meta):
 	if not ladder_season:
 		ladder_season = guess_ladder_season(meta["end_time"])
 
+	game_type = meta.get("game_type", 0)
+	if game_type == 7:
+		# the enum used to be wrong...
+		game_type = int(BnetGameType.BGT_CASUAL_STANDARD)
+
 	defaults = {
 		"game_handle": meta.get("game_handle"),
 		"server_address": meta.get("server_ip"),
 		"server_port": meta.get("server_port"),
 		"server_version": meta.get("server_version"),
-		"game_type": meta.get("game_type", 0),
+		"game_type": game_type,
 		"format": meta.get("format", 0),
 		"build": meta["build"],
 		"match_start": meta["start_time"],
