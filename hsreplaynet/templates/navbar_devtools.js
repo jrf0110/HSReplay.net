@@ -44,7 +44,9 @@ function add(feature) {
 	}
 }
 
-$.get("/api/v1/features/", (data) => data.results.forEach(add));
+$.get("/api/v1/features/", (data) => {
+	data.results.sort((a, b) => a.name > b.name ? -1 : 1).forEach(add)
+});
 
 
 // Freemode toggle
