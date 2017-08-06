@@ -17,6 +17,7 @@ import InfoIcon from "../components/InfoIcon";
 import {decode as decodeDeckstring} from "deckstrings";
 import DataManager from "../DataManager";
 import {Limit} from "../components/ObjectSearch";
+import Feature from "../components/Feature";
 
 interface DeckDiscoverState {
 	availableArchetypes?: string[];
@@ -279,6 +280,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			);
 		}
 		else {
+			let helpMessage = "Decks require at least 1000 recorded games in the selected time frame to be listed.";
+			if (UserData.hasFeature("min-games-filter")) {
+				helpMessage = `Decks require at least 10 unique pilots and ${this.props.minGames} recorded games in the selected time frame to be listed.`;
+			}
 			content = (
 				<Fragments
 					defaults={{
@@ -291,7 +296,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					<DeckList
 						decks={this.state.filteredDecks}
 						pageSize={12}
-						helpMessage="Decks require at least 1000 recorded games in the selected time frame to be listed."
+						helpMessage={helpMessage}
 						showArchetypeSelector={this.props.archetypeSelector === "show"}
 					/>
 				</Fragments>
@@ -504,6 +509,18 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							</InfoboxFilterGroup>
 						</PremiumWrapper>
 					</section>
+					<Feature feature="min-games-filter">
+						<section id="min-games-filter">
+							<h2>Minimum Number Of Games</h2>
+							<InfoboxFilterGroup
+								selectedValue={this.props.minGames}
+								onClick={(value) => this.props.setMinGames(value)}
+							>
+								<InfoboxFilter value="1000">1000</InfoboxFilter>
+								<InfoboxFilter value="500">500</InfoboxFilter>
+							</InfoboxFilterGroup>
+						</section>
+					</Feature>
 					<section id="side-bar-data">
 						<h2>Data</h2>
 						<ul>
