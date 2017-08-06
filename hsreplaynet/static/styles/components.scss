@@ -915,3 +915,17 @@ table .info-icon, .sort-header .info-icon {
 		line-height: 50px;
 	}
 }
+
+.animated-list {
+	overflow: hidden;
+	position: relative;
+}
+
+.animated-list-item {
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	transition: top 0.7s ease-in-out;
+	padding: 1px 0;
+}
