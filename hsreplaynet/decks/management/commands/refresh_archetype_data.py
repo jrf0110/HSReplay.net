@@ -12,9 +12,10 @@ class Command(BaseCommand):
 		for name, query in catalogue.registry.items():
 			if query.uses_archetypes:
 				query.mark_all_stale()
-				for permutation in query.generate_cachable_parameter_permutations():
-					queries.append({
-						"query_name": query.name,
-						"supplied_parameters": permutation
-					})
+				if name in settings.ARCHETYPE_QUERIES_FOR_IMMEDIATE_REFRESH:
+					for permutation in query.generate_cachable_parameter_permutations():
+						queries.append({
+							"query_name": query.name,
+							"supplied_parameters": permutation
+						})
 		write_messages_to_queue(queue_name, queries)

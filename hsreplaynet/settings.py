@@ -409,6 +409,13 @@ REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME = "redshift_personalized_query_queue"
 # an accurate distribution of games
 REDSHIFT_USE_MATCH_START_AS_GAME_DATE = False
 
+ARCHETYPE_QUERIES_FOR_IMMEDIATE_REFRESH = [
+	"head_to_head_archetype_matchups",
+	"archetype_popularity_distribution_stats",
+	"list_decks_by_opponent_win_rate"
+]
+
+
 # When False the cached data will only get refreshed:
 #	1) At the end of each ETL Track Load
 #	2) Immediately when a new premium user subscribes
