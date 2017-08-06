@@ -68,7 +68,10 @@ def fetch_query_result_as_of(request, name):
 	if issubclass(parameterized_query.__class__, HttpResponse):
 		return None
 
-	return parameterized_query.result_as_of
+	if parameterized_query.result_is_stale:
+		return None
+	else:
+		return parameterized_query.result_as_of
 
 
 def _get_query_and_params(request, name):
