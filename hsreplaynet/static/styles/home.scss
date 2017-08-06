@@ -314,13 +314,11 @@ ul.home-steps .promo-button {
 		}
 	}
 
-	.mode-icon > svg {
+	.mode-icon {
 		width: 30px;
 		height: 30px;
-		fill: black;
-		stroke-width: 3px;
 		position: relative;
-		top: 8px;
+		top: -2px;
 	}
 
 	.tile-content {
