@@ -19,23 +19,23 @@ export default class CardTile extends React.Component<CardTileProps, void> {
 		const baseCountWidth = this.props.countBoxSize || 24;
 		const baseImageWidth = 134 + this.props.countBoxSize - 24;
 
-		let showCountBox = this.props.count > 1 || this.props.card.rarity === "LEGENDARY";
-		let countWidth = this.props.height / baseHeight * baseCountWidth;
+		const showCountBox = this.props.count > 1 || this.props.card.rarity === "LEGENDARY";
+		const countWidth = this.props.height / baseHeight * baseCountWidth;
 
-		let tileStyle = {height: this.props.height + "px", lineHeight: this.props.height + "px"};
-		let gemStyle = {width: this.props.height + "px"};
-		let costStyle = {fontSize: this.props.height / baseHeight * 1.25 + "em"};
-		let nameStyle = {fontSize: this.props.height / baseHeight * 0.9 + "em", width: "calc(100% - " + ((showCountBox ? countWidth : 0) + 4) + "px)"};
+		const tileStyle = {height: this.props.height + "px", lineHeight: this.props.height + "px"};
+		const gemStyle = {width: this.props.height + "px"};
+		const costStyle = {fontSize: this.props.height / baseHeight * 1.25 + "em"};
+		const nameStyle = {fontSize: this.props.height / baseHeight * 0.9 + "em", width: "calc(100% - " + ((showCountBox ? countWidth : 0) + 4) + "px)"};
 
-		let imageWidth = this.props.height / baseHeight * baseImageWidth;
-		let imageRight = showCountBox ? (this.props.height / baseHeight * baseCountWidth - 2) + "px" : "0";
-		let imageStyle = {width: imageWidth + "px", right: imageRight};
+		const imageWidth = this.props.height / baseHeight * baseImageWidth;
+		const imageRight = showCountBox ? (this.props.height / baseHeight * baseCountWidth - 2) + "px" : "0";
+		const imageStyle = {width: imageWidth + "px", right: imageRight};
 
 		let countBox = null;
 		if (showCountBox) {
-			let singleLegendary = this.props.card.rarity === "LEGENDARY" && this.props.count === 1;
-			let countboxStyle = {width: countWidth + "px"};
-			let countStyle = {fontSize: this.props.height / baseHeight * 1.15 + "em", top: singleLegendary ? "-2px" : 0};
+			const singleLegendary = this.props.card.rarity === "LEGENDARY" && this.props.count === 1;
+			const countboxStyle = {width: countWidth + "px"};
+			const countStyle = {fontSize: this.props.height / baseHeight * 1.15 + "em", top: singleLegendary ? "-2px" : 0};
 
 			countBox = (
 				<div className="card-countbox" style={countboxStyle}>
