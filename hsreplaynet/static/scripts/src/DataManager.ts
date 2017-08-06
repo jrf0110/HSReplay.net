@@ -34,7 +34,12 @@ export default class DataManager {
 
 	static get(url: string, params?: any, noCache?: boolean): Promise<any> {
 		const cacheKey = this.genCacheKey(url, params || {});
-		if (!noCache) {
+		const headers = new Headers();
+		if (noCache) {
+			headers.append("pragma", "no-cache");
+			headers.append("cache-control", "no-cache");
+		}
+		else {
 			if (this.responses[cacheKey] === 200) {
 				return Promise.resolve(this.cache[cacheKey]);
 			}
@@ -45,7 +50,7 @@ export default class DataManager {
 				return this.running[cacheKey];
 			}
 		}
-		const promise = fetch(this.fullUrl(url, params || {}), {credentials: "include"})
+		const promise = fetch(this.fullUrl(url, params || {}), {credentials: "include", headers})
 			.then((response: Response) => {
 				if (response.status === 200) {
 					this.cache[cacheKey] = response.json();
