@@ -25,11 +25,13 @@ const loadingHandler = <T extends {}>(Component: React.ComponentClass<T>) => {
 			}
 			const data = this.props["data"];
 			if (!data || Array.isArray(data) && data.length === 0) {
-				return (
-					<h3 className="message-wrapper">
-						{customNoDataMessage || "No data available"}
-					</h3>
-				);
+				const message = getLoadingMessage(LoadingStatus.NO_DATA, customNoDataMessage);
+				if (typeof message === "string") {
+					return <h3 className="message-wrapper">{message}</h3>;
+				}
+				else if (message !== null) {
+					return <div className="message-wrapper">{message}</div>;
+				}
 			}
 			const props = _.omit(this.props, "status", "customNoDataMessage");
 			return <Component {...this.props}/>;
