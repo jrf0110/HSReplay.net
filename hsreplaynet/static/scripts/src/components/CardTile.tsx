@@ -10,13 +10,14 @@ interface CardTileProps {
 	height?: number;
 	hideGem?: boolean;
 	noLink?: boolean;
+	countBoxSize?: number;
 }
 
 export default class CardTile extends React.Component<CardTileProps, void> {
 	public render(): JSX.Element {
 		const baseHeight = 34;
-		const baseCountWidth = 24;
-		const baseImageWidth = 134;
+		const baseCountWidth = this.props.countBoxSize || 24;
+		const baseImageWidth = 134 + this.props.countBoxSize - 24;
 
 		let showCountBox = this.props.count > 1 || this.props.card.rarity === "LEGENDARY";
 		let countWidth = this.props.height / baseHeight * baseCountWidth;
