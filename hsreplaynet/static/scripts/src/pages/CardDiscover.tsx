@@ -335,6 +335,12 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 								sortDirection={this.props.sortDirection}
 								onSortChanged={(a, b) => this.onSortChanged(a, b)}
 								numCards={this.state.numCards}
+								customNoDataMessage={[
+									<h3>All set!</h3>,
+									<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>,
+									<p>After you've played some games you'll find statistics for all the cards you play right here.</p>,
+									<p className="text-muted">Note: It may take up to an hour for new data to appear on this page.</p>
+								]}
 							/>
 						</DataInjector>
 					</div>,
@@ -346,12 +352,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			else {
 				content.push(
 					<div className="message-wrapper">
-						<h3>No Hearthstone account found</h3>
+						<h3>Link your Hearthstone account</h3>
 						<p>
-							Play one (more) game and upload the replay for your personal card statistics to appear here.
+							Play a game and <a href="/games/mine/">upload the replay</a> for your personal card statistics to start appearing here.
 						</p>
-						<p>
-							Please <a href="/contact">contact us</a> if you keep seeing this message.
+						<p className="text-muted">
+							Note: It may take up to an hour for new data to appear on this page.<br />
+							<a href="/contact/">Contact us if you keep seeing this message.</a>
 						</p>
 					</div>,
 				);
