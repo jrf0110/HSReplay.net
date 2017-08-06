@@ -70,7 +70,7 @@ class Command(BaseCommand):
 		compiled_statement = REDSHIFT_QUERY.params(params).compile(bind=conn)
 
 		archetype_ids_for_player_class = {}
-		training_decks = {}
+		training_decks = [d.id for d in ArchetypeTrainingDeck.objects.all()]
 
 		result_set = list(conn.execute(compiled_statement))
 		total_rows = len(result_set)
@@ -82,25 +82,13 @@ class Command(BaseCommand):
 				self.stderr.write("Got deck_id %r ... skipping" % (deck_id))
 				continue
 
+			if deck_id in training_decks:
+				self.stdout.write("deck_id %r in training decks, skipping" % (deck_id))
+				continue
+
 			current_archetype_id = row["archetype_id"]
 			player_class = CardClass(row["player_class"])
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
-
-			if format not in training_decks:
-				training_decks[format] = {}
-
-			if player_class not in training_decks[format]:
-				training_decks[format][player_class] = []
-				training_decks[format][player_class].extend(
-					ArchetypeTrainingDeck.objects.get_training_decks(format, player_class)
-				)
-				training_decks[format][player_class].extend(
-					ArchetypeTrainingDeck.objects.get_validation_decks(format, player_class)
-				)
-
-			if deck_id in training_decks[format][player_class]:
-				self.stdout.write("deck_id %r in training decks, skipping" % (deck_id))
-				continue
 
 			if format not in archetype_ids_for_player_class:
 				archetype_ids_for_player_class[format] = {}
@@ -130,7 +118,7 @@ class Command(BaseCommand):
 			)
 
 			if new_archetype_id == current_archetype_id:
-				self.stdout.write("Deck %r - Nothing to do." % (deck_id))
+				# self.stdout.write("Deck %r - Nothing to do." % (deck_id))
 				continue
 
 			current_name = self.get_archetype_name(current_archetype_id)
