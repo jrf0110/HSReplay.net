@@ -1,10 +1,12 @@
+from collections import defaultdict
 from datetime import datetime, timedelta
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
+from hearthstone.enums import BnetGameType
 from hsreplaynet.live.distributions import (
 	get_played_cards_distribution, get_player_class_distribution
 )
 
-_PLAYER_CLASS_CACHE = {}
+_PLAYER_CLASS_CACHE = defaultdict(dict)
 
 
 def _get_base_ts(bucket_size=5):
@@ -15,14 +17,21 @@ def _get_base_ts(bucket_size=5):
 	return base_ts
 
 
+def _validate_game_type(game_type_name):
+	if not hasattr(BnetGameType, game_type_name):
+		raise Http404("Invalid GameType")
+
+
 def fetch_player_class_distribution(request, game_type_name):
 	"""Return the last 60 seconds of player class data using a 5 minute sliding window"""
+	_validate_game_type(game_type_name)
+
 	player_class_popularity = get_player_class_distribution(game_type_name)
 
 	# base_ts ensures we generate the result at most once per bucket_size seconds
 	base_ts = _get_base_ts(bucket_size=5)
 
-	if _PLAYER_CLASS_CACHE.get("as_of", None) != base_ts:
+	if _PLAYER_CLASS_CACHE[game_type_name].get("as_of", None) != base_ts:
 		result = []
 		for i in range(0, 61, 5):
 			end_ts = base_ts + timedelta(seconds=i)
@@ -35,23 +44,25 @@ def fetch_player_class_distribution(request, game_type_name):
 				"ts": int(end_ts.timestamp()),
 				"data": data
 			})
-		_PLAYER_CLASS_CACHE["as_of"] = base_ts
-		_PLAYER_CLASS_CACHE["payload"] = result
+		_PLAYER_CLASS_CACHE[game_type_name]["as_of"] = base_ts
+		_PLAYER_CLASS_CACHE[game_type_name]["payload"] = result
 
 	return JsonResponse(
-		{"data": _PLAYER_CLASS_CACHE.get("payload", [])},
+		{"data": _PLAYER_CLASS_CACHE[game_type_name].get("payload", [])},
 		json_dumps_params=dict(indent=4)
 	)
 
 
 def fetch_played_cards_distribution(request, game_type_name):
 	"""Return the last 60 seconds of played cards data using a 5 minute sliding window"""
+	_validate_game_type(game_type_name)
+
 	played_cards_popularity = get_played_cards_distribution(game_type_name)
 
 	# base_ts ensures we generate the result at most once per bucket_size seconds
 	base_ts = _get_base_ts(bucket_size=5)
 
-	if _PLAYER_CLASS_CACHE.get("as_of", None) != base_ts:
+	if _PLAYER_CLASS_CACHE[game_type_name].get("as_of", None) != base_ts:
 		result = []
 		for i in range(0, 61, 5):
 			end_ts = base_ts + timedelta(seconds=i)
@@ -65,10 +76,10 @@ def fetch_played_cards_distribution(request, game_type_name):
 				"ts": int(end_ts.timestamp()),
 				"data": data
 			})
-		_PLAYER_CLASS_CACHE["as_of"] = base_ts
-		_PLAYER_CLASS_CACHE["payload"] = result
+		_PLAYER_CLASS_CACHE[game_type_name]["as_of"] = base_ts
+		_PLAYER_CLASS_CACHE[game_type_name]["payload"] = result
 
 	return JsonResponse(
-		{"data": _PLAYER_CLASS_CACHE.get("payload", [])},
+		{"data": _PLAYER_CLASS_CACHE[game_type_name].get("payload", [])},
 		json_dumps_params=dict(indent=4)
 	)
