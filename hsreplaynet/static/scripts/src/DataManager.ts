@@ -32,16 +32,18 @@ export default class DataManager {
 		return url;
 	}
 
-	static get(url: string, params?: any): Promise<any> {
+	static get(url: string, params?: any, noCache?: boolean): Promise<any> {
 		const cacheKey = this.genCacheKey(url, params || {});
-		if (this.responses[cacheKey] === 200) {
-			return Promise.resolve(this.cache[cacheKey]);
-		}
-		if (this.responses[cacheKey]) {
-			return Promise.reject(this.responses[cacheKey]);
-		}
-		if (this.running[cacheKey]) {
-			return this.running[cacheKey];
+		if (!noCache) {
+			if (this.responses[cacheKey] === 200) {
+				return Promise.resolve(this.cache[cacheKey]);
+			}
+			if (this.responses[cacheKey]) {
+				return Promise.reject(this.responses[cacheKey]);
+			}
+			if (this.running[cacheKey]) {
+				return this.running[cacheKey];
+			}
 		}
 		const promise = fetch(this.fullUrl(url, params || {}), {credentials: "include"})
 			.then((response: Response) => {
