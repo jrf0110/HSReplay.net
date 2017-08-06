@@ -20,10 +20,11 @@ const render = (cardData: CardData) => {
 			defaults={{
 				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
+				region: "ALL",
 				selectedClasses: [],
 				tab: "breakdown",
 			}}
-			immutable={!UserData.isPremium() ? ["selectedClasses", "rankRange"] : null}
+			immutable={!UserData.isPremium() ? ["selectedClasses", "rankRange", "region"] : null}
 		>
 			<DeckDetail
 				adminUrl={adminUrl}

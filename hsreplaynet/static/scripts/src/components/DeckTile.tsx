@@ -128,7 +128,11 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 		const {hrefTab} = this.props;
 		const tab = hrefTab && {tab: hrefTab};
-		const href = `/decks/${this.props.deckId}/` + getFragments(["gameType", "rankRange"], tab);
+		const fragments = ["gameType", "rankRange"];
+		if (UserData.hasFeature("deck-region-filter")) {
+			fragments.push("region");
+		}
+		const href = `/decks/${this.props.deckId}/` + getFragments(fragments, tab);
 
 		return (
 			<li

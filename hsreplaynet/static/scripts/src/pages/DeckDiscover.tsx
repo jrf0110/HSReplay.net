@@ -436,7 +436,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								}
 								e.preventDefault();
 								const cards = [];
-								for (let tuple of result.cards) {
+								for (const tuple of result.cards) {
 									const [dbfId, count] = tuple;
 									for (let i = 0; i < count; i++) {
 										cards.push(this.props.cardData.fromDbf(dbfId));
@@ -509,6 +509,28 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							</InfoboxFilterGroup>
 						</PremiumWrapper>
 					</section>
+					<Feature feature="deck-region-filter">
+						<section id="region-filter">
+							<PremiumWrapper
+								name="DecK List Region"
+								infoHeader="Region"
+								infoContent="Want to get more specific? Take a look at the decks played in your region!"
+							>
+								<InfoboxFilterGroup
+									header="Region"
+									locked={!isPremium}
+									selectedValue={this.props.region}
+									onClick={(region) => this.props.setRegion(region)}
+									tabIndex={premiumTabIndex}
+								>
+									<InfoboxFilter value="REGION_US">America</InfoboxFilter>
+									<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>
+									<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>
+									<InfoboxFilter value="ALL">All Region</InfoboxFilter>
+								</InfoboxFilterGroup>
+							</PremiumWrapper>
+						</section>
+					</Feature>
 					<Feature feature="min-games-filter">
 						<section id="min-games-filter">
 							<h2>Minimum Number Of Games</h2>
@@ -575,8 +597,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		return {
 			GameType: this.props.gameType,
 			RankRange: this.props.rankRange,
+			Region: UserData.hasFeature("deck-region-filter") ? this.props.region : "ALL",
 			TimeRange: this.props.timeRange,
-			// Region: this.props.region,
 		};
 	}
 }
