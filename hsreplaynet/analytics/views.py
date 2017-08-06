@@ -206,14 +206,9 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None):
 			**parameterized_query.supplied_filters_dict
 		)
 
-		if settings.REDSHIFT_PRETTY_PRINT_QUERY_RESULTS:
-			json_params = dict(indent=4)
-		else:
-			json_params = dict(separators=(",", ":"),)
-
-		response = JsonResponse(
-			parameterized_query.response_payload,
-			json_dumps_params=json_params
+		response = HttpResponse(
+			content=parameterized_query.response_payload_json,
+			content_type="application/json"
 		)
 	elif cache_is_populated and parameterized_query.is_global:
 		user_is_premium = user and not user.is_anonymous and user.is_premium

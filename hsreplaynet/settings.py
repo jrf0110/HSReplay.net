@@ -408,7 +408,6 @@ REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME = "redshift_personalized_query_queue"
 # Set this to True if reprocessing after a long processing pause to maintain
 # an accurate distribution of games
 REDSHIFT_USE_MATCH_START_AS_GAME_DATE = False
-REDSHIFT_PRETTY_PRINT_QUERY_RESULTS = False
 
 # When False the cached data will only get refreshed:
 #	1) At the end of each ETL Track Load
