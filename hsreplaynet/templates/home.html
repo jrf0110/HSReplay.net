@@ -84,6 +84,13 @@
 				{% endfor %}
 			</div>
 		</div>
+		{% feature "live-data" as live_data %}
+		{% if live_data.enabled %}
+			<header>
+				<h4><strong>Cards played</strong> by game mode over the last <strong>5 minutes</strong>:</h4>
+			</header>
+			<div id="live-data"></div>
+		{% endif %}
 	</article>
 
 	<article id="demo">

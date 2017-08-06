@@ -280,6 +280,10 @@ ul.home-steps .promo-button {
 	text-align: center;
 	padding-bottom: 40px;
 
+	.live-data {
+		min-height: 275px;
+	}
+
 	.class-tiles {
 		display: flex;
 		justify-content: center;
@@ -348,5 +352,22 @@ ul.home-steps .promo-button {
 		color: white;
 		background: rgba(0, 0, 0, 0.5);
 		text-transform: uppercase;
+	}
+
+	.animated-list-item {
+		> a {
+			max-width: 250px;
+			flex-grow: 1;
+		}
+
+		>span {
+			line-height: 34px;
+			padding-left: 10px;
+			font-weight: bold;
+		}
+
+		.player-class {
+			padding-left: 35px;
+		}
 	}
 }
