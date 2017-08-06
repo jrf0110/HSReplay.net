@@ -15,7 +15,6 @@ import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import InfoIcon from "../components/InfoIcon";
-import Tooltip from "../components/Tooltip";
 import {decode as decodeDeckstring} from "deckstrings";
 import {Limit} from "../components/ObjectSearch";
 
@@ -27,6 +26,7 @@ interface MyDecksState {
 	filteredDecks: DeckObj[];
 	loading?: boolean;
 	showFilters?: boolean;
+	hasData?: boolean;
 }
 
 interface MyDecksProps extends FragmentChildProps, React.ClassAttributes<MyDecks> {
@@ -58,6 +58,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 			filteredDecks: [],
 			loading: true,
 			showFilters: false,
+			hasData: false,
 		};
 		this.updateFilteredDecks();
 	}
@@ -193,8 +194,12 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					winrate: deck.win_rate,
 				};
 			});
-			this.setState({filteredDecks: decks, loading: false});
+			this.setState({filteredDecks: decks, hasData: true, loading: false});
 		})).catch((reason) => {
+			if (reason === 204) {
+				this.setState({loading: false});
+				return;
+			}
 			if (reason !== "Params changed" && reason !== 202) {
 				console.error(reason);
 			}
@@ -203,8 +208,34 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 
 	render(): JSX.Element {
 		let content = null;
-		if (this.state.loading) {
+		const userAccounts = UserData.getAccounts();
+
+		if (!userAccounts.length) {
+			content = (
+				<div className="message-wrapper">
+					<h2>Link your Hearthstone account</h2>
+					<p>
+						Play a game and <a href="/games/mine/">upload the replay</a> for your deck statistics to start appearing here.
+					</p>
+					<p className="text-muted">
+						Note: It may take up to an hour for new data to appear on this page.<br />
+						<a href="/contact/">Contact us if you keep seeing this message.</a>
+					</p>
+				</div>
+			);
+		}
+		else if (this.state.loading) {
 			content = <h3 className="message-wrapper">Loading…</h3>;
+		}
+		else if (!this.state.hasData) {
+			content = (
+				<div className="message-wrapper">
+					<h2>All set!</h2>
+					<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>
+					<p>After you've played some games you'll find statistics for all the decks you play right here.</p>
+					<p className="text-muted">Note: It may take up to an hour for new data to appear on this page.</p>
+				</div>
+			);
 		}
 		else if (this.state.filteredDecks.length === 0) {
 			let resetButton = null;
@@ -256,33 +287,11 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 			</button>
 		);
 
-		const accounts = UserData.getAccounts().map((acc) => (
+		const accounts = userAccounts.map((acc) => (
 			<InfoboxFilter value={acc.region + "-" + acc.lo}>
 				{acc.display}
 			</InfoboxFilter>
 		));
-
-		if (accounts.length === 0) {
-			accounts.push(
-				<InfoboxFilter value="undefined" locked>
-					No account found
-					<span className="infobox-value">
-						<Tooltip
-							header="No Hearthstone account found"
-							content={
-								<div>
-									<p>Play one (more) game and upload the replay for your account to appear here.</p>
-									<br />
-									<p>Please contact us if  problem remains! (click)</p>
-								</div>
-							}
-						>
-							<a href="/contact/">help</a>
-						</Tooltip>
-					</span>
-				</InfoboxFilter>,
-			);
-		}
 
 		const selectedCards = (key: string) => {
 			if (!this.props.cardData || !this.props[key]) {
@@ -394,7 +403,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 							cardLimit={Limit.SINGLE}
 						/>
 					</section>
-					<section id="account-filter">
+					{accounts.length > 0  ? <section id="account-filter">
 						<InfoboxFilterGroup
 							header="Account"
 							selectedValue={this.state.account}
@@ -406,7 +415,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						>
 							{accounts}
 						</InfoboxFilterGroup>
-					</section>
+					</section> : null}
 					<section id="game-mode-filter">
 						<h2>Game Mode</h2>
 						<InfoboxFilterGroup

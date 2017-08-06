@@ -336,7 +336,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 								onSortChanged={(a, b) => this.onSortChanged(a, b)}
 								numCards={this.state.numCards}
 								customNoDataMessage={[
-									<h3>All set!</h3>,
+									<h2>All set!</h2>,
 									<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>,
 									<p>After you've played some games you'll find statistics for all the cards you play right here.</p>,
 									<p className="text-muted">Note: It may take up to an hour for new data to appear on this page.</p>
@@ -352,7 +352,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			else {
 				content.push(
 					<div className="message-wrapper">
-						<h3>Link your Hearthstone account</h3>
+						<h2>Link your Hearthstone account</h2>
 						<p>
 							Play a game and <a href="/games/mine/">upload the replay</a> for your personal card statistics to start appearing here.
 						</p>
