@@ -314,7 +314,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						<Tab
 							label="Matchups"
 							id="matchups"
-							hidden={!UserData.hasFeature("deck-matchups")}
 						>
 							<DataInjector
 								query={[
