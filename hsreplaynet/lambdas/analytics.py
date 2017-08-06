@@ -18,7 +18,7 @@ from hsreplaynet.utils.synchronization import CountDownLatch
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	memory=512,
+	memory=1024,
 )
 def execute_redshift_query(event, context):
 	"""A handler that executes Redshift queries for the webserver"""
@@ -31,7 +31,7 @@ def execute_redshift_query(event, context):
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	memory=512,
+	memory=1024,
 )
 def drain_redshift_query_queue(event, context):
 	"""A cron'd handler that attempts to drain any queued query requests in SQS."""
@@ -42,7 +42,7 @@ def drain_redshift_query_queue(event, context):
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	memory=512,
+	memory=1024,
 )
 def drain_redshift_personalized_query_queue(event, context):
 	"""A cron'd handler that attempts to drain any queued query requests in SQS."""
