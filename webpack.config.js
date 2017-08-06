@@ -78,6 +78,7 @@ module.exports = (env) => {
 		victory_widgets: makeEntry("victory_widgets"),
 		articles: makeEntry("articles"),
 		premium_modal: makeEntry("premium_modal"),
+		home: makeEntry("home"),
 		polyfills: ["babel-polyfill", "whatwg-fetch", makeEntry("polyfills")],
 	};
 

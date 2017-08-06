@@ -190,7 +190,6 @@ ul.home-steps .promo-button {
 }
 
 .promo {
-	background-color: #ebebeb;
 	color: black;
 }
 
@@ -242,10 +241,6 @@ ul.home-steps .promo-button {
 	}
 }
 
-#promo + article {
-	margin-top: 40px;
-}
-
 .navbar-home {
 	li {
 		a {
@@ -262,12 +257,98 @@ ul.home-steps .promo-button {
 	}
 }
 
-#home article {
-	.text-premium {
-		color: $premium-hover;
+#home {
+	article {
+		padding-top: 40px;
+		padding-bottom: 40px;
+
+		.text-premium {
+			color: $premium-hover;
+		}
+
+		&:nth-child(odd) {
+			background-color: #ebebeb;
+		}
 	}
 
-	a:hover {
+	h4 {
+		line-height: 33px;
+	}
+}
 
+#statistics {
+	text-align: center;
+	padding-bottom: 40px;
+
+	.class-tiles {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		padding: 1em 0;
+	}
+
+	.class-tile {
+		box-shadow: none;
+		height: auto;
+		margin: 15px;
+		max-width: 256px;
+		min-width: 256px;
+		transition: background-color 0.2s linear;
+
+		&:hover {
+			background-color: transparent;
+		}
+	}
+
+	.tile-title {
+		text-transform: none;
+		text-align: left;
+		padding: 1px 1px 2px 1px;
+		z-index: 1;
+		font-size: 1.2em;
+		font-weight: bold;
+
+		.player-class {
+			margin-left: -12px;
+			padding: 7px 0 7px 45px;
+		}
+	}
+
+	.mode-icon > svg {
+		width: 30px;
+		height: 30px;
+		fill: black;
+		stroke-width: 3px;
+		position: relative;
+		top: 8px;
+	}
+
+	.tile-content {
+		background-color: rgba(255, 255, 255, 0.7);
+		transition: background-color 0.2s linear;
+		text-align: center;
+
+		&:hover {
+			background-color: rgba(255, 255, 255, 0.5);
+		}
+	}
+
+	.class-tile-winrate {
+		margin: 1.3em 0;
+		font-size: 2.5em;
+		font-weight: bold;
+		text-shadow: -1px -1px 18px rgba(255, 255, 255, 0.6),
+			1px -1px 18px rgba(255, 255, 255, 0.6),
+			-1px 1px 18px  rgba(255, 255, 255, 0.6),
+			1px 1px 18px rgba(255, 255, 255, 0.6);
+	}
+
+	.class-tile-footer {
+		font-size: 1.1em;
+		margin: 0;
+		padding: 5px 0;
+		color: white;
+		background: rgba(0, 0, 0, 0.5);
+		text-transform: uppercase;
 	}
 }
