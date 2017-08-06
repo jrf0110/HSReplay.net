@@ -26,7 +26,7 @@ const render = (cardData: CardData) => {
 				timeRange: "LAST_30_DAYS",
 				trainingData: "",
 			}}
-			immutable={!UserData.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange"] : null}
+			immutable={!UserData.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange", "region"] : null}
 		>
 			<DeckDiscover
 				cardData={cardData}

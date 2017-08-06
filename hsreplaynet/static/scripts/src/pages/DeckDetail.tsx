@@ -30,18 +30,24 @@ import DeckCountersList from "../components/deckdetail/DeckCountersList";
 import DeckMatchups from "../components/deckdetail/DeckMatchups";
 import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
 import CardTable from "../components/tables/CardTable";
+import * as _ from "lodash";
+import Feature from "../components/Feature";
 
 interface TableDataCache {
 	[key: string]: TableData;
 }
 
-interface AvailableFilters {
-	[key: string]: string[];
+interface InventoryGameType {
+	[gameType: string]: InventoryRegion[];
+}
+
+interface InventoryRegion {
+	[region: string]: string[];
 }
 
 interface DeckDetailState {
 	account?: string;
-	availableFilters?: AvailableFilters;
+	inventory?: InventoryGameType;
 	expandWinrate?: boolean;
 	hasData?: boolean;
 	hasPeronalData?: boolean;
@@ -70,6 +76,8 @@ interface DeckDetailProps {
 	setRankRange?: (rankRange: string) => void;
 	gameType?: string;
 	setGameType?: (gameType: string) => void;
+	region?: string;
+	setRegion?: (region: string) => void;
 }
 
 export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
@@ -77,7 +85,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		super(props, state);
 		this.state = {
 			account: UserData.getDefaultAccountKey(),
-			availableFilters: {},
+			inventory: {},
 			expandWinrate: false,
 			hasData: undefined,
 			hasPeronalData: undefined,
@@ -88,6 +96,28 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			sortDirection: "ascending",
 		};
 		this.fetchPersonalDeckSummary();
+		this.fetchInventory();
+	}
+
+	fetchInventory() {
+		DataManager.get("single_deck_filter_inventory", {deck_id: this.props.deckId}).then((data) => {
+			if (!data) {
+				return Promise.reject("No data");
+			}
+			const inventory = data.series;
+			const gameTypes = Object.keys(inventory);
+			if (gameTypes && gameTypes.indexOf(this.props.gameType) === -1) {
+				const gameType = gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
+				this.props.setGameType(gameType);
+			}
+			this.setState({inventory, hasData: gameTypes.length > 0});
+		}).catch((reason) => {
+			this.setState({hasData: false});
+			if (reason === 202) {
+				// retry after 30 seconds
+				setTimeout(() => this.fetchInventory(), 30000);
+			}
+		});
 	}
 
 	componentWillUpdate(nextProps: DeckDetailProps, nextState: DeckDetailState) {
@@ -106,23 +136,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 	}
 
-	componentDidUpdate(prevProps: DeckDetailProps, prevState: DeckDetailState) {
-		if (!prevProps.cardData && this.props.cardData) {
-			DataManager.get("list_deck_inventory").then((data) => {
-				if (data) {
-					const availableFilters = data.series[this.props.deckId];
-					const gameTypes = availableFilters && Object.keys(availableFilters);
-					if (gameTypes && gameTypes.indexOf(this.props.gameType) === -1) {
-						const gameType = gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
-						this.props.setGameType(gameType);
-					}
-					this.setState({availableFilters, hasData: !!availableFilters});
-				}
-			});
-		}
-	}
-
 	render(): JSX.Element {
+		const deckParams = this.getParams();
+		const globalParams = _.omit("deck_id", deckParams);
+		const personalParams = this.getPersonalParams();
+
 		const dbfIds = this.props.deckCards.split(",").map(Number);
 		const cards = [];
 		let dustCost = null;
@@ -185,9 +203,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 		}
 
-		const infoBoxFilter = (key: string, text: string) => {
+		const infoBoxFilter = (filter: "rankRange"|"region", key: string, text: string) => {
 			let content: any = text;
-			const hasFilter = this.hasRankRange(key);
+			const hasFilter = filter === "rankRange" ? this.hasRankRange(key) : this.hasRegion(key);
 			if (this.state.hasData && !hasFilter) {
 				content = (
 					<Tooltip
@@ -261,16 +279,40 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<h2>Rank range</h2>
 					<InfoboxFilterGroup
 						locked={!isPremium}
-						selectedValue={this.rankRange()}
+						selectedValue={this.getRankRange()}
 						onClick={(rankRange) => this.props.setRankRange(rankRange)}
 						tabIndex={premiumTabIndex}
 					>
-						{infoBoxFilter("LEGEND_ONLY", "Legend only")}
-						{infoBoxFilter("LEGEND_THROUGH_FIVE", "Legend–5")}
-						{infoBoxFilter("LEGEND_THROUGH_TEN", "Legend–10")}
-						{infoBoxFilter("ALL", "Legend–25")}
+						{infoBoxFilter("rankRange", "LEGEND_ONLY", "Legend only")}
+						{infoBoxFilter("rankRange", "LEGEND_THROUGH_FIVE", "Legend–5")}
+						{infoBoxFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend–10")}
+						{infoBoxFilter("rankRange", "ALL", "Legend–25")}
 					</InfoboxFilterGroup>
 				</PremiumWrapper>,
+				<Feature feature="deck-region-filter">
+					<PremiumWrapper
+						name="Single Deck Region"
+						infoHeader="Deck breakdown region"
+						infoContent={[
+							<p>Take a look at how this deck performs in your region!</p>,
+							<br/>,
+							<p>Greyed out filters indicate an insufficient amount of data for that region.</p>,
+						]}
+					>
+						<InfoboxFilterGroup
+							header="Region"
+							locked={!isPremium}
+							selectedValue={this.getRegion()}
+							onClick={(region) => this.props.setRegion(region)}
+							tabIndex={premiumTabIndex}
+						>
+							{infoBoxFilter("region", "REGION_US", "America")}
+							{infoBoxFilter("region", "REGION_EU", "Europe")}
+							{infoBoxFilter("region", "REGION_KR", "Asia")}
+							{infoBoxFilter("region", "ALL", "All Regions")}
+						</InfoboxFilterGroup>
+					</PremiumWrapper>
+				</Feature>,
 			];
 
 			header = [
@@ -278,7 +320,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="chart-wrapper wide">
 						<DataInjector
 							fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-							query={{url: "single_deck_stats_over_time", params: this.getParams()}}
+							query={{url: "single_deck_stats_over_time", params: deckParams}}
 						>
 							<ChartLoading>
 								<PopularityLineChart
@@ -297,7 +339,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<div className="chart-wrapper wide">
 						<DataInjector
 							fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-							query={{url: "single_deck_stats_over_time", params: this.getParams()}}
+							query={{url: "single_deck_stats_over_time", params: deckParams}}
 						>
 							<ChartLoading>
 								<WinrateLineChart widthRatio={2} />
@@ -322,12 +364,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						query={[
 							{
 								key: "opponentWinrateData",
-								params: this.getParams(),
+								params: deckParams,
 								url: "single_deck_base_winrate_by_opponent_class",
 							},
 							{
 								key: "deckListData",
-								params: {GameType: this.gameType(), RankRange: this.rankRange()},
+								params: globalParams,
 								url: "list_decks_by_win_rate",
 							},
 						]}
@@ -360,7 +402,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						cardData={this.props.cardData}
 						cards={dbfIds}
 						heroes={[this.props.heroDbfId]}
-						format={this.gameType() === "RANKED_STANDARD" ? 2 : 1}
+						format={this.getGameType() === "RANKED_STANDARD" ? 2 : 1}
 						deckClass={this.props.deckClass}
 						name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
 						sourceUrl={window.location.toString()}
@@ -387,14 +429,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				{accountFilter}
 				<DataInjector
 					fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-					query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType(), RankRange: this.rankRange()}}}
+					query={{url: "list_decks_by_win_rate", params: globalParams}}
 				>
 					<HideLoading>
 						<DeckStats
 							playerClass={this.props.deckClass}
 							deckId={this.props.deckId}
 							lastUpdatedUrl="single_deck_stats_over_time"
-							lastUpdatedParams={this.getParams()}
+							lastUpdatedParams={deckParams}
 						/>
 					</HideLoading>
 				</DataInjector>
@@ -410,12 +452,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							{overviewContent}
 						</Tab>
 						<Tab label="Breakdown" id="breakdown" hidden={this.state.hasData === false}>
-							{this.renderMulliganGuideTable()}
+							{this.renderMulliganGuideTable(deckParams, globalParams)}
 						</Tab>
 						<Tab label="Similar Decks" id="similar">
 							<DataInjector
 								fetchCondition={this.isWildDeck() !== undefined}
-								query={{url: "list_decks_by_win_rate", params: {GameType: this.gameType(), RankRange: this.rankRange()}}}
+								query={{url: "list_decks_by_win_rate", params: globalParams}}
 							>
 								<TableLoading cardData={this.props.cardData}>
 									<SimilarDecksList
@@ -451,12 +493,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								query={[
 									{
 										key: "archetypeMatchupData",
-										params: {GameType: this.gameType(), RankRange: this.rankRange(), deck_id: this.props.deckId},
+										params: deckParams,
 										url: "single_deck_archetype_matchups",
 									},
 									{
 										key: "classMatchupData",
-										params: {GameType: this.gameType(), RankRange: this.rankRange(), deck_id: this.props.deckId},
+										params: deckParams,
 										url: "single_deck_base_winrate_by_opponent_class",
 									},
 									{
@@ -489,12 +531,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								query={[
 									{
 										key: "deckData",
-										params: {GameType: this.gameType(), RankRange: this.rankRange()},
+										params: globalParams,
 										url: "list_decks_by_win_rate",
 									},
 									{
 										key: "countersData",
-										params: {GameType: this.gameType(), RankRange: this.rankRange(), deck_id: this.props.deckId},
+										params: deckParams,
 										url: "single_deck_recommended_counters",
 									},
 								]}
@@ -513,7 +555,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		</div>;
 	}
 
-	renderMulliganGuideTable(): JSX.Element {
+	renderMulliganGuideTable(deckParams: any, globalParams: any): JSX.Element {
 		const premiumMulligan = (
 			UserData.isPremium() &&
 			this.props.selectedClasses.length &&
@@ -528,12 +570,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				query={[
 					{
 						key: "mulliganData",
-						params: this.getParams(),
+						params: deckParams,
 						url: premiumMulligan ? "single_deck_mulligan_guide_by_class" : "single_deck_mulligan_guide",
 					},
 					{
 						key: "winrateData",
-						params: (premiumMulligan ? this.getParams() : {GameType: this.gameType(), RankRange: this.rankRange()}),
+						params: premiumMulligan ? deckParams : globalParams,
 						url: premiumMulligan ? "single_deck_base_winrate_by_opponent_class" : "list_decks_by_win_rate",
 					},
 				]}
@@ -650,32 +692,59 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	hasGameType(gameType: string): boolean {
-		return this.state.hasData && Object.keys(this.state.availableFilters).indexOf(gameType) !== -1;
+		return this.state.hasData && Object.keys(this.state.inventory).indexOf(gameType) !== -1;
 	}
 
-	gameType(): string {
+	getGameType(): string {
 		return this.hasGameType(this.props.gameType) ? this.props.gameType : "RANKED_STANDARD";
 	}
 
 	hasRankRange(rankRange: string): boolean {
-		const gameType = this.gameType();
 		if (!this.state.hasData) {
 			return false;
 		}
-		if (!this.state.availableFilters[gameType] || !Array.isArray(this.state.availableFilters[gameType])) {
+		const gameType = this.getGameType();
+		const inventoryRegions = this.state.inventory[gameType];
+		if (!inventoryRegions) {
 			return false;
 		}
-		return this.state.availableFilters[gameType].indexOf(rankRange) !== -1;
+
+		const rankRanges = inventoryRegions[this.props.region];
+		if (!rankRanges || !Array.isArray(rankRanges)) {
+			return false;
+		}
+		return rankRanges.indexOf(rankRange) !== -1;
 	}
 
-	rankRange(): string {
+	getRegion() {
+		return UserData.hasFeature("deck-region-filter") && this.hasRegion(this.props.region) ? this.props.region : "ALL";
+	}
+
+	hasRegion(region: string): boolean {
+		if (!this.state.hasData) {
+			return false;
+		}
+		const gameType = this.getGameType();
+		const inventoryRegions = this.state.inventory[gameType];
+		if (!inventoryRegions) {
+			return false;
+		}
+		const rankRanges = inventoryRegions[region];
+		if (!rankRanges || !Array.isArray(rankRanges)) {
+			return false;
+		}
+		return rankRanges.indexOf(this.props.rankRange) !== -1;
+	}
+
+	getRankRange(): string {
 		return this.hasRankRange(this.props.rankRange) ? this.props.rankRange : "ALL";
 	}
 
-	getParams(): any {
+	getParams(): {GameType: string, RankRange: string, Region: string, deck_id: string} {
 		return {
-			GameType: this.gameType(),
-			RankRange: this.rankRange(),
+			GameType: this.getGameType(),
+			RankRange: this.getRankRange(),
+			Region: this.getRegion(),
 			deck_id: this.props.deckId,
 		};
 	}
@@ -685,7 +754,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const getRegion = (account: string) => account && account.split("-")[0];
 		const getLo = (account: string) => account && account.split("-")[1];
 		return {
-			GameType: this.gameType(),
+			GameType: this.getGameType(),
 			Region: getRegion(state.account),
 			account_lo: getLo(state.account),
 		};
