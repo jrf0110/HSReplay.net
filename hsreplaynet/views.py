@@ -35,7 +35,7 @@ class HomeView(TemplateView):
 
 		context["player_classes"] = []
 		for card_class in CardClass:
-			if not card_class.is_playable:
+			if not card_class.is_playable or card_class not in winrate_data:
 				continue
 			data = winrate_data[card_class]
 			context["player_classes"].append({
@@ -52,10 +52,13 @@ class HomeView(TemplateView):
 		return context
 
 	def get_winrate_data(self):
-		query_result = fetch_query_results(
-			self.request, "player_class_performance_summary"
-		)
-		data = json.loads(query_result.content.decode("utf8"))["series"]["data"]
+		try:
+			query_result = fetch_query_results(
+				self.request, "player_class_performance_summary"
+			)
+			data = json.loads(query_result.content.decode("utf8"))["series"]["data"]
+		except Exception:
+			return {}
 
 		ret = {}
 		for c, values in data.items():
