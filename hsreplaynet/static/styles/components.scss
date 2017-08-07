@@ -693,7 +693,6 @@ table .info-icon, .sort-header .info-icon {
 
 .tile {
 	border: 1px solid black;
-	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	color: black;
 	cursor: pointer;
 	display: flex;
@@ -785,6 +784,22 @@ table .info-icon, .sort-header .info-icon {
 			width: 100px;
 			height: 100px;
 			margin: 0 auto;
+		}
+	}
+
+	&.class-tile {
+		.tile-title {
+			text-transform: none;
+			text-align: left;
+			padding: 1px 1px 2px 1px;
+			z-index: 1;
+			font-size: 1.2em;
+			font-weight: bold;
+
+			.player-class {
+				margin-left: -12px;
+				padding: 7px 0 7px 45px;
+			}
 		}
 	}
 }
@@ -889,7 +904,7 @@ table .info-icon, .sort-header .info-icon {
 	font-weight: bold;
 
 	.table-row-header {
-		border-bottom: 1px solid gray;
+		border-bottom: 1px solid lightgray;
 	}
 
 	.table-cell {

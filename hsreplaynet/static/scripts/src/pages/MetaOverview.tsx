@@ -12,9 +12,12 @@ import ArchetypePopularity from "../components/metaoverview/ArchetypePopularity"
 import RankRangeFilter from "../components/RankRangeFilter";
 import Feature from "../components/Feature";
 import UserData from "../UserData";
+import ArchetypeList from "../components/metaoverview/ArchetypeList";
 
 interface MetaOverviewState {
 	mobileView?: boolean;
+	archetypeListSortBy: string;
+	archetypeListSortDirection: SortDirection;
 }
 
 interface MetaOverviewProps {
@@ -46,6 +49,8 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 	constructor(props: MetaOverviewProps, context: any) {
 		super(props, context);
 		this.state = {
+			archetypeListSortBy: "archetype",
+			archetypeListSortDirection: "ascending",
 			mobileView: window.innerWidth <= mobileWidth,
 		};
 	}
@@ -66,34 +71,55 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 
 		let content = null;
 
-		const headToHead = (
+		const archetypeList = (
 			<DataInjector
 				query={[
 					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-					{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-					{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+					{params, url: "archetype_popularity_distribution_stats"},
 				]}
+				extract={{
+					data: (data) => ({data: data.series.data}),
+				}}
 			>
-				<ArchetypeMatchups
-					cardData={this.props.cardData}
+				<ArchetypeList
+					sortBy={this.state.archetypeListSortBy}
+					sortDirection={this.state.archetypeListSortDirection}
+					onSortChanged={(archetypeListSortBy, archetypeListSortDirection) => {
+						this.setState({archetypeListSortBy, archetypeListSortDirection});
+					}}
 					gameType={this.props.gameType}
-					mobileView={this.state.mobileView}
-					setSortBy={this.props.setSortBy}
-					setSortDirection={this.props.setSortDirection}
-					sortBy={this.props.sortBy}
-					sortDirection={this.props.sortDirection}
+					cardData={this.props.cardData}
 				/>
 			</DataInjector>
 		);
 
 		if (this.state.mobileView) {
-			content = headToHead;
+			content = <div id="archetypes">{archetypeList}</div>;
 		}
 		else {
 			content = (
 				<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
+					<Tab id="archetypes" label="Archetypes">
+						{archetypeList}
+					</Tab>
 					<Tab id="matchups" label="Matchups">
-						{headToHead}
+						<DataInjector
+							query={[
+								{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+								{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+								{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+							]}
+						>
+							<ArchetypeMatchups
+								cardData={this.props.cardData}
+								gameType={this.props.gameType}
+								mobileView={this.state.mobileView}
+								setSortBy={this.props.setSortBy}
+								setSortDirection={this.props.setSortDirection}
+								sortBy={this.props.sortBy}
+								sortDirection={this.props.sortDirection}
+							/>
+						</DataInjector>
 					</Tab>
 					<Tab id="popularity" label="Popularity">
 						<DataInjector
