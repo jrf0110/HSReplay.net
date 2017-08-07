@@ -29,7 +29,7 @@ import ArchetypeSelector from "../components/ArchetypeSelector";
 import DeckCountersList from "../components/deckdetail/DeckCountersList";
 import DeckMatchups from "../components/deckdetail/DeckMatchups";
 import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
-import CardTableContainer from "../components/cardtable/CardTableContainer";
+import CardTable from "../components/tables/CardTable";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -554,7 +554,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					},
 				}}
 			>
-				<CardTableContainer
+				<CardTable
 					cards={this.getCards()}
 					columns={[
 						"mulliganWinrate",
@@ -598,7 +598,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					data: (data) => ({data: data.series.data["ALL"]}),
 				}}
 			>
-				<CardTableContainer
+				<CardTable
 					cards={this.getCards()}
 					columns={[
 						"mulliganWinrate",

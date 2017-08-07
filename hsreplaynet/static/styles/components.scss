@@ -884,30 +884,30 @@ table .info-icon, .sort-header .info-icon {
 	}
 }
 
-.card-table-container {
+.table-container {
 	margin: 10px;
 	font-weight: bold;
 
-	.card-table-row-header {
+	.table-row-header {
 		border-bottom: 1px solid gray;
 	}
 
-	.card-table-cell {
+	.table-cell {
 		border-bottom: 1px solid lightgray;
 		border-left: 1px solid lightgray;
 		text-align: center;
 	}
 
-	.card-table-column-header {
+	.table-column-header {
 		border-bottom: 1px solid gray;
 	}
 
-	.card-table-grid {
+	.table-grid {
 		outline: none;
 		overflow-y: hidden !important;
 	}
 
-	.card-table-header {
+	.table-header {
 		overflow-x: hidden !important;
 	}
 

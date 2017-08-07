@@ -1,15 +1,16 @@
-import {CardObj, SortDirection, TableData} from "../../interfaces";
-import {CardTableColumn} from "./CardTableColumns";
-import {cardSorting} from "../../helpers";
+import {CardObj, SortDirection, TableData} from "../../../interfaces";
+import {cardSorting} from "../../../helpers";
+import {TableColumn} from "../Table";
+import CardTile from "../../CardTile";
 
 export interface CardData {
 	card: CardObj;
 	data: any;
 }
 
-export interface CardTableRowData {
+interface RowData {
 	card: CardObj;
-	values: Array<number|string>;
+	values: number[];
 }
 
 export interface ApiCardStatsData {
@@ -21,8 +22,8 @@ export function generateCardTableRowData(
 	data: ApiCardStatsData[],
 	sortBy: string,
 	sortDirection: SortDirection,
-	columns: CardTableColumn[],
-) {
+	columns: TableColumn[],
+): RowData[] {
 	const cardData = generateCardData(cards, data);
 	const sortedCardData = sortCardData(cardData, sortBy, sortDirection, columns);
 	const rowData = generateRowData(sortedCardData, columns);
@@ -42,7 +43,7 @@ function sortCardData(
 	cardData: CardData[],
 	sortBy: string,
 	sortDirection: SortDirection,
-	columns: CardTableColumn[],
+	columns: TableColumn[],
 ): CardData[] {
 	const direction = sortDirection === "descending" ? 1 : -1;
 	cardData = cardData.slice();
@@ -61,7 +62,7 @@ function sortCardData(
 	return cardData;
 }
 
-function generateRowData(cardData: CardData[], columns: CardTableColumn[]): CardTableRowData[] {
+function generateRowData(cardData: CardData[], columns: TableColumn[]): RowData[] {
 	return cardData.map(({card, data}) => {
 		return {
 			card: {card: card.card, count: card.count},

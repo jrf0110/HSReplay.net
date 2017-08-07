@@ -14,7 +14,7 @@ import {cardSorting, cleanText, isWildSet, setNames, slangToCardId, toTitleCase}
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
 import {CardObj, FragmentChildProps, LoadingStatus, SortDirection} from "../interfaces";
-import CardTableContainer from "../components/cardtable/CardTableContainer";
+import CardTable from "../components/tables/CardTable";
 
 interface CardFilters {
 	cost: any;
@@ -319,7 +319,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 								data: (data) => ({data: data.series.data.ALL}),
 							}}
 						>
-							<CardTableContainer
+							<CardTable
 								cards={(this.state.filteredCards || []).map((card) => ({card, count: 1}))}
 								columns={[
 									"totalGames",
@@ -339,7 +339,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 									<h2>All set!</h2>,
 									<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>,
 									<p>After you've played some games you'll find statistics for all the cards you play right here.</p>,
-									<p className="text-muted">Note: It may take up to an hour for new data to appear on this page.</p>
+									<p className="text-muted">Note: It may take up to an hour for new data to appear on this page.</p>,
 								]}
 							/>
 						</DataInjector>
@@ -428,7 +428,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 							},
 						}}
 					>
-						<CardTableContainer
+						<CardTable
 							cards={(this.state.filteredCards || []).map((card) => ({card, count: 1}))}
 							columns={[
 								"includedPopularity",

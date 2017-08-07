@@ -1,7 +1,8 @@
-import {SortDirection} from "../../interfaces";
+import {TableColumn} from "../Table";
 
 export type CardTableColumnKey = (
-	"damageDone"
+	"card"
+	| "damageDone"
 	| "distinctDecks"
 	| "drawnWinrate"
 	| "healingDone"
@@ -23,19 +24,13 @@ export type CardTableColumnKey = (
 	| "winrate"
 );
 
-export interface CardTableColumn {
-	dataKey: string;
-	defaultSortDirection?: SortDirection;
-	infoHeader?: string;
-	infoText?: string;
-	percent?: boolean;
-	prettify?: boolean;
-	sortKey?: string;
-	text: string;
-	winrateData?: boolean;
-}
-
-export const cardTableColumnData: {[key in CardTableColumnKey]: CardTableColumn} = {
+export const cardTableColumnData: {[key in CardTableColumnKey]: TableColumn} = {
+	card: {
+		dataKey: "card",
+		defaultSortDirection: "ascending",
+		sortKey: "card",
+		text: "Card",
+	},
 	mulliganWinrate: {
 		dataKey: "opening_hand_win_rate",
 		infoHeader: "Mulligan winrate",
