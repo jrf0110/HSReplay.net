@@ -83,12 +83,15 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 
 	getTooltip(): JSX.Element {
 		return (
-			<DataInjector
-				query={{key: "data", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeData.id}}
-				extract={{data: (data) => extractSignature(data, this.props.gameType)}}
-			>
-				<ArchetypeSignature cardData={this.props.cardData} />
-			</DataInjector>
+			<div>
+				<DataInjector
+					query={{key: "data", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeData.id}}
+					extract={{data: (data) => extractSignature(data, this.props.gameType)}}
+				>
+					<ArchetypeSignature cardData={this.props.cardData} />
+				</DataInjector>
+				<p>Click to view archetype details</p>
+			</div>
 		);
 	}
 }

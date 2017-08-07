@@ -308,7 +308,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								query={{key: "data", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId}}
 								extract={{data: (data) => extractSignature(data, this.props.gameType)}}
 							>
-								<ArchetypeSignature cardData={this.props.cardData} />
+								<ArchetypeSignature cardData={this.props.cardData} showOccasional/>
 							</DataInjector>
 						</Tab>
 						<Tab

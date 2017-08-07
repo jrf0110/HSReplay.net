@@ -13,6 +13,7 @@ interface Bucket {
 interface ArchetypeSignatureProps extends React.ClassAttributes<ArchetypeSignature> {
 	cardData: CardData;
 	signature?: ApiArchetypeSignature;
+	showOccasional?: boolean;
 }
 
 export default class ArchetypeSignature extends React.Component<ArchetypeSignatureProps, void> {
@@ -31,8 +32,11 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 		const buckets: Bucket[] = [
 			{title: "Core Cards", threshold: 0.9, cards: []},
 			{title: "Popular Tech Cards", threshold: 0.5, cards: []},
-			{title: "Occasional Tech Cards", threshold: 0, cards: []},
 		];
+
+		if (this.props.showOccasional) {
+			buckets.push({title: "Occasional Tech Cards", threshold: 0, cards: []});
+		}
 
 		this.props.signature.components.forEach(([dbfId, prev]) => {
 			const bucket = buckets.find((b) => prev >= b.threshold);
