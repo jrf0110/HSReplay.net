@@ -497,7 +497,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 					<div className="form-group has-feedback">
 						<input
 							autoFocus
-							placeholder="Search…"
+							placeholder="Search: Fireball, lance, valet, ..."
 							type="search"
 							className="form-control"
 							value={this.props.text}
@@ -906,11 +906,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 	filter(card: any, excludeFilter?: string, sparseDicts?: any[]): boolean {
 		if (this.props.text) {
-			const text = cleanText(this.props.text);
-			const slang = slangToCardId(text);
-			if (!slang || card.id !== slang) {
-				if (cleanText(card.name).indexOf(text) === -1) {
-					if (!card.text || cleanText(card.text).indexOf(text) === -1) {
+			const cleanParts = this.props.text.split(",").map((x) => cleanText(x).trim()).filter((x) => x.length > 0);
+			const slangs = cleanParts.map((x) => slangToCardId(x)).filter((x) => x !== null);
+			if (slangs.length === 0 || slangs.every((slang) => card.id !== slang)) {
+				const cleanCardName = cleanText(card.name);
+				if (cleanParts.every((part) => cleanCardName.indexOf(part) === -1)) {
+					const cleanCardtext = card.text && cleanText(card.text);
+					if (!card.text || cleanParts.every((part) => cleanCardtext.indexOf(part) === -1)) {
 						return true;
 					}
 				}
