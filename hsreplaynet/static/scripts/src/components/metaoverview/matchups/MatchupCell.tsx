@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { MatchupData } from "../../interfaces";
-import { getColorString, toDynamicFixed } from "../../helpers";
-import {Colors} from "../../Colors";
-import Tooltip from "../Tooltip";
+import { MatchupData } from "../../../interfaces";
+import { getColorString, toDynamicFixed } from "../../../helpers";
+import {Colors} from "../../../Colors";
+import Tooltip from "../../Tooltip";
 
 interface MatchupCellProps extends React.ClassAttributes<MatchupCell> {
 	highlightColumn?: boolean;
@@ -27,7 +27,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 
 	render() {
 		let label: string|JSX.Element = "";
-		let color = "black";
+		const color = "black";
 		let backgroundColor = "white";
 		const winrate = this.props.matchupData.winrate || 0;
 		const classNames = ["matchup-cell"];

@@ -4,11 +4,11 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import * as React from "react";
 import CardData from "../CardData";
 import DataInjector from "../components/DataInjector";
-import ArchetypeHeadToHead from "../components/metaoverview/ArchetypeHeadToHead";
+import ArchetypeMatchups from "../components/metaoverview/ArchetypeMatchups";
 import { SortDirection } from "../interfaces";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
-import ArchetypePopularity from "../components/metaoverview/popularity/ArchetypePopularity";
+import ArchetypePopularity from "../components/metaoverview/ArchetypePopularity";
 import RankRangeFilter from "../components/RankRangeFilter";
 import Feature from "../components/Feature";
 import UserData from "../UserData";
@@ -74,7 +74,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
 				]}
 			>
-				<ArchetypeHeadToHead
+				<ArchetypeMatchups
 					cardData={this.props.cardData}
 					gameType={this.props.gameType}
 					mobileView={this.state.mobileView}

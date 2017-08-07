@@ -5,9 +5,9 @@ import {
 	ArchetypeRankData,
 	ArchetypeRankPopularity,
 	SortDirection,
-} from "../../../interfaces";
-import CardData from "../../../CardData";
-import PopularityMatrix from "./PopularityMatrix";
+} from "../../interfaces";
+import CardData from "../../CardData";
+import PopularityMatrix from "./popularity/PopularityMatrix";
 
 interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopularity> {
 	archetypeData?: any;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { ArchetypeData } from "../../interfaces";
+import { ArchetypeData } from "../../../interfaces";
 
 interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	archetypeData: ArchetypeData;

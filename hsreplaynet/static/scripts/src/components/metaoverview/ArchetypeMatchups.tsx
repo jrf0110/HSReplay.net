@@ -1,5 +1,5 @@
 import * as React from "react";
-import ArchetypeMatrix from "./ArchetypeMatrix";
+import ArchetypeMatrix from "./matchups/ArchetypeMatrix";
 import {
 	ApiArchetype,
 	ApiArchetypeMatchupData,
@@ -10,10 +10,10 @@ import {
 } from "../../interfaces";
 import UserData from "../../UserData";
 import CardData from "../../CardData";
-import ArchetypeList from "./ArchetypeList";
+import ArchetypeList from "./matchups/ArchetypeList";
 import LoadingSpinner from "../LoadingSpinner";
 
-interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadToHead> {
+interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
 	archetypeData?: any;
 	cardData: CardData;
 	gameType: string;
@@ -26,7 +26,7 @@ interface ArchetypeHeadToHeadProps extends React.ClassAttributes<ArchetypeHeadTo
 	setSortBy?: (prop: string) => void;
 }
 
-interface ArchetypeHeadToHeadState {
+interface ArchetypeMatchupsState {
 	apiArchetypes?: ApiArchetype[];
 	archetypeData?: ArchetypeData[];
 	currentSort?: number[];
@@ -41,8 +41,8 @@ interface ArchetypeHeadToHeadState {
 
 const popularityCutoff = 1;
 
-export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadToHeadProps, ArchetypeHeadToHeadState> {
-	constructor(props: ArchetypeHeadToHeadProps, state: ArchetypeHeadToHeadState) {
+export default class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, ArchetypeMatchupsState> {
+	constructor(props: ArchetypeMatchupsProps, state: ArchetypeMatchupsState) {
 		super();
 		this.state = {
 			apiArchetypes: [],
@@ -65,7 +65,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		}
 	}
 
-	componentWillReceiveProps(nextProps: ArchetypeHeadToHeadProps) {
+	componentWillReceiveProps(nextProps: ArchetypeMatchupsProps) {
 		if (!nextProps.matchupData || !nextProps.popularityData || !nextProps.archetypeData) {
 			this.setState({loading: true});
 			return;
@@ -125,7 +125,7 @@ export default class ArchetypeHeadToHead extends React.Component<ArchetypeHeadTo
 		);
 	}
 
-	updateData(props: ArchetypeHeadToHeadProps) {
+	updateData(props: ArchetypeMatchupsProps) {
 		let archetypeData: ArchetypeData[] = [];
 		const {archetypeIds, apiArchetypes} = this.getAllArchetypes(props.matchupData, props.archetypeData);
 

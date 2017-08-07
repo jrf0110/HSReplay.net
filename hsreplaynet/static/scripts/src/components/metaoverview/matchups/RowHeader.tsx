@@ -1,13 +1,13 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { ArchetypeData } from "../../interfaces";
-import { getArchetypeUrl } from "../../helpers";
-import Feature from "../Feature";
-import Tooltip from "../Tooltip";
-import DataInjector from "../DataInjector";
-import CardData from "../../CardData";
-import ArchetypeSignature from "../archetypedetail/ArchetypeSignature";
-import { extractSignature } from "../../extractors";
+import { ArchetypeData } from "../../../interfaces";
+import { getArchetypeUrl } from "../../../helpers";
+import Feature from "../../Feature";
+import Tooltip from "../../Tooltip";
+import DataInjector from "../../DataInjector";
+import CardData from "../../../CardData";
+import ArchetypeSignature from "../../archetypedetail/ArchetypeSignature";
+import { extractSignature } from "../../../extractors";
 
 interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeData;

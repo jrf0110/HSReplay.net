@@ -1,13 +1,13 @@
 
 import * as React from "react";
-import SortHeader from "../SortHeader";
-import CardData from "../../CardData";
+import SortHeader from "../../SortHeader";
+import CardData from "../../../CardData";
 import {AutoSizer, Grid} from "react-virtualized";
-import {ApiArchetype, ArchetypeData, SortDirection} from "../../interfaces";
+import {ApiArchetype, ArchetypeData, SortDirection} from "../../../interfaces";
 import RowHeader from "./RowHeader";
 import RowFooter from "./RowFooter";
-import ArchetypeSearch from "../ArchetypeSearch";
-import PopularityCell from "./popularity/PopularityCell";
+import ArchetypeSearch from "../../ArchetypeSearch";
+import PopularityCell from "./../popularity/PopularityCell";
 
 interface ArchetypeListProps extends React.ClassAttributes<ArchetypeList> {
 	archetypes: ArchetypeData[];

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as _ from "lodash";
 import Bar, {BarDirection} from "./Bar";
-import {ArchetypeData} from "../../interfaces";
+import {ArchetypeData} from "../../../interfaces";
 
 interface ColumnFooterProps extends React.ClassAttributes<ColumnFooter> {
 	archetypeData: ArchetypeData;

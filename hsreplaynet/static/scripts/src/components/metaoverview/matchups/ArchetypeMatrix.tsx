@@ -1,15 +1,15 @@
 import MatchupCell from "./MatchupCell";
 import * as React from "react";
-import SortHeader from "../SortHeader";
-import CardData from "../../CardData";
+import SortHeader from "../../SortHeader";
+import CardData from "../../../CardData";
 import {AutoSizer, Grid, ScrollSync} from "react-virtualized";
-import {ApiArchetype, ArchetypeData, SortDirection} from "../../interfaces";
+import {ApiArchetype, ArchetypeData, SortDirection} from "../../../interfaces";
 import scrollbarSize from "dom-helpers/util/scrollbarSize";
 import ColumnHeader from "./ColumnHeader";
 import RowHeader from "./RowHeader";
 import RowFooter from "./RowFooter";
 import ColumnFooter from "./ColumnFooter";
-import ArchetypeSearch from "../ArchetypeSearch";
+import ArchetypeSearch from "../../ArchetypeSearch";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];

@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as _ from "lodash";
-import {ArchetypeData} from "../../interfaces";
-import {getColorString} from "../../helpers";
-import {Colors} from "../../Colors";
+import {ArchetypeData} from "../../../interfaces";
+import {getColorString} from "../../../helpers";
+import {Colors} from "../../../Colors";
 
 interface RowFooterProps extends React.ClassAttributes<RowFooter> {
 	archetypeData?: ArchetypeData;
