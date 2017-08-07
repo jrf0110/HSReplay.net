@@ -125,7 +125,7 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: CardTableColumn}
 		text: "Total games",
 	},
 	winrate: {
-		dataKey: "win_rate",
+		dataKey: "winrate",
 		infoHeader: "Winrate",
 		infoText: "Winrate of decks including the card.",
 		sortKey: "winrate",
