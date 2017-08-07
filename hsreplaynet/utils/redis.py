@@ -260,24 +260,24 @@ class RedisIntegerMapStorage:
 		return final_result
 	"""
 
-	def __init__(self, redis, namespace, ttl=DEFAULT_TTL, max_match_size=2000):
-		self.redis = redis
+	def __init__(self, caches, namespace, ttl=DEFAULT_TTL, max_match_size=2000):
+		self.redis_primary, self.redis_replica = caches
 		self.namespace = namespace
 		self.ttl = ttl
 		self.max_match_size = max_match_size
-		self.use_lua = isinstance(redis, StrictRedis)
+		self.use_lua = isinstance(self.redis_primary, StrictRedis)
 		if self.use_lua:
-			self.lua_match = self.redis.register_script(self.MATCH_SCRIPT)
+			self.lua_match = self.redis_replica.register_script(self.MATCH_SCRIPT)
 
 	def namespaced_key(self, key):
 		return "%s:%s" % (self.namespace, key)
 
 	def store(self, key, val):
-		self.redis.hmset(self.namespaced_key(key), val)
-		self.redis.expire(self.namespaced_key(key), self.ttl)
+		self.redis_primary.hmset(self.namespaced_key(key), val)
+		self.redis_primary.expire(self.namespaced_key(key), self.ttl)
 
 	def retrieve(self, key):
-		data = self.redis.hgetall(self.namespaced_key(key))
+		data = self.redis_replica.hgetall(self.namespaced_key(key))
 		return {int(k): int(v) for k, v in data.items()}
 
 	def match(self, subset, *keys):

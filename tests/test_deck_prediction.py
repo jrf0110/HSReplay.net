@@ -45,9 +45,9 @@ def to_dbf_map(dbf_list):
 def test_prediction_tree():
 	r = fakeredis.FakeStrictRedis()
 	tree = DeckPredictionTree(
-		r,
 		CardClass.DRUID,
 		FormatType.FT_STANDARD,
+		r, r,
 		max_depth=6,
 		include_current_hour=True
 	)

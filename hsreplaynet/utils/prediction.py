@@ -2,7 +2,6 @@ from copy import copy
 from datetime import datetime, timedelta
 from random import randrange
 from django.conf import settings
-from django.core.cache import caches
 from hearthstone.enums import CardClass, FormatType
 from hsreplaynet.utils.redis import (
 	RedisIntegerMapStorage,
@@ -13,13 +12,20 @@ from hsreplaynet.utils.redis import (
 
 
 def deck_prediction_tree(player_class, game_format, redis_client=None):
-	player_class_enum = CardClass(int(player_class))
-	game_format_enum = FormatType(int(game_format))
-	if redis_client:
-		redis = redis_client
+	from django.core.cache import caches
+
+	player_class = CardClass(int(player_class))
+	game_format = FormatType(int(game_format))
+	if redis_client is None:
+		redis_primary = caches["deck_prediction_primary"].client.get_client()
+		redis_replica = caches["deck_prediction_replica"].client.get_client()
 	else:
-		redis = caches["decks"].client.get_client()
-	return DeckPredictionTree(redis, player_class_enum, game_format_enum)
+		redis_primary = redis_client
+		redis_replica = redis_primary
+
+	return DeckPredictionTree(
+		player_class, game_format, redis_primary, redis_replica
+	)
 
 
 class PredictionResult:
@@ -49,25 +55,25 @@ DEFAULT_POPULARITY_TTL = 2 * SECONDS_PER_DAY
 
 class DeckPredictionTree:
 	def __init__(
-		self,
-		redis,
-		player_class,
-		format,
+		self, player_class, format, redis_primary, redis_replica,
 		max_depth=4,
 		ttl=DEFAULT_POPULARITY_TTL,
 		popularity_ttl=DEFAULT_POPULARITY_TTL,
 		include_current_hour=settings.INCLUDE_CURRENT_HOUR_IN_LOOKUP
 	):
-		self.redis = redis
+		self.redis_primary = redis_primary
+		self.redis_replica = redis_replica
 		self.player_class = player_class
 		self.format = format
 		self.max_depth = max_depth
 		self.ttl = ttl
 		self.popularity_ttl = popularity_ttl
 		self.include_current_hour = include_current_hour
-		self.storage = RedisIntegerMapStorage(redis, "DECK", ttl=self.ttl)
+		self.storage = RedisIntegerMapStorage(
+			(redis_primary, redis_replica), "DECK", ttl=self.ttl
+		)
 		self.tree_name = "%s_%s_%s" % ("DECK_PREDICTION", player_class.name, format.name)
-		self.tree = RedisTree(redis, self.tree_name, ttl=self.ttl)
+		self.tree = RedisTree(self.redis_primary, self.tree_name, ttl=self.ttl)
 
 	def lookup(self, dbf_map, sequence):
 		play_sequence = copy(sequence)
@@ -171,7 +177,7 @@ class DeckPredictionTree:
 
 	def _popularity_distribution(self, node):
 		dist = RedisPopularityDistribution(
-			self.redis,
+			self.redis_primary,
 			name=node.key,
 			ttl=self.popularity_ttl,
 			max_items=self._max_collection_size_for_depth(node.depth),

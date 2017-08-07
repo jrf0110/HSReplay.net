@@ -13,7 +13,7 @@ def test_integer_map_storage():
 	r = fakeredis.FakeStrictRedis()
 	r.flushdb()
 
-	storage = RedisIntegerMapStorage(r, "DECK")
+	storage = RedisIntegerMapStorage((r, r), "DECK")
 	deck_ids = []
 
 	for i, dbf_list in enumerate(DECKS):
