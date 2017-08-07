@@ -4,7 +4,7 @@ from hsreplaynet.utils.influx import influx_metric
 
 
 # @webhooks.handler("customer.subscription.created")
-def customer_subscription_created_handler(event, event_data, event_type, event_subtype):
+def customer_subscription_created_handler(event):
 	from hsreplaynet.analytics.processing import (
 		PremiumUserCacheWarmingContext, warm_redshift_cache_for_user_context
 	)
@@ -28,7 +28,7 @@ def customer_subscription_created_handler(event, event_data, event_type, event_s
 
 
 @webhooks.handler("customer.subscription.created")
-def sync_premium_accounts_for_subscription(event, event_data, event_type, event_subtype):
+def sync_premium_accounts_for_subscription(event):
 	from hsreplaynet.analytics.processing import (
 		enable_premium_accounts_for_users_in_redshift
 	)
