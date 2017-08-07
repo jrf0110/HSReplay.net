@@ -41,7 +41,7 @@ class HomeView(TemplateView):
 			context["player_classes"].append({
 				"standard_url": "/decks/#playerClasses=" + card_class.name,
 				"wild_url": "/decks/#playerClasses=%s&gameType=%s" % (card_class.name, "RANKED_WILD"),
-				"arena_url": "/cards/#playerClass=" + card_class.name,
+				"arena_url": "/cards/#playerClass=%s&gameType=%s" % (card_class.name, "ARENA"),
 				"image_url": CARD_IMAGE_URL % HERO_IDS[card_class],
 				"name": card_class.name.title(),
 				"standard_winrate": data["standard"] if "standard" in data else 50,
