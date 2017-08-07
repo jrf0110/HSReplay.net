@@ -412,6 +412,10 @@
 		}
 	}
 
+	.popularity-column-footer {
+		border: 1px solid $offwhite;
+	}
+
 	.matchup-column-header, .matchup-column-footer {
 		&.highlight {
 			border-left: 2px solid gray;

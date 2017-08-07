@@ -14,7 +14,7 @@ export default class ColumnFooter extends React.Component<ColumnFooterProps, {}>
 
 		return (
 			<div
-				className="matchup-column-footer matchup-column-footer-games"
+				className="matchup-column-footer matchup-column-footer-games popularity-column-footer"
 				style={{backgroundColor, ...this.props.style}}
 			>
 				{commaSeparate(this.props.games)}
