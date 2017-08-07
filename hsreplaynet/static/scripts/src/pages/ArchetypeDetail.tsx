@@ -340,7 +340,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								setPage={(page) => this.setState({popularDecksPage: page})}
 							/>
 						</Tab>
-						<Tab label="Over time data" id="overtime">
+						<Tab label="Over Time" id="overtime">
 							<div className="over-time-chart">
 								<AutoSizer>
 									{({width}) => (
