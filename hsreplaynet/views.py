@@ -37,12 +37,16 @@ class HomeView(TemplateView):
 		for card_class in CardClass:
 			if not card_class.is_playable:
 				continue
+			data = winrate_data[card_class]
 			context["player_classes"].append({
-				"decklist_url": "/decks/#playerClasses=" + card_class.name,
+				"standard_url": "/decks/#playerClasses=" + card_class.name,
+				"wild_url": "/decks/#playerClasses=%s&gameType=%s" % (card_class.name, "RANKED_WILD"),
+				"arena_url": "/cards/#playerClass=" + card_class.name,
 				"image_url": CARD_IMAGE_URL % HERO_IDS[card_class],
 				"name": card_class.name.title(),
-				"standard_winrate": winrate_data[card_class]["standard"],
-				"wild_winrate": winrate_data[card_class]["wild"],
+				"standard_winrate": data["standard"] if "standard" in data else 50,
+				"wild_winrate": data["wild"] if "wild" in data else 50,
+				"arena_winrate": data["arena"] if "arena" in data else 50,
 			})
 
 		return context
@@ -62,6 +66,8 @@ class HomeView(TemplateView):
 					winrate_key = "standard"
 				elif value["game_type"] == BnetGameType.BGT_RANKED_WILD:
 					winrate_key = "wild"
+				elif value["game_type"] == BnetGameType.BGT_ARENA:
+					winrate_key = "arena"
 				ret[class_key][winrate_key] = value["win_rate"]
 
 		return ret
