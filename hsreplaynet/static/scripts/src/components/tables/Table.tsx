@@ -137,7 +137,7 @@ export default class Table extends React.Component<TableProps, void> {
 			return null;
 		}
 		return (
-			<div className="grid-container grid-container-left" style={{top, width: width + "px"}}>
+			<div className="grid-container grid-container-left" style={{top, width: width + "px", zIndex: 1}}>
 				{infoRow}
 			</div>
 		);
