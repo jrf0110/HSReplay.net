@@ -41,7 +41,7 @@ class Command(BaseCommand):
 		self.archetype_map = {}
 		self.db_archetypes_to_update = {}
 		self.firehose_buffer = []
-		self.timestamp = datetime.now().isoformat()
+		self.timestamp = datetime.now().isoformat(sep=" ")
 		self.signature_weights = {
 			FormatType.FT_WILD: {},
 			FormatType.FT_STANDARD: {},
