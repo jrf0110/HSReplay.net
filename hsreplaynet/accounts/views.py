@@ -1,9 +1,12 @@
+from allauth.account.models import EmailAddress
 from allauth.account.views import LoginView as BaseLoginView
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.signals import social_account_added
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.dispatch import receiver
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
@@ -148,3 +151,20 @@ class MakePrimaryView(LoginRequiredMixin, View):
 	def complete(self, success=True):
 		influx_metric("hsreplaynet_make_primary", {"count": 1})
 		return redirect(self.success_url)
+
+
+@receiver(social_account_added)
+def on_social_account_added(sender, **kwargs):
+	request = kwargs.pop("request")
+	socialaccount = kwargs["sociallogin"].account
+	# Get the user's email address on association
+	email = socialaccount.extra_data.get("email", "")
+	email_verified = socialaccount.extra_data.get("verified", False)
+	if email:
+		emailaddress = EmailAddress.objects.add_email(
+			request, socialaccount.user, email, confirm=False
+		)
+		if email_verified:
+			# Trust Discord that the email belongs to the user.
+			emailaddress.verified = True
+			emailaddress.save()

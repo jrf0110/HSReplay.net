@@ -11,7 +11,7 @@
 {% if form.accounts %}
 	<p>
 		The following social accounts are connected to your HSReplay.net account.
-		You may log in with any of them.
+		You may log in with any connected Blizzard account.
 	</p>
 	<table id="account-connections">
 		{% for base_account in form.accounts %}
@@ -19,21 +19,27 @@
 			<tr>
 				<th>
 					{% if account.get_brand.id == "battlenet" %}
-						<img src="{% static 'images/bnet.png' %}"/>
+						<img src="{% static 'images/socialauth/battlenet.png' %}" style="width: 20px; height: 21px;"/>
+						{{ account }}
+					{% elif account.get_brand.id == "discord" %}
+						<img src="{% static 'images/socialauth/discord.png' %}" style="width: 21px; height: 21px;"/>
+						{{ account }}#{{ base_account.extra_data.discriminator }}
 					{% else %}
-						<span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{account.get_brand.name}}</span>
+						<span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{ account.get_brand.name }}</span>
+						{{ account }}
 					{% endif %}
-					{{ account }}
 				</th>
 				<td>
-					{% if base_account.extra_data.battletag != request.user.username %}
-					<form method="POST" action="{% url 'account_make_primary' %}">
-						{% csrf_token %}
-						<input type="hidden" name="account" value="{{ base_account.id }}"/>
-						<button type="submit" class="btn btn-xs btn-primary">Make primary</button>
-					</form>
-					{% else %}
-						<span class="label label-primary">✔ Primary account</span>
+					{% if account.get_brand.id == "battlenet" %}
+						{% if base_account.extra_data.battletag != request.user.username %}
+						<form method="POST" action="{% url 'account_make_primary' %}">
+							{% csrf_token %}
+							<input type="hidden" name="account" value="{{ base_account.id }}"/>
+							<button type="submit" class="btn btn-xs btn-primary">Make primary</button>
+						</form>
+						{% else %}
+							<span class="label label-primary">✔ Primary account</span>
+						{% endif %}
 					{% endif %}
 				</td>
 				<td>
@@ -53,7 +59,7 @@
 </div>
 </section>
 
-<section id="account-social-link" class="box-section">
+<section id="account-blizzard-link" class="box-section">
 	<h3>Link a Blizzard account</h3>
 	<div class="inner">
 		<p>
@@ -87,9 +93,30 @@
 			<p>
 				<button type="submit" class="btn btn-primary">Connect a Blizzard account</button>
 			</p>
-		<p>
+		</form>
 	</div>
 </section>
+
+{% if premium %}
+<section id="account-discord-link" class="box-section">
+	<h3>Link a Discord account</h3>
+	<div class="inner">
+		<p>
+			You're subscribed to HearthSim Premium, cool!
+			Show off on <a href="https://discord.gg/hearthsim" target="_blank">our official Discord server</a>
+			with a special <strong style="color:#dc9502">Premium Supporter</strong> role.<br/>
+			Link your Discord account below to do so.
+		</p>
+
+		<form method="GET" action="{% provider_login_url 'discord' %}">
+			<input type="hidden" name="process" value="connect"/>
+			<p>
+				<button type="submit" class="btn btn-primary">Connect a Discord account</button>
+			</p>
+		</form>
+	</div>
+</section>
+{% endif %}
 
 <section id="account-blizzard-accounts" class="box-section">
 	<h3>Connected Hearthstone accounts</h3>
