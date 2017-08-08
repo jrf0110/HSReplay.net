@@ -32,7 +32,6 @@ interface CardDiscoverState {
 	cards?: any[];
 	filteredCards?: any[];
 	filterCounts?: CardFilters;
-	galleryView?: boolean;
 	hasPersonalData?: boolean;
 	hasStatisticsData?: boolean;
 	numCards?: number;
@@ -84,6 +83,8 @@ interface CardDiscoverProps extends FragmentChildProps, React.ClassAttributes<Ca
 	setSortBy?: (sortBy: string) => void;
 	sortDirection?: SortDirection;
 	setSortDirection?: (sortDirection: SortDirection) => void;
+	display?: string;
+	setDisplay?: (display: string) => void;
 }
 
 const PLACEHOLDER_MINION = STATIC_URL + "images/loading_minion.png";
@@ -134,7 +135,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			cards: null,
 			filterCounts: null,
 			filteredCards: [],
-			galleryView: false,
 			hasPersonalData: false,
 			hasStatisticsData: false,
 			numCards: 24,
@@ -182,8 +182,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 
 		if (!this.state.filteredCards || !_.eq(prevState.cards, this.state.cards)
-			|| this.state.account !== prevState.account
-			|| this.state.galleryView !== prevState.galleryView) {
+			|| this.state.account !== prevState.account) {
 			this.updateFilteredCards();
 		}
 	}
@@ -277,8 +276,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	componentWillUpdate(nextProps: CardDiscoverProps, nextState: CardDiscoverState) {
-		if (!this.props.personal && this.state.galleryView !== nextState.galleryView) {
-			if (nextState.galleryView) {
+		if (!this.props.personal && this.props.display !== nextProps.display) {
+			if (nextProps.display === "gallery") {
 				const minion = new Image();
 				minion.src = PLACEHOLDER_MINION;
 				const spell = new Image();
@@ -634,8 +633,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 			filters.push(
 				<InfoboxFilterGroup
 					header="Display"
-					selectedValue={this.state.galleryView ? "gallery" : "statistics"}
-					onClick={(value) => this.setState({galleryView: value === "gallery"})}
+					selectedValue={this.props.display}
+					onClick={(value) => this.props.setDisplay(value)}
 				>
 					<InfoboxFilter value="statistics">Statistics view</InfoboxFilter>
 					<InfoboxFilter value="gallery">Gallery view</InfoboxFilter>
@@ -1024,6 +1023,6 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	isStatsView(): boolean {
-		return !this.props.personal && !this.state.galleryView;
+		return !this.props.personal && this.props.display !== "gallery";
 	}
 }

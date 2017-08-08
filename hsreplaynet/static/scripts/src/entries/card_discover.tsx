@@ -44,6 +44,7 @@ const render = (cardData: CardData) => {
 				mechanics: [],
 				sortBy: "timesPlayed",
 				sortDirection: "descending",
+				display: "statistics",
 			}}
 			debounce="text"
 			immutable={UserData.isPremium() ? null : ["rankRange", "timeRange"]}
