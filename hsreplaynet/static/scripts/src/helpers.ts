@@ -301,6 +301,7 @@ export const setNames = {
 	"kara": "One Night in Karazhan",
 	"gangs": "Mean Streets of Gadgetzan",
 	"ungoro": "Journey to Un'Goro",
+	"icecrown": "Knights of the Frozen Throne",
 };
 
 export function isCollectibleCard(card: any) {
