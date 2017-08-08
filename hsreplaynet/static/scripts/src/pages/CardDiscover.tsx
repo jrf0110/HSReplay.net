@@ -10,7 +10,7 @@ import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import {cardSorting, cleanText, isWildSet, setNames, slangToCardId, toTitleCase} from "../helpers";
+import {cardSorting, cleanText, isCollectibleCard, isWildSet, setNames, slangToCardId, toTitleCase} from "../helpers";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
 import {CardObj, FragmentChildProps, LoadingStatus, SortDirection} from "../interfaces";
@@ -267,11 +267,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
 			nextProps.cardData.all().forEach((card) => {
-				if (card.type === "HERO" && ["CORE", "HERO_SKIN"].indexOf(card.set) !== -1) {
-					// we don't want the default heroes or skins
-					return;
-				}
-				if (card.name && card.collectible && this.filters.type.indexOf(card.type) !== -1) {
+				if (card.name && isCollectibleCard(card) && this.filters.type.indexOf(card.type) !== -1) {
 					cards.push(card);
 				}
 			});
