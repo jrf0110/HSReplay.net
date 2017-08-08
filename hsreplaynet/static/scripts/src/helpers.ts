@@ -404,7 +404,7 @@ export function sliceZeros(input: string): string {
 }
 
 export function toPrettyNumber(n: number): string {
-	const divisor = 10 ** (Math.floor(Math.log10(n)) - 1);
+	const divisor = Math.max(10 ** (Math.floor(Math.log10(n)) - 1), 1);
 	n = Math.floor(n / divisor) * divisor;
 	return commaSeparate(n);
 }
