@@ -97,13 +97,13 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		mechanics: [
 			"ENRAGED", "DEATHRATTLE", "TAUNT", "BATTLECRY", "CHARGE", "DIVINE_SHIELD", "WINDFURY",
 			"CHOOSE_ONE", "INSPIRE", "JADE_GOLEM", "COMBO", "FREEZE", "STEALTH", "OVERLOAD",
-			"POISONOUS", "DISCOVER", "SILENCE", "RITUAL", "ADAPT", "QUEST",
+			"POISONOUS", "DISCOVER", "SILENCE", "RITUAL", "ADAPT", "QUEST", "LIFESTEAL",
 		],
 		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
 		race: ["BEAST", "DEMON", "DRAGON", "ELEMENTAL", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
 		rarity: ["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"],
-		set: ["CORE", "EXPERT1", "UNGORO", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "HOF"],
-		type: ["MINION", "SPELL", "WEAPON"],
+		set: ["CORE", "EXPERT1", "ICECROWN", "UNGORO", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "HOF"],
+		type: ["HERO", "MINION", "SPELL", "WEAPON"],
 	};
 	readonly multiClassGroups = {
 		GRIMY_GOONS: ["HUNTER", "PALADIN", "WARRIOR"],
@@ -267,6 +267,10 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
 			nextProps.cardData.all().forEach((card) => {
+				if (card.type === "HERO" && card.set === "CORE") {
+					// TODO: replace with better check (not using set)
+					return;
+				}
 				if (card.name && card.collectible && this.filters.type.indexOf(card.type) !== -1) {
 					cards.push(card);
 				}
