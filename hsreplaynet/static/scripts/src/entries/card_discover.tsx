@@ -69,9 +69,6 @@ const addMechanics = (card: any) => {
 			card.mechanics.push(mechanic);
 		}
 	};
-	if (card.overload) {
-		add(card, "OVERLOAD");
-	}
 	if (card.referencedTags) {
 		card.referencedTags.forEach((tag) => add(card, tag));
 	}
