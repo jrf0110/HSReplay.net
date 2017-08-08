@@ -17,7 +17,7 @@ const render = (cardData: CardData) => {
 				excludedCards: [],
 				gameType: "RANKED_STANDARD",
 				includedCards: [],
-				includedSet: "ALL",
+				includedSet: "ICECROWN",
 				minGames: "1000",
 				playerClasses: [],
 				opponentClasses: [],
