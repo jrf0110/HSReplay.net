@@ -34,7 +34,7 @@ const loadingHandler = <T extends {}>(Component: React.ComponentClass<T>) => {
 				}
 			}
 			const props = _.omit(this.props, "status", "customNoDataMessage");
-			return <Component {...this.props}/>;
+			return <Component {...props}/>;
 		}
 	};
 };
