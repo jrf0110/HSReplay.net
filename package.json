@@ -25,7 +25,7 @@
 		"clipboard": "^1.6.1",
 		"cookie_js": "^1.2.2",
 		"deckstrings": "^1.1.0",
-		"hearthstonejson": "^0.6.5",
+		"hearthstonejson": "^0.6.6",
 		"lodash": "^4.17.4",
 		"moment": "^2.18.1",
 		"raven-js": "^3.14.0",
