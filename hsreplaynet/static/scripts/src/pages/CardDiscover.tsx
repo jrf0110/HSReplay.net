@@ -267,8 +267,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
 			nextProps.cardData.all().forEach((card) => {
-				if (card.type === "HERO" && card.set === "CORE") {
-					// TODO: replace with better check (not using set)
+				if (card.type === "HERO" && ["CORE", "HERO_SKIN"].indexOf(card.set) !== -1) {
+					// we don't want the default heroes or skins
 					return;
 				}
 				if (card.name && card.collectible && this.filters.type.indexOf(card.type) !== -1) {
