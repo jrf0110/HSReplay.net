@@ -231,7 +231,8 @@ export default class Table extends React.Component<TableProps, TableState> {
 			if (column.winrateData) {
 				const wrdata = winrateData(this.props.baseWinrate || 50, +content, 5);
 				style["color"] = wrdata.color;
-				content = wrdata.tendencyStr + toDynamicFixed(+content) + "%";
+				const showTendency = this.props.baseWinrate || this.props.baseWinrate === 0;
+				content = (showTendency ? wrdata.tendencyStr : "") + toDynamicFixed(+content) + "%";
 			}
 			else if (column.percent) {
 				content = toDynamicFixed(+content) + "%";
