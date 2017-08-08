@@ -33,10 +33,15 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 		const direction = sortDirection === "ascending" ? 1 : -1;
 		rows.sort((a, b) => a[dataKey] > b[dataKey] ? direction : -direction);
 
-		const rowData = rows.map((row) => ([
-			this.renderHeader(row.archetype),
-			...this.columns.slice(1).map((c) => row[c.dataKey]),
-		]));
+		const rowData = rows.map((row) => {
+			return {
+				data: [
+					this.renderHeader(row.archetype),
+					...this.columns.slice(1).map((c) => row[c.dataKey]),
+				],
+				href: row.archetype.url,
+			};
+		});
 
 		return (
 			<Table
@@ -49,6 +54,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				onSortChanged={this.props.onSortChanged}
 				columns={this.columns}
 				rowData={rowData}
+				rowHighlighting={true}
 			/>
 		);
 	}

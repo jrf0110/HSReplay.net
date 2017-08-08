@@ -34,7 +34,7 @@ class CardTable extends React.Component<CardTableProps, void> {
 		const tableRowData = rowData.map(({card, values}) => {
 			const row: Array<number|JSX.Element> = values.slice();
 			row.unshift(<CardTile card={card.card} count={card.count} height={CELL_HEIGHT - 2}/>);
-			return row;
+			return {data: row};
 		});
 		return (
 			<Table

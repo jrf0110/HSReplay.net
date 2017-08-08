@@ -18,10 +18,15 @@ export interface TableColumn {
 	winrateData?: boolean;
 }
 
+interface RowData {
+	data: Array<number|string|JSX.Element>;
+	href?: string;
+}
+
 export interface BaseTableProps extends SortableProps {
 	baseWinrate?: number;
 	columns: TableColumn[];
-	rowData: Array<Array<number|string|JSX.Element>>;
+	rowData: RowData[];
 	topInfoRow?: JSX.Element;
 	bottomInfoRow?: JSX.Element;
 }
@@ -30,12 +35,24 @@ interface TableProps extends BaseTableProps, React.ClassAttributes<Table> {
 	cellHeight: number;
 	minColumnWidth: number;
 	headerWidth: [number, number];
+	rowHighlighting?: boolean;
+}
+
+interface TableState {
+	hoveringRow: number;
 }
 
 const HEADER_SCREEN_RATIO = 0.33;
 const INFO_ROW_HEIGHT = 50;
 
-export default class Table extends React.Component<TableProps, void> {
+export default class Table extends React.Component<TableProps, TableState> {
+	constructor(props: TableProps, state: TableState) {
+		super();
+		this.state = {
+			hoveringRow: -1,
+		};
+	}
+
 	render(): JSX.Element {
 		const {cellHeight, columns, minColumnWidth, topInfoRow, bottomInfoRow} = this.props;
 		const [minHeaderWidth, maxHeaderWidth] = this.props.headerWidth;
@@ -78,6 +95,7 @@ export default class Table extends React.Component<TableProps, void> {
 												}
 											</div>
 										</div>
+										{this.renderRowHighlighter(width, cellHeight, topOffset)}
 										{this.renderInfoRow(topInfoRow, width, cellHeight)}
 										{this.renderInfoRow(bottomInfoRow, width, totalHeight - INFO_ROW_HEIGHT - scrollbarSize())}
 										<div className="grid-container grid-container-top" style={{left: headerWidth}}>
@@ -132,6 +150,22 @@ export default class Table extends React.Component<TableProps, void> {
 		);
 	}
 
+	renderRowHighlighter(width: number, cellHeight: number, topOffset: number): JSX.Element {
+		if (this.state.hoveringRow === -1) {
+			return null;
+		}
+		return (
+			<div
+				className="grid-container grid-container-left table-row-highlighter"
+				style={{
+					height: cellHeight,
+					top: (this.state.hoveringRow + 1) * cellHeight + topOffset,
+					width,
+				}}
+			/>
+		);
+	}
+
 	renderInfoRow(infoRow: JSX.Element, width: number, top: number): JSX.Element {
 		if (!infoRow) {
 			return null;
@@ -147,9 +181,23 @@ export default class Table extends React.Component<TableProps, void> {
 		if (rowIndex % 2 === 0) {
 			style["background"] = "white";
 		}
+		const row = this.props.rowData[rowIndex];
+		const props = {
+			className: "table-row-header",
+			key,
+			style,
+			...this.rowHighlighting(rowIndex),
+		};
+		if (row.href) {
+			return (
+				<a {...props} href={row.href}>
+					{row.data[0]}
+				</a>
+			);
+		}
 		return (
-			<div className="table-row-header" style={style}>
-				{this.props.rowData[rowIndex][0]}
+			<div {...props}>
+				{row.data[0]}
 			</div>
 		);
 	}
@@ -173,7 +221,8 @@ export default class Table extends React.Component<TableProps, void> {
 
 	columnCellRenderer = ({columnIndex, rowIndex, key, style}) => {
 		const column = this.props.columns[columnIndex + 1];
-		let content = this.props.rowData[rowIndex][columnIndex + 1];
+		const row = this.props.rowData[rowIndex];
+		let content = row.data[columnIndex + 1];
 		if (content === null || content === undefined) {
 			content = (column.winrateData ? "-" : 0);
 		}
@@ -197,11 +246,32 @@ export default class Table extends React.Component<TableProps, void> {
 			style["background"] = "white";
 		}
 
-		return (
-			<div className="table-cell" style={style} key={key}>
-				{content}
-			</div>
-		);
+		const props = {
+			className: "table-cell",
+			key,
+			style,
+			...this.rowHighlighting(rowIndex),
+		};
+
+		if (row.href) {
+			return (
+				<a {...props} href={row.href}>
+					{content}
+				</a>
+			);
+		}
+
+		return <div {...props}>{content}</div>;
+	}
+
+	rowHighlighting(rowIndex: number): {onMouseEnter, onMouseLeave} {
+		if (!this.props.rowHighlighting) {
+			return null;
+		}
+		return {
+			onMouseEnter: () => this.setState({hoveringRow: rowIndex}),
+			onMouseLeave: () => this.setState({hoveringRow: -1}),
+		};
 	}
 
 	getSortHeader(
