@@ -11,8 +11,8 @@ humanize==0.5.1
 libsass==0.12.3
 
 # redis requirements
-django-rq==0.9.5
+django-rq==0.9.6
 django-rq-dashboard==0.3.3
-rq==0.8.0
+rq==0.8.1
 
 markdown==2.6.8
