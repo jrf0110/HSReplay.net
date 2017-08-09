@@ -533,8 +533,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					},
 					{
 						key: "winrateData",
-						params: (premiumMulligan ? this.getParams() : {GameType: this.gameType(), RankRange: this.rankRange()}),
-						url: premiumMulligan ? "single_deck_base_winrate_by_opponent_class" : "list_decks_by_win_rate",
+						params: this.getParams(),
+						url: "single_deck_base_winrate_by_opponent_class",
 					},
 				]}
 				extract={{
@@ -545,10 +545,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							baseWinrate = +data.series.data[dataKey][0].winrate;
 						}
 						else {
-							const deck = data.series.data[this.props.deckClass].find((x) => x.deck_id === this.props.deckId);
-							if (deck) {
-								baseWinrate = +deck.winrate;
-							}
+							baseWinrate = +data.series.metadata.total_winrate;
 						}
 						return {baseWinrate};
 					},
