@@ -1,3 +1,4 @@
+import random
 from copy import copy
 from datetime import datetime, timedelta
 from random import randrange
@@ -11,6 +12,11 @@ from hsreplaynet.utils.redis import (
 )
 
 
+def _get_random_cache(available_caches, name):
+	available_replicas = [c for c in settings.CACHES if name in c]
+	return available_caches[random.choice(available_replicas)]
+
+
 def deck_prediction_tree(player_class, game_format, redis_client=None):
 	from django.core.cache import caches
 
@@ -18,7 +24,7 @@ def deck_prediction_tree(player_class, game_format, redis_client=None):
 	game_format = FormatType(int(game_format))
 	if redis_client is None:
 		redis_primary = caches["deck_prediction_primary"].client.get_client()
-		redis_replica = caches["deck_prediction_replica"].client.get_client()
+		redis_replica = _get_random_cache(caches, "deck_prediction_replica") or redis_primary
 	else:
 		redis_primary = redis_client
 		redis_replica = redis_primary
