@@ -411,17 +411,17 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 									data[dbfId][key] = value;
 								};
 								played.series.data[dataKey].forEach((playedData) => {
-									const {dbf_id, popularity, win_rate, total} = playedData;
+									const {dbf_id, popularity, winrate, total} = playedData;
 									set(dbf_id, "played_popularity", +popularity);
-									set(dbf_id, "win_rate_when_played", win_rate);
+									set(dbf_id, "winrate_when_played", winrate);
 									set(dbf_id, "times_played", total);
 								});
 								props.included.series.data[dataKey].forEach((includedData) => {
-									const {count, dbf_id, decks, popularity, win_rate} = includedData;
+									const {count, dbf_id, decks, popularity, winrate} = includedData;
 									set(dbf_id, "included_count", count);
 									set(dbf_id, "included_decks", decks);
 									set(dbf_id, "included_popularity", popularity);
-									set(dbf_id, "included_winrate", win_rate);
+									set(dbf_id, "included_winrate", winrate);
 								});
 								return {data: Object.keys(data).map((key) => data[key])};
 							},
