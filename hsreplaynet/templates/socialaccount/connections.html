@@ -43,11 +43,13 @@
 					{% endif %}
 				</td>
 				<td>
+					{% if base_account.extra_data.battletag != request.user.username %}
 					<form method="POST" action="{% url 'socialaccount_connections' %}">
 						{% csrf_token %}
 						<input type="hidden" name="account" value="{{ base_account.id }}"/>
 						<button type="submit" class="btn btn-xs btn-danger">Remove</button>
 					</form>
+					{% endif %}
 				</td>
 			</tr>
 			{% endwith %}
