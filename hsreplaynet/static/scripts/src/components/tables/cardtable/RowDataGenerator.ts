@@ -66,7 +66,7 @@ function generateRowData(cardData: CardData[], columns: TableColumn[]): RowData[
 	return cardData.map(({card, data}) => {
 		return {
 			card: {card: card.card, count: card.count},
-			values: columns.map((x) => data ? data[x.dataKey] : 0),
+			values: columns.map((x) => data ? data[x.dataKey] : null),
 		};
 	});
 }
