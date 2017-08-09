@@ -227,10 +227,11 @@ export default class Table extends React.Component<TableProps, TableState> {
 			content = (column.winrateData ? "-" : 0);
 		}
 
+		let color = null;
 		if (content !== "-") {
 			if (column.winrateData) {
 				const wrdata = winrateData(this.props.baseWinrate || 50, +content, 5);
-				style["color"] = wrdata.color;
+				color = wrdata.color;
 				const showTendency = this.props.baseWinrate || this.props.baseWinrate === 0;
 				content = (showTendency ? wrdata.tendencyStr : "") + toDynamicFixed(+content) + "%";
 			}
@@ -241,11 +242,15 @@ export default class Table extends React.Component<TableProps, TableState> {
 				content = toPrettyNumber(+content);
 			}
 		}
+		style["color"] = color;
 
 		style["line-height"] = this.props.cellHeight;
+
+		let backgroundColor = null;
 		if (rowIndex % 2 === 0) {
-			style["background"] = "white";
+			 backgroundColor = "white";
 		}
+		style["background"] = backgroundColor;
 
 		const props = {
 			className: "table-cell",
