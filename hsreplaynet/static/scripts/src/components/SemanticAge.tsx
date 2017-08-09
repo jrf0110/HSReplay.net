@@ -6,14 +6,32 @@ interface SemanticAgeProps extends React.ClassAttributes<SemanticAge> {
 	noSuffix?: boolean;
 }
 
-export default class SemanticAge extends React.Component<SemanticAgeProps, void> {
+export default class SemanticAge extends React.Component<SemanticAgeProps, {}> {
+	private interval: number;
+
+	componentDidMount() {
+		this.interval = setInterval(() => {
+			// rerender to refresh the timestamp
+			this.forceUpdate();
+		}, 5000);
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.interval);
+	}
+
 	render(): JSX.Element {
-		if (!this.props.date) {
+		const {
+			date,
+			noSuffix,
+		} = this.props;
+
+		if (!date || !(date instanceof Date)) {
 			return null;
 		}
 
-		const machineReadable = this.props.date.toISOString();
-		const phrasing = moment(this.props.date).utc().fromNow(this.props.noSuffix);
+		const machineReadable = date.toISOString();
+		const phrasing = moment(date).utc().fromNow(!!noSuffix);
 
 		return <time dateTime={machineReadable}>{phrasing}</time>;
 	}
