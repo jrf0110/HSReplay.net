@@ -32,7 +32,7 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: TableColumn} = {
 		text: "Card",
 	},
 	mulliganWinrate: {
-		dataKey: "opening_hand_win_rate",
+		dataKey: "opening_hand_winrate",
 		infoHeader: "Mulligan winrate",
 		infoText: "Average winrate of games when the card ended up in the opening hand.",
 		sortKey: "mulliganWinrate",
@@ -48,7 +48,7 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: TableColumn} = {
 		text: "Kept",
 	},
 	drawnWinrate: {
-		dataKey: "win_rate_when_drawn",
+		dataKey: "winrate_when_drawn",
 		infoHeader: "Drawn winrate",
 		infoText: "Average winrate of games where the card was drawn at any point or ended up in the opening hand.",
 		sortKey: "drawnWinrate",
@@ -56,7 +56,7 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: TableColumn} = {
 		winrateData: true,
 	},
 	playedWinrate: {
-		dataKey: "win_rate_when_played",
+		dataKey: "winrate_when_played",
 		infoHeader: "Played winrate",
 		infoText: "Average winrate of games where the card was played at any point.",
 		sortKey: "playedWinrate",

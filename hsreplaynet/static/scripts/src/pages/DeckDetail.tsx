@@ -547,7 +547,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						else {
 							const deck = data.series.data[this.props.deckClass].find((x) => x.deck_id === this.props.deckId);
 							if (deck) {
-								baseWinrate = +deck.win_rate;
+								baseWinrate = +deck.winrate;
 							}
 						}
 						return {baseWinrate};
