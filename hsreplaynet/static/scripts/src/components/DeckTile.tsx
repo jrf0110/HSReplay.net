@@ -10,7 +10,7 @@ import Tooltip from "./Tooltip";
 import DataInjector from "./DataInjector";
 import ArchetypeTrainingSettings from "./ArchetypeTrainingSettings";
 import HideLoading from "./loading/HideLoading";
-import {getAge} from "../PrettyTime";
+import SemanticAge from "./SemanticAge";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
@@ -120,7 +120,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 
 		let headerData = null;
 		if (this.props.lastPlayed) {
-			headerData = <span className="last-played">{getAge(this.props.lastPlayed)}</span>;
+			headerData = <span className="last-played"><SemanticAge date={this.props.lastPlayed} /></span>;
 		}
 		else if (dustCost !== null) {
 			headerData = <span className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span>;
