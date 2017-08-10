@@ -454,20 +454,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<Tab label="Mulligan Guide" id="mulligan-guide" hidden={this.state.hasData === false}>
 							{this.renderMulliganGuideTable(deckParams, globalParams)}
 						</Tab>
-						<Tab label="Similar Decks" id="similar">
-							<DataInjector
-								fetchCondition={this.isWildDeck() !== undefined}
-								query={{url: "list_decks_by_win_rate", params: globalParams}}
-							>
-								<TableLoading cardData={this.props.cardData}>
-									<SimilarDecksList
-										playerClass={this.props.deckClass}
-										rawCardList={this.props.deckCards}
-										wildDeck={this.isWildDeck()}
-									/>
-								</TableLoading>
-							</DataInjector>
-						</Tab>
 						<Tab
 							label={(
 								<span className="text-premium">
@@ -482,6 +468,20 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							hidden={!UserData.hasFeature("my-statistics")}
 						>
 							{this.getMyStats()}
+						</Tab>
+						<Tab label="Similar Decks" id="similar">
+							<DataInjector
+								fetchCondition={this.isWildDeck() !== undefined}
+								query={{url: "list_decks_by_win_rate", params: globalParams}}
+							>
+								<TableLoading cardData={this.props.cardData}>
+									<SimilarDecksList
+										playerClass={this.props.deckClass}
+										rawCardList={this.props.deckCards}
+										wildDeck={this.isWildDeck()}
+									/>
+								</TableLoading>
+							</DataInjector>
 						</Tab>
 						<Tab
 							label="Matchups"
