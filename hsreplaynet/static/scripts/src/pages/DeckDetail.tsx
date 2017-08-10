@@ -127,7 +127,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	fetchPersonalDeckSummary(state?: DeckDetailState) {
-		if (UserData.hasFeature("personal-deck-stats")) {
+		if (UserData.hasFeature("my-statistics")) {
 			DataManager.get("single_account_lo_decks_summary", this.getPersonalParams(state)).then((data) => {
 				this.setState({
 					hasPeronalData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
@@ -177,7 +177,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const premiumTabIndex = isPremium ? 0 : -1;
 
 		let accountFilter = null;
-		if (isPremium && UserData.getAccounts().length > 0 && UserData.hasFeature("personal-deck-stats")) {
+		if (isPremium && UserData.getAccounts().length > 0 && UserData.hasFeature("my-statistics")) {
 			const accounts = [];
 			UserData.getAccounts().forEach((acc) => {
 				accounts.push(
@@ -479,7 +479,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</span>
 							)}
 							id="my-statistics"
-							hidden={!UserData.hasFeature("personal-deck-stats")}
+							hidden={!UserData.hasFeature("my-statistics")}
 						>
 							{this.getMyStats()}
 						</Tab>
