@@ -111,8 +111,11 @@
 				border: solid 1px $blue;
 			}
 
-			&.logo {
+			&.bordered-red {
 				border: solid 1px $hearthsim-color;
+			}
+
+			&.logo {
 				background-color: white;
 				padding: 15px;
 			}
