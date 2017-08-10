@@ -93,6 +93,32 @@
 						</p>
 					</figcaption>
 				</figure>
+				{% feature "my-decks" as ft_my_decks %}{% if ft_my_decks.enabled %}
+					<figure class="auto col-sm-6 col-xs-12">
+						{% if premium %}<a href="{% url 'my_decks' %}">{% endif %}
+						<img src="{% static 'images/premium-promotional/mydecks.png' %}" class="bordered" alt="My Decks" />
+						{% if premium %}</a>{% endif %}
+						<figcaption>
+							<h4 class="new" title="We recently added this feature!">My Decks</h4>
+							<p>
+								Keep track of the decks you play across all your replays! Quickly access any deck's page
+								here, even if you're the only one playing it.
+							</p>
+						</figcaption>
+					</figure>
+				{% endif %}
+				{% feature "my-statistics" as ft_my_statistics %}{% if ft_my_statistics.enabled %}
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/mystatistics.png' %}" class="bordered" alt="My Statistics" />
+					<figcaption>
+						<h4 class="new" title="We recently added this feature!">My Statistics</h4>
+						<p>
+							View your own Mulligan Guide and Deck statistics for any deck you're playing  and see how
+							efficient your mulligans really are.
+						</p>
+					</figcaption>
+				</figure>
+				{% endif %}
 				<figure class="col-sm-6 col-sm-offset-3 col-xs-12">
 					<figcaption>
 						<h4>&hellip;and we're just getting started!</h4>
