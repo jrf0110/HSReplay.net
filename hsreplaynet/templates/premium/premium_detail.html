@@ -124,6 +124,24 @@
 						</p>
 					</figcaption>
 				</figure>
+				<figure class="auto col-sm-6 col-xs-12">
+					<img src="{% static 'images/premium-promotional/discord_role.png' %}" class="bordered" />
+					<figcaption>
+						<h4>Show off in Discord</h4>
+						<p>
+							Show everyone how awesome you are with a special role on our <a href="https://discord.gg/hearthsim">Community Discord server</a>!
+						</p>
+						{% if premium %}
+						<p>
+							Visit the <a href="{% url 'socialaccount_connections' %}">account settings</a> to connect to Discord.
+						</p>
+						{% else %}
+						<p>
+							You'll be able to connect your Discord account after you subscribe.
+						</p>
+						{% endif %}
+					</figcaption>
+				</figure>
 			</div>
 		</div>
 	</section>
