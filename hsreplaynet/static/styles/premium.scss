@@ -167,11 +167,11 @@
 
 		@media screen and (max-width: 767px) {
 			&.auto:nth-of-type(2n + 1) {
-				img {
+				> img, > a {
 					order: 1;
 				}
 
-				figcaption {
+				> figcaption {
 					order: 2;
 					margin-left: 10px;
 					margin-right: 0;
@@ -179,11 +179,11 @@
 			}
 
 			&.auto:nth-of-type(2n) {
-				img {
+				> img, > a {
 					order: 2;
 				}
 
-				figcaption {
+				> figcaption {
 					order: 1;
 					margin-right: 10px;
 					margin-left: 0;
