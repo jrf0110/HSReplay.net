@@ -9,7 +9,7 @@ interface LoadingProps {
 	status?: LoadingStatus;
 }
 
-const loadingHandler = (dataKeys?: string[]) =>
+export const withLoading = (dataKeys?: string[]) =>
 	<T extends {}>(
 		// tslint:disable-next-line:variable-name
 		Component: React.ComponentClass<T>,
@@ -63,5 +63,3 @@ function getLoadingMessage(status: LoadingStatus, customNoDataMessage?: StringOr
 			return "Please check back later";
 	}
 }
-
-export default loadingHandler;

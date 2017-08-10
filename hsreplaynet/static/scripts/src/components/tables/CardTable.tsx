@@ -3,7 +3,7 @@ import CardTile from "../CardTile";
 import Table, {BaseTableProps} from "./Table";
 import * as _ from "lodash";
 import { CardObj, SortableProps } from "../../interfaces";
-import loadingHandler from "../loading/Loading";
+import { withLoading } from "../loading/Loading";
 import { cardTableColumnData, CardTableColumnKey } from "./cardtable/CardTableColumns";
 import { ApiCardStatsData, generateCardTableRowData } from "./cardtable/RowDataGenerator";
 
@@ -54,4 +54,4 @@ class CardTable extends React.Component<CardTableProps, void> {
 	}
 }
 
-export default loadingHandler()(CardTable);
+export default withLoading()(CardTable);

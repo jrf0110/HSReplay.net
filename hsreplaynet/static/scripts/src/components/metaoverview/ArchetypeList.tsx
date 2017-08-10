@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ApiArchetype, ApiArchetypePopularity, SortableProps, SortDirection } from "../../interfaces";
-import loadingHandler from "../loading/Loading";
+import { withLoading } from "../loading/Loading";
 import ArchetypeClassTable from "./ArchetypeClassTable";
 import { toTitleCase } from "../../helpers";
 import CardData from "../../CardData";
@@ -51,4 +51,4 @@ class ArchetypeList extends React.Component<ArchetypeListProps, void> {
 	}
 }
 
-export default loadingHandler()(ArchetypeList);
+export default withLoading()(ArchetypeList);

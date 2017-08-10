@@ -12,7 +12,7 @@ import UserData from "../../UserData";
 import CardData from "../../CardData";
 import ArchetypeList from "./matchups/ArchetypeList";
 import LoadingSpinner from "../LoadingSpinner";
-import loadingHandler from "../loading/Loading";
+import { withLoading } from "../loading/Loading";
 
 interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
 	archetypeData?: any;
@@ -341,4 +341,4 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 	}
 }
 
-export default loadingHandler(["archetypeData", "matchupData", "popularityData"])(ArchetypeMatchups);
+export default withLoading(["archetypeData", "matchupData", "popularityData"])(ArchetypeMatchups);

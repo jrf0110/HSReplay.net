@@ -7,7 +7,7 @@ import {
 	SortDirection,
 } from "../../interfaces";
 import CardData from "../../CardData";
-import loadingHandler from "../loading/Loading";
+import { withLoading } from "../loading/Loading";
 import PopularityMatrix from "./popularity/PopularityMatrix";
 
 interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopularity> {
@@ -148,4 +148,4 @@ class ArchetypePopularity extends React.Component<ArchetypePopularityProps, void
 	}
 }
 
-export default loadingHandler(["archetypeData", "popularityData"])(ArchetypePopularity);
+export default withLoading(["archetypeData", "popularityData"])(ArchetypePopularity);
