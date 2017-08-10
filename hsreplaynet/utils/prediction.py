@@ -23,8 +23,10 @@ def deck_prediction_tree(player_class, game_format, redis_client=None):
 	player_class = CardClass(int(player_class))
 	game_format = FormatType(int(game_format))
 	if redis_client is None:
-		redis_primary = caches["deck_prediction_primary"].client.get_client()
+		redis_primary = caches["deck_prediction_primary"]
 		redis_replica = _get_random_cache(caches, "deck_prediction_replica") or redis_primary
+		redis_primary = redis_primary.client.get_client()
+		redis_replica = redis_replica.client.get_client()
 	else:
 		redis_primary = redis_client
 		redis_replica = redis_primary
