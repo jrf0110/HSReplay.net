@@ -414,7 +414,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							selectedValue={this.props.includedSet}
 							onClick={(value) => this.props.setIncludedSet(value || "ALL")}
 						>
-							<InfoboxFilter value="UNGORO">Latest Expansion</InfoboxFilter>
+							<InfoboxFilter value="ICECROWN">Latest Expansion</InfoboxFilter>
 						</InfoboxFilterGroup>
 						<CardSearch
 							id="card-search-include"
