@@ -9,8 +9,11 @@ interface LoadingProps {
 	status?: LoadingStatus;
 }
 
-// tslint:disable-next-line:variable-name
-const loadingHandler = <T extends {}>(Component: React.ComponentClass<T>) => {
+const loadingHandler = <T extends {}>(
+	// tslint:disable-next-line:variable-name
+	Component: React.ComponentClass<T>,
+	dataKeys?: string[],
+) => {
 	return class Loading extends React.Component<T & LoadingProps, void> {
 		render(): JSX.Element {
 			const {customNoDataMessage, status} = this.props;
@@ -23,8 +26,11 @@ const loadingHandler = <T extends {}>(Component: React.ComponentClass<T>) => {
 					return <div className="message-wrapper">{message}</div>;
 				}
 			}
-			const data = this.props["data"];
-			if (!data || Array.isArray(data) && data.length === 0) {
+			const noData = (dataKeys || ["data"]).some((key) => {
+				const data = this.props[key];
+				return !data || Array.isArray(data) && data.length === 0;
+			});
+			if (noData) {
 				const message = getLoadingMessage(LoadingStatus.NO_DATA, customNoDataMessage);
 				if (typeof message === "string") {
 					return <h3 className="message-wrapper">{message}</h3>;
@@ -33,7 +39,7 @@ const loadingHandler = <T extends {}>(Component: React.ComponentClass<T>) => {
 					return <div className="message-wrapper">{message}</div>;
 				}
 			}
-			const props = _.omit(this.props, "status", "customNoDataMessage");
+			const props = _.omit(this.props, "status", "customNoDataMessage") as T;
 			return <Component {...props}/>;
 		}
 	};
