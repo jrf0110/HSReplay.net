@@ -7,6 +7,7 @@ import {
 	SortDirection,
 } from "../../interfaces";
 import CardData from "../../CardData";
+import loadingHandler from "../loading/Loading";
 import PopularityMatrix from "./popularity/PopularityMatrix";
 
 interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopularity> {
@@ -20,17 +21,9 @@ interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopula
 	setSortBy?: (prop: string) => void;
 }
 
-interface ArchetypePopularityState {
-}
-
-export default class ArchetypePopularity extends React.Component<ArchetypePopularityProps, ArchetypePopularityState> {
+class ArchetypePopularity extends React.Component<ArchetypePopularityProps, void> {
 	render() {
-		if (!this.props.popularityData || !this.props.archetypeData) {
-			return <h3 className="message-wrapper">Loading...</h3>;
-		}
-
 		const archetypeData: ArchetypeRankPopularity[] = [];
-
 		const archetypes = this.getAllArchetypes();
 		const popularityData = this.props.popularityData.series.data;
 		const metaData = this.props.popularityData.series.metadata;
@@ -154,3 +147,5 @@ export default class ArchetypePopularity extends React.Component<ArchetypePopula
 		return this.props.archetypeData.find((a) => a.id === id);
 	}
 }
+
+export default loadingHandler(ArchetypePopularity, ["archetypeData", "popularityData"]);

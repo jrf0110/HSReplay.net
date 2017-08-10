@@ -12,6 +12,7 @@ import UserData from "../../UserData";
 import CardData from "../../CardData";
 import ArchetypeList from "./matchups/ArchetypeList";
 import LoadingSpinner from "../LoadingSpinner";
+import loadingHandler from "../loading/Loading";
 
 interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
 	archetypeData?: any;
@@ -33,7 +34,6 @@ interface ArchetypeMatchupsState {
 	customWeights?: any;
 	favorites?: number[];
 	ignoredColumns?: number[];
-	loading?: boolean;
 	maxPopularity?: number;
 	sortedIds?: number[];
 	useCustomWeights?: boolean;
@@ -41,7 +41,7 @@ interface ArchetypeMatchupsState {
 
 const popularityCutoff = 1;
 
-export default class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, ArchetypeMatchupsState> {
+class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, ArchetypeMatchupsState> {
 	constructor(props: ArchetypeMatchupsProps, state: ArchetypeMatchupsState) {
 		super();
 		this.state = {
@@ -51,7 +51,6 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 			customWeights: UserData.getSetting("archetype-custom-popularities") || {},
 			favorites: UserData.getSetting("archetype-favorites") || [],
 			ignoredColumns: UserData.getSetting("archetype-ignored") || [],
-			loading: true,
 			maxPopularity: 0,
 			sortedIds: [],
 			useCustomWeights: false,
@@ -63,21 +62,14 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 			// switch to default sorting of page is loaded with "sortBy=none"
 			this.props.setSortBy("popularity");
 		}
+		this.updateData(this.props);
 	}
 
 	componentWillReceiveProps(nextProps: ArchetypeMatchupsProps) {
-		if (!nextProps.matchupData || !nextProps.popularityData || !nextProps.archetypeData) {
-			this.setState({loading: true});
-			return;
-		}
 		this.updateData(nextProps);
 	}
 
 	render(): JSX.Element {
-		if (this.state.loading) {
-			return <h3 className="message-wrapper">Loading...</h3>;
-		}
-
 		const commonProps = {
 			allArchetypes: this.state.apiArchetypes,
 			archetypes: this.state.archetypeData,
@@ -205,7 +197,6 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 		this.setState({
 			apiArchetypes,
 			archetypeData,
-			loading: false,
 			maxPopularity,
 			sortedIds,
 		});
@@ -348,5 +339,6 @@ export default class ArchetypeMatchups extends React.Component<ArchetypeMatchups
 			return a.archetype_id === archetype.id;
 		});
 	}
-
 }
+
+export default loadingHandler(ArchetypeMatchups, ["archetypeData", "matchupData", "popularityData"]);
