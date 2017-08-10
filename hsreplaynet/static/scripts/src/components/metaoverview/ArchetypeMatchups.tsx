@@ -341,4 +341,4 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 	}
 }
 
-export default loadingHandler(ArchetypeMatchups, ["archetypeData", "matchupData", "popularityData"]);
+export default loadingHandler(["archetypeData", "matchupData", "popularityData"])(ArchetypeMatchups);

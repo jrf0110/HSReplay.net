@@ -9,41 +9,42 @@ interface LoadingProps {
 	status?: LoadingStatus;
 }
 
-const loadingHandler = <T extends {}>(
-	// tslint:disable-next-line:variable-name
-	Component: React.ComponentClass<T>,
-	dataKeys?: string[],
-) => {
-	return class Loading extends React.Component<T & LoadingProps, void> {
-		render(): JSX.Element {
-			const {customNoDataMessage, status} = this.props;
-			if (status !== undefined) {
-				const message = getLoadingMessage(status, customNoDataMessage);
-				if (typeof message === "string") {
-					return <h3 className="message-wrapper">{message}</h3>;
+const loadingHandler = (dataKeys?: string[]) =>
+	<T extends {}>(
+		// tslint:disable-next-line:variable-name
+		Component: React.ComponentClass<T>,
+	) => {
+		return class Loading extends React.Component<T & LoadingProps, void> {
+			render(): JSX.Element {
+				const {customNoDataMessage, status} = this.props;
+				if (status !== undefined) {
+					const message = getLoadingMessage(status, customNoDataMessage);
+					if (typeof message === "string") {
+						return <h3 className="message-wrapper">{message}</h3>;
+					}
+					else if (message !== null) {
+						return <div className="message-wrapper">{message}</div>;
+					}
 				}
-				else if (message !== null) {
-					return <div className="message-wrapper">{message}</div>;
+				const noData = (dataKeys || ["data"]).some((key) => {
+					const data = this.props[key];
+					return !data || Array.isArray(data) && data.length === 0;
+				});
+				if (noData) {
+					const message = getLoadingMessage(LoadingStatus.NO_DATA, customNoDataMessage);
+					if (typeof message === "string") {
+						return <h3 className="message-wrapper">{message}</h3>;
+					}
+					else if (message !== null) {
+						return <div className="message-wrapper">{message}</div>;
+					}
 				}
+				const props = _.omit(this.props, "status", "customNoDataMessage") as T;
+				return <Component {...props}/>;
 			}
-			const noData = (dataKeys || ["data"]).some((key) => {
-				const data = this.props[key];
-				return !data || Array.isArray(data) && data.length === 0;
-			});
-			if (noData) {
-				const message = getLoadingMessage(LoadingStatus.NO_DATA, customNoDataMessage);
-				if (typeof message === "string") {
-					return <h3 className="message-wrapper">{message}</h3>;
-				}
-				else if (message !== null) {
-					return <div className="message-wrapper">{message}</div>;
-				}
-			}
-			const props = _.omit(this.props, "status", "customNoDataMessage") as T;
-			return <Component {...props}/>;
 		}
-	};
-};
+	}
+;
 
 function getLoadingMessage(status: LoadingStatus, customNoDataMessage?: StringOrJSX): StringOrJSX|null {
 	switch (status) {

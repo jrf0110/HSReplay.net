@@ -51,4 +51,4 @@ class ArchetypeList extends React.Component<ArchetypeListProps, void> {
 	}
 }
 
-export default loadingHandler(ArchetypeList);
+export default loadingHandler()(ArchetypeList);

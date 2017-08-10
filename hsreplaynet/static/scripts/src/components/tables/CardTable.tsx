@@ -54,4 +54,4 @@ class CardTable extends React.Component<CardTableProps, void> {
 	}
 }
 
-export default loadingHandler(CardTable);
+export default loadingHandler()(CardTable);

@@ -148,4 +148,4 @@ class ArchetypePopularity extends React.Component<ArchetypePopularityProps, void
 	}
 }
 
-export default loadingHandler(ArchetypePopularity, ["archetypeData", "popularityData"]);
+export default loadingHandler(["archetypeData", "popularityData"])(ArchetypePopularity);
