@@ -53,7 +53,49 @@ def fetch_player_class_distribution(request, game_type_name):
 	)
 
 
-def fetch_played_cards_distribution(request, game_type_name):
+_PLAYED_CARDS_CACHE = defaultdict(dict)
+
+
+def fetch_played_cards_distribution(request):
+
+	# base_ts ensures we generate the result at most once per bucket_size seconds
+	base_ts = _get_base_ts(bucket_size=5)
+
+	eligible_game_types = [
+		BnetGameType.BGT_RANKED_WILD,
+		BnetGameType.BGT_RANKED_STANDARD,
+		BnetGameType.BGT_ARENA
+	]
+
+	if _PLAYER_CLASS_CACHE["ALL"].get("as_of", None) != base_ts:
+		payload = {}
+		for game_type in eligible_game_types:
+			played_cards_popularity = get_played_cards_distribution(game_type.name)
+			result = []
+			for i in range(0, 61, 5):
+				end_ts = base_ts + timedelta(seconds=i)
+				start_ts = end_ts - timedelta(seconds=300)
+				data = played_cards_popularity.distribution(
+					start_ts=start_ts,
+					end_ts=end_ts,
+					limit=10
+				)
+				result.append({
+					"ts": int(end_ts.timestamp()),
+					"data": data
+				})
+			payload[game_type.name] = result
+
+		_PLAYER_CLASS_CACHE["ALL"]["as_of"] = base_ts
+		_PLAYER_CLASS_CACHE["ALL"]["payload"] = payload
+
+	return JsonResponse(
+		_PLAYER_CLASS_CACHE["ALL"].get("payload", {}),
+		json_dumps_params=dict(indent=4)
+	)
+
+
+def fetch_played_cards_distribution_for_gametype(request, game_type_name):
 	"""Return the last 60 seconds of played cards data using a 5 minute sliding window"""
 	_validate_game_type(game_type_name)
 
@@ -62,7 +104,7 @@ def fetch_played_cards_distribution(request, game_type_name):
 	# base_ts ensures we generate the result at most once per bucket_size seconds
 	base_ts = _get_base_ts(bucket_size=5)
 
-	if _PLAYER_CLASS_CACHE[game_type_name].get("as_of", None) != base_ts:
+	if _PLAYED_CARDS_CACHE[game_type_name].get("as_of", None) != base_ts:
 		result = []
 		for i in range(0, 61, 5):
 			end_ts = base_ts + timedelta(seconds=i)
@@ -76,10 +118,10 @@ def fetch_played_cards_distribution(request, game_type_name):
 				"ts": int(end_ts.timestamp()),
 				"data": data
 			})
-		_PLAYER_CLASS_CACHE[game_type_name]["as_of"] = base_ts
-		_PLAYER_CLASS_CACHE[game_type_name]["payload"] = result
+		_PLAYED_CARDS_CACHE[game_type_name]["as_of"] = base_ts
+		_PLAYED_CARDS_CACHE[game_type_name]["payload"] = result
 
 	return JsonResponse(
-		{"data": _PLAYER_CLASS_CACHE[game_type_name].get("payload", [])},
+		{"data": _PLAYED_CARDS_CACHE[game_type_name].get("payload", [])},
 		json_dumps_params=dict(indent=4)
 	)
