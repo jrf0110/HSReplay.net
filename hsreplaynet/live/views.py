@@ -78,7 +78,7 @@ def fetch_played_cards_distribution(request):
 				data = played_cards_popularity.distribution(
 					start_ts=start_ts,
 					end_ts=end_ts,
-					limit=10
+					limit=20
 				)
 				result.append({
 					"ts": int(end_ts.timestamp()),
