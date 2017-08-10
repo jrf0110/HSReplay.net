@@ -107,6 +107,10 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 					this.setState({data: newData, status: newStatus});
 				}
 			}, (status) => {
+				const queries = this.getQueryArray(this.props);
+				if (queries.every((q) => !this.queryEquals(q, query))) {
+					return;
+				}
 				if (status === STATUS_PROCESSING) {
 					if (this.state.retryCount[index] < MAX_RETRY_COUNT) {
 						window.setTimeout(() => this.fetch(props, index), RETRY_DELAY);
@@ -127,7 +131,7 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 					newStatus[index] = status;
 					this.setState({status: newStatus});
 				}
-			}) ;
+			});
 	}
 
 	render(): JSX.Element {
