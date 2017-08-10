@@ -53,8 +53,8 @@ function sortCardData(
 	else {
 		const key = columns.find((x) => x.sortKey === sortBy).dataKey;
 		cardData.sort((a, b) => {
-			const aValue = a.data ? a.data[key] : 0;
-			const bValue = b.data ? b.data[key] : 0;
+			const aValue = (a.data ? a.data[key] : 0) || 0;
+			const bValue = (b.data ? b.data[key] : 0) || 0;
 			return (bValue - aValue) * direction
 				|| (a.card.card.name > b.card.card.name ? -direction : direction);
 		});
