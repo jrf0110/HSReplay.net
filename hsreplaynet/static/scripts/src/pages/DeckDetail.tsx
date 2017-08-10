@@ -451,7 +451,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<Tab label="Overview" id="overview">
 							{overviewContent}
 						</Tab>
-						<Tab label="Breakdown" id="breakdown" hidden={this.state.hasData === false}>
+						<Tab label="Mulligan Guide" id="mulligan-guide" hidden={this.state.hasData === false}>
 							{this.renderMulliganGuideTable(deckParams, globalParams)}
 						</Tab>
 						<Tab label="Similar Decks" id="similar">

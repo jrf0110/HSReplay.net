@@ -22,7 +22,7 @@ const render = (cardData: CardData) => {
 				rankRange: "ALL",
 				region: "ALL",
 				selectedClasses: [],
-				tab: "breakdown",
+				tab: "mulligan-guide",
 			}}
 			immutable={!UserData.isPremium() ? ["selectedClasses", "rankRange", "region"] : null}
 		>
