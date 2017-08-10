@@ -734,9 +734,17 @@ def update_player_class_distribution(replay):
 		error_handler(e)
 
 
+def elapsed_seconds_from_match_end(global_game):
+	current_ts = timezone.now()
+	match_end = global_game.match_end
+	diff = current_ts - match_end
+	return abs(diff.total_seconds())
+
+
 def capture_played_card_stats(global_game, played_cards, is_friendly_player):
 	try:
-		if not is_friendly_player:
+		elapsed_minutes = elapsed_seconds_from_match_end(global_game) / 60.0
+		if not is_friendly_player and elapsed_minutes <= 5.0:
 			game_type_name = BnetGameType(global_game.game_type).name
 			dist = get_played_cards_distribution(game_type_name)
 			for dbf_id in played_cards:
