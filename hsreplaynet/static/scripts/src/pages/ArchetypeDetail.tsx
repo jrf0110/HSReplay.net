@@ -76,49 +76,20 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		if (!cardData || !deckData) {
 			return;
 		}
+		const {archetypeId, playerClass} = this.props;
 
-		const signature = {core: [], tech1: [], tech2: [], prevalences: []};
-		const decks = [];
-		const deckObjs: DeckObj[] = [];
-
-		Object.keys(deckData).forEach((playerClass) => {
-			deckData[playerClass].forEach((deck) => {
-				if (deck.archetype_id === this.props.archetypeId) {
-					const d = Object.assign({}, deck);
-					d.playerClass = playerClass;
-					d.cards = JSON.parse(d["deck_list"]);
-					decks.push(d);
-				}
-			});
-		});
-
-		if (decks.length === 0) {
+		const archetypeDecks = deckData[playerClass].filter((deck) => deck.archetype_id === archetypeId);
+		if (!archetypeDecks.length) {
 			return;
 		}
 
-		const cardCounts = {};
-		decks.forEach((deck) => {
-			deck.cards.forEach((card) => {
-				cardCounts[card[0]] = (cardCounts[card[0]] || 0) + 1;
+		const decks: DeckObj[] = archetypeDecks.map((d) => {
+			const deck = Object.assign({}, d);
+			deck.playerClass = playerClass;
+			const cards = JSON.parse(deck["deck_list"]).map((c) => {
+				return {card: cardData.fromDbf(c[0]), count: c[1]};
 			});
-		});
-		Object.keys(cardCounts).forEach((dbfId) => {
-			const prevalence = cardCounts[dbfId] / decks.length;
-			if (prevalence >= 0.8) {
-				signature.core.push(+dbfId);
-			}
-			else if (prevalence >= 0.6) {
-				signature.tech1.push(+dbfId);
-			}
-			else if (prevalence >= 0.3) {
-				signature.tech2.push(+dbfId);
-			}
-			signature.prevalences.push({dbfId, prevalence});
-		});
-
-		decks.forEach((deck) => {
-			const cards = deck.cards.map((c) => ({card: this.props.cardData.fromDbf(c[0]), count: c[1]}));
-			deckObjs.push({
+			return {
 				archetypeId: deck.archetype_id,
 				cards,
 				deckId: deck["deck_id"],
@@ -126,17 +97,16 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				numGames: +deck["total_games"],
 				playerClass: deck["playerClass"],
 				winrate: +deck["win_rate"],
-			});
+			};
 		});
-
-		this.setState({popularDecks: deckObjs});
+		this.setState({popularDecks: decks});
 	}
 
 	componentWillReceiveProps(nextProps: ArchetypeDetailProps, nextState: ArchetypeDetailState) {
 		if (this.props.gameType !== nextProps.gameType || this.props.rankRange !== nextProps.rankRange) {
 			this.fetchDeckData(nextProps);
 		}
-		if (!this.props.cardData && nextProps.cardData && nextState.deckData) {
+		if (!this.props.cardData && nextProps.cardData) {
 			this.updateData(nextProps.cardData);
 		}
 	}
