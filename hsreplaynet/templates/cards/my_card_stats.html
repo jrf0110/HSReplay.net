@@ -4,7 +4,6 @@
 {% load render_bundle from webpack_loader %}
 
 {% block fullcontent %}
-{% feature "billing" as billing %}
 {% if premium %}
 	<div id="card-container" data-view-type="personal"></div>
 	{% render_bundle "stats" %}
@@ -16,9 +15,7 @@
 			<div class="container text-center">
 				<h2><span class="text-premium">Premium</span> only</h2>
 				<p class="big">View your card statistics across your replays right here.</p>
-				{% if billing %}
-					<p><a href="{% url 'premium' %}" class="promo-button">Learn more</a></p>
-				{% endif %}
+				<p><a href="{% url 'premium' %}" class="promo-button">Learn more</a></p>
 			</div>
 		</div>
 	</div>
