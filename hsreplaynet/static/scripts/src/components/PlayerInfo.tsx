@@ -2,6 +2,7 @@ import * as React from "react";
 import CardList from "./CardList";
 import {GameReplay, GlobalGamePlayer} from "../interfaces";
 import CardData from "../CardData";
+import {getHeroCardId} from "../helpers";
 
 interface PlayerInfoProps {
 	build: number;
@@ -69,7 +70,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 						<CardList
 							cardData={this.props.cardData}
 							cardList={opposing_deck.cards}
-							heroes={[opposing_player.hero_dbf_id]}
+							heroes={[this.getHeroDbfId(opposing_player)]}
 							deckClass={deckClass}
 							format={global_game.format}
 							name={this.pluralize(opposing_player.name) + " " + deckClass}
@@ -91,7 +92,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 						<CardList
 							cardData={this.props.cardData}
 							cardList={friendly_deck.cards}
-							heroes={[friendly_player.hero_dbf_id]}
+							heroes={[this.getHeroDbfId(friendly_player)]}
 							format={global_game.format}
 							deckClass={deckClass}
 							name={this.pluralize(friendly_player.name) + " " + deckClass}
@@ -118,6 +119,18 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 				</li>
 			</ul>
 		);
+	}
+
+	getHeroDbfId(player: GlobalGamePlayer): number|null {
+		if (player.hero_id.startsWith("HERO_")) {
+			return player.hero_dbf_id;
+		}
+		const cardId = getHeroCardId(player.hero_class_name, false);
+		if (cardId === null) {
+			return null;
+		}
+		const card = this.props.cardData.fromCardId(cardId);
+		return card ? card.dbfId : null;
 	}
 
 	showCopyButton(player: GlobalGamePlayer): boolean {
