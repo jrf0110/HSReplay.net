@@ -151,11 +151,13 @@
 					</figcaption>
 				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
+					{% if premium %}<a href="{% setting 'HSREPLAY_DISCORD_URL' %}">{% endif %}
 					<img src="{% static 'images/premium-promotional/discord_role.png' %}" class="bordered" />
+					{% if premium %}</a>{% endif %}
 					<figcaption>
 						<h4>Show off in Discord</h4>
 						<p>
-							Show everyone how awesome you are with a special role on our <a href="https://discord.gg/hearthsim">Community Discord server</a>!
+							Show everyone how awesome you are with a special role on our <a href="{% setting 'HSREPLAY_DISCORD_URL' %}">Community Discord server</a>!
 						</p>
 						{% if premium %}
 						<p>
