@@ -181,7 +181,7 @@
 			{% include "premium/checkout_form_open.html" %}
 			<div class="form-group text-center">
 				{% if user.is_authenticated %}
-					<p>Please choose your plan:</p>
+					<p>Choose your plan:</p>
 					<div class="btn-group btn-group-flex" data-toggle="buttons" role="radiogroup">
 						<label class="btn btn-default active" id="plan-{{ monthly_plan.stripe_id }}">
 							<h4>{{ monthly_plan.human_readable_price }}</h4>

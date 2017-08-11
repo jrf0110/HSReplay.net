@@ -209,6 +209,10 @@
 
 	> section {
 		padding: 3em 0;
+
+		&.promo {
+			background-color: #ebebeb;
+		}
 	}
 
 	.card {
