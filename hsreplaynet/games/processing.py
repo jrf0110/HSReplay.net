@@ -23,7 +23,7 @@ from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
 from hsreplaynet.decks.models import Deck
 from hsreplaynet.live.distributions import (
-	get_played_cards_distribution, get_player_class_distribution
+	get_live_stats_redis, get_played_cards_distribution, get_player_class_distribution
 )
 from hsreplaynet.uploads.models import UploadEventStatus
 from hsreplaynet.utils import guess_ladder_season, log
@@ -746,9 +746,12 @@ def capture_played_card_stats(global_game, played_cards, is_friendly_player):
 		elapsed_minutes = elapsed_seconds_from_match_end(global_game) / 60.0
 		if not is_friendly_player and elapsed_minutes <= 5.0:
 			game_type_name = BnetGameType(global_game.game_type).name
-			dist = get_played_cards_distribution(game_type_name)
+			redis = get_live_stats_redis()
+			pipeline = redis.pipeline(transaction=True)
+			dist = get_played_cards_distribution(game_type_name, redis_client=pipeline)
 			for dbf_id in played_cards:
 				dist.increment(dbf_id)
+			pipeline.execute()
 	except Exception as e:
 		error_handler(e)
 

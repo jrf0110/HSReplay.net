@@ -61,7 +61,7 @@ def get_played_cards_distribution(game_type, redis_client=None, ttl=600):
 	if redis_client:
 		redis = redis_client
 	else:
-		redis = caches["live_stats"].client.get_client()
+		redis = get_live_stats_redis()
 
 	name = "PLAYED_CARDS_%s" % game_type
 	return RedisPopularityDistribution(
@@ -72,3 +72,7 @@ def get_played_cards_distribution(game_type, redis_client=None, ttl=600):
 		max_items=5000,
 		bucket_size=5
 	)
+
+
+def get_live_stats_redis():
+	return caches["live_stats"].client.get_client()
