@@ -75,7 +75,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							deckClass={deckClass}
 							format={this.state.game.global_game.format}
 							name={this.pluralize(this.state.game.opposing_player.name) + " " + deckClass}
-							showButton={this.state.game.opposing_player.hero_id.startsWith("HERO_")}
+							showButton={this.showCopyButton(this.state.game.opposing_player)}
 							id={1}
 						/>,
 					);
@@ -101,7 +101,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							format={this.state.game.global_game.format}
 							deckClass={deckClass}
 							name={this.pluralize(this.state.game.friendly_player.name) + " " + deckClass}
-							showButton={this.state.game.friendly_player.hero_id.startsWith("HERO_")}
+							showButton={this.showCopyButton(this.state.game.friendly_player)}
 							id={2}
 						/>,
 					);
@@ -124,6 +124,11 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 				</li>
 			</ul>
 		);
+	}
+
+	showCopyButton(player: GlobalGamePlayer): boolean {
+		const playerHero = this.props.cardData.fromCardId(player.hero_id);
+		return playerHero.type === "HERO" && playerHero.collectible;
 	}
 
 	buildPlayerClass(player: GlobalGamePlayer): string[] {
