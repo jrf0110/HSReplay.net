@@ -50,7 +50,7 @@ class CardStatsView(RequestMetaMixin, TemplateView):
 		"Find the cards that are played the most or have the highest winrate."
 
 
-class MyCardStatsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+class MyCardStatsView(RequestMetaMixin, TemplateView):
 	template_name = "cards/my_card_stats.html"
 	title = "My Cards"
 
@@ -198,7 +198,7 @@ class DeckListView(RequestMetaMixin, TemplateView):
 
 
 @method_decorator(view_requires_feature_access("my-decks"), name="dispatch")
-class MyDecksView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+class MyDecksView(RequestMetaMixin, TemplateView):
 	template_name = "decks/my_decks.html"
 	title = "My Decks"
 
