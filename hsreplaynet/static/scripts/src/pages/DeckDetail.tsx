@@ -595,29 +595,17 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	getMyStats(): JSX.Element {
-		if (!UserData.isAuthenticated()) {
+		if (!UserData.isAuthenticated() || !UserData.isPremium()) {
 			return (
-				<div className="account-login login-bnet">
-					<p>You play this deck? Want to see card statistics based on your replays?</p>
-					<p className="login-button">
-						<a className="btn promo-button hero-button" href={`/account/battlenet/login/?next=/decks/${this.props.deckId}/#tab=my-statistics`}>
-							Log in with Blizzard
-						</a>
-					</p>
-					<p className="help-block">We are only able to include games recorded by Hearthstone Deck Tracker.</p>
-				</div>
-			);
-		}
-
-		if (!UserData.isPremium()) {
-			return (
-				<div className="text-premium">
-					<h3>Subscribe to HearthSim Premium</h3>
-					<p>You play this deck? Want to see card statistics based on your replays?</p>
-					<p>This feature requires HearthSim premium.</p>
-					<p>
-						<a href="/premium/" className="btn promo-button-outline hero-button">Learn more</a>
-					</p>
+				<div className="premium-promo">
+					<img src={STATIC_URL + `images/premium-promotional/mystatistics_full.png`} className="premium-background" />
+					<div className="card text-center">
+						<h3><span className="text-premium">Premium</span> only</h3>
+						<p className="big">You play this deck? Want to see card statistics based on your replays?</p>
+						<p>
+							<a href="/premium/" className="btn promo-button hero-button">Learn more</a>
+						</p>
+					</div>
 				</div>
 			);
 		}

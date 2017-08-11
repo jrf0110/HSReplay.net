@@ -354,16 +354,19 @@
 	padding: calc(50vh - 250px) 0;
 	position: relative;
 
+	.tab-content & {
+		padding: 100px 0;
+	}
+
 	.card {
 		color: white;
 		background-color: $blue;
 		padding: 2em;
 		margin: 0 auto;
 
-		h2 {
+		h2, h3 {
 			font-weight: bold;
 		}
-
 
 		p.big {
 			margin-bottom: 1em;
