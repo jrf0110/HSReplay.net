@@ -10,7 +10,7 @@ import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import {cardSorting, cleanText, isCollectibleCard, isWildSet, setNames, slangToCardId, toTitleCase} from "../helpers";
+import {cardSorting, cleanText, isCollectibleCard, isPlayableCard, isWildSet, setNames, slangToCardId, toTitleCase} from "../helpers";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
 import {CardObj, FragmentChildProps, LoadingStatus, SortDirection} from "../interfaces";
@@ -78,6 +78,8 @@ interface CardDiscoverProps extends FragmentChildProps, React.ClassAttributes<Ca
 	mechanics?: string[];
 	setMechanics?: (mechanics: string[]) => void;
 	toggleMechanics?: (mechanic: string) => void;
+	uncollectible?: string;
+	setUncollectible?: (uncollectible: string) => void;
 
 	sortBy?: string;
 	setSortBy?: (sortBy: string) => void;
@@ -197,9 +199,19 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		filterKeys.forEach((key) => filteredByProp[key] = []);
 		const filteredCards = [];
 
+		const {display, uncollectible} = this.props;
+		const showUncollectible = display === "gallery" && uncollectible === "show"
+			&& !this.props.personal && UserData.hasFeature("cards-uncollectible");
+
+		const viableUncollectibleCard = (card) =>  !card.collectible
+			&& this.filters.set.indexOf(card.set) !== -1 && card.type !== "HERO" && isPlayableCard(card);
+
 		(!this.props.showSparse ? this.getSparseFilterDicts() : Promise.resolve([]))
 			.then((sparseDict) => {
 				this.state.cards.forEach((card) => {
+					if ((showUncollectible && !viableUncollectibleCard(card)) || (!showUncollectible && !isCollectibleCard(card))) {
+						return;
+					}
 					filterKeys.forEach((x) => {
 						if (!this.filter(card, x, sparseDict)) {
 							filteredByProp[x].push(card);
@@ -265,8 +277,9 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	componentWillReceiveProps(nextProps: CardDiscoverProps) {
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
+			const {set, type} = this.filters;
 			nextProps.cardData.all().forEach((card) => {
-				if (card.name && isCollectibleCard(card) && this.filters.type.indexOf(card.type) !== -1) {
+				if (card.name && set.indexOf(card.set) !== -1 && type.indexOf(card.type) !== -1) {
 					cards.push(card);
 				}
 			});
@@ -842,6 +855,20 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 				{this.buildFilterItems("mechanics", this.state.filterCounts && this.state.filterCounts.mechanics)}
 			</InfoboxFilterGroup>,
 		);
+
+		if (UserData.hasFeature("cards-uncollectible") && this.props.display === "gallery" && !this.props.personal) {
+			filters.push(
+				<InfoboxFilterGroup
+					key="uncollectible"
+					header="Uncollectible"
+					deselectable
+					selectedValue={this.props.uncollectible}
+					onClick={(value) => this.props.setUncollectible(value)}
+				>
+					<InfoboxFilter value="show">Show uncollectible cards</InfoboxFilter>
+				</InfoboxFilterGroup>,
+			);
+		}
 
 		return filters;
 	}
