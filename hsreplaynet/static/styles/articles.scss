@@ -126,3 +126,12 @@ article.article {
 		content: "%";
 	}
 }
+
+.article-card-list {
+	display: inline-block;
+	font-family: "Noto Sans", sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	width: 250px;
+	padding: 0 10px;
+}

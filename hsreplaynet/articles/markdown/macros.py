@@ -14,6 +14,14 @@ MACRO = r"{%\s*(?P<name>[A-Za-z0-9_]+)\((?P<args>.*?)\)\s*%}"
 MACRO_RE = re.compile(MACRO)
 
 
+DECK_DIV = """<div
+class='article-card-list'
+data-cards='{cards}'
+data-hero='{hero}'
+data-deck-class='{deck_class}'
+></div>"""
+
+
 def render_macro(name, arguments, config):
 	"""
 	Converts a macro found within a Markdown document into HTML.
@@ -125,6 +133,17 @@ def do_card(id=None, name=None, render=False, link=True, tooltip=None):
 	return outer
 
 
+def do_deck(shortid):
+	from hsreplaynet.decks.models import Deck
+
+	deck = Deck.objects.get_by_shortid(shortid)
+	cards = ",".join(str(dbf_id) for dbf_id in deck.card_dbf_id_list())
+
+	return DECK_DIV.format(
+		cards=cards, hero=deck.hero_dbf_id, deck_class=deck.deck_class
+	)
+
+
 def makeExtension(config=None):
 	# XXX
 	from webpack_loader.templatetags.webpack_loader import render_bundle
@@ -133,5 +152,6 @@ def makeExtension(config=None):
 		"sum": lambda *args, **kwargs: sum(args),
 		"render_bundle": render_bundle,
 		"card": do_card,
+		"deck": do_deck,
 	}
 	return MacroExtension(config)
