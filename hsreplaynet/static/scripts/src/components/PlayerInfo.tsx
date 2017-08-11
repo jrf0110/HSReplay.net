@@ -46,17 +46,15 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	render(): JSX.Element {
 		let opponentClass = null;
 		let playerClass = null;
-		let playerDeck = [];
-		let opponentDeck = [];
+		const playerDeck = [];
+		const opponentDeck = [];
 
 		if (this.state.game) {
-			playerClass = this.buildPlayerClass(this.state.game.friendly_player);
-			opponentClass = this.buildPlayerClass(this.state.game.opposing_player);
-			if (
-				this.state.game.opposing_deck &&
-				Array.isArray(this.state.game.opposing_deck.cards) &&
-				this.state.game.opposing_deck.cards.length > 0
-			) {
+			const {friendly_deck, friendly_player, global_game, opposing_deck, opposing_player} = this.state.game;
+			playerClass = this.buildPlayerClass(friendly_player);
+			opponentClass = this.buildPlayerClass(opposing_player);
+
+			if (opposing_deck && Array.isArray(opposing_deck.cards) && opposing_deck.cards.length > 0) {
 				opponentDeck.push(
 					<a
 						className={opponentClass.join(" ")}
@@ -66,42 +64,38 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					</a>,
 				);
 				if (this.state.showOpponentDeck) {
-					const deckClass = this.toTitleCase(this.state.game.opposing_player.hero_class_name);
+					const deckClass = this.toTitleCase(opposing_player.hero_class_name);
 					opponentDeck.push(
 						<CardList
 							cardData={this.props.cardData}
-							cardList={this.state.game.opposing_deck.cards}
-							heroes={[this.state.game.opposing_player.hero_dbf_id]}
+							cardList={opposing_deck.cards}
+							heroes={[opposing_player.hero_dbf_id]}
 							deckClass={deckClass}
-							format={this.state.game.global_game.format}
-							name={this.pluralize(this.state.game.opposing_player.name) + " " + deckClass}
-							showButton={this.showCopyButton(this.state.game.opposing_player)}
+							format={global_game.format}
+							name={this.pluralize(opposing_player.name) + " " + deckClass}
+							showButton={this.showCopyButton(opposing_player)}
 							id={1}
 						/>,
 					);
 				}
 			}
-			if (
-				this.state.game.friendly_deck &&
-				Array.isArray(this.state.game.friendly_deck.cards) &&
-				this.state.game.friendly_deck.cards.length > 0
-			) {
+			if (friendly_deck && Array.isArray(friendly_deck.cards) && friendly_deck.cards.length > 0) {
 				playerDeck.push(
 					<a className={playerClass.join(" ")} onClick={() => this.setState({showPlayerDeck: !this.state.showPlayerDeck})}>
 						{this.state.showPlayerDeck ? "Hide Deck" : "Show Deck"}
 					</a>,
 				);
 				if (this.state.showPlayerDeck) {
-					const deckClass = this.toTitleCase(this.state.game.friendly_player.hero_class_name);
+					const deckClass = this.toTitleCase(friendly_player.hero_class_name);
 					playerDeck.push(
 						<CardList
 							cardData={this.props.cardData}
-							cardList={this.state.game.friendly_deck.cards}
-							heroes={[this.state.game.friendly_player.hero_dbf_id]}
-							format={this.state.game.global_game.format}
+							cardList={friendly_deck.cards}
+							heroes={[friendly_player.hero_dbf_id]}
+							format={global_game.format}
 							deckClass={deckClass}
-							name={this.pluralize(this.state.game.friendly_player.name) + " " + deckClass}
-							showButton={this.showCopyButton(this.state.game.friendly_player)}
+							name={this.pluralize(friendly_player.name) + " " + deckClass}
+							showButton={this.showCopyButton(friendly_player)}
 							id={2}
 						/>,
 					);
@@ -132,7 +126,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	}
 
 	buildPlayerClass(player: GlobalGamePlayer): string[] {
-		let playerClass = ["infobox-value"];
+		const playerClass = ["infobox-value"];
 		if (!player) {
 			return playerClass;
 		}
