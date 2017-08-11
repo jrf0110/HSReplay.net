@@ -50,7 +50,6 @@ interface DeckDetailState {
 	inventory?: InventoryGameType;
 	expandWinrate?: boolean;
 	hasData?: boolean;
-	hasPeronalData?: boolean;
 	personalSortBy?: string;
 	personalSortDirection?: SortDirection;
 	showInfo?: boolean;
@@ -88,14 +87,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			inventory: {},
 			expandWinrate: false,
 			hasData: undefined,
-			hasPeronalData: undefined,
 			personalSortBy: "card",
 			personalSortDirection: "ascending",
 			showInfo: false,
 			sortBy: "card",
 			sortDirection: "ascending",
 		};
-		this.fetchPersonalDeckSummary();
 		this.fetchInventory();
 	}
 
@@ -118,22 +115,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				setTimeout(() => this.fetchInventory(), 30000);
 			}
 		});
-	}
-
-	componentWillUpdate(nextProps: DeckDetailProps, nextState: DeckDetailState) {
-		if (nextState.account !== this.state.account) {
-			this.fetchPersonalDeckSummary(nextState);
-		}
-	}
-
-	fetchPersonalDeckSummary(state?: DeckDetailState) {
-		if (UserData.hasFeature("my-statistics")) {
-			DataManager.get("single_account_lo_decks_summary", this.getPersonalParams(state)).then((data) => {
-				this.setState({
-					hasPeronalData: data && data.series.data[this.props.deckClass].some((deck) => deck.deck_id === this.props.deckId),
-				});
-			});
-		}
 	}
 
 	render(): JSX.Element {
@@ -617,13 +598,26 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		if (!UserData.isAuthenticated()) {
 			return (
 				<div className="account-login login-bnet">
-					<p>You play this deck? Want to see card statistics based on your games?</p>
+					<p>You play this deck? Want to see card statistics based on your replays?</p>
 					<p className="login-button">
-						<a className="btn promo-button hero-button" href={`/account/battlenet/login/?next=/decks/${this.props.deckId}/`}>
+						<a className="btn promo-button hero-button" href={`/account/battlenet/login/?next=/decks/${this.props.deckId}/#tab=my-statistics`}>
 							Log in with Blizzard
 						</a>
 					</p>
-					<p className="help-block"><i>We are only able to include games recorded by Hearthstone Deck Tracker.</i></p>
+					<p className="help-block">We are only able to include games recorded by Hearthstone Deck Tracker.</p>
+				</div>
+			);
+		}
+
+		if (!UserData.isPremium()) {
+			return (
+				<div className="text-premium">
+					<h3>Subscribe to HearthSim Premium</h3>
+					<p>You play this deck? Want to see card statistics based on your replays?</p>
+					<p>This feature requires HearthSim premium.</p>
+					<p>
+						<a href="/premium/" className="btn promo-button-outline hero-button">Learn more</a>
+					</p>
 				</div>
 			);
 		}
@@ -631,7 +625,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
 		return (
 			<DataInjector
-				fetchCondition={this.isWildDeck() !== undefined && this.state.hasPeronalData === true}
+				fetchCondition={this.isWildDeck() !== undefined}
 				query={{params, url: "single_account_lo_individual_card_stats_for_deck"}}
 				extract={{
 					data: (data) => ({data: data.series.data["ALL"]}),
