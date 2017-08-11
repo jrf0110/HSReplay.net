@@ -238,7 +238,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		else {
 			filters = [
 				<PremiumWrapper name="Single Deck Opponent Selection">
-					<h2>Select your opponent</h2>
+					<h2>
+						Select your opponent
+						<InfoIcon
+							className="pull-right"
+							header="Mulligan Guide Opponent"
+							content="Show Mulligan Guide data specific to your chosen opponent!"
+						/>
+					</h2>
 					<ClassFilter
 						filters="All"
 						hideAll
@@ -246,6 +253,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						tabIndex={premiumTabIndex}
 						selectedClasses={this.props.selectedClasses}
 						selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
+						disabled={this.props.tab !== "mulligan-guide"}
 					/>
 				</PremiumWrapper>,
 				<PremiumWrapper

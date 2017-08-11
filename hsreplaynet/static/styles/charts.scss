@@ -41,4 +41,8 @@
 	.class-icon:hover {
 		filter: brightness(115%);
 	}
+
+	.disabled {
+		filter: grayscale(100%);
+	}
 }

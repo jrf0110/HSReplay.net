@@ -101,7 +101,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 		const isSelected = selected || this.props.selectedClasses.indexOf("ALL") !== -1 || !this.props.selectedClasses.length;
 		const wrapperClassNames = ["class-icon-label-wrapper"];
 		if (this.props.disabled || !isSelected) {
-			wrapperClassNames.push("deselected");
+			wrapperClassNames.push("disabled");
 		}
 		if (!this.props.disabled && selected) {
 			wrapperClassNames.push("selected");
@@ -122,6 +122,9 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 			<span
 				className={wrapperClassNames.join(" ")}
 				onClick={(event) => {
+					if (this.props.disabled) {
+						return;
+					}
 					const add = event.ctrlKey || event.metaKey;
 					this.onLabelClick(className, selected, add);
 					if (event && event.currentTarget) {
@@ -129,7 +132,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, void>
 					}
 				}}
 				onKeyDown={(event) => {
-					if (event.keyCode !== 13) {
+					if (event.keyCode !== 13 || this.props.disabled) {
 						return;
 					}
 					const add = event.ctrlKey || event.metaKey;
