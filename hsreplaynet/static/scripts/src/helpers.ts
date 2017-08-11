@@ -305,15 +305,14 @@ export const setNames = {
 };
 
 export function isCollectibleCard(card: any) {
-	if(!card.collectible) {
-		return false;
-	}
+	return card.collectible && isPlayableCard(card);
+}
 
+export function isPlayableCard(card: any) {
 	if (card.type === "HERO") {
 		// default heroes/skins are not collectible
 		return ["CORE", "HERO_SKINS"].indexOf(card.set) === -1;
 	}
-
 	return ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1;
 }
 
