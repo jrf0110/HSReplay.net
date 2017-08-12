@@ -1,11 +1,13 @@
+from calendar import timegm
 from datetime import datetime
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import (
 	Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 )
-from django.views.decorators.cache import cache_control, patch_cache_control
-from django.views.decorators.http import condition
+from django.utils.cache import get_conditional_response
+from django.utils.http import http_date
+from django.views.decorators.cache import patch_cache_control
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet.decks.models import Deck
@@ -61,17 +63,6 @@ def release_semaphore(request, name):
 	if semaphore:
 		semaphore.reset()
 	return JsonResponse({"msg": "OK"})
-
-
-def fetch_query_result_as_of(request, name):
-	parameterized_query = _get_query_and_params(request, name)
-	if issubclass(parameterized_query.__class__, HttpResponse):
-		return None
-
-	if parameterized_query.result_is_stale:
-		return None
-	else:
-		return parameterized_query.result_as_of
 
 
 def _get_query_and_params(request, name):
@@ -153,19 +144,36 @@ def user_is_eligible_for_query(user, query, params):
 		return True
 
 
-@cache_control(no_cache=True)
-@condition(last_modified_func=fetch_query_result_as_of)
 def fetch_query_results(request, name):
 	parameterized_query = _get_query_and_params(request, name)
 	if issubclass(parameterized_query.__class__, HttpResponse):
 		return parameterized_query
 
-	response = _fetch_query_results(parameterized_query, user=request.user)
+	last_modified = parameterized_query.result_as_of
+	if last_modified:
+		last_modified = timegm(last_modified.utctimetuple())
 
+	response = None
+
+	is_cache_hit = parameterized_query.result_available
+	if is_cache_hit:
+		_trigger_if_stale(parameterized_query)
+		# Try to return a minimal response
+		response = get_conditional_response(request, last_modified=last_modified)
+
+	if not response:
+		# Resort to a full response
+		response = _fetch_query_results(parameterized_query, user=request.user)
+
+	# Add Last-Modified header
+	if response.status_code in (200, 304):
+		response["Last-Modified"] = http_date(last_modified)
+
+	# Always send Cache-Control headers
 	if parameterized_query.is_personalized:
-		patch_cache_control(response, private=True)
+		patch_cache_control(response, no_cache=True, private=True)
 	else:
-		patch_cache_control(response, public=True)
+		patch_cache_control(response, no_cache=True, public=True)
 
 	return response
 
@@ -188,25 +196,7 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None):
 	triggered_refresh = False
 
 	if is_cache_hit:
-		if parameterized_query.result_is_stale or run_local:
-			triggered_refresh = True
-			attempt_request_triggered_query_execution(parameterized_query, run_local)
-
-		staleness = (datetime.utcnow() - parameterized_query.result_as_of).total_seconds()
-		query_fetch_metric_fields = {
-			"count": 1,
-			"staleness": int(staleness)
-		}
-		query_fetch_metric_fields.update(
-			parameterized_query.supplied_non_filters_dict
-		)
-
-		influx.influx_metric(
-			"redshift_response_payload_staleness",
-			query_fetch_metric_fields,
-			query_name=parameterized_query.query_name,
-			**parameterized_query.supplied_filters_dict
-		)
+		triggered_refresh = _trigger_if_stale(parameterized_query, run_local)
 
 		response = HttpResponse(
 			content=parameterized_query.response_payload_json,
@@ -263,6 +253,30 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None):
 	)
 
 	return response
+
+
+def _trigger_if_stale(parameterized_query, run_local=False):
+	staleness = (datetime.utcnow() - parameterized_query.result_as_of).total_seconds()
+	query_fetch_metric_fields = {
+		"count": 1,
+		"staleness": int(staleness)
+	}
+	query_fetch_metric_fields.update(
+		parameterized_query.supplied_non_filters_dict
+	)
+
+	influx.influx_metric(
+		"redshift_response_payload_staleness",
+		query_fetch_metric_fields,
+		query_name=parameterized_query.query_name,
+		**parameterized_query.supplied_filters_dict
+	)
+
+	if parameterized_query.result_is_stale or run_local:
+		attempt_request_triggered_query_execution(parameterized_query, run_local)
+		return True
+
+	return False
 
 
 def attempt_request_triggered_query_execution(parameterized_query, run_local=False):
