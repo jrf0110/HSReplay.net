@@ -207,8 +207,9 @@
 					</dl>
 				</div>
 				<div class="col-lg-6 col-xs-12">
+					{% setting 'HSREPLAY_DISCORD_URL' as discord_url %}
 					{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
-					{% setting 'HSREPLAY_FACEBOOK_URL' as facebook_uri %}
+					{% setting 'HSREPLAY_FACEBOOK_URL' as facebook_url %}
 					<dl>
 						<dt>How can I support what you're doing?</dt>
 						<dd>
@@ -217,15 +218,15 @@
 						</dd>
 						<dt>Where can I get the latest news about HSReplay.net?</dt>
 						<dd>
-							You can find us on <a href="https://discord.gg/hearthsim">Discord</a> and
+							You can find us on <a href="{{ discord_url}}">Discord</a>,
 							follow us <a href="https://twitter.com/{{ twitter_handle }}">@{{ twitter_handle }}</a>
-							and <a href="{{ facebook_uri }}">Facebook page</a>.
+							and like our <a href="{{ facebook_url }}">Facebook page</a>.
 						</dd>
 						<dt>I need help with the site, my replays, my subscription&hellip;</dt>
 						<dd>
 							Shoot us an <a href="mailto:contact@hsreplay.net">email</a>, or
 							message us on <a href="https://twitter.com/{{ twitter_handle }}">Twitter</a> or
-							<a href="{{ facebook_uri }}">Facebook</a>.
+							<a href="{{ facebook_url }}">Facebook</a>.
 						</dd>
 						<dt>I think I found a bug!</dt>
 						<dd>
