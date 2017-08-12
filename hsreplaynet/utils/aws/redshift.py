@@ -7,12 +7,8 @@ from sqlalchemy.pool import NullPool
 from hsredshift.analytics.queries import RedshiftCatalogue
 
 
-def get_redshift_cache():
-	return caches["redshift"]
-
-
 def get_redshift_cache_redis_client():
-	return get_redshift_cache().client.get_client()
+	return caches["redshift"].client.get_client()
 
 
 def get_redshift_engine():
