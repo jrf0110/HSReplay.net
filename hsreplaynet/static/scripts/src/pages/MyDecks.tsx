@@ -262,6 +262,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						decks={this.state.filteredDecks}
 						pageSize={12}
 						hrefTab={"my-statistics"}
+						helpMessage={"Personalized statistics are available for all decks you play after joining Premium."}
 						lastPlayedColumn
 					/>
 				</Fragments>
@@ -427,7 +428,16 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						</InfoboxFilterGroup>
 					</section>
 					<section id="time-frame-filter">
-						<h2>Time Frame</h2>
+						<h2>
+							Time Frame
+							<InfoIcon
+								className="pull-right"
+								header="Premium Deck Tracking"
+								content={(
+									<p>Personalized statistics are available for all decks you play after joining Premium.</p>
+								)}
+							/>
+						</h2>
 						<InfoboxFilterGroup
 							selectedValue={this.props.timeRange}
 							onClick={(value) => this.props.setTimeRange(value)}
