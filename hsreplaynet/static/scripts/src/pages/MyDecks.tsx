@@ -9,7 +9,7 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import NoDecksMessage from "../components/NoDecksMessage";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import {cardSorting, isWildSet, sortCards} from "../helpers";
+import {cardSorting, isCollectibleCard, isWildSet, sortCards} from "../helpers";
 import {DeckObj, FragmentChildProps, TableData} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
@@ -83,7 +83,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
 			nextProps.cardData.all().forEach((card) => {
-				if (card.name && card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1) {
+				if (card.name && isCollectibleCard(card)) {
 					cards.push(card);
 				}
 			});

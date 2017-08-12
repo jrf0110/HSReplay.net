@@ -8,7 +8,7 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
-import {cardSorting, isWildSet, sortCards} from "../helpers";
+import {cardSorting, isCollectibleCard, isWildSet, sortCards} from "../helpers";
 import {ApiTrainingData, DeckObj, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
@@ -100,7 +100,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
 			nextProps.cardData.all().forEach((card) => {
-				if (card.name && card.collectible && ["MINION", "SPELL", "WEAPON"].indexOf(card.type) !== -1) {
+				if (card.name && isCollectibleCard(card)) {
 					cards.push(card);
 				}
 			});
