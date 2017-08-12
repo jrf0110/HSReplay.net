@@ -106,12 +106,19 @@ def upload_context():
 @pytest.yield_fixture(scope="session")
 def upload_event():
 	yield {
-		"headers": {
-			"Authorization": "Token beh7141d-c437-4bfe-995e-1b3a975094b1",
-		},
 		"body": base64.b64encode('{"player1_rank": 5}'.encode("utf8")).decode("ascii"),
 		"event": {
-			"source_ip": "127.0.0.1",
+			"httpMethod": "POST",
+			"isBase64Encoded": True,
+			"headers": {
+				"Authorization": "Token beh7141d-c437-4bfe-995e-1b3a975094b1",
+			},
+			"requestContext": {
+				"identity": {
+					"userAgent": "HSReplay.net Tests",
+					"sourceIp": "127.0.0.1",
+				}
+			}
 		},
 	}
 

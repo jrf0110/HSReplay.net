@@ -122,7 +122,8 @@ def do_process_raw_upload(raw_upload, is_reprocessing):
 	# Begin asserting correctness
 	created_upload_event = UploadEvent.objects.get(shortid=raw_upload.shortid)
 	assert str(created_upload_event.token.key) == str(raw_upload.auth_token.key)
-	assert created_upload_event.upload_ip == raw_upload.descriptor["event"]["source_ip"]
+	source_ip = raw_upload.descriptor["event"]["requestContext"]["identity"]["sourceIp"]
+	assert created_upload_event.upload_ip == source_ip
 
 	replay = created_upload_event.game
 	assert replay.opponent_revealed_deck is not None
