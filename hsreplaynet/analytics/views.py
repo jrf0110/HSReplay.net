@@ -171,7 +171,6 @@ def fetch_query_results(request, name):
 
 
 @staff_member_required
-@condition(last_modified_func=fetch_query_result_as_of)
 def fetch_local_query_results(request, name):
 	# This end point is intended only for administrator use.
 	# It provides an entry point to force a query to be run locally
