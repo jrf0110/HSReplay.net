@@ -165,7 +165,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 							}
 							deck.player_class = playerClass;
 							const globalDeck = deckData.series.data[playerClass].find((d) => d.deck_id === deck.deck_id);
-							deck.noGlobalData = !globalDeck;
+							deck.hasGlobalData = !!globalDeck;
 							deck.archetype_id = deck.archetype_id || globalDeck && globalDeck.archetype_id;
 							pushDeck(deck, cards);
 						});
@@ -188,7 +188,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					deckId: deck.deck_id,
 					duration: deck.avg_game_length_seconds,
 					lastPlayed: deck.last_played && new Date(deck.last_played),
-					noGlobalData: deck.noGlobalData,
+					hasGlobalData: deck.hasGlobalData,
 					numGames: deck.total_games,
 					playerClass: deck.player_class,
 					winrate: deck.win_rate,

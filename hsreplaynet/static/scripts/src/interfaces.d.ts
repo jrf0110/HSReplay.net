@@ -193,7 +193,7 @@ export interface DeckObj {
 	numGames: number;
 	winrate: number;
 	duration: number;
-	noGlobalData?: boolean;
+	hasGlobalData?: boolean;
 	archetypeId?: number;
 	lastPlayed?: Date;
 }

@@ -105,15 +105,15 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			);
 		}
 
-		let noGlobalDataIndicator = null;
-		if (this.props.noGlobalData) {
-			noGlobalDataIndicator = (
+		let globalDataIndicator = null;
+		if (this.props.hasGlobalData) {
+			globalDataIndicator = (
 				<Tooltip
-					className="no-global-data-wrapper"
-					header="No global data"
-					content="This deck does not have enough games for global data to be available."
+					className="global-data-wrapper"
+					header="Global data available"
+					content="This deck is eligible for global statistics."
 				>
-					<span className="glyphicon glyphicon-warning-sign" />
+					<span className="glyphicon glyphicon-globe"></span>
 				</Tooltip>
 			);
 		}
@@ -147,7 +147,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							{deckName}
 							{headerData}
-							{noGlobalDataIndicator}
+							{globalDataIndicator}
 						</div>
 						<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3">
 							<span className="win-rate">{(+this.props.winrate).toFixed(1)}%</span>

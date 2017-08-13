@@ -28,6 +28,7 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	showArchetypeSelector?: boolean;
 	hrefTab?: string;
 	lastPlayedColumn?: boolean;
+	showGlobalDataNotice?: boolean;
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -142,7 +143,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					compareWith={this.props.compareWith}
 					dustCost={this.cache[deck.deckId].dust}
 					showArchetypeSelector={this.props.showArchetypeSelector}
-					noGlobalData={deck.noGlobalData}
+					hasGlobalData={this.props.showGlobalDataNotice && deck.hasGlobalData}
 					archetypeName={archetype && archetype.name}
 					archetypeId={archetype && archetype.id}
 					hrefTab={this.props.hrefTab}
