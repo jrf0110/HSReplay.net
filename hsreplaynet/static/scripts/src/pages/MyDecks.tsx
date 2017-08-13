@@ -446,7 +446,6 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 							<InfoboxFilter value="PREVIOUS_SEASON">Previous Season</InfoboxFilter>
 							<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
 							<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
-							<InfoboxFilter value="LAST_60_DAYS">Last 60 days</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</section>
 					<section id="side-bar-data">
