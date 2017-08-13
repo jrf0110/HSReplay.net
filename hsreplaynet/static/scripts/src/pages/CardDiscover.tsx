@@ -179,12 +179,16 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 	}
 
 	componentDidUpdate(prevProps: CardDiscoverProps, prevState: CardDiscoverState) {
-		if (!_.isEqual(this.props, prevProps)) {
-			this.updateFilteredCards();
-		}
+		// omit functions (not supported) and unused custom* props to prevent multiple update calls
+		const ignore = Object.keys(this.props).filter((key) => {
+			return key.startsWith("set") && key !== "set" || key.startsWith("toggle") || key.startsWith("custom");
+		}).concat(["reset"]);
 
-		if (!this.state.filteredCards || !_.eq(prevState.cards, this.state.cards)
-			|| this.state.account !== prevState.account) {
+		if (!_.isEqual(_.omit(this.props, ignore), _.omit(prevProps, ignore)) ||
+			!this.state.filteredCards ||
+			!_.eq(prevState.cards, this.state.cards) ||
+			this.state.account !== prevState.account
+		) {
 			this.updateFilteredCards();
 		}
 	}
