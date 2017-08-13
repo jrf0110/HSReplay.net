@@ -606,7 +606,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		if (!UserData.isAuthenticated() || !UserData.isPremium()) {
 			return (
 				<div className="premium-promo">
-					<img src={STATIC_URL + `images/premium-promotional/mystatistics_full.png`} className="premium-background" />
+					<div className="premium-background">
+						<img src={STATIC_URL + `images/premium-promotional/mystatistics_full.png`} />
+					</div>
 					<div className="card text-center">
 						<h3><span className="text-premium">Premium</span> only</h3>
 						<p className="big">You play this deck? Want to see card statistics based on your replays?</p>

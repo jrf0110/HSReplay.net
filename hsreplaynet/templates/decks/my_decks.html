@@ -10,11 +10,13 @@
 	{% render_bundle "my_decks" %}
 {% else %}
 	<div class="premium-promo">
-		<img src="{% static 'images/premium-promotional/mydecks_full.png' %}" class="premium-background" />
+		<div class="premium-background">
+			<img src="{% static 'images/premium-promotional/mydecks_full.png' %}" />
+		</div>
 		<div class="card">
 			<div class="container text-center">
 				<h2><span class="text-premium">Premium</span> only</h2>
-				<p class="big">View the decks you've played across your replays right here.</p>
+				<p class="big">View statistics for the decks you've played across your replays right here.</p>
 				<p><a href="{% url 'premium' %}" class="promo-button">Learn more</a></p>
 			</div>
 		</div>

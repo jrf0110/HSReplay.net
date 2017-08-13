@@ -51,7 +51,7 @@ class CardStatsView(RequestMetaMixin, TemplateView):
 
 
 class MyCardStatsView(RequestMetaMixin, TemplateView):
-	template_name = "cards/my_card_stats.html"
+	template_name = "cards/my_cards.html"
 	title = "My Cards"
 
 
