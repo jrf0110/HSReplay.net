@@ -264,6 +264,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						hrefTab={"my-statistics"}
 						helpMessage={"Personalized statistics are available for all decks you play after joining Premium."}
 						lastPlayedColumn
+						showGlobalDataNotice
 					/>
 				</Fragments>
 			);
