@@ -110,7 +110,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			globalDataIndicator = (
 				<Tooltip
 					className="global-data-wrapper"
-					header="Global data available"
+					header="Global statistics available"
 					content="This deck is eligible for global statistics."
 				>
 					<span className="glyphicon glyphicon-globe"></span>
