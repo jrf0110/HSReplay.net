@@ -199,8 +199,8 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None):
 		triggered_refresh = _trigger_if_stale(parameterized_query, run_local)
 
 		response = HttpResponse(
-			content=parameterized_query.response_payload_json,
-			content_type="application/json"
+			content=parameterized_query.response_payload_data,
+			content_type=parameterized_query.response_payload_type
 		)
 	elif cache_is_populated and parameterized_query.is_global:
 		user_is_premium = user and not user.is_anonymous and user.is_premium
