@@ -9,8 +9,9 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import Pager from "../components/Pager";
 import ResetHeader from "../components/ResetHeader";
-import {formatMatch, heroMatch, modeMatch, nameMatch, opponentMatch, resultMatch} from "../GameFilters";
+import {formatMatch, heroMatch, modeMatch, nameMatch, resultMatch} from "../GameFilters";
 import {CardArtProps, FragmentChildProps, GameReplay, ImageProps} from "../interfaces";
+import CardData from "../CardData";
 
 type ViewType = "tiles" | "list";
 
@@ -19,6 +20,7 @@ interface GamesPage {
 }
 
 interface MyReplaysProps extends ImageProps, CardArtProps, FragmentChildProps, React.ClassAttributes<MyReplays> {
+	cardData: CardData;
 	username: string;
 	name?: string;
 	setName?: (name: string) => void;
@@ -134,10 +136,10 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 				if (result && !resultMatch(game, result)) {
 					return false;
 				}
-				if (hero && !heroMatch(game, hero)) {
+				if (hero && !heroMatch(this.props.cardData, game.friendly_player, hero)) {
 					return false;
 				}
-				if (opponent && !opponentMatch(game, opponent)) {
+				if (opponent && !heroMatch(this.props.cardData, game.opposing_player, opponent)) {
 					return false;
 				}
 				return true;
