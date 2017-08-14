@@ -140,7 +140,7 @@ def do_deck(shortid):
 	cards = ",".join(str(dbf_id) for dbf_id in deck.card_dbf_id_list())
 
 	return DECK_DIV.format(
-		cards=cards, hero=deck.hero_dbf_id, deck_class=deck.deck_class
+		cards=cards, hero=deck.hero_dbf_id, deck_class=deck.deck_class.name
 	)
 
 
