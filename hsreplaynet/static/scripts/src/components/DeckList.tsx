@@ -29,6 +29,7 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	hrefTab?: string;
 	lastPlayedColumn?: boolean;
 	showGlobalDataNotice?: boolean;
+	infoRow?: JSX.Element;
 }
 
 export default class DeckList extends React.Component<DeckListProps, DeckListState> {
@@ -303,6 +304,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					</div>
 				</div>
 				<ul>
+					{this.props.infoRow}
 					{deckTiles}
 				</ul>
 				{pager(false)}

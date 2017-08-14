@@ -284,6 +284,24 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			if (UserData.hasFeature("min-games-filter")) {
 				helpMessage = `Decks require at least 10 unique pilots and ${this.props.minGames} recorded games in the selected time frame to be listed.`;
 			}
+			let infoRow = null;
+			if (this.props.includedSet === "ALL") {
+				infoRow = (
+					<div className="info-row text-center">
+						<span>Currently showing all decks.&nbsp;</span>
+						<a
+							href="#"
+							className="btn btn-default"
+							onClick={(event) => {
+								event.preventDefault();
+								this.props.setIncludedSet("ICECROWN");
+							}}
+						>
+							Latest Expansion Only
+						</a>
+					</div>
+				);
+			}
 			content = (
 				<Fragments
 					defaults={{
@@ -294,6 +312,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 					ref={(ref) => this.deckListsFragmentsRef}
 				>
 					<DeckList
+						infoRow={infoRow}
 						decks={this.state.filteredDecks}
 						pageSize={12}
 						helpMessage={helpMessage}

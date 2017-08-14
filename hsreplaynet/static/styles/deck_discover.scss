@@ -33,6 +33,11 @@
 			left: 5px;
 			position: absolute;
 		}
+
+		.info-row {
+			padding: 5px;
+			border-bottom: 1px solid $help;
+		}
 	}
 
 	#min-games-message {
