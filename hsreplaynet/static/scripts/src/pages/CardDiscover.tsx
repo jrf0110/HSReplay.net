@@ -355,7 +355,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 									<h2>All set!</h2>,
 									<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>,
 									<p>After you've played some games you'll find statistics for all the cards you play right here.</p>,
-									<p className="text-muted">Note: It may take up to an hour for new data to appear on this page.</p>,
+									<p className="text-muted">Note: It may take up to two hours for new data to appear on this page.</p>,
 								]}
 							/>
 						</DataInjector>
@@ -373,7 +373,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 							Play a game and <a href="/games/mine/">upload the replay</a> for your personal card statistics to start appearing here.
 						</p>
 						<p className="text-muted">
-							Note: It may take up to an hour for new data to appear on this page.<br />
+							Note: It may take up to two hours for new data to appear on this page.<br />
 							<a href="/contact/">Contact us if you keep seeing this message.</a>
 						</p>
 					</div>,

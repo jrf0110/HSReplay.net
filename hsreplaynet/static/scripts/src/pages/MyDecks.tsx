@@ -218,7 +218,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						Play a game and <a href="/games/mine/">upload the replay</a> for your deck statistics to start appearing here.
 					</p>
 					<p className="text-muted">
-						Note: It may take up to an hour for new data to appear on this page.<br />
+						Note: It may take up to two hours for new data to appear on this page.<br />
 						<a href="/contact/">Contact us if you keep seeing this message.</a>
 					</p>
 				</div>
@@ -233,7 +233,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					<h2>All set!</h2>
 					<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>
 					<p>After you've played some games you'll find statistics for all the decks you play right here.</p>
-					<p className="text-muted">Note: It may take up to an hour for new data to appear on this page.</p>
+					<p className="text-muted">Note: It may take up to two hours for new data to appear on this page.</p>
 				</div>
 			);
 		}
