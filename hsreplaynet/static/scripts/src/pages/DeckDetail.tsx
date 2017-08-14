@@ -221,7 +221,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		let header = null;
 		if (this.state.hasData === false) {
 			header = (
-				<h4 className="message-wrapper" id="message-no-data">This deck does not have enough data.</h4>
+				<h4 className="message-wrapper" id="message-no-data">This deck does not have enough data for global statistics.</h4>
 			);
 
 			overviewContent.push(
