@@ -391,8 +391,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									label="Quest Contributors"
 									id="quest-contributors"
 									hidden={
-										!this.cardIsQuest()
-										|| this.isArena()
+										!UserData.hasFeature("card-quest-data") ||
+										!this.cardIsQuest() ||
+										this.isArena()
 									}
 								>
 									<DataInjector
@@ -406,7 +407,11 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<Tab
 									label="Quest Completion"
 									id="quest-completion"
-									hidden={!this.cardIsQuest() || this.isArena()}
+									hidden={
+										!UserData.hasFeature("card-quest-data") ||
+										!this.cardIsQuest() ||
+										this.isArena()
+									}
 								>
 									<QuestCompletionDetail
 										query={{params: this.getParams(), url: "quest_completion_stats_by_turn"}}
