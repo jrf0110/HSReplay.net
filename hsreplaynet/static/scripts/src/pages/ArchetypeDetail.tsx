@@ -30,14 +30,16 @@ import { extractSignature } from "../extractors";
 interface ArchetypeDetailState {
 	deckData?: any;
 	popularDecks?: DeckObj[];
-	popularDecksPage: number;
-	popularDecksSortBy: string;
-	popularDecksSortDirection: SortDirection;
+	popularDecksPage?: number;
+	popularDecksSortBy?: string;
+	popularDecksSortDirection?: SortDirection;
 }
 
 interface ArchetypeDetailProps {
 	archetypeId: number;
 	archetypeName: string;
+	hasStandardData: boolean;
+	hasWildData: boolean;
 	playerClass: string;
 	cardData: CardData;
 	gameType?: string;
@@ -59,11 +61,19 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			popularDecksSortDirection: "descending",
 		};
 
+		this.fixGameTypeFragments();
 		this.fetchDeckData(props);
 	}
 
+	fixGameTypeFragments() {
+		const gameType = this.getGameType();
+		if (gameType !== this.props.gameType) {
+			this.props.setGameType(gameType);
+		}
+	}
+
 	fetchDeckData(props: ArchetypeDetailProps) {
-		const params = {GameType: props.gameType, RankRange: props.rankRange};
+		const params = {GameType: this.getGameType(props), RankRange: props.rankRange};
 		DataManager.get("list_decks_by_win_rate", params).then((data) => {
 			if (data) {
 				this.setState({deckData: data.series.data}, () => this.updateData(this.props.cardData));
@@ -103,7 +113,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 	}
 
 	componentWillReceiveProps(nextProps: ArchetypeDetailProps, nextState: ArchetypeDetailState) {
-		if (this.props.gameType !== nextProps.gameType || this.props.rankRange !== nextProps.rankRange) {
+		if (this.getGameType() !== nextProps.gameType || this.props.rankRange !== nextProps.rankRange) {
 			this.fetchDeckData(nextProps);
 		}
 		if (!this.props.cardData && nextProps.cardData) {
@@ -112,8 +122,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 	}
 
 	render(): JSX.Element {
+		const gameType = this.getGameType();
 		const {GameType, RankRange, archetype_id} = {
-			GameType: this.props.gameType, RankRange: this.props.rankRange, archetype_id: this.props.archetypeId,
+			GameType: gameType, RankRange: this.props.rankRange, archetype_id: this.props.archetypeId,
 		};
 		const chartParams = {GameType, RankRange, archetype_id};
 		const params = {GameType, RankRange};
@@ -147,11 +158,21 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				<section id="game-mode-filter">
 					<h2>Game Mode</h2>
 					<InfoboxFilterGroup
-						selectedValue={this.props.gameType}
+						selectedValue={gameType}
 						onClick={(value) => this.props.setGameType(value)}
 					>
-						<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+						<InfoboxFilter
+							value="RANKED_STANDARD"
+							disabled={!this.props.hasStandardData}
+						>
+							Ranked Standard
+						</InfoboxFilter>
+						<InfoboxFilter
+							value="RANKED_WILD"
+							disabled={!this.props.hasWildData}
+						>
+							Ranked Wild
+						</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</section>
 			</aside>
@@ -276,7 +297,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</div>
 							<DataInjector
 								query={{key: "data", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId}}
-								extract={{data: (data) => extractSignature(data, this.props.gameType)}}
+								extract={{data: (data) => extractSignature(data, gameType)}}
 							>
 								<ArchetypeSignature cardData={this.props.cardData} showOccasional/>
 							</DataInjector>
@@ -365,6 +386,17 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		</div>;
 	}
 
+	getGameType(props?: ArchetypeDetailProps): string {
+		const {gameType, hasWildData, hasStandardData} = props || this.props;
+		if (!hasStandardData && !hasWildData) {
+			return "RANKED_STANDARD";
+		}
+		if (gameType === "RANKED_WILD" && hasWildData || gameType === "RANKED_STANDARD" && !hasStandardData) {
+			return "RANKED_WILD";
+		}
+		return "RANKED_STANDARD";
+	}
+
 	extractMatchupData = (matchupData) => {
 		const data = matchupData.series.metadata["" + this.props.archetypeId];
 		if (data) {
@@ -427,7 +459,8 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 
 	deckTileExtractor(sortProp: string) {
 		return (deckData, props) => {
-			const {cardData, playerClass, archetypeId, gameType} = this.props;
+			const {cardData, playerClass, archetypeId} = this.props;
+			const gameType = this.getGameType();
 
 			if (!cardData || !props.archetypeData) {
 				return;
