@@ -611,7 +611,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					</div>
 					<div className="card text-center">
 						<h3><span className="text-premium">Premium</span> only</h3>
-						<p className="big">You play this deck? Want to see card statistics based on your replays?</p>
+						<p className="big">You play this deck? View your personal Mulligan Guide and card statistics right here.</p>
 						<p>
 							<a href="/premium/" className="btn promo-button hero-button">Learn more</a>
 						</p>
