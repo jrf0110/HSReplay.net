@@ -196,12 +196,8 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 			});
 			this.setState({filteredDecks: decks, hasData: true, loading: false});
 		})).catch((reason) => {
-			if (reason === 204) {
-				this.setState({loading: false});
-				return;
-			}
-			if (reason !== "Params changed" && reason !== 202) {
-				console.error(reason);
+			if (reason !== "Params changed") {
+				this.setState({filteredDecks: [], hasData: false, loading: false});
 			}
 		});
 	}
