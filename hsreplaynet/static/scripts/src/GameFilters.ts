@@ -5,12 +5,12 @@ import CardData from "./CardData";
 
 export function nameMatch(game: GameReplay, name: string): boolean {
 	const players = [game.friendly_player, game.opposing_player];
-	return players.some(player => {
-		let pName = player.name.toLowerCase();
+	return players.some((player) => {
+		const pName = player.name.toLowerCase();
 		if (pName.indexOf(name) !== -1) {
 			return true;
 		}
-		if (name == '"' + pName + '"') {
+		if (name === '"' + pName + '"') {
 			return true;
 		}
 		return false;
@@ -20,42 +20,42 @@ export function nameMatch(game: GameReplay, name: string): boolean {
 export function modeMatch(game: GameReplay, mode: string): boolean {
 	switch (mode) {
 		case "arena":
-			return game.global_game.game_type == BnetGameType.BGT_ARENA;
+			return game.global_game.game_type === BnetGameType.BGT_ARENA;
 		case "ranked":
-			return game.global_game.game_type == BnetGameType.BGT_RANKED_STANDARD
-				|| game.global_game.game_type == BnetGameType.BGT_RANKED_WILD;
+			return game.global_game.game_type === BnetGameType.BGT_RANKED_STANDARD
+				|| game.global_game.game_type === BnetGameType.BGT_RANKED_WILD;
 		case "casual":
-			return game.global_game.game_type == BnetGameType.BGT_CASUAL_STANDARD
-				|| game.global_game.game_type == BnetGameType.BGT_CASUAL_WILD;
+			return game.global_game.game_type === BnetGameType.BGT_CASUAL_STANDARD
+				|| game.global_game.game_type === BnetGameType.BGT_CASUAL_WILD;
 		case "brawl":
-			return game.global_game.game_type == BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI
-				|| game.global_game.game_type == BnetGameType.BGT_TAVERNBRAWL_2P_COOP
-				|| game.global_game.game_type == BnetGameType.BGT_TAVERNBRAWL_PVP;
+			return game.global_game.game_type === BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI
+				|| game.global_game.game_type === BnetGameType.BGT_TAVERNBRAWL_2P_COOP
+				|| game.global_game.game_type === BnetGameType.BGT_TAVERNBRAWL_PVP;
 		case "friendly":
-			return game.global_game.game_type == BnetGameType.BGT_FRIENDS;
+			return game.global_game.game_type === BnetGameType.BGT_FRIENDS;
 		case "adventure":
-			return game.global_game.game_type == BnetGameType.BGT_VS_AI;
+			return game.global_game.game_type === BnetGameType.BGT_VS_AI;
 		default:
 			return true;
 	}
 }
 
 export function formatMatch(game: GameReplay, format: string, mode: string): boolean {
-	if (!(!mode || mode == "ranked" || mode == "casual")) {
+	if (!(!mode || mode === "ranked" || mode === "casual")) {
 		return true;
 	}
-	switch(format) {
+	switch (format) {
 		case "standard":
-			return game.global_game.format == FormatType.FT_STANDARD;
+			return game.global_game.format === FormatType.FT_STANDARD;
 		case "wild":
-			return game.global_game.format == FormatType.FT_WILD;
+			return game.global_game.format === FormatType.FT_WILD;
 		default:
 			return true;
 	}
 }
 
 export function resultMatch(game: GameReplay, result: string): boolean {
-	switch(result) {
+	switch (result) {
 		case "won":
 			return game.won;
 		case "lost":

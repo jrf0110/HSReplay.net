@@ -53,7 +53,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 
 	constructor(props: MyReplaysProps, context: any) {
 		super(props, context);
-		let viewType = cookie.get(this.viewCookie, "tiles") as ViewType;
+		const viewType = cookie.get(this.viewCookie, "tiles") as ViewType;
 		this.state = {
 			count: 0,
 			currentLocalPage: 0,
@@ -116,12 +116,12 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 
 	filterGames(input: GameReplay[]): GameReplay[] {
 		let games = input;
-		let name = this.props.name;
-		let mode = this.props.mode;
-		let format = this.props.format;
-		let result = this.props.result;
-		let hero = this.props.hero !== "ALL" ? this.props.hero : null;
-		let opponent = this.props.opponent !== "ALL" ? this.props.opponent : null;
+		const name = this.props.name;
+		const mode = this.props.mode;
+		const format = this.props.format;
+		const result = this.props.result;
+		const hero = this.props.hero !== "ALL" ? this.props.hero : null;
+		const opponent = this.props.opponent !== "ALL" ? this.props.opponent : null;
 		if (this.props.canBeReset) {
 			games = games.filter((game) => {
 				if (name && !nameMatch(game, name.toLowerCase())) {
@@ -193,7 +193,7 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 			games = games.slice(this.state.pageSize * (this.state.currentLocalPage));
 		}
 
-		let hasNext = !hasFilters && this.state.next || games.length > this.state.pageSize;
+		const hasNext = !hasFilters && this.state.next || games.length > this.state.pageSize;
 		if (hasNext) {
 			games = games.slice(0, this.state.pageSize);
 		}
