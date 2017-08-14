@@ -1,10 +1,11 @@
 import * as React from "react";
 import {Colors} from "./Colors";
-import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint} from "./interfaces";
+import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, GlobalGamePlayer} from "./interfaces";
 import {CardData as CardMeta} from "hearthstonejson";
 import {adventureSets} from "./contants";
 import {wildSets} from "./contants";
 import Fragments from "./components/Fragments";
+import CardData from "./CardData";
 
 export function staticFile(file: string) {
 	return STATIC_URL + file;
@@ -844,4 +845,20 @@ export function getPieTranslate(width: number, height: number, padding: any): st
 	const x = width / 2 + (padding.left - padding.right);
 	const y = height / 2 + (padding.top - padding.bottom);
 	return `translate(${x}px, ${y}px)`;
+}
+
+export function getHeroCard(cardData: CardData, player: GlobalGamePlayer): any {
+	const cardId = getHeroCardId(player.hero_class_name, false);
+	if (cardId === null) {
+		return null;
+	}
+	return cardData.fromCardId(cardId);
+}
+
+export function getHeroDbfId(cardData: CardData, player: GlobalGamePlayer): number|null {
+	if (player.hero_id.startsWith("HERO_")) {
+		return player.hero_dbf_id;
+	}
+	const card = getHeroCard(cardData, player);
+	return card ? card.dbfId : null;
 }
