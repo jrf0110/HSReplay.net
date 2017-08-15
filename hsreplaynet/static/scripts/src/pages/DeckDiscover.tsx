@@ -288,7 +288,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			if (this.props.includedSet === "ALL") {
 				infoRow = (
 					<div className="info-row text-center">
-						<span>Currently showing all decks.&nbsp;</span>
+						<span>Showing decks from all expansions.&nbsp;</span>
 						<a
 							href="#"
 							className="btn btn-default"
@@ -297,7 +297,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 								this.props.setIncludedSet("ICECROWN");
 							}}
 						>
-							Latest Expansion Only
+							Latest expansion only
 						</a>
 					</div>
 				);
