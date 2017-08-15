@@ -26,7 +26,6 @@ interface MyDecksState {
 	filteredDecks: DeckObj[];
 	loading?: boolean;
 	showFilters?: boolean;
-	hasData?: boolean;
 }
 
 interface MyDecksProps extends FragmentChildProps, React.ClassAttributes<MyDecks> {
@@ -58,7 +57,6 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 			filteredDecks: [],
 			loading: true,
 			showFilters: false,
-			hasData: false,
 		};
 		this.updateFilteredDecks();
 	}
@@ -194,10 +192,10 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 					winrate: deck.win_rate,
 				};
 			});
-			this.setState({filteredDecks: decks, hasData: true, loading: false});
+			this.setState({filteredDecks: decks, loading: false});
 		})).catch((reason) => {
 			if (reason !== "Params changed") {
-				this.setState({filteredDecks: [], hasData: false, loading: false});
+				this.setState({filteredDecks: [], loading: false});
 			}
 		});
 	}
@@ -223,16 +221,6 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 		else if (this.state.loading) {
 			content = <h3 className="message-wrapper">Loading…</h3>;
 		}
-		else if (!this.state.hasData) {
-			content = (
-				<div className="message-wrapper">
-					<h2>All set!</h2>
-					<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>
-					<p>After you've played some games you'll find statistics for all the decks you play right here.</p>
-					<p className="text-muted">Note: It may take up to two hours for new data to appear on this page.</p>
-				</div>
-			);
-		}
 		else if (this.state.filteredDecks.length === 0) {
 			let resetButton = null;
 			if (this.props.canBeReset) {
@@ -241,8 +229,18 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						Reset filters
 					</button>
 				);
+				content = <NoDecksMessage>{resetButton}</NoDecksMessage>;
 			}
-			content = <NoDecksMessage>{resetButton}</NoDecksMessage>;
+			else {
+				content = (
+					<div className="message-wrapper">
+						<h2>All set!</h2>
+						<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>
+						<p>After you've played some games you'll find statistics for all the decks you play right here.</p>
+						<p className="text-muted">Note: It may take up to two hours for new data to appear on this page.</p>
+					</div>
+				);
+			}
 		}
 		else {
 			content = (
