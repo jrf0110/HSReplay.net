@@ -214,7 +214,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						Play a game and <a href="/games/mine/">upload the replay</a> for your deck statistics to start appearing here.
 					</p>
 					<p className="text-muted">
-						Note: It may take up to two hours for new data to appear on this page.<br />
+						Note: It may take a few hours for new data to appear on this page.<br />
 						<a href="/contact/">Contact us if you keep seeing this message.</a>
 					</p>
 				</div>
