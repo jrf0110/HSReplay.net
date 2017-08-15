@@ -35,8 +35,11 @@
 		}
 
 		.info-row {
-			padding: 5px;
 			border-bottom: 1px solid $help;
+			background-color: #f9f9f9;
+			color: $help;
+			height: 50px;
+			line-height: 50px;
 		}
 	}
 
