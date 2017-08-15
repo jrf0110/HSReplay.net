@@ -3,12 +3,11 @@ from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import ObjectDoesNotExist, SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, View
-from djstripe.models import StripeCard
 from djstripe.settings import STRIPE_LIVE_MODE
 from stripe.error import CardError, InvalidRequestError
 from hsreplaynet.utils.html import RequestMetaMixin
@@ -280,7 +279,7 @@ class UpdateCardView(LoginRequiredMixin, View):
 		try:
 			# Get the payment method matching the stripe id, scoped to the customer
 			card = sources.get(stripe_id=stripe_id)
-		except StripeCard.DoesNotExist:
+		except ObjectDoesNotExist:
 			return False
 
 		if "delete" in request.POST:
