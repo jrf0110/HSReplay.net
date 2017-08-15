@@ -623,7 +623,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
 		return (
 			<DataInjector
-				fetchCondition={this.isWildDeck() !== undefined}
+				fetchCondition={this.isWildDeck() !== undefined && UserData.isPremium()}
 				query={{params, url: "single_account_lo_individual_card_stats_for_deck"}}
 				extract={{
 					data: (data) => ({data: data.series.data["ALL"]}),
@@ -742,11 +742,12 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		state = state || this.state;
 		const getRegion = (account: string) => account && account.split("-")[0];
 		const getLo = (account: string) => account && account.split("-")[1];
-		return {
+		return Object.assign({},{
 			GameType: this.getGameType(),
+		}, this.state.account ? {
 			Region: getRegion(state.account),
 			account_lo: getLo(state.account),
-		};
+		} : {});
 	}
 
 	getChartData(cards: CardObj[]): RenderData[] {
