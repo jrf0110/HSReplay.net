@@ -12,6 +12,7 @@ import ResetHeader from "../components/ResetHeader";
 import {formatMatch, heroMatch, modeMatch, nameMatch, resultMatch} from "../GameFilters";
 import {CardArtProps, FragmentChildProps, GameReplay, ImageProps} from "../interfaces";
 import CardData from "../CardData";
+import {getHeroCard, toTitleCase} from "../helpers";
 
 type ViewType = "tiles" | "list";
 
@@ -149,16 +150,21 @@ export default class MyReplays extends React.Component<MyReplaysProps, MyReplays
 	}
 
 	buildChartData(games: GameReplay[]): any[] {
+		if (!this.props.cardData) {
+			return [];
+		}
 		const data = [];
 		const heroGames = {};
 		const heroWins = {};
 		games.forEach((game: GameReplay) => {
-			if (game.friendly_player && game.friendly_player.hero_id.startsWith("HERO")) {
-				let hero = game.friendly_player.hero_class_name;
-				hero = hero.substr(0, 1).toUpperCase() + hero.substr(1, hero.length - 1).toLowerCase();
-				heroGames[hero] = (heroGames[hero] || 0) + 1;
-				if (game.won) {
-					heroWins[hero] = (heroWins[hero] || 0) + 1;
+			if (game.friendly_player) {
+				const heroCard = getHeroCard(this.props.cardData, game.friendly_player);
+				if (heroCard !== null) {
+					const hero = toTitleCase(heroCard.cardClass);
+					heroGames[hero] = (heroGames[hero] || 0) + 1;
+					if (game.won) {
+						heroWins[hero] = (heroWins[hero] || 0) + 1;
+					}
 				}
 			}
 		});
