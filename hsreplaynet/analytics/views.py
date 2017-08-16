@@ -1,18 +1,26 @@
+import json
 from calendar import timegm
+from copy import deepcopy
 from datetime import datetime
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import (
 	Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 )
 from django.utils.cache import get_conditional_response
+from django.utils.decorators import method_decorator
 from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
+from django.views.generic import TemplateView
+from hearthstone import enums
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet.decks.models import Deck
+from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
+from hsreplaynet.utils.html import RequestMetaMixin
 from .processing import (
 	deck_is_eligible_for_global_stats, evict_locks_cache,
 	execute_query, get_concurrent_redshift_query_queue_semaphore,
@@ -296,3 +304,64 @@ def attempt_request_triggered_query_execution(parameterized_query, run_local=Fal
 		execute_query(parameterized_query, run_local)
 	else:
 		log.debug("Triggering query from web app is disabled")
+
+
+@method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
+class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+	template_name = "archetypes/clustering_charts.html"
+	title = "Clustering Charts"
+
+
+@method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
+def clustering_data(request, num_clusters=5):
+	from sklearn.cluster import KMeans
+	from sklearn.preprocessing import StandardScaler
+	from sklearn.decomposition import PCA
+
+	query = get_redshift_query("list_deck_clustering_data")
+	parameterized_query = query.build_full_params(dict(
+		TimeRange="LAST_3_DAYS",
+		GameType="RANKED_STANDARD",
+	))
+	data = parameterized_query.response_payload
+
+	for player_class, decks in data["decks"].items():
+		X = [deck["vector"] for deck in decks]
+		xy = PCA(n_components=2).fit_transform(deepcopy(X))
+		for (x, y), deck in zip(xy, decks):
+			deck["x"] = float(x)
+			deck["y"] = float(y)
+
+		X = StandardScaler().fit_transform(X)
+		clusterizer = KMeans(n_clusters=min(int(num_clusters), len(X)))
+		clusterizer.fit(X)
+		for deck, cluster_id in zip(decks, clusterizer.labels_):
+			deck["cluster_id"] = int(cluster_id)
+			del deck["vector"]
+
+	result = []
+	for player_class_id, decks in data["decks"].items():
+		player_class_result = {
+			"player_class": enums.CardClass(int(player_class_id)).name,
+			"data": []
+		}
+		for deck in decks:
+			metadata = {
+				"games": int(deck["num_games"]),
+				"archetype_name": str(deck["cluster_id"]),
+				"archetype": deck["cluster_id"],
+				"url": deck["url"],
+				"shortid": deck["shortid"]
+			}
+			player_class_result["data"].append({
+				"x": deck["x"],
+				"y": deck["y"],
+				"metadata": metadata
+			})
+		result.append(player_class_result)
+
+	response = HttpResponse(
+		content=json.dumps(result, indent=4),
+		content_type="application/json"
+	)
+	return response

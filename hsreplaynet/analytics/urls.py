@@ -2,6 +2,9 @@ from django.conf.urls import url
 from . import views
 
 
+clustering_charts = views.ClusteringChartsView.as_view()
+
+
 urlpatterns = [
 	url(
 		r"^query/(?P<name>\w+)/$", views.fetch_query_results,
@@ -30,6 +33,14 @@ urlpatterns = [
 	url(
 		r"^release/semaphore/(?P<name>\w+)/$", views.release_semaphore,
 		name="analytics_release_semaphore"
+	),
+	url(
+		r"^clustering/$", clustering_charts,
+		name="analytics_clustering_charts"
+	),
+	url(
+		r"^clustering/data/(?P<num_clusters>\d+)/$", views.clustering_data,
+		name="analytics_clustering_data"
 	),
 ]
 
