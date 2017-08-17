@@ -324,8 +324,14 @@ def clustering_data(request, num_clusters):
 		GameType="RANKED_STANDARD",
 	))
 
-	if not parameterized_query.result_available or parameterized_query.result_is_stale:
-		parameterized_query.refresh_result()
+	if not parameterized_query.result_available:
+		return HttpResponse(
+			content=json.dumps([], indent=4),
+			content_type="application/json"
+		)
+
+	if parameterized_query.result_is_stale:
+		attempt_request_triggered_query_execution(parameterized_query)
 
 	data = parameterized_query.response_payload
 
