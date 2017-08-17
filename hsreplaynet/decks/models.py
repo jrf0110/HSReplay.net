@@ -65,6 +65,8 @@ class DeckManager(models.Manager):
 		return enums.CardClass.INVALID
 
 	def classify_deck_with_archetype(self, deck, player_class, game_format):
+		if game_format not in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
+			return
 		qs = Archetype.objects.filter(player_class=player_class)
 		if game_format == enums.FormatType.FT_STANDARD:
 			qs.filter(active_in_standard=True)
@@ -407,9 +409,9 @@ class ArchetypeManager(models.Manager):
 						for cluster in class_cluster.clusters:
 							if cluster.external_id:
 								archetype = Archetype.objects.get(id=cluster.external_id)
-								vals = (suffix, archetype.name)
+								vals = (suffix, archetype.name, archetype.id)
 								log.info(
-									"%s: Update Existing Archetype: %s" % vals
+									"%s: Update Existing Archetype: %s (%i)" % vals
 								)
 								old_string = archetype.get_signature(
 									game_format
