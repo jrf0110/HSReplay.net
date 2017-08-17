@@ -174,7 +174,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 									<VictoryLegend
 										data={legendData}
 										orientation="horizontal"
-										y={height - 50}
+										y={height - 80}
 										style={{
 											data: {
 												fill: (d) => d.color,
