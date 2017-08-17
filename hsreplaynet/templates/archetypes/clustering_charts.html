@@ -19,11 +19,11 @@
 	}
 
 	.tooltip {
-		background-color: black;
-		color: white;
+		background-color: white;
+		color: black;
 		position: absolute;
 		width: 200px;
-		height: 28px;
+		height: 500px;
 		pointer-events: none;
 	}
 </style>
@@ -58,6 +58,7 @@ d3.json("/analytics/clustering/data/5/", function(error, allGraphs) {
 		let cValue = function(d) { return d.metadata.archetype_name; },
 			color = d3.scale.category10();
 
+		let title = d3.select("body").append("h2").text(player_class);
 		// graph canvas
 		let svg = d3.select("body").append("svg")
 			.attr("width", width + margin.left + margin.right)
