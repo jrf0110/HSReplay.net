@@ -321,7 +321,7 @@ def clustering_data(request, num_clusters):
 
 	query = get_redshift_query("list_deck_clustering_data")
 	parameterized_query = query.build_full_params(dict(
-		TimeRange="LAST_3_DAYS",
+		TimeRange="LAST_7_DAYS",
 		GameType="RANKED_STANDARD",
 	))
 
