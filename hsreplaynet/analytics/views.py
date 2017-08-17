@@ -355,7 +355,6 @@ def clustering_data(request, num_clusters):
 		clusterizer.fit(X)
 		for deck, cluster_id in zip(decks, clusterizer.labels_):
 			deck["cluster_id"] = int(cluster_id)
-			del deck["vector"]
 
 	result = []
 	for player_class_id, decks in data["decks"].items():
