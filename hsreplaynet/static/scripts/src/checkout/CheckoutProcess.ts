@@ -56,7 +56,7 @@ export default class CheckoutProcess {
 				eventValue: value,
 				hitCallback: () => resolve(),
 			});
-			setTimeout(() => resolve(), 1000);
+			setTimeout(() => resolve(), 2000);
 		});
 	}
 }
