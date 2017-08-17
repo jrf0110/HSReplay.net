@@ -45,10 +45,6 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 				<span className="header-archetype-name">
 					{this.props.archetypeData.name}
 				</span>
-				<img
-					className="class-icon"
-					src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
-				/>
 				<span
 					className="btn-toggle-class"
 					onClick={(e) => {
@@ -58,6 +54,10 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 				>
 					Class
 				</span>
+				<img
+					className="class-icon"
+					src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
+				/>
 			</div>
 		);
 	}
