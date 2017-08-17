@@ -308,7 +308,8 @@ const setupCheckout = (target: HTMLFormElement|HTMLButtonElement) => {
 	}
 };
 
-window.hsreplaynet_load_stripe = (targetElement: HTMLFormElement|HTMLButtonElement) => {
+window.hsreplaynet_load_stripe = (targetElement: HTMLFormElement|HTMLButtonElement, label?: string) => {
+	lastLabel = label;
 	setupCheckout(targetElement);
 };
 
