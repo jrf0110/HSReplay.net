@@ -25,6 +25,7 @@ interface TooltipProps {
 	noBackground?: boolean;
 	simple?: boolean;
 	yOffset?: number;
+	onHovering?: () => void;
 }
 
 export default class Tooltip extends React.Component<TooltipProps, TooltipState> {
@@ -135,10 +136,17 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			this.setState({hovering: false});
 		};
 
+		const hover = (e) => {
+			if (!this.state.hovering && this.props.onHovering) {
+				this.props.onHovering();
+			}
+			this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY});
+		};
+
 		return (
 			<div
 				className={classNames.join(" ")}
-				onMouseMove={(e) => this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY})}
+				onMouseMove={hover}
 				onMouseLeave={cancel}
 				onTouchStart={() => this.setState({isTouchDevice: true})}
 				aria-describedby={this.state.hovering ? this.props.id : null}
