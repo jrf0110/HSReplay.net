@@ -160,7 +160,7 @@ def find_or_create_global_game(entity_tree, meta):
 def get_opponent_revealed_deck(entity_tree, friendly_player_id, game_type):
 	for player in entity_tree.players:
 		if player.player_id != friendly_player_id:
-			decklist = [c.card_id for c in player.initial_deck if c.card_id]
+			decklist = [c.initial_card_id for c in player.initial_deck if c.card_id]
 
 			deck, created = Deck.objects.get_or_create_from_id_list(
 				decklist,
@@ -488,7 +488,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 		is_spectated_replay = meta.get("spectator_mode", False)
 		is_friendly_player = player.player_id == meta["friendly_player"]
 		decklist_from_meta = player_meta.get("deck")
-		decklist_from_replay = [c.card_id for c in player.initial_deck if c.card_id]
+		decklist_from_replay = [c.initial_card_id for c in player.initial_deck if c.card_id]
 
 		meta_decklist_is_superset = _is_decklist_superset(
 			decklist_from_meta,
