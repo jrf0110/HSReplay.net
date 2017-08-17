@@ -2,6 +2,7 @@ import json
 import os
 import pytest
 from django.core.files.storage import default_storage
+from hearthstone.enums import CardType
 from hearthsim_identity.accounts.models import AuthToken
 from hearthsim_identity.api.models import APIKey
 from hsreplaynet.lambdas.uploads import process_raw_upload
@@ -131,6 +132,10 @@ def do_process_raw_upload(raw_upload, is_reprocessing):
 	validate_fuzzy_date_match(raw_upload.timestamp, replay.global_game.match_start)
 	validate_player_data(raw_upload, replay, 1)
 	validate_player_data(raw_upload, replay, 2)
+
+	for player_id in (1, 2):
+		for card in replay.global_game.players.get(player_id=player_id).deck_list:
+			assert card.type != CardType.HERO
 
 
 def validate_fuzzy_date_match(upload_date, replay_date):
