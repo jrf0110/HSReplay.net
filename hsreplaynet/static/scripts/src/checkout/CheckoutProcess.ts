@@ -1,12 +1,14 @@
 export default class CheckoutProcess {
 	public readonly plan: string;
 	public readonly handler: StripeCheckoutHandler;
+	public readonly label: string;
 	public onstart: () => void;
 	private promise: Promise<StripeTokenResponse>;
 
-	constructor(plan, handler: StripeCheckoutHandler) {
+	constructor(plan, handler: StripeCheckoutHandler, label?: string) {
 		this.plan = plan;
 		this.handler = handler;
+		this.label = label;
 	}
 
 	public checkout(options?: StripeCheckoutOptions) {
@@ -53,8 +55,11 @@ export default class CheckoutProcess {
 				hitType: "event",
 				eventCategory: "Checkout",
 				eventAction: action,
+				eventLabel: this.label,
 				eventValue: value,
 				hitCallback: () => resolve(),
+				nonInteraction: false,
+				transport: "beacon",
 			});
 			setTimeout(() => resolve(), 2000);
 		});

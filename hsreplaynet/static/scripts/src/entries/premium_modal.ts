@@ -228,7 +228,7 @@ const setupCheckout = (target: HTMLFormElement|HTMLButtonElement) => {
 				}
 
 				// start checkout process
-				checkoutProcess = new CheckoutProcess(plan, handler);
+				checkoutProcess = new CheckoutProcess(plan, handler, lastLabel);
 				checkoutProcess.onstart = () => {
 					button.textContent = "Waiting for payment";
 				};
