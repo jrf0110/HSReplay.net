@@ -314,6 +314,7 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 
 @view_requires_feature_access("archetype-training")
 def clustering_data(request, num_clusters):
+	from hsredshift.utils.cards import dbf_id_vector
 	from sklearn.cluster import KMeans
 	from sklearn.preprocessing import StandardScaler
 	from sklearn.decomposition import PCA
@@ -334,9 +335,15 @@ def clustering_data(request, num_clusters):
 		attempt_request_triggered_query_execution(parameterized_query)
 
 	data = parameterized_query.response_payload
+	base_vector = dbf_id_vector()
 
 	for player_class, decks in data["decks"].items():
-		X = [deck["vector"] for deck in decks]
+		X = []
+		for deck in decks:
+			cards = {int(dbf_id): int(count) for dbf_id, count in json.loads(deck["deck_list"])}
+			vector = [int(cards.get(dbf_id, 0)) for dbf_id in base_vector]
+			X.append(vector)
+
 		xy = PCA(n_components=2).fit_transform(deepcopy(X))
 		for (x, y), deck in zip(xy, decks):
 			deck["x"] = float(x)
@@ -361,7 +368,8 @@ def clustering_data(request, num_clusters):
 				"archetype_name": str(deck["cluster_id"]),
 				"archetype": deck["cluster_id"],
 				"url": deck["url"],
-				"shortid": deck["shortid"]
+				"shortid": deck["shortid"],
+				"pretty_decklist": deck["pretty_deck_list"]
 			}
 			player_class_result["data"].append({
 				"x": deck["x"],
