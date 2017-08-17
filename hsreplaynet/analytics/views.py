@@ -1,6 +1,5 @@
 import json
 from calendar import timegm
-from copy import deepcopy
 from datetime import datetime
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -13,7 +12,6 @@ from django.utils.decorators import method_decorator
 from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
 from django.views.generic import TemplateView
-from hearthstone import enums
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet.decks.models import Deck
@@ -313,13 +311,8 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 
 
 @view_requires_feature_access("archetype-training")
-def clustering_data(request, num_clusters):
-	from hsredshift.utils.cards import dbf_id_vector
-	from sklearn.cluster import KMeans
-	from sklearn.preprocessing import StandardScaler
-	from sklearn.decomposition import PCA
-
-	query = get_redshift_query("list_deck_clustering_data")
+def clustering_data(request):
+	query = get_redshift_query("list_cluster_set_data")
 	parameterized_query = query.build_full_params(dict(
 		TimeRange="LAST_7_DAYS",
 		GameType="RANKED_STANDARD",
@@ -336,50 +329,11 @@ def clustering_data(request, num_clusters):
 		attempt_request_triggered_query_execution(parameterized_query)
 
 	data = parameterized_query.response_payload
-	base_vector = dbf_id_vector()
 
-	for player_class, decks in data["decks"].items():
-		X = []
-		for deck in decks:
-			cards = {int(dbf_id): int(count) for dbf_id, count in json.loads(deck["deck_list"])}
-			vector = [int(cards.get(dbf_id, 0)) for dbf_id in base_vector]
-			X.append(vector)
-
-		xy = PCA(n_components=2).fit_transform(deepcopy(X))
-		for (x, y), deck in zip(xy, decks):
-			deck["x"] = float(x)
-			deck["y"] = float(y)
-
-		X = StandardScaler().fit_transform(X)
-		clusterizer = KMeans(n_clusters=min(int(num_clusters), len(X)))
-		clusterizer.fit(X)
-		for deck, cluster_id in zip(decks, clusterizer.labels_):
-			deck["cluster_id"] = int(cluster_id)
-
-	result = []
-	for player_class_id, decks in data["decks"].items():
-		player_class_result = {
-			"player_class": enums.CardClass(int(player_class_id)).name,
-			"data": []
-		}
-		for deck in decks:
-			metadata = {
-				"games": int(deck["num_games"]),
-				"archetype_name": str(deck["cluster_id"]),
-				"archetype": deck["cluster_id"],
-				"url": deck["url"],
-				"shortid": deck["shortid"],
-				"pretty_decklist": deck["pretty_deck_list"]
-			}
-			player_class_result["data"].append({
-				"x": deck["x"],
-				"y": deck["y"],
-				"metadata": metadata
-			})
-		result.append(player_class_result)
-
+	from hsarchetypes.clustering import ClusterSet
+	cluster_set = ClusterSet.create_cluster_set(data)
 	response = HttpResponse(
-		content=json.dumps(result, indent=4),
+		content=json.dumps(cluster_set.to_chart_data(), indent=4),
 		content_type="application/json"
 	)
 	return response
