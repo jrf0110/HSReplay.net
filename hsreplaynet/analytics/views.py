@@ -323,6 +323,10 @@ def clustering_data(request, num_clusters):
 		TimeRange="LAST_3_DAYS",
 		GameType="RANKED_STANDARD",
 	))
+
+	if not parameterized_query.result_available or parameterized_query.result_is_stale:
+		parameterized_query.refresh_result()
+
 	data = parameterized_query.response_payload
 
 	for player_class, decks in data["decks"].items():
