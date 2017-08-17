@@ -19,8 +19,9 @@ export default class CheckoutProcess {
 			options = Object.assign({}, options, {
 				token: (token: StripeTokenResponse): void => {
 					resolved = true;
-					resolve(token);
-					this.trackInteraction("subscribe", dollars);
+					this.trackInteraction("subscribe", dollars).then(() => {
+						resolve(token);
+					});
 				},
 				opened: () => {
 					if (this.onstart) {
@@ -32,8 +33,9 @@ export default class CheckoutProcess {
 					if (resolved) {
 						return;
 					}
-					reject();
-					this.trackInteraction("close", dollars);
+					this.trackInteraction("close", dollars).then(() => {
+						reject();
+					});
 				},
 			});
 			this.handler.open(options);
@@ -41,16 +43,20 @@ export default class CheckoutProcess {
 		return this.promise;
 	}
 
-	private trackInteraction(action: string, value?: any) {
-		if (typeof ga !== "function") {
-			return;
-		}
-		ga("send", {
-			hitType: "event",
-			eventCategory: "Checkout",
-			eventAction: action,
-			eventValue: value,
-			transport: "beacon",
+	private trackInteraction(action: string, value?: any): Promise<{}> {
+		return new Promise((resolve, reject) => {
+			if (typeof ga !== "function") {
+				resolve();
+				return;
+			}
+			ga("send", {
+				hitType: "event",
+				eventCategory: "Checkout",
+				eventAction: action,
+				eventValue: value,
+				hitCallback: () => resolve(),
+			});
+			setTimeout(() => resolve(), 1000);
 		});
 	}
 }
