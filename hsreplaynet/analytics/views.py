@@ -304,9 +304,13 @@ def clustering_data(request, game_format):
 	from hearthstone.enums import FormatType
 	from hsarchetypes.clustering import ClusterSet
 	data = get_cluster_set_data(game_format=FormatType[game_format])
-	cluster_set = ClusterSet.create_cluster_set(data)
-	response = HttpResponse(
-		content=json.dumps(cluster_set.to_chart_data(), indent=4),
-		content_type="application/json"
-	)
+	if len(data):
+		cluster_set = ClusterSet.create_cluster_set(data)
+		response = HttpResponse(
+			content=json.dumps(cluster_set.to_chart_data(), indent=4),
+			content_type="application/json"
+		)
+	else:
+		result = {"msg": "Query is processing. Check back later."}
+		response = JsonResponse(result, status=202)
 	return response
