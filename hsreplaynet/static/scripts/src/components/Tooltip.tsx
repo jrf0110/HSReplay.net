@@ -78,8 +78,9 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 		}
 
 		const style = {};
+		let height = 0;
 		if (this.tooltip) {
-			const height = this.tooltip.getBoundingClientRect().height;
+			height = this.tooltip.getBoundingClientRect().height;
 			let top = this.state.clientY;
 			if (!this.props.belowCursor) {
 				top -= height;
@@ -122,7 +123,12 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			>
 				{content}
 			</div>
-		), this.tooltipContainer);
+		), this.tooltipContainer, (element) => {
+			if (this.tooltip && this.tooltip.getBoundingClientRect().height !== height) {
+				// re-render if this render caused a height change, to update position
+				this.renderTooltip();
+			}
+		});
 	}
 
 	render(): JSX.Element {
