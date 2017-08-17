@@ -39,7 +39,7 @@ urlpatterns = [
 		name="analytics_clustering_charts"
 	),
 	url(
-		r"^clustering/data/$", views.clustering_data,
+		r"^clustering/data/(?P<game_format>\w+)/$", views.clustering_data,
 		name="analytics_clustering_data"
 	),
 ]

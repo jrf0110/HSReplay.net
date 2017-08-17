@@ -300,9 +300,10 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 
 
 @view_requires_feature_access("archetype-training")
-def clustering_data(request):
+def clustering_data(request, game_format):
+	from hearthstone.enums import FormatType
 	from hsarchetypes.clustering import ClusterSet
-	data = get_cluster_set_data()
+	data = get_cluster_set_data(game_format=FormatType[game_format])
 	cluster_set = ClusterSet.create_cluster_set(data)
 	response = HttpResponse(
 		content=json.dumps(cluster_set.to_chart_data(), indent=4),
