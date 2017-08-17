@@ -191,7 +191,6 @@ if (banner) {
 			eventCategory: "Banner",
 			eventAction: "click",
 			eventLabel: "Replay Sidebar Banner",
-			transport: "beacon",
 		});
 	});
 }

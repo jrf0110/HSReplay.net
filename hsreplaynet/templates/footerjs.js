@@ -16,6 +16,7 @@
 	m.parentNode.insertBefore(a, m)
 })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga");
 ga("create", "{{ gua }}", "auto");
+ga("set", "transport", "beacon");
 if(typeof _userdata === "object" && typeof _userdata.userid !== "undefined") {
 	ga("set", "userId", _userdata.userid);
 }

@@ -59,7 +59,6 @@ export default class CheckoutProcess {
 				eventValue: value,
 				hitCallback: () => resolve(),
 				nonInteraction: false,
-				transport: "beacon",
 			});
 			setTimeout(() => resolve(), 2000);
 		});

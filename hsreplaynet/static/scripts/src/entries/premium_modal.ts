@@ -12,7 +12,6 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false, 
 		eventAction: action,
 		eventLabel: label,
 		nonInteraction: nonInteraction,
-		transport: "beacon",
 	});
 };
 
