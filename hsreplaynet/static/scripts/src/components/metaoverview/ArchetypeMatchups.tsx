@@ -289,12 +289,13 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 		UserData.setSetting("archetype-favorites", favorites);
 	}
 
-	onIgnoreChanged(archetypeId: number, ignore: boolean) {
+	onIgnoreChanged(archetypeId: number|number[], ignore: boolean) {
+		const archetypeIds = Array.isArray(archetypeId) ? archetypeId : [archetypeId];
 		let ignoredColumns = this.state.ignoredColumns.slice();
 		ignoredColumns = ignoredColumns.filter((id) => this.state.archetypeData.some((a) => a.id === id));
-		ignoredColumns = ignoredColumns.filter((id) => id !== archetypeId);
+		ignoredColumns = ignoredColumns.filter((id) => archetypeIds.indexOf(id) === -1);
 		if (ignore) {
-			ignoredColumns.push(archetypeId);
+			archetypeIds.forEach((id) => ignoredColumns.push(id));
 		}
 		UserData.setSetting("archetype-ignored", ignoredColumns);
 		this.setState({ignoredColumns}, () => {

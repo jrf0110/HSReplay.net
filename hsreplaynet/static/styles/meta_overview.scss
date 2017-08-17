@@ -131,9 +131,16 @@
 			margin: 0.3em 0;
 		}
 
+		.btn-toggle-class {
+			visibility: collapse;
+			display: none;
+		}
+
 		&.matchup-column-header-archetype {
 			&.ignored {
-				text-decoration: line-through;
+				.header-archetype-name {
+					text-decoration: line-through;
+				}
 				color: gray;
 
 				.class-icon {
@@ -142,17 +149,34 @@
 			}
 
 			&:hover {
-				text-decoration: line-through;
+				.header-archetype-name {
+					text-decoration: line-through;
+				}
 
 				.class-icon {
 					filter: saturate(0);
 				}
 
 				&.ignored {
-					text-decoration: unset;
+					.header-archetype-name {
+						text-decoration: unset;
+					}
 
 					.class-icon {
 						filter: saturate(0.5);
+					}
+				}
+
+				.btn-toggle-class {
+					visibility: visible;
+					display: block;
+					border: 1px solid $red;
+					padding: 0 5px;
+					color: black;
+
+					&:hover {
+						background-color: $red;
+						color: white;
 					}
 				}
 			}

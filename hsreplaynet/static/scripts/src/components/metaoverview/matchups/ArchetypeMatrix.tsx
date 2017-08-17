@@ -24,7 +24,7 @@ interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	ignoredColumns: number[];
 	maxPopularity?: number;
 	onFavoriteChanged: (archetypeId: number, favorite: boolean) => void;
-	onIgnoreChanged: (archetypeId: number, ignore: boolean) => void;
+	onIgnoreChanged: (archetypeId: number|number[], ignore: boolean) => void;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
 	sortBy: string;
 	sortDirection: SortDirection;
@@ -88,9 +88,17 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 														archetypeData={archetype}
 														highlight={this.state.highlightColumn === columnIndex}
 														isIgnored={isIgnored}
-														onIgnoredChanged={(ignore: boolean) =>
-															this.props.onIgnoreChanged(archetype.id, ignore)
-														}
+														onIgnoredChanged={(ignore: boolean, ignoreClass?: boolean) => {
+															if (ignoreClass) {
+																const archetypeIds = this.props.allArchetypes.filter((a) => {
+																	return a.player_class_name === archetype.playerClass;
+																}).map((x) => x.id);
+																this.props.onIgnoreChanged(archetypeIds, ignore);
+															}
+															else {
+																this.props.onIgnoreChanged(archetype.id, ignore);
+															}
+														}}
 														key={key}
 														style={style}
 														onHover={(hovering: boolean) => this.onHover(hovering, columnIndex, columnIndex)}

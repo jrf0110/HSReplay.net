@@ -6,7 +6,7 @@ interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	archetypeData: ArchetypeData;
 	highlight?: boolean;
 	isIgnored: boolean;
-	onIgnoredChanged: (ignore: boolean) => void;
+	onIgnoredChanged: (ignore: boolean, ignoreClass?: boolean) => void;
 	style?: any;
 	onHover?: (hovering: boolean) => void;
 }
@@ -42,11 +42,22 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 				onMouseEnter={() => this.props.onHover(true)}
 				onMouseLeave={() => this.props.onHover(false)}
 			>
-				{this.props.archetypeData.name}
+				<span className="header-archetype-name">
+					{this.props.archetypeData.name}
+				</span>
 				<img
 					className="class-icon"
 					src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
 				/>
+				<span
+					className="btn-toggle-class"
+					onClick={(e) => {
+						this.props.onIgnoredChanged(!this.props.isIgnored, true);
+						e.stopPropagation();
+					}}
+				>
+					Class
+				</span>
 			</div>
 		);
 	}
