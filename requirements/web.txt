@@ -15,4 +15,5 @@ django-rq-dashboard==0.3.3
 rq==0.8.1
 
 markdown==2.6.8
-sklearn
+numpy
+scikit-learn[alldeps]
