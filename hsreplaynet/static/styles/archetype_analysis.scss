@@ -27,5 +27,35 @@
 		> h1 {
 			border-bottom: 1px solid $blue;
 		}
+
+		.dropdown {
+			>button {
+				padding: 0 5px;
+			}
+
+			li {
+				padding: unset;
+				&.dropdown-header {
+					padding: 3px 20px;
+				}
+			}
+		}
+
+		.training-data {
+			display: flex;
+			margin-left: 5px;
+			label {
+				margin: 0 0 0 5px;
+				font-weight: normal;
+
+				&.disabled {
+					color: gray;
+				}
+			}
+
+			.glyphicon {
+				color: white;
+			}
+		}
 	}
 }

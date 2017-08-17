@@ -12,6 +12,7 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
+				counts: "",
 				format: "FT_STANDARD",
 				tab: "DRUID",
 			}}

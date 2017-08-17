@@ -5,12 +5,16 @@ import Tab from "../components/layout/Tab";
 import {toTitleCase} from "../helpers";
 import DataManager from "../DataManager";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { VictoryAxis, VictoryChart, VictoryLegend, VictoryScatter, VictoryTheme, VictoryTooltip, VictoryZoomContainer } from "victory";
-import { AutoSizer } from "react-virtualized";
+import {VictoryAxis, VictoryChart, VictoryLegend, VictoryScatter, VictoryZoomContainer} from "victory";
+import {AutoSizer} from "react-virtualized";
 import CardList from "../components/CardList";
 import DataInjector from "../components/DataInjector";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import InfoboxFilter from "../components/InfoboxFilter";
+import ArchetypeSelector from "../components/ArchetypeSelector";
+import {ApiArchetype, ApiTrainingDataDeck} from "../interfaces";
+import HideLoading from "../components/loading/HideLoading";
+import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
 
 interface ClassData {
 	[playerClass: string]: ClusterData[];
@@ -27,22 +31,24 @@ interface ClusterMetaData {
 	archetype_name: string;
 	deck_list: string;
 	games: number;
-	pretty_decklist: string;
-	url: string;
+	shortid: string;
 }
 
 interface ArchetypeAnalysisState {
 	data: ClassData;
-	hovering?: ClusterMetaData;
-	left?: boolean;
+	deckData: ApiTrainingDataDeck;
+	selectedData?: ClusterMetaData;
+	selectedPlayerClass?: string;
 }
 
 interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
 	cardData: CardData;
+	counts?: string;
 	format?: string;
 	tab?: string;
 	setFormat?: (format: string) => void;
 	setTab?: (tab: string) => void;
+	setCounts?: (counts: string) => void;
 }
 
 const colors = [
@@ -56,10 +62,10 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		super(props, state);
 		this.state = {
 			data: null,
-			hovering: null,
-			left: false,
+			deckData: null,
+			selectedData: null,
+			selectedPlayerClass: null,
 		};
-
 		this.fetchData(props.format);
 	}
 
@@ -73,6 +79,12 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 				classData[playerClassData.player_class] = playerClassData.data;
 			});
 			this.setState({data: classData});
+		});
+	}
+
+	fetchDeckData(deckId: string) {
+		DataManager.get("/api/v1/decks/" + deckId + "/").then((data) => {
+			this.setState({deckData: data});
 		});
 	}
 
@@ -96,6 +108,15 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						<InfoboxFilter value="FT_STANDARD">Standard</InfoboxFilter>
 						<InfoboxFilter value="FT_WILD">Wild</InfoboxFilter>
 					</InfoboxFilterGroup>
+					<h2>Settings</h2>
+					<InfoboxFilter
+						deselectable="true"
+						onClick={(value) => this.props.setCounts(value)}
+						value={"show"}
+						selected={this.props.counts === "show"}
+					>
+						Show count labels
+					</InfoboxFilter>
 					<h2>Deck</h2>
 					{this.renderDeckInfo()}
 				</aside>
@@ -146,13 +167,11 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						const legendData = archetypeNames.map((name, index) => {
 							return {name, symbol: {type: "square"}, color: colors[index]};
 						});
-						const scatterSize = 6;
-						const scatterStokeWidth = 1.5;
 						const axisLabelSize = height / 100;
+						const selectedId = this.state.selectedData && this.state.selectedData.shortid;
 						return (
 							<div style={{position: "absolute", width: "100%", height: "100%"}}>
 								<VictoryChart
-									theme={VictoryTheme.material}
 									height={height}
 									width={width}
 									padding={30}
@@ -165,13 +184,13 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 									<VictoryAxis crossAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
 									<VictoryScatter
 										data={this.state.data[playerClass]}
-										size={scatterSize}
+										size={(p) => p.metadata.shortid === selectedId ? 12 : 6}
 										style={{
 											data: {
 												cursor: "pointer",
 												fill: (p) => colors[archetypeNames.indexOf(p.metadata.archetype_name)],
 												stroke: "black",
-												strokeWidth: scatterStokeWidth,
+												strokeWidth: 1.5,
 											},
 										}}
 										events={[{
@@ -179,8 +198,13 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 												onClick: () => {
 													return [{
 														mutation: (props) => {
-															window.open(props.datum.metadata.url, "_blank");
-															return null;
+															const metadata = props.datum.metadata;
+															this.setState({
+																deckData: null,
+																selectedData: metadata,
+																selectedPlayerClass: playerClass,
+															});
+															this.fetchDeckData(metadata.shortid);
 														},
 														target: "data",
 													}];
@@ -188,9 +212,8 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 												onMouseEnter: (e) => {
 													return [{
 														mutation: (props) => {
-															this.setState({hovering: props.datum.metadata, left: props.x > width / 2 });
 															return {
-																style: Object.assign({}, props.style, {strokeWidth: scatterStokeWidth * 2}),
+																style: Object.assign({}, props.style, {strokeWidth: 2}),
 															};
 														},
 													}];
@@ -205,6 +228,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 											},
 											target: "data",
 										}]}
+										labels={(p) => this.props.counts === "show" ? p.metadata.games : ""}
 									/>
 									<VictoryLegend
 										data={legendData}
@@ -213,9 +237,9 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 										style={{
 											data: {
 												fill: (d) => d.color,
-												size: scatterSize,
+												size: 6,
 												stroke: "black",
-												strokeWidth: scatterStokeWidth,
+												strokeWidth: 1.5,
 											},
 										}}
 									/>
@@ -237,41 +261,100 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 	}
 
 	renderDeckInfo(): JSX.Element|JSX.Element[] {
-		const {hovering, left} = this.state;
-		if (hovering === null) {
+		const {deckData, selectedData, selectedPlayerClass} = this.state;
+		if (selectedData === null) {
 			return (
 				<div className="message-wrapper">
-					Hover any deck
+					Click any deck
+				</div>
+			);
+		}
+		if (deckData === null) {
+			return (
+				<div className="message-wrapper">
+					Loading...
 				</div>
 			);
 		}
 		const cardList = [];
-		JSON.parse(hovering.deck_list).forEach((c: any[]) => {
+		JSON.parse(selectedData.deck_list).forEach((c: any[]) => {
 			for (let i = 0; i < c[1]; i++) {
 				cardList.push(c[0]);
 			}
 		});
 		return [
-			<ul>
-				<li>
-					Name
-					<span className="infobox-value">{hovering.archetype_name}</span>
-				</li>
-				<li>
-					Games
-					<span className="infobox-value">{hovering.games}</span>
-				</li>
-				<li>
-					Deck details
-					<a href={hovering.url} className="infobox-value">open detail page</a>
-				</li>
-			</ul>,
 			<CardList
 				cardData={this.props.cardData}
 				cardList={cardList}
 				name=""
 				heroes={[]}
 			/>,
+			<ul>
+				<li>
+					Name
+					<span className="infobox-value">{selectedData.archetype_name}</span>
+				</li>
+				<li>
+					Games
+					<span className="infobox-value">{selectedData.games}</span>
+				</li>
+				<li>
+					View deck details
+					<a href={"/decks/" + deckData.shortid + "/"} className="infobox-value">Deck details link</a>
+				</li>
+				<li>
+					<span>View in Admin</span>
+					<span className="infobox-value">
+						<a href={`/admin/decks/deck/${deckData.id}/change`}>Admin link</a>
+					</span>
+				</li>
+				<li>
+					<span>Archetype</span>
+					<span className="infobox-value">
+						<DataInjector
+							query={[
+								{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
+							]}
+							extract={{
+								archetypeData: (data: ApiArchetype[]) => {
+									const archetypes = data.filter((a) => a.player_class_name === selectedPlayerClass);
+									return {archetypes};
+								},
+							}}
+						>
+							<HideLoading>
+								<ArchetypeSelector deckId={deckData.shortid} defaultSelectedArchetype={deckData.archetype} />
+							</HideLoading>
+						</DataInjector>
+					</span>
+				</li>
+				<li>
+					<DataInjector
+						query={{key: "trainingData", url: "/api/v1/archetype-training/", params: {}}}
+						extract={{
+							trainingData: (trainingData) => {
+								const data = trainingData.find((d) => d.deck.shortid === deckData.shortid);
+								if (data) {
+									return {
+										trainingData: {
+											deck: data.deck.id,
+											id: data.id,
+											is_validation_deck: data.is_validation_deck,
+										},
+									};
+								}
+							},
+						}}
+					>
+						<HideLoading>
+							<ArchetypeTrainingSettings
+								deckId={deckData.shortid}
+								playerClass={selectedPlayerClass}
+							/>
+						</HideLoading>
+					</DataInjector>
+				</li>
+			</ul>,
 		];
 	}
 }
