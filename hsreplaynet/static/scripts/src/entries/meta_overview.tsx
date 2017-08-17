@@ -19,7 +19,7 @@ const render = (cardData: CardData) => {
 				sortBy: "popularity",
 				sortDirection: "descending",
 				tab: "matchups",
-				timeFrame: "LAST_14_DAYS",
+				timeFrame: "LAST_7_DAYS",
 			}}
 		>
 			<MetaOverview
