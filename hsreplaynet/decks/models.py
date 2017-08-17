@@ -397,27 +397,30 @@ class ArchetypeManager(models.Manager):
 				previous_cluster_set = self.current_cluster_set(game_format)
 				cluster_set.inherit_from_previous(previous_cluster_set)
 
+				prefix, sep, suffix = game_format.name.partition("_")
+
 				with transaction.atomic():
 					current_ts = timezone.now()
 					for class_cluster in cluster_set.class_clusters:
-						log.info("Class Cluster: %s" % str(class_cluster))
+						log.info("%s: Class Cluster: %s" % (suffix, str(class_cluster)))
 
 						for cluster in class_cluster.clusters:
 							if cluster.external_id:
 								archetype = Archetype.objects.get(id=cluster.external_id)
 								if dryrun:
+									vals = (suffix, archetype.name)
 									log.info(
-										"Update Existing Archetype: %s" % archetype.name
+										"%s: Update Existing Archetype: %s" % vals
 									)
 									old_string = archetype.get_signature(
 										game_format
 									).pretty_signature_string("\n")
 									log.info(
-										"OLD Signature: %s" % old_string
+										"%s: OLD Signature:\n%s" % (suffix, old_string)
 									)
 									new_string = cluster.pretty_signature_string("\n")
 									log.info(
-										"NEW Signature: %s" % new_string
+										"%s: NEW Signature:\n%s" % (suffix, new_string)
 									)
 								else:
 									signature = Signature.objects.create(
@@ -435,11 +438,11 @@ class ArchetypeManager(models.Manager):
 								# Create a new Archetype
 								if dryrun:
 									log.info(
-										"Create New Archetype!"
+										"%s: Create New Archetype!" % suffix
 									)
 									new_string = cluster.pretty_signature_string("\n")
 									log.info(
-										"NEW Signature: %s" % new_string
+										"%s: NEW Signature:\n%s" % (suffix, new_string)
 									)
 								else:
 									archetype = Archetype.objects.create(
