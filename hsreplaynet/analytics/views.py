@@ -312,7 +312,7 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	title = "Clustering Charts"
 
 
-@method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
+@view_requires_feature_access("archetype-training")
 def clustering_data(request, num_clusters):
 	from sklearn.cluster import KMeans
 	from sklearn.preprocessing import StandardScaler
