@@ -4,8 +4,8 @@ import Table, { TableColumn } from "../tables/Table";
 import Tooltip from "../Tooltip";
 import ArchetypeSignature from "../archetypedetail/ArchetypeSignature";
 import DataInjector from "../DataInjector";
-import { extractSignature } from "../../extractors";
 import CardData from "../../CardData";
+import ArchetypeSignatureTooltip from "./ArchetypeSignatureTooltip";
 
 interface ArchetypeClassTableProps extends SortableProps, React.ClassAttributes<ArchetypeClassTable> {
 	data: ApiArchetypePopularity[];
@@ -61,10 +61,11 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 
 	renderHeader(archetype: ApiArchetype) {
 		return (
-			<Tooltip
-				id="tooltip-archetype-signature"
-				content={this.getTooltip(archetype.id)}
-				header={archetype.name}
+			<ArchetypeSignatureTooltip
+				cardData={this.props.cardData}
+				archetypeId={archetype.id}
+				archetypeName={archetype.name}
+				gameType={this.props.gameType}
 			>
 				<a
 					className={"player-class " + archetype.player_class_name.toLowerCase()}
@@ -72,21 +73,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				>
 					{archetype.name}
 				</a>
-			</Tooltip>
-		);
-	}
-
-	getTooltip(archetypeId: number): JSX.Element {
-		return (
-			<div>
-				<DataInjector
-					query={{key: "data", params: {}, url: "/api/v1/archetypes/" + archetypeId}}
-					extract={{data: (data) => extractSignature(data, this.props.gameType)}}
-				>
-					<ArchetypeSignature cardData={this.props.cardData} />
-				</DataInjector>
-				<p>Click to view archetype details</p>
-			</div>
+			</ArchetypeSignatureTooltip>
 		);
 	}
 

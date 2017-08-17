@@ -5,8 +5,8 @@ import Tooltip from "../../Tooltip";
 import DataInjector from "../../DataInjector";
 import CardData from "../../../CardData";
 import { ArchetypeRankPopularity } from "../../../interfaces";
-import { extractSignature } from "../../../extractors";
 import ArchetypeSignature from "../../archetypedetail/ArchetypeSignature";
+import ArchetypeSignatureTooltip from "../ArchetypeSignatureTooltip";
 
 interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeRankPopularity;
@@ -36,27 +36,17 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 						href={getArchetypeUrl(this.props.archetypeData.id, this.props.archetypeData.name)}
 						target="_blank"
 					>
-						<Tooltip
-							id="tooltip-archetype-signature"
-							content={this.getTooltip()}
-							header={this.props.archetypeData.name}
+						<ArchetypeSignatureTooltip
+							cardData={this.props.cardData}
+							archetypeId={this.props.archetypeData.id}
+							archetypeName={this.props.archetypeData.name}
+							gameType={this.props.gameType}
 						>
 							<span className="glyphicon glyphicon-new-window"/>
-						</Tooltip>
+						</ArchetypeSignatureTooltip>
 					</a>
 				</Feature>
 			</div>
-		);
-	}
-
-	getTooltip(): JSX.Element {
-		return (
-			<DataInjector
-				query={{key: "data", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeData.id}}
-				extract={{data: (data) => extractSignature(data, this.props.gameType)}}
-			>
-				<ArchetypeSignature cardData={this.props.cardData} />
-			</DataInjector>
 		);
 	}
 }

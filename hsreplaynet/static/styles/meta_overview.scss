@@ -465,6 +465,15 @@
 	p {
 		padding-top: 1em;
 	}
+
+	.loading-spinner {
+		padding: 10px;
+		justify-content: center;
+
+		.glyphicon {
+			color: #999;
+		}
+	}
 }
 
 #archetypes {
