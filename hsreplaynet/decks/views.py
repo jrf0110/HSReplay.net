@@ -21,6 +21,15 @@ class MetaOverviewView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 
 
 ##
+# Archetype analysis pages
+
+@method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
+class ArchetypeAnalysisView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+	template_name = "archetypes/archetype_analysis.html"
+	title = "Archetype Analysis"
+
+
+##
 # Archetype pages
 
 @method_decorator(view_requires_feature_access("archetype-detail"), name="dispatch")

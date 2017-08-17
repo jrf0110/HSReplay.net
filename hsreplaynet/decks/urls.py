@@ -16,9 +16,11 @@ deck_list = views.DeckListView.as_view()
 trending_decks = views.TrendingDecksView.as_view()
 my_decks = views.MyDecksView.as_view()
 meta_overview = views.MetaOverviewView.as_view()
+archetype_analysis = views.ArchetypeAnalysisView.as_view()
 
 
 urlpatterns = [
+	url(r"^archetypes/analysis/$", archetype_analysis, name="archetype_analysis"),
 	url(
 		r"^archetypes/(?P<id>\w+)/(?P<slug>[\w-]+)?",
 		archetype_detail,
