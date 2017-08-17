@@ -10,9 +10,16 @@ const container = document.getElementById("archetype-container");
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
-		<ArchetypeAnalysis
-			cardData={cardData}
-		/>,
+		<Fragments
+			defaults={{
+				format: "FT_STANDARD",
+				tab: "DRUID",
+			}}
+		>
+			<ArchetypeAnalysis
+				cardData={cardData}
+			/>
+		</Fragments>,
 		container,
 	);
 };

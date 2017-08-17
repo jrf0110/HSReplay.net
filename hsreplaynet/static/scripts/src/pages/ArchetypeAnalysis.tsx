@@ -9,6 +9,8 @@ import { VictoryAxis, VictoryChart, VictoryLegend, VictoryScatter, VictoryTheme,
 import { AutoSizer } from "react-virtualized";
 import CardList from "../components/CardList";
 import DataInjector from "../components/DataInjector";
+import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
+import InfoboxFilter from "../components/InfoboxFilter";
 
 interface ClassData {
 	[playerClass: string]: ClusterData[];
@@ -22,8 +24,9 @@ interface ClusterData {
 
 interface ClusterMetaData {
 	archetype: number;
-	games: number;
 	archetype_name: string;
+	deck_list: string;
+	games: number;
 	pretty_decklist: string;
 	url: string;
 }
@@ -32,11 +35,14 @@ interface ArchetypeAnalysisState {
 	data: ClassData;
 	hovering?: ClusterMetaData;
 	left?: boolean;
-	tab?: string;
 }
 
 interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
 	cardData: CardData;
+	format?: string;
+	tab?: string;
+	setFormat?: (format: string) => void;
+	setTab?: (tab: string) => void;
 }
 
 const colors = [
@@ -52,14 +58,16 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 			data: null,
 			hovering: null,
 			left: false,
-			tab: "DRUID",
 		};
 
-		this.fetchData();
+		this.fetchData(props.format);
 	}
 
-	fetchData() {
-		DataManager.get("/analytics/clustering/data/").then((data) => {
+	fetchData(format: string) {
+		DataManager.get("/analytics/clustering/data/" + format + "/").then((data) => {
+			if (this.props.format !== format) {
+				return;
+			}
 			const classData: ClassData = {};
 			data.forEach((playerClassData) => {
 				classData[playerClassData.player_class] = playerClassData.data;
@@ -68,11 +76,35 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		});
 	}
 
+	componentWillReceiveProps(nextProps: ArchetypeAnalysisProps) {
+		if (this.props.format !== nextProps.format) {
+			this.setState({data: null});
+			this.fetchData(nextProps.format);
+		}
+	}
+
 	render(): JSX.Element {
 		return (
-			<TabList tab={this.state.tab} setTab={(tab) => this.setState({tab})}>
-				{this.renderClassTabs()}
-			</TabList>
+			<div className="archetype-analysis-container">
+				<aside className="infobox">
+					<h1>Archetype Analysis</h1>
+					<InfoboxFilterGroup
+						header="Format"
+						selectedValue={this.props.format}
+						onClick={(format) => this.props.setFormat(format)}
+					>
+						<InfoboxFilter value="FT_STANDARD">Standard</InfoboxFilter>
+						<InfoboxFilter value="FT_WILD">Wild</InfoboxFilter>
+					</InfoboxFilterGroup>
+					<h2>Deck</h2>
+					{this.renderDeckInfo()}
+				</aside>
+				<main>
+					<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
+						{this.renderClassTabs()}
+					</TabList>
+				</main>
+			</div>
 		);
 	}
 
@@ -101,6 +133,9 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 							return <LoadingSpinner active={true}/>;
 						}
 						const data = this.state.data[playerClass];
+						if (!data) {
+							return <h3 className="message-wrapper">No data</h3>;
+						}
 						const archetypeNames = [];
 						data.forEach((d) => {
 							if (archetypeNames.indexOf(d.metadata.archetype_name) === -1) {
@@ -109,14 +144,13 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						});
 						archetypeNames.sort();
 						const legendData = archetypeNames.map((name, index) => {
-							return {name, symbol: {type: "circle"}, color: colors[index]};
+							return {name, symbol: {type: "square"}, color: colors[index]};
 						});
-						const scatterSize = 5;
-						const scatterStokeWidth = scatterSize / 3;
+						const scatterSize = 6;
+						const scatterStokeWidth = 1.5;
 						const axisLabelSize = height / 100;
 						return (
 							<div style={{position: "absolute", width: "100%", height: "100%"}}>
-								{this.renderCardList()}
 								<VictoryChart
 									theme={VictoryTheme.material}
 									height={height}
@@ -155,14 +189,15 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 													return [{
 														mutation: (props) => {
 															this.setState({hovering: props.datum.metadata, left: props.x > width / 2 });
-															return null;
+															return {
+																style: Object.assign({}, props.style, {strokeWidth: scatterStokeWidth * 2}),
+															};
 														},
 													}];
 												},
 												onMouseLeave: () => {
 													return [{
 														mutation: (props) => {
-															this.setState({hovering: null});
 															return null;
 														},
 													}];
@@ -201,30 +236,42 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		);
 	}
 
-	renderCardList(): JSX.Element {
+	renderDeckInfo(): JSX.Element|JSX.Element[] {
 		const {hovering, left} = this.state;
 		if (hovering === null) {
-			return null;
+			return (
+				<div className="message-wrapper">
+					Hover any deck
+				</div>
+			);
 		}
-		const deckId = hovering.url.split("/").pop();
-		const style = {position: "absolute", width: "217px"};
-		style[left ? "left" : "right"] = 0;
-		return (
-			<div style={style}>
-				<p><strong>{hovering.archetype_name}</strong></p>
-				<p>Games: {hovering.games}</p>
-				<DataInjector
-					query={{url: "/api/v1/decks/" + deckId, params: {}}}
-					extract={{data: (data) => ({cardList: data.cards})}}
-				>
-					<CardList
-						cardData={this.props.cardData}
-						cardList={[]}
-						name=""
-						heroes={[]}
-					/>
-				</DataInjector>
-			</div>
-		);
+		const cardList = [];
+		JSON.parse(hovering.deck_list).forEach((c: any[]) => {
+			for (let i = 0; i < c[1]; i++) {
+				cardList.push(c[0]);
+			}
+		});
+		return [
+			<ul>
+				<li>
+					Name
+					<span className="infobox-value">{hovering.archetype_name}</span>
+				</li>
+				<li>
+					Games
+					<span className="infobox-value">{hovering.games}</span>
+				</li>
+				<li>
+					Deck details
+					<a href={hovering.url} className="infobox-value">open detail page</a>
+				</li>
+			</ul>,
+			<CardList
+				cardData={this.props.cardData}
+				cardList={cardList}
+				name=""
+				heroes={[]}
+			/>,
+		];
 	}
 }
