@@ -7,7 +7,7 @@ from django.conf import settings
 from django.db import models
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
-from hearthstone.enums import BnetGameType
+from hearthstone.enums import BnetGameType, FormatType
 from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
 from sqlalchemy.sql import and_
@@ -377,3 +377,33 @@ def get_concurrent_redshift_query_queue_semaphore(queue_name):
 		blocking=False
 	)
 	return concurrent_redshift_query_semaphore
+
+
+def attempt_request_triggered_query_execution(parameterized_query, run_local=False):
+	do_personal = settings.REDSHIFT_TRIGGER_PERSONALIZED_DATA_REFRESHES_FROM_QUERY_REQUESTS
+	if run_local or settings.REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS:
+		execute_query(parameterized_query, run_local)
+	elif do_personal and parameterized_query.is_personalized:
+		execute_query(parameterized_query, run_local)
+	else:
+		log.debug("Triggering query from web app is disabled")
+
+
+def get_cluster_set_data(game_format=FormatType.FT_STANDARD, lookback=7):
+	from hsreplaynet.utils.aws.redshift import get_redshift_query
+
+	gt = "RANKED_STANDARD" if game_format == FormatType.FT_STANDARD else "RANKED_WILD"
+	query = get_redshift_query("list_cluster_set_data")
+	parameterized_query = query.build_full_params(dict(
+		TimeRange="LAST_%i_DAYS" % lookback,
+		GameType=gt,
+	))
+
+	if not parameterized_query.result_available:
+		attempt_request_triggered_query_execution(parameterized_query)
+		return []
+
+	if parameterized_query.result_is_stale:
+		attempt_request_triggered_query_execution(parameterized_query)
+
+	return parameterized_query.response_payload

@@ -1,7 +1,6 @@
 import json
 from calendar import timegm
 from datetime import datetime
-from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import (
@@ -20,8 +19,8 @@ from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.html import RequestMetaMixin
 from .processing import (
-	deck_is_eligible_for_global_stats, evict_locks_cache,
-	execute_query, get_concurrent_redshift_query_queue_semaphore,
+	attempt_request_triggered_query_execution, deck_is_eligible_for_global_stats,
+	evict_locks_cache, get_cluster_set_data, get_concurrent_redshift_query_queue_semaphore,
 )
 
 
@@ -294,16 +293,6 @@ def _trigger_if_stale(parameterized_query, run_local=False):
 	return False
 
 
-def attempt_request_triggered_query_execution(parameterized_query, run_local=False):
-	do_personal = settings.REDSHIFT_TRIGGER_PERSONALIZED_DATA_REFRESHES_FROM_QUERY_REQUESTS
-	if run_local or settings.REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS:
-		execute_query(parameterized_query, run_local)
-	elif do_personal and parameterized_query.is_personalized:
-		execute_query(parameterized_query, run_local)
-	else:
-		log.debug("Triggering query from web app is disabled")
-
-
 @method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
 class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "archetypes/clustering_charts.html"
@@ -312,25 +301,8 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 
 @view_requires_feature_access("archetype-training")
 def clustering_data(request):
-	query = get_redshift_query("list_cluster_set_data")
-	parameterized_query = query.build_full_params(dict(
-		TimeRange="LAST_7_DAYS",
-		GameType="RANKED_STANDARD",
-	))
-
-	if not parameterized_query.result_available:
-		attempt_request_triggered_query_execution(parameterized_query)
-		return HttpResponse(
-			content=json.dumps([], indent=4),
-			content_type="application/json"
-		)
-
-	if parameterized_query.result_is_stale:
-		attempt_request_triggered_query_execution(parameterized_query)
-
-	data = parameterized_query.response_payload
-
 	from hsarchetypes.clustering import ClusterSet
+	data = get_cluster_set_data()
 	cluster_set = ClusterSet.create_cluster_set(data)
 	response = HttpResponse(
 		content=json.dumps(cluster_set.to_chart_data(), indent=4),

@@ -14,6 +14,7 @@ from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from hsarchetypes import calculate_signature_weights, classify_deck
 from shortuuid.main import int_to_string, string_to_int
+from hsreplaynet.utils import log
 from hsreplaynet.utils.aws.clients import FIREHOSE
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.db import dictfetchall
@@ -371,6 +372,92 @@ class ArchetypeManager(models.Manager):
 
 		return observations
 
+	def current_cluster_set(self, game_format=enums.FormatType.FT_STANDARD):
+		from hsarchetypes.clustering import ClassClusters, ClusterSet
+		class_clusters = []
+		for player_class in enums.CardClass:
+			if enums.CardClass.DRUID <= player_class <= enums.CardClass.WARRIOR:
+				clusters = []
+				for archetype in Archetype.objects.filter(player_class=player_class).all():
+					archtype_cluster = archetype.to_cluster(game_format=game_format)
+					if archtype_cluster:
+						clusters.append(archtype_cluster)
+				class_clusters.append(ClassClusters(player_class.name, clusters))
+
+		return ClusterSet(class_clusters)
+
+	def update_all_signatures(self, dryrun=True):
+		from hsarchetypes.clustering import ClusterSet
+		from hsreplaynet.analytics.processing import get_cluster_set_data
+
+		for game_format in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
+			cluster_set_data = get_cluster_set_data(game_format)
+			if cluster_set_data:
+				cluster_set = ClusterSet.create_cluster_set(cluster_set_data)
+				previous_cluster_set = self.current_cluster_set(game_format)
+				cluster_set.inherit_from_previous(previous_cluster_set)
+
+				with transaction.atomic():
+					current_ts = timezone.now()
+					for class_cluster in cluster_set.class_clusters:
+						log.info("Class Cluster: %s" % str(class_cluster))
+
+						for cluster in class_cluster.clusters:
+							if cluster.external_id:
+								archetype = Archetype.objects.get(id=cluster.external_id)
+								if dryrun:
+									log.info(
+										"Update Existing Archetype: %s" % archetype.name
+									)
+									old_string = archetype.get_signature(
+										game_format
+									).pretty_signature_string("\n")
+									log.info(
+										"OLD Signature: %s" % old_string
+									)
+									new_string = cluster.pretty_signature_string("\n")
+									log.info(
+										"NEW Signature: %s" % new_string
+									)
+								else:
+									signature = Signature.objects.create(
+										archetype=archetype,
+										format=game_format,
+										as_of=current_ts
+									)
+									for dbf_id, weight in cluster.signature.items():
+										SignatureComponent.objects.create(
+											signature=signature,
+											card_id=int(dbf_id),
+											weight=weight
+										)
+							else:
+								# Create a new Archetype
+								if dryrun:
+									log.info(
+										"Create New Archetype!"
+									)
+									new_string = cluster.pretty_signature_string("\n")
+									log.info(
+										"NEW Signature: %s" % new_string
+									)
+								else:
+									archetype = Archetype.objects.create(
+										name="NEW",
+										player_class=enums.CardClass[class_cluster.player_class]
+									)
+									signature = Signature.objects.create(
+										archetype=archetype,
+										format=game_format,
+										as_of=current_ts
+									)
+									for dbf_id, weight in cluster.signature.items():
+										SignatureComponent.objects.create(
+											signature=signature,
+											card_id=int(dbf_id),
+											weight=weight
+										)
+
 	def update_signatures(self):
 		for player_class in enums.CardClass:
 			if enums.CardClass.DRUID <= player_class <= enums.CardClass.WARRIOR:
@@ -424,13 +511,13 @@ class ArchetypeManager(models.Manager):
 				continue
 
 			if deck.archetype.id not in training_data:
-				training_data[deck.archetype.id] = {}
+				training_data[deck.archetype.id] = []
 			if deck.digest not in training_data[deck.archetype.id]:
 				if deck.digest in observation_counts:
-					training_data[deck.archetype.id][deck.digest] = {
+					training_data[deck.archetype.id].append({
 						"total_games": observation_counts[deck.digest],
 						"cards": deck.dbf_map()
-					}
+					})
 		return training_data
 
 	def get_validation_data_for_player_class(self, game_format, player_class):
@@ -451,13 +538,13 @@ class ArchetypeManager(models.Manager):
 				continue
 
 			if deck.archetype.id not in validation_data:
-				validation_data[deck.archetype.id] = {}
+				validation_data[deck.archetype.id] = []
 			if deck.digest not in validation_data[deck.archetype.id]:
 				if deck.digest in observation_counts:
-					validation_data[deck.archetype.id][deck.digest] = {
+					validation_data[deck.archetype.id].append({
 						"total_games": observation_counts[deck.digest],
 						"cards": deck.dbf_map()
-					}
+					})
 		return validation_data
 
 	def new_weights_pass_validation(self, new_weights, validation_data):
@@ -567,6 +654,25 @@ class Archetype(models.Model):
 				as_of__lte=as_of
 			).order_by("-as_of").first()
 
+	def to_cluster(self, game_format=enums.FormatType.FT_STANDARD):
+		from hsarchetypes.clustering import Cluster
+		signature = self.get_signature(game_format=game_format)
+		# decks = ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
+		# 	self,
+		# 	game_format,
+		# 	is_validation_deck=False
+		# )
+		if signature:
+			return Cluster(
+				cluster_id=None,
+				decks=None,
+				signature=signature.to_dbf_map(),
+				name=self.name,
+				external_id=self.id
+			)
+		else:
+			return None
+
 
 class ArchetypeTrainingDeckManager(models.Manager):
 	TRAINING_DECK_IDS_QUERY = """
@@ -655,8 +761,15 @@ class Signature(models.Model):
 	def to_dbf_map(self):
 		result = {}
 		for component in self.components.all():
-			result[component.card.dbf_id] = [component.weight, component.card.name]
+			result[str(component.card.dbf_id)] = component.weight
 		return result
+
+	def pretty_signature_string(self, sep=", "):
+		components = {}
+		for component in self.components.all():
+			components[component.card.name] = component.weight
+		sorted_components = sorted(components.items(), key=lambda t: t[1], reverse=True)
+		return sep.join(["%s - %s" % (n, str(round(w, 2))) for n, w in sorted_components])
 
 
 class SignatureComponent(models.Model):
