@@ -5,7 +5,7 @@ import Tab from "../components/layout/Tab";
 import {toTitleCase} from "../helpers";
 import DataManager from "../DataManager";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { VictoryAxis, VictoryChart, VictoryLegend, VictoryScatter, VictoryTheme, VictoryTooltip } from "victory";
+import { VictoryAxis, VictoryChart, VictoryLegend, VictoryScatter, VictoryTheme, VictoryTooltip, VictoryZoomContainer } from "victory";
 import { AutoSizer } from "react-virtualized";
 import CardList from "../components/CardList";
 import DataInjector from "../components/DataInjector";
@@ -117,7 +117,16 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						return (
 							<div style={{position: "absolute", width: "100%", height: "100%"}}>
 								{this.renderCardList()}
-								<VictoryChart theme={VictoryTheme.material} height={height} width={width} padding={30}>
+								<VictoryChart
+									theme={VictoryTheme.material}
+									height={height}
+									width={width}
+									padding={30}
+									domainPadding={30}
+									containerComponent={
+										<VictoryZoomContainer/>
+									}
+								>
 									<VictoryAxis crossAxis={true} dependentAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
 									<VictoryAxis crossAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
 									<VictoryScatter
