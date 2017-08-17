@@ -313,7 +313,7 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 
 
 @method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
-def clustering_data(request, num_clusters=5):
+def clustering_data(request, num_clusters):
 	from sklearn.cluster import KMeans
 	from sklearn.preprocessing import StandardScaler
 	from sklearn.decomposition import PCA
