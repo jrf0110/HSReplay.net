@@ -326,6 +326,7 @@ def clustering_data(request, num_clusters):
 	))
 
 	if not parameterized_query.result_available:
+		attempt_request_triggered_query_execution(parameterized_query)
 		return HttpResponse(
 			content=json.dumps([], indent=4),
 			content_type="application/json"
