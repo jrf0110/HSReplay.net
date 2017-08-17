@@ -407,22 +407,21 @@ class ArchetypeManager(models.Manager):
 						for cluster in class_cluster.clusters:
 							if cluster.external_id:
 								archetype = Archetype.objects.get(id=cluster.external_id)
-								if dryrun:
-									vals = (suffix, archetype.name)
-									log.info(
-										"%s: Update Existing Archetype: %s" % vals
-									)
-									old_string = archetype.get_signature(
-										game_format
-									).pretty_signature_string("\n")
-									log.info(
-										"%s: OLD Signature:\n%s" % (suffix, old_string)
-									)
-									new_string = cluster.pretty_signature_string("\n")
-									log.info(
-										"%s: NEW Signature:\n%s" % (suffix, new_string)
-									)
-								else:
+								vals = (suffix, archetype.name)
+								log.info(
+									"%s: Update Existing Archetype: %s" % vals
+								)
+								old_string = archetype.get_signature(
+									game_format
+								).pretty_signature_string("\n")
+								log.info(
+									"%s: OLD Signature:\n%s" % (suffix, old_string)
+								)
+								new_string = cluster.pretty_signature_string("\n")
+								log.info(
+									"%s: NEW Signature:\n%s" % (suffix, new_string)
+								)
+								if not dryrun:
 									signature = Signature.objects.create(
 										archetype=archetype,
 										format=game_format,
@@ -436,17 +435,17 @@ class ArchetypeManager(models.Manager):
 										)
 							else:
 								# Create a new Archetype
-								if dryrun:
-									log.info(
-										"%s: Create New Archetype!" % suffix
-									)
-									new_string = cluster.pretty_signature_string("\n")
-									log.info(
-										"%s: NEW Signature:\n%s" % (suffix, new_string)
-									)
-								else:
+								name = cluster.pretty_signature_string(", ")[:249]
+								log.info(
+									"%s: Create New Archetype: %s" % (suffix, name)
+								)
+								new_string = cluster.pretty_signature_string("\n")
+								log.info(
+									"%s: NEW Signature:\n%s" % (suffix, new_string)
+								)
+								if not dryrun:
 									archetype = Archetype.objects.create(
-										name="NEW",
+										name=name,
 										player_class=enums.CardClass[class_cluster.player_class]
 									)
 									signature = Signature.objects.create(
