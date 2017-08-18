@@ -196,6 +196,8 @@ class Webhook(models.Model):
 			delivery.success = False
 			delivery.error = str(e)
 			delivery.traceback = traceback.format_exc()
+			delivery.response_headers = {}
+			delivery.response_body = ""
 			self.status = WebhookStatus.ERROR
 		else:
 			delivery.success = 200 <= response.status_code <= 299
