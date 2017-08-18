@@ -17,7 +17,7 @@ export default class CheckoutProcess {
 		}
 		let resolved = false;
 		this.promise = new Promise((resolve, reject) => {
-			const dollars = options.amount ? options.amount : null;
+			const dollars = options.amount ? Math.ceil(options.amount / 100) : null;
 			options = Object.assign({}, options, {
 				token: (token: StripeTokenResponse): void => {
 					resolved = true;
