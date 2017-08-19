@@ -185,31 +185,33 @@
 			{% include "premium/checkout_form_open.html" %}
 			<div class="form-group text-center">
 				{% if user.is_authenticated %}
+					<label><input name="payment-method" type="radio" checked>Credit/Debit card</label>
+					<label style="border-bottom: 1px dashed #999;"><input name="payment-method" type="radio">Paypal</label>
 					<p>Choose your plan:</p>
 					<div class="btn-group btn-group-flex" data-toggle="buttons" role="radiogroup">
 						<label class="btn btn-default active" id="plan-{{ monthly_plan.stripe_id }}">
 							<h4>{{ monthly_plan.human_readable_price }}</h4>
 							<input
-									type="radio"
-									name="plan"
-									value="{{ monthly_plan.stripe_id }}"
-									data-amount="{{ monthly_plan.amount_in_cents }}"
-									data-currency="{{ monthly_plan.currency }}"
-									data-description="{{ monthly_plan.human_readable_price }}"
-									required
-									checked
+								type="radio"
+								name="plan"
+								value="{{ monthly_plan.stripe_id }}"
+								data-amount="{{ monthly_plan.amount_in_cents }}"
+								data-currency="{{ monthly_plan.currency }}"
+								data-description="{{ monthly_plan.human_readable_price }}"
+								required
+								checked
 							>
 						</label>
 						<label class="btn btn-default" id="plan-{{ semiannual_plan.stripe_id }}">
 							<h4>{{ semiannual_plan.human_readable_price }}</h4>
 							<input
-									type="radio"
-									name="plan"
-									value="{{ semiannual_plan.stripe_id }}"
-									data-amount="{{ semiannual_plan.amount_in_cents }}"
-									data-currency="{{ semiannual_plan.currency }}"
-									data-description="{{ semiannual_plan.human_readable_price }}"
-									required
+								type="radio"
+								name="plan"
+								value="{{ semiannual_plan.stripe_id }}"
+								data-amount="{{ semiannual_plan.amount_in_cents }}"
+								data-currency="{{ semiannual_plan.currency }}"
+								data-description="{{ semiannual_plan.human_readable_price }}"
+								required
 							>
 						</label>
 					</div>
@@ -239,6 +241,15 @@
 							window.hsreplaynet_load_stripe(button, "Premium Detail");
 						</script>
 					{% endif %}
+
+					<div class="text-center">
+					<form method="POST" action="{% url 'pp_subscribe' %}" id="paypal-form" name="paypal-form">
+						{% csrf_token %}
+						<input type="hidden" name="plan" value="{{ paypal_monthly_plan.id }}"/>
+						<button type="submit">Pay with paypal (temp)</button>
+					</form>
+					</div>
+
 				</div>
 				<small class="help-block text-center">
 					By signing up you agree to our <a href="{% url 'terms_of_service' %}" target="_blank">Terms of Service</a>.<br/>

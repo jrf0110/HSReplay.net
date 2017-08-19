@@ -44,6 +44,7 @@ INSTALLED_APPS_CORE = [
 	"django.contrib.staticfiles",
 	"django.contrib.sites",
 	"djstripe",
+	"djpaypal",
 	"raven.contrib.django.raven_compat",
 	"rest_framework",
 	"hearthsim_identity.accounts",
