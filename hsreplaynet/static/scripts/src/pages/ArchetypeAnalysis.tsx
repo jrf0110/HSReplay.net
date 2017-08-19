@@ -35,6 +35,7 @@ interface ClusterMetaData {
 }
 
 interface ArchetypeAnalysisState {
+	allowZoom?: boolean;
 	data: ClassData;
 	deckData: ApiTrainingDataDeck;
 	selectedData?: ClusterMetaData;
@@ -61,12 +62,35 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 	constructor(props: ArchetypeAnalysisProps, state: ArchetypeAnalysisState) {
 		super(props, state);
 		this.state = {
+			allowZoom: false,
 			data: null,
 			deckData: null,
 			selectedData: null,
 			selectedPlayerClass: null,
 		};
 		this.fetchData(props.format);
+	}
+
+	componentWillMount() {
+		document.addEventListener("keydown", this.handleKeyDown);
+		document.addEventListener("keyup", this.handleKeyUp);
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener("keydown", this.handleKeyDown);
+		document.removeEventListener("keyup", this.handleKeyUp);
+	}
+
+	handleKeyDown = (event) => {
+		if (event.key === "Shift" && !this.state.allowZoom) {
+			this.setState({allowZoom: true});
+		}
+	}
+
+	handleKeyUp = (event) => {
+		if (event.key === "Shift" && this.state.allowZoom) {
+			this.setState({allowZoom: false});
+		}
 	}
 
 	fetchData(format: string) {
@@ -171,13 +195,14 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						const selectedId = this.state.selectedData && this.state.selectedData.shortid;
 						return (
 							<div style={{position: "absolute", width: "100%", height: "100%"}}>
+								<span style={{padding: "3px", opacity: 0.6}}>Hold <kbd>Shift</kbd> to zoom</span>
 								<VictoryChart
 									height={height}
 									width={width}
 									padding={30}
 									domainPadding={30}
 									containerComponent={
-										<VictoryZoomContainer/>
+										<VictoryZoomContainer allowZoom={this.state.allowZoom}/>
 									}
 								>
 									<VictoryAxis crossAxis={true} dependentAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
