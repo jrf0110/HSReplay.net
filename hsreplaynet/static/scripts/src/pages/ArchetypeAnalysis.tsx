@@ -1,5 +1,5 @@
+import CardList from "../components/CardList";
 import * as React from "react";
-import CardData from "../CardData";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import {toTitleCase} from "../helpers";
@@ -7,20 +7,26 @@ import DataManager from "../DataManager";
 import LoadingSpinner from "../components/LoadingSpinner";
 import {VictoryAxis, VictoryChart, VictoryLegend, VictoryScatter, VictoryZoomContainer} from "victory";
 import {AutoSizer} from "react-virtualized";
-import CardList from "../components/CardList";
+import CardData from "../CardData";
 import DataInjector from "../components/DataInjector";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import InfoboxFilter from "../components/InfoboxFilter";
 import ArchetypeSelector from "../components/ArchetypeSelector";
-import {ApiArchetype, ApiTrainingDataDeck} from "../interfaces";
+import {ApiArchetype, ApiArchetypeSignature, ApiTrainingDataDeck} from "../interfaces";
 import HideLoading from "../components/loading/HideLoading";
 import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
+import ArchetypeSignature from "../components/archetypedetail/ArchetypeSignature";
 
 interface ClassData {
-	[playerClass: string]: ClusterData[];
+	[playerClass: string]: ClusterData;
 }
 
 interface ClusterData {
+	data: DeckData[];
+	signatures: Array<{[name: string]: Array<[number, number]>}>;
+}
+
+interface DeckData {
 	metadata: ClusterMetaData;
 	x: number;
 	y: number;
@@ -41,6 +47,7 @@ interface ArchetypeAnalysisState {
 	deckData: ApiTrainingDataDeck;
 	selectedData?: ClusterMetaData;
 	selectedPlayerClass?: string;
+	showSignature?: boolean;
 }
 
 interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
@@ -72,6 +79,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 			deckData: null,
 			selectedData: null,
 			selectedPlayerClass: null,
+			showSignature: false,
 		};
 		this.fetchData(props.format);
 	}
@@ -105,7 +113,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 			}
 			const classData: ClassData = {};
 			data.forEach((playerClassData) => {
-				classData[playerClassData.player_class] = playerClassData.data;
+				classData[playerClassData.player_class] = playerClassData;
 			});
 			this.setState({data: classData});
 		});
@@ -162,7 +170,19 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					>
 						Scale opacity by winrate
 					</InfoboxFilter>
-					<h2>Deck</h2>
+					<h2>
+						Deck
+						<a
+							className="infobox-value"
+							href="#"
+							onClick={(e) => {
+								e.preventDefault();
+								this.setState({showSignature: !this.state.showSignature});
+							}}
+						>
+							{this.state.showSignature ? "show deck" : "show signature"}
+						</a>
+					</h2>
 					{this.renderDeckInfo()}
 				</aside>
 				<main>
@@ -198,7 +218,8 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						if (this.state.data === null) {
 							return <LoadingSpinner active={true}/>;
 						}
-						const data = this.state.data[playerClass];
+						console.log(this.state.data);
+						const data = this.state.data[playerClass] && this.state.data[playerClass].data;
 						if (!data) {
 							return <h3 className="message-wrapper">No data</h3>;
 						}
@@ -240,7 +261,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						const maxSize = 20;
 						return (
 							<div style={{position: "absolute", width: "100%", height: "100%"}}>
-								<span style={{padding: "3px", opacity: 0.6, position: "absolute"}}>Hold <kbd>Shift</kbd> to zoom</span>
+								<span style={{padding: "3px", opacity: 0.6, position: "absolute"}}>Hold <kbd>Shift</kbd> to unlock zoom</span>
 								<VictoryChart
 									height={height}
 									width={width}
@@ -253,7 +274,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 									<VictoryAxis crossAxis={true} dependentAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
 									<VictoryAxis crossAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
 									<VictoryScatter
-										data={this.state.data[playerClass]}
+										data={this.state.data[playerClass].data}
 										size={(p) => {
 											if (this.props.sizeScaling === "true") {
 												return ((p.metadata.games / maxGames) * (maxSize - minSize) + minSize);
@@ -355,6 +376,26 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					Loading...
 				</div>
 			);
+		}
+		if (this.state.showSignature) {
+			const signature: ApiArchetypeSignature = {
+				as_of: null,
+				components: this.state.data[selectedPlayerClass].signatures[selectedData.archetype_name],
+				format: null,
+			};
+			return [
+				<ul>
+					<li>
+						Cluster
+						<span className="infobox-value">{selectedData.archetype_name}</span>
+					</li>
+				</ul>,
+				<ArchetypeSignature
+					cardData={this.props.cardData}
+					showOccasional={true}
+					signature={signature}
+				/>,
+			];
 		}
 		const cardList = [];
 		JSON.parse(selectedData.deck_list).forEach((c: any[]) => {
