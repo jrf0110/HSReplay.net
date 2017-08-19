@@ -45,7 +45,18 @@ class ArchetypeAdmin(admin.ModelAdmin):
 	def set_active_in_standard(self, request, queryset):
 		queryset.update(active_in_standard=True)
 
-	actions = (set_active_in_wild, set_active_in_standard)
+	def set_inactive_in_wild(self, request, queryset):
+		queryset.update(active_in_wild=False)
+
+	def set_inactive_in_standard(self, request, queryset):
+		queryset.update(active_in_standard=False)
+
+	actions = (
+		set_active_in_wild,
+		set_inactive_in_wild,
+		set_active_in_standard,
+		set_inactive_in_standard
+	)
 
 
 @admin.register(ArchetypeTrainingDeck)
