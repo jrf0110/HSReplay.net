@@ -392,75 +392,75 @@ class ArchetypeManager(models.Manager):
 		from hsarchetypes.clustering import ClusterSet
 		from hsreplaynet.analytics.processing import get_cluster_set_data
 
-		for game_format in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
-			cluster_set_data = get_cluster_set_data(game_format)
-			if cluster_set_data:
-				cluster_set = ClusterSet.create_cluster_set(cluster_set_data)
-				previous_cluster_set = self.current_cluster_set(game_format)
-				cluster_set.inherit_from_previous(previous_cluster_set)
+		game_format = enums.FormatType.FT_STANDARD
+		cluster_set_data = get_cluster_set_data(game_format)
+		if cluster_set_data:
+			cluster_set = ClusterSet.create_cluster_set(cluster_set_data)
+			previous_cluster_set = self.current_cluster_set(game_format)
+			cluster_set.inherit_from_previous(previous_cluster_set)
 
-				prefix, sep, suffix = game_format.name.partition("_")
+			prefix, sep, suffix = game_format.name.partition("_")
 
-				with transaction.atomic():
-					current_ts = timezone.now()
-					for class_cluster in cluster_set.class_clusters:
-						log.info("%s: Class Cluster: %s" % (suffix, str(class_cluster)))
+			with transaction.atomic():
+				current_ts = timezone.now()
+				for class_cluster in cluster_set.class_clusters:
+					log.info("%s: Class Cluster: %s" % (suffix, str(class_cluster)))
 
-						for cluster in class_cluster.clusters:
-							if cluster.external_id:
-								archetype = Archetype.objects.get(id=cluster.external_id)
-								vals = (suffix, archetype.name, archetype.id)
-								log.info(
-									"%s: Update Existing Archetype: %s (%i)" % vals
+					for cluster in class_cluster.clusters:
+						if cluster.external_id:
+							archetype = Archetype.objects.get(id=cluster.external_id)
+							vals = (suffix, archetype.name, archetype.id)
+							log.info(
+								"%s: Update Existing Archetype: %s (%i)" % vals
+							)
+							old_string = archetype.get_signature(
+								game_format
+							).pretty_signature_string("\n")
+							log.info(
+								"%s: OLD Signature:\n%s" % (suffix, old_string)
+							)
+							new_string = cluster.pretty_signature_string("\n")
+							log.info(
+								"%s: NEW Signature:\n%s" % (suffix, new_string)
+							)
+							if not dryrun:
+								signature = Signature.objects.create(
+									archetype=archetype,
+									format=game_format,
+									as_of=current_ts
 								)
-								old_string = archetype.get_signature(
-									game_format
-								).pretty_signature_string("\n")
-								log.info(
-									"%s: OLD Signature:\n%s" % (suffix, old_string)
-								)
-								new_string = cluster.pretty_signature_string("\n")
-								log.info(
-									"%s: NEW Signature:\n%s" % (suffix, new_string)
-								)
-								if not dryrun:
-									signature = Signature.objects.create(
-										archetype=archetype,
-										format=game_format,
-										as_of=current_ts
+								for dbf_id, weight in cluster.signature.items():
+									SignatureComponent.objects.create(
+										signature=signature,
+										card_id=int(dbf_id),
+										weight=weight
 									)
-									for dbf_id, weight in cluster.signature.items():
-										SignatureComponent.objects.create(
-											signature=signature,
-											card_id=int(dbf_id),
-											weight=weight
-										)
-							else:
-								# Create a new Archetype
-								name = cluster.pretty_signature_string(", ")[:249]
-								log.info(
-									"%s: Create New Archetype: %s" % (suffix, name)
+						else:
+							# Create a new Archetype
+							name = cluster.pretty_signature_string(", ")[:249]
+							log.info(
+								"%s: Create New Archetype: %s" % (suffix, name)
+							)
+							new_string = cluster.pretty_signature_string("\n")
+							log.info(
+								"%s: NEW Signature:\n%s" % (suffix, new_string)
+							)
+							if not dryrun:
+								archetype = Archetype.objects.create(
+									name=name,
+									player_class=enums.CardClass[class_cluster.player_class]
 								)
-								new_string = cluster.pretty_signature_string("\n")
-								log.info(
-									"%s: NEW Signature:\n%s" % (suffix, new_string)
+								signature = Signature.objects.create(
+									archetype=archetype,
+									format=game_format,
+									as_of=current_ts
 								)
-								if not dryrun:
-									archetype = Archetype.objects.create(
-										name=name,
-										player_class=enums.CardClass[class_cluster.player_class]
+								for dbf_id, weight in cluster.signature.items():
+									SignatureComponent.objects.create(
+										signature=signature,
+										card_id=int(dbf_id),
+										weight=weight
 									)
-									signature = Signature.objects.create(
-										archetype=archetype,
-										format=game_format,
-										as_of=current_ts
-									)
-									for dbf_id, weight in cluster.signature.items():
-										SignatureComponent.objects.create(
-											signature=signature,
-											card_id=int(dbf_id),
-											weight=weight
-										)
 
 	def update_signatures(self):
 		for player_class in enums.CardClass:
