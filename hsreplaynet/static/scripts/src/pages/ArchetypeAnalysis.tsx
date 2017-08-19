@@ -32,6 +32,7 @@ interface ClusterMetaData {
 	deck_list: string;
 	games: number;
 	shortid: string;
+	win_rate: number;
 }
 
 interface ArchetypeAnalysisState {
@@ -44,12 +45,16 @@ interface ArchetypeAnalysisState {
 
 interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
 	cardData: CardData;
-	counts?: string;
 	format?: string;
-	tab?: string;
+	labels?: string;
+	opacityScaling?: string;
 	setFormat?: (format: string) => void;
+	setLabels?: (counts: string) => void;
+	setOpacityScaling?: (opacityScaling: string) => void;
+	setSizeScaling?: (sizeScaling: string) => void;
 	setTab?: (tab: string) => void;
-	setCounts?: (counts: string) => void;
+	sizeScaling?: string;
+	tab?: string;
 }
 
 const colors = [
@@ -135,11 +140,27 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					<h2>Settings</h2>
 					<InfoboxFilter
 						deselectable="true"
-						onClick={(value) => this.props.setCounts(value)}
+						onClick={(value) => this.props.setLabels(value)}
 						value={"show"}
-						selected={this.props.counts === "show"}
+						selected={this.props.labels === "show"}
 					>
-						Show count labels
+						Show labels
+					</InfoboxFilter>
+					<InfoboxFilter
+						deselectable="true"
+						onClick={(value) => this.props.setSizeScaling(value)}
+						value={"true"}
+						selected={this.props.sizeScaling === "true"}
+					>
+						Scale size by games
+					</InfoboxFilter>
+					<InfoboxFilter
+						deselectable="true"
+						onClick={(value) => this.props.setOpacityScaling(value)}
+						value={"true"}
+						selected={this.props.opacityScaling === "true"}
+					>
+						Scale opacity by winrate
 					</InfoboxFilter>
 					<h2>Deck</h2>
 					{this.renderDeckInfo()}
@@ -171,7 +192,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 
 	renderTabContent(playerClass: string): JSX.Element {
 		return (
-			<div className="foo" style={{width: "100%", height: "calc(100vh - 95px)"}}>
+			<div style={{width: "100%", height: "calc(100vh - 95px)"}}>
 				<AutoSizer>
 					{({height, width}) => {
 						if (this.state.data === null) {
@@ -181,10 +202,32 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						if (!data) {
 							return <h3 className="message-wrapper">No data</h3>;
 						}
+
+						let maxGames = 0;
+						let maxWinrate = 0;
+						let minWinrate = 100;
 						const archetypeNames = [];
 						data.forEach((d) => {
 							if (archetypeNames.indexOf(d.metadata.archetype_name) === -1) {
 								archetypeNames.push(d.metadata.archetype_name);
+							}
+							if (d.metadata.games > maxGames) {
+								maxGames = d.metadata.games;
+							}
+							if (d.metadata.win_rate > maxWinrate) {
+								maxWinrate = d.metadata.win_rate;
+							}
+							if (d.metadata.win_rate < minWinrate) {
+								minWinrate = d.metadata.win_rate;
+							}
+						});
+						data.forEach((d) => {
+							if (this.props.opacityScaling === "true") {
+								const wr = Math.max(10, d.metadata.win_rate - minWinrate);
+								d["opacity"] = wr / (maxWinrate - minWinrate);
+							}
+							else {
+								d["opacity"] = null;
 							}
 						});
 						archetypeNames.sort();
@@ -193,9 +236,11 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						});
 						const axisLabelSize = height / 100;
 						const selectedId = this.state.selectedData && this.state.selectedData.shortid;
+						const minSize = 4;
+						const maxSize = 20;
 						return (
 							<div style={{position: "absolute", width: "100%", height: "100%"}}>
-								<span style={{padding: "3px", opacity: 0.6}}>Hold <kbd>Shift</kbd> to zoom</span>
+								<span style={{padding: "3px", opacity: 0.6, position: "absolute"}}>Hold <kbd>Shift</kbd> to zoom</span>
 								<VictoryChart
 									height={height}
 									width={width}
@@ -209,7 +254,12 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 									<VictoryAxis crossAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
 									<VictoryScatter
 										data={this.state.data[playerClass]}
-										size={(p) => p.metadata.shortid === selectedId ? 12 : 6}
+										size={(p) => {
+											if (this.props.sizeScaling === "true") {
+												return ((p.metadata.games / maxGames) * (maxSize - minSize) + minSize);
+											}
+											return 6;
+										}}
 										style={{
 											data: {
 												cursor: "pointer",
@@ -253,7 +303,12 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 											},
 											target: "data",
 										}]}
-										labels={(p) => this.props.counts === "show" ? p.metadata.games : ""}
+										labels={(p) => {
+											if (this.props.labels === "show") {
+												return `Games: ${p.metadata.games}\nWinrate: ${p.metadata.win_rate}%`;
+											}
+											return "";
+										}}
 									/>
 									<VictoryLegend
 										data={legendData}
@@ -322,6 +377,10 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 				<li>
 					Games
 					<span className="infobox-value">{selectedData.games}</span>
+				</li>
+				<li>
+					Winrate
+					<span className="infobox-value">{selectedData.win_rate}</span>
 				</li>
 				<li>
 					View deck details
