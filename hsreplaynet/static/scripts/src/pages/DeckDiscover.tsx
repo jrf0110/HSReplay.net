@@ -274,7 +274,10 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			);
 		}
 		else {
-			let helpMessage = "Decks require at least 1000 recorded games in the selected time frame to be listed.";
+			const isWild = this.props.gameType === "RANKED_WILD";
+			const gameType = isWild ? "Wild" : "Standard";
+			const minGames = isWild ? 200 : 1000;
+			const helpMessage = `${gameType} decks require at least 10 unique pilots and ${minGames} recorded games in the selected time frame to be listed.`;
 			let infoRow = null;
 			if (this.props.includedSet === "ALL") {
 				infoRow = (
