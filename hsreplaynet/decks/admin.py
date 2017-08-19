@@ -12,7 +12,7 @@ class IncludeInline(admin.TabularInline):
 
 class SignatureComponentInline(admin.TabularInline):
 	model = SignatureComponent
-	raw_id_fields = ("card", )
+	raw_id_fields = ("card", "format", "as_of")
 
 
 @admin.register(Deck)
