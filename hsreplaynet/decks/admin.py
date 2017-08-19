@@ -28,7 +28,14 @@ class DeckAdmin(admin.ModelAdmin):
 
 @admin.register(Archetype)
 class ArchetypeAdmin(admin.ModelAdmin):
-	list_display = ("__str__", "player_class_name", "active_in_wild", "active_in_standard")
+	list_display = (
+		"__str__",
+		"player_class_name",
+		"active_in_wild",
+		"active_in_standard",
+		"wild_signature_as_of",
+		"standard_signature_as_of"
+	)
 	list_filter = ("player_class", )
 
 	def player_class_name(self, obj):

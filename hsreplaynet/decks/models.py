@@ -639,6 +639,16 @@ class Archetype(models.Model):
 			is_validation_deck=True
 		))
 
+	@property
+	def wild_signature_as_of(self):
+		sig = self.signature_set.filter(format=enums.FormatType.FT_WILD).latest()
+		return sig.as_of
+
+	@property
+	def standard_signature_as_of(self):
+		sig = self.signature_set.filter(format=enums.FormatType.FT_STANDARD).latest()
+		return sig.as_of
+
 	def get_absolute_url(self):
 		return reverse("archetype_detail", kwargs={"id": self.id, "slug": slugify(self.name)})
 
