@@ -55,8 +55,6 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setArchetypes?: (archetypes: string[]) => void;
 	trainingData?: string;
 	setTrainingData?: (trainingData: string) => void;
-	minGames?: string;
-	setMinGames?: (numGames: string) => void;
 }
 
 export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
@@ -88,8 +86,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			this.props.timeRange !== prevProps.timeRange ||
 			this.props.cardData !== prevProps.cardData ||
 			this.props.includedSet !== prevProps.includedSet ||
-			this.props.trainingData !== prevProps.trainingData ||
-			this.props.minGames !== prevProps.minGames
+			this.props.trainingData !== prevProps.trainingData
 		) {
 			this.updateFilteredDecks();
 			this.deckListsFragmentsRef && this.deckListsFragmentsRef.reset("page");
@@ -183,9 +180,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							if (!trainingDeck || this.props.trainingData === "validation" && !trainingDeck.is_validation_deck) {
 								return;
 							}
-						}
-						if (deck.total_games < +this.props.minGames) {
-							return;
 						}
 						if (UserData.hasFeature("archetype-detail")) {
 							if (deck.archetype_id && archetypes.every((a) => a.id !== "" + deck.archetype_id)) {
@@ -281,9 +275,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 		else {
 			let helpMessage = "Decks require at least 1000 recorded games in the selected time frame to be listed.";
-			if (UserData.hasFeature("min-games-filter")) {
-				helpMessage = `Decks require at least 10 unique pilots and ${this.props.minGames} recorded games in the selected time frame to be listed.`;
-			}
 			let infoRow = null;
 			if (this.props.includedSet === "ALL") {
 				infoRow = (
@@ -551,18 +542,6 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 									<InfoboxFilter value="ALL">All Region</InfoboxFilter>
 								</InfoboxFilterGroup>
 							</PremiumWrapper>
-						</section>
-					</Feature>
-					<Feature feature="min-games-filter">
-						<section id="min-games-filter">
-							<h2>Minimum Number Of Games</h2>
-							<InfoboxFilterGroup
-								selectedValue={this.props.minGames}
-								onClick={(value) => this.props.setMinGames(value)}
-							>
-								<InfoboxFilter value="1000">1000</InfoboxFilter>
-								<InfoboxFilter value="500">500</InfoboxFilter>
-							</InfoboxFilterGroup>
 						</section>
 					</Feature>
 					<section id="side-bar-data">
