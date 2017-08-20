@@ -96,11 +96,13 @@ class Command(BaseCommand):
 			if player_class not in archetype_ids_for_player_class[format]:
 				configured_archetypes = []
 				for a in Archetype.objects.filter(player_class=player_class):
-					self.archetype_map[a.id] = a
-					if format == FormatType.FT_WILD and a.active_in_wild:
-						configured_archetypes.append(a.id)
-					elif format == FormatType.FT_STANDARD and a.active_in_standard:
-						configured_archetypes.append(a.id)
+					latest_sig = a.signature_set.filter(format=format).latest()
+					if latest_sig.components.count() > 0:
+						self.archetype_map[a.id] = a
+						if format == FormatType.FT_WILD and a.active_in_wild:
+							configured_archetypes.append(a.id)
+						elif format == FormatType.FT_STANDARD and a.active_in_standard:
+							configured_archetypes.append(a.id)
 				archetype_ids_for_player_class[format][player_class] = configured_archetypes
 
 			if player_class not in self.signature_weights[format]:
