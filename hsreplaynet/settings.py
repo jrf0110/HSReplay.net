@@ -358,6 +358,7 @@ ARCHETYPE_FIREHOSE_STREAM_NAME = "deck-archetype-log-stream"
 
 REDSHIFT_LOADING_ENABLED = True
 REDSHIFT_STAGING_BUCKET = "hsreplaynet-redshift-staging"
+REDSHIFT_QUERY_UNLOAD_BUCKET = "hsreplaynet-analytics-results"
 
 # Range is from 60 - 900
 REDSHIFT_STAGING_BUFFER_INTERVAL_SECONDS = 120
