@@ -503,6 +503,9 @@ class ReplayAlias(models.Model):
 	shortid = ShortUUIDField("Short ID")
 	replay = models.ForeignKey(GameReplay, on_delete=models.CASCADE, related_name="aliases")
 
+	def get_absolute_url(self):
+		return self.replay.get_absolute_url()
+
 
 @receiver(models.signals.post_delete, sender=GameReplay)
 def cleanup_hsreplay_file(sender, instance, **kwargs):
