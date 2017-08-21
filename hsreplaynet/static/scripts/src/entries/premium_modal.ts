@@ -122,7 +122,7 @@ const getDataAttributes = (element: Element) => {
 	return dataAttributes;
 };
 
-const submitCheckoutForm = (form: HTMLFormElement, token: StripeTokenResponse, additionalData?: any) => {
+const submitCheckoutForm = (form: HTMLFormElement, token: stripe.StripeTokenResponse, additionalData?: any) => {
 	const addFormValue = (name, value) => {
 		const input = document.createElement("input");
 		input.type = "hidden";
@@ -245,7 +245,7 @@ const setupCheckout = (target: HTMLFormElement|HTMLButtonElement) => {
 					configuration = getDataAttributes(selectedPlan);
 				}
 
-				checkoutProcess.checkout(configuration).then((token: StripeTokenResponse) => {
+				checkoutProcess.checkout(configuration).then((token: stripe.StripeTokenResponse) => {
 					// checkout complete, submit the form
 					button.textContent = "Confirming…";
 

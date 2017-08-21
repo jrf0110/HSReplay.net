@@ -3,7 +3,7 @@ export default class CheckoutProcess {
 	public readonly handler: StripeCheckoutHandler;
 	public readonly label: string;
 	public onstart: () => void;
-	private promise: Promise<StripeTokenResponse>;
+	private promise: Promise<stripe.StripeTokenResponse>;
 
 	constructor(plan, handler: StripeCheckoutHandler, label?: string) {
 		this.plan = plan;
@@ -19,7 +19,7 @@ export default class CheckoutProcess {
 		this.promise = new Promise((resolve, reject) => {
 			const dollars = options.amount ? Math.ceil(options.amount / 100) : null;
 			options = Object.assign({}, options, {
-				token: (token: StripeTokenResponse): void => {
+				token: (token: stripe.StripeTokenResponse): void => {
 					resolved = true;
 					this.trackInteraction("subscribe", dollars).then(() => {
 						resolve(token);
