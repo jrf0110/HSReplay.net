@@ -11,7 +11,7 @@ interface InfoboxLastUpdatedProps {
 	url: string;
 }
 
-export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdatedProps, void> {
+export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdatedProps, {}> {
 	render(): JSX.Element {
 		return (
 			<li>

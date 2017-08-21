@@ -11,7 +11,7 @@ interface PopularityTileProps extends React.ClassAttributes<PopularityTile> {
 	popularity?: number;
 }
 
-export default class PopularityTile extends React.Component<PopularityTileProps, void> {
+export default class PopularityTile extends React.Component<PopularityTileProps, {}> {
 
 	render(): JSX.Element {
 		let chart = null;

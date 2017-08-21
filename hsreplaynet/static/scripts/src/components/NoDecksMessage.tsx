@@ -3,7 +3,7 @@ import * as React from "react";
 interface NoDecksMessageProps {
 }
 
-export default class NoDecksMessage extends React.Component<NoDecksMessageProps, void> {
+export default class NoDecksMessage extends React.Component<NoDecksMessageProps, {}> {
 	render(): JSX.Element {
 		return (
 			<div className="message-wrapper">

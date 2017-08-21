@@ -13,7 +13,7 @@ interface CardTileProps {
 	countBoxSize?: number;
 }
 
-export default class CardTile extends React.Component<CardTileProps, void> {
+export default class CardTile extends React.Component<CardTileProps, {}> {
 	public render(): JSX.Element {
 		const baseHeight = 34;
 		const baseCountWidth = this.props.countBoxSize || 24;

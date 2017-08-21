@@ -5,7 +5,7 @@ interface ResetHeaderProps {
 	showReset: boolean;
 }
 
-export default class ResetHeader extends React.Component<ResetHeaderProps, void> {
+export default class ResetHeader extends React.Component<ResetHeaderProps, {}> {
 	render(): JSX.Element {
 		const classNames = ["reset-header"];
 		if (this.props.showReset) {

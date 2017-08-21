@@ -14,7 +14,7 @@ interface CardDetailPieChartProps {
 	customViewbox?: string;
 }
 
-export default class CardDetailPieChart extends React.Component<CardDetailPieChartProps, void> {
+export default class CardDetailPieChart extends React.Component<CardDetailPieChartProps, {}> {
 	private readonly pieSize = 400;
 
 	render(): JSX.Element {

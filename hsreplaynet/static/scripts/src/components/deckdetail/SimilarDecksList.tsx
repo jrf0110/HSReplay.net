@@ -12,7 +12,7 @@ interface SimilarDecksListProps {
 	wildDeck: boolean;
 }
 
-export default class SimilarDecksList extends React.Component<SimilarDecksListProps, void> {
+export default class SimilarDecksList extends React.Component<SimilarDecksListProps, {}> {
 	render(): JSX.Element {
 		const dbfIds = this.props.rawCardList.split(",");
 

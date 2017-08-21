@@ -8,7 +8,7 @@ interface TrendingDecksListProps {
 	data?: TableData;
 }
 
-export default class TrendingDecksList extends React.Component<TrendingDecksListProps, void> {
+export default class TrendingDecksList extends React.Component<TrendingDecksListProps, {}> {
 	render(): JSX.Element {
 		const decks: DeckObj[] = [];
 		const data = this.props.data.series.data;

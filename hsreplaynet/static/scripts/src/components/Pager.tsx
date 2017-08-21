@@ -13,7 +13,7 @@ interface PagerProps {
 	minimal?: boolean;
 }
 
-export default class Pager extends React.Component<PagerProps, void> {
+export default class Pager extends React.Component<PagerProps, {}> {
 
 	render(): JSX.Element {
 		if (typeof this.props.pageCount === "number" && this.props.pageCount <= 1) {

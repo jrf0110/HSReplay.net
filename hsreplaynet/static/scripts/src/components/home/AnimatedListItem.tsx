@@ -6,7 +6,7 @@ interface AnimatedListItemProps extends React.ClassAttributes<AnimatedListItem> 
 	height: number;
 }
 
-export default class AnimatedListItem extends React.Component<AnimatedListItemProps, void> {
+export default class AnimatedListItem extends React.Component<AnimatedListItemProps, {}> {
 	render(): JSX.Element {
 		const {height, index} = this.props;
 		return (

@@ -5,7 +5,7 @@ interface LoadingSpinnerProps extends React.ClassAttributes<LoadingSpinner> {
 	glyphicon?: string;
 }
 
-export default class LoadingSpinner extends React.Component<LoadingSpinnerProps, void> {
+export default class LoadingSpinner extends React.Component<LoadingSpinnerProps, {}> {
 	render(): JSX.Element {
 		if (!this.props.active) {
 			return null;

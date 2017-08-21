@@ -8,7 +8,7 @@ interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups
 	archetypeData?: any;
 }
 
-export default class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, void> {
+export default class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, {}> {
 	render(): JSX.Element {
 		const matchupsTiles = [];
 

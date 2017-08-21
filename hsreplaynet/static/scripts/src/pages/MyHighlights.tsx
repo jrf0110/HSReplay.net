@@ -16,7 +16,7 @@ interface MyHighlightsProps {
 	cardData: CardData;
 }
 
-export default class MyHighlights extends React.Component<MyHighlightsProps, void> {
+export default class MyHighlights extends React.Component<MyHighlightsProps, {}> {
 	getCard(dbfId: number): any {
 		return this.props.cardData.fromDbf(dbfId || 1720);
 	}

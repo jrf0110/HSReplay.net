@@ -7,7 +7,7 @@ interface DeckMatchupsProps extends React.ClassAttributes<DeckMatchups> {
 	archetypeData?: any;
 }
 
-export default class DeckMatchups extends React.Component<DeckMatchupsProps, void> {
+export default class DeckMatchups extends React.Component<DeckMatchupsProps, {}> {
 	render(): JSX.Element {
 		const matchupsTiles = [];
 		const matchupData = this.props.classMatchupData.series.data;

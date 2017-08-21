@@ -7,7 +7,7 @@ interface InfoIconProps {
 	className?: string;
 }
 
-export default class InfoIcon extends React.Component<InfoIconProps, void> {
+export default class InfoIcon extends React.Component<InfoIconProps, {}> {
 	render(): JSX.Element {
 		return (
 			<Tooltip

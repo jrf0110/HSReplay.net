@@ -10,7 +10,7 @@ interface MatchupTileProps extends React.ClassAttributes<MatchupTile> {
 	winrate?: number;
 }
 
-export default class MatchupTile extends React.Component<MatchupTileProps, void> {
+export default class MatchupTile extends React.Component<MatchupTileProps, {}> {
 	render(): JSX.Element {
 		let content = null;
 		if (this.props.playerClass && this.props.games !== undefined && this.props.winrate !== undefined) {

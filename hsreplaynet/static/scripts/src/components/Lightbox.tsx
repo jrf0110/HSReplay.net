@@ -10,7 +10,7 @@ interface LightboxProps {
 	pageCount?: number;
 }
 
-export default class Lightbox extends React.Component<LightboxProps, void> {
+export default class Lightbox extends React.Component<LightboxProps, {}> {
 	private ref: HTMLDivElement;
 	private onkeydown: (event) => void;
 

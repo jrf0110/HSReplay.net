@@ -19,7 +19,7 @@ const MIN_COLUMN_WIDTH = 100;
 const MAX_HEADER_WIDTH = 217;
 const MIN_HEADER_WIDTH = 150;
 
-export default class ArchetypeClassTable extends React.Component<ArchetypeClassTableProps, void> {
+export default class ArchetypeClassTable extends React.Component<ArchetypeClassTableProps, {}> {
 	render(): JSX.Element {
 		const {data, sortBy, sortDirection} = this.props;
 		const rows  = [];

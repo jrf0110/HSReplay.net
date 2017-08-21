@@ -10,7 +10,7 @@ interface ArchetypeFilterProps extends React.ClassAttributes<ArchetypeFilter> {
 	data?: any;
 }
 
-export default class ArchetypeFilter extends React.Component<ArchetypeFilterProps, void> {
+export default class ArchetypeFilter extends React.Component<ArchetypeFilterProps, {}> {
 	render(): JSX.Element {
 		if (!this.props.data) {
 			return null;

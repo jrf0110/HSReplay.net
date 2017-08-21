@@ -10,7 +10,7 @@ interface SortHeaderProps extends TableHeaderProps, React.ClassAttributes<SortHe
 	element?: JSX.Element;
 }
 
-export default class SortHeader extends React.Component<SortHeaderProps, void> {
+export default class SortHeader extends React.Component<SortHeaderProps, {}> {
 	render(): JSX.Element {
 		let info = null;
 		let {text, element} = this.props;

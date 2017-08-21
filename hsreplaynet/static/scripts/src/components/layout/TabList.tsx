@@ -7,7 +7,7 @@ interface TabListProps {
 	setTab?(tab?: string): void;
 }
 
-export default class TabList extends React.Component<TabListProps, void> {
+export default class TabList extends React.Component<TabListProps, {}> {
 	render() {
 		const children = this.getValidChildren(this.props.children);
 

@@ -21,7 +21,7 @@ interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopula
 	setSortBy?: (prop: string) => void;
 }
 
-class ArchetypePopularity extends React.Component<ArchetypePopularityProps, void> {
+class ArchetypePopularity extends React.Component<ArchetypePopularityProps, {}> {
 	render() {
 		const archetypeData: ArchetypeRankPopularity[] = [];
 		const archetypes = this.getAllArchetypes();

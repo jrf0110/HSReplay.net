@@ -10,7 +10,7 @@ interface RecommendedDecksListProps {
 	data?: TableData;
 }
 
-export default class RecommendedDecksList extends React.Component<RecommendedDecksListProps, void> {
+export default class RecommendedDecksList extends React.Component<RecommendedDecksListProps, {}> {
 	render(): JSX.Element {
 		const decks: DeckObj[] = [];
 		const data = this.props.data.series.data;

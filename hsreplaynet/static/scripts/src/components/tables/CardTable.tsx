@@ -22,7 +22,7 @@ const MIN_COLUMN_WIDTH = 150;
 const MAX_HEADER_WIDTH = 217;
 const MIN_HEADER_WIDTH = 150;
 
-class CardTable extends React.Component<CardTableProps, void> {
+class CardTable extends React.Component<CardTableProps, {}> {
 	render(): JSX.Element {
 		const {baseWinrate, cards, data, sortBy, sortDirection, numCards} = this.props;
 		const columnKeys = ["card"].concat(this.props.columns);

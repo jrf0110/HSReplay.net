@@ -12,7 +12,7 @@ interface ChartLoadingProps {
 	widthRatio?: number;
 }
 
-export default class ChartLoading extends React.Component<ChartLoadingProps, void> {
+export default class ChartLoading extends React.Component<ChartLoadingProps, {}> {
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 2);
 		const loadingMessage = this.getLoadingMessage();

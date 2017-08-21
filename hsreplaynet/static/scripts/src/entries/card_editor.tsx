@@ -4,7 +4,7 @@ import {CardClass, CardSet, CardType, MultiClassGroup, Rarity} from "../hearthst
 import {Sunwell} from "sunwell";
 
 
-class Fieldset extends React.Component<any, void> {
+class Fieldset extends React.Component<any, {}> {
 	render(): JSX.Element {
 		return (
 			<fieldset name={this.props.name}>
@@ -15,7 +15,7 @@ class Fieldset extends React.Component<any, void> {
 	}
 }
 
-class LabeledInput extends React.Component<any, void> {
+class LabeledInput extends React.Component<any, {}> {
 	labelAfter(): boolean {
 		return (this.props.type == "checkbox" || this.props.type == "radio");
 	}
@@ -31,7 +31,7 @@ class LabeledInput extends React.Component<any, void> {
 	}
 }
 
-class LabeledSelect extends React.Component<any, void> {
+class LabeledSelect extends React.Component<any, {}> {
 	getOptions(): Array<JSX.Element> {
 		let ret: Array<JSX.Element> = [];
 		this.props.options.forEach((option: JSX.Element) => {
@@ -91,7 +91,7 @@ class RadioInputGroup extends React.Component<any, RadioInputGroupState> {
 	}
 }
 
-class StatInput extends React.Component<any, void> {
+class StatInput extends React.Component<any, {}> {
 	render(): JSX.Element {
 		return (
 			<LabeledInput {...this.props} type="number" min={0} max={99} />
@@ -99,7 +99,7 @@ class StatInput extends React.Component<any, void> {
 	}
 }
 
-class TextureUploadInput extends React.Component<any, void> {
+class TextureUploadInput extends React.Component<any, {}> {
 	componentDidMount(): void {
 		ReactDOM.findDOMNode(this).addEventListener("dragover", this.handleDragOver.bind(this));
 		ReactDOM.findDOMNode(this).addEventListener("drop", this.handleFileSelect.bind(this));
@@ -472,7 +472,7 @@ class SunwellRender extends React.Component<any, any> {
 	}
 }
 
-class DownloadButton extends React.Component<any, void> {
+class DownloadButton extends React.Component<any, {}> {
 	componentDidMount(): void {
 		ReactDOM.findDOMNode(this).addEventListener("click", this.handleClick.bind(this));
 	}
@@ -508,7 +508,7 @@ class DownloadButton extends React.Component<any, void> {
 	}
 }
 
-class PublishButton extends React.Component<any, void> {
+class PublishButton extends React.Component<any, {}> {
 	render(): JSX.Element {
 		return (
 			<button type="submit" className="btn btn-primary" form={this.props.form}>

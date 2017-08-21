@@ -14,7 +14,7 @@ export const withLoading = (dataKeys?: string[]) =>
 		// tslint:disable-next-line:variable-name
 		Component: React.ComponentClass<T>,
 	) => {
-		return class Loading extends React.Component<T & LoadingProps, void> {
+		return class Loading extends React.Component<T & LoadingProps, {}> {
 			render(): JSX.Element {
 				const {customNoDataMessage, status} = this.props;
 				if (status !== undefined) {

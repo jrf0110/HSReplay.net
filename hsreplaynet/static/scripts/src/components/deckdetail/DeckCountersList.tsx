@@ -9,7 +9,7 @@ interface DeckCountersListProps extends React.ClassAttributes<DeckCountersList> 
 	countersData?: any;
 }
 
-export default class DeckCountersList extends React.Component<DeckCountersListProps, void> {
+export default class DeckCountersList extends React.Component<DeckCountersListProps, {}> {
 
 	render(): JSX.Element {
 		const decks: DeckObj[] = [];

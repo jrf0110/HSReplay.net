@@ -7,7 +7,7 @@ interface GameHistoryListProps extends ImageProps, CardArtProps, React.ClassAttr
 	games: GameReplay[];
 }
 
-export default class GameHistoryList extends React.Component<GameHistoryListProps, void> {
+export default class GameHistoryList extends React.Component<GameHistoryListProps, {}> {
 
 	render(): JSX.Element {
 		let columns = [];

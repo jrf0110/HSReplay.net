@@ -10,7 +10,7 @@ interface RankTileProps extends React.ClassAttributes<RankTile> {
 	type: "performance" | "popularity";
 }
 
-export default class RankTile extends React.Component<RankTileProps, void> {
+export default class RankTile extends React.Component<RankTileProps, {}> {
 
 	render(): JSX.Element {
 		let content = null;

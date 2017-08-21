@@ -11,7 +11,7 @@ interface InfoboxFilterProps {
 	value: string;
 }
 
-export default class InfoboxFilter extends React.Component<InfoboxFilterProps, void> {
+export default class InfoboxFilter extends React.Component<InfoboxFilterProps, {}> {
 	private ref;
 
 	render(): JSX.Element {

@@ -5,7 +5,7 @@ interface FeatureProps {
 	feature: string;
 }
 
-export default class Feature extends React.Component<FeatureProps, void> {
+export default class Feature extends React.Component<FeatureProps, {}> {
 	render(): JSX.Element {
 		if (!UserData.hasFeature(this.props.feature)) {
 			return null;

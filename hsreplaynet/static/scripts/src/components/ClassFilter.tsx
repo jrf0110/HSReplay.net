@@ -25,7 +25,7 @@ interface ClassFilterProps {
 	archetypesChanged?: (archetypes: string[]) => void;
 }
 
-export default class ClassFilter extends React.Component<ClassFilterProps, void> {
+export default class ClassFilter extends React.Component<ClassFilterProps, {}> {
 	private readonly classes: FilterOption[] = [
 		"DRUID", "HUNTER", "MAGE",
 		"PALADIN", "PRIEST", "ROGUE",

@@ -16,7 +16,7 @@ interface ArchetypeSignatureProps extends React.ClassAttributes<ArchetypeSignatu
 	showOccasional?: boolean;
 }
 
-export default class ArchetypeSignature extends React.Component<ArchetypeSignatureProps, void> {
+export default class ArchetypeSignature extends React.Component<ArchetypeSignatureProps, {}> {
 	shouldComponentUpdate(nextProps: ArchetypeSignatureProps) {
 		return (
 			!this.props.cardData && nextProps.cardData

@@ -7,7 +7,7 @@ interface BiggestHitsProps {
 	data?: TableData;
 }
 
-export default class BiggestHits extends React.Component<BiggestHitsProps, void> {
+export default class BiggestHits extends React.Component<BiggestHitsProps, {}> {
 	render(): JSX.Element {
 		const tiles = [];
 		const hits = this.props.data.series.data["ALL"];

@@ -9,7 +9,7 @@ interface HighlightTilesProps {
 	ranks?: TableData;
 }
 
-export default class HighlightTiles extends React.Component<HighlightTilesProps, void> {
+export default class HighlightTiles extends React.Component<HighlightTilesProps, {}> {
 	getCard(dbfId: number): any {
 		return this.props.cardData.fromDbf(dbfId || 1674);
 	}

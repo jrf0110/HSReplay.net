@@ -10,7 +10,7 @@ interface DeckTileProps extends React.ClassAttributes<DeckTile> {
 	winrate?: number;
 }
 
-export default class DeckTile extends React.Component<DeckTileProps, void> {
+export default class DeckTile extends React.Component<DeckTileProps, {}> {
 	render(): JSX.Element {
 		let content = null;
 		if (this.props.cards && this.props.deckId && this.props.games !== undefined && this.props.winrate !== undefined) {

@@ -9,7 +9,7 @@ interface SortableTableProps {
 	headers: TableHeaderProps[];
 }
 
-export default class SortableTable extends React.Component<SortableTableProps, void> {
+export default class SortableTable extends React.Component<SortableTableProps, {}> {
 	render(): JSX.Element {
 		const headers = this.props.headers.map((header) => {
 			return (

@@ -7,7 +7,7 @@ interface TabProps {
 	label?: string | JSX.Element;
 }
 
-export default class Tab extends React.Component<TabProps, void> {
+export default class Tab extends React.Component<TabProps, {}> {
 	render() {
 		return <div>{this.props.children}</div>;
 	}

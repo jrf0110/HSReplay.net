@@ -6,7 +6,7 @@ interface SortIndicatorProps {
 	direction?: SortDirection|null;
 }
 
-export default class SortIndicator extends React.Component<SortIndicatorProps, void> {
+export default class SortIndicator extends React.Component<SortIndicatorProps, {}> {
 	render() {
 		let classNameAsc = "glyphicon glyphicon-triangle-top";
 		let classNameDesc = "glyphicon glyphicon-triangle-bottom";

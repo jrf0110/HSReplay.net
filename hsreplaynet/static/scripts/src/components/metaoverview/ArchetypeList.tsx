@@ -16,7 +16,7 @@ interface ArchetypeListProps extends SortableProps, React.ClassAttributes<Archet
 	gameType: string;
 }
 
-class ArchetypeList extends React.Component<ArchetypeListProps, void> {
+class ArchetypeList extends React.Component<ArchetypeListProps, {}> {
 	render(): JSX.Element {
 		const {data} = this.props;
 		const tiles = Object.keys(data).sort().map((key) => this.renderClass(key, data[key]));

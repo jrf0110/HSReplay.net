@@ -12,7 +12,7 @@ interface DeckSpotlightProps {
 	cardData: CardData;
 }
 
-export default class DeckSpotlight extends React.Component<DeckSpotlightProps, void> {
+export default class DeckSpotlight extends React.Component<DeckSpotlightProps, {}> {
 	render(): JSX.Element {
 		return (
 			<div id="deck-spotlight">

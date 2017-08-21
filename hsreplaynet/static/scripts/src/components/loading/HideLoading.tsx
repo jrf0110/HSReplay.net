@@ -9,7 +9,7 @@ interface HideLoadingProps {
 	status?: LoadingStatus;
 }
 
-export default class HideLoading extends React.Component<HideLoadingProps, void> {
+export default class HideLoading extends React.Component<HideLoadingProps, {}> {
 	render(): JSX.Element {
 		if (this.props.status !== LoadingStatus.SUCCESS || this.props.cardData === null) {
 			return null;

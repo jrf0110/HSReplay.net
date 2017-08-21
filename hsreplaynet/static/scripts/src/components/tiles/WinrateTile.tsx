@@ -11,7 +11,7 @@ interface WinrateTileProps extends React.ClassAttributes<WinrateTile> {
 	winrate?: number;
 }
 
-export default class WinrateTile extends React.Component<WinrateTileProps, void> {
+export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
 	render(): JSX.Element {
 		let chart = null;
 		if (this.props.chartData) {

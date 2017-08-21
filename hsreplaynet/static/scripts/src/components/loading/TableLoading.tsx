@@ -10,7 +10,7 @@ interface TableLoadingProps {
 	status?: LoadingStatus;
 }
 
-export default class TableLoading extends React.Component<TableLoadingProps, void> {
+export default class TableLoading extends React.Component<TableLoadingProps, {}> {
 	render(): JSX.Element {
 		if (this.props.customMessage) {
 			return <h3 className="message-wrapper">{this.props.customMessage}</h3>;

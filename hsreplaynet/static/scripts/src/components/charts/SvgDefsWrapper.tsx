@@ -5,7 +5,7 @@ interface SvgDefsWrapperProps extends React.ClassAttributes<SvgDefsWrapper> {
 	defs: any;
 }
 
-export default class SvgDefsWrapper extends React.Component<SvgDefsWrapperProps, void> {
+export default class SvgDefsWrapper extends React.Component<SvgDefsWrapperProps, {}> {
 	render(): JSX.Element {
 		const childProps: any = _.omit(this.props, ["defs", "children"]);
 		const children = React.Children.map(this.props.children, (child: any) => {

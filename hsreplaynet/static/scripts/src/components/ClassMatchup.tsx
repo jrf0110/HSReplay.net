@@ -13,7 +13,7 @@ interface ClassMatchupProps extends React.ClassAttributes<ClassMatchup> {
 	archetypes: ArchetypeData[];
 }
 
-export default class ClassMatchup extends React.Component<ClassMatchupProps, void> {
+export default class ClassMatchup extends React.Component<ClassMatchupProps, {}> {
 	render(): JSX.Element {
 		const data = this.props.archetypes.sort((a, b) => a.name > b.name ? 1 : -1);
 		const archetypes = data.map((archetype) => (

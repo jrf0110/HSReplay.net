@@ -10,7 +10,7 @@ interface DeckOverviewTableProps {
 	playerClass: string;
 }
 
-export default class DeckOverviewTable extends React.Component<DeckOverviewTableProps, void> {
+export default class DeckOverviewTable extends React.Component<DeckOverviewTableProps, {}> {
 	render(): JSX.Element {
 		const deck = this.props.deckListData.series.data[this.props.playerClass]
 			.find((x) => x.deck_id === this.props.deckId);
