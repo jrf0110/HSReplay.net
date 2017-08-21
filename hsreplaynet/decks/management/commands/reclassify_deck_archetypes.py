@@ -1,4 +1,6 @@
 import json
+import time
+from collections import defaultdict
 from datetime import date, datetime, timedelta
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -21,7 +23,7 @@ REDSHIFT_QUERY = text("""
 	FROM player p
 	LEFT JOIN deck_archetype_map m ON m.deck_id = p.proxy_deck_id
 	WHERE p.game_date BETWEEN :start_date AND :end_date
-	AND p.game_type IN (2, 30)
+	AND p.game_type = 2 -- IN (2, 30)
 	AND p.full_deck_known
 	GROUP BY p.game_type, p.player_class, p.proxy_deck_id;
 """).bindparams(
@@ -69,7 +71,45 @@ class Command(BaseCommand):
 		}
 		compiled_statement = REDSHIFT_QUERY.params(params).compile(bind=conn)
 
-		archetype_ids_for_player_class = {}
+		# Format -> CardClass -> [a.id]
+		archetype_ids_for_player_class = {
+			FormatType.FT_STANDARD: defaultdict(list),
+			FormatType.FT_WILD: defaultdict(list)
+		}
+		for card_class in CardClass:
+			if 2 <= card_class <= 10:
+				for a in Archetype.objects.filter(player_class=card_class):
+					if a.active_in_standard:
+						self.archetype_map[a.id] = a
+						archetype_ids_for_player_class[
+							FormatType.FT_STANDARD
+						][card_class].append(a.id)
+					if a.active_in_wild:
+						self.archetype_map[a.id] = a.name
+						archetype_ids_for_player_class[
+							FormatType.FT_WILD
+						][card_class].append(a.id)
+
+				# Standard Signature Weights
+				if len(archetype_ids_for_player_class[FormatType.FT_STANDARD][card_class]):
+					signature_weight_values = Archetype.objects.get_signature_weights(
+						archetype_ids_for_player_class[FormatType.FT_STANDARD][card_class],
+						FormatType.FT_STANDARD
+					)
+					self.signature_weights[
+						FormatType.FT_STANDARD
+					][card_class] = signature_weight_values
+
+				# Wild Signature Weights
+				if len(archetype_ids_for_player_class[FormatType.FT_WILD][card_class]):
+					signature_weight_values = Archetype.objects.get_signature_weights(
+						archetype_ids_for_player_class[FormatType.FT_WILD][card_class],
+						FormatType.FT_WILD
+					)
+					self.signature_weights[
+						FormatType.FormatType.FT_WILD
+					][card_class] = signature_weight_values
+
 		training_decks = [d.id for d in ArchetypeTrainingDeck.objects.all()]
 
 		result_set = list(conn.execute(compiled_statement))
@@ -78,6 +118,10 @@ class Command(BaseCommand):
 
 		for counter, row in enumerate(result_set):
 			deck_id = row["deck_id"]
+			if counter % 100000 == 0:
+				self.flush_db_buffer()
+				self.flush_firehose_buffer()
+
 			if deck_id is None:
 				self.stderr.write("Got deck_id %r ... skipping" % (deck_id))
 				continue
@@ -90,49 +134,27 @@ class Command(BaseCommand):
 			player_class = CardClass(row["player_class"])
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
 
-			if format not in archetype_ids_for_player_class:
-				archetype_ids_for_player_class[format] = {}
-
-			if player_class not in archetype_ids_for_player_class[format]:
-				configured_archetypes = []
-				for a in Archetype.objects.filter(player_class=player_class):
-					latest_sig = a.signature_set.filter(format=format).latest()
-					if latest_sig.components.count() > 0:
-						self.archetype_map[a.id] = a
-						if format == FormatType.FT_WILD and a.active_in_wild:
-							configured_archetypes.append(a.id)
-						elif format == FormatType.FT_STANDARD and a.active_in_standard:
-							configured_archetypes.append(a.id)
-				archetype_ids_for_player_class[format][player_class] = configured_archetypes
-
-			if player_class not in self.signature_weights[format]:
-				archetype_ids = archetype_ids_for_player_class[format][player_class]
-				signature_weight_values = Archetype.objects.get_signature_weights(
-					archetype_ids,
-					format
-				)
-				self.signature_weights[format][player_class] = signature_weight_values
-
 			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
-			archetype_ids = archetype_ids_for_player_class[format][player_class]
-			new_archetype_id = classify_deck(
-				dbf_map, archetype_ids, self.signature_weights[format][player_class]
-			)
+			if len(archetype_ids_for_player_class[format][player_class]):
+				archetype_ids = archetype_ids_for_player_class[format][player_class]
+				new_archetype_id = classify_deck(
+					dbf_map, archetype_ids, self.signature_weights[format][player_class]
+				)
 
-			if new_archetype_id == current_archetype_id:
-				# self.stdout.write("Deck %r - Nothing to do." % (deck_id))
-				continue
+				if new_archetype_id == current_archetype_id:
+					# self.stdout.write("Deck %r - Nothing to do." % (deck_id))
+					continue
 
-			current_name = self.get_archetype_name(current_archetype_id)
-			new_name = self.get_archetype_name(new_archetype_id)
+				current_name = self.get_archetype_name(current_archetype_id)
+				new_name = self.get_archetype_name(new_archetype_id)
 
-			pct_complete = str(round((100.0 * counter / total_rows), 4))
+				pct_complete = str(round((100.0 * counter / total_rows), 4))
 
-			self.stdout.write("(%r, %s) Updating Deck ID: %r - %s => %s\n" % (
-				counter, pct_complete, deck_id, current_name, new_name
-			))
+				self.stdout.write("\t(%r, %s) Updating Deck ID: %r - %s => %s\n" % (
+					counter, pct_complete, deck_id, current_name, new_name
+				))
 
-			self.buffer_archetype_update(deck_id, new_archetype_id)
+				self.buffer_archetype_update(deck_id, new_archetype_id)
 
 		self.flush_db_buffer()
 		self.flush_firehose_buffer()
@@ -147,27 +169,129 @@ class Command(BaseCommand):
 			archetype_id=str(new_archetype_id or ""),
 			as_of=self.timestamp,
 		)
-		self.firehose_buffer.append({
-			"Data": firehose_record.encode("utf-8"),
-		})
+		self.firehose_buffer.append(firehose_record)
 
 	def flush_db_buffer(self):
+		total_db_updates = sum(len(ids) for ids in self.db_archetypes_to_update.values())
+		self.stdout.write("Writing %i updates to the DB" % total_db_updates)
 		for archetype_id, ids in self.db_archetypes_to_update.items():
-			self.stdout.write("Updating %i decks to archetype %r" % (len(ids), archetype_id))
+			archetype_name = self.get_archetype_name(archetype_id)
+			self.stdout.write("Updating %i decks to archetype %s" % (len(ids), archetype_name))
 			Deck.objects.filter(id__in=ids).update(archetype_id=archetype_id)
+		self.db_archetypes_to_update = {}
 
 	def flush_firehose_buffer(self):
-		while self.firehose_buffer:
-			items = self.firehose_buffer[:self.firehose_batch_size]
-			del self.firehose_buffer[:self.firehose_batch_size]
-			self.stdout.write("Writing %i items to Firehose" % (len(items)))
-
-			result = FIREHOSE.put_record_batch(
-				DeliveryStreamName=settings.ARCHETYPE_FIREHOSE_STREAM_NAME,
-				Records=items
+		self.stdout.write("Writing %i total items to Firehose" % len(self.firehose_buffer))
+		bulk_records = self.to_data_blobs(self.firehose_buffer)
+		if len(bulk_records):
+			self.publish_from_iterable_at_fixed_speed(
+				iter(bulk_records),
+				self._publish_function,
+				max_records_per_second=5000,
+				publish_batch_size=500
 			)
+		self.firehose_buffer = []
 
-			# re-append failed records to the buffer
-			for record, result in zip(items, result["RequestResponses"]):
-				if "ErrorCode" in result:
-					self.firehose_buffer.append(record)
+	def to_data_blobs(self, records, max_blob_size=1000):
+		result = []
+		current_blob_size = 0
+		current_blob_components = []
+
+		for rec in records:
+			rec_data = rec + "\n"
+			if current_blob_size + len(rec_data) >= max_blob_size:
+				result.append({
+					"Data": "".join(current_blob_components)
+				})
+				current_blob_size = 0
+				current_blob_components = []
+
+			current_blob_components.append(rec_data)
+			current_blob_size += len(rec_data)
+
+		if current_blob_size > 0:
+			# At the end flush the remaining blob if its > 0
+			result.append({
+				"Data": "".join(current_blob_components)
+			})
+
+		return result
+
+	def publish_from_iterable_at_fixed_speed(
+		self,
+		iterable,
+		publisher_func,
+		max_records_per_second,
+		publish_batch_size=1
+	):
+		if max_records_per_second == 0:
+			raise ValueError("times_per_second must be greater than 0!")
+
+		finished = False
+		while not finished:
+			try:
+				start_time = time.time()
+				records_this_second = 0
+				while not finished and records_this_second < max_records_per_second:
+					batch = self.next_record_batch_of_size(iterable, publish_batch_size)
+					if batch:
+						records_this_second += len(batch)
+						publisher_func(batch)
+					else:
+						finished = True
+
+				if not finished:
+					elapsed_time = time.time() - start_time
+					sleep_duration = 1 - elapsed_time
+					if sleep_duration > 0:
+						time.sleep(sleep_duration)
+			except StopIteration:
+				finished = True
+
+	def next_record_batch_of_size(self, iterable, max_batch_size):
+		result = []
+		count = 0
+		while count < max_batch_size:
+			record = next(iterable, None)
+			if not record:
+				break
+			result.append(record)
+			count += 1
+		return result
+
+	def _publish_function(self, batch):
+		remainder = batch
+		failure_report_records = None
+		attempt_count = 0
+		while len(remainder) and attempt_count <= 3:
+			remainder, failure_report_records = self._attempt_publish_batch(remainder)
+			if len(remainder):
+				msg = "Firehose attempt %i had %i publish failures"
+				self.stdout.write(msg % (attempt_count, len(remainder)))
+
+		if len(failure_report_records):
+			msg = "Firehose had %i publish failures remaining after last attempt"
+			self.stdout.write(msg % len(failure_report_records))
+
+	def _attempt_publish_batch(self, batch):
+		result = FIREHOSE.put_record_batch(
+			DeliveryStreamName=settings.ARCHETYPE_FIREHOSE_STREAM_NAME,
+			Records=batch
+		)
+
+		failed_put_count = result["FailedPutCount"]
+
+		failure_report_records = []
+		failed_records = []
+		for record, result in zip(batch, result["RequestResponses"]):
+			if "ErrorCode" in result:
+				failure_report_records.append(dict(
+					record=record,
+					stream_name=settings.ARCHETYPE_FIREHOSE_STREAM_NAME,
+					error_code=result["ErrorCode"],
+					error_message=result["ErrorMessage"]
+				))
+				failed_records.append(record)
+
+		assert failed_put_count == len(failed_records)
+		return failed_records, failure_report_records
