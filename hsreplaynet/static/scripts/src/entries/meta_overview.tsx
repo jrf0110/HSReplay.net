@@ -11,11 +11,9 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				gameType: "RANKED_STANDARD",
 				popularitySortBy: "total",
 				popularitySortDirection: "descending",
 				rankRange: "ALL",
-				region: "ALL",
 				sortBy: "popularity",
 				sortDirection: "descending",
 				tab: "matchups",
@@ -24,6 +22,8 @@ const render = (cardData: CardData) => {
 		>
 			<MetaOverview
 				cardData={cardData}
+				gameType="RANKED_STANDARD"
+				region="ALL"
 			/>
 		</Fragments>,
 		document.getElementById("meta-overview-container"),

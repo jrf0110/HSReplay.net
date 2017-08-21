@@ -145,16 +145,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		return <div className="meta-overview-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
-				<section id="game-mode-filter">
-					<h2>Game Mode</h2>
-					<InfoboxFilterGroup
-						selectedValue={this.props.gameType}
-						onClick={(value) => this.props.setGameType(value)}
-					>
-						<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-					</InfoboxFilterGroup>
-				</section>
 				<section id="time-frame-filter">
 					<PremiumWrapper>
 						<h2>Time Frame</h2>
@@ -178,20 +168,14 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						/>
 					</PremiumWrapper>
 				</section>
-				<section id="region-filter">
-					<PremiumWrapper>
-						<h2>Region</h2>
-						<InfoboxFilterGroup
-							locked={!UserData.isPremium()}
-							selectedValue={this.props.region}
-							onClick={(value) => this.props.setRegion(value)}
-						>
-							<InfoboxFilter value="ALL">All Regions</InfoboxFilter>
-							<InfoboxFilter value="REGION_US">America</InfoboxFilter>
-							<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>
-							<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>
-						</InfoboxFilterGroup>
-					</PremiumWrapper>
+				<section id="info">
+					<h2>Data</h2>
+					<ul>
+						<li>
+							Game Type
+							<span className="infobox-value">Ranked Standard</span>
+						</li>
+					</ul>
 				</section>
 			</aside>
 			<main>
