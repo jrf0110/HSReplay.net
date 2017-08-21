@@ -114,7 +114,7 @@ export default class LiveData extends React.Component<LiveDataProps, LiveDataSta
 		);
 	}
 
-	componentDidUpdate(prevState: LiveDataState) {
+	componentDidUpdate(prevProps: LiveDataProps, prevState: LiveDataState) {
 		const renderedGameTypes = this.state.renderedGameTypes.slice();
 		if (this.state.data && renderedGameTypes.length < entranceAnimationOrder.length) {
 			renderedGameTypes.push(entranceAnimationOrder[renderedGameTypes.length]);

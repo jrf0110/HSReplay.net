@@ -19,8 +19,8 @@ interface ArchetypeSignatureProps extends React.ClassAttributes<ArchetypeSignatu
 export default class ArchetypeSignature extends React.Component<ArchetypeSignatureProps, {}> {
 	shouldComponentUpdate(nextProps: ArchetypeSignatureProps) {
 		return (
-			!this.props.cardData && nextProps.cardData
-			|| !_.isEqual(this.props.signature, nextProps.signature)
+			!!this.props.cardData !== !!nextProps.cardData ||
+			!_.isEqual(this.props.signature, nextProps.signature)
 		);
 	}
 
