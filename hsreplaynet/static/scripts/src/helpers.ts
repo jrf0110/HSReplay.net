@@ -605,7 +605,7 @@ export function isCraftableSet(set: string) {
 	return true;
 }
 
-export function getDustCost(card: CardMeta | CardMeta[]): number {
+export function getDustCost(card: any|any[]): number {
 	if (!card) {
 		return 0;
 	}
@@ -638,7 +638,7 @@ export function getDustCost(card: CardMeta | CardMeta[]): number {
 	return 0;
 }
 
-export function getManaCost(card: CardMeta | CardMeta[]) : number {
+export function getManaCost(card: any|any[]) : number {
 	if (!card) {
 		return 0;
 	}
