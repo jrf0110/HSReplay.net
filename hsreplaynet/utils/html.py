@@ -32,6 +32,7 @@ class HTMLHead:
 	def __init__(self, request):
 		self._meta_tags = []
 		self._link_tags = []
+		self._script_tags = []
 		self.request = request
 		self.charset = "utf-8"
 		self.base_title = "HSReplay.net"
@@ -75,6 +76,8 @@ class HTMLHead:
 		for k, v in self.opengraph.items():
 			tags.append(HTMLTag("meta", attrs={"property": k, "content": v}))
 
+		tags += self._script_tags
+
 		return tags
 
 	def get_title(self):
@@ -91,6 +94,12 @@ class HTMLHead:
 
 	def add_link(self, **attrs):
 		self._link_tags.append(HTMLTag("link", attrs=attrs))
+
+	def add_script(self, content="", **attrs):
+		if content is None:
+			# a self-closing script tag is always invalid
+			content = ""
+		self._script_tags.append(HTMLTag("script", attrs=attrs, content=content))
 
 	def add_meta(self, *tags):
 		for attrs in tags:
