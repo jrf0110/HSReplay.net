@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, SuspiciousOperation
-from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
@@ -343,6 +342,10 @@ class PremiumDetailView(RequestMetaMixin, TemplateView):
 		context = super().get_context_data(**kwargs)
 		context["random_quote"] = random.choice(self.quotes)
 		return context
+
+	def get(self, request, *args, **kwargs):
+		self.request.head.add_script(src="https://js.stripe.com/v3/")
+		return super().get(request, *args, **kwargs)
 
 
 class PaypalSuccessView(View):

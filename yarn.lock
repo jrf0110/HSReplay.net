@@ -44,6 +44,10 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/stripe-v2/-/stripe-v2-2.0.0.tgz#e157b83b1bf5b7847f9e93efb2e68ec51f4f4f33"
 
+"@types/stripe@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/stripe/-/stripe-3.0.0.tgz#13a4c43dd99d9b49fd82064f5c6460936c8be142"
+
 "@types/victory@^0.9.11":
   version "0.9.11"
   resolved "https://registry.yarnpkg.com/@types/victory/-/victory-0.9.11.tgz#0c1aff51293de724c45448dc9cb41e23e1ccec4c"
@@ -3041,7 +3045,7 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.4:
+prop-types@^15.5.4, prop-types@^15.5.8:
   version "15.5.10"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.10.tgz#2797dfc3126182e3a95e3dfbb2e893ddd7456154"
   dependencies:
@@ -3122,6 +3126,12 @@ rc@^1.1.7:
     ini "~1.3.0"
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
+
+react-stripe-elements@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/react-stripe-elements/-/react-stripe-elements-0.0.8.tgz#154fb38a89960073020b5a96bdc160fae5de1859"
+  dependencies:
+    prop-types "^15.5.8"
 
 react-virtualized@^9.9.0:
   version "9.9.0"
