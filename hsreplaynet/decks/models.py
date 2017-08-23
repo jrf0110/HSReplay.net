@@ -762,7 +762,7 @@ class Signature(models.Model):
 		get_latest_by = "as_of"
 
 	def __str__(self):
-		return "Signature for %s (%s)" % (self.archetype, self.format.name)
+		return "Signature for %s (%s)" % (self.archetype, self.format)
 
 	def distance(self, deck):
 		dist = 0
