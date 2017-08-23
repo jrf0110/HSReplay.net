@@ -4,6 +4,7 @@ import { withLoading } from "../loading/Loading";
 import ArchetypeClassTable from "./ArchetypeClassTable";
 import { toTitleCase } from "../../helpers";
 import CardData from "../../CardData";
+import ClassArchetypesTile from "./ClassArchetypesTile";
 
 interface ClassArchetypeData {
 	[playerClass: string]: ApiArchetypePopularity[];
@@ -19,33 +20,21 @@ interface ArchetypeListProps extends SortableProps, React.ClassAttributes<Archet
 class ArchetypeList extends React.Component<ArchetypeListProps, {}> {
 	render(): JSX.Element {
 		const {data} = this.props;
-		const tiles = Object.keys(data).sort().map((key) => this.renderClass(key, data[key]));
+		const tiles = Object.keys(data).sort().map((key) => (
+			<ClassArchetypesTile
+				archetypeData={this.props.archetypeData}
+				cardData={this.props.cardData}
+				data={data[key]}
+				gameType={this.props.gameType}
+				onSortChanged={this.props.onSortChanged}
+				playerClass={key}
+				sortBy={this.props.sortBy}
+				sortDirection={this.props.sortDirection}
+			/>
+		));
 		return (
 			<div className="class-tile-container">
 				{tiles}
-			</div>
-		);
-	}
-
-	renderClass(playerClass: string, data: ApiArchetypePopularity[]): JSX.Element {
-		return (
-			<div className="tile class-tile">
-				<div className="tile-title">
-					<span className={`player-class ${playerClass.toLowerCase()}`}>
-						{toTitleCase(playerClass)}
-					</span>
-				</div>
-				<div className="tile-content">
-					<ArchetypeClassTable
-						data={data}
-						archetypeData={this.props.archetypeData}
-						onSortChanged={this.props.onSortChanged}
-						sortBy={this.props.sortBy}
-						sortDirection={this.props.sortDirection}
-						gameType={this.props.gameType}
-						cardData={this.props.cardData}
-					/>
-				</div>
 			</div>
 		);
 	}
