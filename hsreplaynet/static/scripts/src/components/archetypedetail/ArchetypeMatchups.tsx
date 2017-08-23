@@ -1,60 +1,72 @@
 import * as React from "react";
 import ClassMatchup from "../ClassMatchup";
-import {ApiArchetype} from "../../interfaces";
+import {ApiArchetype, ApiArchetypePopularity, SortableProps} from "../../interfaces";
+import {withLoading} from "../loading/Loading";
+import ClassArchetypesTile from "../metaoverview/ClassArchetypesTile";
+import CardData from "../../CardData";
 
-interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
+interface ArchetypeMatchupsProps extends SortableProps, React.ClassAttributes<ArchetypeMatchups> {
 	archetypeId: number;
 	archetypeMatchupData?: any;
 	archetypeData?: any;
+	cardData?: CardData;
+	gameType?: string;
 }
 
-export default class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, {}> {
+class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, {}> {
 	render(): JSX.Element {
-		const matchupsTiles = [];
+		const {archetypeMatchupData, archetypeId} = this.props;
+		const archetypeMatchups = archetypeMatchupData.series.data["" + archetypeId];
 
-		const archetypeMatchups = this.props.archetypeMatchupData.series.data["" + this.props.archetypeId];
-		if (!archetypeMatchups) {
-			return <h3 className="message-wrapper">No data available.</h3>;
-		}
-
-		const opponentClasses = {};
+		const opponentClasses: {[key: string]: ApiArchetypePopularity[]} = {};
+		const games: {[key: string]: number} = {};
 		Object.keys(archetypeMatchups).forEach((opponentId) => {
 			const opponentArchetype = this.getArchetype(+opponentId);
 			if (opponentArchetype) {
+				const opponentClass = opponentArchetype.player_class_name;
 				const matchup = archetypeMatchups[opponentId];
-				if (!opponentClasses[opponentArchetype.player_class_name]) {
-					opponentClasses[opponentArchetype.player_class_name] = [];
+				if (!opponentClasses[opponentClass]) {
+					opponentClasses[opponentClass] = [];
 				}
-				opponentClasses[opponentArchetype.player_class_name].push({
-					id: opponentArchetype.id,
-					name: opponentArchetype.name,
-					winrate: matchup.win_rate,
+				games[opponentClass] = (games[opponentClass] || 0) + matchup.total_games;
+				opponentClasses[opponentClass].push({
+					archetype_id: +opponentArchetype.id,
+					pct_of_class: matchup.total_games,
+					pct_of_total: 0,
+					total_games: matchup.total_games,
+					win_rate: matchup.win_rate,
 				});
 			}
 		});
 
-		Object.keys(opponentClasses).sort().forEach((opponentPlayerClass, i) => {
-			matchupsTiles.push(
-				<ClassMatchup
-					archetypes={opponentClasses[opponentPlayerClass]}
-					playerClass={opponentPlayerClass}
-				/>,
-			);
-			if ((i + 1) % 2 === 0) {
-				matchupsTiles.push(<div className="clearfix visible-md-block"/>);
-			}
-			if ((i + 1) % 3 === 0) {
-				matchupsTiles.push(<div className="clearfix visible-lg-block"/>);
-			}
-
+		Object.keys(opponentClasses).forEach((key) => {
+			opponentClasses[key].forEach((data) => {
+				data.pct_of_class *= 100.0 / games[key];
+			});
 		});
-		if (matchupsTiles.length) {
-			return <div className="archetype-matchups">{matchupsTiles}</div>;
-		}
-		return <h3 className="message-wrapper">No data available.</h3>;
+
+		const tiles = Object.keys(opponentClasses).sort().map((key) => (
+			<ClassArchetypesTile
+				archetypeData={this.props.archetypeData}
+				cardData={this.props.cardData}
+				data={opponentClasses[key]}
+				gameType={this.props.gameType}
+				onSortChanged={this.props.onSortChanged}
+				playerClass={key}
+				sortBy={this.props.sortBy}
+				sortDirection={this.props.sortDirection}
+			/>
+		));
+		return (
+			<div className="class-tile-container">
+				{tiles}
+			</div>
+		);
 	}
 
 	getArchetype(archetypeId: number): ApiArchetype {
 		return this.props.archetypeData.find((x) => x.id === archetypeId);
 	}
 }
+
+export default withLoading(["archetypeMatchupData", "archetypeData"])(ArchetypeMatchups);

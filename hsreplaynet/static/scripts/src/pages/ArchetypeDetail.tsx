@@ -312,9 +312,13 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
 								]}
 							>
-								<TableLoading dataKeys={["archetypeMatchupData", "archetypeData"]}>
-									<ArchetypeMatchups archetypeId={this.props.archetypeId}/>
-								</TableLoading>
+								<ArchetypeMatchups
+									archetypeId={this.props.archetypeId}
+									cardData={this.props.cardData}
+									sortBy="archetype"
+									sortDirection="ascending"
+									onSortChanged={() => null}
+								/>
 							</DataInjector>
 						</Tab>
 						<Tab label="Popular Decks" id="similar">
