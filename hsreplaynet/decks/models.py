@@ -590,8 +590,16 @@ class Archetype(models.Model):
 		return self.name
 
 	@property
+	def _standard_signature(self):
+		return self.signature_set.filter(format=enums.FormatType.FT_STANDARD).latest()
+
+	@property
+	def _wild_signature(self):
+		return self.signature_set.filter(format=enums.FormatType.FT_WILD).latest()
+
+	@property
 	def standard_signature(self):
-		sig = self.signature_set.filter(format=enums.FormatType.FT_STANDARD).latest()
+		sig = self._standard_signature
 		return {
 			"as_of": sig.as_of,
 			"format": int(sig.format),
@@ -600,12 +608,20 @@ class Archetype(models.Model):
 
 	@property
 	def wild_signature(self):
-		sig = self.signature_set.filter(format=enums.FormatType.FT_WILD).latest()
+		sig = self._wild_signature
 		return {
 			"as_of": sig.as_of,
 			"format": int(sig.format),
 			"components": [(c.card_id, c.weight) for c in sig.components.all()],
 		}
+
+	@property
+	def standard_signature_pretty(self):
+		return self._standard_signature.pretty_signature_string()
+
+	@property
+	def wild_signature_pretty(self):
+		return self._wild_signature.pretty_signature_string()
 
 	@property
 	def wild_training_decks_count(self):

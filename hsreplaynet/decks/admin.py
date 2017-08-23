@@ -37,6 +37,7 @@ class ArchetypeAdmin(admin.ModelAdmin):
 		"standard_signature_as_of"
 	)
 	list_filter = ("player_class", )
+	readonly_fields = ("standard_signature_pretty", "wild_signature_pretty")
 
 	def player_class_name(self, obj):
 		return "%s" % obj.player_class.name
