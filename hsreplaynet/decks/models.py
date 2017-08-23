@@ -796,7 +796,7 @@ class Signature(models.Model):
 
 	def pretty_signature_string(self, sep=", "):
 		components = {}
-		for component in self.components.all():
+		for component in self.components.select_related("card").all():
 			components[component.card.name] = component.weight
 		sorted_components = sorted(components.items(), key=lambda t: t[1], reverse=True)
 		return sep.join(["%s - %s" % (n, str(round(w, 2))) for n, w in sorted_components])

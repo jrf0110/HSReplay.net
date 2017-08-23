@@ -33,6 +33,8 @@ class ArchetypeAdmin(admin.ModelAdmin):
 		"player_class_name",
 		"active_in_wild",
 		"active_in_standard",
+		"standard_signature_pretty",
+		"wild_signature_pretty",
 		"wild_signature_as_of",
 		"standard_signature_as_of"
 	)
