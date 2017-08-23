@@ -75,4 +75,5 @@ class ArchetypeTrainingDeckAdmin(admin.ModelAdmin):
 class SignatureAdmin(admin.ModelAdmin):
 	list_display = ("__str__", "archetype", "format", "as_of")
 	list_filter = ("format", )
+	raw_id_fields = ("archetype", )
 	inlines = (SignatureComponentInline, )
