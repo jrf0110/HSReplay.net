@@ -1,6 +1,7 @@
 import * as React from "react";
 import { getArchetypeUrl, getHeroColor, getPieTranslate, hexToHsl, stringifyHsl, toTitleCase } from "../../helpers";
 import { VictoryLabel, VictoryLegend, VictoryPie } from "victory";
+import { ApiArchetype } from "../../interfaces";
 
 interface ArchetypeDistributionPieChartProps extends React.ClassAttributes<ArchetypeDistributionPieChart> {
 	matchupData?: any;
@@ -26,26 +27,31 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 		};
 	}
 
-	private getArchetypeName(archetypeId: string): string {
-		const archetype = this.props.archetypeData.find((a) => a.id === archetypeId);
+	private getArchetype(archetypeId: string): ApiArchetype {
+		return this.props.archetypeData.find((a) => a.id === archetypeId);
+	}
+
+	private getArchetypeName(archetype: ApiArchetype): string {
 		return archetype ? archetype.name : `Other ${toTitleCase(this.props.playerClass)}`;
 	}
 
 	private getChartData(): any {
 		const archetypes = this.props.matchupData.series.data[this.props.playerClass];
-		const data = archetypes.map((archetype) => {
-			const id = archetype.archetype_id;
+		const data = archetypes.map((matchup) => {
+			const id = matchup.archetype_id;
 			const selected = id === this.props.selectedArchetypeId;
 			const scale = selected ? 1.1 : (this.state.hovering === id ? 1.05 : 1.0);
 			const translate = getPieTranslate(this.pieSize, this.pieSize, this.piePadding);
+			const archetype = this.getArchetype(id);
 			return {
 				archetypeId: id,
 				isSelectedArchetype: id === this.props.selectedArchetypeId,
 				stroke: pageBackground,
 				strokeWidth: selected ? 2 : 0,
 				transform: translate + ` scale(${scale})`,
-				x: this.getArchetypeName(id),
-				y: archetype.pct_of_class,
+				url: archetype.url,
+				x: this.getArchetypeName(archetype),
+				y: matchup.pct_of_class,
 			};
 		});
 		data.sort((a, b) => b.y - a.y);
@@ -68,11 +74,16 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 		const legendData = data.map((p) => {
 			const hovering = p.archetypeId === this.state.hovering;
 			return {
+				archetypeId: p.archetypeId,
 				fontWeight: hovering ? "bold" : "normal",
+				isSelectedArchetype: p.isSelectedArchetype,
 				name: p.x + (hovering ? ` ${p.y}% ` : ""),
 				symbol: {style: "circle", fill: p.fill},
+				url: p.url,
 			};
 		});
+
+		const cursor = (p) => p.isSelectedArchetype ? "inherit" : "pointer";
 
 		return (
 			<svg viewBox="0 0 400 600">
@@ -88,40 +99,14 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 					data={data}
 					style={{
 						data: {
-							cursor: (prop) => prop.isSelectedArchetype ? "inherit" : "pointer",
+							cursor,
 							transition: "transform .2s ease-in-out",
 						},
-					}}
-					events={[{
-						target: "data",
-						eventHandlers: {
-							onClick: () => {
-								return [{
-									mutation: (props) => {
-										if (!props.datum.isSelectedArchetype) {
-											window.open(getArchetypeUrl(props.datum.archetypeId, props.datum.x), "_self");
-										}
-									},
-								}];
-							},
-							onMouseOver: () => {
-								return [{
-									mutation: (props) => {
-										this.setState({hovering: props.datum.archetypeId});
-									},
-								}];
-							},
-							onMouseOut: () => {
-								return [{
-									mutation: (props) => {
-										if (this.state.hovering === props.datum.archetypeId) {
-											this.setState({hovering: null});
-										}
-									},
-								}];
-							},
+						labels: {
+							cursor,
 						},
-					}]}
+					}}
+					events={this.mouseEvents()}
 				/>
 				<VictoryLegend
 					data={legendData}
@@ -129,8 +114,15 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 					height={600}
 					padding={{top: 360, left: 80}}
 					style={{
-						labels: {fontWeight: (d) => d.fontWeight},
+						data: {
+							cursor,
+						},
+						labels: {
+							cursor,
+							fontWeight: (d) => d.fontWeight,
+						},
 					}}
+					events={this.mouseEvents()}
 				/>
 				<VictoryLabel
 					textAnchor="middle"
@@ -142,5 +134,39 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 				/>
 			</svg>
 		);
+	}
+
+	mouseEvents(): any[] {
+		const eventHandlers = {
+			onClick: () => {
+				return [{
+					mutation: (props) => {
+						if (!props.datum.isSelectedArchetype) {
+							window.open(props.datum.url, "_self");
+						}
+					},
+				}];
+			},
+			onMouseOut: () => {
+				return [{
+					mutation: (props) => {
+						if (this.state.hovering === props.datum.archetypeId) {
+							this.setState({hovering: null});
+						}
+					},
+				}];
+			},
+			onMouseOver: () => {
+				return [{
+					mutation: (props) => {
+						this.setState({hovering: props.datum.archetypeId});
+					},
+				}];
+			},
+		};
+		return [
+			{eventHandlers, target: "data"},
+			{eventHandlers, target: "labels"},
+		];
 	}
 }
