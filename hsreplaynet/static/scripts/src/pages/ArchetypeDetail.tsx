@@ -264,7 +264,15 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				<section id="page-content">
 					<TabList tab={this.props.tab} setTab={this.props.setTab}>
 						<Tab label="Overview" id="overview">
-							<div className="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+							<div className="col-lg-offset-1 col-lg-5 col-md-6 col-sm-12 col-xs-12">
+								<DataInjector
+									query={{key: "data", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId}}
+									extract={{data: (data) => extractSignature(data, gameType)}}
+								>
+									<ArchetypeSignature cardData={this.props.cardData} showOccasional/>
+								</DataInjector>
+							</div>
+							<div className="col-lg-5 col-md-6 col-sm-12 col-xs-12">
 								<div className="archetype-chart">
 									<DataInjector
 										query={[
@@ -284,12 +292,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									</DataInjector>
 								</div>
 							</div>
-							<DataInjector
-								query={{key: "data", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId}}
-								extract={{data: (data) => extractSignature(data, gameType)}}
-							>
-								<ArchetypeSignature cardData={this.props.cardData} showOccasional/>
-							</DataInjector>
 						</Tab>
 						<Tab
 							label="Matchups"
