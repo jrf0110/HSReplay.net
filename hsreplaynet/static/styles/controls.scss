@@ -284,3 +284,12 @@ label>input {
 		}
 	}
 }
+
+[data-toggle=buttons] {
+	& > .btn input[type=checkbox],
+	& > .btn input[type=radio],
+	& > .btn-group > .btn input[type=checkbox],
+	& > .btn-group > .btn input[type=radio] {
+		height: 0px;
+	}
+}

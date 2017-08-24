@@ -91,6 +91,7 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 						style={{
 							position: "absolute",
 							clip: "rect(0,0,0,0)",
+							height: "0px",
 							pointerEvents: "none",
 						}}
 					/>
