@@ -269,6 +269,10 @@ body, html {
 	}
 }
 
+.alert {
+	border-radius: 0;
+}
+
 /* Status message for uploads in progress */
 .upload-status-message {
 	background-color: $blue;
