@@ -18,7 +18,6 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				gameType: "RANKED_STANDARD",
 				rankRange: "ALL",
 				tab: "overview",
 			}}
@@ -30,6 +29,7 @@ const render = (cardData: CardData) => {
 				playerClass={playerClass}
 				hasStandardData={hasStandardData}
 				hasWildData={hasWildData}
+				gameType="RANKED_STANDARD"
 			/>
 		</Fragments>,
 		container,

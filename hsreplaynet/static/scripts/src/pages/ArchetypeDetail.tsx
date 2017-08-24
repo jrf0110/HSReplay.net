@@ -155,25 +155,14 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
 				</section>
-				<section id="game-mode-filter">
-					<h2>Game Mode</h2>
-					<InfoboxFilterGroup
-						selectedValue={gameType}
-						onClick={(value) => this.props.setGameType(value)}
-					>
-						<InfoboxFilter
-							value="RANKED_STANDARD"
-							disabled={!this.props.hasStandardData}
-						>
-							Ranked Standard
-						</InfoboxFilter>
-						<InfoboxFilter
-							value="RANKED_WILD"
-							disabled={!this.props.hasWildData}
-						>
-							Ranked Wild
-						</InfoboxFilter>
-					</InfoboxFilterGroup>
+				<section id="info">
+					<h2>Data</h2>
+					<ul>
+						<li>
+							Game Type
+							<span className="infobox-value">Ranked Standard</span>
+						</li>
+					</ul>
 				</section>
 			</aside>
 			<main>
