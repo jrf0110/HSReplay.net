@@ -24,7 +24,6 @@ REDSHIFT_QUERY = text("""
 	LEFT JOIN deck_archetype_map m ON m.deck_id = p.proxy_deck_id
 	WHERE p.game_date BETWEEN :start_date AND :end_date
 	AND p.game_type = 2 -- IN (2, 30)
-	AND p.full_deck_known
 	GROUP BY p.game_type, p.player_class, p.proxy_deck_id;
 """).bindparams(
 	bindparam("start_date", type_=Date),
@@ -52,7 +51,7 @@ class Command(BaseCommand):
 		super().__init__(*args, **kwargs)
 
 	def add_arguments(self, parser):
-		parser.add_argument("--lookback", nargs="?", type=int, default=14)
+		parser.add_argument("--lookback", nargs="?", type=int, default=7)
 
 	def get_archetype_name(self, archetype_id):
 		if archetype_id in self.archetype_map:
