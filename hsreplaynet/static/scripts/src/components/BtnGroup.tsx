@@ -48,10 +48,17 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 		return this.props.buttons.map((btn: Btn, i: number) => {
 			const disabled = this.props.disabled || btn.disabled;
 			const selected = this.props.value === btn.value;
+			const classNames = [""];
+			if (selected) {
+				classNames.push("active");
+			}
+			if (disabled) {
+				classNames.push("disabled");
+			}
 			return (
 				<label
 					id={btn.id}
-					className={btn.className + (disabled ? " disabled" : "")}
+					className={btn.className + classNames.join(" ")}
 					onClick={onClick(btn)}
 					onKeyDown={disabled ? null : (e) => {
 						const {keyCode} = e;
