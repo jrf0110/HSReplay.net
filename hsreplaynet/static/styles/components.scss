@@ -28,6 +28,7 @@ table .info-icon, .sort-header .info-icon {
 	padding: 8px 8px;
 	position: fixed;
 	white-space: normal;
+	pointer-events: none;
 	z-index: 1000;
 
 	&.no-background {
