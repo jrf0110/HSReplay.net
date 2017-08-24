@@ -315,9 +315,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								<ArchetypeMatchups
 									archetypeId={this.props.archetypeId}
 									cardData={this.props.cardData}
-									sortBy="archetype"
-									sortDirection="ascending"
-									onSortChanged={() => null}
 								/>
 							</DataInjector>
 						</Tab>

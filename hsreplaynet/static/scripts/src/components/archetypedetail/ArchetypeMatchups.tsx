@@ -1,11 +1,11 @@
 import * as React from "react";
 import ClassMatchup from "../ClassMatchup";
-import {ApiArchetype, ApiArchetypePopularity, SortableProps} from "../../interfaces";
+import {ApiArchetype, ApiArchetypePopularity, SortableProps, SortDirection} from "../../interfaces";
 import {withLoading} from "../loading/Loading";
 import ClassArchetypesTile from "../metaoverview/ClassArchetypesTile";
 import CardData from "../../CardData";
 
-interface ArchetypeMatchupsProps extends SortableProps, React.ClassAttributes<ArchetypeMatchups> {
+interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
 	archetypeId: number;
 	archetypeMatchupData?: any;
 	archetypeData?: any;
@@ -13,7 +13,20 @@ interface ArchetypeMatchupsProps extends SortableProps, React.ClassAttributes<Ar
 	gameType?: string;
 }
 
-class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, {}> {
+interface ArchetypeMatchupsState {
+	sortBy: string;
+	sortDirection: SortDirection;
+}
+
+class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, ArchetypeMatchupsState> {
+	constructor(props: ArchetypeMatchupsProps, state: ArchetypeMatchupsState) {
+		super(props, state);
+		this.state = {
+			sortBy: "archetype",
+			sortDirection: "ascending",
+		};
+	}
+
 	render(): JSX.Element {
 		const {archetypeMatchupData, archetypeId} = this.props;
 		const archetypeMatchups = archetypeMatchupData.series.data["" + archetypeId];
@@ -51,10 +64,12 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, {}> {
 				cardData={this.props.cardData}
 				data={opponentClasses[key]}
 				gameType={this.props.gameType}
-				onSortChanged={this.props.onSortChanged}
+				onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
+					this.setState({sortBy, sortDirection});
+				}}
 				playerClass={key}
-				sortBy={this.props.sortBy}
-				sortDirection={this.props.sortDirection}
+				sortBy={this.state.sortBy}
+				sortDirection={this.state.sortDirection}
 			/>
 		));
 		return (
