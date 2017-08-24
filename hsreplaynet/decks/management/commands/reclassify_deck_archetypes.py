@@ -197,7 +197,7 @@ class Command(BaseCommand):
 		current_blob_components = []
 
 		for rec in records:
-			rec_data = rec + "\n"
+			rec_data = rec
 			if current_blob_size + len(rec_data) >= max_blob_size:
 				result.append({
 					"Data": "".join(current_blob_components)
