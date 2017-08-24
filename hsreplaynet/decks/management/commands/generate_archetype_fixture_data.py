@@ -10,7 +10,7 @@ class Command(BaseCommand):
 			"archetype_map": {}
 		}
 
-		for archetype in Archetype.objects.all():
+		for archetype in Archetype.objects.live().all():
 			data["archetype_map"][archetype.id] = archetype.name
 
 		for game_format in (FormatType.FT_STANDARD, FormatType.FT_WILD):

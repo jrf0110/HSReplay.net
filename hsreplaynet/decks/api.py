@@ -70,7 +70,7 @@ class DeckCreationSerializer(serializers.Serializer):
 
 class DeckSerializer(serializers.ModelSerializer):
 	archetype = serializers.PrimaryKeyRelatedField(
-		queryset=Archetype.objects.all(),
+		queryset=Archetype.objects.live().all(),
 		allow_null=True
 	)
 	digest = serializers.CharField(read_only=True)
@@ -144,7 +144,7 @@ class ArchetypeViewSet(
 ):
 	authentication_classes = (SessionAuthentication, )
 	pagination_class = None
-	queryset = Archetype.objects.all()
+	queryset = Archetype.objects.live().all()
 
 	def get_serializer_class(self):
 		if self.request.method in ["PATCH", "POST"]:

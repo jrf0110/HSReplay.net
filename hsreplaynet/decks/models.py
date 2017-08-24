@@ -67,7 +67,7 @@ class DeckManager(models.Manager):
 	def classify_deck_with_archetype(self, deck, player_class, game_format):
 		if game_format not in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
 			return
-		qs = Archetype.objects.filter(player_class=player_class)
+		qs = Archetype.objects.live().filter(player_class=player_class)
 		if game_format == enums.FormatType.FT_STANDARD:
 			qs.filter(active_in_standard=True)
 		else:
@@ -314,9 +314,15 @@ class ArchetypeManager(models.Manager):
 		JOIN signatures s ON s.signature_id = sc.signature_id;
 	"""
 
+	def live(self):
+		return self.filter(deleted=False)
+
 	def get_fully_configured_archetypes(self, game_format, player_class):
 		result = []
-		for a in Archetype.objects.filter(player_class=player_class).all():
+		archetype_list = Archetype.objects.live().filter(
+			player_class=player_class
+		).all()
+		for a in archetype_list:
 			if game_format == enums.FormatType.FT_STANDARD and a.active_in_standard:
 				result.append(a)
 
@@ -380,7 +386,10 @@ class ArchetypeManager(models.Manager):
 		for player_class in enums.CardClass:
 			if enums.CardClass.DRUID <= player_class <= enums.CardClass.WARRIOR:
 				clusters = []
-				for archetype in Archetype.objects.filter(player_class=player_class).all():
+				archetypes_list = Archetype.objects.live().filter(
+					player_class=player_class
+				).all()
+				for archetype in archetypes_list:
 					archtype_cluster = archetype.to_cluster(game_format=game_format)
 					if archtype_cluster:
 						clusters.append(archtype_cluster)
@@ -408,7 +417,9 @@ class ArchetypeManager(models.Manager):
 
 					for cluster in class_cluster.clusters:
 						if cluster.external_id:
-							archetype = Archetype.objects.get(id=cluster.external_id)
+							archetype = Archetype.objects.live().get(
+								id=cluster.external_id
+							)
 							vals = (suffix, archetype.name, archetype.id)
 							log.info(
 								"%s: Update Existing Archetype: %s (%i)" % vals
@@ -486,7 +497,7 @@ class ArchetypeManager(models.Manager):
 			with transaction.atomic():
 				current_ts = timezone.now()
 				for archetype_id, weights in new_weights.items():
-					archetype = Archetype.objects.get(id=int(archetype_id))
+					archetype = Archetype.objects.live().get(id=int(archetype_id))
 					signature = Signature.objects.create(
 						archetype=archetype, format=game_format, as_of=current_ts
 					)

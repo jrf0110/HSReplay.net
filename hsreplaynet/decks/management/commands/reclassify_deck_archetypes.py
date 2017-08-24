@@ -78,7 +78,7 @@ class Command(BaseCommand):
 		}
 		for card_class in CardClass:
 			if 2 <= card_class <= 10:
-				for a in Archetype.objects.filter(player_class=card_class):
+				for a in Archetype.objects.live().filter(player_class=card_class):
 					if a.active_in_standard:
 						self.archetype_map[a.id] = a
 						archetype_ids_for_player_class[

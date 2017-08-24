@@ -12,9 +12,11 @@ class Command(BaseCommand):
 			id = options[k][0]
 			try:
 				if id.isdigit():
-					archetype = Archetype.objects.get(id=id)
+					archetype = Archetype.objects.live().get(id=id)
 				else:
-					archetype = Archetype.objects.filter(name__iexact=id).get()
+					archetype = Archetype.objects.live().filter(
+						name__iexact=id
+					).get()
 			except Archetype.DoesNotExist as e:
 				raise CommandError("No such archetype (%r): %s" % (id, e))
 

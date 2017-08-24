@@ -41,6 +41,10 @@ class ArchetypeAdmin(admin.ModelAdmin):
 	list_filter = ("player_class", )
 	readonly_fields = ("standard_signature_pretty", "wild_signature_pretty")
 
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)
+		return qs.filter(deleted=False)
+
 	def player_class_name(self, obj):
 		return "%s" % obj.player_class.name
 	player_class_name.short_description = "Class"
@@ -61,11 +65,15 @@ class ArchetypeAdmin(admin.ModelAdmin):
 	def set_inactive_in_standard(self, request, queryset):
 		queryset.update(active_in_standard=False)
 
+	def set_deleted(self, request, queryset):
+		queryset.update(deleted=True)
+
 	actions = (
 		set_active_in_wild,
 		set_inactive_in_wild,
 		set_active_in_standard,
-		set_inactive_in_standard
+		set_inactive_in_standard,
+		set_deleted
 	)
 
 
