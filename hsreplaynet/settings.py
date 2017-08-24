@@ -176,7 +176,9 @@ else:
 
 # S3
 AWS_S3_USE_SSL = True
+AWS_DEFAULT_REGION="us-east-1"
 AWS_DEFAULT_ACL = "private"
+
 
 AWS_IS_GZIPPED = True
 GZIP_CONTENT_TYPES = [
