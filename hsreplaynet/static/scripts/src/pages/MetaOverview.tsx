@@ -161,11 +161,18 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</section>
 				<section id="rank-range-filter">
 					<PremiumWrapper>
-						<RankRangeFilter
-							rankRange={this.props.rankRange}
-							onChange={(rankRange) => this.props.setRankRange(rankRange)}
+						<InfoboxFilterGroup
+							header="Rank Range"
+							locked={!UserData.isPremium()}
+							selectedValue={this.props.rankRange}
+							onClick={(value) => this.props.setRankRange(value)}
 							disabled={["archetypes", "matchups"].indexOf(this.props.tab) === -1}
-						/>
+						>
+							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+						</InfoboxFilterGroup>
 					</PremiumWrapper>
 				</section>
 				<section id="info">
