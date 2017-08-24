@@ -582,6 +582,7 @@ class Archetype(models.Model):
 	player_class = IntEnumField(enum=enums.CardClass, default=enums.CardClass.INVALID)
 	active_in_standard = models.BooleanField(default=False)
 	active_in_wild = models.BooleanField(default=False)
+	deleted = models.BooleanField(default=False)
 
 	class Meta:
 		db_table = "cards_archetype"
