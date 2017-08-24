@@ -39,7 +39,7 @@ interface ArchetypeMatchupsState {
 	useCustomWeights?: boolean;
 }
 
-const popularityCutoff = 1;
+const popularityCutoff = 0;
 
 class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, ArchetypeMatchupsState> {
 	constructor(props: ArchetypeMatchupsProps, state: ArchetypeMatchupsState) {
