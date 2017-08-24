@@ -61,7 +61,7 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 		});
 
 		return (
-			<div className="card-list-wrapper">
+			<div className="card-list-wrapper archetype-signature">
 				{cardLists}
 			</div>
 		);
