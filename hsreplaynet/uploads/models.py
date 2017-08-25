@@ -530,8 +530,7 @@ class RedshiftStagingTrackManager(models.Manager):
 				if tasks:
 					for task in tasks:
 						log.info("Next Task: %s" % str(task))
-						with influx_timer("redshift_etl_task_invocation", task=str(task)):
-							task()
+						task()
 						log.info("Complete.")
 			else:
 				log.info("Could not acquire lock. Will skip maintenance run.")
