@@ -434,6 +434,22 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					</span>
 				</li>
 				<li>
+					<span>Refresh Data</span>
+					<span className="infobox-value">
+						<a
+							href="#"
+							onClick={(e) => {
+								e.preventDefault();
+								DataManager.get(`/analytics/clustering/refresh/${this.props.format}`, {}, true).then(() => {
+									window.alert("Okay");
+								});
+							}}
+						>
+							Refresh
+						</a>
+					</span>
+				</li>
+				<li>
 					<span>Archetype</span>
 					<span className="infobox-value">
 						<DataInjector
