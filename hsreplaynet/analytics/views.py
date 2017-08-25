@@ -317,18 +317,44 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	title = "Clustering Charts"
 
 
+_CLUSTER_CACHE = {}
+
+
 @view_requires_feature_access("archetype-training")
 def clustering_data(request, game_format):
 	from hearthstone.enums import FormatType
 	from hsarchetypes.clustering import ClusterSet
+	if not _CLUSTER_CACHE.get(game_format, None):
+		data = get_cluster_set_data(game_format=FormatType[game_format])
+		if len(data):
+			cluster_set = ClusterSet.create_cluster_set(data)
+			_CLUSTER_CACHE[game_format] = cluster_set
+		else:
+			result = {"msg": "Query is processing. Check back later."}
+			response = JsonResponse(result, status=202)
+			return response
+
+	cluster_set = _CLUSTER_CACHE[game_format]
+	return HttpResponse(
+		content=json.dumps(cluster_set.to_chart_data(), indent=4),
+		content_type="application/json"
+	)
+
+
+@view_requires_feature_access("archetype-training")
+def clustering_data_refresh(request, game_format):
+	from hearthstone.enums import FormatType
+	from hsarchetypes.clustering import ClusterSet
+
 	data = get_cluster_set_data(game_format=FormatType[game_format])
 	if len(data):
 		cluster_set = ClusterSet.create_cluster_set(data)
-		response = HttpResponse(
-			content=json.dumps(cluster_set.to_chart_data(), indent=4),
-			content_type="application/json"
-		)
+		_CLUSTER_CACHE[game_format] = cluster_set
+
+		result = {"msg": "Okay"}
+		response = JsonResponse(result, status=200)
+		return response
 	else:
-		result = {"msg": "Query is processing. Check back later."}
+		result = {"msg": "Recalculating"}
 		response = JsonResponse(result, status=202)
-	return response
+		return response
