@@ -7,8 +7,14 @@ from hsreplaynet.uploads.models import Descriptor, UploadEvent
 class Command(BaseCommand):
 	help = "Clear old upload events and descriptors"
 
+	def add_arguments(self, parser):
+		parser.add_argument(
+			"--older-than", type=int, default=15,
+			help="The maximum number of days to retain"
+		)
+
 	def handle(self, *args, **options):
-		cutoff = now() - timedelta(days=15)
+		cutoff = now() - timedelta(days=options.get("older_than"))
 
 		self.stdout.write("Deleting descriptors")
 		deleted_descriptors = Descriptor.objects.filter(created__lt=cutoff).delete()
