@@ -13,4 +13,7 @@ urlpatterns = [
 	url(r"^stripe/", include("djstripe.urls", namespace="djstripe")),
 	url(r"^subscribe/", subscribe, name="premium_subscribe"),
 	url(r"^cancel-subscription/", cancel_subscription, name="premium_cancel"),
+	url(r"^paypal/cancel/", views.PaypalCancelView.as_view(), name="pp_cancel"),
+	url(r"^paypal/subscribe/", views.PaypalSubscribeView.as_view(), name="pp_subscribe"),
+	url(r"^paypal/return/", views.PaypalSuccessView.as_view(), name="pp_success"),
 ]
