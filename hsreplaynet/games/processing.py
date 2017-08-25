@@ -417,7 +417,7 @@ def validate_parser(parser, meta):
 			raise ValidationError(str(e))
 
 	influx_metric("replay_game_duration", {
-		"value": (packet_tree.end_time - packet_tree.start_time).total_seconds,
+		"value": (packet_tree.end_time - packet_tree.start_time).total_seconds(),
 	})
 
 	game = exporter.game
