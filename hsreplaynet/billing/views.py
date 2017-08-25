@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, SuspiciousOperation
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
@@ -342,3 +343,69 @@ class PremiumDetailView(RequestMetaMixin, TemplateView):
 		context = super().get_context_data(**kwargs)
 		context["random_quote"] = random.choice(self.quotes)
 		return context
+
+
+class PaypalSuccessView(View):
+	success_url = reverse_lazy("premium")
+
+	def get(self, request):
+		from djpaypal.models import PreparedBillingAgreement
+		token = request.GET.get("token", "")
+		assert token, "Missing token!"
+		prepared_agreement = PreparedBillingAgreement.objects.get(id=token)
+		if prepared_agreement.user != self.request.user:
+			messages.error(
+				self.request,
+				"You are not logged in as the correct user. "
+				"Please contact us if you are seeing this in error."
+			)
+			return redirect(self.success_url)
+
+		prepared_agreement.execute()
+
+		messages.info(self.request, "You are now subscribed with Paypal!")
+		return redirect(self.success_url)
+
+
+class PaypalCancelView(View):
+	success_url = reverse_lazy("premium")
+
+	def get(self, request):
+		from djpaypal.models import PreparedBillingAgreement
+		token = request.GET.get("token", "")
+		if token:
+			prepared_agreement = PreparedBillingAgreement.objects.get(id=token)
+			prepared_agreement.cancel()
+
+		messages.error(
+			self.request,
+			"Your payment was interrupted. "
+			"Please contact us if you are seeing this in error."
+		)
+		return redirect(self.success_url)
+
+
+class PaypalSubscribeView(View):
+	fail_url = reverse_lazy("premium")
+
+	def fail(self, request):
+		messages.error(
+			self.request,
+			"Could not determine your plan. "
+			"Please contact us if you are seeing this in error."
+		)
+		return redirect(self.fail_url)
+
+	def post(self, request):
+		from djpaypal.models import BillingPlan
+		id = request.POST.get("plan", "")
+		if not id:
+			return self.fail()
+
+		try:
+			plan = BillingPlan.objects.get(id=id)
+		except BillingPlan.DoesNotExist:
+			return self.fail()
+
+		prepared_agreement = plan.create_agreement(request.user)
+		return redirect(prepared_agreement.approval_url)
