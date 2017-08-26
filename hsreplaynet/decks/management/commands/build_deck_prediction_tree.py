@@ -82,8 +82,9 @@ class Command(BaseCommand):
 		redis_host = options["redis_host"]
 		if redis_host:
 			redis_client = redis.StrictRedis(host=redis_host[0])
+			pipeline = redis_client.pipeline(transaction=False)
 		else:
-			redis_client = None
+			pipeline = None
 
 		params = {
 			"start_date": start_ts,
@@ -99,7 +100,7 @@ class Command(BaseCommand):
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
 			played_cards = json.loads(row["played_cards"])
 
-			tree = deck_prediction_tree(player_class, format, redis_client=redis_client)
+			tree = deck_prediction_tree(player_class, format, redis_client=pipeline)
 			min_played_cards = tree.max_depth - 1
 			played_card_dbfs = played_cards[:min_played_cards]
 			deck_size = sum(dbf_map.values())
@@ -111,6 +112,13 @@ class Command(BaseCommand):
 					played_card_dbfs,
 					as_of=as_of
 				)
+
+			if len(pipeline) >= 8000:
+				pipeline.execute()
+
+		if len(pipeline):
+			pipeline.execute()
+
 		end_ts = time.time()
 		duration_seconds = round(end_ts - start_ts)
 		print("Took: %i Seconds" % duration_seconds)
