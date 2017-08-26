@@ -39,10 +39,13 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 		const archetypes = this.props.matchupData.series.data[this.props.playerClass];
 		const data = archetypes.map((matchup) => {
 			const id = matchup.archetype_id;
+			const archetype = this.getArchetype(id);
+			if (!archetype) {
+				return undefined;
+			}
 			const selected = id === this.props.selectedArchetypeId;
 			const scale = selected ? 1.1 : (this.state.hovering === id ? 1.05 : 1.0);
 			const translate = getPieTranslate(this.pieSize, this.pieSize, this.piePadding);
-			const archetype = this.getArchetype(id);
 			return {
 				archetypeId: id,
 				isSelectedArchetype: id === this.props.selectedArchetypeId,
@@ -53,7 +56,7 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 				x: this.getArchetypeName(archetype),
 				y: matchup.pct_of_class,
 			};
-		});
+		}).filter((x) => x !== undefined);
 		data.sort((a, b) => b.y - a.y);
 
 		const baseColorHex = getHeroColor(this.props.playerClass);
