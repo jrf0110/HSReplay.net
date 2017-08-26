@@ -44,6 +44,7 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 		};
 
 		const availableValues = this.props.buttons.map((btn: Btn) => btn.value);
+		const noneChecked = this.props.value === null;
 
 		return this.props.buttons.map((btn: Btn, i: number) => {
 			const disabled = this.props.disabled || btn.disabled;
@@ -72,8 +73,13 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 							this.props.onChange(availableValues[Math.min(i + 1, availableValues.length - 1)]);
 							return;
 						}
+						if (keyCode === 32) {
+							e.preventDefault();
+							this.props.onChange(availableValues[i]);
+							return;
+						}
 					}}
-					tabIndex={(selected && !disabled) ? 0 : -1}
+					tabIndex={(!disabled && (selected || noneChecked)) ? 0 : -1}
 					ref={(ref) => this.btnRefs[btn.value] = ref}
 					role="radio"
 					aria-checked={selected}
