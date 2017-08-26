@@ -5,7 +5,7 @@ import Tab from "../components/layout/Tab";
 import {toTitleCase} from "../helpers";
 import DataManager from "../DataManager";
 import LoadingSpinner from "../components/LoadingSpinner";
-import {VictoryAxis, VictoryChart, VictoryLegend, VictoryScatter, VictoryZoomContainer} from "victory";
+import {VictoryAxis, VictoryChart, VictoryLabel, VictoryLegend, VictoryScatter, VictoryZoomContainer} from "victory";
 import {AutoSizer} from "react-virtualized";
 import CardData from "../CardData";
 import DataInjector from "../components/DataInjector";
@@ -211,6 +211,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 	}
 
 	renderTabContent(playerClass: string): JSX.Element {
+		const {labels, opacityScaling, sizeScaling} = this.props;
 		return (
 			<div style={{width: "100%", height: "calc(100vh - 95px)"}}>
 				<AutoSizer>
@@ -218,7 +219,6 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						if (this.state.data === null) {
 							return <LoadingSpinner active={true}/>;
 						}
-						console.log(this.state.data);
 						const data = this.state.data[playerClass] && this.state.data[playerClass].data;
 						if (!data) {
 							return <h3 className="message-wrapper">No data</h3>;
@@ -243,7 +243,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 							}
 						});
 						data.forEach((d) => {
-							if (this.props.opacityScaling === "true") {
+							if (opacityScaling === "true") {
 								const wr = Math.max(10, d.metadata.win_rate - minWinrate);
 								d["opacity"] = wr / (maxWinrate - minWinrate);
 							}
@@ -276,7 +276,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 									<VictoryScatter
 										data={this.state.data[playerClass].data}
 										size={(p) => {
-											if (this.props.sizeScaling === "true") {
+											if (sizeScaling === "true") {
 												return ((p.metadata.games / maxGames) * (maxSize - minSize) + minSize);
 											}
 											return 6;
@@ -325,11 +325,17 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 											target: "data",
 										}]}
 										labels={(p) => {
-											if (this.props.labels === "show") {
+											if (labels === "show") {
 												return `Games: ${p.metadata.games}\nWinrate: ${p.metadata.win_rate}%`;
 											}
 											return "";
 										}}
+										labelComponent={
+											<VictoryLabel
+												{...{hack: labels} as any}
+											/>
+										}
+										{...{opacityScaling, sizeScaling}}
 									/>
 									<VictoryLegend
 										data={legendData}
