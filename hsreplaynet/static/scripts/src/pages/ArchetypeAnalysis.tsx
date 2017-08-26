@@ -420,6 +420,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 				<ArchetypeSignature
 					cardData={this.props.cardData}
 					showOccasional={true}
+					showValues={true}
 					signature={signature}
 				/>,
 			];

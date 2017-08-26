@@ -16,6 +16,7 @@ interface CardListProps {
 	id?: number;
 	deckClass?: string;
 	format?: number;
+	customCounts?: {[dbfId: number]: number};
 }
 
 export default class CardList extends React.Component<CardListProps, any> {
@@ -26,6 +27,8 @@ export default class CardList extends React.Component<CardListProps, any> {
 		if (!this.props.cardData) {
 			return <div className="text-center">Loading cards…</div>;
 		}
+
+		const {customCounts} = this.props;
 
 		const cardHeight = this.props.cardHeight ? this.props.cardHeight : 34;
 		const counts = {};
@@ -49,8 +52,9 @@ export default class CardList extends React.Component<CardListProps, any> {
 				cardTiles.push(
 					<CardTile
 						card={card}
-						count={count}
+						count={customCounts ? customCounts[card.dbfId] : count}
 						height={cardHeight}
+						countBoxSize={customCounts && 50}
 					/>,
 				);
 			}

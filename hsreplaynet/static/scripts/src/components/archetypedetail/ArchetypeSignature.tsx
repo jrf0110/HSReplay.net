@@ -14,6 +14,7 @@ interface ArchetypeSignatureProps extends React.ClassAttributes<ArchetypeSignatu
 	cardData: CardData;
 	signature?: ApiArchetypeSignature;
 	showOccasional?: boolean;
+	showValues?: boolean;
 }
 
 export default class ArchetypeSignature extends React.Component<ArchetypeSignatureProps, {}> {
@@ -38,11 +39,13 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 			buckets.push({title: "Occasional Tech Cards", threshold: 0, cards: []});
 		}
 
+		const customCounts = {};
 		this.props.signature.components.forEach(([dbfId, prev]) => {
 			const bucket = buckets.find((b) => prev >= b.threshold);
 			if (bucket) {
 				bucket.cards.push(dbfId);
 			}
+			customCounts[dbfId] = Math.floor(prev * 1000);
 		});
 
 		const cardLists = [];
@@ -55,6 +58,7 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 						cardList={bucket.cards}
 						name=""
 						heroes={[]}
+						customCounts={this.props.showValues && customCounts}
 					/>,
 				);
 			}
