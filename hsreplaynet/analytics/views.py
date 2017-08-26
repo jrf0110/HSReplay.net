@@ -11,10 +11,12 @@ from django.utils.decorators import method_decorator
 from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
 from django.views.generic import TemplateView
+from hearthstone.enums import FormatType
+from hsarchetypes.clustering import ClusterSet
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet import settings
-from hsreplaynet.decks.models import Deck
+from hsreplaynet.decks.models import Archetype, Deck
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
@@ -322,12 +324,16 @@ _CLUSTER_CACHE = {}
 
 @view_requires_feature_access("archetype-training")
 def clustering_data(request, game_format):
-	from hearthstone.enums import FormatType
-	from hsarchetypes.clustering import ClusterSet
+
 	if not _CLUSTER_CACHE.get(game_format, None):
-		data = get_cluster_set_data(game_format=FormatType[game_format])
+		data = get_cluster_set_data(game_format=FormatType[game_format], lookback=7)
 		if len(data):
 			cluster_set = ClusterSet.create_cluster_set(data)
+			previous_archetype = Archetype.objects.current_cluster_set(
+				FormatType[game_format]
+			)
+			cluster_set.inherit_from_previous(previous_archetype)
+
 			_CLUSTER_CACHE[game_format] = cluster_set
 		else:
 			result = {"msg": "Query is processing. Check back later."}
