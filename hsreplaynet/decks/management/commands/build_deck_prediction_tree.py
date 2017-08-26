@@ -2,7 +2,6 @@ import json
 import time
 from datetime import date, timedelta
 import redis
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from hearthstone.enums import CardClass, FormatType
 from sqlalchemy import Date, Integer, String, TIMESTAMP
@@ -69,7 +68,6 @@ class Command(BaseCommand):
 		parser.add_argument("--look_back", nargs=1)
 
 	def handle(self, *args, **options):
-		print(str(options))
 		conn = redshift.get_new_redshift_connection()
 
 		lookback_val = options["look_back"]
@@ -103,17 +101,14 @@ class Command(BaseCommand):
 
 			tree = deck_prediction_tree(player_class, format, redis_client=redis_client)
 			min_played_cards = tree.max_depth - 1
-			min_observed_cards = settings.DECK_PREDICTION_MINIMUM_CARDS
+			played_card_dbfs = played_cards[:min_played_cards]
 			deck_size = sum(dbf_map.values())
 
-			has_enough_observed_cards = deck_size >= min_observed_cards
-			has_enough_played_cards = len(played_cards) >= min_played_cards
-
-			if has_enough_observed_cards and has_enough_played_cards:
+			if deck_size == 30:
 				tree.observe(
 					deck_id,
 					dbf_map,
-					played_cards,
+					played_card_dbfs,
 					as_of=as_of
 				)
 		end_ts = time.time()
