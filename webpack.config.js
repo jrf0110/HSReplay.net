@@ -138,6 +138,9 @@ module.exports = (env) => {
 						},
 						{
 							loader: "ts-loader",
+							options: {
+								silent: true,
+							}
 						},
 					],
 				},
@@ -169,6 +172,9 @@ module.exports = (env) => {
 		watchOptions: {
 			// required in the Vagrant setup due to Vagrant inotify not working
 			poll: 1000,
+		},
+		stats: {
+			modules: false,
 		},
 	};
 };
