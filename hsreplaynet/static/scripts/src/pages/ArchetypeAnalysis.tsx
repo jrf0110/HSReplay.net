@@ -23,7 +23,7 @@ interface ClassData {
 
 interface ClusterData {
 	data: DeckData[];
-	signatures: Array<{[name: string]: Array<[number, number]>}>;
+	signatures: {[id: number]: Array<[number, number]>};
 }
 
 interface DeckData {
@@ -65,11 +65,9 @@ interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis
 }
 
 const colors = [
-	"#3366CC", "#DC3912", "#FF9900", "#109618", "#990099",
-];
-
-const symbols = [
-	"circle", "square", "diamond", "star",
+	"#666666", "#3366CC", "#DC3912", "#FF9900", "#109618", "#990099",
+	"#00BBC6", "#FD4477", "#85AA00", "#3123D5", "#994499", "#AAAA11",
+	"#6633CC", "#E67300", "#8B0707", "#A29262", "#BAB4B6",
 ];
 
 export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysisProps, ArchetypeAnalysisState> {
@@ -212,17 +210,6 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		);
 	}
 
-	getSymbol(names: string[], prop: any): {fill: string, symbol: string} {
-		const index = names.indexOf(prop.metadata.archetype_name);
-		if (index === -1) {
-			return {fill: "gray", symbol: "triangleDown"};
-		}
-		return {
-			fill: colors[index % colors.length],
-			symbol: symbols[Math.floor(index / colors.length)],
-		};
-	}
-
 	renderTabContent(playerClass: string): JSX.Element {
 		const {labels, opacityScaling, sizeScaling} = this.props;
 		return (
@@ -240,12 +227,12 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						let maxGames = 0;
 						let maxWinrate = 0;
 						let minWinrate = 100;
-						const archetypeNames = [];
+						const archetypeIds = [];
+						const archetypes = {};
 						data.forEach((d) => {
-							if (archetypeNames.indexOf(d.metadata.archetype_name) === -1) {
-								if (d.metadata.archetype !== -1) {
-									archetypeNames.push(d.metadata.archetype_name);
-								}
+							if (archetypeIds.indexOf(+d.metadata.archetype) === -1) {
+								archetypeIds.push(+d.metadata.archetype);
+								archetypes[d.metadata.archetype] = d.metadata.archetype_name;
 							}
 							if (d.metadata.games > maxGames) {
 								maxGames = d.metadata.games;
@@ -266,19 +253,18 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 								d["opacity"] = null;
 							}
 						});
-						archetypeNames.sort();
-						const legendData = archetypeNames.map((name, index) => {
+						archetypeIds.sort();
+						const legendData = archetypeIds.map((id, index) => {
 							return {
-								color: colors[index % colors.length],
-								name,
-								symbol: {type: symbols[Math.floor(index / colors.length)]},
+								color: colors[index],
+								name: archetypes[id],
+								symbol: {type: id === -1 ? "diamond" : "square"},
 							};
 						});
-						legendData.unshift({color: "gray", name: "-1", symbol: {type: "triangleDown"}});
 						const axisLabelSize = height / 100;
 						const selectedId = this.state.selectedData && this.state.selectedData.shortid;
-						const minSize = 4;
-						const maxSize = 20;
+						const minSize = 5;
+						const maxSize = 25;
 						return (
 							<div style={{position: "absolute", width: "100%", height: "100%"}}>
 								<span style={{padding: "3px", opacity: 0.6, position: "absolute"}}>Hold <kbd>Shift</kbd> to unlock zoom</span>
@@ -288,8 +274,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 									padding={30}
 									domainPadding={30}
 									containerComponent={
-										<VictoryZoomContainer allowZoom={this.state.allowZoom}/>
-									}
+										<VictoryZoomContainer allowZoom={this.state.allowZoom}/>}
 								>
 									<VictoryAxis crossAxis={true} dependentAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
 									<VictoryAxis crossAxis={true} style={{tickLabels: {fontSize: axisLabelSize}}}/>
@@ -304,12 +289,12 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 										style={{
 											data: {
 												cursor: "pointer",
-												fill: (p) => this.getSymbol(archetypeNames, p).fill,
+												fill: (p) => colors[archetypeIds.indexOf(p.metadata.archetype)] || "gray",
 												stroke: "black",
 												strokeWidth: 1.5,
 											},
 										}}
-										symbol={(p) => this.getSymbol(archetypeNames, p).symbol as any}
+										symbol={(p) => p.metadata.archetype === -1 ? "diamond" : "circle"}
 										events={[{
 											eventHandlers: {
 												onClick: () => {
@@ -360,8 +345,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 									/>
 									<VictoryLegend
 										data={legendData}
-										orientation="horizontal"
-										y={height - 80}
+										orientation="vertical"
 										style={{
 											data: {
 												fill: (d) => d.color,
@@ -407,7 +391,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		if (this.state.showSignature) {
 			const signature: ApiArchetypeSignature = {
 				as_of: null,
-				components: this.state.data[selectedPlayerClass].signatures[selectedData.archetype_name],
+				components: this.state.data[selectedPlayerClass].signatures[selectedData.archetype],
 				format: null,
 			};
 			return [
