@@ -65,9 +65,11 @@ interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis
 }
 
 const colors = [
-	"#3366CC", "#DC3912", "#FF9900", "#109618", "#990099", "#3B3EAC", "#0099C6",
-	"#DD4477", "#66AA00", "#B82E2E", "#316395", "#994499", "#22AA99", "#AAAA11",
-	"#6633CC", "#E67300", "#8B0707", "#329262", "#5574A6", "#3B3EAC",
+	"#3366CC", "#DC3912", "#FF9900", "#109618", "#990099",
+];
+
+const symbols = [
+	"circle", "square", "diamond", "star",
 ];
 
 export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysisProps, ArchetypeAnalysisState> {
@@ -210,6 +212,17 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		);
 	}
 
+	getSymbol(names: string[], prop: any): {fill: string, symbol: string} {
+		const index = names.indexOf(prop.metadata.archetype_name);
+		if (index === -1) {
+			return {fill: "gray", symbol: "triangleDown"};
+		}
+		return {
+			fill: colors[index % colors.length],
+			symbol: symbols[Math.floor(index / colors.length)],
+		};
+	}
+
 	renderTabContent(playerClass: string): JSX.Element {
 		const {labels, opacityScaling, sizeScaling} = this.props;
 		return (
@@ -230,7 +243,9 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						const archetypeNames = [];
 						data.forEach((d) => {
 							if (archetypeNames.indexOf(d.metadata.archetype_name) === -1) {
-								archetypeNames.push(d.metadata.archetype_name);
+								if (d.metadata.archetype !== -1) {
+									archetypeNames.push(d.metadata.archetype_name);
+								}
 							}
 							if (d.metadata.games > maxGames) {
 								maxGames = d.metadata.games;
@@ -253,8 +268,13 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 						});
 						archetypeNames.sort();
 						const legendData = archetypeNames.map((name, index) => {
-							return {name, symbol: {type: "square"}, color: colors[index]};
+							return {
+								color: colors[index % colors.length],
+								name,
+								symbol: {type: symbols[Math.floor(index / colors.length)]},
+							};
 						});
+						legendData.unshift({color: "gray", name: "-1", symbol: {type: "triangleDown"}});
 						const axisLabelSize = height / 100;
 						const selectedId = this.state.selectedData && this.state.selectedData.shortid;
 						const minSize = 4;
@@ -284,11 +304,12 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 										style={{
 											data: {
 												cursor: "pointer",
-												fill: (p) => colors[archetypeNames.indexOf(p.metadata.archetype_name)],
+												fill: (p) => this.getSymbol(archetypeNames, p).fill,
 												stroke: "black",
 												strokeWidth: 1.5,
 											},
 										}}
+										symbol={(p) => this.getSymbol(archetypeNames, p).symbol as any}
 										events={[{
 											eventHandlers: {
 												onClick: () => {
