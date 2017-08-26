@@ -61,11 +61,9 @@ class PaymentsMixin:
 		if customer.sources.count() > 1:
 			return True
 
-		for subscription in customer.subscriptions.all():
-			if not subscription.cancel_at_period_end:
-				return False
-
-		return True
+		return not customer.active_subscriptions.filter(
+			cancel_at_period_end=False
+		).exists()
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
