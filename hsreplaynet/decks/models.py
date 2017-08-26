@@ -386,9 +386,18 @@ class ArchetypeManager(models.Manager):
 		for player_class in enums.CardClass:
 			if enums.CardClass.DRUID <= player_class <= enums.CardClass.WARRIOR:
 				clusters = []
-				archetypes_list = Archetype.objects.live().filter(
+				qs = Archetype.objects.live()
+
+				if game_format == enums.FormatType.FT_STANDARD:
+					qs = qs.filter(active_in_standard=True)
+
+				if game_format == enums.FormatType.FT_WILD:
+					qs = qs.filter(active_in_wild=True)
+
+				archetypes_list = qs.filter(
 					player_class=player_class
 				).all()
+
 				for archetype in archetypes_list:
 					archtype_cluster = archetype.to_cluster(game_format=game_format)
 					if archtype_cluster:
