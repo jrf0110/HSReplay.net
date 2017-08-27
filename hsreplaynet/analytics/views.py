@@ -12,18 +12,17 @@ from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
 from django.views.generic import TemplateView
 from hearthstone.enums import FormatType
-from hsarchetypes.clustering import ClusterSet
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet import settings
-from hsreplaynet.decks.models import Archetype, Deck
+from hsreplaynet.decks.models import ClusterSetSnapshot, Deck
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.html import RequestMetaMixin
 from .processing import (
 	attempt_request_triggered_query_execution, deck_is_eligible_for_global_stats,
-	evict_locks_cache, get_cluster_set_data, get_concurrent_redshift_query_queue_semaphore,
+	evict_locks_cache, get_concurrent_redshift_query_queue_semaphore,
 )
 
 
@@ -319,28 +318,20 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	title = "Clustering Charts"
 
 
-_CLUSTER_CACHE = {}
-
-
 @view_requires_feature_access("archetype-training")
 def clustering_data(request, game_format):
+	snapshot_exists = ClusterSetSnapshot.objects.filter(
+		game_format=FormatType[game_format]
+	).exists()
 
-	if not _CLUSTER_CACHE.get(game_format, None):
-		data = get_cluster_set_data(game_format=FormatType[game_format], lookback=7)
-		if len(data):
-			cluster_set = ClusterSet.create_cluster_set(data)
-			previous_archetype = Archetype.objects.current_cluster_set(
-				FormatType[game_format]
-			)
-			cluster_set.inherit_from_previous(previous_archetype)
+	if snapshot_exists:
+		snapshot = ClusterSetSnapshot.objects.filter(
+			game_format=FormatType[game_format]
+		).latest()
+		cluster_set = snapshot.to_cluster_set()
+	else:
+		snapshot, cluster_set = ClusterSetSnapshot.objects.snapshot(FormatType[game_format])
 
-			_CLUSTER_CACHE[game_format] = cluster_set
-		else:
-			result = {"msg": "Query is processing. Check back later."}
-			response = JsonResponse(result, status=202)
-			return response
-
-	cluster_set = _CLUSTER_CACHE[game_format]
 	return HttpResponse(
 		content=json.dumps(cluster_set.to_chart_data(), indent=4),
 		content_type="application/json"
@@ -349,18 +340,8 @@ def clustering_data(request, game_format):
 
 @view_requires_feature_access("archetype-training")
 def clustering_data_refresh(request, game_format):
-	from hearthstone.enums import FormatType
-	from hsarchetypes.clustering import ClusterSet
+	ClusterSetSnapshot.objects.snapshot(FormatType[game_format])
 
-	data = get_cluster_set_data(game_format=FormatType[game_format])
-	if len(data):
-		cluster_set = ClusterSet.create_cluster_set(data)
-		_CLUSTER_CACHE[game_format] = cluster_set
-
-		result = {"msg": "Okay"}
-		response = JsonResponse(result, status=200)
-		return response
-	else:
-		result = {"msg": "Recalculating"}
-		response = JsonResponse(result, status=202)
-		return response
+	result = {"msg": "Okay"}
+	response = JsonResponse(result, status=200)
+	return response
