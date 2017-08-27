@@ -681,7 +681,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	hasGameType(gameType: string): boolean {
-		return this.state.hasData && Object.keys(this.state.inventory).indexOf(gameType) !== -1;
+		if(!this.state.hasData) {
+			// we always allow all game types if the deck is not eligible
+			return true;
+		}
+		return Object.keys(this.state.inventory).indexOf(gameType) !== -1;
 	}
 
 	getGameType(): string {
