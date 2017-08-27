@@ -389,21 +389,27 @@ def attempt_request_triggered_query_execution(parameterized_query, run_local=Fal
 		log.debug("Triggering query from web app is disabled")
 
 
-def get_cluster_set_data(game_format=FormatType.FT_STANDARD, lookback=7):
+def get_cluster_set_data(
+	game_format=FormatType.FT_STANDARD,
+	lookback=7,
+	min_observations=100,
+	block=True
+):
 	from hsreplaynet.utils.aws.redshift import get_redshift_query
 
 	gt = "RANKED_STANDARD" if game_format == FormatType.FT_STANDARD else "RANKED_WILD"
 	query = get_redshift_query("list_cluster_set_data")
 	parameterized_query = query.build_full_params(dict(
 		TimeRange="LAST_%i_DAYS" % lookback,
+		min_games=min_observations,
 		GameType=gt,
 	))
 
-	if not parameterized_query.result_available:
-		attempt_request_triggered_query_execution(parameterized_query)
-		return []
-
-	if parameterized_query.result_is_stale:
-		attempt_request_triggered_query_execution(parameterized_query)
+	if not parameterized_query.result_available or parameterized_query.result_is_stale:
+		if block:
+			attempt_request_triggered_query_execution(parameterized_query, run_local=True)
+		else:
+			attempt_request_triggered_query_execution(parameterized_query)
+			return []
 
 	return parameterized_query.response_payload
