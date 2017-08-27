@@ -170,6 +170,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								<ChartLoading>
 									<WinrateLineChart
 										widthRatio={2}
+										axisLabelY="Deck Winrate"
 									/>
 								</ChartLoading>
 							</DataInjector>

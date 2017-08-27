@@ -17,6 +17,7 @@ interface WinrateLineChartProps {
 	width?: number;
 	height?: number;
 	absolute?: boolean;
+	axisLabelY?: string;
 }
 
 export default class WinrateLineChart extends React.Component<WinrateLineChartProps, any> {
@@ -71,7 +72,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					/>
 					<VictoryAxis
 						dependentAxis
-						label={"Winrate"}
+						label={this.props.axisLabelY || "Winrate"}
 						axisLabelComponent={
 							<VictoryLabel
 								textAnchor="middle"
