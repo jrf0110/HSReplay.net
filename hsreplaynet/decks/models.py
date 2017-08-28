@@ -881,9 +881,12 @@ class ClusterSetManager(models.Manager):
 					)
 
 					for deck in cluster.decks:
+						d = Deck.objects.get(id=int(deck["deck_id"]))
 						ClusterSnapshotMember.objects.create(
 							cluster=cluster_snapshot,
-							deck_id=deck["deck_id"],
+							deck=d,
+							card_list=d.as_dbf_json(),
+							shortid=d.shortid,
 							observations=deck["observations"],
 							win_rate=deck["win_rate"],
 							x=deck["x"],
@@ -962,6 +965,8 @@ class ClusterSnapshotMember(models.Model):
 	id = models.AutoField(primary_key=True)
 	cluster = models.ForeignKey(ClusterSnapshot, on_delete=models.CASCADE)
 	deck = models.ForeignKey(Deck, on_delete=models.CASCADE)
+	card_list = models.CharField(max_length=500, blank=True)
+	shortid = models.CharField(max_length=100, blank=True)
 	observations = models.IntegerField()
 	win_rate = models.FloatField()
 	x = models.FloatField()
@@ -976,8 +981,8 @@ class ClusterSnapshotMember(models.Model):
 			"cluster_id": self.cluster.cluster_id,
 			"archetype_name": None,
 			"external_id": None,
-			"card_list": self.deck.as_dbf_json(),
-			"shortid": self.deck.shortid
+			"card_list": self.card_list,
+			"shortid": self.shortid
 		}
 
 		if self.cluster.archetype:
