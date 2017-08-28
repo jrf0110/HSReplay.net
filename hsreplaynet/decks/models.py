@@ -868,7 +868,7 @@ class ClusterSetManager(models.Manager):
 						name = "Experimental"
 					else:
 						archetype = None
-						name = cluster.pretty_signature_string(", ")[:249]
+						name = "NEW"
 
 					cluster_snapshot = ClusterSnapshot.objects.create(
 						class_cluster=class_snapshot,
@@ -976,7 +976,7 @@ class ClusterSnapshotMember(models.Model):
 			"cluster_id": self.cluster.cluster_id,
 			"archetype_name": None,
 			"external_id": None,
-			"cards": self.deck.dbf_map(transformer=str),
+			"card_list": self.deck.as_dbf_json(),
 			"shortid": self.deck.shortid
 		}
 
