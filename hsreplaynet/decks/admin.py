@@ -1,6 +1,9 @@
 from django.contrib import admin
+from hearthsim_identity.utils import admin_urlify
 from .models import (
-	Archetype, ArchetypeTrainingDeck, Deck, Include, Signature, SignatureComponent
+	Archetype, ArchetypeTrainingDeck, ClassClusterSnapshot, ClusterSetSnapshot,
+	ClusterSnapshot, ClusterSnapshotMember, Deck, Include, Signature,
+	SignatureComponent
 )
 
 
@@ -24,6 +27,65 @@ class DeckAdmin(admin.ModelAdmin):
 
 	def get_ordering(self, request):
 		return ["-id"]
+
+
+@admin.register(ClusterSetSnapshot)
+class ClusterSetSnapshotAdmin(admin.ModelAdmin):
+	list_display = (
+		"__str__",
+		"as_of",
+		"game_format",
+		"latest",
+		"live_in_production"
+	)
+
+
+@admin.register(ClassClusterSnapshot)
+class ClassClusterSnapshotAdmin(admin.ModelAdmin):
+	list_display = (
+		"__str__",
+		"cluster_set",
+		"player_class",
+	)
+	list_filter = (
+		"cluster_set__live_in_production",
+		"cluster_set__latest",
+		"cluster_set__game_format"
+	)
+
+
+@admin.register(ClusterSnapshot)
+class ClusterSnapshotAdmin(admin.ModelAdmin):
+	list_display = (
+		"id",
+		"cluster_id",
+		"experimental",
+		"pretty_signature_html",
+		admin_urlify("archetype"),
+		"name",
+		"rules"
+	)
+	list_filter = (
+		"class_cluster__cluster_set__latest",
+		"class_cluster__cluster_set__live_in_production",
+		"class_cluster__cluster_set__game_format",
+		"class_cluster__player_class",
+	)
+	readonly_fields = ("pretty_signature_html",)
+
+
+@admin.register(ClusterSnapshotMember)
+class ClusterSnapshotMemberAdmin(admin.ModelAdmin):
+	list_display = (
+		"id",
+		"cluster",
+		"card_list",
+		"shortid",
+		"observations",
+		"win_rate",
+		"x",
+		"y"
+	)
 
 
 @admin.register(Archetype)

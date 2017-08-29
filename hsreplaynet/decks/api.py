@@ -12,7 +12,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_RE
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from hsreplaynet.api.permissions import UserHasFeature
-from .models import Archetype, ArchetypeTrainingDeck, Deck
+from .models import Archetype, ArchetypeTrainingDeck, ClusterSnapshot, Deck
 
 
 class ArchetypeSerializer(serializers.ModelSerializer):
@@ -103,6 +103,12 @@ class ArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
 		fields = ("id", "deck", "is_validation_deck")
 
 
+class ClusterSnapshotSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ClusterSnapshot
+		fields = ("id", "archetype_id")
+
+
 class CreateArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ArchetypeTrainingDeck
@@ -172,3 +178,16 @@ class ArchetypeTrainingDeckViewSet(
 		if self.request.method in ["PATCH", "POST"]:
 			return CreateArchetypeTrainingDeckSerializer
 		return ArchetypeTrainingDeckSerializer
+
+
+class ClusterSnapshotViewSet(
+	ListModelMixin, RetrieveModelMixin, UpdateModelMixin,
+	GenericViewSet
+):
+	authentication_classes = (SessionAuthentication, )
+	pagination_class = None
+	permission_classes = (UserHasFeature("archetype-training"), )
+	queryset = ClusterSnapshot.objects.all()
+
+	def get_serializer_class(self):
+		return ClusterSnapshotSerializer

@@ -8,6 +8,7 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.timezone import now
 from django_hearthstone.cards.models import Card
@@ -18,6 +19,7 @@ from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws.clients import FIREHOSE
 from hsreplaynet.utils.aws.redshift import get_redshift_query
+from hsreplaynet.utils.cards import card_db
 from hsreplaynet.utils.db import dictfetchall
 
 
@@ -851,7 +853,11 @@ class ClusterSetManager(models.Manager):
 		cluster_set.inherit_from_previous(cluster_from_archetypes)
 		print("Cluster Archetype Inheritence Complete")
 		with transaction.atomic():
-			cs_snapshot = ClusterSetSnapshot.objects.create(game_format=game_format)
+			ClusterSetSnapshot.objects.update(latest=False)
+			cs_snapshot = ClusterSetSnapshot.objects.create(
+				game_format=game_format,
+				latest=True
+			)
 			for class_cluster in cluster_set.class_clusters:
 				print("Starting Save To DB For: %s" % class_cluster.player_class)
 				class_snapshot = ClassClusterSnapshot.objects.create(
@@ -900,9 +906,18 @@ class ClusterSetSnapshot(models.Model):
 	objects = ClusterSetManager()
 	as_of = models.DateTimeField(default=timezone.now)
 	game_format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
+	live_in_production = models.BooleanField(default=False)
+	latest = models.BooleanField(default=False)
 
 	class Meta:
 		get_latest_by = "as_of"
+
+	def __str__(self):
+		return "%s - Latest: %s, Live: %s" % (
+			self.game_format,
+			self.latest,
+			self.live_in_production,
+		)
 
 	def to_cluster_set(self):
 		from hsarchetypes.clustering import ClusterSet
@@ -916,6 +931,9 @@ class ClassClusterSnapshot(models.Model):
 	id = models.AutoField(primary_key=True)
 	cluster_set = models.ForeignKey(ClusterSetSnapshot, on_delete=models.CASCADE)
 	player_class = IntEnumField(enum=enums.CardClass, default=enums.CardClass.INVALID)
+
+	def __str__(self):
+		return "%s" % self.player_class
 
 	def to_class_cluster(self):
 		from hsarchetypes.clustering import ClassClusters
@@ -945,6 +963,16 @@ class ClusterSnapshot(models.Model):
 		base_field=models.CharField(max_length=100, blank=True),
 		default=list
 	)
+
+	@property
+	@mark_safe
+	def pretty_signature_html(self):
+		db = card_db()
+		components = list(sorted(self.signature.items(), key=lambda t: t[1], reverse=True))
+		table = "<table><tr><th>Card</th><th>Weight</th></tr>%s</table>"
+		row = "<tr><td>%s</td><td>%s</td></tr>"
+		rows = [row % (db[int(dbf)].name, round(weight, 4)) for dbf, weight in components]
+		return table % "".join(rows)
 
 	def to_cluster(self):
 		from hsarchetypes.clustering import Cluster
