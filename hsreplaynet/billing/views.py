@@ -333,7 +333,9 @@ class PremiumDetailView(RequestMetaMixin, TemplateView):
 		"Join, or die (or both)!",
 		"D-d-don't touch that!",
 		"Wanna blow somethin' up?",
-		"I have no time for games!"
+		"I have no time for games!",
+		"Support a small indie company!",
+		"Everyone, get in here!",
 	]
 
 	def get_context_data(self, **kwargs):
