@@ -146,6 +146,7 @@ module.exports = (env) => {
 				},
 				{
 					test: /\.scss$/,
+					exclude: /node_modules/,
 					use: extractSCSS.extract([
 						{
 							loader: "css-loader",
