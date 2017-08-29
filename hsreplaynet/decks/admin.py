@@ -39,6 +39,14 @@ class ClusterSetSnapshotAdmin(admin.ModelAdmin):
 		"live_in_production"
 	)
 
+	def update_archetype_signatures(self, request, queryset):
+		cluster_set = queryset.get()
+		cluster_set.update_archetype_signatures()
+
+	actions = (
+		update_archetype_signatures,
+	)
+
 
 @admin.register(ClassClusterSnapshot)
 class ClassClusterSnapshotAdmin(admin.ModelAdmin):

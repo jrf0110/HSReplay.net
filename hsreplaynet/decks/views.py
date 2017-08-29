@@ -1,14 +1,17 @@
+import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
 from django_hearthstone.cards.models import Card
-from hearthstone.enums import CardSet, CardType, Rarity
+from hearthstone.enums import CardClass, CardSet, CardType, Rarity
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.features.models import Feature
 from hsreplaynet.utils.html import RequestMetaMixin
-from .models import Archetype, Deck
+from .models import (
+	Archetype, ClusterSnapshot, Deck
+)
 
 
 ##
@@ -217,3 +220,26 @@ class TrendingDecksView(RequestMetaMixin, TemplateView):
 	title = "Trending Hearthstone Decks"
 	description = "Find the up-and-coming decks with rising popularity in Hearthstone " \
 		"for each class updated every single day."
+
+
+class ClusterSnapshotUpdateView(View):
+
+	def patch(self, request, player_class, cluster_id):
+		player_class_enum = CardClass[player_class.upper()]
+		cluster = ClusterSnapshot.filter(
+			class_cluster__player_class=player_class_enum,
+			class_cluster__cluster_set__latest=True,
+			cluster_id=int(cluster_id)
+		).first()
+		if not cluster:
+			raise Http404("Cluster not found")
+
+		payload = json.loads(request.body)
+		archetype_id = payload.get("archetype_id", None)
+
+		if not archetype_id:
+			cluster.archetype = None
+		else:
+			cluster.archetype = Archetype.objects.get(archetype_id)
+
+		cluster.save()

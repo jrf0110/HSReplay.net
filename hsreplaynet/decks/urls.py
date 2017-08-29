@@ -17,6 +17,7 @@ trending_decks = views.TrendingDecksView.as_view()
 my_decks = views.MyDecksView.as_view()
 meta_overview = views.MetaOverviewView.as_view()
 archetype_analysis = views.ArchetypeAnalysisView.as_view()
+update_cluster_archetype = views.ClusterSnapshotUpdateView.as_view()
 
 
 urlpatterns = [
@@ -31,6 +32,11 @@ urlpatterns = [
 	url(r"^cards/gallery/$", RedirectView.as_view(pattern_name="card_stats", permanent=True)),
 	url(r"^cards/mine/$", my_card_stats, name="my_card_stats"),
 	url(r"^cards/(?P<pk>\w+)/(?P<slug>[\w-]+)?", card_detail, name="card_detail"),
+	url(
+		r"^clusters/latest/(?P<player_class>\w+)/(?P<cluster_id>\w+)/",
+		update_cluster_archetype,
+		name="update_cluster_archetype"
+	),
 	url(r"^decks/$", deck_list, name="deck_list"),
 	url(r"^decks/mine/$", my_decks, name="my_decks"),
 	url(r"^decks/trending/", trending_decks, name="trending_decks"),

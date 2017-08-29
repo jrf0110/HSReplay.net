@@ -919,6 +919,17 @@ class ClusterSetSnapshot(models.Model):
 			self.live_in_production,
 		)
 
+	def update_archetype_signatures(self):
+		with transaction.atomic():
+			for class_snapshot in self.classclustersnapshot_set.all():
+				class_snapshot.update_archetype_signatures()
+
+			ClusterSetSnapshot.objects.filter(
+				live_in_production=True
+			).update(live_in_production=False)
+			self.live_in_production = True
+			self.save()
+
 	def to_cluster_set(self):
 		from hsarchetypes.clustering import ClusterSet
 		class_clusters = []
@@ -934,6 +945,9 @@ class ClassClusterSnapshot(models.Model):
 
 	def __str__(self):
 		return "%s" % self.player_class
+
+	def update_archetype_signatures(self):
+		pass
 
 	def to_class_cluster(self):
 		from hsarchetypes.clustering import ClassClusters
