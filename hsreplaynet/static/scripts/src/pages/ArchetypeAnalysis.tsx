@@ -55,14 +55,10 @@ interface ArchetypeAnalysisState {
 interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
 	cardData: CardData;
 	format?: string;
-	labels?: string;
-	opacityScaling?: string;
 	setFormat?: (format: string) => void;
-	setLabels?: (counts: string) => void;
-	setOpacityScaling?: (opacityScaling: string) => void;
-	setSizeScaling?: (sizeScaling: string) => void;
 	setTab?: (tab: string) => void;
-	sizeScaling?: string;
+	settings?: string[];
+	setSettings?: (settings: string[]) => void;
 	tab?: string;
 }
 
@@ -155,31 +151,22 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 				<aside className="infobox">
 					<h1>Archetype Analysis</h1>
 					{formatFilter}
-					<h2>Settings</h2>
-					<InfoboxFilter
-						deselectable="true"
-						onClick={(value) => this.props.setLabels(value)}
-						value={"show"}
-						selected={this.props.labels === "show"}
+					<InfoboxFilterGroup
+						header="Settings"
+						selectedValue={this.props.settings}
+						onClick={(value) => {
+							const settings = this.props.settings.slice();
+							settings.push(value);
+							this.props.setSettings(settings);
+						}}
+						collapsible={true}
+						collapsed={true}
+						deselectable={true}
 					>
-						Show labels
-					</InfoboxFilter>
-					<InfoboxFilter
-						deselectable="true"
-						onClick={(value) => this.props.setSizeScaling(value)}
-						value={"true"}
-						selected={this.props.sizeScaling === "true"}
-					>
-						Scale size by games
-					</InfoboxFilter>
-					<InfoboxFilter
-						deselectable="true"
-						onClick={(value) => this.props.setOpacityScaling(value)}
-						value={"true"}
-						selected={this.props.opacityScaling === "true"}
-					>
-						Scale opacity by winrate
-					</InfoboxFilter>
+						<InfoboxFilter value="labels">Show labels</InfoboxFilter>
+						<InfoboxFilter value="sizeScaling">Scale size by games</InfoboxFilter>
+						<InfoboxFilter value="opacityScaling">Scale opacity by winrate</InfoboxFilter>
+					</InfoboxFilterGroup>
 					<h2>Deck</h2>
 					{this.renderDeckInfo()}
 				</aside>
@@ -209,7 +196,9 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 	}
 
 	renderTabContent(playerClass: string): JSX.Element|JSX.Element[] {
-		const {labels, opacityScaling, sizeScaling} = this.props;
+		const labels = this.props.settings.indexOf("labels") !== -1;
+		const opacityScaling = this.props.settings.indexOf("opacityScaling") !== -1;
+		const sizeScaling = this.props.settings.indexOf("sizeScaling") !== -1;
 		const archetypes = {};
 		if (this.state.data === null) {
 			return <LoadingSpinner active={true}/>;
@@ -239,7 +228,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 			}
 		});
 		data.forEach((d) => {
-			if (opacityScaling === "true") {
+			if (opacityScaling) {
 				const wr = Math.max(10, d.metadata.win_rate - minWinrate);
 				d["opacity"] = wr / (maxWinrate - minWinrate);
 			}
@@ -279,7 +268,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 									<VictoryScatter
 										data={this.state.data[playerClass].data}
 										size={(p) => {
-											if (sizeScaling === "true") {
+											if (sizeScaling) {
 												return ((p.metadata.games / maxGames) * (maxSize - minSize) + minSize);
 											}
 											return 6;
@@ -330,7 +319,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 											target: "data",
 										}]}
 										labels={(p) => {
-											if (labels === "show") {
+											if (labels) {
 												return `Games: ${p.metadata.games}\nWinrate: ${p.metadata.win_rate}%`;
 											}
 											return "";

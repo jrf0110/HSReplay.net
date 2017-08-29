@@ -13,9 +13,7 @@ const render = (cardData: CardData) => {
 		<Fragments
 			defaults={{
 				format: "FT_STANDARD",
-				labels: "",
-				opacityScaling: "",
-				sizeScaling: "true",
+				settings: ["sizeScaling"],
 				tab: "DRUID",
 			}}
 		>
