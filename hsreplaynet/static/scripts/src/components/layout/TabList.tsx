@@ -2,9 +2,9 @@ import * as React from "react"
 import Tab from "./Tab";
 
 interface TabListProps {
-	tab?: string;
+	tab: string;
+	setTab(tab?: string): void;
 	tabFragment?: string;
-	setTab?(tab?: string): void;
 }
 
 export default class TabList extends React.Component<TabListProps, {}> {
