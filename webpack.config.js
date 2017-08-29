@@ -81,7 +81,11 @@ module.exports = (env) => {
 		articles: makeEntry("articles"),
 		premium_modal: makeEntry("premium_modal"),
 		home: makeEntry("home"),
-		polyfills: ["babel-polyfill", "whatwg-fetch", makeEntry("polyfills")],
+		vendor: [
+			"babel-polyfill",
+			"whatwg-fetch",
+			makeEntry("polyfills")
+		],
 	};
 
 	// flatten the entry points for config
@@ -159,22 +163,25 @@ module.exports = (env) => {
 			],
 		},
 		externals: {
-			"react": "React",
-			"react-dom": "ReactDOM",
 			"jquery": "jQuery",
 			"joust": "Joust",
 		},
 		plugins: [
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
 			new webpack.DefinePlugin(settings),
+			new webpack.DllReferencePlugin({
+				context: path.join(__dirname, "build", "cache"),
+				manifest: path.join(__dirname, "build", "cache", "vendor-manifest.json"),
+			}),
 			extractSCSS,
 		].concat(commons),
 		watchOptions: {
 			// required in the Vagrant setup due to Vagrant inotify not working
 			poll: 1000,
 		},
-		stats: {
+		/*stats: {
 			modules: false,
-		},
+		},*/
+		stats: "verbose",
 	};
 };

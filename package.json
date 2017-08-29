@@ -32,6 +32,8 @@
 		"moment": "^2.18.1",
 		"node-sass": "^4.5.3",
 		"raven-js": "^3.17.0",
+		"react": "^15.6.1",
+		"react-dom": "^15.6.1",
 		"react-virtualized": "^9.9.0",
 		"sass-loader": "^6.0.6",
 		"sunwell": "^0.1.5",
