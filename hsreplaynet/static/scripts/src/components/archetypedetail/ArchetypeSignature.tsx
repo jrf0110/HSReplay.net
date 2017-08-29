@@ -15,6 +15,7 @@ interface ArchetypeSignatureProps extends React.ClassAttributes<ArchetypeSignatu
 	signature?: ApiArchetypeSignature;
 	showOccasional?: boolean;
 	showValues?: boolean;
+	bucketWrapperClassName?: string;
 }
 
 export default class ArchetypeSignature extends React.Component<ArchetypeSignatureProps, {}> {
@@ -51,16 +52,25 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 		const cardLists = [];
 		buckets.forEach((bucket) => {
 			if (bucket.cards.length) {
-				cardLists.push(
-					<h3>{bucket.title}</h3>,
+				let content: any = [
+					<h3 key="title">{bucket.title}</h3>,
 					<CardList
+						key="card-list"
 						cardData={this.props.cardData}
 						cardList={bucket.cards}
 						name=""
 						heroes={[]}
 						customCounts={this.props.showValues && customCounts}
 					/>,
-				);
+				];
+				if (this.props.bucketWrapperClassName) {
+					content = (
+						<div className={this.props.bucketWrapperClassName}>
+							{content}
+						</div>
+					);
+				}
+				cardLists.push(content);
 			}
 		});
 

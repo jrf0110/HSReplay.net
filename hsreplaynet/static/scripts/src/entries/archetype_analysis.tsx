@@ -15,7 +15,7 @@ const render = (cardData: CardData) => {
 				format: "FT_STANDARD",
 				labels: "",
 				opacityScaling: "",
-				sizeScaling: "",
+				sizeScaling: "true",
 				tab: "DRUID",
 			}}
 		>

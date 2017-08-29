@@ -16,6 +16,8 @@ import {ApiArchetype, ApiArchetypeSignature, ApiTrainingDataDeck} from "../inter
 import HideLoading from "../components/loading/HideLoading";
 import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
 import ArchetypeSignature from "../components/archetypedetail/ArchetypeSignature";
+import * as _ from "lodash";
+import UserData from "../UserData";
 
 interface ClassData {
 	[playerClass: string]: ClusterData;
@@ -47,7 +49,7 @@ interface ArchetypeAnalysisState {
 	deckData: ApiTrainingDataDeck;
 	selectedData?: ClusterMetaData;
 	selectedPlayerClass?: string;
-	showSignature?: boolean;
+	signatureTab?: string;
 }
 
 interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
@@ -79,7 +81,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 			deckData: null,
 			selectedData: null,
 			selectedPlayerClass: null,
-			showSignature: false,
+			signatureTab: null,
 		};
 		this.fetchData(props.format);
 	}
@@ -133,18 +135,26 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 	}
 
 	render(): JSX.Element {
+		let formatFilter = null;
+		if (UserData.isStaff()) {
+			formatFilter = (
+				<InfoboxFilterGroup
+					header="Format"
+					selectedValue={this.props.format}
+					onClick={(format) => this.props.setFormat(format)}
+					collapsible={true}
+					collapsed={true}
+				>
+					<InfoboxFilter value="FT_STANDARD">Standard</InfoboxFilter>
+					<InfoboxFilter value="FT_WILD">Wild</InfoboxFilter>
+				</InfoboxFilterGroup>
+			);
+		}
 		return (
 			<div className="archetype-analysis-container">
 				<aside className="infobox">
 					<h1>Archetype Analysis</h1>
-					<InfoboxFilterGroup
-						header="Format"
-						selectedValue={this.props.format}
-						onClick={(format) => this.props.setFormat(format)}
-					>
-						<InfoboxFilter value="FT_STANDARD">Standard</InfoboxFilter>
-						<InfoboxFilter value="FT_WILD">Wild</InfoboxFilter>
-					</InfoboxFilterGroup>
+					{formatFilter}
 					<h2>Settings</h2>
 					<InfoboxFilter
 						deselectable="true"
@@ -170,19 +180,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					>
 						Scale opacity by winrate
 					</InfoboxFilter>
-					<h2>
-						Deck
-						<a
-							className="infobox-value"
-							href="#"
-							onClick={(e) => {
-								e.preventDefault();
-								this.setState({showSignature: !this.state.showSignature});
-							}}
-						>
-							{this.state.showSignature ? "show deck" : "show signature"}
-						</a>
-					</h2>
+					<h2>Deck</h2>
 					{this.renderDeckInfo()}
 				</aside>
 				<main>
@@ -210,63 +208,63 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		);
 	}
 
-	renderTabContent(playerClass: string): JSX.Element {
+	renderTabContent(playerClass: string): JSX.Element|JSX.Element[] {
 		const {labels, opacityScaling, sizeScaling} = this.props;
-		return (
-			<div style={{width: "100%", height: "calc(100vh - 95px)"}}>
+		const archetypes = {};
+		if (this.state.data === null) {
+			return <LoadingSpinner active={true}/>;
+		}
+		const data = this.state.data[playerClass] && this.state.data[playerClass].data;
+		if (!data) {
+			return <h3 className="message-wrapper">No data</h3>;
+		}
+
+		let maxGames = 0;
+		let maxWinrate = 0;
+		let minWinrate = 100;
+		const archetypeIds = [];
+		data.forEach((d) => {
+			if (archetypeIds.indexOf(+d.metadata.archetype) === -1) {
+				archetypeIds.push(+d.metadata.archetype);
+				archetypes[d.metadata.archetype] = d.metadata.archetype_name;
+			}
+			if (d.metadata.games > maxGames) {
+				maxGames = d.metadata.games;
+			}
+			if (d.metadata.win_rate > maxWinrate) {
+				maxWinrate = d.metadata.win_rate;
+			}
+			if (d.metadata.win_rate < minWinrate) {
+				minWinrate = d.metadata.win_rate;
+			}
+		});
+		data.forEach((d) => {
+			if (opacityScaling === "true") {
+				const wr = Math.max(10, d.metadata.win_rate - minWinrate);
+				d["opacity"] = wr / (maxWinrate - minWinrate);
+			}
+			else {
+				d["opacity"] = null;
+			}
+		});
+		archetypeIds.sort();
+		const legendData = archetypeIds.map((id, index) => {
+			return {
+				color: colors[index],
+				name: archetypes[id],
+				symbol: {type: id === -1 ? "diamond" : "square"},
+			};
+		});
+		const selectedId = this.state.selectedData && this.state.selectedData.shortid;
+		return [
+			<div style={{width: "100%", height: "calc(100vh - 145px)"}} key="chart">
 				<AutoSizer>
 					{({height, width}) => {
-						if (this.state.data === null) {
-							return <LoadingSpinner active={true}/>;
-						}
-						const data = this.state.data[playerClass] && this.state.data[playerClass].data;
-						if (!data) {
-							return <h3 className="message-wrapper">No data</h3>;
-						}
-
-						let maxGames = 0;
-						let maxWinrate = 0;
-						let minWinrate = 100;
-						const archetypeIds = [];
-						const archetypes = {};
-						data.forEach((d) => {
-							if (archetypeIds.indexOf(+d.metadata.archetype) === -1) {
-								archetypeIds.push(+d.metadata.archetype);
-								archetypes[d.metadata.archetype] = d.metadata.archetype_name;
-							}
-							if (d.metadata.games > maxGames) {
-								maxGames = d.metadata.games;
-							}
-							if (d.metadata.win_rate > maxWinrate) {
-								maxWinrate = d.metadata.win_rate;
-							}
-							if (d.metadata.win_rate < minWinrate) {
-								minWinrate = d.metadata.win_rate;
-							}
-						});
-						data.forEach((d) => {
-							if (opacityScaling === "true") {
-								const wr = Math.max(10, d.metadata.win_rate - minWinrate);
-								d["opacity"] = wr / (maxWinrate - minWinrate);
-							}
-							else {
-								d["opacity"] = null;
-							}
-						});
-						archetypeIds.sort();
-						const legendData = archetypeIds.map((id, index) => {
-							return {
-								color: colors[index],
-								name: archetypes[id],
-								symbol: {type: id === -1 ? "diamond" : "square"},
-							};
-						});
-						const axisLabelSize = height / 100;
-						const selectedId = this.state.selectedData && this.state.selectedData.shortid;
 						const minSize = 5;
 						const maxSize = 25;
-						return (
-							<div style={{position: "absolute", width: "100%", height: "100%"}}>
+						const axisLabelSize = height / 100;
+						return [
+							<div style={{position: "absolute", width: "100%", height: "100%"}} key="chart">
 								<span style={{padding: "3px", opacity: 0.6, position: "absolute"}}>Hold <kbd>Shift</kbd> to unlock zoom</span>
 								<VictoryChart
 									height={height}
@@ -305,6 +303,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 																deckData: null,
 																selectedData: metadata,
 																selectedPlayerClass: playerClass,
+																signatureTab: this.getSignatureTabId(metadata.archetype),
 															});
 															this.fetchDeckData(metadata.shortid);
 														},
@@ -343,31 +342,77 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 										}
 										{...{opacityScaling, sizeScaling}}
 									/>
-									<VictoryLegend
-										data={legendData}
-										orientation="vertical"
-										style={{
-											data: {
-												fill: (d) => d.color,
-												size: 6,
-												stroke: "black",
-												strokeWidth: 1.5,
-											},
-										}}
-									/>
 								</VictoryChart>
-							</div>
-						);
+							</div>,
+						];
 					}}
 				</AutoSizer>
-			</div>
-		);
+			</div>,
+			<div key="signatures">
+				{this.renderSignatureTabList(archetypes)}
+			</div>,
+		];
 	}
 
 	renderTabLabel(playerClass: string): JSX.Element {
 		return (
 			<span className={"player-class " + playerClass.toLowerCase()}>
 				{toTitleCase(playerClass)}
+			</span>
+		);
+	}
+
+	renderSignatureTabList(archetypes: any): JSX.Element {
+		if (!this.state.data || !this.state.data[this.props.tab]) {
+			return null;
+		}
+		return (
+			<TabList
+				setTab={(tab) => this.setState({signatureTab: tab})}
+				tab={this.state.signatureTab}
+			>
+				{this.renderSignatureTabs(archetypes)}
+			</TabList>
+		);
+	}
+
+	renderSignatureTabs(archetypes: any): JSX.Element[] {
+		const {signatures} = this.state.data[this.props.tab];
+		const archetypeIds = Object.keys(signatures).sort();
+		return archetypeIds.map((archetypeId) => {
+			const color = colors[archetypeIds.indexOf(archetypeId)];
+			const signature: ApiArchetypeSignature = {
+				as_of: null,
+				components: this.state.data[this.props.tab].signatures[archetypeId],
+				format: null,
+			};
+			return (
+				<Tab
+					key={archetypeId}
+					id={this.getSignatureTabId(archetypeId)}
+					label={this.renderSignatureTabLabel(archetypes[archetypeId], color)}
+				>
+					<ArchetypeSignature
+						cardData={this.props.cardData}
+						showOccasional={true}
+						showValues={true}
+						signature={signature}
+						bucketWrapperClassName="col-xs-12 col-md-4"
+					/>
+				</Tab>
+			);
+		});
+	}
+
+	getSignatureTabId(archetypeId: string) {
+		return "archetype-" + archetypeId;
+	}
+
+	renderSignatureTabLabel(name: string, color: string): JSX.Element {
+		return (
+			<span>
+				<span className="signature-label" style={{backgroundColor: color}} />
+				{name}
 			</span>
 		);
 	}
@@ -387,27 +432,6 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					Loading...
 				</div>
 			);
-		}
-		if (this.state.showSignature) {
-			const signature: ApiArchetypeSignature = {
-				as_of: null,
-				components: this.state.data[selectedPlayerClass].signatures[selectedData.archetype],
-				format: null,
-			};
-			return [
-				<ul>
-					<li>
-						Cluster
-						<span className="infobox-value">{selectedData.archetype_name}</span>
-					</li>
-				</ul>,
-				<ArchetypeSignature
-					cardData={this.props.cardData}
-					showOccasional={true}
-					showValues={true}
-					signature={signature}
-				/>,
-			];
 		}
 		const cardList = [];
 		JSON.parse(selectedData.deck_list).forEach((c: any[]) => {
