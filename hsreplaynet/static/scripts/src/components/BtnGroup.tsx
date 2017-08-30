@@ -1,7 +1,7 @@
 import * as React from "react";
 
 export interface Btn {
-	label: string;
+	label: string|JSX.Element;
 	value: string;
 	id?: string;
 	className?: string;
@@ -85,7 +85,7 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 					aria-checked={selected}
 					aria-disabled={disabled}
 				>
-					<h4>{btn.label}</h4>
+					{btn.label}
 					<input
 						type="radio"
 						name={this.props.name}
