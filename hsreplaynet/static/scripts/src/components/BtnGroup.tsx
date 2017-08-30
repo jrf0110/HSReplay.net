@@ -11,6 +11,7 @@ export interface Btn {
 
 interface BtnGroupProps extends React.ClassAttributes<any> {
 	name: string;
+	id?: string;
 	buttons: Btn[];
 	value: string|null;
 	disabled?: boolean;
@@ -110,6 +111,7 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 		return (
 			<div
 				role="radiogroup"
+				id={this.props.id}
 				className={this.props.className}
 				aria-labelledby={this.props["aria-labelledby"]}
 				aria-disabled={this.props.disabled}
