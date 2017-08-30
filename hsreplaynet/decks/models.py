@@ -1,6 +1,7 @@
 import hashlib
 import json
 import string
+from collections import defaultdict
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import connection, models, transaction
@@ -15,6 +16,7 @@ from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from hsarchetypes import calculate_signature_weights, classify_deck
+from hsarchetypes.signatures import calculate_signature_weights_for_cluster
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws.clients import FIREHOSE
@@ -921,8 +923,9 @@ class ClusterSetSnapshot(models.Model):
 
 	def update_archetype_signatures(self):
 		with transaction.atomic():
+			as_of = timezone.now()
 			for class_snapshot in self.classclustersnapshot_set.all():
-				class_snapshot.update_archetype_signatures()
+				class_snapshot.update_archetype_signatures(as_of=as_of)
 
 			ClusterSetSnapshot.objects.filter(
 				live_in_production=True
@@ -946,8 +949,28 @@ class ClassClusterSnapshot(models.Model):
 	def __str__(self):
 		return "%s" % self.player_class
 
-	def update_archetype_signatures(self):
-		pass
+	def update_archetype_signatures(self, as_of):
+		clusters_for_archetype = defaultdict(list)
+		for cluster_snapshot in self.clustersnapshot_set.all():
+			if cluster_snapshot.archetype and not cluster_snapshot.experimental:
+				clusters_for_archetype[cluster_snapshot.archetype].append(cluster_snapshot)
+
+		for archetype, clusters_list in clusters_for_archetype.items():
+			decks = []
+			for cluster in clusters_list:
+				decks.extend(cluster.to_cluster().decks)
+			signature_weights = calculate_signature_weights_for_cluster(
+				decks,
+				use_thresholds=False
+			)
+			if signature_weights:
+				signature = Signature.objects.create(
+					archetype=archetype, format=self.cluster_set.game_format, as_of=as_of
+				)
+				for dbf_id, weight in signature_weights.items():
+					SignatureComponent.objects.create(
+						signature=signature, card_id=int(dbf_id), weight=weight
+					)
 
 	def to_class_cluster(self):
 		from hsarchetypes.clustering import ClassClusters
@@ -1015,6 +1038,7 @@ class ClusterSnapshotMember(models.Model):
 	y = models.FloatField()
 
 	def to_deck(self):
+		cards = {str(dbf_id): int(count) for dbf_id, count in json.loads(self.card_list)}
 		result = {
 			"x": self.x,
 			"y": self.y,
@@ -1024,6 +1048,7 @@ class ClusterSnapshotMember(models.Model):
 			"archetype_name": None,
 			"external_id": None,
 			"card_list": self.card_list,
+			"cards": cards,
 			"shortid": self.shortid
 		}
 
