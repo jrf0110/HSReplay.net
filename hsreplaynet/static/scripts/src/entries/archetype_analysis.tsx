@@ -13,8 +13,7 @@ const render = (cardData: CardData) => {
 		<Fragments
 			defaults={{
 				format: "FT_STANDARD",
-				settings: ["sizeScaling"],
-				tab: "DRUID",
+				playerClass: "DRUID",
 			}}
 		>
 			<ArchetypeAnalysis

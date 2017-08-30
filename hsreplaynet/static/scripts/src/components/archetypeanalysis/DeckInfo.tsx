@@ -1,0 +1,79 @@
+import * as React from "react";
+import CardData from "../../CardData";
+import CardList from "../CardList";
+import DataInjector from "../DataInjector";
+import { ClusterMetaData } from "./ClassAnalysis";
+
+interface DeckInfoProps extends React.ClassAttributes<DeckInfo> {
+	cardData: CardData;
+	clusterColor: string;
+	deck: ClusterMetaData;
+	format: string;
+	height: string;
+	playerClass: string;
+}
+
+export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
+	render(): JSX.Element {
+		const {cardData, clusterColor, deck, height, playerClass} = this.props;
+		const infoboxClassNames = ["infobox"];
+
+		let content = null;
+		if (deck === null) {
+			infoboxClassNames.push("no-deck");
+			content = (
+				<div className="no-deck-message">
+					<p>Click any deck for more details</p>
+				</div>
+			);
+		}
+		else {
+			const cardList = [];
+			JSON.parse(deck.deck_list).forEach((c: any[]) => {
+				for (let i = 0; i < c[1]; i++) {
+					cardList.push(c[0]);
+				}
+			});
+			content = [
+				<h1 key="title">
+					<span className="signature-label" style={{backgroundColor: clusterColor}} />
+					{deck.cluster_name}
+				</h1>,
+				<CardList
+					key="decklist"
+					cardData={cardData}
+					cardList={cardList}
+					name=""
+					heroes={[]}
+				/>,
+				<a
+					key="deck-detail-link"
+					className="btn btn-primary btn-deck-details"
+					href={`/decks/${deck.shortid}/`}
+				>
+					View Deck Details
+				</a>,
+				<h2 key="data-header">Data</h2>,
+				<ul key="data-list">
+					<li>
+						Games
+						<span className="infobox-value">{deck.games}</span>
+					</li>
+					<li>
+						Winrate
+						<span className="infobox-value">{deck.win_rate}</span>
+					</li>
+				</ul>,
+			];
+		}
+
+		return (
+			<div
+				id="infobox-deck"
+				className={infoboxClassNames.join(" ")}
+			>
+				{content}
+			</div>
+		);
+	}
+}

@@ -129,6 +129,8 @@ declare module "victory" {
 	export class VictoryZoomContainer extends React.Component<any, any> {}
 
 	export class VictoryLegend extends React.Component<any, any> {}
+
+	export class Point extends React.Component<any, any> {}
 }
 
 declare module "tether-shepherd" {

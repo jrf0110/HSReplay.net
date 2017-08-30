@@ -140,23 +140,6 @@
 				}
 			}
 		}
-
-		.training-data {
-			display: flex;
-			margin-left: 5px;
-			label {
-				margin: 0 0 0 5px;
-				font-weight: normal;
-
-				&.disabled {
-					color: gray;
-				}
-			}
-
-			.glyphicon {
-				color: white;
-			}
-		}
 	}
 
 	.chart-wrapper {

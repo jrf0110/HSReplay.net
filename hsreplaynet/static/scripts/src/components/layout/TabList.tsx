@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 import Tab from "./Tab";
 
 interface TabListProps {
@@ -42,7 +42,7 @@ export default class TabList extends React.Component<TabListProps, {}> {
 				classNames.push("active");
 			}
 			if (disabled) {
-				classNames.push("disabled")
+				classNames.push("disabled");
 			}
 
 			return (
@@ -77,7 +77,7 @@ export default class TabList extends React.Component<TabListProps, {}> {
 					{body}
 				</div>
 			</div>
-		)
+		);
 	}
 
 	componentDidMount() {
