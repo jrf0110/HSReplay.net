@@ -18,6 +18,7 @@ import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
 import ArchetypeSignature from "../components/archetypedetail/ArchetypeSignature";
 import * as _ from "lodash";
 import UserData from "../UserData";
+import ClusterArchetypeSelector from "../components/archetypeanalysis/ClusterArchetypeSelector";
 
 interface ClassData {
 	[playerClass: string]: ClusterData;
@@ -237,13 +238,6 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 			}
 		});
 		archetypeIds.sort();
-		const legendData = archetypeIds.map((id, index) => {
-			return {
-				color: colors[index],
-				name: archetypes[id],
-				symbol: {type: id === -1 ? "diamond" : "square"},
-			};
-		});
 		const selectedId = this.state.selectedData && this.state.selectedData.shortid;
 		return [
 			<div style={{width: "100%", height: "calc(100vh - 145px)"}} key="chart">
@@ -379,7 +373,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 				<Tab
 					key={archetypeId}
 					id={this.getSignatureTabId(archetypeId)}
-					label={this.renderSignatureTabLabel(archetypes[archetypeId], color)}
+					label={this.renderSignatureTabLabel(archetypeId, archetypes[archetypeId], color)}
 				>
 					<ArchetypeSignature
 						cardData={this.props.cardData}
@@ -397,11 +391,37 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		return "archetype-" + archetypeId;
 	}
 
-	renderSignatureTabLabel(name: string, color: string): JSX.Element {
+	renderSignatureTabLabel(archetypeId: string, name: string, color: string): JSX.Element {
+		let selector = null;
+		if (
+			UserData.hasFeature("archetype-selection")
+			&& archetypeId !== "-1"
+			&& this.getSignatureTabId(archetypeId) === this.state.signatureTab
+		) {
+			selector = (
+				<DataInjector
+					query={[
+						{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
+					]}
+					extract={{
+						archetypeData: (data: ApiArchetype[]) => {
+							const archetypes = data.filter((a) => a.player_class_name === this.props.tab);
+							return {archetypes};
+						},
+					}}
+				>
+					<ClusterArchetypeSelector
+						clusterId={archetypeId}
+						playerClass={this.props.tab}
+					/>
+				</DataInjector>
+			);
+		}
 		return (
 			<span>
 				<span className="signature-label" style={{backgroundColor: color}} />
 				{name}
+				{selector}
 			</span>
 		);
 	}

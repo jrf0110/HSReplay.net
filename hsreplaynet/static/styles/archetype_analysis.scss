@@ -23,6 +23,27 @@
 			width: 16px;
 		}
 
+		.archetype-selection-dropdown {
+			margin-left: 5px;
+			>.btn {
+				background: $offwhite;
+				border: 1px solid $blue;
+				color: $blue;
+				padding: 0;
+			}
+			.glyphicon {
+				font-size: 10px;
+				width: 20px;
+			}
+			li > a {
+				background-color: transparent;
+				color: black;
+				&:hover {
+					background: $lightblue;
+				}
+			}
+		}
+
 	}
 
 	>aside {
