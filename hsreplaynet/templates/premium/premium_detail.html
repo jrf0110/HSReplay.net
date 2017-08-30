@@ -70,6 +70,7 @@
 						<p class="help-block">Data available during the subscription period.</p>
 					</figcaption>
 				</figure>
+				<div class="clearfix"></div>
 				<figure class="auto col-sm-6 col-xs-12">
 					{% if premium and featured_card %}<a href="{% url 'card_detail' pk=featured_card %}#tab=turn-statistics">{% endif %}
 						<img src="{% static 'images/premium-promotional/charts.png' %}" class="bordered" alt="Winrate by turn" />
@@ -94,22 +95,20 @@
 						</p>
 					</figcaption>
 				</figure>
-				{% feature "my-decks" as ft_my_decks %}{% if ft_my_decks.enabled %}
-					<figure class="auto col-sm-6 col-xs-12">
-						{% if premium %}<a href="{% url 'my_decks' %}">{% endif %}
-						<img src="{% static 'images/premium-promotional/mydecks.png' %}" class="bordered" alt="My Decks" />
-						{% if premium %}</a>{% endif %}
-						<figcaption>
-							<h4 class="new" title="We recently added this feature!">My Decks</h4>
-							<p>
-								Keep track of the decks you play across all your replays! Quickly access any deck's page
-								here, even if you're the only one playing it.
-							</p>
-							<p class="help-block">Data available during the subscription period.</p>
-						</figcaption>
-					</figure>
-				{% endif %}
-				{% feature "my-statistics" as ft_my_statistics %}{% if ft_my_statistics.enabled %}
+				<div class="clearfix"></div>
+				<figure class="auto col-sm-6 col-xs-12">
+					{% if premium %}<a href="{% url 'my_decks' %}">{% endif %}
+					<img src="{% static 'images/premium-promotional/mydecks.png' %}" class="bordered" alt="My Decks" />
+					{% if premium %}</a>{% endif %}
+					<figcaption>
+						<h4 class="new" title="We recently added this feature!">My Decks</h4>
+						<p>
+							Keep track of the decks you play across all your replays! Quickly access any deck's page
+							here, even if you're the only one playing it.
+						</p>
+						<p class="help-block">Data available during the subscription period.</p>
+					</figcaption>
+				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
 					<img src="{% static 'images/premium-promotional/mystatistics.png' %}" class="bordered" alt="My Statistics" />
 					<figcaption>
@@ -121,7 +120,6 @@
 						<p class="help-block">Data available during the subscription period.</p>
 					</figcaption>
 				</figure>
-				{% endif %}
 				<figure class="col-sm-6 col-sm-offset-3 col-xs-12">
 					<figcaption>
 						<h4>&hellip;and we're not stopping here!</h4>
@@ -154,6 +152,7 @@
 						</p>
 					</figcaption>
 				</figure>
+				<div class="clearfix"></div>
 				<figure class="auto col-sm-6 col-xs-12">
 					{% if premium %}<a href="{% setting 'HSREPLAY_DISCORD_URL' %}">{% endif %}
 					<img src="{% static 'images/premium-promotional/discord_role.png' %}" class="bordered" />
