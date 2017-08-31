@@ -40,10 +40,11 @@ interface ClassAnalysisState {
 
 interface ClassAnalysisProps extends React.ClassAttributes<ClassAnalysis> {
 	cardData: CardData;
-	format: string;
-	playerClass: string;
 	data?: ClusterData;
+	format: string;
+	maxGames?: number;
 	onSelectedDeckChanged?: (data: ClusterMetaData) => void;
+	playerClass: string;
 }
 
 const COLORS = [
@@ -68,16 +69,9 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	}
 
 	render(): JSX.Element {
-		const {data, playerClass} = this.props;
+		const {data, maxGames, playerClass} = this.props;
 		const {selectedDeck} = this.state;
-
-		let maxGames = 0;
 		const clusterIds = Object.keys(data.cluster_map).sort();
-		data.data.forEach((d) => {
-			if (d.metadata.games > maxGames) {
-				maxGames = d.metadata.games;
-			}
-		});
 		const chartHeight = "calc(100vh - 100px)";
 		return (
 			<TabList

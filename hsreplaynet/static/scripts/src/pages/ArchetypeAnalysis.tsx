@@ -98,8 +98,22 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					<DataInjector
 						query={{url: `/analytics/clustering/data/${format}/`, params: {}}}
 						extract={{
-							data: (data) => {
-								return {data: data.find((d) => d.player_class === playerClass)};
+							data: (clusterData) => {
+								let maxGames = 0;
+								let data = null;
+
+								clusterData.forEach((classData) => {
+									if (classData.player_class === playerClass) {
+										data = classData;
+									}
+									classData.data.forEach((deckData) => {
+										if (deckData.metadata.games > maxGames) {
+											maxGames = deckData.metadata.games;
+										}
+									});
+								});
+
+								return {data, maxGames};
 							},
 						}}
 					>
