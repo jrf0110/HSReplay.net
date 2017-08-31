@@ -1,4 +1,5 @@
 from django.conf.urls import include, url
+from djpaypal.views import ProcessWebhookView
 from . import views
 
 
@@ -16,4 +17,5 @@ urlpatterns = [
 	url(r"^paypal/cancel/", views.PaypalCancelView.as_view(), name="pp_cancel"),
 	url(r"^paypal/subscribe/", views.PaypalSubscribeView.as_view(), name="pp_subscribe"),
 	url(r"^paypal/return/", views.PaypalSuccessView.as_view(), name="pp_success"),
+	url(r"^paypal/webhook/", ProcessWebhookView.as_view(), name="pp_webhook"),
 ]
