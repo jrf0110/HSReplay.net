@@ -3,7 +3,7 @@ Context processors for billing/premium purposes
 """
 from django.conf import settings
 from djpaypal.models import BillingPlan
-from djpaypal.settings import PAYPAL_LIVE_MODE, PAYPAL_CLIENT_ID
+from djpaypal.settings import PAYPAL_CLIENT_ID, PAYPAL_LIVE_MODE
 from djstripe.models import Plan
 from djstripe.settings import STRIPE_LIVE_MODE, STRIPE_PUBLIC_KEY
 from .views import STRIPE_DEBUG
@@ -21,9 +21,13 @@ def premium(request):
 		"premium": is_premium,
 		"show_premium_modal": not is_premium and "premium-modal" in request.GET,
 		"stripe_monthly_plan": stripe_plans.filter(stripe_id=settings.MONTHLY_PLAN_ID).first(),
-		"stripe_semiannual_plan": stripe_plans.filter(stripe_id=settings.SEMIANNUAL_PLAN_ID).first(),
+		"stripe_semiannual_plan": stripe_plans.filter(
+			stripe_id=settings.SEMIANNUAL_PLAN_ID
+		).first(),
 		"paypal_monthly_plan": paypal_plans.filter(id=settings.PAYPAL_MONTHLY_PLAN_ID).first(),
-		"paypal_semiannual_plan": paypal_plans.filter(id=settings.PAYPAL_SEMIANNUAL_PLAN_ID).first(),
+		"paypal_semiannual_plan": paypal_plans.filter(
+			id=settings.PAYPAL_SEMIANNUAL_PLAN_ID
+		).first(),
 		"stripe_debug": STRIPE_DEBUG,
 		"STRIPE_PUBLIC_KEY": STRIPE_PUBLIC_KEY,
 		"PAYPAL_CLIENT_ID": PAYPAL_CLIENT_ID,

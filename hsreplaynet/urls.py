@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.views.generic import RedirectView
-from .billing.views import PremiumDetailView
 from .games.views import ReplayDetailView, ReplayEmbedView
 from .views import DownloadsView, HomeView
 
@@ -22,6 +21,7 @@ urlpatterns = [
 if not settings.ENV_LAMBDA:
 	from django.contrib.flatpages.views import flatpage
 	from django.contrib.sitemaps.views import sitemap
+	from .billing.views import PremiumDetailView
 	from .sitemap import SITEMAPS
 
 	# These pages are not registered on Lambda as they are not needed there

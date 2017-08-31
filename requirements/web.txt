@@ -18,5 +18,6 @@ markdown==2.6.9
 numpy
 scikit-learn[alldeps]
 
-# stripe
+# stripe / paypal
 https://github.com/jleclanche/dj-stripe/archive/master.tar.gz
+https://github.com/dj-stripe/dj-paypal/archive/master.tar.gz
