@@ -170,7 +170,16 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 		const canSelectPlan = !disabled || this.state.step === CheckoutStep.LOADING_STRIPE;
 
 		return (
-			<form className="text-center" method="post" action={this.props.submitUrl} ref={(ref) => this.form = ref}>
+			<form
+				className="text-center"
+				method="post"
+				action={this.props.submitUrl}
+				ref={(ref) => this.form = ref}
+				onSubmit={(e) => {
+					e.preventDefault();
+					this.checkout(true);
+				}}
+			>
 				<div style={{margin: "25px 0"}}>
 					<label id="choose-plan">Choose your plan:</label>
 					<BtnGroup
@@ -188,7 +197,6 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 				<p>
 					<button
 						className="promo-button text-premium checkout-button"
-						onClick={() => this.checkout(true)}
 						disabled={disabled}
 					>
 						{StripeLegacyCheckoutForm.getButtonMessage(this.state.step, this.state.useDefaultSource)}
