@@ -48,7 +48,7 @@ interface ClassAnalysisProps extends React.ClassAttributes<ClassAnalysis> {
 }
 
 const COLORS = [
-	"#666666", "#3366CC", "#DC3912", "#FF9900", "#109618", "#990099",
+	"#3366CC", "#DC3912", "#FF9900", "#109618", "#990099",
 	"#00BBC6", "#FD4477", "#85AA00", "#3123D5", "#994499", "#AAAA11",
 	"#6633CC", "#E67300", "#8B0707", "#A29262", "#BAB4B6",
 ];
@@ -85,7 +85,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 								{({height, width}) => {
 									return (
 										<ClusterChart
-											colors={COLORS}
+											colors={this.getColors()}
 											height={height}
 											width={width}
 											data={data.data}
@@ -164,7 +164,15 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	}
 
 	getClusterColor(clusterId: string, clusterIds: string[]): string {
-		return COLORS[clusterIds.indexOf(clusterId)];
+		return this.getColors()[clusterIds.indexOf(clusterId)];
+	}
+
+	getColors(): string[] {
+		const colors = COLORS.slice();
+		if (this.props.data.data.some((x) => x.metadata.cluster_id === -1)) {
+			colors.unshift("#666666");
+		}
+		return colors;
 	}
 }
 
