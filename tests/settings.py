@@ -15,6 +15,10 @@ STRIPE_LIVE_MODE = False
 MONTHLY_PLAN_ID = "monthly-test-plan"
 SEMIANNUAL_PLAN_ID = "semiannual-test-plan"
 
+PAYPAL_MONTHLY_PLAN_ID = ""
+PAYPAL_SEMIANNUAL_PLAN_ID = ""
+PAYPAL_MODE = "sandbox"
+
 PREMIUM_OVERRIDE = False
 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
