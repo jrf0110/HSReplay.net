@@ -12,6 +12,7 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
+				dataset: "live",
 				format: "FT_STANDARD",
 				playerClass: "DRUID",
 			}}

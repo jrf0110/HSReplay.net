@@ -12,6 +12,8 @@ import UserData from "../UserData";
 
 interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
 	cardData: CardData;
+	dataset?: string;
+	setDataset?: (dataset: string) => void;
 	format?: string;
 	setFormat?: (format: string) => void;
 	setPlayerClass?: (tab: string) => void;
@@ -31,9 +33,9 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 	}
 
 	render(): JSX.Element {
-		const {cardData, format, playerClass} = this.props;
+		const {cardData, dataset, format, playerClass} = this.props;
 		let adminControls = null;
-		if (UserData.isStaff()) {
+		if (UserData.hasFeature("archetype-training")) {
 			adminControls = [
 				<InfoboxFilterGroup
 					key="format-filter"
@@ -45,6 +47,15 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 				>
 					<InfoboxFilter value="FT_STANDARD">Standard</InfoboxFilter>
 					<InfoboxFilter value="FT_WILD">Wild</InfoboxFilter>
+				</InfoboxFilterGroup>,
+				<InfoboxFilterGroup
+					key="cluster-data-filter"
+					header="Dataset"
+					selectedValue={dataset}
+					onClick={(value) => this.props.setDataset(value)}
+				>
+					<InfoboxFilter value="live">Live</InfoboxFilter>
+					<InfoboxFilter value="latest">Latest</InfoboxFilter>
 				</InfoboxFilterGroup>,
 				<h2 key="admin-header">Admin</h2>,
 				<ul key="admin-controls">
@@ -96,7 +107,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 				</aside>
 				<main>
 					<DataInjector
-						query={{url: `/analytics/clustering/data/${format}/`, params: {}}}
+						query={{url: `/analytics/clustering/data/${dataset}/${format}/`, params: {}}}
 						extract={{
 							data: (clusterData) => {
 								let maxGames = 0;
