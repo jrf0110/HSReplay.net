@@ -4,7 +4,7 @@
 
 <div
 	id="{{ id }}"
-	data-api-key="{% setting 'STRIPE_TEST_PUBLIC_KEY' %}"
+	data-api-key="{% setting 'STRIPE_PUBLIC_KEY' %}"
 	data-stripe-checkout-image="{% static 'images/hsreplay-thumbnail.png' %}"
 	data-stripe-checkout-submit-url="{% url 'premium_subscribe' %}?next={{ request.path|urlencode }}"
 	data-stripe-elements-submit-url="{% url 'premium_subscribe' %}?next={{ request.path|urlencode }}"
