@@ -6,7 +6,7 @@
 {% feature "billing" as billing %}
 {% if billing %}
 {% if not premium %}
-<div id="premium-modal"{% if show_premium_modal %} data-stripe-load="1"{% else %} style="display: none;"{% endif %}>
+<div id="premium-modal"{% if show_premium_modal %} data-load-checkout="1"{% else %} style="display: none;"{% endif %}>
 	<div class="inner">
 		<header>
 			<span class="pull-right">
@@ -37,39 +37,24 @@
 
 			{% if user.is_authenticated %}
 				{% if not billing.read_only %}
-					{% include "premium/checkout_form_open.html" with id="premium-modal-checkout-form" %}
-					{% if user.default_payment_method %}
-						<p>
-							Subscribe with {{ user.default_payment_method }}
-						</p>
-					{% else %}
-						<p class="text-center">{% include "premium/checkout_buttons.html" %}</p>
-					{% endif %}
-					<small class="help-block text-center">
-						By signing up you agree to our <a href="{% url 'terms_of_service' %}" target="_blank">Terms of Service</a>.<br/>
-						Subscriptions renew automatically and can be cancelled at any time.
-					</small>
-					{% include "premium/checkout_form_close.html" %}
+					{% include "premium/checkout_form.html" with id="modal-checkout" %}
 				{% else %}
 					<p class="text-center">
 						<span class="btn promo-button-outline hero-button disabled">Not available</span>
 					</p>
 				{% endif %}
 			{% else %}
-				<p>
-					Please log in to continue.
-				</p>
-				<p>
+				<h4 class="text-center">Log in to continue:</h4>
+				<div class="text-center">
 					{% include "login_button.html" with next=request.path|urlencode|add:"?premium-modal" %}
 					<a href="{% url 'premium' %}" class="btn promo-button-outline hero-button">Learn more</a>
-				</p>
-				<p class="help-block">
+				</div>
+				<p class="help-block text-center">
 					HSReplay.net does not gain access to your Blizzard email address or password.
 				</p>
 			{% endif %}
 		</main>
 	</div>
 </div>
-{% render_bundle "premium_modal" %}
 {% endif %}
 {% endif %}

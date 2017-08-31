@@ -23,7 +23,7 @@
 				<p class="tagline">Advanced Statistics for Hearthstone.</p>
 				{% if not billing.read_only %}
 					<p><a href="#go" class="promo-button-outline text-premium">Get Premium</a></p>
-					<p>Subscribe for {{ monthly_plan.human_readable_price }}.</p>
+					<p>Subscribe for {{ stripe_monthly_plan.human_readable_price }}.</p>
 				{% else %}
 					<p><span class="btn promo-button-outline disabled">Not available</span></p>
 				{% endif %}
@@ -180,76 +180,22 @@
 	{% if not premium and billing.enabled and not billing.read_only %}
 	<section id="go" class="promo">
 		<div class="container">
-			<h3 class="text-center">{{ random_quote }}</h3>
-			{% include "premium/checkout_form_open.html" %}
-			<div class="form-group text-center">
-				{% if user.is_authenticated %}
-					<p>Choose your plan:</p>
-					<div class="btn-group btn-group-flex" data-toggle="buttons" role="radiogroup">
-						<label class="btn btn-default active" id="plan-{{ monthly_plan.stripe_id }}">
-							<h4>{{ monthly_plan.human_readable_price }}</h4>
-							<input
-									type="radio"
-									name="plan"
-									value="{{ monthly_plan.stripe_id }}"
-									data-amount="{{ monthly_plan.amount_in_cents }}"
-									data-currency="{{ monthly_plan.currency }}"
-									data-description="{{ monthly_plan.human_readable_price }}"
-									required
-									checked
-							>
-						</label>
-						<label class="btn btn-default" id="plan-{{ semiannual_plan.stripe_id }}">
-							<h4>{{ semiannual_plan.human_readable_price }}</h4>
-							<input
-									type="radio"
-									name="plan"
-									value="{{ semiannual_plan.stripe_id }}"
-									data-amount="{{ semiannual_plan.amount_in_cents }}"
-									data-currency="{{ semiannual_plan.currency }}"
-									data-description="{{ semiannual_plan.human_readable_price }}"
-									required
-							>
-						</label>
-					</div>
-				{% endif %}
-			</div>
 			{% if user.is_authenticated %}
-				{% with user.stripe_customer as customer %}
+				<h3 class="text-center">{{ random_quote }}</h3>
 				<div class="form-group">
-					{% if customer.coupon %}
-						<p class="alert alert-success">
-							You have an active coupon for <strong>{{ customer.coupon.human_readable }}</strong>.
-							This amount will be deducted from your purchase.
-						</p>
-					{% endif %}
-
-					{% if customer.default_source %}
-						<p class="text-center">
-							<button type="submit" class="promo-button text-premium">Subscribe now</button>
-						</p>
-						<p class="text-center">Using <strong>{{ customer.default_source.brand }} &bull;&bull;&bull;&bull; {{ customer.default_source.last4 }}</strong></p>
-					{% else %}
-						<p class="text-center">
-							{% include "premium/checkout_button.html" with id="premium-checkout-button" label="Sign me up!" %}
-						</p>
-						<script type="text/javascript">
-							var button = document.getElementById("premium-checkout-button");
-							window.hsreplaynet_load_stripe(button, "Premium Detail");
-						</script>
-					{% endif %}
-				</div>
-				<small class="help-block text-center">
-					By signing up you agree to our <a href="{% url 'terms_of_service' %}" target="_blank">Terms of Service</a>.<br/>
-					Subscriptions renew automatically and can be cancelled any time from the <a href="{% url 'billing_methods' %}" target="_blank">billing settings</a> page.
-				</small>
-				{% endwith %}
+				{% include "premium/checkout_form.html" with id="premium-detail-checkout" %}
+				<script type="text/javascript">
+					window.hsreplaynet_load_hscheckout(
+						document.getElementById("premium-detail-checkout"),
+						document.getElementById("premium-plan-data"),
+					);
+				</script>
 			{% else %}
-				<div class="text-center">
+				<h3 class="text-center">Log in to continue:</h3>
+				<div class="text-center" style="margin: 25px 0 10px 0">
 					{% include "login_button.html" with next="/premium#go" %}
 				</div>
 			{% endif %}
-			{% include "premium/checkout_form_close.html" %}
 		</div>
 	</section>
 	{% endif %}

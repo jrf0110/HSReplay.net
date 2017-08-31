@@ -201,6 +201,17 @@
 	</div>
 </section>
 
+<section id="account-billing-paypal" class="box-section">
+	<h3>Paypal</h3>
+	<div class="inner">
+		{% if user.is_paypal_premium %}
+		You are subscribed using paypal.
+		{% else %}
+		You are not subscribed using paypal.
+		{% endif %}
+	</div>
+</section>
+
 <section id="account-payment-history" class="box-section">
 	<h3>Payment History</h3>
 

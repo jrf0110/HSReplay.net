@@ -33,6 +33,8 @@
 {% block body %}
 
 	{% block premium_modal %}
+		{% include "premium/plan_data.html" %}
+		{% render_bundle "premium_modal" %}
 		{% include "premium/premium_modal.html" %}
 	{% endblock %}
 
