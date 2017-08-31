@@ -17,3 +17,6 @@ rq==0.8.1
 markdown==2.6.9
 numpy
 scikit-learn[alldeps]
+
+# stripe
+https://github.com/jleclanche/dj-stripe/archive/master.tar.gz
