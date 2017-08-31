@@ -21,6 +21,7 @@ def userdata(request):
 	if is_authenticated:
 		data["userid"] = request.user.pk
 		data["username"] = request.user.username
+		data["email"] = request.user.email
 		data["battletag"] = request.user.battletag
 		data["locale"] = request.user.locale
 

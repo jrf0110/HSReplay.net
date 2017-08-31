@@ -9,6 +9,7 @@ interface UserDataProps {
 	is_authenticated: boolean;
 	premium: boolean;
 	username: string;
+	email: string;
 	staff: boolean;
 	locale: string;
 	features: FeatureMap;
@@ -62,6 +63,10 @@ export default class UserData {
 
 	static getUsername(): string|null {
 		return this._instance ? UserData._instance.username : null;
+	}
+
+	static getEmail(): string|null {
+		return this._instance ? UserData._instance.email: null;
 	}
 
 	static getLocale(): string|null {
