@@ -72,15 +72,15 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 		const {data, maxGames, playerClass} = this.props;
 		const {selectedDeck} = this.state;
 		const clusterIds = Object.keys(data.cluster_map).sort();
-		const chartHeight = "calc(100vh - 100px)";
+		const chartHeight = "calc(100vh - 125px)";
 		return (
 			<TabList
 				setTab={(tab) => this.setState({activeClusterTab: tab})}
 				tab={this.state.activeClusterTab}
 			>
 				<Tab id="chart" label={this.renderChartTabLabel()}>
-					<div style={{display: "flex"}}>
-						<div style={{width: "100%", height: chartHeight}}>
+					<div className="class-tab-content">
+						<div className="cluster-chart-container" style={{height: chartHeight}}>
 							<AutoSizer>
 								{({height, width}) => {
 									return (
@@ -124,7 +124,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 		const {playerClass} = this.props;
 		return (
 			<span className={"player-class " + playerClass.toLowerCase()}>
-				{toTitleCase(playerClass)} Chart
+				{toTitleCase(playerClass)} Clusters
 			</span>
 		);
 	}

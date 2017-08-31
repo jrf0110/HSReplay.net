@@ -71,6 +71,7 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 			<div
 				id="infobox-deck"
 				className={infoboxClassNames.join(" ")}
+				style={{height}}
 			>
 				{content}
 			</div>

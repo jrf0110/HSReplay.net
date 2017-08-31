@@ -78,7 +78,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 					key={this.state.chartKey}
 					height={height}
 					width={width}
-					padding={30}
+					padding={10}
 					domainPadding={30}
 					containerComponent={
 						<VictoryZoomContainer
