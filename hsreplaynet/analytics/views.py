@@ -318,8 +318,23 @@ class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	title = "Clustering Charts"
 
 
+def live_clustering_data(request, game_format):
+	snapshot = ClusterSetSnapshot.objects.filter(
+		game_format=FormatType[game_format],
+		live_in_production=True
+	).first()
+
+	if not snapshot:
+		raise Http404("No Snapshot exists")
+
+	return HttpResponse(
+		content=json.dumps(snapshot.to_chart_data(with_external_ids=True), indent=4),
+		content_type="application/json"
+	)
+
+
 @view_requires_feature_access("archetype-training")
-def clustering_data(request, game_format):
+def latest_clustering_data(request, game_format):
 	snapshot_exists = ClusterSetSnapshot.objects.filter(
 		game_format=FormatType[game_format]
 	).exists()
@@ -328,12 +343,11 @@ def clustering_data(request, game_format):
 		snapshot = ClusterSetSnapshot.objects.filter(
 			game_format=FormatType[game_format]
 		).latest()
-		cluster_set = snapshot.to_cluster_set()
 	else:
-		snapshot, cluster_set = ClusterSetSnapshot.objects.snapshot(FormatType[game_format])
+		snapshot = ClusterSetSnapshot.objects.snapshot(FormatType[game_format])
 
 	return HttpResponse(
-		content=json.dumps(cluster_set.to_chart_data(), indent=4),
+		content=json.dumps(snapshot.to_chart_data(), indent=4),
 		content_type="application/json"
 	)
 

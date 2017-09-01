@@ -43,8 +43,14 @@ urlpatterns = [
 		name="analytics_clustering_charts"
 	),
 	url(
-		r"^clustering/data/(?P<game_format>\w+)/$", views.clustering_data,
-		name="analytics_clustering_data"
+		r"^clustering/data/live/(?P<game_format>\w+)/$",
+		views.live_clustering_data,
+		name="analytics_live_clustering_data"
+	),
+	url(
+		r"^clustering/data/latest/(?P<game_format>\w+)/$",
+		views.latest_clustering_data,
+		name="analytics_latest_clustering_data"
 	),
 	url(
 		r"^clustering/refresh/(?P<game_format>\w+)/$", views.clustering_data_refresh,

@@ -247,10 +247,12 @@ class ClusterSnapshotUpdateView(View):
 		archetype_id = payload.get("archetype_id", None)
 
 		if not archetype_id:
-			cluster.archetype = None
+			cluster.external_id = None
 		else:
-			cluster.archetype = Archetype.objects.get(id=int(archetype_id))
-			cluster.name = cluster.archetype.name
+			archetype = Archetype.objects.get(id=int(archetype_id))
+			cluster.external_id = int(archetype_id)
+			cluster.name = archetype.name
+			cluster._augment_data_points()
 		cluster.save()
 
 		return JsonResponse({"msg": "OKAY"}, status=200)

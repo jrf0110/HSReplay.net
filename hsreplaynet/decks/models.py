@@ -1,7 +1,6 @@
 import hashlib
 import json
 import string
-from collections import defaultdict
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import connection, models, transaction
@@ -16,7 +15,9 @@ from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from hsarchetypes import calculate_signature_weights, classify_deck
-from hsarchetypes.signatures import calculate_signature_weights_for_cluster
+from hsarchetypes.clustering import (
+	ClassClusters, Cluster, ClusterSet, create_cluster_set
+)
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws.clients import FIREHOSE
@@ -72,22 +73,29 @@ class DeckManager(models.Manager):
 	def classify_deck_with_archetype(self, deck, player_class, game_format):
 		if game_format not in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
 			return
+
 		qs = Archetype.objects.live().filter(player_class=player_class)
 		if game_format == enums.FormatType.FT_STANDARD:
 			qs.filter(active_in_standard=True)
 		else:
 			qs.filter(active_in_wild=True)
 
-		archetype_ids = list(
-			qs.values_list("id", flat=True)
-		)
+		archetype_ids = list(qs.values_list("id", flat=True))
+
 		if not archetype_ids:
 			return
 
-		signature_weights = Archetype.objects.get_signature_weights(
-			archetype_ids,
-			game_format
+		clusters = ClusterSnapshot.objects.filter(
+			class_cluster__cluster_set__live_in_production=True,
+			class_cluster__player_class=player_class,
+			external_id__in=archetype_ids
 		)
+
+		signature_weights = {}
+		for cluster in clusters:
+			signature_weights[cluster.external_id] = {}
+			for dbf_id, weight in cluster.ccp_signature.items():
+				signature_weights[cluster.external_id][int(dbf_id)] = weight
 
 		archetype_id = classify_deck(
 			deck.dbf_map(), archetype_ids, signature_weights
@@ -843,163 +851,77 @@ class SignatureComponent(models.Model):
 class ClusterSetManager(models.Manager):
 	def snapshot(self, game_format=enums.FormatType.FT_STANDARD):
 		from hsreplaynet.analytics.processing import get_cluster_set_data
-		from hsarchetypes.clustering import ClusterSet
 
 		data = get_cluster_set_data(game_format=game_format)
-		print("Cluster Set Data Retrieved From Redshift")
 
-		cluster_set = ClusterSet.create_cluster_set(data)
-		print("Cluster Set Created")
-		cluster_from_archetypes = Archetype.objects.current_cluster_set(game_format)
-		print("Cluster From Archetypes Loaded")
-		cluster_set.inherit_from_previous(cluster_from_archetypes)
-		print("Cluster Archetype Inheritence Complete")
 		with transaction.atomic():
+			cs_snapshot = create_cluster_set(data, factory=ClusterSetSnapshot)
+			previous_snapshot = ClusterSetSnapshot.objects.filter(
+				live_in_production=True
+			).first()
+			cs_snapshot.inherit_from_previous(previous_snapshot)
+
 			ClusterSetSnapshot.objects.update(latest=False)
-			cs_snapshot = ClusterSetSnapshot.objects.create(
-				game_format=game_format,
-				latest=True
-			)
-			for class_cluster in cluster_set.class_clusters:
-				print("Starting Save To DB For: %s" % class_cluster.player_class)
-				class_snapshot = ClassClusterSnapshot.objects.create(
-					cluster_set=cs_snapshot,
-					player_class=enums.CardClass[class_cluster.player_class]
-				)
+			cs_snapshot.game_format = game_format
+			cs_snapshot.latest = True
+			cs_snapshot.save()
+
+			for class_cluster in cs_snapshot.class_clusters:
+				class_cluster.cluster_set = cs_snapshot
+				class_cluster.save()
 
 				for cluster in class_cluster.clusters:
-					if cluster.external_id:
-						archetype = Archetype.objects.get(id=cluster.external_id)
-						name = archetype.name
-					elif cluster.cluster_id == -1:
-						archetype = None
-						name = "Experimental"
-					else:
-						archetype = None
-						name = "NEW"
+					cluster.class_cluster = class_cluster
+					cluster.save()
 
-					cluster_snapshot = ClusterSnapshot.objects.create(
-						class_cluster=class_snapshot,
-						cluster_id=cluster.cluster_id,
-						experimental=(cluster.cluster_id == -1),
-						signature=cluster.signature,
-						archetype=archetype,
-						name=name,
-						rules=cluster.rules
-					)
-
-					for deck in cluster.decks:
-						d = Deck.objects.get(id=int(deck["deck_id"]))
-						ClusterSnapshotMember.objects.create(
-							cluster=cluster_snapshot,
-							deck=d,
-							card_list=d.as_dbf_json(),
-							shortid=d.shortid,
-							observations=deck["observations"],
-							win_rate=deck["win_rate"],
-							x=deck["x"],
-							y=deck["y"],
-						)
-		return (cs_snapshot, cluster_set)
+		return cs_snapshot
 
 
-class ClusterSetSnapshot(models.Model):
+class ClassClusterSnapshot(models.Model, ClassClusters):
 	id = models.AutoField(primary_key=True)
-	objects = ClusterSetManager()
-	as_of = models.DateTimeField(default=timezone.now)
-	game_format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
-	live_in_production = models.BooleanField(default=False)
-	latest = models.BooleanField(default=False)
-
-	class Meta:
-		get_latest_by = "as_of"
-
-	def __str__(self):
-		return "%s - Latest: %s, Live: %s" % (
-			self.game_format,
-			self.latest,
-			self.live_in_production,
-		)
-
-	def update_archetype_signatures(self):
-		with transaction.atomic():
-			as_of = timezone.now()
-			for class_snapshot in self.classclustersnapshot_set.all():
-				class_snapshot.update_archetype_signatures(as_of=as_of)
-
-			ClusterSetSnapshot.objects.filter(
-				live_in_production=True
-			).update(live_in_production=False)
-			self.live_in_production = True
-			self.save()
-
-	def to_cluster_set(self):
-		from hsarchetypes.clustering import ClusterSet
-		class_clusters = []
-		for class_snapshot in self.classclustersnapshot_set.all():
-			class_clusters.append(class_snapshot.to_class_cluster())
-		return ClusterSet(class_clusters)
-
-
-class ClassClusterSnapshot(models.Model):
-	id = models.AutoField(primary_key=True)
-	cluster_set = models.ForeignKey(ClusterSetSnapshot, on_delete=models.CASCADE)
+	cluster_set = models.ForeignKey("ClusterSetSnapshot", on_delete=models.CASCADE)
 	player_class = IntEnumField(enum=enums.CardClass, default=enums.CardClass.INVALID)
 
 	def __str__(self):
-		return "%s" % self.player_class
+		return ClassClusters.__str__(self)
 
-	def update_archetype_signatures(self, as_of):
-		clusters_for_archetype = defaultdict(list)
-		for cluster_snapshot in self.clustersnapshot_set.all():
-			if cluster_snapshot.archetype and not cluster_snapshot.experimental:
-				clusters_for_archetype[cluster_snapshot.archetype].append(cluster_snapshot)
+	@property
+	def clusters(self):
+		if not hasattr(self, "_clusters"):
+			self._clusters = list(self.clustersnapshot_set.all())
+		return self._clusters
 
-		for archetype, clusters_list in clusters_for_archetype.items():
-			decks = []
-			for cluster in clusters_list:
-				decks.extend(cluster.to_cluster().decks)
-			signature_weights = calculate_signature_weights_for_cluster(
-				decks,
-				use_thresholds=False
-			)
-			if signature_weights:
-				signature = Signature.objects.create(
-					archetype=archetype, format=self.cluster_set.game_format, as_of=as_of
-				)
-				for dbf_id, weight in signature_weights.items():
-					SignatureComponent.objects.create(
-						signature=signature, card_id=int(dbf_id), weight=weight
-					)
-
-	def to_class_cluster(self):
-		from hsarchetypes.clustering import ClassClusters
-		clusters = []
-		for cluster_snapshot in self.clustersnapshot_set.all():
-			clusters.append(cluster_snapshot.to_cluster())
-		return ClassClusters(player_class=self.player_class.name, clusters=clusters)
+	@clusters.setter
+	def clusters(self, clusters):
+		self._clusters = clusters
+		for cluster in clusters:
+			cluster.class_cluster = self
 
 
-class ClusterSnapshot(models.Model):
+class ClusterSnapshot(models.Model, Cluster):
 	id = models.AutoField(primary_key=True)
 	class_cluster = models.ForeignKey(ClassClusterSnapshot, on_delete=models.CASCADE)
 	cluster_id = models.IntegerField()
-	# The experimental cluster is unique because it is container for all
-	# low observation count and outlier decks which may not actually be similar
-	# to each other w.r.t signature.
-	# The experimental cluster should never be converted into an actual archetype
 	experimental = models.BooleanField(default=False)
-	# https://docs.djangoproject.com/en/1.11/ref/contrib/postgres/fields/#jsonfield
 	signature = JSONField(default=dict)
-	archetype = models.ForeignKey(Archetype, null=True, on_delete=models.SET_NULL)
-	# Will be used when creating a new archetype for the cluster
-	# If the archetype FK is not set.
-	# When archetype FK is set then the name is inherited from there.
 	name = models.CharField(max_length=250, blank=True)
 	rules = ArrayField(
 		base_field=models.CharField(max_length=100, blank=True),
 		default=list
 	)
+	data_points = JSONField(default=list)
+	external_id = models.IntegerField(null=True, blank=True)
+	ccp_signature = JSONField(default=dict)
+
+	def __str__(self):
+		return Cluster.__str__(self)
+
+	@property
+	def archetype(self):
+		if self.external_id:
+			return Archetype.objects.get(id=self.external_id)
+		else:
+			return None
 
 	@property
 	@mark_safe
@@ -1011,49 +933,40 @@ class ClusterSnapshot(models.Model):
 		rows = [row % (db[int(dbf)].name, round(weight, 4)) for dbf, weight in components]
 		return table % "".join(rows)
 
-	def to_cluster(self):
-		from hsarchetypes.clustering import Cluster
-		decks = []
-		for member in self.clustersnapshotmember_set.all():
-			decks.append(member.to_deck())
-		return Cluster(
-			cluster_id=self.cluster_id,
-			decks=decks,
-			signature=self.signature,
-			name=self.name,
-			external_id=self.archetype.id if self.archetype else None,
-			rules=self.rules
-		)
 
-
-class ClusterSnapshotMember(models.Model):
+class ClusterSetSnapshot(models.Model, ClusterSet):
 	id = models.AutoField(primary_key=True)
-	cluster = models.ForeignKey(ClusterSnapshot, on_delete=models.CASCADE)
-	deck = models.ForeignKey(Deck, on_delete=models.CASCADE)
-	card_list = models.CharField(max_length=500, blank=True)
-	shortid = models.CharField(max_length=100, blank=True)
-	observations = models.IntegerField()
-	win_rate = models.FloatField()
-	x = models.FloatField()
-	y = models.FloatField()
+	objects = ClusterSetManager()
+	as_of = models.DateTimeField(default=timezone.now)
+	game_format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
+	live_in_production = models.BooleanField(default=False)
+	latest = models.BooleanField(default=False)
 
-	def to_deck(self):
-		cards = {str(dbf_id): int(count) for dbf_id, count in json.loads(self.card_list)}
-		result = {
-			"x": self.x,
-			"y": self.y,
-			"observations": self.observations,
-			"win_rate": self.win_rate,
-			"cluster_id": self.cluster.cluster_id,
-			"archetype_name": None,
-			"external_id": None,
-			"card_list": self.card_list,
-			"cards": cards,
-			"shortid": self.shortid
-		}
+	CLASS_CLUSTER_FACTORY = ClassClusterSnapshot
+	CLUSTER_FACTORY = ClusterSnapshot
 
-		if self.cluster.archetype:
-			result["archetype_name"] = self.cluster.archetype.name
-			result["external_id"] = self.cluster.archetype.id
+	class Meta:
+		get_latest_by = "as_of"
 
-		return result
+	def __str__(self):
+		return ClusterSet.__str__(self)
+
+	@property
+	def class_clusters(self):
+		if not hasattr(self, "_class_clusters"):
+			self._class_clusters = list(self.classclustersnapshot_set.all())
+		return self._class_clusters
+
+	@class_clusters.setter
+	def class_clusters(self, cc):
+		self._class_clusters = cc
+		for class_cluster in cc:
+			class_cluster.cluster_set = self
+
+	def update_archetype_signatures(self):
+		with transaction.atomic():
+			ClusterSetSnapshot.objects.filter(
+				live_in_production=True
+			).update(live_in_production=False)
+			self.live_in_production = True
+			self.save()

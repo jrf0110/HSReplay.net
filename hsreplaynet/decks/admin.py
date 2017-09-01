@@ -2,7 +2,7 @@ from django.contrib import admin
 from hearthsim_identity.utils import admin_urlify
 from .models import (
 	Archetype, ArchetypeTrainingDeck, ClassClusterSnapshot, ClusterSetSnapshot,
-	ClusterSnapshot, ClusterSnapshotMember, Deck, Include, Signature,
+	ClusterSnapshot, Deck, Include, Signature,
 	SignatureComponent
 )
 
@@ -80,20 +80,6 @@ class ClusterSnapshotAdmin(admin.ModelAdmin):
 		"class_cluster__player_class",
 	)
 	readonly_fields = ("pretty_signature_html",)
-
-
-@admin.register(ClusterSnapshotMember)
-class ClusterSnapshotMemberAdmin(admin.ModelAdmin):
-	list_display = (
-		"id",
-		"cluster",
-		"card_list",
-		"shortid",
-		"observations",
-		"win_rate",
-		"x",
-		"y"
-	)
 
 
 @admin.register(Archetype)
