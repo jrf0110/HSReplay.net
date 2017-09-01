@@ -34,13 +34,17 @@ export default class DeckMatchups extends React.Component<DeckMatchupsProps, {}>
 	}
 
 	getArchetypes(playerClass: string): ArchetypeData[] {
-		return this.props.archetypeMatchupData.series.data[playerClass].map((archetype) => {
+		const archetypes = [];
+		this.props.archetypeMatchupData.series.data[playerClass].forEach((archetype) => {
 			const data = this.props.archetypeData.find((a) => a.id === archetype.archetype_id);
-			return {
-				id: archetype.archetype_id,
-				name: data.name,
-				winrate: archetype.win_rate,
-			};
+			if (data) {
+				archetypes.push({
+					id: archetype.archetype_id,
+					name: data.name,
+					winrate: archetype.win_rate,
+				});
+			}
 		});
+		return archetypes;
 	}
 }
