@@ -62,6 +62,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 	renderHeader(archetype: ApiArchetype) {
 		return (
 			<ArchetypeSignatureTooltip
+				key={archetype.id}
 				cardData={this.props.cardData}
 				archetypeId={archetype.id}
 				archetypeName={archetype.name}

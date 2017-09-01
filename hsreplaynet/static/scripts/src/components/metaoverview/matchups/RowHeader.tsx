@@ -69,6 +69,7 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 						target="_blank"
 					>
 						<ArchetypeSignatureTooltip
+							key={this.props.archetypeData.id}
 							cardData={this.props.cardData}
 							archetypeId={this.props.archetypeData.id}
 							archetypeName={this.props.archetypeData.name}
