@@ -44,6 +44,7 @@ export default class ArchetypeSignatureTooltip extends React.Component<Archetype
 				content={this.renderTooltip()}
 				header={this.props.archetypeName}
 				onHovering={() => this.fetchArchetypeData()}
+				xOffset={50}
 			>
 				{this.props.children}
 			</Tooltip>

@@ -20,10 +20,7 @@ interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	style?: any;
 }
 
-interface RowHeaderState {
-}
-
-export default class RowHeader extends React.Component<RowHeaderProps, RowHeaderState> {
+export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 	shouldComponentUpdate(nextProps: RowHeaderProps): boolean {
 		return (
 			this.props.highlight !== nextProps.highlight
@@ -52,8 +49,8 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 				onMouseEnter={() => this.props.onHover(true)}
 				onMouseLeave={() => this.props.onHover(false)}
 			>
-				<div className="archetype matchup-archetype" onClick={() => this.props.onFavoriteChanged(!this.props.isFavorite)}>
-					<div className="class-icon-wrapper">
+				<div className="archetype matchup-archetype">
+					<div className="class-icon-wrapper" onClick={() => this.props.onFavoriteChanged(!this.props.isFavorite)}>
 						<img
 							className="class-icon"
 							src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
@@ -61,9 +58,6 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 						<span className={favIconClasses.join(" ")}/>
 						{activeFavIcon}
 					</div>
-					{this.props.archetypeData.name}
-				</div>
-				<Feature feature="archetype-detail">
 					<a
 						href={getArchetypeUrl(this.props.archetypeData.id, this.props.archetypeData.name)}
 						target="_blank"
@@ -75,10 +69,10 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 							archetypeName={this.props.archetypeData.name}
 							gameType={this.props.gameType}
 						>
-							<span className="glyphicon glyphicon-new-window"/>
+							<span className="archetype-name">{this.props.archetypeData.name}</span>
 						</ArchetypeSignatureTooltip>
 					</a>
-				</Feature>
+				</div>
 			</div>
 		);
 	}

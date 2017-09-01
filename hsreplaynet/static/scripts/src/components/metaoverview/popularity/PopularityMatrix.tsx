@@ -23,15 +23,12 @@ interface PopularityMatrixProps extends React.ClassAttributes<PopularityMatrix> 
 	numRanks: number;
 }
 
-interface PopularityMatrixState {
-}
-
-export default class PopularityMatrix extends React.Component<PopularityMatrixProps, PopularityMatrixState> {
+export default class PopularityMatrix extends React.Component<PopularityMatrixProps, {}> {
 
 	render() {
 		const {archetypes} = this.props;
 
-		const headerCellWidth = 250;
+		const headerCellWidth = 210;
 		const headerCellHeight = 132;
 		const cellWidth = 70;
 		const cellHeight = 40;

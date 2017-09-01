@@ -15,10 +15,7 @@ interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	style?: any;
 }
 
-interface RowHeaderState {
-}
-
-export default class RowHeader extends React.Component<RowHeaderProps, RowHeaderState> {
+export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 	render() {
 		return (
 			<div className="matchup-row-header" style={this.props.style}>
@@ -29,9 +26,6 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 							src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
 						/>
 					</div>
-					{this.props.archetypeData.name}
-				</div>
-				<Feature feature="archetype-detail">
 					<a
 						href={getArchetypeUrl(this.props.archetypeData.id, this.props.archetypeData.name)}
 						target="_blank"
@@ -43,10 +37,10 @@ export default class RowHeader extends React.Component<RowHeaderProps, RowHeader
 							archetypeName={this.props.archetypeData.name}
 							gameType={this.props.gameType}
 						>
-							<span className="glyphicon glyphicon-new-window"/>
+							<span className="archetype-name">{this.props.archetypeData.name}</span>
 						</ArchetypeSignatureTooltip>
 					</a>
-				</Feature>
+				</div>
 			</div>
 		);
 	}

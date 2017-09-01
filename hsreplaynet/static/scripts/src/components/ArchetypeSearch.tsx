@@ -28,7 +28,7 @@ export default class ArchetypeSearch extends React.Component<ArchetypeSearchProp
 				objectLimit={Limit.SINGLE}
 				onObjectsChanged={this.props.onArchetypesChanged}
 				onObjectSelected={this.props.onArchetypeSelected}
-				placeholder="Search for archetypes…"
+				placeholder="Set favorite..."
 				selectedObjects={this.props.selectedArchetypes}
 				sorting={cardSorting}
 				showOnFocus
@@ -66,4 +66,3 @@ export default class ArchetypeSearch extends React.Component<ArchetypeSearchProp
 // tslint:disable-next-line:max-classes-per-file
 class ArchetypeObjectSearch extends ObjectSearch<ApiArchetype> {
 }
-;

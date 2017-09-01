@@ -53,7 +53,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 	render() {
 		const archetypes = this.props.archetypes;
 
-		const headerCellWidth = 250;
+		const headerCellWidth = 210;
 		const headerCellHeight = 132;
 		const cellWidth = 70;
 		const cellHeight = 40;
@@ -74,7 +74,10 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 										{this.getSortHeader("class", "Archetype", "ascending")}
 										<ArchetypeSearch
 											availableArchetypes={this.props.allArchetypes.slice().sort((a, b) => a.name > b.name ? 1 : -1)}
-											onArchetypeSelected={(archetype) => this.props.onFavoriteChanged(archetype.id, true)}
+											onArchetypeSelected={(archetype) => {
+												this.props.onFavoriteChanged(archetype.id, true);
+												this.recomputeGridSize();
+											}}
 										/>
 									</div>
 									<div className="grid-container grid-container-top" style={{left: headerCellWidth}}>
