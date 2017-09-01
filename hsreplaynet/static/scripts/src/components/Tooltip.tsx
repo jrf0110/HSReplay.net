@@ -25,6 +25,7 @@ interface TooltipProps {
 	noBackground?: boolean;
 	simple?: boolean;
 	yOffset?: number;
+	xOffset?: number;
 	onHovering?: () => void;
 }
 
@@ -96,10 +97,10 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			style["left"] = Math.min(window.innerWidth - width, Math.max(0, this.state.clientX - width / 2));
 		}
 		else if (this.state.clientX < window.innerWidth / 2) {
-			style["left"] = this.state.clientX + 20;
+			style["left"] = this.state.clientX + 20 + (this.props.xOffset || 0);
 		}
 		else {
-			style["right"] = window.innerWidth - this.state.clientX;
+			style["right"] = window.innerWidth - this.state.clientX + (this.props.xOffset || 0);
 		}
 
 		const content = [];
@@ -132,7 +133,7 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 	}
 
 	render(): JSX.Element {
-		let classNames = ["tooltip-wrapper"];
+		const classNames = ["tooltip-wrapper"];
 		if (this.props.className) {
 			classNames.push(this.props.className);
 		}
