@@ -18,8 +18,7 @@ export default class TabList extends React.Component<TabListProps, {}> {
 		const canSwitch = typeof this.props.setTab === "function";
 
 		const tabs = children.map((child: any) => {
-			const id = child.props.id;
-			const disabled = child.props.disabled;
+			const {id, disabled, highlight} = child.props;
 			const isActive = id === this.props.tab;
 
 			const label = (
@@ -43,6 +42,9 @@ export default class TabList extends React.Component<TabListProps, {}> {
 			}
 			if (disabled) {
 				classNames.push("disabled");
+			}
+			if (highlight) {
+				classNames.push("highlight");
 			}
 
 			return (

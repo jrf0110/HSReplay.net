@@ -1,10 +1,11 @@
-import * as React from "react"
+import * as React from "react";
 
 interface TabProps {
 	id: string;
 	hidden?: boolean;
 	disabled?: boolean;
 	label?: string | JSX.Element;
+	highlight?: boolean;
 }
 
 export default class Tab extends React.Component<TabProps, {}> {

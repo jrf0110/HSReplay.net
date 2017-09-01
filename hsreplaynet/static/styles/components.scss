@@ -974,6 +974,14 @@ table .info-icon, .sort-header .info-icon {
 				color: inherit;
 			}
 		}
+
+		&.highlight:not(.active) > a {
+			background: $lightblue;
+			border: 1px solid $blue;
+			 &:hover {
+				 color: black;
+			 }
+		}
 	}
 }
 
