@@ -78,7 +78,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 				setTab={(tab) => this.setState({activeClusterTab: tab})}
 				tab={this.state.activeClusterTab}
 			>
-				<Tab id="chart" label={this.renderChartTabLabel()}>
+				<Tab id="chart" label={this.renderChartTabLabel()} highlight={true}>
 					<div className="class-tab-content">
 						<div className="cluster-chart-container" style={{height: chartHeight}}>
 							<AutoSizer>
