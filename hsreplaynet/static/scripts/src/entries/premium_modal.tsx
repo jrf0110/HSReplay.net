@@ -8,6 +8,9 @@ let modal;
 
 window.onload = () => {
 	modal = document.getElementById("premium-modal");
+	if(!modal) {
+		return;
+	}
 	setupModal(modal);
 	if(modal.getAttribute("data-load-checkout")) {
 		loadCheckout();
@@ -89,6 +92,9 @@ const closeModal = (modalToClose) => {
 
 // setup modal
 const setupModal = (modal) => {
+	if(!modal) {
+		return;
+	}
 	const closeButton = document.getElementById("premium-modal-close");
 	closeButton.style.display = "block";
 	closeButton.onclick = (e) => {
