@@ -48,4 +48,10 @@ def userdata(request):
 		if feature.read_only:
 			data["features"][feature.name]["read_only"] = True
 
+	# IP country (geolocation done by Cloudflare)
+	# Note: This is meant to be used as a hint; users can send it themselves.
+	# Don't use it as an absolute.
+	if "HTTP_CF_IPCOUNTRY" in request.META:
+		data["ipcountry"] = request.META["HTTP_CF_IPCOUNTRY"]
+
 	return {"userdata": data}
