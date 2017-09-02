@@ -21,7 +21,7 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 			format: null,
 		};
 		let cppData = null;
-		if (!_.isEmpty(data.ccp_signatures)) {
+		if (!_.isEmpty(data.ccp_signatures) && !_.isEmpty(data.ccp_signatures[clusterId])) {
 			const cppSignature: ApiArchetypeSignature = {
 				as_of: null,
 				components: data.ccp_signatures[clusterId],
