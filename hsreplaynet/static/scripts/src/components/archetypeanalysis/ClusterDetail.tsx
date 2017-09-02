@@ -2,8 +2,9 @@ import * as React from "react";
 import ArchetypeSignature from "../archetypedetail/ArchetypeSignature";
 import CardData from "../../CardData";
 import {ApiArchetypeSignature} from "../../interfaces";
-import {ClusterData} from "./ClassAnalysis";
+import {ClusterData, ClusterMetaData, DeckData} from "./ClassAnalysis";
 import * as _ from "lodash";
+import CardList from "../CardList";
 
 interface ClusterDetailProps extends React.ClassAttributes<ClusterDetail> {
 	cardData: CardData;
@@ -27,7 +28,7 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 				format: null,
 			};
 			cppData = (
-				<div className="col-xs-12 col-sm-6" style={{maxWidth: 300}}>
+				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 300}}>
 					<h2>CCP Signature</h2>
 					<ArchetypeSignature
 						cardData={cardData}
@@ -39,9 +40,20 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 			);
 		}
 
+		const clusterDecks = data.data.filter((d) => "" + d.metadata.cluster_id === clusterId);
+		const deck = _.maxBy(clusterDecks, (x: DeckData) => x.metadata.games);
+		const cardList = [];
+		if (deck) {
+			JSON.parse(deck.metadata.deck_list).forEach((c: any[]) => {
+				for (let i = 0; i < c[1]; i++) {
+					cardList.push(c[0]);
+				}
+			});
+		}
+
 		return (
 			<div>
-				<div className="col-xs-12 col-sm-6" style={{maxWidth: 300}}>
+				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 300}}>
 					<h2>Signature</h2>
 					<ArchetypeSignature
 						cardData={cardData}
@@ -51,6 +63,16 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 					/>
 				</div>
 				{cppData}
+				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 300}}>
+					<h2>Most Popular Deck</h2>
+					<p className="text-center">{deck.metadata.games} games</p>
+					<CardList
+						cardData={cardData}
+						cardList={cardList}
+						name=""
+						heroes={[]}
+					/>,
+				</div>
 			</div>
 		);
 	}
