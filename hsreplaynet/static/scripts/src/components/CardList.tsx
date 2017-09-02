@@ -17,6 +17,7 @@ interface CardListProps {
 	deckClass?: string;
 	format?: number;
 	customCounts?: {[dbfId: number]: number};
+	sortByCount?: boolean;
 }
 
 export default class CardList extends React.Component<CardListProps, any> {
@@ -28,7 +29,7 @@ export default class CardList extends React.Component<CardListProps, any> {
 			return <div className="text-center">Loading cards…</div>;
 		}
 
-		const {customCounts} = this.props;
+		const {customCounts, sortByCount} = this.props;
 
 		const cardHeight = this.props.cardHeight ? this.props.cardHeight : 34;
 		const counts = {};
@@ -40,6 +41,9 @@ export default class CardList extends React.Component<CardListProps, any> {
 
 		const cards = Object.keys(counts).map((id) => getCard(id));
 		cards.sort(cardSorting);
+		if (sortByCount) {
+			cards.sort((a, b) => customCounts[b.dbfId] - customCounts[a.dbfId]);
+		}
 
 		const copyButtonCards = [];
 		const cardTiles = [];

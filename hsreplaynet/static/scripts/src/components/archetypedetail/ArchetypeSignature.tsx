@@ -27,7 +27,8 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 	}
 
 	render(): JSX.Element {
-		if (!this.props.signature || !this.props.cardData) {
+		const {cardData, signature, showValues} = this.props;
+		if (!signature || !cardData) {
 			return null;
 		}
 
@@ -60,7 +61,8 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 						cardList={bucket.cards}
 						name=""
 						heroes={[]}
-						customCounts={this.props.showValues && customCounts}
+						customCounts={showValues && customCounts}
+						sortByCount={showValues}
 					/>,
 				];
 				if (this.props.bucketWrapperClassName) {
