@@ -59,29 +59,11 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					<InfoboxFilter value="live">Live</InfoboxFilter>
 					<InfoboxFilter value="latest">Latest</InfoboxFilter>
 				</InfoboxFilterGroup>,
-				<h2 key="admin-header">Admin</h2>,
-				<ul key="admin-controls">
-					<li>
-						<span>Refresh Data</span>
-						<span className="infobox-value">
-							<a
-								href="#"
-								onClick={(e) => {
-									e.preventDefault();
-									DataManager.get(`/analytics/clustering/refresh/${this.props.format}`, {}, true).then(() => {
-										window.alert("Okay");
-									});
-								}}
-							>
-								Refresh
-							</a>
-						</span>
-					</li>
-				</ul>,
 			];
 			const {deck} = this.state;
 			if (deck !== null) {
 				adminControls.push(
+					<h2 key="admin-header">Admin</h2>,
 					<DataInjector
 						key="admin-info"
 						query={{url: `/api/v1/decks/${deck.shortid}/`, params: {}}}
