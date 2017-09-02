@@ -347,7 +347,7 @@ def latest_clustering_data(request, game_format):
 		snapshot = ClusterSetSnapshot.objects.snapshot(FormatType[game_format])
 
 	return HttpResponse(
-		content=json.dumps(snapshot.to_chart_data(), indent=4),
+		content=json.dumps(snapshot.to_chart_data(include_ccp_signature=True), indent=4),
 		content_type="application/json"
 	)
 
