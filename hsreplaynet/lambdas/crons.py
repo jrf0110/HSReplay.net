@@ -9,7 +9,8 @@ from hsreplaynet.utils.instrumentation import lambda_handler
 @lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	tracing=False
+	tracing=False,
+	memory=256,
 )
 def do_redshift_etl_maintenance(event, context):
 	"""A periodic job to orchestrate Redshift ETL Maintenance"""

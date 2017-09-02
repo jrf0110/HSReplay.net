@@ -9,7 +9,7 @@ from hsarchetypes import classify_deck
 from sqlalchemy import Date, Integer, String
 from sqlalchemy.sql import bindparam, text
 from hsreplaynet.decks.models import (
-	Archetype, ArchetypeTrainingDeck, ClusterSnapshot, Deck
+	Archetype, ClusterSnapshot, Deck
 )
 from hsreplaynet.utils.aws import redshift
 from hsreplaynet.utils.aws.clients import FIREHOSE
