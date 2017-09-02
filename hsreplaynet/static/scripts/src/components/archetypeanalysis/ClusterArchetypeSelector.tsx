@@ -9,6 +9,7 @@ interface ClusterArchetypeSelectorState {
 interface ClusterArchetypeSelectorProps extends React.ClassAttributes<ClusterArchetypeSelector> {
 	archetypes?: ApiArchetype[];
 	clusterId: string;
+	format: string;
 	playerClass: string;
 }
 
@@ -62,9 +63,9 @@ export default class ClusterArchetypeSelector extends React.Component<ClusterArc
 		event.preventDefault();
 		this.setState({working: true});
 		const headers = new Headers();
-		const {playerClass, clusterId} = this.props;
+		const {format, playerClass, clusterId} = this.props;
 		headers.set("content-type", "application/json");
-		fetchCSRF(`/clusters/latest/${playerClass}/${clusterId}/`, {
+		fetchCSRF(`/clusters/latest/${format}/${playerClass}/${clusterId}/`, {
 			body: JSON.stringify({archetype_id: archetypeId}),
 			credentials: "same-origin",
 			headers,

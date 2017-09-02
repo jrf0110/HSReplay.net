@@ -9,6 +9,7 @@ interface ClusterTabLabelProps extends React.ClassAttributes<ClusterTabLabel> {
 	clusterId: string;
 	clusterName: string;
 	color: string;
+	format: string;
 	playerClass: string;
 }
 
@@ -16,7 +17,7 @@ const EXPERIMENTAL_CLUSTER_ID = "-1";
 
 export default class ClusterTabLabel extends React.Component<ClusterTabLabelProps, {}> {
 	render(): JSX.Element {
-		const {active, clusterId, clusterName, color, playerClass} = this.props;
+		const {active, clusterId, clusterName, color, format, playerClass} = this.props;
 		let selector = null;
 		const hasFeature = UserData.hasFeature("archetype-selection");
 		if (hasFeature && clusterId !== EXPERIMENTAL_CLUSTER_ID && active) {
@@ -34,6 +35,7 @@ export default class ClusterTabLabel extends React.Component<ClusterTabLabelProp
 				>
 					<ClusterArchetypeSelector
 						clusterId={clusterId}
+						format={format}
 						playerClass={playerClass}
 					/>
 				</DataInjector>

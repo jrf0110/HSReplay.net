@@ -131,7 +131,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	}
 
 	renderSignatureTabs(): JSX.Element[] {
-		const {data, playerClass} = this.props;
+		const {data, format, playerClass} = this.props;
 		const clusterIds = Object.keys(data.cluster_map).sort();
 		return clusterIds.map((clusterId) => {
 			const color = this.getClusterColor(clusterId, clusterIds);
@@ -145,6 +145,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 							clusterId={clusterId}
 							clusterName={data.cluster_names[clusterId]}
 							color={color}
+							format={format}
 							playerClass={playerClass}
 						/>
 					}
