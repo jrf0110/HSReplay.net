@@ -1031,6 +1031,12 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 		for class_cluster in cc:
 			class_cluster.cluster_set = self
 
+	def update_all_signatures(self):
+		for class_cluster in self.class_clusters:
+			class_cluster.update_cluster_signatures()
+			for cluster in class_cluster.clusters:
+				cluster.save()
+
 	def update_archetype_signatures(self):
 		with transaction.atomic():
 			ClusterSetSnapshot.objects.filter(
