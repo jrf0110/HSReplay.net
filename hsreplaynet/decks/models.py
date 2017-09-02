@@ -600,9 +600,6 @@ class Archetype(models.Model):
 	E.g. 'Freeze Mage', 'Miracle Rogue', 'Pirate Warrior', 'Zoolock', 'Control Priest'
 	"""
 
-	MINIMUM_REQUIRED_VALIDATION_DECKS = 1
-	MINIMUM_REQUIRED_TRAINING_DECKS = 3
-
 	id = models.BigAutoField(primary_key=True)
 	objects = ArchetypeManager()
 	name = models.CharField(max_length=250, blank=True)
@@ -618,38 +615,51 @@ class Archetype(models.Model):
 		return self.name
 
 	@property
-	def _standard_signature(self):
-		return self.signature_set.filter(format=enums.FormatType.FT_STANDARD).latest()
+	def standard_cluster(self):
+		return ClusterSnapshot.objects.get_live_cluster_for_archetype(
+			enums.FormatType.FT_STANDARD,
+			self
+		)
 
 	@property
-	def _wild_signature(self):
-		return self.signature_set.filter(format=enums.FormatType.FT_WILD).latest()
+	def wild_cluster(self):
+		return ClusterSnapshot.objects.get_live_cluster_for_archetype(
+			enums.FormatType.FT_WILD,
+			self
+		)
 
 	@property
 	def standard_signature(self):
-		sig = self._standard_signature
+		cluster = self.standard_cluster
 		return {
-			"as_of": sig.as_of,
-			"format": int(sig.format),
-			"components": [(c.card_id, c.weight) for c in sig.components.all()],
+			"as_of": cluster.class_cluster.cluster_set.as_of,
+			"format": int(cluster.class_cluster.cluster_set.game_format),
+			"components": [(int(dbf_id), weight) for dbf_id, weight in cluster.signature.items()],
 		}
 
 	@property
 	def wild_signature(self):
-		sig = self._wild_signature
+		cluster = self.wild_cluster
 		return {
-			"as_of": sig.as_of,
-			"format": int(sig.format),
-			"components": [(c.card_id, c.weight) for c in sig.components.all()],
+			"as_of": cluster.class_cluster.cluster_set.as_of,
+			"format": int(cluster.class_cluster.cluster_set.game_format),
+			"components": [(int(dbf_id), weight) for dbf_id, weight in cluster.signature.items()],
 		}
 
 	@property
 	def standard_signature_pretty(self):
-		return self._standard_signature.pretty_signature_string()
+		cluster = self.standard_cluster
+		if cluster:
+			return cluster.pretty_signature_string()
+		return ""
 
 	@property
 	def wild_signature_pretty(self):
-		return self._wild_signature.pretty_signature_string()
+		cluster = self.wild_cluster
+		if cluster:
+			return cluster.pretty_signature_string()
+		else:
+			return ""
 
 	@property
 	def wild_training_decks_count(self):
@@ -685,13 +695,19 @@ class Archetype(models.Model):
 
 	@property
 	def wild_signature_as_of(self):
-		sig = self.signature_set.filter(format=enums.FormatType.FT_WILD).latest()
-		return sig.as_of
+		cluster = self.wild_cluster
+		if cluster:
+			return cluster.class_cluster.cluster_set.as_of
+		else:
+			return None
 
 	@property
 	def standard_signature_as_of(self):
-		sig = self.signature_set.filter(format=enums.FormatType.FT_STANDARD).latest()
-		return sig.as_of
+		cluster = self.standard_cluster
+		if cluster:
+			return cluster.class_cluster.cluster_set.as_of
+		else:
+			return None
 
 	def get_absolute_url(self):
 		return reverse("archetype_detail", kwargs={"id": self.id, "slug": slugify(self.name)})
@@ -919,6 +935,24 @@ class ClusterManager(models.Manager):
 						result[record["external_id"]][int(dbf_id)] = weight
 
 			return result
+
+	def get_live_cluster_for_archetype(self, game_format, archetype):
+		return ClusterSnapshot.objects.filter(
+			class_cluster__player_class=archetype.player_class,
+			class_cluster__cluster_set__live_in_production=True,
+			class_cluster__cluster_set__game_format=game_format,
+			external_id=archetype.id
+		).first()
+
+	def get_live_signature_for_archetype(self, game_format, archetype, ccp_version=False):
+		cluster = self.get_live_cluster_for_archetype(game_format, archetype)
+		if not cluster:
+			return None
+
+		if ccp_version:
+			return cluster.ccp_signature
+		else:
+			return cluster.signature
 
 
 class ClusterSnapshot(models.Model, Cluster):
