@@ -250,7 +250,7 @@ class ClusterSnapshotUpdateView(View):
 
 		if not archetype_id:
 			cluster.external_id = None
-			cluster.name = None
+			cluster.name = "NEW"
 		else:
 			archetype = Archetype.objects.get(id=int(archetype_id))
 			cluster.external_id = int(archetype_id)
