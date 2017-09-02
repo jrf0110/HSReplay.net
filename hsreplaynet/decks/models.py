@@ -859,13 +859,23 @@ class SignatureComponent(models.Model):
 
 
 class ClusterSetManager(models.Manager):
-	def snapshot(self, game_format=enums.FormatType.FT_STANDARD):
+	def snapshot(
+		self,
+		game_format=enums.FormatType.FT_STANDARD,
+		num_clusters=20,
+		merge_threshold=0.85
+	):
 		from hsreplaynet.analytics.processing import get_cluster_set_data
 
 		data = get_cluster_set_data(game_format=game_format)
 
 		with transaction.atomic():
-			cs_snapshot = create_cluster_set(data, factory=ClusterSetSnapshot)
+			cs_snapshot = create_cluster_set(
+				data,
+				factory=ClusterSetSnapshot,
+				num_clusters=num_clusters,
+				merge_similarity=merge_threshold
+			)
 			previous_snapshot = ClusterSetSnapshot.objects.filter(
 				live_in_production=True
 			).first()
