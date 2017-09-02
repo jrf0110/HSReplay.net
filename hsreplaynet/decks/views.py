@@ -258,4 +258,11 @@ class ClusterSnapshotUpdateView(View):
 		cluster._augment_data_points()
 		cluster.save()
 
+		class_cluster = cluster.class_cluster
+		# Changing external_id assignments affects CCP_signatures
+		# So call update_cluster_signatures() to recalculate
+		class_cluster.update_cluster_signatures()
+		for cluster in class_cluster.clusters:
+			cluster.save()
+
 		return JsonResponse({"msg": "OKAY"}, status=200)
