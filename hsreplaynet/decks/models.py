@@ -928,7 +928,7 @@ class ClusterManager(models.Manager):
 			)
 			result = {}
 			for record in dictfetchall(cursor):
-				if record["external_id"] in archetype_ids:
+				if record["external_id"] in archetype_ids and len(record["ccp_signature"]):
 					if record["external_id"] not in result and record["external_id"]:
 						result[record["external_id"]] = {}
 					for dbf_id, weight in record["ccp_signature"].items():
