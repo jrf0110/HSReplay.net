@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
 from django_hearthstone.cards.models import Card
-from hearthstone.enums import CardClass, CardSet, CardType, Rarity
+from hearthstone.enums import CardClass, CardSet, CardType, FormatType, Rarity
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.features.models import Feature
 from hsreplaynet.utils.html import RequestMetaMixin
@@ -224,21 +224,23 @@ class TrendingDecksView(RequestMetaMixin, TemplateView):
 
 class ClusterSnapshotUpdateView(View):
 
-	def _get_cluster(self, player_class, cluster_id):
+	def _get_cluster(self, player_class, game_format, cluster_id):
 		player_class_enum = CardClass[player_class.upper()]
+		game_format_enum = FormatType[game_format.upper()]
 		cluster = ClusterSnapshot.objects.filter(
 			class_cluster__player_class=player_class_enum,
 			class_cluster__cluster_set__latest=True,
+			class_cluster__cluster_set__game_format=game_format_enum,
 			cluster_id=int(cluster_id)
 		).first()
 		return cluster
 
-	def get(self, request, player_class, cluster_id):
-		cluster = self._get_cluster(player_class, cluster_id)
+	def get(self, request, game_format, player_class, cluster_id):
+		cluster = self._get_cluster(player_class, game_format, cluster_id)
 		return JsonResponse({"cluster_id": cluster.cluster_id}, status=200)
 
-	def patch(self, request, player_class, cluster_id):
-		cluster = self._get_cluster(player_class, cluster_id)
+	def patch(self, request, game_format, player_class, cluster_id):
+		cluster = self._get_cluster(player_class, game_format, cluster_id)
 
 		if not cluster:
 			raise Http404("Cluster not found")

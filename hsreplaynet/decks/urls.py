@@ -33,7 +33,7 @@ urlpatterns = [
 	url(r"^cards/mine/$", my_card_stats, name="my_card_stats"),
 	url(r"^cards/(?P<pk>\w+)/(?P<slug>[\w-]+)?", card_detail, name="card_detail"),
 	url(
-		r"^clusters/latest/(?P<player_class>\w+)/(?P<cluster_id>\w+)/",
+		r"^clusters/latest/(?P<game_format>\w+)/(?P<player_class>\w+)/(?P<cluster_id>\w+)/",
 		update_cluster_archetype,
 		name="update_cluster_archetype"
 	),
