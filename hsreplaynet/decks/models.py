@@ -85,17 +85,11 @@ class DeckManager(models.Manager):
 		if not archetype_ids:
 			return
 
-		clusters = ClusterSnapshot.objects.filter(
-			class_cluster__cluster_set__live_in_production=True,
-			class_cluster__player_class=player_class,
-			external_id__in=archetype_ids
+		signature_weights = ClusterSnapshot.objects.get_signature_weights(
+			enums.FormatType.FT_STANDARD,
+			enums.CardClass.DRUID,
+			archetype_ids
 		)
-
-		signature_weights = {}
-		for cluster in clusters:
-			signature_weights[cluster.external_id] = {}
-			for dbf_id, weight in cluster.ccp_signature.items():
-				signature_weights[cluster.external_id][int(dbf_id)] = weight
 
 		archetype_id = classify_deck(
 			deck.dbf_map(), archetype_ids, signature_weights
@@ -898,8 +892,38 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 			cluster.class_cluster = self
 
 
+class ClusterManager(models.Manager):
+	LIVE_SIGNATURES_QUERY = """
+		SELECT
+			c.external_id,
+			c.ccp_signature
+		FROM decks_clustersetsnapshot cs
+		JOIN decks_classclustersnapshot ccs ON ccs.cluster_set_id = cs.id
+		JOIN decks_clustersnapshot c ON c.class_cluster_id = ccs.id
+		WHERE cs.live_in_production = True
+		AND cs.game_format = %s
+		AND ccs.player_class = %s;
+	"""
+
+	def get_signature_weights(self, game_format, player_class, archetype_ids):
+		with connection.cursor() as cursor:
+			cursor.execute(
+				self.LIVE_SIGNATURES_QUERY % (int(game_format), int(player_class))
+			)
+			result = {}
+			for record in dictfetchall(cursor):
+				if record["external_id"] in archetype_ids:
+					if record["external_id"] not in result and record["external_id"]:
+						result[record["external_id"]] = {}
+					for dbf_id, weight in record["ccp_signature"].items():
+						result[record["external_id"]][int(dbf_id)] = weight
+
+			return result
+
+
 class ClusterSnapshot(models.Model, Cluster):
 	id = models.AutoField(primary_key=True)
+	objects = ClusterManager()
 	class_cluster = models.ForeignKey(ClassClusterSnapshot, on_delete=models.CASCADE)
 	cluster_id = models.IntegerField()
 	experimental = models.BooleanField(default=False)
