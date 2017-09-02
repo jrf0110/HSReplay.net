@@ -3,6 +3,7 @@ import ArchetypeSignature from "../archetypedetail/ArchetypeSignature";
 import CardData from "../../CardData";
 import {ApiArchetypeSignature} from "../../interfaces";
 import {ClusterData} from "./ClassAnalysis";
+import * as _ from "lodash";
 
 interface ClusterDetailProps extends React.ClassAttributes<ClusterDetail> {
 	cardData: CardData;
@@ -18,14 +19,39 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 			components: data.signatures[clusterId],
 			format: null,
 		};
+		let cppData = null;
+		if (!_.isEmpty(data.ccp_signatures)) {
+			const cppSignature: ApiArchetypeSignature = {
+				as_of: null,
+				components: data.ccp_signatures[clusterId],
+				format: null,
+			};
+			cppData = (
+				<div className="col-xs-12 col-sm-6" style={{maxWidth: 300}}>
+					<h2>CCP Signature</h2>
+					<ArchetypeSignature
+						cardData={cardData}
+						showOccasional={true}
+						showValues={true}
+						signature={cppSignature}
+					/>
+				</div>
+			);
+		}
+
 		return (
-			<ArchetypeSignature
-				cardData={cardData}
-				showOccasional={true}
-				showValues={true}
-				signature={signature}
-				bucketWrapperClassName="col-xs-12 col-md-4"
-			/>
+			<div>
+				<div className="col-xs-12 col-sm-6" style={{maxWidth: 300}}>
+					<h2>Signature</h2>
+					<ArchetypeSignature
+						cardData={cardData}
+						showOccasional={true}
+						showValues={true}
+						signature={signature}
+					/>
+				</div>
+				{cppData}
+			</div>
 		);
 	}
 }

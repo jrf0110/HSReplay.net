@@ -16,6 +16,7 @@ export interface ClusterData {
 	data: DeckData[];
 	player_class: string;
 	signatures: {[id: number]: Array<[number, number]>};
+	ccp_signatures: {[id: number]: Array<[number, number]>};
 }
 
 export interface DeckData {

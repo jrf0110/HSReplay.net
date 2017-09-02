@@ -37,7 +37,7 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 		];
 
 		if (this.props.showOccasional) {
-			buckets.push({title: "Occasional Tech Cards", threshold: 0.2, cards: []});
+			buckets.push({title: "Occasional Tech Cards", threshold: 0, cards: []});
 		}
 
 		const customCounts = {};
