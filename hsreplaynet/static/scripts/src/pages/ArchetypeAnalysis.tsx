@@ -13,11 +13,13 @@ import UserData from "../UserData";
 interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
 	cardData: CardData;
 	dataset?: string;
-	setDataset?: (dataset: string) => void;
 	format?: string;
+	playerClass?: string;
+	setDataset?: (dataset: string) => void;
 	setFormat?: (format: string) => void;
 	setPlayerClass?: (tab: string) => void;
-	playerClass?: string;
+	setTab?: (clusterTab: string) => void;
+	tab?: string;
 }
 
 interface ArchetypeAnalysisState {
@@ -33,7 +35,7 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 	}
 
 	render(): JSX.Element {
-		const {cardData, dataset, format, playerClass} = this.props;
+		const {cardData, tab, dataset, format, playerClass, setTab} = this.props;
 		let adminControls = null;
 		if (UserData.hasFeature("archetype-training")) {
 			adminControls = [
@@ -130,6 +132,8 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 					>
 						<ClassAnalysis
 							cardData={cardData}
+							clusterTab={tab}
+							setClusterTab={setTab}
 							format={format}
 							onSelectedDeckChanged={(deck) => this.setState({deck})}
 							playerClass={playerClass}

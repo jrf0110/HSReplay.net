@@ -15,6 +15,7 @@ const render = (cardData: CardData) => {
 				dataset: "live",
 				format: "FT_STANDARD",
 				playerClass: "DRUID",
+				tab: "chart",
 			}}
 		>
 			<ArchetypeAnalysis

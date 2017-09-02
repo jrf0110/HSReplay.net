@@ -36,7 +36,6 @@ export interface ClusterMetaData {
 
 interface ClassAnalysisState {
 	selectedDeck?: ClusterMetaData;
-	activeClusterTab?: string;
 }
 
 interface ClassAnalysisProps extends React.ClassAttributes<ClassAnalysis> {
@@ -46,6 +45,8 @@ interface ClassAnalysisProps extends React.ClassAttributes<ClassAnalysis> {
 	maxGames?: number;
 	onSelectedDeckChanged?: (data: ClusterMetaData) => void;
 	playerClass: string;
+	clusterTab: string;
+	setClusterTab: (clusterTab: string) => void;
 }
 
 const COLORS = [
@@ -58,14 +59,14 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	constructor(props: ClassAnalysisProps, state: ClassAnalysisState) {
 		super(props, state);
 		this.state = {
-			activeClusterTab: null,
 			selectedDeck: null,
 		};
 	}
 
 	componentWillReceiveProps(nextProps: ClassAnalysisProps) {
 		if (nextProps.playerClass !== this.props.playerClass) {
-			this.setState({activeClusterTab: null, selectedDeck: null});
+			this.setState({selectedDeck: null});
+			this.props.setClusterTab("chart");
 		}
 	}
 
@@ -76,8 +77,8 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 		const chartHeight = "calc(100vh - 125px)";
 		return (
 			<TabList
-				setTab={(tab) => this.setState({activeClusterTab: tab})}
-				tab={this.state.activeClusterTab}
+				setTab={this.props.setClusterTab}
+				tab={this.props.clusterTab}
 			>
 				<Tab id="chart" label={this.renderChartTabLabel()} highlight={true}>
 					<div className="class-tab-content">
@@ -141,7 +142,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 					id={this.clusterTabId(clusterId)}
 					label={
 						<ClusterTabLabel
-							active={this.clusterTabId(clusterId) === this.state.activeClusterTab}
+							active={this.clusterTabId(clusterId) === this.props.clusterTab}
 							clusterId={clusterId}
 							clusterName={data.cluster_names[clusterId]}
 							color={color}
@@ -162,7 +163,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	}
 
 	clusterTabId(clusterId: string): string {
-		return "cluster-" + clusterId;
+		return clusterId;
 	}
 
 	getClusterColor(clusterId: string, clusterIds: string[]): string {
