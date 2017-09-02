@@ -86,8 +86,8 @@ class DeckManager(models.Manager):
 			return
 
 		signature_weights = ClusterSnapshot.objects.get_signature_weights(
-			enums.FormatType.FT_STANDARD,
-			enums.CardClass.DRUID,
+			game_format,
+			player_class,
 			archetype_ids
 		)
 

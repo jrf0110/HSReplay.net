@@ -8,7 +8,9 @@ from hearthstone.enums import CardClass, FormatType
 from hsarchetypes import classify_deck
 from sqlalchemy import Date, Integer, String
 from sqlalchemy.sql import bindparam, text
-from hsreplaynet.decks.models import Archetype, ArchetypeTrainingDeck, Deck
+from hsreplaynet.decks.models import (
+	Archetype, ArchetypeTrainingDeck, ClusterSnapshot, Deck
+)
 from hsreplaynet.utils.aws import redshift
 from hsreplaynet.utils.aws.clients import FIREHOSE
 
@@ -91,9 +93,10 @@ class Command(BaseCommand):
 
 				# Standard Signature Weights
 				if len(archetype_ids_for_player_class[FormatType.FT_STANDARD][card_class]):
-					signature_weight_values = Archetype.objects.get_signature_weights(
-						archetype_ids_for_player_class[FormatType.FT_STANDARD][card_class],
-						FormatType.FT_STANDARD
+					signature_weight_values = ClusterSnapshot.objects.get_signature_weights(
+						FormatType.FT_STANDARD,
+						card_class,
+						archetype_ids_for_player_class[FormatType.FT_STANDARD][card_class]
 					)
 					self.signature_weights[
 						FormatType.FT_STANDARD
@@ -101,15 +104,14 @@ class Command(BaseCommand):
 
 				# Wild Signature Weights
 				if len(archetype_ids_for_player_class[FormatType.FT_WILD][card_class]):
-					signature_weight_values = Archetype.objects.get_signature_weights(
-						archetype_ids_for_player_class[FormatType.FT_WILD][card_class],
-						FormatType.FT_WILD
+					signature_weight_values = ClusterSnapshot.objects.get_signature_weights(
+						FormatType.FT_WILD,
+						card_class,
+						archetype_ids_for_player_class[FormatType.FT_WILD][card_class]
 					)
 					self.signature_weights[
 						FormatType.FormatType.FT_WILD
 					][card_class] = signature_weight_values
-
-		training_decks = [d.id for d in ArchetypeTrainingDeck.objects.all()]
 
 		result_set = list(conn.execute(compiled_statement))
 		total_rows = len(result_set)
@@ -123,10 +125,6 @@ class Command(BaseCommand):
 
 			if deck_id is None:
 				self.stderr.write("Got deck_id %r ... skipping" % (deck_id))
-				continue
-
-			if deck_id in training_decks:
-				self.stdout.write("deck_id %r in training decks, skipping" % (deck_id))
 				continue
 
 			current_archetype_id = row["archetype_id"]
