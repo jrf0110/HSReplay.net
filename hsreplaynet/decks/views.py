@@ -55,14 +55,14 @@ class ArchetypeDetailView(LoginRequiredMixin, RequestMetaMixin, View):
 ##
 # Card pages
 
-class CardStatsView(RequestMetaMixin, TemplateView):
-	template_name = "cards/card_stats.html"
+class CardsView(RequestMetaMixin, TemplateView):
+	template_name = "cards/cards.html"
 	title = "Hearthstone Card Statistics"
 	description = "Compare statistics about all collectible Hearthstone cards. "\
 		"Find the cards that are played the most or have the highest winrate."
 
 
-class MyCardStatsView(RequestMetaMixin, TemplateView):
+class MyCardsView(RequestMetaMixin, TemplateView):
 	template_name = "cards/my_cards.html"
 	title = "My Cards"
 

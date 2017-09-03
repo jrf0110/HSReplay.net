@@ -14,7 +14,7 @@ class StaticViewSitemap(Sitemap):
 			"articles_article_list",
 			"trending_decks",
 			"decks",
-			"card_stats",
+			"cards",
 			"premium"
 		]
 

@@ -1,4 +1,4 @@
-.card-discover {
+.cards {
 	display: flex;
 
 	.search-wrapper {
@@ -40,7 +40,7 @@
 		margin: 0 5px 15px 0;
 	}
 
-	#card-discover-infobox {
+	#cards-infobox {
 		ul {
 			&.filter-list-cost {
 				display: flex;

@@ -66,7 +66,7 @@ module.exports = (env) => {
 		replay_embed: makeEntry("replay_embed"),
 		stats: {
 			card_detail: makeEntry("card_detail"),
-			card_discover: makeEntry("card_discover"),
+			cards: makeEntry("cards"),
 			deck_detail: makeEntry("deck_detail"),
 			decks: makeEntry("decks"),
 			my_highlights: makeEntry("my_highlights"),

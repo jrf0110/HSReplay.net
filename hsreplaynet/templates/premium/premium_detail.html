@@ -46,7 +46,7 @@
 			<div class="row">
 				<div class="clearfix"></div>
 				<figure class="auto col-sm-6 col-xs-12">
-					{% if premium %}<a href="{% url 'card_stats' %}">{% endif %}
+					{% if premium %}<a href="{% url 'cards' %}">{% endif %}
 						<img src="{% static 'images/premium-promotional/filters.png' %}" class="bordered" alt="Rank Range & Time Frame" />
 					{% if premium %}</a>{% endif %}
 					<figcaption>
@@ -58,7 +58,7 @@
 					</figcaption>
 				</figure>
 				<figure class="auto col-sm-6 col-xs-12">
-					{% if premium %}<a href="{% url 'my_card_stats' %}">{% endif %}
+					{% if premium %}<a href="{% url 'my_cards' %}">{% endif %}
 						<img src="{% static 'images/premium-promotional/mycards.png' %}" class="bordered" alt="My Cards" />
 					{% if premium %}</a>{% endif %}
 					<figcaption>

@@ -8,8 +8,8 @@ archetype_detail = views.ArchetypeDetailView.as_view()
 
 card_detail = views.CardDetailView.as_view()
 card_editor = views.CardEditorView.as_view()
-card_stats = views.CardStatsView.as_view()
-my_card_stats = views.MyCardStatsView.as_view()
+cards = views.CardsView.as_view()
+my_cards = views.MyCardsView.as_view()
 
 deck_detail = views.DeckDetailView.as_view()
 decks = views.DecksView.as_view()
@@ -27,10 +27,10 @@ urlpatterns = [
 		archetype_detail,
 		name="archetype_detail"
 	),
-	url(r"^cards/$", card_stats, name="card_stats"),
+	url(r"^cards/$", cards, name="cards"),
 	url(r"^cards/editor/", card_editor, name="card_editor"),
-	url(r"^cards/gallery/$", RedirectView.as_view(pattern_name="card_stats", permanent=True)),
-	url(r"^cards/mine/$", my_card_stats, name="my_card_stats"),
+	url(r"^cards/gallery/$", RedirectView.as_view(pattern_name="cards", permanent=True)),
+	url(r"^cards/mine/$", my_cards, name="my_cards"),
 	url(r"^cards/(?P<pk>\w+)/(?P<slug>[\w-]+)?", card_detail, name="card_detail"),
 	url(
 		r"^clusters/latest/(?P<game_format>\w+)/(?P<player_class>\w+)/(?P<cluster_id>\w+)/",

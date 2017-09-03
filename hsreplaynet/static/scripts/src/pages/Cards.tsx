@@ -27,7 +27,7 @@ interface CardFilters {
 	type: any;
 }
 
-interface CardDiscoverState {
+interface CardsState {
 	account?: string;
 	cards?: any[];
 	filteredCards?: any[];
@@ -38,7 +38,7 @@ interface CardDiscoverState {
 	showFilters?: boolean;
 }
 
-interface CardDiscoverProps extends FragmentChildProps, React.ClassAttributes<CardDiscover> {
+interface CardsProps extends FragmentChildProps, React.ClassAttributes<Cards> {
 	cardData: CardData;
 	personal: boolean;
 	accounts?: Account[];
@@ -93,7 +93,7 @@ const PLACEHOLDER_MINION = STATIC_URL + "images/loading_minion.png";
 const PLACEHOLDER_SPELL = STATIC_URL + "images/loading_spell.png";
 const PLACEHOLDER_WEAPON = STATIC_URL + "images/loading_weapon.png";
 
-export default class CardDiscover extends React.Component<CardDiscoverProps, CardDiscoverState> {
+export default class Cards extends React.Component<CardsProps, CardsState> {
 	readonly filters = {
 		cost: [0, 1, 2, 3, 4, 5, 6, 7],
 		format: ["standard"],
@@ -130,7 +130,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 
 	showMoreButton: HTMLDivElement;
 
-	constructor(props: CardDiscoverProps, state: CardDiscoverState) {
+	constructor(props: CardsProps, state: CardsState) {
 		super(props, state);
 		this.state = {
 			account: UserData.getDefaultAccountKey(),
@@ -178,7 +178,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		document.removeEventListener("scroll", this.scrollCb);
 	}
 
-	componentDidUpdate(prevProps: CardDiscoverProps, prevState: CardDiscoverState) {
+	componentDidUpdate(prevProps: CardsProps, prevState: CardsState) {
 		// omit functions (not supported) and unused custom* props to prevent multiple update calls
 		const ignore = Object.keys(this.props).filter((key) => {
 			return key.startsWith("set") && key !== "set" || key.startsWith("toggle") || key.startsWith("custom");
@@ -278,7 +278,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 	}
 
-	componentWillReceiveProps(nextProps: CardDiscoverProps) {
+	componentWillReceiveProps(nextProps: CardsProps) {
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
 			const {set, type} = this.filters;
@@ -292,7 +292,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 	}
 
-	componentWillUpdate(nextProps: CardDiscoverProps, nextState: CardDiscoverState) {
+	componentWillUpdate(nextProps: CardsProps, nextState: CardsState) {
 		if (!this.props.personal && this.props.display !== nextProps.display) {
 			if (nextProps.display === "gallery") {
 				const minion = new Image();
@@ -540,8 +540,8 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		);
 
 		return (
-			<div className="card-discover">
-				<aside className={filterClassNames.join(" ")} id="card-discover-infobox">
+			<div className="cards">
+				<aside className={filterClassNames.join(" ")} id="cards-infobox">
 					{backButton}
 					{this.buildFilters()}
 					{backButton}
@@ -574,7 +574,7 @@ export default class CardDiscover extends React.Component<CardDiscoverProps, Car
 		}
 	}
 
-	filterCounts(cardFilters: CardFilters) : CardFilters {
+	filterCounts(cardFilters: CardFilters): CardFilters {
 		const filters = {
 			cost: {},
 			format: {},

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
-import CardDiscover from "../pages/CardDiscover";
+import Cards from "../pages/Cards";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 
@@ -50,7 +50,7 @@ const render = (cardData: CardData) => {
 			debounce="text"
 			immutable={UserData.isPremium() ? null : ["rankRange", "timeRange"]}
 		>
-			<CardDiscover
+			<Cards
 				cardData={cardData}
 				personal={personal}
 				accounts={availableAccounts}
