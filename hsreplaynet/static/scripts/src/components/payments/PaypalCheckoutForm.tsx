@@ -33,7 +33,7 @@ export default class PaypalCheckoutForm extends React.Component<PaypalCheckoutFo
 
 	getPlanButtons() {
 		return this.props.plans.map((plan) => ({
-			label: <h4>{plan.description}</h4>,
+			label: <h4>{plan.description}*</h4>,
 			value: plan.paypalId,
 			className: "btn btn-default",
 		}));
@@ -102,7 +102,7 @@ export default class PaypalCheckoutForm extends React.Component<PaypalCheckoutFo
 				action={this.props.submitUrl}
 				ref={(ref) => this.form = ref}
 			>
-				<div style={{margin: "25px 0"}}>
+				<div style={{margin: "25px 0 10px 0"}}>
 					<label htmlFor="paypal-plan" id="choose-plan">Choose your plan:</label>
 					<BtnGroup
 						className="btn-group btn-group-flex"
@@ -116,6 +116,7 @@ export default class PaypalCheckoutForm extends React.Component<PaypalCheckoutFo
 						required
 					/>
 				</div>
+				<div style={{margin: "0 0 20px 0"}}><em>*Includes an additional $0.50 USD processing fee (PayPal only).</em></div>
 				{this.renderCouponWarning()}
 				{this.renderGeolocationWarning()}
 				<p>
