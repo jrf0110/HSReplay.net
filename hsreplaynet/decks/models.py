@@ -885,7 +885,7 @@ class ClusterSetManager(models.Manager):
 			previous_snapshot = ClusterSetSnapshot.objects.filter(
 				live_in_production=True
 			).first()
-			cs_snapshot.inherit_from_previous(previous_snapshot)
+			cs_snapshot.inherit_from_previous(previous_snapshot, merge_threshold=merge_threshold)
 
 			ClusterSetSnapshot.objects.update(latest=False)
 			cs_snapshot.game_format = game_format
