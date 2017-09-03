@@ -863,11 +863,17 @@ class ClusterSetManager(models.Manager):
 		self,
 		game_format=enums.FormatType.FT_STANDARD,
 		num_clusters=20,
-		merge_threshold=0.85
+		merge_threshold=0.85,
+		lookback=7,
+		min_observations=100
 	):
 		from hsreplaynet.analytics.processing import get_cluster_set_data
 
-		data = get_cluster_set_data(game_format=game_format)
+		data = get_cluster_set_data(
+			game_format=game_format,
+			lookback=lookback,
+			min_observations=min_observations
+		)
 
 		with transaction.atomic():
 			cs_snapshot = create_cluster_set(
