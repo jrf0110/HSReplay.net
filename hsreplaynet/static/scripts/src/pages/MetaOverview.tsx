@@ -13,6 +13,7 @@ import RankRangeFilter from "../components/RankRangeFilter";
 import Feature from "../components/Feature";
 import UserData from "../UserData";
 import ArchetypeList from "../components/metaoverview/ArchetypeList";
+import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
 interface MetaOverviewState {
 	mobileView?: boolean;
@@ -55,19 +56,26 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		};
 	}
 
-	render(): JSX.Element {
-		const params = {
+	getParams(): any {
+		return {
 			GameType: this.props.gameType,
 			RankRange: this.props.rankRange,
 			Region: this.props.region,
 			TimeRange: this.props.timeFrame,
 		};
+	}
 
-		const popularityParams = {
+	getPopularityParams(): any {
+		return {
 			GameType: this.props.gameType,
 			Region: this.props.region,
 			TimeRange: this.props.timeFrame,
 		};
+	}
+
+	render(): JSX.Element {
+		const params = this.getParams();
+		const popularityParams = this.getPopularityParams();
 
 		let content = null;
 
@@ -182,6 +190,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							Game Type
 							<span className="infobox-value">Ranked Standard</span>
 						</li>
+						<InfoboxLastUpdated {...this.getLastUpdated()} />
 					</ul>
 				</section>
 			</aside>
@@ -189,6 +198,23 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				{content}
 			</main>
 		</div>;
+	}
+
+	getLastUpdated(): any {
+		const obj = {params: null, url: null};
+		switch (this.props.tab) {
+			case "archetypes":
+			case "matchups":
+				obj.url = "archetype_popularity_distribution_stats";
+				obj.params = this.getParams();
+				break;
+			case "popularity":
+			default:
+				obj.url = "archetype_popularity_by_rank";
+				obj.params = this.getPopularityParams();
+				break;
+		}
+		return obj;
 	}
 
 	componentWillMount() {
