@@ -16,17 +16,35 @@ from hsreplaynet.utils.aws.clients import FIREHOSE
 
 
 REDSHIFT_QUERY = text("""
+	WITH deck_player_class AS (
+		SELECT
+			t.deck_id, t.player_class
+		FROM (
+			SELECT
+				p.proxy_deck_id AS deck_id,
+				p.player_class,
+				ROW_NUMBER() OVER (
+					PARTITION BY p.proxy_deck_id ORDER BY count(*) DESC
+				) AS times_played_rank
+			FROM player p
+			WHERE p.game_date BETWEEN :start_date AND :end_date
+			GROUP BY p.proxy_deck_id, p.player_class
+		) t
+		WHERE t.times_played_rank = 1
+	)
 	SELECT
 		p.game_type,
-		p.player_class,
 		p.proxy_deck_id AS deck_id,
+		max(dpc.player_class) AS player_class,
 		max(m.archetype_id) AS archetype_id,
 		max(p.deck_list) AS deck_list
 	FROM player p
+	JOIN deck_player_class dpc ON dpc.deck_id = p.proxy_deck_id
 	LEFT JOIN deck_archetype_map m ON m.deck_id = p.proxy_deck_id
 	WHERE p.game_date BETWEEN :start_date AND :end_date
-	AND p.game_type = 2 -- IN (2, 30)
-	GROUP BY p.game_type, p.player_class, p.proxy_deck_id;
+	AND p.game_type IN (2, 30)
+	GROUP BY p.game_type, p.proxy_deck_id
+	ORDER BY p.game_type;
 """).bindparams(
 	bindparam("start_date", type_=Date),
 	bindparam("end_date", type_=Date),
