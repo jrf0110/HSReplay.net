@@ -12,6 +12,7 @@ interface UserDataProps {
 	email: string;
 	staff: boolean;
 	locale: string;
+	ipcountry: string;
 	features: FeatureMap;
 }
 
@@ -99,5 +100,9 @@ export default class UserData {
 
 	static setSetting(key: string, value: any) {
 		return this._settings.set(key, value);
+	}
+
+	static getIpCountry(): string|null {
+		return this._instance ? UserData._instance.ipcountry : null;
 	}
 }

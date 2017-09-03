@@ -1,6 +1,7 @@
 import * as React from "react";
 import BtnGroup from "../BtnGroup";
 import {CheckoutFormInstanceProps} from "./CheckoutForm";
+import UserData from "../../UserData";
 
 export interface PaypalPlan {
 	paypalId: string;
@@ -59,6 +60,39 @@ export default class PaypalCheckoutForm extends React.Component<PaypalCheckoutFo
 		)
 	}
 
+	renderGeolocationWarning() {
+		const country = UserData.getIpCountry();
+		if (!country) {
+			return null;
+		}
+
+		switch (country.toUpperCase()) {
+			case "DE":
+				return (
+					<p className="alert alert-danger">
+						<em>
+							PayPal-Zahlungen werden für deutsche PayPal-Konten nicht unterstützt.
+							Du wirst die Zahlung möglicherweise nicht abschließen können.
+							Andere Zahlungsmethoden sind nicht betroffen.
+						</em>
+						<br/><br/>
+						PayPal payments are not currently supported for German PayPal accounts.
+						You may not be able to complete the payment.
+						Consider using a different payment method.
+					</p>
+				);
+			case "CN":
+				return (
+					<p className="alert alert-danger">
+						PayPal payments are not currently supported for Chinese PayPal accounts.
+						You may not be able to complete the payment. Consider using a different payment method.
+					</p>
+				);
+			default:
+				return null;
+		}
+	}
+
 	render() {
 		const working = this.state.submit;
 		return (
@@ -83,6 +117,7 @@ export default class PaypalCheckoutForm extends React.Component<PaypalCheckoutFo
 					/>
 				</div>
 				{this.renderCouponWarning()}
+				{this.renderGeolocationWarning()}
 				<p>
 					<button
 						className="promo-button text-premium checkout-button"
