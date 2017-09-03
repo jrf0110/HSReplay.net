@@ -19,7 +19,7 @@ import DataManager from "../DataManager";
 import {Limit} from "../components/ObjectSearch";
 import Feature from "../components/Feature";
 
-interface DeckDiscoverState {
+interface DecksState {
 	availableArchetypes?: string[];
 	cardSearchExcludeKey?: number;
 	cardSearchIncludeKey?: number;
@@ -29,7 +29,7 @@ interface DeckDiscoverState {
 	showFilters?: boolean;
 }
 
-interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<DeckDiscover> {
+interface DecksProps extends FragmentChildProps, React.ClassAttributes<Decks> {
 	cardData: CardData;
 	latestSet?: string;
 	promoteLatestSet?: boolean;
@@ -60,10 +60,10 @@ interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<De
 	setTrainingData?: (trainingData: string) => void;
 }
 
-export default class DeckDiscover extends React.Component<DeckDiscoverProps, DeckDiscoverState> {
+export default class Decks extends React.Component<DecksProps, DecksState> {
 	private deckListsFragmentsRef;
 
-	constructor(props: DeckDiscoverProps, state: DeckDiscoverState) {
+	constructor(props: DecksProps, state: DecksState) {
 		super(props, state);
 		this.state = {
 			availableArchetypes: [],
@@ -77,7 +77,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		this.updateFilteredDecks();
 	}
 
-	componentDidUpdate(prevProps: DeckDiscoverProps, prevState: DeckDiscoverState) {
+	componentDidUpdate(prevProps: DecksProps, prevState: DecksState) {
 		if (
 			this.props.excludedCards !== prevProps.excludedCards ||
 			this.props.gameType !== prevProps.gameType ||
@@ -96,7 +96,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		}
 	}
 
-	componentWillReceiveProps(nextProps: DeckDiscoverProps) {
+	componentWillReceiveProps(nextProps: DecksProps) {
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
 			nextProps.cardData.all().forEach((card) => {
@@ -364,8 +364,8 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 		const premiumTabIndex = isPremium ? 0 : -1;
 
 		return (
-			<div className="deck-discover">
-				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
+			<div className="decks">
+				<div className={filterClassNames.join(" ")} id="deckinfobox">
 					{backButton}
 					<ResetHeader
 						onReset={() => this.props.reset()}

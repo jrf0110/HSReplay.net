@@ -204,8 +204,8 @@ class DeckDetailView(View):
 		return render(request, self.template_name, context)
 
 
-class DeckListView(RequestMetaMixin, TemplateView):
-	template_name = "decks/deck_list.html"
+class DecksView(RequestMetaMixin, TemplateView):
+	template_name = "decks/decks.html"
 	title = "Hearthstone Decks"
 	description = "Dive into the Hearthstone meta and find new decks by class, cards or " \
 		"game mode. Learn about their winrates and popularity on the ladder."

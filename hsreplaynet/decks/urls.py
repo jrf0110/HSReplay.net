@@ -12,7 +12,7 @@ card_stats = views.CardStatsView.as_view()
 my_card_stats = views.MyCardStatsView.as_view()
 
 deck_detail = views.DeckDetailView.as_view()
-deck_list = views.DeckListView.as_view()
+decks = views.DecksView.as_view()
 trending_decks = views.TrendingDecksView.as_view()
 my_decks = views.MyDecksView.as_view()
 meta_overview = views.MetaOverviewView.as_view()
@@ -37,7 +37,7 @@ urlpatterns = [
 		update_cluster_archetype,
 		name="update_cluster_archetype"
 	),
-	url(r"^decks/$", deck_list, name="deck_list"),
+	url(r"^decks/$", decks, name="decks"),
 	url(r"^decks/mine/$", my_decks, name="my_decks"),
 	url(r"^decks/trending/", trending_decks, name="trending_decks"),
 	url(r"^decks/(?P<id>\w+)/$", deck_detail, name="deck_detail"),

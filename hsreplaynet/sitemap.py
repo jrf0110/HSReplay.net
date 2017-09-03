@@ -13,7 +13,7 @@ class StaticViewSitemap(Sitemap):
 			"home",
 			"articles_article_list",
 			"trending_decks",
-			"deck_list",
+			"decks",
 			"card_stats",
 			"premium"
 		]

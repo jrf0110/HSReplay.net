@@ -312,8 +312,8 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 		}
 
 		return (
-			<div className="deck-discover">
-				<div className={filterClassNames.join(" ")} id="deck-discover-infobox">
+			<div className="decks">
+				<div className={filterClassNames.join(" ")} id="decks-infobox">
 					{backButton}
 					<ResetHeader
 						onReset={() => this.props.reset()}
@@ -376,7 +376,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 								}
 								e.preventDefault();
 								const cards = [];
-								for (let tuple of result.cards) {
+								for (const tuple of result.cards) {
 									const [dbfId, count] = tuple;
 									for (let i = 0; i < count; i++) {
 										cards.push(this.props.cardData.fromDbf(dbfId));

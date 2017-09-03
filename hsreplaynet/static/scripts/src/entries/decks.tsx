@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
-import DeckDiscover from "../pages/DeckDiscover";
+import Decks from "../pages/Decks";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 
-const container = document.getElementById("deck-discover-container");
+const container = document.getElementById("decks-container");
 UserData.create();
 
 const render = (cardData: CardData) => {
@@ -27,7 +27,7 @@ const render = (cardData: CardData) => {
 			}}
 			immutable={!UserData.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange", "region"] : null}
 		>
-			<DeckDiscover
+			<Decks
 				cardData={cardData}
 				latestSet="ICECROWN"
 				promoteLatestSet={false}
