@@ -865,7 +865,9 @@ class ClusterSetManager(models.Manager):
 		num_clusters=20,
 		merge_threshold=0.85,
 		lookback=7,
-		min_observations=100
+		min_observations=100,
+		experimental_threshold=1500,
+		allow_inheritence_miss_list=[]
 	):
 		from hsreplaynet.analytics.processing import get_cluster_set_data
 
@@ -880,12 +882,30 @@ class ClusterSetManager(models.Manager):
 				data,
 				factory=ClusterSetSnapshot,
 				num_clusters=num_clusters,
-				merge_similarity=merge_threshold
+				merge_similarity=merge_threshold,
+				consolidate=False,
+				create_experimental_cluster=False
 			)
+
 			previous_snapshot = ClusterSetSnapshot.objects.filter(
 				live_in_production=True
 			).first()
-			cs_snapshot.inherit_from_previous(previous_snapshot, merge_threshold=merge_threshold)
+
+			uninherited_id_set = cs_snapshot.inherit_from_previous(
+				previous_snapshot,
+				merge_threshold=merge_threshold
+			)
+
+			if uninherited_id_set:
+				for uninherited_id in uninherited_id_set:
+					if uninherited_id not in allow_inheritence_miss_list:
+						msg = "external id %i was not inherited"
+						raise RuntimeError(msg % uninherited_id)
+
+			cs_snapshot.consolidate_clusters(merge_threshold)
+			cs_snapshot.create_experimental_clusters(
+				experimental_cluster_threshold=experimental_threshold
+			)
 
 			ClusterSetSnapshot.objects.update(latest=False)
 			cs_snapshot.game_format = game_format
