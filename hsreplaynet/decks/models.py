@@ -92,7 +92,7 @@ class DeckManager(models.Manager):
 		)
 
 		archetype_id = classify_deck(
-			deck.dbf_map(), archetype_ids, signature_weights
+			deck.dbf_map(), signature_weights
 		)
 		if archetype_id:
 			deck.update_archetype(archetype_id)

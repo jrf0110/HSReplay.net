@@ -133,9 +133,8 @@ class Command(BaseCommand):
 
 			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
 			if len(archetype_ids_for_player_class[format][player_class]):
-				archetype_ids = archetype_ids_for_player_class[format][player_class]
 				new_archetype_id = classify_deck(
-					dbf_map, archetype_ids, self.signature_weights[format][player_class]
+					dbf_map, self.signature_weights[format][player_class]
 				)
 
 				if new_archetype_id == current_archetype_id:
