@@ -176,7 +176,9 @@ class DeckDetailView(View):
 		else:
 			has_feature = feature.enabled_for_user(request.user)
 
-		request.head.title = "%s Deck" % str(deck.archetype) if has_feature else str(deck)
+		request.head.title = "%s Deck" % (
+			str(deck.archetype) if has_feature and deck.archetype else str(deck)
+		)
 
 		if deck.deck_class:
 			deck_url = request.build_absolute_uri(deck.get_absolute_url())
