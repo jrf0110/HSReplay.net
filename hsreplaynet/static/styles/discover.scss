@@ -1,4 +1,4 @@
-.archetype-analysis-container {
+.discover-container {
 	display: flex;
 
 	@media(max-width: 768px) {
@@ -110,6 +110,11 @@
 
 		> h1 {
 			border-bottom: 1px solid $blue;
+
+			> .info-icon {
+				margin-left: 10px;
+				color: white;
+			}
 		}
 
 		h3 {

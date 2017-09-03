@@ -1,12 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
-import ArchetypeDetail from "../pages/ArchetypeDetail";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
-import ArchetypeAnalysis from "../pages/ArchetypeAnalysis";
+import Discover from "../pages/Discover";
 
-const container = document.getElementById("archetype-container");
+const container = document.getElementById("discover-container");
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -15,10 +14,10 @@ const render = (cardData: CardData) => {
 				dataset: "live",
 				format: "FT_STANDARD",
 				playerClass: "DRUID",
-				tab: "chart",
+				tab: "decks",
 			}}
 		>
-			<ArchetypeAnalysis
+			<Discover
 				cardData={cardData}
 			/>
 		</Fragments>,

@@ -66,7 +66,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	componentWillReceiveProps(nextProps: ClassAnalysisProps) {
 		if (nextProps.playerClass !== this.props.playerClass) {
 			this.setState({selectedDeck: null});
-			this.props.setClusterTab("chart");
+			this.props.setClusterTab("decks");
 		}
 	}
 
@@ -80,7 +80,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 				setTab={this.props.setClusterTab}
 				tab={this.props.clusterTab}
 			>
-				<Tab id="chart" label={this.renderChartTabLabel()} highlight={true}>
+				<Tab id="decks" label={this.renderChartTabLabel()} highlight={true}>
 					<div className="class-tab-content">
 						<div className="cluster-chart-container" style={{height: chartHeight}}>
 							<AutoSizer>
@@ -126,7 +126,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 		const {playerClass} = this.props;
 		return (
 			<span className={"player-class " + playerClass.toLowerCase()}>
-				{toTitleCase(playerClass)} Clusters
+				{toTitleCase(playerClass)} Decks
 			</span>
 		);
 	}

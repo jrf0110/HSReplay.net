@@ -1,16 +1,17 @@
 import * as React from "react";
 import * as _ from "lodash";
-import AdminDeckInfo from "../components/archetypeanalysis/AdminDeckInfo";
+import AdminDeckInfo from "../components/discover/AdminDeckInfo";
 import CardData from "../CardData";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
-import ClassAnalysis, {ClusterMetaData} from "../components/archetypeanalysis/ClassAnalysis";
+import ClassAnalysis, {ClusterMetaData} from "../components/discover/ClassAnalysis";
 import DataInjector from "../components/DataInjector";
 import DataManager from "../DataManager";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import UserData from "../UserData";
+import InfoIcon from "../components/InfoIcon";
 
-interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis> {
+interface DiscoverProps extends React.ClassAttributes<Discover> {
 	cardData: CardData;
 	dataset?: string;
 	format?: string;
@@ -22,12 +23,12 @@ interface ArchetypeAnalysisProps extends React.ClassAttributes<ArchetypeAnalysis
 	tab?: string;
 }
 
-interface ArchetypeAnalysisState {
+interface DiscoverState {
 	deck: ClusterMetaData;
 }
 
-export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysisProps, ArchetypeAnalysisState> {
-	constructor(props: ArchetypeAnalysisProps, state: ArchetypeAnalysisState) {
+export default class Discover extends React.Component<DiscoverProps, DiscoverState> {
+	constructor(props: DiscoverProps, state: DiscoverState) {
 		super(props, state);
 		this.state = {
 			deck: null,
@@ -75,9 +76,15 @@ export default class ArchetypeAnalysis extends React.Component<ArchetypeAnalysis
 		}
 
 		return (
-			<div className="archetype-analysis-container">
+			<div className="discover-container">
 				<aside className="infobox">
-					<h1>Archetype Analysis</h1>
+					<h1>
+						Discover
+						<InfoIcon
+							header="Discover"
+							content="Here you can find deck clusters detected by our archetype algorithms. Each dot is a deck, with the size representing the number of replays."
+						/>
+					</h1>
 					<h2>Class</h2>
 					<ClassFilter
 						minimal={true}

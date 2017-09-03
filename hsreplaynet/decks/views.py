@@ -24,12 +24,12 @@ class MetaOverviewView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 
 
 ##
-# Archetype analysis pages
+# Discover pages
 
-@method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
-class ArchetypeAnalysisView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
-	template_name = "archetypes/archetype_analysis.html"
-	title = "Archetype Analysis"
+@method_decorator(view_requires_feature_access("meta-overview"), name="dispatch")
+class DiscoverView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+	template_name = "decks/discover.html"
+	title = "Discover"
 
 
 ##

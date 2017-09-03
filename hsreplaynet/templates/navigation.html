@@ -37,6 +37,15 @@
 						</li>
 
 						{% feature "meta-overview" as ft_meta %}{% if ft_meta.enabled %}
+							<li{% nav_active 'discover' %}>
+								<a href="{% url 'discover' %}" id="navbar-link-cards">
+									<span class="glyphicon glyphicon-eye-open"></span>
+									<span class="hidden-sm">Discover</span>
+								</a>
+							</li>
+						{% endif %}
+
+						{% feature "meta-overview" as ft_meta %}{% if ft_meta.enabled %}
 							<li{% nav_active 'meta_overview' %}>
 								<a href="{% url 'meta_overview' %}" id="navbar-link-cards">
 									<span class="glyphicon glyphicon-random"></span>
