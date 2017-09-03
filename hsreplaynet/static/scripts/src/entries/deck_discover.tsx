@@ -29,6 +29,8 @@ const render = (cardData: CardData) => {
 		>
 			<DeckDiscover
 				cardData={cardData}
+				latestSet="ICECROWN"
+				promoteLatestSet={false}
 			/>
 		</Fragments>,
 		container,

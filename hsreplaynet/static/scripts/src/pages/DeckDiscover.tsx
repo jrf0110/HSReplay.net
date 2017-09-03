@@ -31,6 +31,9 @@ interface DeckDiscoverState {
 
 interface DeckDiscoverProps extends FragmentChildProps, React.ClassAttributes<DeckDiscover> {
 	cardData: CardData;
+	latestSet?: string;
+	promoteLatestSet?: boolean;
+	// fragments
 	excludedCards?: string[];
 	setExcludedCards?: (excludedCards: string[]) => void;
 	gameType?: string;
@@ -279,7 +282,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 			const minGames = isWild ? 200 : 1000;
 			const helpMessage = `${gameType} decks require at least 10 unique pilots and ${minGames} recorded games in the selected time frame to be listed.`;
 			let infoRow = null;
-			if (this.props.includedSet === "ALL") {
+			if (this.props.promoteLatestSet && this.props.includedSet === "ALL") {
 				infoRow = (
 					<div className="info-row text-center">
 						<span>Showing decks from all expansions.&nbsp;</span>
@@ -288,7 +291,7 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							className="btn btn-default"
 							onClick={(event) => {
 								event.preventDefault();
-								this.props.setIncludedSet("ICECROWN");
+								this.props.setIncludedSet(this.props.latestSet);
 							}}
 						>
 							Latest expansion only
@@ -427,9 +430,9 @@ export default class DeckDiscover extends React.Component<DeckDiscoverProps, Dec
 							selectedValue={this.props.includedSet}
 							onClick={(value) => this.props.setIncludedSet(value || "ALL")}
 						>
-							<InfoboxFilter value="ICECROWN">
+							<InfoboxFilter value={this.props.latestSet}>
 								Latest Expansion
-								<span className="infobox-value new-decks-note">New Decks!</span>
+								{this.props.promoteLatestSet ? <span className="infobox-value new-decks-note">New Decks!</span> : null}
 							</InfoboxFilter>
 						</InfoboxFilterGroup>
 						<CardSearch
