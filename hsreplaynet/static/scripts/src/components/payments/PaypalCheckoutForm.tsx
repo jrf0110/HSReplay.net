@@ -84,6 +84,10 @@ export default class PaypalCheckoutForm extends React.Component<PaypalCheckoutFo
 			case "CN":
 				return (
 					<p className="alert alert-danger">
+						<em>
+							目前我们的网站不支持中国PayPal账户。您可能无法完成付款。我们建议使用不同的付款方式。
+						</em>
+						<br/><br/>
 						PayPal payments are not currently supported for Chinese PayPal accounts.
 						You may not be able to complete the payment. Consider using a different payment method.
 					</p>
