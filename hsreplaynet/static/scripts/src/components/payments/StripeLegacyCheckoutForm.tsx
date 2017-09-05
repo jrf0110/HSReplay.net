@@ -55,19 +55,18 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 				script.onload = () => resolve();
 				script.onerror = () => reject();
 				document.body.appendChild(script);
-			}).then(() => {
-				this.handler = StripeCheckout.configure({
-					key: this.props.apiKey,
-					image: this.props.image,
-					name: "HearthSim Premium",
-					locale: "auto",
-					panelLabel: "Subscribe for",
-					email: UserData.getEmail(),
-					allowRememberMe: false,
-				});
 			});
 		}
 		promise.then(() => {
+			this.handler = StripeCheckout.configure({
+				key: this.props.apiKey,
+				image: this.props.image,
+				name: "HearthSim Premium",
+				locale: "auto",
+				panelLabel: "Subscribe for",
+				email: UserData.getEmail(),
+				allowRememberMe: false,
+			});
 			this.setState({step: CheckoutStep.READY_TO_CHECKOUT})
 		});
 	}
@@ -115,11 +114,14 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 		const plan: StripePlan = this.props.plans.find((plan: StripePlan) => plan.stripeId === this.state.selectedPlan);
 		if (!plan) {
 			// no valid plan selected
+			console.error("No valid plan selected");
 			return;
 		}
 
 		if (!this.handler) {
 			// no checkout handler created
+			console.error("No handler created");
+			return;
 		}
 
 		const checkout = new CheckoutProcess(plan.stripeId, this.handler);
