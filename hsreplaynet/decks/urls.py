@@ -5,7 +5,6 @@ from .api import DeckDetailView, GetOrCreateDeckView
 
 
 archetype_detail = views.ArchetypeDetailView.as_view()
-
 card_detail = views.CardDetailView.as_view()
 card_editor = views.CardEditorView.as_view()
 cards = views.CardsView.as_view()
@@ -22,9 +21,8 @@ update_cluster_archetype = views.ClusterSnapshotUpdateView.as_view()
 
 urlpatterns = [
 	url(
-		r"^archetypes/(?P<id>\w+)/(?P<slug>[\w-]+)?",
-		archetype_detail,
-		name="archetype_detail"
+		r"^archetypes/(?P<id>\d+)/(?P<slug>[\w-]+)?",
+		archetype_detail, name="archetype_detail"
 	),
 	url(r"^cards/$", cards, name="cards"),
 	url(r"^cards/editor/", card_editor, name="card_editor"),
@@ -33,8 +31,7 @@ urlpatterns = [
 	url(r"^cards/(?P<pk>\w+)/(?P<slug>[\w-]+)?", card_detail, name="card_detail"),
 	url(
 		r"^clusters/latest/(?P<game_format>\w+)/(?P<player_class>\w+)/(?P<cluster_id>\w+)/",
-		update_cluster_archetype,
-		name="update_cluster_archetype"
+		update_cluster_archetype, name="update_cluster_archetype"
 	),
 	url(r"^decks/$", decks, name="decks"),
 	url(r"^decks/mine/$", my_decks, name="my_decks"),
