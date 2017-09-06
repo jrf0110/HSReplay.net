@@ -185,6 +185,10 @@ body, html {
 			margin: 0 15px 10px 10px;
 		}
 	}
+
+	.popover {
+		color: black;
+	}
 }
 
 .site-footer {
@@ -429,3 +433,36 @@ body, html {
 	}
 }
 
+.popover, .popover-title {
+	border-radius: 0;
+}
+
+.popover {
+	padding: 0;
+	border-color: $premium;
+}
+
+.popover-title {
+	background-color: $premium;
+}
+
+.popover.bottom > .arrow:after {
+	border-bottom-color: $premium;
+}
+
+.navbar-hsreplay .popover {
+	margin-top: 7px;
+}
+
+#premium-popover-close {
+	line-height: 0;
+	padding: 8px 0 8px 4px;
+	vertical-align: middle;
+	font-size: 1.7em;
+	display: block;
+	float: right;
+
+	&:hover, &:active {
+		text-decoration: none;
+	}
+}
