@@ -81,9 +81,16 @@
 			{% endif %}
 
 		{% elif user.is_paypal_premium %}
-			<p>
-				You are currently subscribed using Paypal.
-			</p>
+			{% if user.paypal_end_of_cancellation_period %}
+				<p class="alert alert-warning">
+					You have cancelled your Paypal subscription.
+					It ends on <strong>{{ user.paypal_end_of_cancellation_period|htmltime }}</strong>.
+				</p>
+			{% else %}
+				<p>
+					You are currently subscribed using Paypal.
+				</p>
+			{% endif %}
 			<p>
 				Paypal plans cannot yet be managed directly from here. To manage your subscription,
 				<a href="https://paypal.com/" target="_blank">log in to Paypal</a> and go to
