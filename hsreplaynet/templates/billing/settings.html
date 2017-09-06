@@ -110,10 +110,10 @@
 					{% csrf_token %}
 
 					<p>
-						<label><input type="radio" name="plan" value="{{ monthly_plan.stripe_id }}"/> {{ monthly_plan.name }} &ndash; {{ monthly_plan.human_readable_price }}</label>
+						<label><input type="radio" name="plan" value="{{ stripe_monthly_plan.stripe_id }}"/> {{ stripe_monthly_plan.name }} &ndash; {{ stripe_monthly_plan.human_readable_price }}</label>
 					</p>
 					<p>
-						<label><input type="radio" name="plan" value="{{ semiannual_plan.stripe_id }}" checked> {{ semiannual_plan.name }} &ndash; {{ semiannual_plan.human_readable_price }}</label>
+						<label><input type="radio" name="plan" value="{{ stripe_semiannual_plan.stripe_id }}" checked> {{ stripe_semiannual_plan.name }} &ndash; {{ stripe_semiannual_plan.human_readable_price }}</label>
 					</p>
 
 					<button type="submit" name="subscribe" class="btn btn-primary">Subscribe now</button>
