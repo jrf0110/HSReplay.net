@@ -31,6 +31,7 @@ export default class ClassArchetypesTile extends React.Component<ClassArchetypes
 						sortDirection={this.props.sortDirection}
 						gameType={this.props.gameType}
 						cardData={this.props.cardData}
+						playerClass={playerClass}
 					/>
 				</div>
 			</div>

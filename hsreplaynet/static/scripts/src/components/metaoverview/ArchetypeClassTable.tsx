@@ -12,6 +12,7 @@ interface ArchetypeClassTableProps extends SortableProps, React.ClassAttributes<
 	archetypeData: ApiArchetype[];
 	gameType: string;
 	cardData: CardData;
+	playerClass: string;
 }
 
 const CELL_HEIGHT = 36;
@@ -21,17 +22,38 @@ const MIN_HEADER_WIDTH = 150;
 
 export default class ArchetypeClassTable extends React.Component<ArchetypeClassTableProps, {}> {
 	render(): JSX.Element {
-		const {data, sortBy, sortDirection} = this.props;
+		const {data, playerClass, sortBy, sortDirection} = this.props;
 		const rows  = [];
 		data.forEach((datum) => {
 			const archetype = this.props.archetypeData.find((a) => a.id === datum.archetype_id);
 			if (archetype) {
 				rows.push({archetype_name: archetype.name, archetype, ...datum});
 			}
+			else {
+				rows.push({
+					archetype: {
+						id: -1,
+						name: "Other",
+						player_class_name: playerClass,
+					},
+					archetype_name: "Other",
+					...datum,
+				});
+			}
 		});
 		const {dataKey} = this.columns.find((c) => c.sortKey === sortBy);
 		const direction = sortDirection === "ascending" ? 1 : -1;
-		rows.sort((a, b) => a[dataKey] > b[dataKey] ? direction : -direction);
+		rows.sort((a, b) => {
+			if (dataKey === "archetype_name") {
+				if (a.archetype_id === -1) {
+					return direction;
+				}
+				if (b.archetype_id === -1) {
+					return -direction;
+				}
+			}
+			return a[dataKey] > b[dataKey] ? direction : -direction;
+		});
 
 		const rowData = rows.map((row) => {
 			return {
@@ -60,6 +82,18 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 	}
 
 	renderHeader(archetype: ApiArchetype) {
+		const name = (
+			<a
+				className={"player-class " + archetype.player_class_name.toLowerCase()}
+				href={archetype.url}
+			>
+				{archetype.name}
+			</a>
+		);
+		if (archetype.id === -1) {
+			return  name;
+		}
+
 		return (
 			<ArchetypeSignatureTooltip
 				key={archetype.id}
@@ -68,12 +102,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				archetypeName={archetype.name}
 				gameType={this.props.gameType}
 			>
-				<a
-					className={"player-class " + archetype.player_class_name.toLowerCase()}
-					href={archetype.url}
-				>
-					{archetype.name}
-				</a>
+				{name}
 			</ArchetypeSignatureTooltip>
 		);
 	}
