@@ -28,6 +28,12 @@ if (document.location.pathname.match(/\/(replay|games|articles|decks|cards|meta|
 			return;
 		}
 
+		// do not show to ineligible countries
+		const country = UserData.getIpCountry();
+		if(country && ["DE", "CN"].indexOf(country.toUpperCase()) !== -1) {
+			return;
+		}
+
 		($(premium) as any).popover({
 			animation: true,
 			trigger: "manual",
