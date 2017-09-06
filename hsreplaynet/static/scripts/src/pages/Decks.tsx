@@ -531,7 +531,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 					<Feature feature="deck-region-filter">
 						<section id="region-filter">
 							<PremiumWrapper
-								name="DecK List Region"
+								name="Deck List Region"
 								infoHeader="Region"
 								infoContent="Want to get more specific? Take a look at the decks played in your region!"
 							>
@@ -545,7 +545,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 									<InfoboxFilter value="REGION_US">America</InfoboxFilter>
 									<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>
 									<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>
-									<InfoboxFilter value="ALL">All Region</InfoboxFilter>
+									<InfoboxFilter value="ALL">All Regions</InfoboxFilter>
 								</InfoboxFilterGroup>
 							</PremiumWrapper>
 						</section>
