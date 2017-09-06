@@ -21,6 +21,8 @@ interface DiscoverProps extends React.ClassAttributes<Discover> {
 	setPlayerClass?: (tab: string) => void;
 	setTab?: (clusterTab: string) => void;
 	tab?: string;
+	sampleSize?: string;
+	setSampleSize?: (sampleSize: string) => void;
 }
 
 interface DiscoverState {
@@ -36,7 +38,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 	}
 
 	render(): JSX.Element {
-		const {cardData, tab, dataset, format, playerClass, setTab} = this.props;
+		const {cardData, tab, dataset, format, playerClass, sampleSize, setTab} = this.props;
 		let adminControls = null;
 		if (UserData.hasFeature("archetype-training")) {
 			adminControls = [
@@ -94,6 +96,16 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							this.props.setPlayerClass(playerClasses[0]);
 						}}
 					/>
+					<InfoboxFilterGroup
+						key="cluster-sample-size"
+						header="Sample size"
+						selectedValue={sampleSize}
+						onClick={(value) => this.props.setSampleSize(value)}
+					>
+						<InfoboxFilter value="250">250</InfoboxFilter>
+						<InfoboxFilter value="500">500</InfoboxFilter>
+						<InfoboxFilter value="full">Full</InfoboxFilter>
+					</InfoboxFilterGroup>
 					{adminControls}
 				</aside>
 				<main>
@@ -126,6 +138,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							format={format}
 							onSelectedDeckChanged={(deck) => this.setState({deck})}
 							playerClass={playerClass}
+							sampleSize={sampleSize === "full" ? Number.MAX_SAFE_INTEGER : +sampleSize}
 						/>
 					</DataInjector>
 				</main>
