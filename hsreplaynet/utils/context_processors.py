@@ -42,8 +42,12 @@ def userdata(request):
 
 	data["features"] = {}
 	for feature in Feature.objects.all():
+		is_enabled = bool(feature.enabled_for_user(request.user))  # Django 1.10 hack
+		if not is_enabled:
+			continue
+
 		data["features"][feature.name] = {
-			"enabled": bool(feature.enabled_for_user(request.user))  # Django 1.10 hack
+			"enabled": is_enabled
 		}
 		if feature.read_only:
 			data["features"][feature.name]["read_only"] = True
