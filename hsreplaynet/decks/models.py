@@ -3,6 +3,7 @@ import json
 import string
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection, models, transaction
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
@@ -943,6 +944,16 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 		for cluster in clusters:
 			cluster.class_cluster = self
 
+	def to_json(self):
+		result = {
+			"player_class": self.player_class.name,
+			"clusters": []
+		}
+		for cluster in self.clusters:
+			result["clusters"].append(cluster.to_json())
+
+		return result
+
 
 class ClusterManager(models.Manager):
 	LIVE_SIGNATURES_QUERY = """
@@ -1027,6 +1038,18 @@ class ClusterSnapshot(models.Model, Cluster):
 		rows = [row % (db[int(dbf)].name, round(weight, 4)) for dbf, weight in components]
 		return table % "".join(rows)
 
+	def to_json(self):
+		result = {
+			"cluster_id": self.cluster_id,
+			"experimental": self.experimental,
+			"signature": self.signature,
+			"name": self.name,
+			"rules": self.rules,
+			"data_points": self.data_points,
+			"external_id": self.external_id,
+			"ccp_signature": self.ccp_signature
+		}
+		return result
 
 class ClusterSetSnapshot(models.Model, ClusterSet):
 	id = models.AutoField(primary_key=True)
@@ -1070,3 +1093,17 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 			).update(live_in_production=False)
 			self.live_in_production = True
 			self.save()
+
+	def to_json(self):
+		result = {
+			"as_of": self.as_of,
+			"game_format": self.game_format.name,
+			"live_in_production": self.live_in_production,
+			"latest": self.latest,
+			"class_clusters": []
+		}
+
+		for class_cluster in self.class_clusters:
+			result["class_clusters"].append(class_cluster.to_json())
+
+		return json.dumps(result, cls=DjangoJSONEncoder, indent=4)
