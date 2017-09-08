@@ -63,10 +63,12 @@
 	</div>
 	{% endblock fullcontent %}
 
-	<footer class="site-footer">
-		{% block footer %}
-			{% include "footer.html" %}
-		{% endblock %}
-	</footer>
+	{% if not hide_footer %}
+		<footer class="site-footer">
+			{% block footer %}
+				{% include "footer.html" %}
+			{% endblock %}
+		</footer>
+	{% endif %}
 
 {% endblock %}
