@@ -31,6 +31,13 @@ class DiscoverView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "decks/discover.html"
 	title = "Discover"
 
+	def get(self, request):
+		context = {
+			"hide_footer": True
+		}
+
+		return render(request, self.template_name, context)
+
 
 ##
 # Archetype pages
