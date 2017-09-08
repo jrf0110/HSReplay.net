@@ -29,6 +29,7 @@ export interface BaseTableProps extends SortableProps {
 	rowData: RowData[];
 	topInfoRow?: JSX.Element;
 	bottomInfoRow?: JSX.Element;
+	headerWidthRatio?: number;
 }
 
 interface TableProps extends BaseTableProps, React.ClassAttributes<Table> {
@@ -42,7 +43,7 @@ interface TableState {
 	hoveringRow: number;
 }
 
-const HEADER_SCREEN_RATIO = 0.33;
+const HEADER_WIDTH_RATIO = 0.33;
 const INFO_ROW_HEIGHT = 50;
 
 export default class Table extends React.Component<TableProps, TableState> {
@@ -65,7 +66,8 @@ export default class Table extends React.Component<TableProps, TableState> {
 			<div className="table-container" style={{height: totalHeight}}>
 				<AutoSizer>
 					{({width}) => {
-						const headerWidth = Math.max(minHeaderWidth, Math.min(maxHeaderWidth, width  * HEADER_SCREEN_RATIO));
+						const headerWidthRatio = this.props.headerWidthRatio || HEADER_WIDTH_RATIO;
+						const headerWidth = Math.max(minHeaderWidth, Math.min(maxHeaderWidth, width  * headerWidthRatio));
 						const requiredWith = headerWidth + minColumnWidth * numColumns;
 						let columnWidth = minColumnWidth;
 						if (requiredWith < width) {

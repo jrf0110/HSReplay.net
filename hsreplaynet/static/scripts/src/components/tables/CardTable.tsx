@@ -15,6 +15,9 @@ interface CardTableProps extends SortableProps, React.ClassAttributes<CardTable>
 	numCards?: number;
 	topInfoRow?: JSX.Element;
 	bottomInfoRow?: JSX.Element;
+	minColumnWidth?: number;
+	headerWidth?: [number, number];
+	headerWidthRatio?: number;
 }
 
 const CELL_HEIGHT = 36;
@@ -24,7 +27,7 @@ const MIN_HEADER_WIDTH = 150;
 
 class CardTable extends React.Component<CardTableProps, {}> {
 	render(): JSX.Element {
-		const {baseWinrate, cards, data, sortBy, sortDirection, numCards} = this.props;
+		const {baseWinrate, cards, data, sortBy, sortDirection, numCards, minColumnWidth, headerWidth} = this.props;
 		const columnKeys = ["card"].concat(this.props.columns);
 		const columns = columnKeys.map((key) => cardTableColumnData[key]);
 		let rowData = generateCardTableRowData(cards, data, sortBy, sortDirection, columns.slice(1));
@@ -39,8 +42,8 @@ class CardTable extends React.Component<CardTableProps, {}> {
 		return (
 			<Table
 				cellHeight={CELL_HEIGHT}
-				minColumnWidth={MIN_COLUMN_WIDTH}
-				headerWidth={[MIN_HEADER_WIDTH, MAX_HEADER_WIDTH]}
+				minColumnWidth={minColumnWidth || MIN_COLUMN_WIDTH}
+				headerWidth={headerWidth || [MIN_HEADER_WIDTH, MAX_HEADER_WIDTH]}
 				baseWinrate={baseWinrate}
 				sortBy={sortBy}
 				sortDirection={sortDirection}
@@ -49,6 +52,7 @@ class CardTable extends React.Component<CardTableProps, {}> {
 				rowData={tableRowData}
 				topInfoRow={this.props.topInfoRow}
 				bottomInfoRow={this.props.bottomInfoRow}
+				headerWidthRatio={this.props.headerWidthRatio}
 			/>
 		);
 	}
