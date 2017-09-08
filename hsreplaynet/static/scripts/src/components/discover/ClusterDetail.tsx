@@ -5,6 +5,7 @@ import {ApiArchetypeSignature} from "../../interfaces";
 import {ClusterData, ClusterMetaData, DeckData} from "./ClassAnalysis";
 import * as _ from "lodash";
 import CardList from "../CardList";
+import ClusterSignature from "./ClusterSignature";
 
 interface ClusterDetailProps extends React.ClassAttributes<ClusterDetail> {
 	cardData: CardData;
@@ -28,12 +29,10 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 				format: null,
 			};
 			cppData = (
-				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 300}}>
-					<h2>CCP Signature</h2>
-					<ArchetypeSignature
+				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 400}}>
+					<h2>Weighted Signature</h2>
+					<ClusterSignature
 						cardData={cardData}
-						showOccasional={true}
-						showValues={true}
 						signature={cppSignature}
 					/>
 				</div>
@@ -53,12 +52,10 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 
 		return (
 			<div>
-				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 300}}>
+				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 400}}>
 					<h2>Signature</h2>
-					<ArchetypeSignature
+					<ClusterSignature
 						cardData={cardData}
-						showOccasional={true}
-						showValues={true}
 						signature={signature}
 					/>
 				</div>
@@ -71,7 +68,7 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 						cardList={cardList}
 						name=""
 						heroes={[]}
-					/>,
+					/>
 				</div>
 			</div>
 		);

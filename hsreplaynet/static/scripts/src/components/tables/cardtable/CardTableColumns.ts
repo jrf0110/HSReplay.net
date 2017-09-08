@@ -22,6 +22,7 @@ export type CardTableColumnKey = (
 	| "turnPlayed"
 	| "turnsInHand"
 	| "winrate"
+	| "prevalence"
 );
 
 export const cardTableColumnData: {[key in CardTableColumnKey]: TableColumn} = {
@@ -172,5 +173,10 @@ export const cardTableColumnData: {[key in CardTableColumnKey]: TableColumn} = {
 		percent: true,
 		sortKey: "timesPlayed",
 		text: "% of played cards",
+	},
+	prevalence: {
+		dataKey: "prevalence",
+		sortKey: "prevalence",
+		text: "Prevalence",
 	},
 };
