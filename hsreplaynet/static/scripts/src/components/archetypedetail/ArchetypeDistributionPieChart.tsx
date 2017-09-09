@@ -40,9 +40,6 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 		const data = archetypes.map((matchup) => {
 			const id = matchup.archetype_id;
 			const archetype = this.getArchetype(id);
-			if (!archetype) {
-				return undefined;
-			}
 			const selected = id === this.props.selectedArchetypeId;
 			const scale = selected ? 1.1 : (this.state.hovering === id ? 1.05 : 1.0);
 			const translate = getPieTranslate(this.pieSize, this.pieSize, this.piePadding);
@@ -52,8 +49,8 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 				stroke: pageBackground,
 				strokeWidth: selected ? 2 : 0,
 				transform: translate + ` scale(${scale})`,
-				url: archetype.url,
-				x: this.getArchetypeName(archetype),
+				url: archetype && archetype.url,
+				x: archetype ? this.getArchetypeName(archetype) : "Other",
 				y: matchup.pct_of_class,
 			};
 		}).filter((x) => x !== undefined);
@@ -86,7 +83,7 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 			};
 		});
 
-		const cursor = (p) => p.isSelectedArchetype ? "inherit" : "pointer";
+		const cursor = (p) => p.isSelectedArchetype || !p.url ? "inherit" : "pointer";
 
 		return (
 			<svg viewBox="0 0 400 600">
@@ -144,7 +141,7 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 			onClick: () => {
 				return [{
 					mutation: (props) => {
-						if (!props.datum.isSelectedArchetype) {
+						if (!props.datum.isSelectedArchetype && props.datum.archetypeId !== -1) {
 							window.open(props.datum.url, "_self");
 						}
 					},
