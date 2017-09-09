@@ -1,9 +1,10 @@
 import hashlib
 import json
+import os
 import string
+import time
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection, models, transaction
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
@@ -923,6 +924,14 @@ class ClusterSetManager(models.Manager):
 
 		return cs_snapshot
 
+	def predict_archetype_id(self, player_class, game_format, deck):
+		class_cluster = ClassClusterSnapshot.objects.filter(
+			player_class=player_class,
+			cluster_set__live_in_production=True,
+			cluster_set__game_format=game_format
+		).first()
+		class_cluster.predict_archetype_id(deck)
+
 
 class ClassClusterSnapshot(models.Model, ClassClusters):
 	id = models.AutoField(primary_key=True)
@@ -944,15 +953,24 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 		for cluster in clusters:
 			cluster.class_cluster = self
 
-	def to_json(self):
-		result = {
-			"player_class": self.player_class.name,
-			"clusters": []
-		}
-		for cluster in self.clusters:
-			result["clusters"].append(cluster.to_json())
-
-		return result
+	def train_neural_network(self, base_dir):
+		from hsarchetypes.features import to_neural_net_training_data
+		from hsarchetypes.classification import train_neural_net
+		model_name_template = "%s_%s_v%i.h5"
+		values = (
+			self.player_class.name,
+			self.cluster_set.game_format.name,
+			self.cluster_set.id
+		)
+		full_path = os.path.join(base_dir, model_name_template % values)
+		train_x, train_Y = to_neural_net_training_data(self, num_examples=1000000)
+		print("Finished generating training data")
+		history = train_neural_net(train_x, train_Y, full_path, num_epochs=10)
+		vals = (
+			self.player_class.name,
+			history.history['val_acc'][-1] * 100
+		)
+		print("%s accuracy: %.2f%%\n" % vals)
 
 
 class ClusterManager(models.Manager):
@@ -1038,18 +1056,6 @@ class ClusterSnapshot(models.Model, Cluster):
 		rows = [row % (db[int(dbf)].name, round(weight, 4)) for dbf, weight in components]
 		return table % "".join(rows)
 
-	def to_json(self):
-		result = {
-			"cluster_id": self.cluster_id,
-			"experimental": self.experimental,
-			"signature": self.signature,
-			"name": self.name,
-			"rules": self.rules,
-			"data_points": self.data_points,
-			"external_id": self.external_id,
-			"ccp_signature": self.ccp_signature
-		}
-		return result
 
 class ClusterSetSnapshot(models.Model, ClusterSet):
 	id = models.AutoField(primary_key=True)
@@ -1094,16 +1100,9 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 			self.live_in_production = True
 			self.save()
 
-	def to_json(self):
-		result = {
-			"as_of": self.as_of,
-			"game_format": self.game_format.name,
-			"live_in_production": self.live_in_production,
-			"latest": self.latest,
-			"class_clusters": []
-		}
-
+	def train_neural_network(self, base_dir=None):
+		BASE_DIR = base_dir or settings.BUILD_DIR
+		TRAINING_DIR = os.path.join(BASE_DIR, "training", str(int(time.time())))
 		for class_cluster in self.class_clusters:
-			result["class_clusters"].append(class_cluster.to_json())
-
-		return json.dumps(result, cls=DjangoJSONEncoder, indent=4)
+			print("Initiating training for %s" % class_cluster.player_class.name)
+			class_cluster.train_neural_network(TRAINING_DIR)

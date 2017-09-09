@@ -1,6 +1,7 @@
 echo "Creating AWS Lambda Deployment Zip"
 
 BASEDIR=$(readlink -f "$(dirname $0)/../..")
+echo "basedir is $BASEDIR"
 
 if [[ ! -d $BASEDIR/deploy ]]; then
     mkdir "$BASEDIR/deploy"
