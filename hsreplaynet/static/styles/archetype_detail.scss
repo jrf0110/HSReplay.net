@@ -33,10 +33,17 @@
 				display: flex;
 			}
 
+			.archetype-signature {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+			}
+
 			.card-list-wrapper {
 				max-width: 270px;
-				min-width: 200px;
-				margin: 0 auto;
+				min-width: 220px;
+				padding: 0 10px;
+				flex: 1;
 			}
 		}
 
