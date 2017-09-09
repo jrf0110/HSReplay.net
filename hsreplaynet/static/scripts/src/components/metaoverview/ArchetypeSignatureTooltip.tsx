@@ -57,7 +57,11 @@ export default class ArchetypeSignatureTooltip extends React.Component<Archetype
 		}
 		return (
 			<div>
-				<ArchetypeSignature cardData={this.props.cardData} signature={this.state.signature}/>
+				<ArchetypeSignature
+					cardData={this.props.cardData}
+					signature={this.state.signature}
+					maxCards={20}
+				/>
 				<p>Click to view archetype details</p>
 			</div>
 		);

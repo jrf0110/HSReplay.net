@@ -16,6 +16,7 @@ interface ArchetypeSignatureProps extends React.ClassAttributes<ArchetypeSignatu
 	showOccasional?: boolean;
 	showValues?: boolean;
 	bucketWrapperClassName?: string;
+	maxCards?: number;
 }
 
 export default class ArchetypeSignature extends React.Component<ArchetypeSignatureProps, {}> {
@@ -38,11 +39,16 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 		];
 
 		if (this.props.showOccasional) {
-			buckets.push({title: "Occasional Tech Cards", threshold: 0, cards: []});
+			buckets.push({title: "Occasional Tech Cards", threshold: 0.1, cards: []});
+		}
+
+		let components = this.props.signature.components.slice().sort((a, b) => b[1] - a[1]);
+		if (this.props.maxCards) {
+			components = components.slice(0, this.props.maxCards);
 		}
 
 		const customCounts = {};
-		this.props.signature.components.forEach(([dbfId, prev]) => {
+		components.forEach(([dbfId, prev]) => {
 			const bucket = buckets.find((b) => prev >= b.threshold);
 			if (bucket) {
 				bucket.cards.push(dbfId);
