@@ -21,6 +21,7 @@ for d, _, files in os.walk('lib'):
 
 
 import boto3
+import json
 from keras.models import load_model
 from numpy import array
 
@@ -34,17 +35,20 @@ def load_keras_model(bucket, key):
 		_CACHE[bucket] = {}
 
 	if key not in _CACHE[bucket]:
+		print("Retrieving Model From S3")
 		model_path = "/tmp/%s_%s_model" % (bucket, key)
 		with open(model_path, "wb") as out:
-			out.write(S3.get_object(Bucket=bucket, Key=key)["Body"])
+			out.write(S3.get_object(Bucket=bucket, Key=key)["Body"].read())
 		_CACHE[bucket][key] = load_model(model_path)
+	else:
+		print("Model Loaded From Cache")
 	return _CACHE[bucket][key]
 
 
 def handler(event, context):
 	model_bucket = event["model_bucket"]
 	model_key = event["model_key"]
-	deck_vector = event['deck_vector']
+	deck_vector = json.loads(event['deck_vector'])
 	model = load_keras_model(model_bucket, model_key)
 	data = array([deck_vector])
 	prediction = model.predict_classes(data)[0]
