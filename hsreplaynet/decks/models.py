@@ -968,7 +968,7 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 		history = train_neural_net(train_x, train_Y, full_path, num_epochs=10)
 		vals = (
 			self.player_class.name,
-			history.history['val_acc'][-1] * 100
+			history.history["val_acc"][-1] * 100
 		)
 		print("%s accuracy: %.2f%%\n" % vals)
 
