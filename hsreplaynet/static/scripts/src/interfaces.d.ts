@@ -58,6 +58,7 @@ export interface Deck {
 	digest: string;
 	size: any;
 	cards: string[];
+	predicted_cards: string[]|null;
 }
 
 export const enum Visibility {

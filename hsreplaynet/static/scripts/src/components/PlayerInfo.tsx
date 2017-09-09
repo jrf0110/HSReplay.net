@@ -70,6 +70,7 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 						<CardList
 							cardData={this.props.cardData}
 							cardList={opposing_deck.cards}
+							predictedCardList={opposing_deck.predicted_cards}
 							heroes={[getHeroDbfId(this.props.cardData, opposing_player)]}
 							deckClass={deckClass}
 							format={global_game.format}

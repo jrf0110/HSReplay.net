@@ -113,6 +113,15 @@
 		z-index: 1000;
 	}
 
+	&.predicted {
+		opacity: 0.4;
+		filter: grayscale(1);
+
+		&:hover {
+			filter: grayscale(0);
+		}
+	}
+
 	a:hover &, a:focus & {
 		cursor: pointer;
 

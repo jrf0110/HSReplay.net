@@ -11,6 +11,7 @@ interface CardTileProps {
 	hideGem?: boolean;
 	noLink?: boolean;
 	countBoxSize?: number;
+	predicted?: boolean;
 }
 
 export default class CardTile extends React.Component<CardTileProps, {}> {
@@ -68,10 +69,15 @@ export default class CardTile extends React.Component<CardTileProps, {}> {
 
 		const label = this.props.customText || this.props.card.name;
 
+		const classNames = ["card-tile"];
+		if (this.props.predicted) {
+			classNames.push("predicted");
+		}
+
 		let tile = (
 			<Tooltip content={tooltip} noBackground>
 				<div
-					className="card-tile"
+					className={classNames.join(" ")}
 					style={tileStyle}
 					aria-label={label}
 				>
