@@ -13,10 +13,11 @@ class DeckListField(serializers.ListField):
 
 class DeckSerializer(serializers.ModelSerializer):
 	cards = DeckListField(source="card_id_list", read_only=True)
+	predicted_cards = DeckListField(source="predicted_card_id_list", read_only=True)
 
 	class Meta:
 		model = Deck
-		fields = ("digest", "size", "cards")
+		fields = ("digest", "size", "cards", "predicted_cards")
 
 
 class APIKeySerializer(serializers.HyperlinkedModelSerializer):
