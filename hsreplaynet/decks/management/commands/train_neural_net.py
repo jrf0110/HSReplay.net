@@ -6,15 +6,15 @@ from hsreplaynet.decks.models import ClusterSetSnapshot
 
 class Command(BaseCommand):
 	def add_arguments(self, parser):
-		parser.add_argument("--num-examples", default=1000000, type=int)
-		parser.add_argument("--max-dropped-cards", default=5, type=int)
+		parser.add_argument("--num-examples", default=5000000, type=int)
+		parser.add_argument("--max-dropped-cards", default=10, type=int)
 		parser.add_argument("--stratified", default=False, type=bool)
-		parser.add_argument("--min-cards-for-determination", default=5, type=int)
+		parser.add_argument("--min-cards-for-determination", default=10, type=int)
 		parser.add_argument("--batch-size", default=1000, type=int)
 		parser.add_argument("--num-epochs", default=20, type=int)
-		parser.add_argument("--base-layer-size", default=64, type=int)
+		parser.add_argument("--base-layer-size", default=256, type=int)
 		parser.add_argument("--hidden-layer-size", default=64, type=int)
-		parser.add_argument("--num-hidden-layers", default=1, type=int)
+		parser.add_argument("--num-hidden-layers", default=2, type=int)
 		parser.add_argument("--working-dir", default="", type=str)
 		parser.add_argument("--upload-to-s3", default=True, type=bool)
 
