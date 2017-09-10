@@ -87,6 +87,17 @@ class DeckManager(models.Manager):
 		if not archetype_ids:
 			return
 
+		# New Style Deck Prediction
+		# archetype_id = ClusterSetSnapshot.objects.predict_archetype_id(
+		# 	self,
+		# 	player_class,
+		# 	game_format,
+		# 	deck,
+		# 	archetype_ids
+		# )
+		# if archetype_id:
+		# 	deck.update_archetype(archetype_id)
+
 		signature_weights = ClusterSnapshot.objects.get_signature_weights(
 			game_format,
 			player_class,
@@ -928,13 +939,13 @@ class ClusterSetManager(models.Manager):
 
 		return cs_snapshot
 
-	def predict_archetype_id(self, player_class, game_format, deck):
+	def predict_archetype_id(self, player_class, game_format, deck, active_archetypes):
 		class_cluster = ClassClusterSnapshot.objects.filter(
 			player_class=player_class,
 			cluster_set__live_in_production=True,
 			cluster_set__game_format=game_format
 		).first()
-		class_cluster.predict_archetype_id(deck)
+		return class_cluster.predict_archetype_id(deck, active_archetypes)
 
 
 _TRAINING_DATA_CACHE = {}
