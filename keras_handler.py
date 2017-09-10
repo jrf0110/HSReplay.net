@@ -52,7 +52,7 @@ def handler(event, context):
 	model = load_keras_model(model_bucket, model_key)
 	data = numpy.zeros((1, len(deck_vector)))
 	for i, c in enumerate(deck_vector):
-		data[1][i] = c
+		data[0][i] = c
 
 	prediction = model.predict_classes(data)[0]
 	return {'predicted_class': prediction}
