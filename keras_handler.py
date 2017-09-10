@@ -23,7 +23,7 @@ for d, _, files in os.walk('lib'):
 import boto3
 import json
 from keras.models import load_model
-from numpy import array
+import numpy
 
 
 _CACHE = {}
@@ -50,6 +50,9 @@ def handler(event, context):
 	model_key = event["model_key"]
 	deck_vector = json.loads(event['deck_vector'])
 	model = load_keras_model(model_bucket, model_key)
-	data = array([deck_vector])
+	data = numpy.zeros((1, len(deck_vector)))
+	for i, c in enumerate(deck_vector):
+		data[1][i] = c
+
 	prediction = model.predict_classes(data)[0]
 	return {'predicted_class': prediction}
