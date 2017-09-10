@@ -36,7 +36,7 @@ def load_keras_model(bucket, key):
 
 	if key not in _CACHE[bucket]:
 		print("Retrieving Model From S3")
-		model_path = "/tmp/%s_%s_model" % (bucket, key)
+		model_path = "/tmp/%s" % key.replace("/", "-")
 		with open(model_path, "wb") as out:
 			out.write(S3.get_object(Bucket=bucket, Key=key)["Body"].read())
 		_CACHE[bucket][key] = load_model(model_path)
