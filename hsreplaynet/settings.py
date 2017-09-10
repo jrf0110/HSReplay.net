@@ -421,6 +421,9 @@ ARCHETYPE_QUERIES_FOR_IMMEDIATE_REFRESH = [
 ]
 
 
+KERAS_MODELS_BUCKET = "hsreplaynet-keras-models"
+
+
 # When False the cached data will only get refreshed:
 #	1) At the end of each ETL Track Load
 #	2) Immediately when a new premium user subscribes

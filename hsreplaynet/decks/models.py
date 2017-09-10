@@ -22,7 +22,7 @@ from hsarchetypes.clustering import (
 )
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils import log
-from hsreplaynet.utils.aws.clients import FIREHOSE
+from hsreplaynet.utils.aws.clients import FIREHOSE, S3
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.cards import card_db
 from hsreplaynet.utils.db import dictfetchall
@@ -937,6 +937,9 @@ class ClusterSetManager(models.Manager):
 		class_cluster.predict_archetype_id(deck)
 
 
+_TRAINING_DATA_CACHE = {}
+
+
 class ClassClusterSnapshot(models.Model, ClassClusters):
 	id = models.AutoField(primary_key=True)
 	cluster_set = models.ForeignKey("ClusterSetSnapshot", on_delete=models.CASCADE)
@@ -957,24 +960,136 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 		for cluster in clusters:
 			cluster.class_cluster = self
 
-	def train_neural_network(self, base_dir):
+	def _fetch_training_data(
+		self,
+		num_examples=1000000,
+		max_dropped_cards=15,
+		stratified=False,
+		min_cards_for_determination=5
+	):
 		from hsarchetypes.features import to_neural_net_training_data
+		key = (self.id, num_examples, max_dropped_cards, stratified, min_cards_for_determination)
+		if key not in _TRAINING_DATA_CACHE:
+			print("Constructing new training data: %s" % str(key))
+			_TRAINING_DATA_CACHE[key] = to_neural_net_training_data(
+				self,
+				num_examples=num_examples,
+				max_dropped_cards=max_dropped_cards,
+				stratified=stratified,
+				min_cards_for_determination=min_cards_for_determination
+			)
+		else:
+			print("Serving data from cache: %s" % str(key))
+
+		return _TRAINING_DATA_CACHE[key]
+
+	def train_neural_network(
+		self,
+		num_examples=1000000,
+		max_dropped_cards=15,
+		stratified=False,
+		min_cards_for_determination=5,
+		batch_size=1000,
+		num_epochs=20,
+		base_layer_size=64,
+		hidden_layer_size=64,
+		num_hidden_layers=2,
+		working_dir=None,
+		upload_to_s3=False
+	):
 		from hsarchetypes.classification import train_neural_net
-		model_name_template = "%s_%s_v%i.h5"
+		from hsarchetypes.utils import plot_accuracy_graph, plot_loss_graph
+		common_prefix_template = "%s_%i_%i_%s"
 		values = (
-			self.player_class.name,
 			self.cluster_set.game_format.name,
-			self.cluster_set.id
+			self.cluster_set.id,
+			self.cluster_set.latest_training_run_id,
+			self.player_class.name,
 		)
-		full_path = os.path.join(base_dir, model_name_template % values)
-		train_x, train_Y = to_neural_net_training_data(self, num_examples=1000000)
+		common_prefix = common_prefix_template % values
+		full_model_path = os.path.join(working_dir, common_prefix + "_model.h5")
+		train_x, train_Y = self._fetch_training_data(
+			num_examples=num_examples,
+			max_dropped_cards=max_dropped_cards,
+			stratified=stratified,
+			min_cards_for_determination=min_cards_for_determination
+		)
 		print("Finished generating training data")
-		history = train_neural_net(train_x, train_Y, full_path, num_epochs=10)
+		history = train_neural_net(
+			train_x,
+			train_Y,
+			full_model_path,
+			batch_size=batch_size,
+			num_epochs=num_epochs,
+			base_layer_size=base_layer_size,
+			hidden_layer_size=hidden_layer_size,
+			num_hidden_layers=num_hidden_layers
+		)
+		accuracy = history.history["val_acc"][-1] * 100
 		vals = (
 			self.player_class.name,
-			history.history["val_acc"][-1] * 100
+			accuracy
 		)
 		print("%s accuracy: %.2f%%\n" % vals)
+
+		loss_file_path = os.path.join(working_dir, common_prefix + "_loss.png")
+		plot_loss_graph(history, self.player_class.name, loss_file_path)
+
+		accuracy_file_path = os.path.join(working_dir, common_prefix + "_accuracy.png")
+		plot_accuracy_graph(history, self.player_class.name, accuracy_file_path)
+
+		if upload_to_s3:
+			# The key structure for models in the bucket is as follows:
+			# /models/<game_format>/<cluster_set_id>/<run_id>/<player_class>.h5
+			# Which allows for easy listing of all the run_ids for a given snapshot
+
+			# Within each run_id folder we expect:
+			# A <player_class>.h5 file for each class
+			# A summary.txt
+			# A <player_class>_accuracy.png
+			# A <player_class>_loss.png
+
+			if os.path.exists(full_model_path):
+				with open(full_model_path, "rb") as model:
+					S3.put_object(
+						Bucket=settings.KERAS_MODELS_BUCKET,
+						Key=self.model_key,
+						Body=model
+					)
+
+			if os.path.exists(loss_file_path):
+				with open(loss_file_path, "rb") as model:
+					S3.put_object(
+						Bucket=settings.KERAS_MODELS_BUCKET,
+						Key=self.loss_graph_key,
+						Body=model
+					)
+
+			if os.path.exists(accuracy_file_path):
+				with open(accuracy_file_path, "rb") as model:
+					S3.put_object(
+						Bucket=settings.KERAS_MODELS_BUCKET,
+						Key=self.accuracy_graph_key,
+						Body=model
+					)
+
+		return accuracy
+
+	@property
+	def loss_graph_key(self):
+		return self.common_key_prefix + "-loss.png"
+
+	@property
+	def accuracy_graph_key(self):
+		return self.common_key_prefix + "-accuracy.png"
+
+	@property
+	def model_key(self):
+		return self.common_key_prefix + ".h5"
+
+	@property
+	def common_key_prefix(self):
+		return self.cluster_set.cluster_set_key_prefix + self.player_class.name
 
 
 class ClusterManager(models.Manager):
@@ -1084,6 +1199,15 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 			self._class_clusters = list(self.classclustersnapshot_set.all())
 		return self._class_clusters
 
+	@property
+	def cluster_set_key_prefix(self):
+		template = "models/{game_format}/{cluster_set_id}/{run_id}/"
+		return template.format(
+			game_format=self.game_format.name,
+			cluster_set_id=self.id,
+			run_id=self.latest_training_run_id,
+		)
+
 	@class_clusters.setter
 	def class_clusters(self, cc):
 		self._class_clusters = cc
@@ -1104,9 +1228,88 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 			self.live_in_production = True
 			self.save()
 
-	def train_neural_network(self, base_dir=None):
-		BASE_DIR = base_dir or settings.BUILD_DIR
-		TRAINING_DIR = os.path.join(BASE_DIR, "training", str(int(time.time())))
-		for class_cluster in self.class_clusters:
-			print("Initiating training for %s" % class_cluster.player_class.name)
-			class_cluster.train_neural_network(TRAINING_DIR)
+	def train_neural_network(
+		self,
+		num_examples=1000000,
+		max_dropped_cards=15,
+		stratified=False,
+		min_cards_for_determination=5,
+		batch_size=1000,
+		num_epochs=20,
+		base_layer_size=64,
+		hidden_layer_size=64,
+		num_hidden_layers=2,
+		working_dir=None,
+		upload_to_s3=False,
+		included_classes=None
+	):
+		start_ts = time.time()
+		run_id = int(start_ts)
+		self.latest_training_run_id = run_id
+
+		if working_dir:
+			training_dir = working_dir
+		else:
+			training_dir = os.path.join(settings.BUILD_DIR, "models", str(run_id))
+
+		if not os.path.exists(training_dir):
+			os.mkdir(training_dir)
+
+		summary_path = os.path.join(training_dir, "summary.txt")
+		with open(summary_path, "w") as summary:
+			summary.write("Game Format: %s\n" % self.game_format.name)
+			summary.write("Cluster Set As Of: %s\n" % self.as_of.isoformat())
+			summary.write("Training Run: %i\n\n" % run_id)
+
+			summary.write("Num Examples: %i\n" % num_examples)
+			summary.write("Max Dropped Cards: %i\n" % max_dropped_cards)
+			summary.write("Stratified: %s\n" % str(stratified))
+			summary.write("Min Cards For Determination: %i\n" % min_cards_for_determination)
+			summary.write("Batch Size: %i\n" % batch_size)
+			summary.write("Num Epochs: %i\n" % num_epochs)
+			summary.write("Base Layer Size: %i\n" % base_layer_size)
+			summary.write("Hidden Layer Size: %i\n" % hidden_layer_size)
+			summary.write("Num Hidden Layers: %i\n\n" % num_hidden_layers)
+
+			for class_cluster in self.class_clusters:
+				player_class_name = class_cluster.player_class.name
+
+				if included_classes and player_class_name not in included_classes:
+					continue
+
+				print("\nInitiating training for %s" % class_cluster.player_class.name)
+				training_start = time.time()
+				accuracy = class_cluster.train_neural_network(
+					num_examples=num_examples,
+					max_dropped_cards=max_dropped_cards,
+					stratified=stratified,
+					min_cards_for_determination=min_cards_for_determination,
+					batch_size=batch_size,
+					num_epochs=num_epochs,
+					base_layer_size=base_layer_size,
+					hidden_layer_size=hidden_layer_size,
+					num_hidden_layers=num_hidden_layers,
+					working_dir=training_dir,
+					upload_to_s3=upload_to_s3
+				)
+				training_stop = time.time()
+				duration = int(training_stop - training_start)
+				print("Duration: %s seconds" % duration)
+				print("Accuracy: %s" % round(accuracy, 4))
+
+				summary.write("%s Duration: %i seconds\n" % (player_class_name, duration))
+				summary.write("%s Accuracy: %s\n\n" % (player_class_name, round(accuracy, 4)))
+
+			end_ts = time.time()
+			full_duration = end_ts - start_ts
+			duration_mins = int(full_duration / 60)
+			duration_secs = int(full_duration % 60)
+			summary.write("Full Duration: %i min(s) %i seconds\n" % (duration_mins, duration_secs))
+
+		if upload_to_s3 and os.path.exists(summary_path):
+			with open(summary_path, "rb") as summary:
+				S3.put_object(
+					Bucket=settings.KERAS_MODELS_BUCKET,
+					Key=self.cluster_set_key_prefix + "summary.txt",
+					Body=summary
+				)
