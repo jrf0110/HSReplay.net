@@ -9,7 +9,7 @@ class Command(BaseCommand):
 		parser.add_argument("--num-examples", default=5000000, type=int)
 		parser.add_argument("--max-dropped-cards", default=10, type=int)
 		parser.add_argument("--stratified", default=False, type=bool)
-		parser.add_argument("--min-cards-for-determination", default=10, type=int)
+		parser.add_argument("--min-cards-for-determination", default=5, type=int)
 		parser.add_argument("--batch-size", default=1000, type=int)
 		parser.add_argument("--num-epochs", default=20, type=int)
 		parser.add_argument("--base-layer-size", default=256, type=int)

@@ -17,6 +17,10 @@ rq==0.8.1
 markdown==2.6.9
 numpy
 scikit-learn[alldeps]
+matplotlib
+keras
+tensorflow
+h5py
 
 # stripe / paypal
 https://github.com/jleclanche/dj-stripe/archive/master.tar.gz
