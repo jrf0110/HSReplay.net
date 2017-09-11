@@ -30,7 +30,8 @@ for num_hidden_layers in (1, 2, 3):
 				dir_name = "examples_%i_base_%i_layers_%i_hidden_%i" % (num_examples, base_layer_size, num_hidden_layers, hidden_layer_size)
 				print("\n\n******** PARAMETERS: %s" % dir_name)
 				WORKING_DIR = os.path.join(MODELS_DIR, dir_name)
-				os.mkdir(WORKING_DIR)
+				if not os.path.exists(WORKING_DIR):
+					os.mkdir(WORKING_DIR)
 
 				cs.train_neural_network(
 					num_examples=num_examples,
