@@ -19,6 +19,12 @@
 	data-paypal-submit-url="{% url 'pp_subscribe' %}"
 	data-csrf-token="{% csrf_token %}"
 ></div>
+<noscript>
+	<p class="alert alert-danger">
+		Please enable Javascript to continue.
+		If this problem persists, please <a href="{% url 'contact_us' %}">contact us</a>.
+	</p>
+</noscript>
 <small class="help-block text-center">
 	By signing up you agree to our <a href="{% url 'terms_of_service' %}" target="_blank">Terms of Service</a>.<br/>
 	Subscriptions renew automatically and can be cancelled any time from the <a href="{% url 'billing_methods' %}" target="_blank">billing settings</a> page.
