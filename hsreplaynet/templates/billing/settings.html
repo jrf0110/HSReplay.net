@@ -15,7 +15,7 @@
 {% if billing.enabled %}
 
 <section id="account-billing-plan" class="box-section">
-	<h3>Premium plan</h3>
+	<h3>Premium Plan</h3>
 	<div class="inner">
 		{% with customer.valid_subscriptions.first as sub %}
 		{% if sub %}
@@ -82,18 +82,18 @@
 
 		{% elif user.is_paypal_premium %}
 			{% if user.paypal_end_of_cancellation_period %}
-				<p class="alert alert-warning">
-					You have cancelled your Paypal subscription.
+				<p>
+					You have cancelled your PayPal subscription.
 					It ends on <strong>{{ user.paypal_end_of_cancellation_period|htmltime }}</strong>.
 				</p>
 			{% else %}
 				<p>
-					You are currently subscribed using Paypal.
+					You are <strong>currently subscribed</strong> using PayPal. Thanks for supporting us!
 				</p>
 			{% endif %}
-			<p>
-				Paypal plans cannot yet be managed directly from here. To manage your subscription,
-				<a href="https://paypal.com/" target="_blank">log in to Paypal</a> and go to
+			<p class="alert alert-info">
+				PayPal plans cannot yet be managed directly from here. To manage your subscription,
+				<a href="https://paypal.com/" target="_blank">log in to PayPal</a> and go to
 				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_manage-paylist" target="_blank">Manage preapproved payments</a>.
 			</p>
 			<p>
