@@ -72,6 +72,7 @@ INSTALLED_APPS_WEB = [
 	"allauth.socialaccount",
 	"allauth.socialaccount.providers.battlenet",
 	"allauth.socialaccount.providers.discord",
+	"allauth.socialaccount.providers.twitch",
 	"oauth2_provider",
 	"django_rq",
 	"django_rq_dashboard",
