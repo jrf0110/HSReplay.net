@@ -265,7 +265,8 @@ OAUTH2_PROVIDER = {
 		"webhooks:read": "View your webhooks",
 		"webhooks:write": "Create and delete webhooks on your behalf",
 	},
-    "ALLOWED_REDIRECT_URI_SCHEMES": ["https"],
+	"ALLOWED_REDIRECT_URI_SCHEMES": ["https"],
+	"SCOPES_BACKEND_CLASS": "hsreplaynet.oauth2.models.ApplicationScopes",
 }
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2.Application"

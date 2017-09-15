@@ -29,4 +29,9 @@ class Migration(migrations.Migration):
             name='id',
             field=models.BigAutoField(primary_key=True, serialize=False),
         ),
+        migrations.AddField(
+            model_name='application',
+            name='allowed_scopes',
+            field=models.TextField(blank=True, help_text='Which scopes the application is allowed to request (blank = all scopes)'),
+        ),
     ]
