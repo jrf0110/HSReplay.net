@@ -59,7 +59,7 @@ class GameReplayList(ListAPIView):
 	def get_queryset(self):
 		queryset = super().get_queryset()
 		user = self.request.user
-		if not user.is_staff:
+		if not user.is_staff or self.request.auth:
 			# For non-staff, only own games are visible
 			queryset = queryset.filter(user=user)
 		# Allow filtering on username key
