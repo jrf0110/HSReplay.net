@@ -1014,7 +1014,7 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 		values = (
 			self.cluster_set.game_format.name,
 			self.cluster_set.id,
-			self.cluster_set.latest_training_run_id,
+			self.cluster_set.training_run_id,
 			self.player_class.name,
 		)
 		common_prefix = common_prefix_template % values
@@ -1194,6 +1194,7 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 	game_format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
 	live_in_production = models.BooleanField(default=False)
 	latest = models.BooleanField(default=False)
+	training_run_id = models.IntegerField(null=True, blank=True)
 
 	CLASS_CLUSTER_FACTORY = ClassClusterSnapshot
 	CLUSTER_FACTORY = ClusterSnapshot
@@ -1216,7 +1217,7 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 		return template.format(
 			game_format=self.game_format.name,
 			cluster_set_id=self.id,
-			run_id=self.latest_training_run_id,
+			run_id=self.training_run_id,
 		)
 
 	@class_clusters.setter
@@ -1256,7 +1257,8 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 	):
 		start_ts = time.time()
 		run_id = int(start_ts)
-		self.latest_training_run_id = run_id
+		self.training_run_id = run_id
+		self.save()
 
 		if working_dir:
 			training_dir = working_dir
