@@ -80,11 +80,11 @@ INSTALLED_APPS_WEB = [
 	"djpaypal",
 	"loginas",
 	"webpack_loader",
+	"hearthsim_identity.oauth2",
 	"hsreplaynet.admin",
 	"hsreplaynet.articles",
 	"hsreplaynet.billing",
 	"hsreplaynet.packs",
-	"hsreplaynet.oauth2",
 ]
 
 INSTALLED_APPS = INSTALLED_APPS_CORE
@@ -266,7 +266,7 @@ OAUTH2_PROVIDER = {
 		"webhooks:write": "Create and delete webhooks on your behalf",
 	},
 	"ALLOWED_REDIRECT_URI_SCHEMES": ["https"],
-	"SCOPES_BACKEND_CLASS": "hsreplaynet.oauth2.models.ApplicationScopes",
+	"SCOPES_BACKEND_CLASS": "hearthsim_identity.oauth2.models.ApplicationScopes",
 }
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2.Application"
