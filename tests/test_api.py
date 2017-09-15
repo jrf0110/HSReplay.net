@@ -228,6 +228,29 @@ def test_oauth_api(admin_user, client, settings):
 	response = client.get(webhooks_list_url, HTTP_AUTHORIZATION=bearer_auth)
 	assert response.status_code == 403
 
+	# Check that we can't access the games API
+	response = client.get(
+		"/api/v1/games/?username=admin", HTTP_AUTHORIZATION=bearer_auth,
+		content_type="application/json"
+	)
+	assert response.status_code == 403
+
+	# Add the games:read scope, check that we now can access it
+	token_obj.scope = "games:read"
+	token_obj.save()
+	response = client.get(
+		"/api/v1/games/?username=admin", HTTP_AUTHORIZATION=bearer_auth,
+		content_type="application/json"
+	)
+	assert response.status_code == 200
+
+	# But only for our own user, not a different one (we'll get an empty response)
+	response = client.get(
+		"/api/v1/games/?username=user", HTTP_AUTHORIZATION=bearer_auth,
+		content_type="application/json"
+	)
+	assert response.json()["results"] == []
+
 
 @pytest.mark.django_db
 def test_deck_exchange(client):

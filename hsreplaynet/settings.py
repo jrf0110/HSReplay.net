@@ -260,6 +260,8 @@ REST_FRAMEWORK = {
 
 OAUTH2_PROVIDER = {
 	"SCOPES": {
+		"games:read": "View your replays",
+		"games:write": "Update and delete your replays",
 		"webhooks:read": "View your webhooks",
 		"webhooks:write": "Create and delete webhooks on your behalf",
 	},

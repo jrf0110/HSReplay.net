@@ -1,3 +1,4 @@
+from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
@@ -8,7 +9,7 @@ from hsreplaynet.games.models import GameReplay
 from hsreplaynet.uploads.models import UploadEvent
 from . import serializers
 from .authentication import AuthTokenAuthentication, RequireAuthToken
-from .permissions import APIKeyPermission, IsOwnerOrReadOnly
+from .permissions import APIKeyPermission, IsOwnerOrReadOnly, OAuth2HasScopes
 
 
 class WriteOnlyOnceViewSet(
@@ -44,6 +45,10 @@ class GameReplayDetail(RetrieveUpdateDestroyAPIView):
 
 class GameReplayList(ListAPIView):
 	queryset = GameReplay.objects.live().prefetch_related("user", "global_game__players")
+	authentication_classes = (SessionAuthentication, OAuth2Authentication)
+	permission_classes = (
+		OAuth2HasScopes(read_scopes=["games:read"], write_scopes=["games:write"]),
+	)
 	serializer_class = serializers.GameReplayListSerializer
 
 	def check_permissions(self, request):
