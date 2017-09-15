@@ -159,6 +159,7 @@ def test_oauth_api(admin_user, client, settings):
 	}
 	response = client.post(token_url, post_data)
 	assert response.status_code == 200
+	client.logout()
 
 	data = response.json()
 	token = data["access_token"]
@@ -194,7 +195,7 @@ def test_oauth_api(admin_user, client, settings):
 	)
 	assert response.status_code == 201
 	data = response.json()
-	assert data["user"]["username"] == "admin"
+	assert data["user"]["username"] == admin_user.username
 	assert data["user"]["is_premium"] is False
 	assert data["url"] == webhook_callback_url
 	obj = WebhookEndpoint.objects.get(uuid=data["uuid"])
