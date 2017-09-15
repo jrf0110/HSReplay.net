@@ -7,9 +7,6 @@ from django.shortcuts import get_object_or_404
 from . import checks  # noqa (needed to register the checks)
 
 
-UUID4_RE = r"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}"
-
-
 def get_logger(name="hsreplaynet", level=logging.DEBUG):
 	logger = logging.getLogger(name)
 	logger.setLevel(level)
