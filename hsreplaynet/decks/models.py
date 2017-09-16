@@ -1110,7 +1110,11 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 		predicted_class = result["predicted_class"]
 		id_encoding = self.one_hot_external_ids(inverse=True)
 		predicted_archetype_id = id_encoding[predicted_class]
-		return predicted_archetype_id
+
+		if predicted_archetype_id == -1:
+			return None
+		else:
+			return predicted_archetype_id
 
 	def _to_prediction_event(self, deck):
 		from hsarchetypes.utils import to_prediction_vector_from_dbf_map
