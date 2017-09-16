@@ -166,7 +166,7 @@ def get_opponent_revealed_deck(entity_tree, friendly_player_id, game_type):
 				decklist,
 				hero_id=player._hero.card_id,
 				game_type=game_type,
-				classify_into_archetype=True
+				classify_archetype=True
 			)
 			log.debug("Opponent revealed deck %i (created=%r)", deck.id, created)
 			return deck
@@ -515,7 +515,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 				decklist,
 				hero_id=player_hero_id,
 				game_type=global_game.game_type,
-				classify_into_archetype=True
+				classify_archetype=True
 			)
 			log.debug("Prepared deck %i (created=%r)", deck.id, _)
 		except IntegrityError as e:

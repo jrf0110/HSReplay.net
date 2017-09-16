@@ -27,7 +27,7 @@ from hsreplaynet.utils.aws.clients import FIREHOSE, LAMBDA, S3
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.cards import card_db
 from hsreplaynet.utils.db import dictfetchall
-from hsreplaynet.utils.influx import influx_timer
+from hsreplaynet.utils.influx import influx_metric, influx_timer
 
 
 ALPHABET = string.ascii_letters + string.digits
@@ -39,12 +39,14 @@ class DeckManager(models.Manager):
 		id_list,
 		hero_id=None,
 		game_type=None,
-		classify_into_archetype=False
+		classify_archetype=False
 	):
 		deck, created = self._get_or_create_deck_from_db(id_list)
 
 		archetypes_enabled = settings.ARCHETYPE_CLASSIFICATION_ENABLED
-		if archetypes_enabled and classify_into_archetype and not deck.archetype_id:
+		archetype_missing = deck.archetype_id is None
+		full_deck = deck.size == 30
+		if archetypes_enabled and classify_archetype and archetype_missing and full_deck:
 			player_class = self._convert_hero_id_to_player_class(hero_id)
 			self.classify_deck_with_archetype(deck, player_class, deck.format)
 
@@ -94,6 +96,16 @@ class DeckManager(models.Manager):
 			player_class,
 			game_format,
 			deck,
+		)
+		influx_metric(
+			"archetype_prediction_outcome",
+			{
+				"count": 1,
+				"archetype_id": archetype_id
+			},
+			success=archetype_id is not None,
+			player_class=player_class.name,
+			game_format=game_format.name
 		)
 		if archetype_id:
 			deck.update_archetype(archetype_id)
