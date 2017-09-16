@@ -2,8 +2,10 @@ import json
 import logging
 import time
 from threading import Thread
+
 from django.conf import settings
 from redis_semaphore import NotAvailable
+
 from hsreplaynet.analytics.processing import (
 	_do_execute_query, get_concurrent_redshift_query_queue_semaphore
 )

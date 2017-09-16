@@ -1,7 +1,6 @@
 from djstripe.models import Subscription
-from hsreplaynet.analytics.processing import (
-	PremiumUserCacheWarmingContext
-)
+
+from hsreplaynet.analytics.processing import PremiumUserCacheWarmingContext
 
 
 def get_premium_cache_warming_contexts_from_subscriptions():

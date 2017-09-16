@@ -1,5 +1,6 @@
 from dateutil import parse as parse_timestamp
 from django.core.management.base import BaseCommand
+
 from hsreplaynet.games.processing import do_process_upload_event
 from hsreplaynet.uploads.models import UploadEvent
 

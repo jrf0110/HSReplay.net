@@ -1,4 +1,5 @@
 import json
+
 from allauth.socialaccount.models import SocialAccount
 from django.core.management.base import BaseCommand
 

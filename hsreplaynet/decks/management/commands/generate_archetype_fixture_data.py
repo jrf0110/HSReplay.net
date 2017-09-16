@@ -1,6 +1,8 @@
 import json
+
 from django.core.management.base import BaseCommand
 from hearthstone.enums import CardClass, FormatType
+
 from hsreplaynet.decks.models import Archetype
 
 

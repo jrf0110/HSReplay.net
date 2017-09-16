@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from hearthstone.enums import FormatType
+
 from hsreplaynet.decks.models import ClusterSetSnapshot
 
 

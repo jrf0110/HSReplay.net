@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from enum import IntEnum
 from threading import Lock, Thread
 from uuid import uuid4
+
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
@@ -16,6 +17,7 @@ from django.utils import timezone
 from django_intenum import IntEnumField
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import func, select
+
 from hsredshift.etl.models import create_staging_table, list_staging_eligible_tables
 from hsredshift.etl.views import (
 	get_materialized_view_list, get_materialized_view_update_statement, get_view_dependencies

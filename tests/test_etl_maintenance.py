@@ -1,6 +1,8 @@
 from datetime import timedelta
+
 from django.conf import settings
 from django.utils import timezone
+
 from hsreplaynet.games.processing import _dates_within_etl_threshold
 from hsreplaynet.uploads.models import RedshiftETLTask
 

@@ -1,4 +1,5 @@
 import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -6,12 +7,12 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
 from django_hearthstone.cards.models import Card
 from hearthstone.enums import CardClass, CardSet, CardType, FormatType, Rarity
+
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.features.models import Feature
 from hsreplaynet.utils.html import RequestMetaMixin
-from .models import (
-	Archetype, ClusterSnapshot, Deck
-)
+
+from .models import Archetype, ClusterSnapshot, Deck
 
 
 ##

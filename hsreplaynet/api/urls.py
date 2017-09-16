@@ -1,17 +1,17 @@
 from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
+
 from hearthsim_identity.accounts.api import AuthTokenViewSet
 from hsreplaynet.accounts.urls import api_urlpatterns as accounts_urlpatterns
 from hsreplaynet.analytics.urls import api_urlpatterns as analytics_urlpatterns
 from hsreplaynet.comments.urls import api_urlpatterns as comments_urlpatterns
-from hsreplaynet.decks.api import (
-	ArchetypeTrainingDeckViewSet, ArchetypeViewSet
-)
+from hsreplaynet.decks.api import ArchetypeTrainingDeckViewSet, ArchetypeViewSet
 from hsreplaynet.decks.urls import api_urlpatterns as decks_urlpatterns
 from hsreplaynet.features.api import FeatureViewSet
 from hsreplaynet.features.urls import api_urlpatterns as features_urlpatterns
 from hsreplaynet.packs.api import PackViewSet
 from hsreplaynet.webhooks.api import WebhookViewSet
+
 from . import views
 
 

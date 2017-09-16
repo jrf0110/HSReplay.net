@@ -1,6 +1,9 @@
 import csv
+
 from django.core.management.base import BaseCommand
+
 from hsreplaynet.utils.influx import influx
+
 
 INFLUX_QUERY = """
 SELECT

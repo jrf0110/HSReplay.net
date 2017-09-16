@@ -1,6 +1,7 @@
 import json
 from hashlib import sha1
 from io import StringIO
+
 from dateutil.parser import parse as dateutil_parse
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -12,11 +13,12 @@ from django_hearthstone.cards.models import Card
 from hearthstone.enums import (
 	BnetGameType, BnetRegion, CardClass, CardType, FormatType, GameTag
 )
-from hslog import __version__ as hslog_version, LogParser
+from hslog import LogParser, __version__ as hslog_version
 from hslog.exceptions import MissingPlayerData, ParsingError
 from hslog.export import EntityTreeExporter, FriendlyPlayerExporter
 from hsreplay import __version__ as hsreplay_version
 from hsreplay.document import HSReplayDocument
+
 from hearthsim_identity.accounts.models import BlizzardAccount
 from hsredshift.etl.exceptions import CorruptReplayDataError, CorruptReplayPacketError
 from hsredshift.etl.exporters import RedshiftPublishingExporter
@@ -30,8 +32,9 @@ from hsreplaynet.utils import guess_ladder_season, log
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 from hsreplaynet.utils.instrumentation import error_handler
 from hsreplaynet.utils.prediction import deck_prediction_tree
+
 from .models import (
-	_generate_upload_path, GameReplay, GlobalGame, GlobalGamePlayer, ReplayAlias
+	GameReplay, GlobalGame, GlobalGamePlayer, ReplayAlias, _generate_upload_path
 )
 
 

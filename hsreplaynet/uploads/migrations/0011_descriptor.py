@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
+
 import hsreplaynet.utils.fields
 
 

@@ -1,10 +1,13 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
+
 from django.http import Http404, JsonResponse
 from hearthstone.enums import BnetGameType
+
 from hsreplaynet.live.distributions import (
 	get_played_cards_distribution, get_player_class_distribution
 )
+
 
 _PLAYER_CLASS_CACHE = defaultdict(dict)
 

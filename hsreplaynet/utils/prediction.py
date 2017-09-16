@@ -2,13 +2,12 @@ import random
 from copy import copy
 from datetime import datetime, timedelta
 from random import randrange
+
 from django.conf import settings
 from hearthstone.enums import CardClass, FormatType
+
 from hsreplaynet.utils.redis import (
-	RedisIntegerMapStorage,
-	RedisPopularityDistribution,
-	RedisTree,
-	SECONDS_PER_DAY
+	SECONDS_PER_DAY, RedisIntegerMapStorage, RedisPopularityDistribution, RedisTree
 )
 
 

@@ -9,10 +9,11 @@ from django.views.generic import (
 )
 from oauth2_provider.generators import generate_client_secret
 from oauth2_provider.models import AccessToken, get_application_model
+
 from hearthsim_identity.accounts.models import AccountDeleteRequest, User
 from hsreplaynet.utils import log
-from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.html import RequestMetaMixin
+from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.webhooks.models import WebhookDelivery, WebhookEndpoint
 
 

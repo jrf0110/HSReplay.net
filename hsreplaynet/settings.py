@@ -1,9 +1,12 @@
+# flake8: noqa
 """
 Django settings for hsreplay.net project.
 """
 
 import os
 import platform
+
+from django.contrib.staticfiles.apps import StaticFilesConfig
 from django.urls import reverse_lazy
 
 
@@ -178,7 +181,7 @@ else:
 
 # S3
 AWS_S3_USE_SSL = True
-AWS_DEFAULT_REGION="us-east-1"
+AWS_DEFAULT_REGION = "us-east-1"
 AWS_DEFAULT_ACL = "private"
 
 
@@ -220,7 +223,7 @@ ADVISORY_LOCK_NAMESPACES = {
 }
 
 # If False, then we will use RQ for async processing
-PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA=True
+PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA = True
 
 ##
 # RQ
@@ -356,10 +359,10 @@ CONNECT_TO_AWS = ENV_AWS
 
 ARCHETYPE_CLASSIFICATION_ENABLED = True
 ARCHETYPE_MINIMUM_SIGNATURE_MATCH_CUTOFF_DISTANCE = 5
-ARCHETYPE_CORE_CARD_THRESHOLD=.8
-ARCHETYPE_CORE_CARD_WEIGHT=1
-ARCHETYPE_TECH_CARD_THRESHOLD=.3
-ARCHETYPE_TECH_CARD_WEIGHT=.5
+ARCHETYPE_CORE_CARD_THRESHOLD = .8
+ARCHETYPE_CORE_CARD_WEIGHT = 1
+ARCHETYPE_TECH_CARD_THRESHOLD = .3
+ARCHETYPE_TECH_CARD_WEIGHT = .5
 
 ARCHETYPE_FIREHOSE_STREAM_NAME = "deck-archetype-log-stream"
 
@@ -430,9 +433,9 @@ USE_ARCHETYPE_PREDICTION_LAMBDA = False
 
 
 # When False the cached data will only get refreshed:
-#	1) At the end of each ETL Track Load
-#	2) Immediately when a new premium user subscribes
-#	3) When the daily cache warming Jenkins job runs
+# 1) At the end of each ETL Track Load
+# 2) Immediately when a new premium user subscribes
+# 3) When the daily cache warming Jenkins job runs
 REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS = True
 REDSHIFT_TRIGGER_PERSONALIZED_DATA_REFRESHES_FROM_QUERY_REQUESTS = True
 
@@ -458,7 +461,6 @@ FONTAWESOME_CSS_INTEGRITY = "sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=
 
 
 # Monkeypatch default collectstatic ignore patterns
-from django.contrib.staticfiles.apps import StaticFilesConfig
 StaticFilesConfig.ignore_patterns += ["*.scss", "*.ts", "*.tsx"]
 
 

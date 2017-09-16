@@ -3,11 +3,11 @@
 from __future__ import unicode_literals
 
 import django.contrib.postgres.fields.jsonb
-from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
 import django_intenum
 import hearthstone.enums
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

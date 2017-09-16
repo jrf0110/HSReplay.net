@@ -1,6 +1,7 @@
 import hashlib
 import string
 
+
 ALPHABET = string.ascii_letters + string.digits
 
 

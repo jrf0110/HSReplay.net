@@ -2,7 +2,9 @@
 A module for scheduling UploadEvents to be processed or reprocessed.
 """
 import logging
+
 from django.conf import settings
+
 from hsreplaynet.uploads.models import RawUpload
 from hsreplaynet.utils import aws
 

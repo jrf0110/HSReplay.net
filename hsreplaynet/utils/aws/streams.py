@@ -1,8 +1,11 @@
 import logging
 import time
 from math import ceil, log
+
 from django.conf import settings
+
 from hsreplaynet.utils.influx import get_avg_upload_processing_seconds
+
 from .clients import FIREHOSE, IAM, KINESIS
 
 

@@ -1,5 +1,6 @@
 import fakeredis
 from hearthstone.enums import CardClass, FormatType
+
 from hsreplaynet.utils.prediction import DeckPredictionTree
 
 

@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.views.generic import FormView
+
 from .models import FeatureError, FeatureInvite
 
 

@@ -1,7 +1,10 @@
 from functools import wraps
+
 from django.core.exceptions import PermissionDenied
 from django.views.generic import View
+
 from hsreplaynet.utils.instrumentation import error_handler
+
 from .models import Feature
 
 

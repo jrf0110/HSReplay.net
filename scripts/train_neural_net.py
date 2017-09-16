@@ -1,7 +1,9 @@
-# flake8: noqa
+# isort:skip_file
 import os
 import time
+
 import django
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hsreplaynet.settings")
 os.environ.setdefault("PROD", "1")
@@ -9,7 +11,7 @@ os.environ.setdefault("HSREPLAYNET_DEBUG", "1")
 
 django.setup()
 
-from hsreplaynet.decks.models import ClusterSetSnapshot
+from hsreplaynet.decks.models import ClusterSetSnapshot  # noqa
 cs = ClusterSetSnapshot.objects.filter(latest=True).first()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,10 +26,12 @@ if not os.path.exists(MODELS_DIR):
 for num_hidden_layers in (1, 2, 3):
 	for hidden_layer_size in (8, 16, 32, 64, 128):
 		for base_layer_size in (8, 16, 32, 64, 128):
-			for num_examples in (100000, 200000,): #400000, 800000, 1600000, 3200000):
+			for num_examples in (100000, 200000):  # 400000, 800000, 1600000, 3200000):
 				start_ts = time.time()
 
-				dir_name = "examples_%i_base_%i_layers_%i_hidden_%i" % (num_examples, base_layer_size, num_hidden_layers, hidden_layer_size)
+				dir_name = "examples_%i_base_%i_layers_%i_hidden_%i" % (
+					num_examples, base_layer_size, num_hidden_layers, hidden_layer_size
+				)
 				print("\n\n******** PARAMETERS: %s" % dir_name)
 				WORKING_DIR = os.path.join(MODELS_DIR, dir_name)
 				if not os.path.exists(WORKING_DIR):

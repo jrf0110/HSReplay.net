@@ -1,7 +1,9 @@
 import json
+
 from django.conf import settings
 from django.views.generic import TemplateView
 from hearthstone.enums import BnetGameType, CardClass
+
 from .analytics.views import fetch_query_results
 from .games.models import GameReplay
 from .utils.html import RequestMetaMixin

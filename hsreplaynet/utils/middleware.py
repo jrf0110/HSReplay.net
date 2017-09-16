@@ -5,6 +5,7 @@ https://docs.djangoproject.com/en/1.10/topics/http/middleware/
 
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
+
 from .html import HTMLHead
 
 

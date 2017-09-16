@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from hsreplaynet.analytics.processing import fill_redshift_cache_warming_queue
 from hsreplaynet.utils.aws.sqs import block_until_empty
 from hsreplaynet.utils.synchronization import advisory_lock

@@ -1,7 +1,9 @@
 import hashlib
 from collections import defaultdict
+
 from django.core.cache import cache
 from django.db import connection
+
 from hsreplaynet.utils.collections import defaultdict_to_vanilla_dict
 from hsreplaynet.utils.db import dictfetchall
 

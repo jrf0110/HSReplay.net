@@ -3,6 +3,7 @@ import json
 import time
 from collections import defaultdict
 from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
 from django.dispatch.dispatcher import receiver
@@ -11,6 +12,7 @@ from hearthstone.enums import BnetGameType, FormatType
 from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
 from sqlalchemy.sql import and_
+
 from hearthsim_identity.accounts.models import BlizzardAccount
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws import redshift

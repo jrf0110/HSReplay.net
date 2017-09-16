@@ -2,7 +2,9 @@ import time
 from collections import defaultdict
 from datetime import datetime, timedelta
 from math import ceil
+
 import fakeredis
+
 from hsreplaynet.utils.redis import RedisPopularityDistribution
 
 

@@ -1,8 +1,10 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 from random import randrange
+
 import fakeredis
 from hearthstone.enums import CardClass
+
 from hsreplaynet.live.distributions import get_player_class_distribution
 
 

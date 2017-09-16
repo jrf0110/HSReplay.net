@@ -1,4 +1,5 @@
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+
 from hsreplaynet.utils import log
 from hsreplaynet.utils.influx import influx_metric
 

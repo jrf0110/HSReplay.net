@@ -1,8 +1,10 @@
 import os
 from argparse import ArgumentTypeError
 from collections import OrderedDict
+
 from django.core.management.base import BaseCommand
 from hearthstone.dbf import Dbf
+
 from ...models import Adventure, Scenario, Wing
 
 

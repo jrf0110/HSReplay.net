@@ -4,16 +4,18 @@ from datetime import datetime
 from io import BytesIO
 from threading import Thread
 from zlib import decompress
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from hsreplay.document import HSReplayDocument
+
 from hearthsim_identity.accounts.models import AuthToken
 from hearthsim_identity.api.models import APIKey as LegacyAPIKey
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
 from hsreplaynet.api.serializers import UploadEventSerializer
 from hsreplaynet.uploads.models import (
-	_generate_upload_key, RawUpload, UploadEvent, UploadEventStatus
+	RawUpload, UploadEvent, UploadEventStatus, _generate_upload_key
 )
 from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import LAMBDA, S3

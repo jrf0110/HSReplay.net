@@ -1,5 +1,6 @@
 from enum import IntEnum
 from uuid import uuid4
+
 from django.contrib.auth.models import Group
 from django.db import models
 from django.dispatch.dispatcher import receiver

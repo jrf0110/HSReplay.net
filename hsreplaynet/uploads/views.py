@@ -2,7 +2,9 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import View
+
 from hsreplaynet.games.models import GameReplay
+
 from .models import UploadEvent
 
 

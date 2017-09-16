@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from hsreplaynet.uploads.processing import queue_raw_uploads_for_processing
 
 

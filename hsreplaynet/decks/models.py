@@ -3,6 +3,7 @@ import json
 import os
 import string
 import time
+
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import connection, models, transaction
@@ -17,10 +18,9 @@ from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
 from hsarchetypes import calculate_signature_weights, classify_deck
-from hsarchetypes.clustering import (
-	ClassClusters, Cluster, ClusterSet, create_cluster_set
-)
+from hsarchetypes.clustering import ClassClusters, Cluster, ClusterSet, create_cluster_set
 from shortuuid.main import int_to_string, string_to_int
+
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws import s3_object_exists
 from hsreplaynet.utils.aws.clients import FIREHOSE, LAMBDA, S3

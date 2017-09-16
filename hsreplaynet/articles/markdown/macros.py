@@ -6,6 +6,7 @@ Syntax example: `{% sum(1, 2, 3) %}` -> `6`
 import ast
 import logging
 import re
+
 import markdown
 from django.utils.html import escape
 

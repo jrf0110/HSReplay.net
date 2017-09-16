@@ -1,9 +1,11 @@
 import json
+
 import pytest
 from oauth2_provider.models import AccessToken, Grant
+
 from hearthsim_identity.accounts.models import AccountClaim, AuthToken, User
 from hearthsim_identity.api.models import APIKey
-from hsreplaynet.oauth2.models import Application
+from hearthsim_identity.oauth2.models import Application
 from hsreplaynet.webhooks.models import WebhookEndpoint
 
 

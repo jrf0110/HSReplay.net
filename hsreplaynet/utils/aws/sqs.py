@@ -1,6 +1,8 @@
 import json
 import time
+
 from hsreplaynet.utils import log
+
 from .clients import SQS
 
 

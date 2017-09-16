@@ -1,4 +1,5 @@
 import random
+
 from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib import messages
@@ -10,6 +11,7 @@ from django.utils.http import is_safe_url
 from django.views.generic import TemplateView, View
 from djstripe.settings import STRIPE_LIVE_MODE
 from stripe.error import CardError, InvalidRequestError
+
 from hsreplaynet.utils.html import RequestMetaMixin
 
 

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from hsreplaynet.analytics.processing import write_messages_to_queue
 from hsreplaynet.utils.aws.redshift import get_redshift_catalogue
 

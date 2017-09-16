@@ -1,6 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from django_hearthstone.cards.models import Card
+
 from .articles.models import Article
 
 

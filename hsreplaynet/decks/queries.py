@@ -1,5 +1,7 @@
 from itertools import groupby
+
 from django.db import connection
+
 from .models import Deck
 
 

@@ -1,8 +1,10 @@
 import importlib
 import time
 from datetime import datetime, timedelta
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from hsreplaynet.uploads.models import UploadEvent, UploadEventStatus
 from hsreplaynet.utils.aws import get_kinesis_stream_arn_from_name
 from hsreplaynet.utils.aws.clients import IAM, LAMBDA

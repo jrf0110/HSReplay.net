@@ -1,9 +1,10 @@
 from django.contrib import admin
+
 from hearthsim_identity.utils import admin_urlify
+
 from .models import (
 	Archetype, ArchetypeTrainingDeck, ClassClusterSnapshot, ClusterSetSnapshot,
-	ClusterSnapshot, Deck, Include, Signature,
-	SignatureComponent
+	ClusterSnapshot, Deck, Include, Signature, SignatureComponent
 )
 
 

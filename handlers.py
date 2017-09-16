@@ -1,3 +1,4 @@
+# flake8: noqa, isort:skip_file
 """
 A module providing entry points for AWS Lambda.
 
@@ -6,7 +7,6 @@ and must be compatible.
 They should provide mediation between the AWS Lambda interface and
 standard Django requests.
 """
-# flake8: noqa
 
 import logging
 import os; os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hsreplaynet.settings")

@@ -3,11 +3,13 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
+
 from hearthsim_identity.accounts.api import (
 	AuthTokenAuthentication, LegacyAPIKeyPermission, RequireAuthToken
 )
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.uploads.models import UploadEvent
+
 from . import serializers
 from .permissions import IsOwnerOrReadOnly, OAuth2HasScopes
 

@@ -1,11 +1,13 @@
 import json
 import time
 from datetime import date, timedelta
+
 import redis
 from django.core.management.base import BaseCommand
 from hearthstone.enums import CardClass, FormatType
-from sqlalchemy import Date, Integer, String, TIMESTAMP
+from sqlalchemy import TIMESTAMP, Date, Integer, String
 from sqlalchemy.sql import bindparam, text
+
 from hsreplaynet.utils.aws import redshift
 from hsreplaynet.utils.prediction import deck_prediction_tree
 

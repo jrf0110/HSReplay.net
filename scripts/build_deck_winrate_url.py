@@ -1,7 +1,11 @@
+# isort:skip_file
 import django
+
+
 django.setup()
 
-from hsreplaynet.cards.models import Card # noqa
+from hsreplaynet.cards.models import Card  # noqa
+
 
 card_names = ["Gang Up", "Vanish", "Coldlight Oracle"]
 game_type = "bgt_ranked_standard"

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls import include, url
 from django.views.generic import RedirectView
+
 from .games.views import ReplayDetailView, ReplayEmbedView
 from .views import DownloadsView, HomeView
 

@@ -1,6 +1,9 @@
 import json
+
 import fakeredis
+
 from hsreplaynet.utils.redis import RedisIntegerMapStorage
+
 
 DECKS = [
 	json.loads("[[308,2],[1182,2],[38725,1],[90,2],[1686,1],[395,2],[564,2],[315,2],[662,2],[906,2],[1004,2],[635,2],[216,2],[555,2],[608,2],[77,2]]"),  # NOQA

@@ -1,6 +1,8 @@
 import os
 from uuid import uuid4
+
 from django.core.management.base import BaseCommand
+
 from hsreplaynet.decks.models import ClusterSetSnapshot
 
 

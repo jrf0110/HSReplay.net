@@ -1,7 +1,9 @@
 """A module for generating Replay recommendations."""
 from enum import IntEnum
 from itertools import chain, islice
+
 from hearthstone.enums import BnetGameType
+
 from hsreplaynet.games.models import GameReplay, Visibility
 
 

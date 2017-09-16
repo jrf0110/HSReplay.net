@@ -1,6 +1,7 @@
 import json
 from calendar import timegm
 from datetime import datetime
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import (
@@ -12,6 +13,7 @@ from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
 from django.views.generic import TemplateView
 from hearthstone.enums import FormatType
+
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet import settings
@@ -20,9 +22,10 @@ from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.html import RequestMetaMixin
+
 from .processing import (
 	attempt_request_triggered_query_execution, deck_is_eligible_for_global_stats,
-	evict_locks_cache, get_concurrent_redshift_query_queue_semaphore,
+	evict_locks_cache, get_concurrent_redshift_query_queue_semaphore
 )
 
 

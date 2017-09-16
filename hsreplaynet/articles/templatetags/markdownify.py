@@ -1,6 +1,8 @@
 from django import template
 from django.utils.safestring import mark_safe
+
 from ..markdown.utils import markdownify as _markdownify
+
 
 register = template.Library()
 
