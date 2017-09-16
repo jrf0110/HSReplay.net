@@ -1103,7 +1103,7 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 				if response["StatusCode"] == 200 and "FunctionError" not in response:
 					result = json.loads(response["Payload"].read().decode("utf8"))
 				else:
-					raise RuntimeError(response["LogResult"])
+					raise RuntimeError(response["Payload"].read().decode("utf8"))
 		else:
 			from keras_handler import handler
 			result = handler(event, None)
