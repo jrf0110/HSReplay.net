@@ -141,7 +141,7 @@ def s3_object_exists(bucket, key):
 		# load() does a HEAD request which is quick
 		S3.Object(bucket, key).load()
 	except botocore.exceptions.ClientError as e:
-		if e.response['Error']['Code'] == "404":
+		if e.response["Error"]["Code"] == "404":
 			exists = False
 		else:
 			raise
