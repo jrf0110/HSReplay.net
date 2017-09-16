@@ -92,10 +92,10 @@ class DeckManager(models.Manager):
 		# 	return
 
 		# New Style Deck Prediction
-		archetype_id = ClusterSetSnapshot.objects.predict_archetype_id(
+		archetype_id = ClusterSetSnapshot.objects.predict_archetype_ids(
 			player_class,
 			game_format,
-			deck,
+			[deck.dbf_map()],
 		)
 		influx_metric(
 			"archetype_prediction_outcome",
@@ -952,14 +952,14 @@ class ClusterSetManager(models.Manager):
 
 		return cs_snapshot
 
-	def predict_archetype_id(self, player_class, game_format, deck):
+	def predict_archetype_ids(self, player_class, game_format, decks):
 		class_cluster = ClassClusterSnapshot.objects.filter(
 			player_class=player_class,
 			cluster_set__live_in_production=True,
 			cluster_set__game_format=game_format
 		).first()
 		if class_cluster:
-			return class_cluster.predict_archetype_id(deck)
+			return class_cluster.predict_archetype_ids(decks)
 		else:
 			return None
 
@@ -1102,8 +1102,8 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 
 		return accuracy
 
-	def predict_archetype_id(self, deck):
-		event = self._to_prediction_event(deck)
+	def predict_archetype_ids(self, decks):
+		event = self._to_prediction_event(decks)
 
 		if settings.USE_ARCHETYPE_PREDICTION_LAMBDA or settings.ENV_AWS:
 			with influx_timer("callout_to_predict_deck_archetype"):
@@ -1129,13 +1129,13 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 		else:
 			return predicted_archetype_id
 
-	def _to_prediction_event(self, deck):
-		from hsarchetypes.utils import to_prediction_vector_from_dbf_map
-		prediction_vector = to_prediction_vector_from_dbf_map(deck.dbf_map())
+	def _to_prediction_event(self, decks):
+		from hsarchetypes.utils import to_prediction_vector_from_dbf_map as to_vector
+		deck_vectors = [to_vector(d) for d in decks]
 		return {
 			"model_bucket": settings.KERAS_MODELS_BUCKET,
 			"model_key": self.model_key,
-			"deck_vector": json.dumps(prediction_vector)
+			"deck_vectors": json.dumps(deck_vectors)
 		}
 
 	def neural_network_ready(self):

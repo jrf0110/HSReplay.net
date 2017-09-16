@@ -45,11 +45,23 @@ def load_keras_model(bucket, key):
 def handler(event, context):
 	model_bucket = event["model_bucket"]
 	model_key = event["model_key"]
-	deck_vector = json.loads(event['deck_vector'])[0]
 	model = load_keras_model(model_bucket, model_key)
-	data = numpy.zeros((1, len(deck_vector)))
-	for i, c in enumerate(deck_vector):
-		data[0][i] = c
 
-	prediction = model.predict_classes(data)[0]
-	return {'predicted_class': int(prediction)}
+	if "deck_vector" in event:
+		deck_vector = json.loads(event["deck_vector"])[0]
+		data = numpy.zeros((1, len(deck_vector)))
+		for i, c in enumerate(deck_vector):
+			data[0][i] = c
+	else:
+		deck_vectors = json.loads(event["deck_vectors"])
+		data = numpy.zeros((len(deck_vectors), len(deck_vectors[0])))
+		for row_id, deck_vector in enumerate(deck_vectors):
+			for i, c in enumerate(deck_vector):
+				data[row_id][i] = c
+
+	predictions = model.predict_classes(data)
+	result = {
+		"predicted_class": int(predictions[0]),
+		"predicted_classes": [int(p) for p in predictions]
+	}
+	return result

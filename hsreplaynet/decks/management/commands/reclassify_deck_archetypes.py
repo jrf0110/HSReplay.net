@@ -11,6 +11,7 @@ from sqlalchemy.sql import bindparam, text
 from hsreplaynet.decks.models import (
 	Archetype, ClusterSnapshot, Deck
 )
+from hsreplaynet.utils import batches
 from hsreplaynet.utils.aws import redshift
 from hsreplaynet.utils.aws.clients import FIREHOSE
 
@@ -135,43 +136,55 @@ class Command(BaseCommand):
 		total_rows = len(result_set)
 		self.stdout.write("%i decks to update" % (total_rows))
 
-		for counter, row in enumerate(result_set):
-			deck_id = row["deck_id"]
-			if counter % 100000 == 0:
-				self.flush_db_buffer()
-				self.flush_firehose_buffer()
+		for batch in batches(result_set, 10000):
+			self.assign_new_archetype_ids(batch)
+			for counter, row in enumerate(batch):
+				deck_id = row["deck_id"]
+				if counter % 100000 == 0:
+					self.flush_db_buffer()
+					self.flush_firehose_buffer()
 
-			if deck_id is None:
-				self.stderr.write("Got deck_id %r ... skipping" % (deck_id))
-				continue
-
-			current_archetype_id = row["archetype_id"]
-			player_class = CardClass(row["player_class"])
-			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
-
-			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
-			if len(archetype_ids_for_player_class[format][player_class]):
-				new_archetype_id = classify_deck(
-					dbf_map, self.signature_weights[format][player_class]
-				)
-
-				if new_archetype_id == current_archetype_id:
-					# self.stdout.write("Deck %r - Nothing to do." % (deck_id))
+				if deck_id is None:
+					self.stderr.write("Got deck_id %r ... skipping" % (deck_id))
 					continue
 
-				current_name = self.get_archetype_name(current_archetype_id)
-				new_name = self.get_archetype_name(new_archetype_id)
+				current_archetype_id = row["archetype_id"]
+				player_class = CardClass(row["player_class"])
+				format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
 
-				pct_complete = str(round((100.0 * counter / total_rows), 4))
+				dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
+				if len(archetype_ids_for_player_class[format][player_class]):
+					new_archetype_id = classify_deck(
+						dbf_map, self.signature_weights[format][player_class]
+					)
 
-				self.stdout.write("\t(%r, %s) Updating Deck ID: %r - %s => %s\n" % (
-					counter, pct_complete, deck_id, current_name, new_name
-				))
+					if new_archetype_id == current_archetype_id:
+						# self.stdout.write("Deck %r - Nothing to do." % (deck_id))
+						continue
 
-				self.buffer_archetype_update(deck_id, new_archetype_id)
+					current_name = self.get_archetype_name(current_archetype_id)
+					new_name = self.get_archetype_name(new_archetype_id)
 
-		self.flush_db_buffer()
-		self.flush_firehose_buffer()
+					pct_complete = str(round((100.0 * counter / total_rows), 4))
+
+					self.stdout.write("\t(%r, %s) Updating Deck ID: %r - %s => %s\n" % (
+						counter, pct_complete, deck_id, current_name, new_name
+					))
+
+					self.buffer_archetype_update(deck_id, new_archetype_id)
+
+			self.flush_db_buffer()
+			self.flush_firehose_buffer()
+
+
+	def assign_new_archetype_ids(self, batch):
+		grouped_by_class = defaultdict(list)
+		for row in batch:
+			grouped_by_class[row["player_class"]].append(row)
+
+		for player_class, rows in grouped_by_class.items():
+			pass
+
 
 	def buffer_archetype_update(self, deck_id, new_archetype_id):
 		if new_archetype_id not in self.db_archetypes_to_update:

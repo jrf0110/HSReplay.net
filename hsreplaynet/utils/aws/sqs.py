@@ -1,6 +1,6 @@
 import json
 import time
-from hsreplaynet.utils import log
+from hsreplaynet.utils import batches, log
 from .clients import SQS
 
 
@@ -26,12 +26,6 @@ def write_messages_to_queue(queue_name, messages):
 		if "Failed" in response and len(response["Failed"]):
 			log.error(json.dumps(response["Failed"]))
 			raise RuntimeError(json.dumps(response["Failed"]))
-
-
-def batches(l, n):
-	"""Yield successive n-sized chunks from l."""
-	for i in range(0, len(l), n):
-		yield l[i:i + n]
 
 
 def get_messages(queue_name, max_num=10):

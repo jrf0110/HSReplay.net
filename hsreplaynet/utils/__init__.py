@@ -81,3 +81,9 @@ def card_db():
 		db, _ = load_dbf()
 		_CARD_DATA_CACHE["db"] = db
 	return _CARD_DATA_CACHE["db"]
+
+
+def batches(l, n):
+	"""Yield successive n-sized chunks from l."""
+	for i in range(0, len(l), n):
+		yield l[i:i + n]
