@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
+from hearthsim_identity.accounts.api import CreateAccountClaimView
 from . import views
-from .api import CreateAccountClaimView
 
 
 urlpatterns = [
