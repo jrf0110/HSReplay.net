@@ -77,38 +77,38 @@ class DeckManager(models.Manager):
 		if game_format not in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
 			return
 
-		qs = Archetype.objects.live().filter(player_class=player_class)
-		if game_format == enums.FormatType.FT_STANDARD:
-			qs.filter(active_in_standard=True)
-		else:
-			qs.filter(active_in_wild=True)
-
-		archetype_ids = list(qs.values_list("id", flat=True))
-
-		if not archetype_ids:
-			return
+		# qs = Archetype.objects.live().filter(player_class=player_class)
+		# if game_format == enums.FormatType.FT_STANDARD:
+		# 	qs.filter(active_in_standard=True)
+		# else:
+		# 	qs.filter(active_in_wild=True)
+		#
+		# archetype_ids = list(qs.values_list("id", flat=True))
+		#
+		# if not archetype_ids:
+		# 	return
 
 		# New Style Deck Prediction
-		# archetype_id = ClusterSetSnapshot.objects.predict_archetype_id(
-		# 	self,
-		# 	player_class,
-		# 	game_format,
-		# 	deck,
-		# )
-		# if archetype_id:
-		# 	deck.update_archetype(archetype_id)
-
-		signature_weights = ClusterSnapshot.objects.get_signature_weights(
-			game_format,
+		archetype_id = ClusterSetSnapshot.objects.predict_archetype_id(
 			player_class,
-			archetype_ids
-		)
-
-		archetype_id = classify_deck(
-			deck.dbf_map(), signature_weights
+			game_format,
+			deck,
 		)
 		if archetype_id:
 			deck.update_archetype(archetype_id)
+
+		#
+		# signature_weights = ClusterSnapshot.objects.get_signature_weights(
+		# 	game_format,
+		# 	player_class,
+		# 	archetype_ids
+		# )
+		#
+		# archetype_id = classify_deck(
+		# 	deck.dbf_map(), signature_weights
+		# )
+		# if archetype_id:
+		# 	deck.update_archetype(archetype_id)
 
 	def get_by_shortid(self, shortid):
 		try:
@@ -945,7 +945,10 @@ class ClusterSetManager(models.Manager):
 			cluster_set__live_in_production=True,
 			cluster_set__game_format=game_format
 		).first()
-		return class_cluster.predict_archetype_id(deck)
+		if class_cluster:
+			return class_cluster.predict_archetype_id(deck)
+		else:
+			return None
 
 
 _TRAINING_DATA_CACHE = {}
@@ -1115,7 +1118,7 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 		return {
 			"model_bucket": settings.KERAS_MODELS_BUCKET,
 			"model_key": self.model_key,
-			"deck_vector": json.dumps(prediction_vector.tolist())
+			"deck_vector": json.dumps(prediction_vector)
 		}
 
 	@property
