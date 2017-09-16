@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from hsreplay.document import HSReplayDocument
 from hearthsim_identity.accounts.models import AuthToken
-from hearthsim_identity.api.models import APIKey
+from hearthsim_identity.api.models import APIKey as LegacyAPIKey
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
 from hsreplaynet.api.serializers import UploadEventSerializer
@@ -199,8 +199,8 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 		api_key = headers.get("x-api-key", "")
 		if not api_key:
 			raise ValidationError("Missing X-Api-Key header. Please contact us for an API key.")
-		obj.api_key = APIKey.objects.get(api_key=api_key)
-	except (ValidationError, APIKey.DoesNotExist) as e:
+		obj.api_key = LegacyAPIKey.objects.get(api_key=api_key)
+	except (ValidationError, LegacyAPIKey.DoesNotExist) as e:
 		logger.error("Exception: %r", e)
 		obj.status = UploadEventStatus.VALIDATION_ERROR
 		obj.error = e

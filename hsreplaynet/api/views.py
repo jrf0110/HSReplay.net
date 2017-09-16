@@ -8,7 +8,7 @@ from hsreplaynet.games.models import GameReplay
 from hsreplaynet.uploads.models import UploadEvent
 from . import serializers
 from .authentication import AuthTokenAuthentication, RequireAuthToken
-from .permissions import APIKeyPermission, IsOwnerOrReadOnly, OAuth2HasScopes
+from .permissions import LegacyAPIKeyPermission, IsOwnerOrReadOnly, OAuth2HasScopes
 
 
 class WriteOnlyOnceViewSet(
@@ -19,7 +19,7 @@ class WriteOnlyOnceViewSet(
 
 class UploadEventViewSet(WriteOnlyOnceViewSet):
 	authentication_classes = (AuthTokenAuthentication, SessionAuthentication)
-	permission_classes = (RequireAuthToken, APIKeyPermission)
+	permission_classes = (RequireAuthToken, LegacyAPIKeyPermission)
 	queryset = UploadEvent.objects.all()
 	serializer_class = serializers.UploadEventSerializer
 	lookup_field = "shortid"

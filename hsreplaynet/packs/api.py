@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 from hsreplaynet.api.authentication import AuthTokenAuthentication, RequireAuthToken
-from hsreplaynet.api.permissions import APIKeyPermission, IsOwnerOrStaff
+from hsreplaynet.api.permissions import LegacyAPIKeyPermission, IsOwnerOrStaff
 from .models import Pack, PackCard
 
 
@@ -46,6 +46,6 @@ class PackSerializer(serializers.HyperlinkedModelSerializer):
 
 class PackViewSet(CreateModelMixin, RetrieveModelMixin, GenericViewSet):
 	authentication_classes = (SessionAuthentication, AuthTokenAuthentication)
-	permission_classes = (IsOwnerOrStaff, RequireAuthToken, APIKeyPermission)
+	permission_classes = (IsOwnerOrStaff, RequireAuthToken, LegacyAPIKeyPermission)
 	queryset = Pack.objects.all()
 	serializer_class = PackSerializer

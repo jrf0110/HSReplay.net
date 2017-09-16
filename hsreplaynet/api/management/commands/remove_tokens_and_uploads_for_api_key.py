@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from hearthsim_identity.api.models import APIKey
+from hearthsim_identity.api.models import APIKey as LegacyAPIKey
 from hsreplaynet.uploads.models import UploadEventStatus
 
 
@@ -12,8 +12,8 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		api_key_id = options["api_key"]
 		try:
-			api_key = APIKey.objects.get(api_key=api_key_id)
-		except (APIKey.DoesNotExist, ValueError):
+			api_key = LegacyAPIKey.objects.get(api_key=api_key_id)
+		except (LegacyAPIKey.DoesNotExist, ValueError):
 			raise CommandError("No such API Key: %r" % (api_key_id))
 		self.stdout.write("Cleaning up %r" % (api_key))
 		tokens = api_key.tokens.all()

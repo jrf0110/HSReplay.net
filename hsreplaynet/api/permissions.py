@@ -1,10 +1,10 @@
 from django.core.exceptions import ValidationError
 from rest_framework import permissions
-from hearthsim_identity.api.models import APIKey
+from hearthsim_identity.api.models import APIKey as LegacyAPIKey
 from hsreplaynet.features.models import Feature
 
 
-class APIKeyPermission(permissions.BasePermission):
+class LegacyAPIKeyPermission(permissions.BasePermission):
 	"""
 	Permission check for presence of an API Key header
 	http://www.django-rest-framework.org/api-guide/permissions/
@@ -19,8 +19,8 @@ class APIKeyPermission(permissions.BasePermission):
 			return False
 
 		try:
-			api_key = APIKey.objects.get(api_key=key)
-		except (APIKey.DoesNotExist, ValidationError):
+			api_key = LegacyAPIKey.objects.get(api_key=key)
+		except (LegacyAPIKey.DoesNotExist, ValidationError):
 			return False
 
 		request.api_key = api_key

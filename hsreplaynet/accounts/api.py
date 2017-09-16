@@ -7,7 +7,7 @@ from rest_framework.status import HTTP_201_CREATED
 from rest_framework.viewsets import GenericViewSet
 from hearthsim_identity.accounts.models import AccountClaim, AuthToken
 from hsreplaynet.api.authentication import AuthTokenAuthentication, RequireAuthToken
-from hsreplaynet.api.permissions import APIKeyPermission
+from hsreplaynet.api.permissions import LegacyAPIKeyPermission
 
 
 class AccountClaimSerializer(serializers.Serializer):
@@ -18,7 +18,7 @@ class AccountClaimSerializer(serializers.Serializer):
 
 class CreateAccountClaimView(CreateAPIView):
 	authentication_classes = (AuthTokenAuthentication, )
-	permission_classes = (RequireAuthToken, APIKeyPermission)
+	permission_classes = (RequireAuthToken, LegacyAPIKeyPermission)
 	queryset = AccountClaim.objects.all()
 	serializer_class = AccountClaimSerializer
 
@@ -82,6 +82,6 @@ class AuthTokenViewSet(
 	CreateModelMixin, UpdateModelMixin, RetrieveModelMixin, GenericViewSet
 ):
 	authentication_classes = (AuthTokenAuthentication, )
-	permission_classes = (APIKeyPermission, )
+	permission_classes = (LegacyAPIKeyPermission, )
 	queryset = AuthToken.objects.all()
 	serializer_class = AuthTokenSerializer

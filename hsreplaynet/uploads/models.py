@@ -360,9 +360,9 @@ class UploadEvent(models.Model):
 	@property
 	def api_key(self):
 		if not hasattr(self, "_api_key"):
-			from hearthsim_identity.api.models import APIKey
+			from hearthsim_identity.api.models import APIKey as LegacyAPIKey
 			if self.api_key_id:
-				self._api_key = APIKey.objects.get(id=self.api_key_id)
+				self._api_key = LegacyAPIKey.objects.get(id=self.api_key_id)
 			else:
 				self._api_key = None
 
