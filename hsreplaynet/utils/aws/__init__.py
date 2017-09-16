@@ -1,4 +1,5 @@
 import boto3
+import botocore
 from django.conf import settings
 from .clients import KINESIS, LAMBDA, S3
 
@@ -131,3 +132,20 @@ def get_bucket_size(bucket_name):
 		count += 1
 
 	return count
+
+
+def s3_object_exists(bucket, key):
+	exists = False
+
+	try:
+		# load() does a HEAD request which is quick
+		S3.Object(bucket, key).load()
+	except botocore.exceptions.ClientError as e:
+		if e.response['Error']['Code'] == "404":
+			exists = False
+		else:
+			raise
+	else:
+		exists = True
+
+	return exists

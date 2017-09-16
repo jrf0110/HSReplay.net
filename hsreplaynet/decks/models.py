@@ -22,6 +22,7 @@ from hsarchetypes.clustering import (
 )
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils import log
+from hsreplaynet.utils.aws import s3_object_exists
 from hsreplaynet.utils.aws.clients import FIREHOSE, LAMBDA, S3
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.cards import card_db
@@ -1125,6 +1126,9 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 			"deck_vector": json.dumps(prediction_vector)
 		}
 
+	def neural_network_ready(self):
+		return s3_object_exists(settings.KERAS_MODELS_BUCKET, self.model_key)
+
 	@property
 	def loss_graph_key(self):
 		return self.common_key_prefix + "-loss.png"
@@ -1272,12 +1276,16 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 				cluster.save()
 
 	def update_archetype_signatures(self):
-		with transaction.atomic():
-			ClusterSetSnapshot.objects.filter(
-				live_in_production=True
-			).update(live_in_production=False)
-			self.live_in_production = True
-			self.save()
+		if all(c.neural_network_ready() for c in self.class_clusters):
+			with transaction.atomic():
+				ClusterSetSnapshot.objects.filter(
+					live_in_production=True
+				).update(live_in_production=False)
+				self.live_in_production = True
+				self.save()
+		else:
+			msg = "Cannot promote to live=True because the neural network is not ready"
+			raise RuntimeError(msg)
 
 	def train_neural_network(
 		self,
