@@ -22,10 +22,11 @@ from hsarchetypes.clustering import (
 )
 from shortuuid.main import int_to_string, string_to_int
 from hsreplaynet.utils import log
-from hsreplaynet.utils.aws.clients import FIREHOSE, S3
+from hsreplaynet.utils.aws.clients import FIREHOSE, LAMBDA, S3
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.cards import card_db
 from hsreplaynet.utils.db import dictfetchall
+from hsreplaynet.utils.influx import influx_timer
 
 
 ALPHABET = string.ascii_letters + string.digits
@@ -93,7 +94,6 @@ class DeckManager(models.Manager):
 		# 	player_class,
 		# 	game_format,
 		# 	deck,
-		# 	archetype_ids
 		# )
 		# if archetype_id:
 		# 	deck.update_archetype(archetype_id)
@@ -939,13 +939,13 @@ class ClusterSetManager(models.Manager):
 
 		return cs_snapshot
 
-	def predict_archetype_id(self, player_class, game_format, deck, active_archetypes):
+	def predict_archetype_id(self, player_class, game_format, deck):
 		class_cluster = ClassClusterSnapshot.objects.filter(
 			player_class=player_class,
 			cluster_set__live_in_production=True,
 			cluster_set__game_format=game_format
 		).first()
-		return class_cluster.predict_archetype_id(deck, active_archetypes)
+		return class_cluster.predict_archetype_id(deck)
 
 
 _TRAINING_DATA_CACHE = {}
@@ -1085,6 +1085,38 @@ class ClassClusterSnapshot(models.Model, ClassClusters):
 					)
 
 		return accuracy
+
+	def predict_archetype_id(self, deck):
+		event = self._to_prediction_event(deck)
+
+		if settings.USE_ARCHETYPE_PREDICTION_LAMBDA or settings.ENV_AWS:
+			with influx_timer("callout_to_predict_deck_archetype"):
+				response = LAMBDA.invoke(
+					FunctionName="predict_deck_archetype",
+					InvocationType="RequestResponse",  # Synchronous invocation
+					Payload=json.dumps(event),
+				)
+				if response["StatusCode"] == 200 and "FunctionError" not in response:
+					result = json.loads(response["Payload"].read().decode("utf8"))
+				else:
+					raise RuntimeError(response["LogResult"])
+		else:
+			from keras_handler import handler
+			result = handler(event, None)
+
+		predicted_class = result["predicted_class"]
+		id_encoding = self.one_hot_external_ids(inverse=True)
+		predicted_archetype_id = id_encoding[predicted_class]
+		return predicted_archetype_id
+
+	def _to_prediction_event(self, deck):
+		from hsarchetypes.utils import to_prediction_vector_from_dbf_map
+		prediction_vector = to_prediction_vector_from_dbf_map(deck.dbf_map())
+		return {
+			"model_bucket": settings.KERAS_MODELS_BUCKET,
+			"model_key": self.model_key,
+			"deck_vector": json.dumps(prediction_vector.tolist())
+		}
 
 	@property
 	def loss_graph_key(self):

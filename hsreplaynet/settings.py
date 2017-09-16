@@ -426,6 +426,7 @@ ARCHETYPE_QUERIES_FOR_IMMEDIATE_REFRESH = [
 
 
 KERAS_MODELS_BUCKET = "hsreplaynet-keras-models"
+USE_ARCHETYPE_PREDICTION_LAMBDA = False
 
 
 # When False the cached data will only get refreshed:

@@ -8,7 +8,7 @@ import ctypes
 import os
 
 
-os.environ["THEANO_FLAGS"] = "base_compiledir=/tmp/.theano"
+os.environ["THEANO_FLAGS"] = "base_compiledir=/tmp/.theano,cxx="
 os.environ["KERAS_BACKEND"] = "theano"
 
 
@@ -16,7 +16,6 @@ for d, _, files in os.walk('lib'):
 	for f in files:
 		if f.endswith('.a') or f.endswith('.settings'):
 			continue
-		print('loading %s...' % f)
 		ctypes.cdll.LoadLibrary(os.path.join(d, f))
 
 
@@ -35,24 +34,22 @@ def load_keras_model(bucket, key):
 		_CACHE[bucket] = {}
 
 	if key not in _CACHE[bucket]:
-		print("Retrieving Model From S3")
 		model_path = "/tmp/%s" % key.replace("/", "-")
 		with open(model_path, "wb") as out:
 			out.write(S3.get_object(Bucket=bucket, Key=key)["Body"].read())
 		_CACHE[bucket][key] = load_model(model_path)
-	else:
-		print("Model Loaded From Cache")
+
 	return _CACHE[bucket][key]
 
 
 def handler(event, context):
 	model_bucket = event["model_bucket"]
 	model_key = event["model_key"]
-	deck_vector = json.loads(event['deck_vector'])
+	deck_vector = json.loads(event['deck_vector'])[0]
 	model = load_keras_model(model_bucket, model_key)
 	data = numpy.zeros((1, len(deck_vector)))
 	for i, c in enumerate(deck_vector):
 		data[0][i] = c
 
 	prediction = model.predict_classes(data)[0]
-	return {'predicted_class': prediction}
+	return {'predicted_class': int(prediction)}
