@@ -16,7 +16,6 @@ from . import views
 
 
 router = DefaultRouter()
-router.register(r"agents", views.APIKeyViewSet)
 router.register(r"archetypes", ArchetypeViewSet)
 router.register(r"archetype-training", ArchetypeTrainingDeckViewSet)
 router.register(r"features", FeatureViewSet)

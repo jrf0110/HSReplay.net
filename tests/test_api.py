@@ -2,6 +2,7 @@ import json
 import pytest
 from oauth2_provider.models import AccessToken, Grant
 from hearthsim_identity.accounts.models import AccountClaim, AuthToken, User
+from hearthsim_identity.api.models import APIKey
 from hsreplaynet.oauth2.models import Application
 from hsreplaynet.webhooks.models import WebhookEndpoint
 
@@ -11,21 +12,9 @@ CLAIM_ACCOUNT_API = "/api/v1/claim_account/"
 
 @pytest.mark.django_db
 def test_auth_token_request(client, settings):
-	data = {
-		"full_name": "Test Client",
-		"email": "test@example.org",
-		"website": "https://example.org",
-	}
-	response = client.post("/api/v1/agents/", data)
-
-	assert response.status_code == 201
-	out = response.json()
-
-	api_key = out["api_key"]
-	assert api_key
-	assert out["full_name"] == data["full_name"]
-	assert out["email"] == data["email"]
-	assert out["website"] == data["website"]
+	api_key = str(APIKey.objects.create(
+		full_name="Test Client", email="test@example.org", website="https://example.org"
+	).api_key)
 
 	url = "/api/v1/tokens/"
 	response = client.post(url, content_type="application/json", HTTP_X_API_KEY=api_key)

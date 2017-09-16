@@ -1,7 +1,6 @@
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework import serializers
-from hearthsim_identity.api.models import APIKey
 from hsreplaynet.accounts.api import UserSerializer
 from hsreplaynet.decks.models import Deck
 from hsreplaynet.games.models import GameReplay, GlobalGame, GlobalGamePlayer
@@ -18,14 +17,6 @@ class DeckSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Deck
 		fields = ("digest", "size", "cards", "predicted_cards")
-
-
-class APIKeySerializer(serializers.HyperlinkedModelSerializer):
-	api_key = serializers.CharField(read_only=True)
-
-	class Meta:
-		model = APIKey
-		fields = ("full_name", "email", "website", "api_key")
 
 
 class GameSerializer(serializers.Serializer):
