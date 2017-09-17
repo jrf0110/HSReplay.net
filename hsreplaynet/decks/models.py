@@ -44,7 +44,7 @@ class DeckManager(models.Manager):
 		deck, created = self._get_or_create_deck_from_db(id_list)
 
 		archetypes_enabled = settings.ARCHETYPE_CLASSIFICATION_ENABLED
-		archetype_missing = deck.archetype_id is None
+		archetype_missing = True  # deck.archetype_id is None
 		full_deck = deck.size == 30
 		if archetypes_enabled and classify_archetype and archetype_missing and full_deck:
 			player_class = self._convert_hero_id_to_player_class(hero_id)
@@ -80,48 +80,52 @@ class DeckManager(models.Manager):
 		if game_format not in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
 			return
 
-		# qs = Archetype.objects.live().filter(player_class=player_class)
-		# if game_format == enums.FormatType.FT_STANDARD:
-		# 	qs.filter(active_in_standard=True)
-		# else:
-		# 	qs.filter(active_in_wild=True)
-		#
-		# archetype_ids = list(qs.values_list("id", flat=True))
-		#
-		# if not archetype_ids:
-		# 	return
+		qs = Archetype.objects.live().filter(player_class=player_class)
+		if game_format == enums.FormatType.FT_STANDARD:
+			qs.filter(active_in_standard=True)
+		else:
+			qs.filter(active_in_wild=True)
+
+		archetype_ids = list(qs.values_list("id", flat=True))
+
+		if not archetype_ids:
+			return
+
+		signature_weights = ClusterSnapshot.objects.get_signature_weights(
+			game_format,
+			player_class,
+			archetype_ids
+		)
+
+		sig_archetype_id = classify_deck(
+			deck.dbf_map(), signature_weights
+		)
 
 		# New Style Deck Prediction
-		archetype_id = ClusterSetSnapshot.objects.predict_archetype_id(
+		nn_archetype_id = ClusterSetSnapshot.objects.predict_archetype_id(
 			player_class,
 			game_format,
 			deck,
 		)
+
+		archetype_id = nn_archetype_id or sig_archetype_id
 		influx_metric(
 			"archetype_prediction_outcome",
 			{
 				"count": 1,
+				"signature_weight_archetype_id": sig_archetype_id,
+				"neural_net_archetype_id": nn_archetype_id,
 				"archetype_id": archetype_id
 			},
 			success=archetype_id is not None,
+			signature_weight_sucess=sig_archetype_id is not None,
+			neural_net_sucess=nn_archetype_id is not None,
+			method_agreement=sig_archetype_id == nn_archetype_id,
 			player_class=player_class.name,
 			game_format=game_format.name
 		)
 		if archetype_id:
 			deck.update_archetype(archetype_id)
-
-		#
-		# signature_weights = ClusterSnapshot.objects.get_signature_weights(
-		# 	game_format,
-		# 	player_class,
-		# 	archetype_ids
-		# )
-		#
-		# archetype_id = classify_deck(
-		# 	deck.dbf_map(), signature_weights
-		# )
-		# if archetype_id:
-		# 	deck.update_archetype(archetype_id)
 
 	def get_by_shortid(self, shortid):
 		try:
