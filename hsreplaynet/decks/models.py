@@ -115,11 +115,12 @@ class DeckManager(models.Manager):
 				"count": 1,
 				"signature_weight_archetype_id": sig_archetype_id,
 				"neural_net_archetype_id": nn_archetype_id,
-				"archetype_id": archetype_id
+				"archetype_id": archetype_id,
+				"deck_id": deck.id
 			},
 			success=archetype_id is not None,
-			signature_weight_sucess=sig_archetype_id is not None,
-			neural_net_sucess=nn_archetype_id is not None,
+			signature_weight_success=sig_archetype_id is not None,
+			neural_net_success=nn_archetype_id is not None,
 			method_agreement=sig_archetype_id == nn_archetype_id,
 			player_class=player_class.name,
 			game_format=game_format.name
