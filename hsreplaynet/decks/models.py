@@ -109,14 +109,19 @@ class DeckManager(models.Manager):
 		)
 
 		archetype_id = nn_archetype_id or sig_archetype_id
+		d_tpl = """<a href="/admin/decks/deck/{id}/change/" target="_blank">{id}</a>"""
+		a_tpl = """<a href="/admin/decks/archetype/{id}/change/" target="_blank">{id}</a>"""
 		influx_metric(
 			"archetype_prediction_outcome",
 			{
 				"count": 1,
 				"signature_weight_archetype_id": sig_archetype_id,
+				"signature_weight_link": a_tpl.format(id=sig_archetype_id),
 				"neural_net_archetype_id": nn_archetype_id,
+				"neural_net_link": a_tpl.format(id=nn_archetype_id),
 				"archetype_id": archetype_id,
-				"deck_id": deck.id
+				"deck_id": deck.id,
+				"deck_link": d_tpl.format(id=deck.id)
 			},
 			success=archetype_id is not None,
 			signature_weight_success=sig_archetype_id is not None,
