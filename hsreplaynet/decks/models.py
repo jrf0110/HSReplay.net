@@ -44,7 +44,7 @@ class DeckManager(models.Manager):
 		deck, created = self._get_or_create_deck_from_db(id_list)
 
 		archetypes_enabled = settings.ARCHETYPE_CLASSIFICATION_ENABLED
-		archetype_missing = True  # deck.archetype_id is None
+		archetype_missing = deck.archetype_id is None
 		full_deck = deck.size == 30
 		if archetypes_enabled and classify_archetype and archetype_missing and full_deck:
 			player_class = self._convert_hero_id_to_player_class(hero_id)
