@@ -184,7 +184,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 	eventHandlers(): any[] {
 		return [{
 			eventHandlers: {
-				onClick: () => {
+				onMouseOver: () => {
 					return [{
 						mutation: (props) => {
 							this.setState({selected: props.datum.metadata});

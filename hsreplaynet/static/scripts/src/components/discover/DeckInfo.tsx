@@ -23,7 +23,7 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 			infoboxClassNames.push("no-deck");
 			content = (
 				<div className="no-deck-message">
-					<p>Click any deck for more details</p>
+					<p>Hover any deck for more details</p>
 				</div>
 			);
 		}
