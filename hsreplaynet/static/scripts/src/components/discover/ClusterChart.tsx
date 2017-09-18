@@ -10,7 +10,6 @@ interface Domain {
 }
 
 interface ClusterChartState {
-	canZoom?: boolean;
 	chartKey?: string;
 	domain?: Domain;
 	entireDomain?: Domain;
@@ -38,7 +37,6 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 		super(props, state);
 		const domain = this.getEntireDomain(props.data);
 		this.state = {
-			canZoom: false,
 			chartKey: _.uniqueId("chart"),
 			domain,
 			entireDomain: domain,
@@ -85,28 +83,6 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 				entireDomain: domain,
 				groupedData: this.getGroupedData(nextProps.data),
 			});
-		}
-	}
-
-	componentWillMount() {
-		document.addEventListener("keydown", this.handleKeyDown);
-		document.addEventListener("keyup", this.handleKeyUp);
-	}
-
-	componentWillUnmount() {
-		document.removeEventListener("keydown", this.handleKeyDown);
-		document.removeEventListener("keyup", this.handleKeyUp);
-	}
-
-	handleKeyDown = (event) => {
-		if (event.key === "Shift" && !this.state.canZoom) {
-			this.setState({canZoom: true});
-		}
-	}
-
-	handleKeyUp = (event) => {
-		if (event.key === "Shift" && this.state.canZoom) {
-			this.setState({canZoom: false});
 		}
 	}
 
