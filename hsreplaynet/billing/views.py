@@ -246,7 +246,12 @@ class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 		# True by default (= the subscription remains, will cancel once it ends)
 		at_period_end = True
 
-		if request.POST.get("immediate") == "on":
+		# Even though both buttons might be shown at once, we will only respect the one
+		# that was actually clicked
+		how_to_cancel = request.POST.get("cancel")
+		if how_to_cancel == "at_period_end":
+			pass
+		elif how_to_cancel == "immediately":
 			if self.can_cancel_immediately(self.customer):
 				at_period_end = False
 			else:
@@ -255,6 +260,13 @@ class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 					"Your subscription cannot be canceled immediately."
 					"Please contact us if you are receiving this in error."
 				)
+		else:
+			messages.error(
+				request,
+				"Could not cancel your subscription."
+				"Please contact us if you are seeing this error."
+			)
+			return False
 
 		self.customer.subscription.cancel(at_period_end=at_period_end)
 		return True
