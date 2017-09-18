@@ -16,7 +16,7 @@ const render = (cardData: CardData) => {
 				rankRange: "ALL",
 				sortBy: "popularity",
 				sortDirection: "descending",
-				tab: "matchups",
+				tab: "archetypes",
 				timeFrame: "LAST_7_DAYS",
 			}}
 		>
