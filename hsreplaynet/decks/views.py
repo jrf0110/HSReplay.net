@@ -177,16 +177,18 @@ class DeckDetailView(View):
 		if len(cards) != 30:
 			raise Http404("Deck list is too small.")
 
+		# TODO: remove this check and move string to models.Deck.__str__ once released
 		try:
 			feature = Feature.objects.get(name="archetype-detail")
 		except Feature.DoesNotExist:
 			has_feature = False
 		else:
 			has_feature = feature.enabled_for_user(request.user)
-
-		request.head.title = (
+		deck_name = (
 			"%s Deck" % str(deck.archetype) if has_feature and deck.archetype else str(deck)
 		)
+
+		request.head.title = deck_name
 
 		if deck.deck_class:
 			deck_url = request.build_absolute_uri(deck.get_absolute_url())
@@ -207,6 +209,7 @@ class DeckDetailView(View):
 
 		context = {
 			"deck": deck,
+			"deck_name": deck_name,
 			"card_list": ",".join(str(id) for id in cards),
 		}
 		return render(request, self.template_name, context)
