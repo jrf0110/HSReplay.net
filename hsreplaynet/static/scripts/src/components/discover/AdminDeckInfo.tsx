@@ -16,29 +16,9 @@ class AdminDeckInfo extends React.Component<AdminDeckInfoProps, {}> {
 		return (
 			<ul>
 				<li>
-					<span>View in Admin</span>
+					<span>View Deck in Admin</span>
 					<span className="infobox-value">
 						<a href={`/admin/decks/deck/${data.id}/change`}>Admin link</a>
-					</span>
-				</li>
-				<li>
-					<span>Archetype</span>
-					<span className="infobox-value">
-						<DataInjector
-							query={[
-								{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
-							]}
-							extract={{
-								archetypeData: (archetypeData: ApiArchetype[]) => {
-									const archetypes = archetypeData.filter((a) => a.player_class_name === playerClass);
-									return {archetypes};
-								},
-							}}
-						>
-							<HideLoading>
-								<ArchetypeSelector deckId={data.shortid} defaultSelectedArchetype={data.archetype} />
-							</HideLoading>
-						</DataInjector>
 					</span>
 				</li>
 			</ul>
