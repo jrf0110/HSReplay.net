@@ -102,8 +102,8 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 						selectedValue={sampleSize}
 						onClick={(value) => this.props.setSampleSize(value)}
 					>
-						<InfoboxFilter value="250">250</InfoboxFilter>
 						<InfoboxFilter value="500">500</InfoboxFilter>
+						<InfoboxFilter value="1000">1000</InfoboxFilter>
 						<InfoboxFilter value="full">Full</InfoboxFilter>
 					</InfoboxFilterGroup>
 					{adminControls}

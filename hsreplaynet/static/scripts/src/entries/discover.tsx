@@ -14,7 +14,7 @@ const render = (cardData: CardData) => {
 				dataset: "live",
 				format: "FT_STANDARD",
 				playerClass: "DRUID",
-				sampleSize: "250",
+				sampleSize: "1000",
 				tab: "decks",
 			}}
 		>
