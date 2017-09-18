@@ -212,7 +212,10 @@ LOGIN_URL = reverse_lazy("account_login")
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 SOCIALACCOUNT_ADAPTER = "hsreplaynet.accounts.providers.BattleNetAdapter"
-SOCIALACCOUNT_PROVIDERS = {"battlenet": {"SCOPE": []}}
+SOCIALACCOUNT_PROVIDERS = {
+	# NOTE: Can be removed in allauth 0.34+ (added as default scope)
+	"twitch": {"SCOPE": ["user_read"]},
+}
 
 
 # Any subsystem wishing to use the advisory lock synchronization tools
