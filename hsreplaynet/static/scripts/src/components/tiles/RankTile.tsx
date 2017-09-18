@@ -1,5 +1,5 @@
 import * as React from "react";
-import {winrateData} from "../../helpers";
+import {toDynamicFixed, winrateData} from "../../helpers";
 
 interface RankTileProps extends React.ClassAttributes<RankTile> {
 	href: string;
@@ -20,12 +20,12 @@ export default class RankTile extends React.Component<RankTileProps, {}> {
 
 			let data = null;
 			if (this.props.type === "popularity") {
-				data = <span>{this.props.popularity}% of decks</span>;
+				data = <span>{toDynamicFixed(this.props.popularity, 2)}% of decks</span>;
 			}
 			else {
 				data = [
 					<span className="winrate">Winrate:</span>,
-					<span style={{color: wrData.color}}>{this.props.winrate}%</span>,
+					<span style={{color: wrData.color}}>{toDynamicFixed(this.props.winrate, 2)}%</span>,
 				];
 			}
 
