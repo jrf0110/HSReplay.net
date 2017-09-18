@@ -1,7 +1,7 @@
 import * as React from "react";
 import {AutoSizer} from "react-virtualized";
 import WinrateLineChart from "./WinrateLineChart";
-import {commaSeparate, winrateData} from "../../helpers";
+import {commaSeparate, toDynamicFixed, winrateData} from "../../helpers";
 
 interface WinrateTileProps extends React.ClassAttributes<WinrateTile> {
 	chartData?: any;
@@ -33,7 +33,7 @@ export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
 			const wrData = winrateData(50, this.props.winrate, 3);
 			content = [
 				<h1 style={{color: wrData.color}}>
-					{this.props.winrate}%
+					{toDynamicFixed(this.props.winrate, 2)}%
 				</h1>,
 				<h3>over {commaSeparate(this.props.games)} games</h3>,
 			];

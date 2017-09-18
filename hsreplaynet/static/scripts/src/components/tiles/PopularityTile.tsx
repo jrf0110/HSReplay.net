@@ -1,6 +1,6 @@
 import * as React from "react";
 import {AutoSizer} from "react-virtualized";
-import {toTitleCase} from "../../helpers";
+import {toDynamicFixed, toTitleCase} from "../../helpers";
 import PopularityLineChart from "./PopularityLineChart";
 
 interface PopularityTileProps extends React.ClassAttributes<PopularityTile> {
@@ -32,7 +32,7 @@ export default class PopularityTile extends React.Component<PopularityTileProps,
 		let content = null;
 		if (this.props.popularity !== undefined) {
 			content = [
-				<h1>{this.props.popularity}%</h1>,
+				<h1>{toDynamicFixed(this.props.popularity, 2)}%</h1>,
 				<h3>of {toTitleCase(this.props.playerClass)} decks</h3>,
 			];
 		}
