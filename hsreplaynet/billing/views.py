@@ -251,6 +251,7 @@ class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 				at_period_end = False
 			else:
 				messages.error(
+					request,
 					"Your subscription cannot be canceled immediately."
 					"Please contact us if you are receiving this in error."
 				)
