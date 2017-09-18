@@ -1,6 +1,5 @@
 import * as React from "react";
 import ArchetypeSelector from "../ArchetypeSelector";
-import ArchetypeTrainingSettings from "../ArchetypeTrainingSettings";
 import DataInjector from "../DataInjector";
 import HideLoading from "../loading/HideLoading";
 import {ApiArchetype} from "../../interfaces";
@@ -41,32 +40,6 @@ class AdminDeckInfo extends React.Component<AdminDeckInfoProps, {}> {
 							</HideLoading>
 						</DataInjector>
 					</span>
-				</li>
-				<li>
-					<DataInjector
-						query={{key: "trainingData", url: "/api/v1/archetype-training/", params: {}}}
-						extract={{
-							trainingData: (trainingData) => {
-								const trainingDeck = trainingData.find((d) => d.deck.shortid === data.shortid);
-								if (trainingDeck) {
-									return {
-										trainingData: {
-											deck: trainingDeck.deck.id,
-											id: trainingDeck.id,
-											is_validation_deck: trainingDeck.is_validation_deck,
-										},
-									};
-								}
-							},
-						}}
-					>
-						<HideLoading>
-							<ArchetypeTrainingSettings
-								deckId={data.shortid}
-								playerClass={playerClass}
-							/>
-						</HideLoading>
-					</DataInjector>
 				</li>
 			</ul>
 		);

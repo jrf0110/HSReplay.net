@@ -317,7 +317,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								decks={this.state.popularDecks}
 								pageSize={10}
 								hideTopPager
-								showArchetypeSelector={true}
 								sortBy={this.state.popularDecksSortBy}
 								sortDirection={this.state.popularDecksSortDirection}
 								setSortBy={(sortBy) => this.setState({popularDecksSortBy: sortBy})}

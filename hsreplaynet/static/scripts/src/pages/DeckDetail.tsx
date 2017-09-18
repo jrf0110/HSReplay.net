@@ -28,7 +28,6 @@ import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import ArchetypeSelector from "../components/ArchetypeSelector";
 import DeckCountersList from "../components/deckdetail/DeckCountersList";
 import DeckMatchups from "../components/deckdetail/DeckMatchups";
-import ArchetypeTrainingSettings from "../components/ArchetypeTrainingSettings";
 import CardTable from "../components/tables/CardTable";
 import * as _ from "lodash";
 import Feature from "../components/Feature";
@@ -681,7 +680,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	hasGameType(gameType: string): boolean {
-		if(!this.state.hasData) {
+		if (!this.state.hasData) {
 			// we always allow all game types if the deck is not eligible
 			return true;
 		}
@@ -746,7 +745,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		state = state || this.state;
 		const getRegion = (account: string) => account && account.split("-")[0];
 		const getLo = (account: string) => account && account.split("-")[1];
-		return Object.assign({},{
+		return Object.assign({}, {
 			GameType: this.getGameType(),
 		}, this.state.account ? {
 			Region: getRegion(state.account),
@@ -786,62 +785,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<a href={this.props.adminUrl}>Admin link</a>
 					</span>
 				</li>,
-			);
-		}
-		if (UserData.hasFeature("archetype-selection")) {
-			items.push(
-				<li>
-					<span>Archetype</span>
-					<span className="infobox-value">
-						<DataInjector
-							query={[
-								{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
-								{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
-							]}
-							extract={{
-								archetypeData: (data: ApiArchetype[]) => {
-									const archetypes = data.filter((a) => a.player_class_name === this.props.deckClass);
-									return {archetypes};
-								},
-								deckData: (data) => ({defaultSelectedArchetype: data.archetype}),
-							}}
-						>
-							<HideLoading>
-								<ArchetypeSelector deckId={this.props.deckId} />
-							</HideLoading>
-						</DataInjector>
-					</span>
-				</li>,
-			);
-		}
-		if (UserData.hasFeature("archetype-training")) {
-			items.push(
-			<li>
-				<DataInjector
-					query={{key: "trainingData", url: "/api/v1/archetype-training/", params: {}}}
-					extract={{
-						trainingData: (trainingData) => {
-							const data = trainingData.find((d) => d.deck.shortid === this.props.deckId);
-							if (data) {
-								return {
-									trainingData: {
-										deck: data.deck.id,
-										id: data.id,
-										is_validation_deck: data.is_validation_deck,
-									},
-								};
-							}
-						},
-					}}
-				>
-					<HideLoading>
-						<ArchetypeTrainingSettings
-							deckId={this.props.deckId}
-							playerClass={this.props.deckClass}
-						/>
-					</HideLoading>
-				</DataInjector>
-			</li>,
 			);
 		}
 

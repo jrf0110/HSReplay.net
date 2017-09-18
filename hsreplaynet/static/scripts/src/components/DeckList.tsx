@@ -25,7 +25,6 @@ interface DeckListProps extends FragmentChildProps, React.ClassAttributes<DeckLi
 	page?: number;
 	setPage?: (page: number) => void;
 	helpMessage?: string;
-	showArchetypeSelector?: boolean;
 	hrefTab?: string;
 	lastPlayedColumn?: boolean;
 	showGlobalDataNotice?: boolean;
@@ -59,7 +58,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 	}
 
 	cacheDecks(decks: DeckObj[]) {
-		for (let i in decks) {
+		for (const i in decks) {
 			const deck = decks[i];
 			const id = deck.deckId;
 			if (typeof this.cache[id] !== "undefined") {
@@ -143,7 +142,6 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 					winrate={deck.winrate}
 					compareWith={this.props.compareWith}
 					dustCost={this.cache[deck.deckId].dust}
-					showArchetypeSelector={this.props.showArchetypeSelector}
 					hasGlobalData={this.props.showGlobalDataNotice && deck.hasGlobalData}
 					archetypeName={archetype && archetype.name}
 					archetypeId={archetype && archetype.id}

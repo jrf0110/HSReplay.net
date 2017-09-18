@@ -8,16 +8,13 @@ import ArchetypeSelector from "./ArchetypeSelector";
 import UserData from "../UserData";
 import Tooltip from "./Tooltip";
 import DataInjector from "./DataInjector";
-import ArchetypeTrainingSettings from "./ArchetypeTrainingSettings";
 import HideLoading from "./loading/HideLoading";
 import SemanticAge from "./SemanticAge";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
 	compareWith?: CardObj[];
-	showArchetypeSelector?: boolean;
 	archetypeName?: string;
-	archetypeId?: number;
 	hrefTab?: string;
 	lastPlayed?: Date;
 }
@@ -170,74 +167,8 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 							</ul>
 						</div>
 					</div>
-					{this.archetypeSettings()}
 				</a>
 			</li>
 		);
-	}
-
-	archetypeSettings(): JSX.Element {
-		if (!this.props.showArchetypeSelector) {
-			return null;
-		}
-
-		const items = [];
-		if (UserData.hasFeature("archetype-selection")) {
-			items.push(
-				<DataInjector
-					query={[
-						{key: "archetypeData", url: "/api/v1/archetypes/", params: {}},
-						{key: "deckData", url: "/api/v1/decks/" + this.props.deckId, params: {}},
-					]}
-					extract={{
-						archetypeData: (data: ApiArchetype[]) => {
-							const archetypes = data.filter((a) => a.player_class_name === this.props.playerClass);
-							return {archetypes};
-						},
-						deckData: (data) => ({defaultSelectedArchetype: data.archetype}),
-					}}
-				>
-					<HideLoading>
-						<ArchetypeSelector deckId={this.props.deckId} />
-					</HideLoading>
-				</DataInjector>,
-			);
-		}
-		if (UserData.hasFeature("archetype-training")) {
-			items.push(
-				<DataInjector
-					query={{key: "trainingData", url: "/api/v1/archetype-training/", params: {}}}
-					extract={{
-						trainingData: (trainingData) => {
-							const data = trainingData.find((d) => d.deck.shortid === this.props.deckId);
-							if (data) {
-								return {
-									trainingData: {
-										deck: data.deck.id,
-										id: data.id,
-										is_validation_deck: data.is_validation_deck,
-									},
-								};
-							}
-						},
-					}}
-				>
-					<HideLoading>
-						<ArchetypeTrainingSettings
-							deckId={this.props.deckId}
-							playerClass={this.props.playerClass}
-						/>
-					</HideLoading>
-				</DataInjector>,
-			);
-		}
-		if (items.length) {
-			return (
-				<div className="archetype-settings" onClick={(e) => e.preventDefault()}>
-					{items}
-				</div>
-			);
-		}
-		return null;
 	}
 }
