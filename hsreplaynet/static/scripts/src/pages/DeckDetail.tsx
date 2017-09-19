@@ -216,7 +216,28 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</div>
 		);
 
-		let filters = null;
+		const multiClassFeature = UserData.hasFeature("my-statistics-multi-class");
+		const filters = this.state.hasData !== false || multiClassFeature ? [
+			<PremiumWrapper name="Single Deck Opponent Selection">
+				<h2>
+					Select your opponent
+					<InfoIcon
+						className="pull-right"
+						header="Mulligan Guide Opponent"
+						content="Show Mulligan Guide data specific to your chosen opponent!"
+					/>
+				</h2>
+				<ClassFilter
+					filters="All"
+					hideAll
+					minimal
+					tabIndex={premiumTabIndex}
+					selectedClasses={this.props.selectedClasses}
+					selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
+					disabled={this.props.tab !== "mulligan-guide" && (!multiClassFeature || this.props.tab !== "my-statistics")}
+				/>
+			</PremiumWrapper>,
+		] : [];
 		let header = null;
 		if (this.state.hasData === false) {
 			header = (
@@ -235,26 +256,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			);
 		}
 		else {
-			filters = [
-				<PremiumWrapper name="Single Deck Opponent Selection">
-					<h2>
-						Select your opponent
-						<InfoIcon
-							className="pull-right"
-							header="Mulligan Guide Opponent"
-							content="Show Mulligan Guide data specific to your chosen opponent!"
-						/>
-					</h2>
-					<ClassFilter
-						filters="All"
-						hideAll
-						minimal
-						tabIndex={premiumTabIndex}
-						selectedClasses={this.props.selectedClasses}
-						selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
-						disabled={this.props.tab !== "mulligan-guide"}
-					/>
-				</PremiumWrapper>,
+			filters.push(
 				<PremiumWrapper
 					name="Single Deck Rank Range"
 					infoHeader="Deck breakdown rank range"
@@ -301,7 +303,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
 				</Feature>,
-			];
+			);
 
 			header = [
 				<div className="col-lg-6 col-md-6">
@@ -620,12 +622,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
+		const selectedClass = UserData.hasFeature("my-statistics-multi-class") && this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL";
 		return (
 			<DataInjector
 				fetchCondition={this.isWildDeck() !== undefined && UserData.isPremium()}
 				query={{params, url: "single_account_lo_individual_card_stats_for_deck"}}
 				extract={{
-					data: (data) => ({data: data.series.data["ALL"]}),
+					data: (data) => ({data: data.series.data[selectedClass]}),
 				}}
 			>
 				<CardTable
