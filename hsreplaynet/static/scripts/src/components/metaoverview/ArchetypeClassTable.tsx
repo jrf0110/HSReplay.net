@@ -32,7 +32,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 			else {
 				rows.push({
 					archetype: {
-						id: -1,
+						id: datum.archetype_id,
 						name: "Other",
 						player_class_name: playerClass,
 					},
@@ -45,10 +45,10 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 		const direction = sortDirection === "ascending" ? 1 : -1;
 		rows.sort((a, b) => {
 			if (dataKey === "archetype_name") {
-				if (a.archetype_id === -1) {
+				if (a.archetype_id < 0) {
 					return direction;
 				}
-				if (b.archetype_id === -1) {
+				if (b.archetype_id < 0) {
 					return -direction;
 				}
 			}
@@ -90,7 +90,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				{archetype.name}
 			</a>
 		);
-		if (archetype.id === -1) {
+		if (archetype.id < 0) {
 			return  name;
 		}
 
