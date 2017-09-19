@@ -253,4 +253,13 @@
 			color: $red;
 		}
 	}
+
+	.alert-infobox {
+		color: white;
+		background-color: rgba(49, 138, 185, 0.2);
+		border: 1px solid $lightblue;
+		padding: 10px;
+		margin-top: 0;
+		margin-bottom: 8px;
+	}
 }

@@ -80,13 +80,13 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 		return (
 			<div className="discover-container">
 				<aside className="infobox">
-					<h1>
-						Discover
-						<InfoIcon
-							header="Discover"
-							content="Here you can find deck clusters detected by our archetype algorithms. Each dot is a deck, with the size representing the number of replays."
-						/>
-					</h1>
+					<h1>Discover</h1>
+					<p className="alert-infobox">
+						<strong>Introduction:</strong><br/>
+						This page shows the deck clusters automatically detected by our archetype algorithm.
+						Each dot represents a deck. The distance between decks is proportional to their similarity.
+						<br/><br/>Hover the decks to discover new variations to try out.
+					</p>
 					<h2>Class</h2>
 					<ClassFilter
 						minimal={true}
