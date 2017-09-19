@@ -9,6 +9,7 @@ import {
 import CardData from "../../CardData";
 import { withLoading } from "../loading/Loading";
 import PopularityMatrix from "./popularity/PopularityMatrix";
+import {getOtherArchetype} from "../../helpers";
 
 interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopularity> {
 	archetypeData?: any;
@@ -144,7 +145,7 @@ class ArchetypePopularity extends React.Component<ArchetypePopularityProps, {}> 
 	}
 
 	getApiArchetype(id: number): ApiArchetype {
-		return this.props.archetypeData.find((a) => a.id === id);
+		return this.props.archetypeData.find((a) => a.id === id) || getOtherArchetype(id);
 	}
 }
 

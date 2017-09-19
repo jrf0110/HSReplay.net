@@ -26,22 +26,32 @@ export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 							src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
 						/>
 					</div>
-					<a
-						href={getArchetypeUrl(this.props.archetypeData.id, this.props.archetypeData.name)}
-						target="_blank"
-					>
-						<ArchetypeSignatureTooltip
-							key={this.props.archetypeData.id}
-							cardData={this.props.cardData}
-							archetypeId={this.props.archetypeData.id}
-							archetypeName={this.props.archetypeData.name}
-							gameType={this.props.gameType}
-						>
-							<span className="archetype-name">{this.props.archetypeData.name}</span>
-						</ArchetypeSignatureTooltip>
-					</a>
+					{this.renderName()}
 				</div>
 			</div>
+		);
+	}
+
+	renderName(): JSX.Element | string {
+		const {archetypeData} = this.props;
+		if (archetypeData.id < 0) {
+			return archetypeData.name;
+		}
+		return (
+			<a
+				href={getArchetypeUrl(archetypeData.id, archetypeData.name)}
+				target="_blank"
+			>
+				<ArchetypeSignatureTooltip
+					key={archetypeData.id}
+					cardData={this.props.cardData}
+					archetypeId={archetypeData.id}
+					archetypeName={archetypeData.name}
+					gameType={this.props.gameType}
+				>
+					<span className="archetype-name">{archetypeData.name}</span>
+				</ArchetypeSignatureTooltip>
+			</a>
 		);
 	}
 }

@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Colors} from "./Colors";
-import {ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, GlobalGamePlayer} from "./interfaces";
+import {ApiArchetype, ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, GlobalGamePlayer} from "./interfaces";
 import {CardData as CardMeta} from "hearthstonejson";
 import {adventureSets} from "./contants";
 import {wildSets} from "./contants";
@@ -730,7 +730,7 @@ export function cloneComponent(component, props) {
 		componentProps[key] = props[key];
 	});
 	return React.cloneElement(component, componentProps);
-};
+}
 
 export function getCardUrl(card: any) {
 	return `/cards/${card.dbfId}/${slugify(card.name)}/`;
@@ -749,9 +749,9 @@ function slugify(str: string): string {
 export function getCookie(name: string): string {
 	let cookieValue = null;
 	if (document.cookie && document.cookie !== "") {
-		let cookies = document.cookie.split(";");
+		const cookies = document.cookie.split(";");
 		for (let i = 0; i < cookies.length; i++) {
-			let cookie = cookies[i].trim();
+			const cookie = cookies[i].trim();
 			// Does this cookie string begin with the name we want?
 			if (cookie.substring(0, name.length + 1) === (name + "=")) {
 				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -861,4 +861,29 @@ export function getHeroDbfId(cardData: CardData, player: GlobalGamePlayer): numb
 	}
 	const card = getHeroCard(cardData, player);
 	return card ? card.dbfId : null;
+}
+
+export function getOtherArchetype(archetypeId: number): ApiArchetype {
+	if (archetypeId > 0) {
+		return undefined;
+	}
+	const classId = -archetypeId;
+	const classes = [
+		"INVALID", "DEATHKNIGHT",
+		"DRUID", "HUNTER", "MAGE",
+		"PALADIN", "PRIEST", "ROGUE",
+		"SHAMAN", "WARLOCK", "WARRIOR",
+	];
+
+	if (!classes[classId]) {
+		return undefined;
+	}
+
+	return {
+		id: archetypeId,
+		name: "Other " + toTitleCase(classes[classId]),
+		player_class: -archetypeId,
+		player_class_name: classes[classId],
+		url: "",
+	};
 }
