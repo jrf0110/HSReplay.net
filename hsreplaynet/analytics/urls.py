@@ -53,10 +53,6 @@ urlpatterns = [
 		views.latest_clustering_data,
 		name="analytics_latest_clustering_data"
 	),
-	url(
-		r"^clustering/refresh/(?P<game_format>\w+)/$", views.clustering_data_refresh,
-		name="analytics_refresh_clustering_data"
-	),
 ]
 
 api_urlpatterns = [

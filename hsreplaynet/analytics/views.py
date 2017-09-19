@@ -346,19 +346,10 @@ def latest_clustering_data(request, game_format):
 		snapshot = ClusterSetSnapshot.objects.filter(
 			game_format=FormatType[game_format]
 		).latest()
+
+		return HttpResponse(
+			content=json.dumps(snapshot.to_chart_data(include_ccp_signature=True), indent=4),
+			content_type="application/json"
+		)
 	else:
-		snapshot = ClusterSetSnapshot.objects.snapshot(FormatType[game_format])
-
-	return HttpResponse(
-		content=json.dumps(snapshot.to_chart_data(include_ccp_signature=True), indent=4),
-		content_type="application/json"
-	)
-
-
-@view_requires_feature_access("archetype-training")
-def clustering_data_refresh(request, game_format):
-	ClusterSetSnapshot.objects.snapshot(FormatType[game_format])
-
-	result = {"msg": "Okay"}
-	response = JsonResponse(result, status=200)
-	return response
+		return Http404("No latest snapshot exists")
