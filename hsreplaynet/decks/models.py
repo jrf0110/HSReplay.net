@@ -241,7 +241,7 @@ class Deck(models.Model):
 	def get_absolute_url(self):
 		return reverse("deck_detail", kwargs={"id": self.shortid})
 
-	def update_archetype(self, archetype, save=True):
+	def update_archetype(self, archetype, save=True, force=True):
 		"""
 		Set the archetype field and save to the database,
 		then call sync_archetype_to_firehose() to replicate the
@@ -251,7 +251,7 @@ class Deck(models.Model):
 			archetype_id = archetype.id
 		else:
 			archetype_id = archetype
-		if self.archetype_id == archetype_id:
+		if not force and self.archetype_id == archetype_id:
 			return False
 		self.archetype_id = archetype_id
 		if save:
