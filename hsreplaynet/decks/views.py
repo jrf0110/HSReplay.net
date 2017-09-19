@@ -32,12 +32,10 @@ class DiscoverView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "decks/discover.html"
 	title = "Discover"
 
-	def get(self, request):
-		context = {
-			"hide_footer": True
-		}
-
-		return render(request, self.template_name, context)
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context["hide_footer"] = True
+		return context
 
 
 ##
