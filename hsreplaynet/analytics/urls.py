@@ -3,9 +3,6 @@ from django.conf.urls import url
 from . import views
 
 
-clustering_charts = views.ClusteringChartsView.as_view()
-
-
 urlpatterns = [
 	url(
 		r"^query/(?P<name>\w+)/$", views.fetch_query_results,
@@ -40,13 +37,24 @@ urlpatterns = [
 		name="analytics_release_semaphore"
 	),
 	url(
-		r"^clustering/$", clustering_charts,
-		name="analytics_clustering_charts"
+		r"^clustering/list/(?P<game_format>\w+)/$",
+		views.list_clustering_data,
+		name="analytics_list_clustering_data"
 	),
 	url(
 		r"^clustering/data/live/(?P<game_format>\w+)/$",
 		views.live_clustering_data,
 		name="analytics_live_clustering_data"
+	),
+	url(
+		r"^clustering/data/(?P<id>\d+)/$",
+		views.clustering_details,
+		name="analytics_clustering_details"
+	),
+	url(
+		r"^clustering/data/(?P<snapshot_id>\d+)/(?P<cluster_id>\d+)/$",
+		views.SingleClusterUpdateView.as_view(),
+		name="analytics_update_cluster_archetype"
 	),
 	url(
 		r"^clustering/data/latest/(?P<game_format>\w+)/$",

@@ -1,27 +1,27 @@
 import json
 from calendar import timegm
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import (
 	Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 )
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.cache import get_conditional_response
 from django.utils.decorators import method_decorator
 from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
-from django.views.generic import TemplateView
+from django.views.generic import View
 from hearthstone.enums import FormatType
 
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet import settings
-from hsreplaynet.decks.models import ClusterSetSnapshot, Deck
+from hsreplaynet.decks.models import Archetype, ClusterSetSnapshot, ClusterSnapshot, Deck
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
-from hsreplaynet.utils.html import RequestMetaMixin
 
 from .processing import (
 	attempt_request_triggered_query_execution, deck_is_eligible_for_global_stats,
@@ -315,12 +315,6 @@ def _trigger_if_stale(parameterized_query, run_local=False):
 	return False
 
 
-@method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
-class ClusteringChartsView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
-	template_name = "archetypes/clustering_charts.html"
-	title = "Clustering Charts"
-
-
 def live_clustering_data(request, game_format):
 	snapshot = ClusterSetSnapshot.objects.filter(
 		game_format=FormatType[game_format],
@@ -353,3 +347,88 @@ def latest_clustering_data(request, game_format):
 		)
 	else:
 		return Http404("No latest snapshot exists")
+
+
+def clustering_details(request, id):
+	snapshot = get_object_or_404(ClusterSetSnapshot, id=id)
+	return HttpResponse(
+		content=json.dumps(snapshot.to_chart_data(include_ccp_signature=True), indent=4),
+		content_type="application/json"
+	)
+
+
+def list_clustering_data(request, game_format):
+	tomorrow = timezone.now().date() + timedelta(days=1)
+	to_str = request.GET.get("to", tomorrow.isoformat())
+	from_str = request.GET.get("from", (tomorrow - timedelta(days=8)).isoformat())
+
+	to_ts = datetime.strptime(to_str, "%Y-%m-%d")
+	from_ts = datetime.strptime(from_str, "%Y-%m-%d")
+	snapshots = list(ClusterSetSnapshot.objects.filter(
+		as_of__range=(from_ts, to_ts),
+		game_format=FormatType[game_format]
+	).all())
+
+	staging = {}
+	for snapshot in snapshots:
+		snapshot_date = snapshot.as_of.date().isoformat()
+		if snapshot_date not in staging:
+			staging[snapshot_date] = snapshot
+		elif snapshot.as_of > staging[snapshot_date].as_of:
+			staging[snapshot_date] = snapshot
+
+	response = {}
+	for snapshot_date, snapshot in staging.items():
+		response[snapshot_date] = {
+			"id": snapshot.id,
+			"latest": snapshot.latest,
+			"live": snapshot.live_in_production
+		}
+
+	return HttpResponse(
+		content=json.dumps(response, indent=4),
+		content_type="application/json"
+	)
+
+
+@method_decorator(view_requires_feature_access("archetype-training"), name="dispatch")
+class SingleClusterUpdateView(View):
+
+	def _get_cluster(self, snapshot_id, cluster_id):
+		cluster = ClusterSnapshot.objects.filter(
+			class_cluster__cluster_set__id=snapshot_id,
+			cluster_id=int(cluster_id)
+		).first()
+		return cluster
+
+	def get(self, request, snapshot_id, cluster_id):
+		cluster = self._get_cluster(snapshot_id, cluster_id)
+		return JsonResponse({"cluster_id": cluster.cluster_id}, status=200)
+
+	def patch(self, request, snapshot_id, cluster_id):
+		cluster = self._get_cluster(snapshot_id, cluster_id)
+
+		if not cluster:
+			raise Http404("Cluster not found")
+
+		payload = json.loads(request.body.decode())
+		archetype_id = payload.get("archetype_id", None)
+
+		if not archetype_id:
+			cluster.external_id = None
+			cluster.name = "NEW"
+		else:
+			archetype = Archetype.objects.get(id=int(archetype_id))
+			cluster.external_id = int(archetype_id)
+			cluster.name = archetype.name
+		cluster._augment_data_points()
+		cluster.save()
+
+		class_cluster = cluster.class_cluster
+		# Changing external_id assignments affects CCP_signatures
+		# So call update_cluster_signatures() to recalculate
+		class_cluster.update_cluster_signatures()
+		for cluster in class_cluster.clusters:
+			cluster.save()
+
+		return JsonResponse({"msg": "OKAY"}, status=200)
