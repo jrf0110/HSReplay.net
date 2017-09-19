@@ -12,7 +12,8 @@ import UserData from "../../UserData";
 import CardData from "../../CardData";
 import ArchetypeList from "./matchups/ArchetypeList";
 import LoadingSpinner from "../LoadingSpinner";
-import { withLoading } from "../loading/Loading";
+import {withLoading} from "../loading/Loading";
+import {getOtherArchetype} from "../../helpers";
 
 interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
 	archetypeData?: any;
@@ -327,7 +328,7 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 	}
 
 	getApiArchetype(id: number, archetypeData: any): ApiArchetype {
-		return archetypeData.find((a) => a.id === id);
+		return archetypeData.find((a) => a.id === id) || getOtherArchetype(id);
 	}
 
 	getMatchup(friendly: ApiArchetype, opponent: ApiArchetype, matchupData: any): ApiArchetypeMatchupData {
