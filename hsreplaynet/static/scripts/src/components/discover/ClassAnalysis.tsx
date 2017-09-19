@@ -31,7 +31,6 @@ export interface ClusterMetaData {
 	deck_list: string;
 	games: number;
 	shortid: string;
-	win_rate: number;
 }
 
 interface ClassAnalysisState {

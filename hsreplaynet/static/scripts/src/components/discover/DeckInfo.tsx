@@ -59,10 +59,6 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 						Games
 						<span className="infobox-value">{deck.games}</span>
 					</li>
-					<li>
-						Winrate
-						<span className="infobox-value">{deck.win_rate}</span>
-					</li>
 				</ul>,
 			];
 		}
