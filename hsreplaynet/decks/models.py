@@ -80,21 +80,9 @@ class DeckManager(models.Manager):
 		if game_format not in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
 			return
 
-		qs = Archetype.objects.live().filter(player_class=player_class)
-		if game_format == enums.FormatType.FT_STANDARD:
-			qs.filter(active_in_standard=True)
-		else:
-			qs.filter(active_in_wild=True)
-
-		archetype_ids = list(qs.values_list("id", flat=True))
-
-		if not archetype_ids:
-			return
-
 		signature_weights = ClusterSnapshot.objects.get_signature_weights(
 			game_format,
-			player_class,
-			archetype_ids
+			player_class
 		)
 
 		sig_archetype_id = classify_deck(
@@ -108,20 +96,15 @@ class DeckManager(models.Manager):
 			deck,
 		)
 
-		archetype_id = nn_archetype_id or sig_archetype_id
-		d_tpl = """<a href="/admin/decks/deck/{id}/change/" target="_blank">{id}</a>"""
-		a_tpl = """<a href="/admin/decks/archetype/{id}/change/" target="_blank">{id}</a>"""
+		archetype_id = sig_archetype_id or nn_archetype_id
 		influx_metric(
 			"archetype_prediction_outcome",
 			{
 				"count": 1,
 				"signature_weight_archetype_id": sig_archetype_id,
-				"signature_weight_link": a_tpl.format(id=sig_archetype_id),
 				"neural_net_archetype_id": nn_archetype_id,
-				"neural_net_link": a_tpl.format(id=nn_archetype_id),
 				"archetype_id": archetype_id,
 				"deck_id": deck.id,
-				"deck_link": d_tpl.format(id=deck.id)
 			},
 			success=archetype_id is not None,
 			signature_weight_success=sig_archetype_id is not None,
@@ -1181,14 +1164,14 @@ class ClusterManager(models.Manager):
 		AND ccs.player_class = %s;
 	"""
 
-	def get_signature_weights(self, game_format, player_class, archetype_ids):
+	def get_signature_weights(self, game_format, player_class):
 		with connection.cursor() as cursor:
 			cursor.execute(
 				self.LIVE_SIGNATURES_QUERY % (int(game_format), int(player_class))
 			)
 			result = {}
 			for record in dictfetchall(cursor):
-				if record["external_id"] in archetype_ids and len(record["ccp_signature"]):
+				if len(record["ccp_signature"]):
 					if record["external_id"] not in result and record["external_id"]:
 						result[record["external_id"]] = {}
 					for dbf_id, weight in record["ccp_signature"].items():
