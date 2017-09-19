@@ -31,15 +31,23 @@ export default class ArchetypeFilter extends React.Component<ArchetypeFilterProp
 			};
 			const validPlayerClass = (archetype) => playerClasses.indexOf(archetype.playerClass) !== -1;
 
+			const others = {};
 			archetypes.filter(validPlayerClass).map((archetype) => {
 				const archetypeData = data.find((a) => "" + a.id === archetype.id);
 				if (archetypeData) {
 					addFilter(archetype.id, archetype.playerClass, archetypeData.name);
 				}
+				else {
+					others[archetype.playerClass] = archetype.id;
+				}
 			});
-			playerClasses.forEach((playerClass) => {
-				addFilter(-1, playerClass, "Other");
-			});
+			if (UserData.hasFeature("archetype-training")) {
+				playerClasses.forEach((playerClass) => {
+					if (others[playerClass]) {
+						addFilter(others[playerClass], playerClass, "Other");
+					}
+				});
+			}
 		}
 
 		if (filters.length === 0) {
