@@ -1,6 +1,5 @@
 import json
 import time
-from collections import defaultdict
 from datetime import date, datetime, timedelta
 
 from django.conf import settings
@@ -90,46 +89,30 @@ class Command(BaseCommand):
 		}
 		compiled_statement = REDSHIFT_QUERY.params(params).compile(bind=conn)
 
-		# Format -> CardClass -> [a.id]
-		archetype_ids_for_player_class = {
-			FormatType.FT_STANDARD: defaultdict(list),
-			FormatType.FT_WILD: defaultdict(list)
-		}
 		for card_class in CardClass:
 			if 2 <= card_class <= 10:
 				for a in Archetype.objects.live().filter(player_class=card_class):
-					if a.active_in_standard:
-						self.archetype_map[a.id] = a
-						archetype_ids_for_player_class[
-							FormatType.FT_STANDARD
-						][card_class].append(a.id)
-					if a.active_in_wild:
-						self.archetype_map[a.id] = a.name
-						archetype_ids_for_player_class[
-							FormatType.FT_WILD
-						][card_class].append(a.id)
+					self.archetype_map[a.id] = a
 
 				# Standard Signature Weights
-				if len(archetype_ids_for_player_class[FormatType.FT_STANDARD][card_class]):
-					signature_weight_values = ClusterSnapshot.objects.get_signature_weights(
-						FormatType.FT_STANDARD,
-						card_class,
-						archetype_ids_for_player_class[FormatType.FT_STANDARD][card_class]
-					)
+				standard_weight_values = ClusterSnapshot.objects.get_signature_weights(
+					FormatType.FT_STANDARD,
+					card_class
+				)
+				if len(standard_weight_values):
 					self.signature_weights[
 						FormatType.FT_STANDARD
-					][card_class] = signature_weight_values
+					][card_class] = standard_weight_values
 
 				# Wild Signature Weights
-				if len(archetype_ids_for_player_class[FormatType.FT_WILD][card_class]):
-					signature_weight_values = ClusterSnapshot.objects.get_signature_weights(
-						FormatType.FT_WILD,
-						card_class,
-						archetype_ids_for_player_class[FormatType.FT_WILD][card_class]
-					)
+				wild_weight_values = ClusterSnapshot.objects.get_signature_weights(
+					FormatType.FT_WILD,
+					card_class
+				)
+				if len(wild_weight_values):
 					self.signature_weights[
 						FormatType.FormatType.FT_WILD
-					][card_class] = signature_weight_values
+					][card_class] = wild_weight_values
 
 		result_set = list(conn.execute(compiled_statement))
 		total_rows = len(result_set)
@@ -150,7 +133,7 @@ class Command(BaseCommand):
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
 
 			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
-			if len(archetype_ids_for_player_class[format][player_class]):
+			if len(self.signature_weights[format][player_class]):
 				new_archetype_id = classify_deck(
 					dbf_map, self.signature_weights[format][player_class]
 				)

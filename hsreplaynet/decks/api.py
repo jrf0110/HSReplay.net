@@ -4,7 +4,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.mixins import (
-	CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 )
 from rest_framework.permissions import SAFE_METHODS, IsAdminUser
 from rest_framework.response import Response
@@ -14,7 +14,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from hsreplaynet.api.permissions import UserHasFeature
 
-from .models import Archetype, ArchetypeTrainingDeck, Deck
+from .models import Archetype, Deck
 
 
 class ArchetypeSerializer(serializers.ModelSerializer):
@@ -97,20 +97,6 @@ class DeckSerializer(serializers.ModelSerializer):
 		return result
 
 
-class ArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
-	deck = DeckSerializer()
-
-	class Meta:
-		model = ArchetypeTrainingDeck
-		fields = ("id", "deck", "is_validation_deck")
-
-
-class CreateArchetypeTrainingDeckSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = ArchetypeTrainingDeck
-		fields = ("id", "deck", "is_validation_deck")
-
-
 class GetOrCreateDeckView(APIView):
 	authentication_classes = ()
 	permission_classes = ()
@@ -159,18 +145,3 @@ class ArchetypeViewSet(
 		if self.request.method in SAFE_METHODS:
 			return ()
 		return (UserHasFeature("archetype-selection"), )
-
-
-class ArchetypeTrainingDeckViewSet(
-	CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin,
-	GenericViewSet
-):
-	authentication_classes = (SessionAuthentication, )
-	pagination_class = None
-	permission_classes = (UserHasFeature("archetype-training"), )
-	queryset = ArchetypeTrainingDeck.objects.all()
-
-	def get_serializer_class(self):
-		if self.request.method in ["PATCH", "POST"]:
-			return CreateArchetypeTrainingDeckSerializer
-		return ArchetypeTrainingDeckSerializer

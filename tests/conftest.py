@@ -4,11 +4,6 @@ import subprocess
 
 import pytest
 from django.core.management import call_command
-from django.utils import timezone
-from django_hearthstone.cards.models import Card
-from hearthstone.enums import CardClass, FormatType
-
-from hsreplaynet.decks.models import Archetype, Signature, SignatureComponent
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,69 +22,6 @@ def pytest_configure(config):
 def django_db_setup(django_db_setup, django_db_blocker):
 	with django_db_blocker.unblock():
 		call_command("load_cards")
-
-
-@pytest.mark.django_db
-@pytest.yield_fixture(scope="module")
-def freeze_mage_archetype():
-	signature_components = {
-		138: 20,  # Doomsayer
-		587: 20,  # Frostnova
-		662: 10,  # Frostbolt
-		457: 10,  # Blizzard
-		749: 10,  # Bloodmage
-		251: 10,  # Loothoarder
-	}
-	archetype, archetype_created = Archetype.objects.get_or_create(
-		name="Freeze Mage",
-		player_class=CardClass.MAGE
-	)
-	if archetype_created:
-		signature = Signature.objects.create(
-			archetype=archetype,
-			format=FormatType.FT_STANDARD,
-			as_of=timezone.now()
-		)
-		for dbf_id, weight in signature_components.items():
-			SignatureComponent.objects.create(
-				signature=signature,
-				card=Card.objects.filter(dbf_id=dbf_id).first(),
-				weight=weight
-			)
-	yield archetype
-
-
-@pytest.mark.django_db
-@pytest.yield_fixture(scope="module")
-def tempo_mage_archetype():
-	signature_components = {
-		405: 10,  # Mana Wyrm
-		39169: 10,  # Babbling Book
-		1941: 10,  # Medivh
-		41878: 10,  # Meteor
-		40496: 10,  # Kabal Courier
-		41683: 10,  # Glutonous Ooze
-		39715: 10,  # Firelands Portal
-		38418: 10,  # Cabalist's Tomb
-	}
-
-	archetype, archetype_created = Archetype.objects.get_or_create(
-		name="Tempo Mage",
-		player_class=CardClass.MAGE
-	)
-	if archetype_created:
-		signature = Signature.objects.create(
-			archetype=archetype,
-			format=FormatType.FT_STANDARD,
-			as_of=timezone.now()
-		)
-		for dbf_id, weight in signature_components.items():
-			SignatureComponent.objects.create(
-				signature=signature,
-				card=Card.objects.filter(dbf_id=dbf_id).first(),
-				weight=weight
-			)
-	yield archetype
 
 
 @pytest.mark.django_db

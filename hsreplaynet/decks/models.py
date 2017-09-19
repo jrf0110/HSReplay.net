@@ -17,11 +17,10 @@ from django.utils.timezone import now
 from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone import deckstrings, enums
-from hsarchetypes import calculate_signature_weights, classify_deck
+from hsarchetypes import classify_deck
 from hsarchetypes.clustering import ClassClusters, Cluster, ClusterSet, create_cluster_set
 from shortuuid.main import int_to_string, string_to_int
 
-from hsreplaynet.utils import log
 from hsreplaynet.utils.aws import s3_object_exists
 from hsreplaynet.utils.aws.clients import FIREHOSE, LAMBDA, S3
 from hsreplaynet.utils.aws.redshift import get_redshift_query
@@ -326,55 +325,9 @@ class Include(models.Model):
 
 
 class ArchetypeManager(models.Manager):
-	SIGNATURE_COMPONENTS_QUERY_TEMPLATE = """
-		WITH signatures AS (
-			SELECT
-				ds.archetype_id,
-				max(ds.id) AS signature_id
-			FROM decks_signature ds
-			WHERE ds.archetype_id IN ({archetype_ids})
-			AND ds.format = {format}
-			GROUP BY ds.archetype_id
-		)
-		SELECT
-			s.archetype_id,
-			sc.card_dbf_id,
-			sc.weight
-		FROM decks_signaturecomponent sc
-		JOIN signatures s ON s.signature_id = sc.signature_id;
-	"""
 
 	def live(self):
 		return self.filter(deleted=False)
-
-	def get_fully_configured_archetypes(self, game_format, player_class):
-		result = []
-		archetype_list = Archetype.objects.live().filter(
-			player_class=player_class
-		).all()
-		for a in archetype_list:
-			if game_format == enums.FormatType.FT_STANDARD and a.active_in_standard:
-				result.append(a)
-
-			if game_format == enums.FormatType.FT_WILD and a.active_in_wild:
-				result.append(a)
-
-		return result
-
-	def get_signature_weights(self, archetype_ids, game_format):
-		archetype_ids_sql_list = ",".join(str(id) for id in archetype_ids)
-		query = self.SIGNATURE_COMPONENTS_QUERY_TEMPLATE.format(
-			archetype_ids=archetype_ids_sql_list,
-			format=str(int(game_format))
-		)
-		with connection.cursor() as cursor:
-			cursor.execute(query)
-			result = {}
-			for record in dictfetchall(cursor):
-				if record["archetype_id"] not in result:
-					result[record["archetype_id"]] = {}
-				result[record["archetype_id"]][record["card_dbf_id"]] = record["weight"]
-			return result
 
 	def _list_decks_from_redshift_for_format(self, game_format):
 		query = get_redshift_query("list_decks_by_win_rate")
@@ -410,210 +363,6 @@ class ArchetypeManager(models.Manager):
 
 		return observations
 
-	def current_cluster_set(self, game_format=enums.FormatType.FT_STANDARD):
-		from hsarchetypes.clustering import ClassClusters, ClusterSet
-		class_clusters = []
-		for player_class in enums.CardClass:
-			if enums.CardClass.DRUID <= player_class <= enums.CardClass.WARRIOR:
-				clusters = []
-				qs = Archetype.objects.live()
-
-				if game_format == enums.FormatType.FT_STANDARD:
-					qs = qs.filter(active_in_standard=True)
-
-				if game_format == enums.FormatType.FT_WILD:
-					qs = qs.filter(active_in_wild=True)
-
-				archetypes_list = qs.filter(
-					player_class=player_class
-				).all()
-
-				for archetype in archetypes_list:
-					archtype_cluster = archetype.to_cluster(game_format=game_format)
-					if archtype_cluster:
-						clusters.append(archtype_cluster)
-				class_clusters.append(ClassClusters(player_class.name, clusters))
-
-		return ClusterSet(class_clusters)
-
-	def update_all_signatures(self, dryrun=True):
-		from hsarchetypes.clustering import ClusterSet
-		from hsreplaynet.analytics.processing import get_cluster_set_data
-
-		game_format = enums.FormatType.FT_STANDARD
-		cluster_set_data = get_cluster_set_data(game_format)
-		if cluster_set_data:
-			cluster_set = ClusterSet.create_cluster_set(cluster_set_data)
-			previous_cluster_set = self.current_cluster_set(game_format)
-			cluster_set.inherit_from_previous(previous_cluster_set)
-
-			prefix, sep, suffix = game_format.name.partition("_")
-
-			with transaction.atomic():
-				current_ts = timezone.now()
-				for class_cluster in cluster_set.class_clusters:
-					log.info("%s: Class Cluster: %s" % (suffix, str(class_cluster)))
-
-					for cluster in class_cluster.clusters:
-						if cluster.external_id:
-							archetype = Archetype.objects.live().get(
-								id=cluster.external_id
-							)
-							vals = (suffix, archetype.name, archetype.id)
-							log.info(
-								"%s: Update Existing Archetype: %s (%i)" % vals
-							)
-							old_string = archetype.get_signature(
-								game_format
-							).pretty_signature_string("\n")
-							log.info(
-								"%s: OLD Signature:\n%s" % (suffix, old_string)
-							)
-							new_string = cluster.pretty_signature_string("\n")
-							log.info(
-								"%s: NEW Signature:\n%s" % (suffix, new_string)
-							)
-							if not dryrun:
-								signature = Signature.objects.create(
-									archetype=archetype,
-									format=game_format,
-									as_of=current_ts
-								)
-								for dbf_id, weight in cluster.signature.items():
-									SignatureComponent.objects.create(
-										signature=signature,
-										card_id=int(dbf_id),
-										weight=weight
-									)
-						else:
-							# Create a new Archetype
-							name = cluster.pretty_signature_string(", ")[:249]
-							log.info(
-								"%s: Create New Archetype: %s" % (suffix, name)
-							)
-							new_string = cluster.pretty_signature_string("\n")
-							log.info(
-								"%s: NEW Signature:\n%s" % (suffix, new_string)
-							)
-							if not dryrun:
-								archetype = Archetype.objects.create(
-									name=name,
-									player_class=enums.CardClass[class_cluster.player_class]
-								)
-								signature = Signature.objects.create(
-									archetype=archetype,
-									format=game_format,
-									as_of=current_ts
-								)
-								for dbf_id, weight in cluster.signature.items():
-									SignatureComponent.objects.create(
-										signature=signature,
-										card_id=int(dbf_id),
-										weight=weight
-									)
-
-	def update_signatures(self):
-		for player_class in enums.CardClass:
-			if enums.CardClass.DRUID <= player_class <= enums.CardClass.WARRIOR:
-				self.update_signatures_for_player_class(player_class)
-
-	def update_signatures_for_player_class(self, player_class):
-		self.update_signatures_for_format(enums.FormatType.FT_STANDARD, player_class=player_class)
-		self.update_signatures_for_format(enums.FormatType.FT_WILD, player_class=player_class)
-
-	def update_signatures_for_format(self, game_format, player_class):
-		thresholds = {
-			settings.ARCHETYPE_CORE_CARD_THRESHOLD: settings.ARCHETYPE_CORE_CARD_WEIGHT,
-			settings.ARCHETYPE_TECH_CARD_THRESHOLD: settings.ARCHETYPE_TECH_CARD_WEIGHT,
-		}
-		training_data = self.get_training_data_for_player_class(game_format, player_class)
-
-		new_weights = calculate_signature_weights(training_data, thresholds)
-
-		validation_data = self.get_validation_data_for_player_class(game_format, player_class)
-
-		if self.new_weights_pass_validation(new_weights, validation_data):
-			with transaction.atomic():
-				current_ts = timezone.now()
-				for archetype_id, weights in new_weights.items():
-					archetype = Archetype.objects.live().get(id=int(archetype_id))
-					signature = Signature.objects.create(
-						archetype=archetype, format=game_format, as_of=current_ts
-					)
-					for dbf_id, weight in weights.items():
-						SignatureComponent.objects.create(
-							signature=signature, card_id=int(dbf_id), weight=weight
-						)
-		else:
-			raise RuntimeError("New Signature Weights Failed Validation")
-
-	def get_training_data_for_player_class(self, game_format, player_class):
-		observation_counts = self._get_deck_observation_counts_from_redshift(game_format)
-		training_decks = ArchetypeTrainingDeck.objects.get_training_decks(
-			game_format,
-			player_class
-		)
-
-		configured_archetypes = self.get_fully_configured_archetypes(
-			game_format,
-			player_class
-		)
-
-		training_data = {}
-		for deck in training_decks:
-			if deck.archetype not in configured_archetypes:
-				continue
-
-			if deck.archetype.id not in training_data:
-				training_data[deck.archetype.id] = []
-			if deck.digest not in training_data[deck.archetype.id]:
-				if deck.digest in observation_counts:
-					training_data[deck.archetype.id].append({
-						"total_games": observation_counts[deck.digest],
-						"cards": deck.dbf_map()
-					})
-		return training_data
-
-	def get_validation_data_for_player_class(self, game_format, player_class):
-		observation_counts = self._get_deck_observation_counts_from_redshift(game_format)
-		validation_decks = ArchetypeTrainingDeck.objects.get_validation_decks(
-			game_format,
-			player_class
-		)
-
-		configured_archetypes = self.get_fully_configured_archetypes(
-			game_format,
-			player_class
-		)
-
-		validation_data = {}
-		for deck in validation_decks:
-			if deck.archetype not in configured_archetypes:
-				continue
-
-			if deck.archetype.id not in validation_data:
-				validation_data[deck.archetype.id] = []
-			if deck.digest not in validation_data[deck.archetype.id]:
-				if deck.digest in observation_counts:
-					validation_data[deck.archetype.id].append({
-						"total_games": observation_counts[deck.digest],
-						"cards": deck.dbf_map()
-					})
-		return validation_data
-
-	def new_weights_pass_validation(self, new_weights, validation_data):
-		for expected_id, validation_decks in validation_data.items():
-			for digest, validation_deck in validation_decks.items():
-				deck = validation_deck["cards"]
-				assigned_id = classify_deck(
-					deck,
-					new_weights.keys(),
-					new_weights
-				)
-				if not assigned_id or assigned_id != expected_id:
-					return False
-		return True
-
 
 class Archetype(models.Model):
 	"""
@@ -627,8 +376,6 @@ class Archetype(models.Model):
 	objects = ArchetypeManager()
 	name = models.CharField(max_length=250, blank=True)
 	player_class = IntEnumField(enum=enums.CardClass, default=enums.CardClass.INVALID)
-	active_in_standard = models.BooleanField(default=False)
-	active_in_wild = models.BooleanField(default=False)
 	deleted = models.BooleanField(default=False)
 
 	class Meta:
@@ -685,38 +432,6 @@ class Archetype(models.Model):
 			return ""
 
 	@property
-	def wild_training_decks_count(self):
-		return len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
-			self,
-			enums.FormatType.FT_WILD,
-			is_validation_deck=False
-		))
-
-	@property
-	def standard_training_decks_count(self):
-		return len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
-			self,
-			enums.FormatType.FT_STANDARD,
-			is_validation_deck=False
-		))
-
-	@property
-	def wild_validation_decks_count(self):
-		return len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
-			self,
-			enums.FormatType.FT_WILD,
-			is_validation_deck=True
-		))
-
-	@property
-	def standard_validation_decks_count(self):
-		return len(ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
-			self,
-			enums.FormatType.FT_STANDARD,
-			is_validation_deck=True
-		))
-
-	@property
 	def wild_signature_as_of(self):
 		cluster = self.wild_cluster
 		if cluster:
@@ -734,151 +449,6 @@ class Archetype(models.Model):
 
 	def get_absolute_url(self):
 		return reverse("archetype_detail", kwargs={"id": self.id, "slug": slugify(self.name)})
-
-	def distance(self, deck, game_format):
-		signature = self.get_signature(game_format)
-		if signature:
-			return signature.distance(deck)
-
-	def get_signature(self, game_format=enums.FormatType.FT_STANDARD, as_of=None):
-		if as_of is None:
-			return self.signature_set.filter(
-				format=int(game_format),
-			).order_by("-as_of").first()
-		else:
-			return self.signature_set.filter(
-				format=int(game_format),
-				as_of__lte=as_of
-			).order_by("-as_of").first()
-
-	def to_cluster(self, game_format=enums.FormatType.FT_STANDARD):
-		from hsarchetypes.clustering import Cluster
-		signature = self.get_signature(game_format=game_format)
-		# decks = ArchetypeTrainingDeck.objects.get_training_decks_for_archetype(
-		# 	self,
-		# 	game_format,
-		# 	is_validation_deck=False
-		# )
-		if signature:
-			return Cluster(
-				cluster_id=None,
-				decks=None,
-				signature=signature.to_dbf_map(),
-				name=self.name,
-				external_id=self.id
-			)
-		else:
-			return None
-
-
-class ArchetypeTrainingDeckManager(models.Manager):
-	TRAINING_DECK_IDS_QUERY = """
-		SELECT
-			i.deck_id,
-			CASE
-				WHEN sum(CASE WHEN c.card_set IN ({wild_sets}) THEN 1 ELSE 0 END) > 0
-				THEN True
-				ELSE False
-			END AS is_wild
-		FROM decks_archetypetrainingdeck t
-		JOIN cards_include i ON i.deck_id = t.deck_id
-		JOIN card c ON c.card_id = i.card_id
-		WHERE t.is_validation_deck = {is_validation}
-		AND c.card_class = {card_class}
-		GROUP BY i.deck_id;
-	"""
-
-	def _get_decks(self, game_format, player_class, is_validation_deck):
-		wild_sets = [c for c in enums.CardSet if c.craftable and not c.is_standard]
-		wild_set_ids = ", ".join(str(c.value) for c in wild_sets)
-
-		with connection.cursor() as cursor:
-			cursor.execute(
-				self.TRAINING_DECK_IDS_QUERY.format(
-					is_validation=is_validation_deck,
-					card_class=player_class.value,
-					wild_sets=wild_set_ids
-				)
-			)
-			deck_ids = []
-			is_wild = game_format == enums.FormatType.FT_WILD
-			for record in dictfetchall(cursor):
-				if is_wild == record["is_wild"]:
-					deck_ids.append(record["deck_id"])
-
-			return list(Deck.objects.filter(id__in=deck_ids))
-
-	def get_training_decks_for_archetype(self, archetype, game_format, is_validation_deck):
-		result = []
-		training_decks = self._get_decks(
-			game_format,
-			archetype.player_class,
-			is_validation_deck
-		)
-		for td in training_decks:
-			if td.archetype_id == archetype.id:
-					result.append(td)
-		return result
-
-	def get_training_decks(self, game_format, player_class):
-		return self._get_decks(game_format, player_class, is_validation_deck=False)
-
-	def get_validation_decks(self, game_format, player_class):
-		return self._get_decks(game_format, player_class, is_validation_deck=True)
-
-
-class ArchetypeTrainingDeck(models.Model):
-	objects = ArchetypeTrainingDeckManager()
-	deck = models.ForeignKey(Deck, on_delete=models.PROTECT)
-	is_validation_deck = models.BooleanField()
-
-
-class Signature(models.Model):
-	id = models.AutoField(primary_key=True)
-	archetype = models.ForeignKey(
-		Archetype, on_delete=models.CASCADE
-	)
-	format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
-	as_of = models.DateTimeField()
-
-	class Meta:
-		get_latest_by = "as_of"
-
-	def __str__(self):
-		return "Signature for %s (%s)" % (self.archetype, self.format)
-
-	def distance(self, deck):
-		dist = 0
-		card_counts = {i.card_id: i.count for i in deck.includes.all()}
-		for component in self.components.all():
-			if component.card in card_counts:
-				dist += (card_counts[component.card_id] * component.weight)
-		return dist
-
-	def to_dbf_map(self):
-		result = {}
-		for component in self.components.all():
-			result[str(component.card.dbf_id)] = component.weight
-		return result
-
-	def pretty_signature_string(self, sep=", "):
-		components = {}
-		for component in self.components.select_related("card").all():
-			components[component.card.name] = component.weight
-		sorted_components = sorted(components.items(), key=lambda t: t[1], reverse=True)
-		return sep.join(["%s - %s" % (n, str(round(w, 2))) for n, w in sorted_components])
-
-
-class SignatureComponent(models.Model):
-	id = models.AutoField(primary_key=True)
-	signature = models.ForeignKey(
-		Signature, on_delete=models.CASCADE, related_name="components",
-	)
-	card = models.ForeignKey(
-		Card, on_delete=models.PROTECT, to_field="dbf_id", db_column="card_dbf_id",
-		related_name="signature_components",
-	)
-	weight = models.FloatField(default=0.0)
 
 
 class ClusterSetManager(models.Manager):
@@ -1161,7 +731,8 @@ class ClusterManager(models.Manager):
 		JOIN decks_clustersnapshot c ON c.class_cluster_id = ccs.id
 		WHERE cs.live_in_production = True
 		AND cs.game_format = %s
-		AND ccs.player_class = %s;
+		AND ccs.player_class = %s
+		AND c.external_id != -1;
 	"""
 
 	def get_signature_weights(self, game_format, player_class):
