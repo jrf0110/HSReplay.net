@@ -107,5 +107,5 @@ class ArchetypeAdmin(admin.ModelAdmin):
 		queryset.update(deleted=True)
 
 	actions = (
-		set_deleted
+		set_deleted,
 	)
