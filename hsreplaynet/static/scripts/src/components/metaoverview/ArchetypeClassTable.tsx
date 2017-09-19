@@ -70,7 +70,6 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				cellHeight={CELL_HEIGHT}
 				minColumnWidth={MIN_COLUMN_WIDTH}
 				headerWidth={[MIN_HEADER_WIDTH, MAX_HEADER_WIDTH]}
-				baseWinrate={50}
 				sortBy={sortBy}
 				sortDirection={sortDirection}
 				onSortChanged={this.props.onSortChanged}
