@@ -157,7 +157,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const premiumTabIndex = isPremium ? 0 : -1;
 
 		let accountFilter = null;
-		if (isPremium && UserData.getAccounts().length > 0 && UserData.hasFeature("my-statistics")) {
+		if (isPremium && UserData.getAccounts().length > 0) {
 			const accounts = [];
 			UserData.getAccounts().forEach((acc) => {
 				accounts.push(
@@ -455,7 +455,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</span>
 							)}
 							id="my-statistics"
-							hidden={!UserData.hasFeature("my-statistics")}
 						>
 							{this.getMyStats()}
 						</Tab>
