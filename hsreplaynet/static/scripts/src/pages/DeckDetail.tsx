@@ -623,6 +623,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 
 		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
 		const selectedClass = UserData.hasFeature("my-statistics-multi-class") && this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL";
+		const hasSelectedClass = selectedClass !== "ALL";
 		return (
 			<DataInjector
 				fetchCondition={this.isWildDeck() !== undefined && UserData.isPremium()}
@@ -651,7 +652,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					}}
 					sortBy={this.state.personalSortBy}
 					sortDirection={this.state.personalSortDirection as SortDirection}
-					customNoDataMessage="You have not played this deck recently."
+					customNoDataMessage={
+						hasSelectedClass
+							? "You have not played this deck against this class recently."
+							: "You have not played this deck recently."
+					}
 				/>
 			</DataInjector>
 		);
