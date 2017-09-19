@@ -325,7 +325,13 @@ def live_clustering_data(request, game_format):
 		raise Http404("No Snapshot exists")
 
 	return HttpResponse(
-		content=json.dumps(snapshot.to_chart_data(with_external_ids=True), indent=4),
+		content=json.dumps(
+			snapshot.to_chart_data(
+				with_external_ids=True,
+				as_of=snapshot.as_of.isoformat()
+			),
+			indent=4
+		),
 		content_type="application/json"
 	)
 
@@ -342,7 +348,13 @@ def latest_clustering_data(request, game_format):
 		).latest()
 
 		return HttpResponse(
-			content=json.dumps(snapshot.to_chart_data(include_ccp_signature=True), indent=4),
+			content=json.dumps(
+				snapshot.to_chart_data(
+					include_ccp_signature=True,
+					as_of=snapshot.as_of.isoformat()
+				),
+				indent=4
+			),
 			content_type="application/json"
 		)
 	else:
@@ -352,11 +364,18 @@ def latest_clustering_data(request, game_format):
 def clustering_details(request, id):
 	snapshot = get_object_or_404(ClusterSetSnapshot, id=id)
 	return HttpResponse(
-		content=json.dumps(snapshot.to_chart_data(include_ccp_signature=True), indent=4),
+		content=json.dumps(
+			snapshot.to_chart_data(
+				include_ccp_signature=True,
+				as_of=snapshot.as_of.isoformat()
+			),
+			indent=4
+		),
 		content_type="application/json"
 	)
 
 
+@view_requires_feature_access("archetype-training")
 def list_clustering_data(request, game_format):
 	tomorrow = timezone.now().date() + timedelta(days=1)
 	to_str = request.GET.get("to", tomorrow.isoformat())
