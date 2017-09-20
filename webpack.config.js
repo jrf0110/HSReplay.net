@@ -164,6 +164,7 @@ module.exports = (env) => {
 			"react-dom": "ReactDOM",
 			"jquery": "jQuery",
 			"joust": "Joust",
+			"sunwell": "Sunwell",
 		},
 		plugins: [
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),

@@ -36,7 +36,6 @@
 		"react-stripe-elements": "^0.0.8",
 		"react-virtualized": "^9.9.0",
 		"sass-loader": "^6.0.6",
-		"sunwell": "^0.1.5",
 		"tether-shepherd": "^1.8.1",
 		"ts-loader": "^2.3.4",
 		"typescript": "^2.5.2",

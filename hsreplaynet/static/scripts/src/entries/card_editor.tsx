@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {CardClass, CardSet, CardType, MultiClassGroup, Rarity} from "../hearthstone";
-import {Sunwell} from "sunwell";
+import Sunwell from "sunwell";
 
 
 class Fieldset extends React.Component<any, {}> {

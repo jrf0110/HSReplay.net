@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -77,6 +78,9 @@ class MyCardsView(RequestMetaMixin, TemplateView):
 class CardEditorView(RequestMetaMixin, TemplateView):
 	template_name = "cards/card_editor.html"
 	title = "Hearthstone Card Editor"
+	scripts = (
+		settings.SUNWELL_SCRIPT_URL,
+	)
 	stylesheets = (
 		"fonts/belwefs_extrabold_macroman/stylesheet.css",
 		"fonts/franklingothicfs_mediumcondensed_macroman/stylesheet.css",

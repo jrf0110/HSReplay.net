@@ -214,7 +214,7 @@ interface Window {
 }
 
 declare module "sunwell" {
-	export class Sunwell {
+	export default class Sunwell {
 		constructor(options?: any);
 	}
 }

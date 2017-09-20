@@ -3605,10 +3605,6 @@ strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
 
-sunwell@^0.1.5:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/sunwell/-/sunwell-0.1.5.tgz#b5a0dd05d549422fd4c55fb26a28b4c278bf6d73"
-
 supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
