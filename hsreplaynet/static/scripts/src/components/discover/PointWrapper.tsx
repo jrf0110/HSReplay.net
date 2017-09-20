@@ -8,9 +8,16 @@ interface PointWrapperProps extends React.ClassAttributes<PointWrapper> {
 }
 
 export default class PointWrapper extends React.Component<PointWrapperProps, {}> {
-
-	componentShouldUpdate(nextProps: PointWrapperProps) {
-		return nextProps.selectedDatum !== this.props.selectedDatum;
+	shouldComponentUpdate(nextProps: PointWrapperProps) {
+		const shortId  = this.props["datum"]["metadata"]["shortid"];
+		const currentSelected = this.props.selectedDatum && this.props.selectedDatum.shortid;
+		const nextSelected = nextProps.selectedDatum && nextProps.selectedDatum.shortid;
+		return (
+			shortId === currentSelected && shortId !== nextSelected
+			|| shortId !== currentSelected && shortId === nextSelected
+			|| this.props["x"] !== nextProps["x"]
+			|| this.props["y"] !== nextProps["y"]
+		);
 	}
 
 	render(): JSX.Element {

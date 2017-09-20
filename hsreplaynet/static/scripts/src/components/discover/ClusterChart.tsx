@@ -27,6 +27,7 @@ interface ClusterChartProps extends React.ClassAttributes<ClusterChart> {
 	playerClass: string;
 	sampleSize: number;
 	width: number;
+	zoomEnabled: boolean;
 }
 
 const MIN_POINT_SIZE = 5;
@@ -117,14 +118,14 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 	}
 
 	render(): JSX.Element {
-		const {clusterIds, data, playerClass, sampleSize, width, height} = this.props;
+		const {clusterIds, data, playerClass, sampleSize, width, height, zoomEnabled} = this.props;
 		const {domain} = this.state;
 		const axisLabelSize = height / 100;
 		const filtered = this.getDomainData();
 		const numDecksInDomain = _.sumBy(filtered, (x) => x.length);
-		const sampled = this.downSample(filtered, sampleSize);
+		const sampled = zoomEnabled ? this.downSample(filtered, sampleSize) : data;
 		let sampleHint = null;
-		if (numDecksInDomain > sampleSize) {
+		if (zoomEnabled && numDecksInDomain > sampleSize) {
 			sampleHint = (
 				<span className="sample-hint">
 					To improve performance, {numDecksInDomain - sampleSize} decks have been hidden. Zoom in to show more.
@@ -143,6 +144,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 					domainPadding={30}
 					containerComponent={
 						<VictoryZoomContainer
+							allowZoom={zoomEnabled}
 							onDomainChange={(newDomain) => {
 								this.setState({domain: newDomain});
 							}}
@@ -184,7 +186,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 	eventHandlers(): any[] {
 		return [{
 			eventHandlers: {
-				onMouseOver: () => {
+				onClick: () => {
 					return [{
 						mutation: (props) => {
 							this.setState({selected: props.datum.metadata});

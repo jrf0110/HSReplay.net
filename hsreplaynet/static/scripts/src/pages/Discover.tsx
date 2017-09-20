@@ -11,6 +11,7 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
+import HideLoading from "../components/loading/HideLoading";
 
 interface DiscoverProps extends React.ClassAttributes<Discover> {
 	cardData: CardData;
@@ -24,6 +25,8 @@ interface DiscoverProps extends React.ClassAttributes<Discover> {
 	tab?: string;
 	sampleSize?: string;
 	setSampleSize?: (sampleSize: string) => void;
+	zoomEnabled?: string;
+	setZoomEnabled?: (zoomEnabled: string) => void;
 }
 
 interface DiscoverState {
@@ -39,7 +42,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 	}
 
 	render(): JSX.Element {
-		const {cardData, tab, dataset, format, playerClass, sampleSize, setTab} = this.props;
+		const {cardData, tab, dataset, format, playerClass, sampleSize, setTab, zoomEnabled} = this.props;
 		let adminControls = null;
 		if (UserData.hasFeature("archetype-training")) {
 			adminControls = [
@@ -72,10 +75,31 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 						key="admin-info"
 						query={{url: `/api/v1/decks/${deck.shortid}/`, params: {}}}
 					>
-						<AdminDeckInfo playerClass={playerClass}/>
+						<HideLoading>
+							<AdminDeckInfo playerClass={playerClass}/>
+						</HideLoading>
 					</DataInjector>,
 				);
 			}
+		}
+
+		let sampleControls = null;
+		if (zoomEnabled === "true") {
+			sampleControls = (
+				<InfoboxFilterGroup
+					key="cluster-sample-size"
+					header="Sample size"
+					selectedValue={sampleSize}
+					onClick={(value) => {
+						UserData.setSetting("discover-samplesize", value);
+						this.props.setSampleSize(value);
+					}}
+				>
+					<InfoboxFilter value="250">250</InfoboxFilter>
+					<InfoboxFilter value="500">500</InfoboxFilter>
+					<InfoboxFilter value="full">Full</InfoboxFilter>
+				</InfoboxFilterGroup>
+			);
 		}
 
 		const dataUrl = `/analytics/clustering/data/${dataset}/${format}/`;
@@ -100,18 +124,17 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 						}}
 					/>
 					<InfoboxFilterGroup
-						key="cluster-sample-size"
-						header="Sample size"
-						selectedValue={sampleSize}
+						key="cluster-settings"
+						header="Settings"
+						deselectable={true}
+						selectedValue={zoomEnabled}
 						onClick={(value) => {
-							UserData.setSetting("discover-samplesize", value);
-							this.props.setSampleSize(value);
+							this.props.setZoomEnabled(value);
 						}}
 					>
-						<InfoboxFilter value="500">500</InfoboxFilter>
-						<InfoboxFilter value="1000">1000</InfoboxFilter>
-						<InfoboxFilter value="full">Full</InfoboxFilter>
+						<InfoboxFilter value="true">Enable Zoom</InfoboxFilter>
 					</InfoboxFilterGroup>
+					{sampleControls}
 					{adminControls}
 					<h2>Data</h2>
 					<ul>
@@ -154,6 +177,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							playerClass={playerClass}
 							sampleSize={sampleSize === "full" ? Number.MAX_SAFE_INTEGER : +sampleSize}
 							canModifyArchetype={dataset === "latest"}
+							zoomEnabled={zoomEnabled === "true"}
 						/>
 					</DataInjector>
 				</main>

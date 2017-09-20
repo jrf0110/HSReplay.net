@@ -14,8 +14,9 @@ const render = (cardData: CardData) => {
 				dataset: "live",
 				format: "FT_STANDARD",
 				playerClass: "DRUID",
-				sampleSize: UserData.getSetting("discover-samplesize") || "1000",
+				sampleSize: UserData.getSetting("discover-samplesize") || "250",
 				tab: "decks",
+				zoomEnabled: "",
 			}}
 		>
 			<Discover

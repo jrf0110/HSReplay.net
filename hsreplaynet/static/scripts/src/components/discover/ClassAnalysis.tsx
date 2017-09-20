@@ -48,6 +48,7 @@ interface ClassAnalysisProps extends React.ClassAttributes<ClassAnalysis> {
 	setClusterTab: (clusterTab: string) => void;
 	sampleSize: number;
 	canModifyArchetype: boolean;
+	zoomEnabled: boolean;
 }
 
 const COLORS = [
@@ -72,7 +73,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	}
 
 	render(): JSX.Element {
-		const {data, maxGames, playerClass, sampleSize} = this.props;
+		const {data, maxGames, playerClass, sampleSize, zoomEnabled} = this.props;
 		const {selectedDeck} = this.state;
 		const clusterIds = Object.keys(data.cluster_map).sort();
 		const chartHeight = "calc(100vh - 125px)";
@@ -102,6 +103,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 												}
 											}}
 											sampleSize={sampleSize}
+											zoomEnabled={zoomEnabled}
 										/>
 									);
 								}}
