@@ -180,6 +180,7 @@ const CardTypeOptions = [
 	[CardType.MINION, "Minion"],
 	[CardType.SPELL, "Spell"],
 	[CardType.WEAPON, "Weapon"],
+	[CardType.HERO, "Hero"],
 ];
 
 interface CardEditorFormState {
@@ -197,6 +198,7 @@ interface CardEditorFormState {
 	multiClassGroup?: MultiClassGroup,
 	rarity?: Rarity,
 	elite?: boolean,
+	premium?: boolean,
 	set?: CardSet,
 	texture?: string,
 	file?: File,
@@ -231,6 +233,7 @@ class CardEditorForm extends React.Component<any, CardEditorFormState> {
 			multiClassGroup: MultiClassGroup.INVALID,
 			rarity: Rarity.FREE,
 			elite: false,
+			premium: false,
 			set: CardSet.EXPERT1,
 		};
 	}
@@ -445,7 +448,11 @@ class CardEditorForm extends React.Component<any, CardEditorFormState> {
 						type: "checkbox",
 						name: "elite",
 						label: "Elite",
-						disabled: this.state.type != CardType.MINION,
+					})}
+					{this.createInput(LabeledInput, {
+						type: "checkbox",
+						name: "premium",
+						label: "Premium",
 					})}
 				</p>
 				<p>
