@@ -9,10 +9,12 @@ interface InfoboxLastUpdatedProps {
 	fetchCondition?: boolean;
 	params: any;
 	url: string;
+	modify?: (data: any) => any;
 }
 
 export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdatedProps, {}> {
 	render(): JSX.Element {
+		const {fetchCondition, modify, params, url} = this.props;
 		return (
 			<li>
 				Last updated
@@ -22,9 +24,9 @@ export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdat
 						content="This page is periodically updated as new data becomes available."
 					>
 						<DataInjector
-							fetchCondition={this.props.fetchCondition}
-							query={{url: this.props.url, params: this.props.params}}
-							modify={(data) => data && data.as_of ? new Date(data.as_of) : null}
+							fetchCondition={fetchCondition}
+							query={{url, params}}
+							modify={(data) => modify ? modify(data) : (data && data.as_of ? new Date(data.as_of) : null)}
 						>
 							<HideLoading>
 								<PropRemapper map={{data: "date"}}>
