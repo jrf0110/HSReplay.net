@@ -103,7 +103,10 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 						key="cluster-sample-size"
 						header="Sample size"
 						selectedValue={sampleSize}
-						onClick={(value) => this.props.setSampleSize(value)}
+						onClick={(value) => {
+							UserData.setSetting("discover-samplesize", value);
+							this.props.setSampleSize(value);
+						}}
 					>
 						<InfoboxFilter value="500">500</InfoboxFilter>
 						<InfoboxFilter value="1000">1000</InfoboxFilter>
