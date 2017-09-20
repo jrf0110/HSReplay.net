@@ -534,7 +534,6 @@ class CardEditor extends React.Component<any, any> {
 		let previewId = "preview-render";
 
 		let refreshCallback = (state: CardEditorFormState): void => {
-			console.log("Rerendering new state", state);
 			this.props.sunwell.createCard(state, 512, state.premium, document.getElementById(previewId));
 		}
 
