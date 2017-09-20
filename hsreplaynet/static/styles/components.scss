@@ -1020,3 +1020,79 @@ table .info-icon, .sort-header .info-icon {
 	text-align: center;
 	text-transform: uppercase;
 }
+
+.rank-picker {
+	display: flex;
+	flex-wrap: wrap;
+
+	.rank-selector {
+		border-bottom: 1px solid $darkblue;
+		cursor: pointer;
+		display: block;
+		filter: grayscale(0.9);
+		position: relative;
+		user-select: none;
+		width: 18%;
+
+		&.rank-selector-legend {
+			width: 90%;
+		}
+
+		> img {
+			display: block;
+			height: 100%;
+			margin: 0 auto;
+			max-height: 45px;
+			max-width: 45px;
+			width: 100%;
+		}
+
+		> span {
+			font-size: 15px;
+			font-weight: bold;
+			left: 0;
+			line-height: 45px;
+			position: absolute;
+			text-align: center;
+			top: 0;
+			width: 100%;
+			text-shadow: -1px -1px 0 #000,
+				1px -1px 0 #000,
+				-1px 1px 0 #000,
+				1px 1px 0 #000;
+		}
+
+		&:hover {
+			background: $lightblue1;
+			filter: grayscale(0);
+		}
+
+		&.selected {
+			background: $lightcyan;
+			filter: grayscale(0);
+		}
+	}
+
+	.row-selector {
+		align-items: center;
+		border-bottom: 1px solid $darkblue;
+		cursor: pointer;
+		display: flex;
+		font-size: 12px;
+		text-align: center;
+		width: 10%;
+
+		.glyphicon {
+			text-align: center;
+			width: 100%;
+		}
+
+		&:hover {
+			color: $lightblue;
+		}
+
+		&.selected {
+			background: $lightcyan;
+		}
+	}
+}

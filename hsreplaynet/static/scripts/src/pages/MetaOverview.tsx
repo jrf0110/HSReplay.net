@@ -9,13 +9,14 @@ import { SortDirection } from "../interfaces";
 import TabList from "../components/layout/TabList";
 import Tab from "../components/layout/Tab";
 import ArchetypePopularity from "../components/metaoverview/ArchetypePopularity";
-import RankRangeFilter from "../components/RankRangeFilter";
 import Feature from "../components/Feature";
 import UserData from "../UserData";
 import ArchetypeList from "../components/metaoverview/ArchetypeList";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import InfoboxItem from "../components/InfoboxItem";
 import {commaSeparate} from "../helpers";
+import RankPicker from "../components/rankpicker/RankPicker";
+import InfoIcon from "../components/InfoIcon";
 
 interface MetaOverviewState {
 	mobileView?: boolean;
@@ -171,18 +172,11 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				</section>
 				<section id="rank-range-filter">
 					<PremiumWrapper>
-						<InfoboxFilterGroup
-							header="Rank Range"
-							locked={!UserData.isPremium()}
-							selectedValue={this.props.rankRange}
-							onClick={(value) => this.props.setRankRange(value)}
-							disabled={["archetypes", "matchups"].indexOf(this.props.tab) === -1}
-						>
-							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-						</InfoboxFilterGroup>
+						<h2>Rank Range</h2>
+						<RankPicker
+							selected={this.props.rankRange}
+							onSelectionChanged={(rankRange) => this.props.setRankRange(rankRange)}
+						/>
 					</PremiumWrapper>
 				</section>
 				<Feature feature="deck-region-filter">

@@ -13,7 +13,7 @@ const render = (cardData: CardData) => {
 			defaults={{
 				popularitySortBy: "total",
 				popularitySortDirection: "descending",
-				rankRange: "ALL",
+				rankRange: "ELEVEN_THROUGH_TWENTY",
 				region: "ALL",
 				sortBy: "popularity",
 				sortDirection: "descending",
