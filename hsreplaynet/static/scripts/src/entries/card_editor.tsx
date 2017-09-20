@@ -210,9 +210,9 @@ interface CardEditorFormState {
 // Map betwe
 const SunwellNameMap = new Map<string, string>([
 	["atk", "attack"],
-	["card_class", "playerClass"],
+	["card_class", "cardClass"],
 	["card_set", "set"],
-	["costs_health", "costHealth"],
+	["costs_health", "costsHealth"],
 	["hide_stats", "hideStats"],
 	["multi_class_group", "multiClassGroup"],
 	["race_text", "raceText"],
@@ -535,7 +535,7 @@ class CardEditor extends React.Component<any, any> {
 
 		let refreshCallback = (state: CardEditorFormState): void => {
 			console.log("Rerendering new state", state);
-			this.props.sunwell.createCard(state, 512, document.getElementById(previewId));
+			this.props.sunwell.createCard(state, 512, state.premium, document.getElementById(previewId));
 		}
 
 		return (<div className="flex-container" id="cardrender-editor-reactroot">
