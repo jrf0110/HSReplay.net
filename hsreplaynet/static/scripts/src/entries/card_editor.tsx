@@ -166,14 +166,17 @@ const MultiClassGroupOptions = [
 const CardSetOptions = [
 	[CardSet.INVALID, "None"],
 	[CardSet.EXPERT1, "Classic"],
-	[CardSet.NAXX, "Naxxramas"],
+	[CardSet.HOF, "Hall of Fame"],
+	[CardSet.NAXX, "Curse of Naxxramas"],
 	[CardSet.GVG, "Goblins vs. Gnomes"],
 	[CardSet.BRM, "Blackrock Mountain"],
 	[CardSet.TGT, "The Grand Tournament"],
 	[CardSet.LOE, "League of Explorers"],
-	[CardSet.KARA, "Karazhan"],
-	[CardSet.OG, "Old Gods"],
-	[CardSet.GANGS, "Gadgetzan"],
+	[CardSet.KARA, "One Night in Karazhan"],
+	[CardSet.OG, "Whispers of the Old Gods"],
+	[CardSet.GANGS, "Mean Streets of Gadgetzan"],
+	[CardSet.UNGORO, "Journey to Un'Goro"],
+	[CardSet.ICECROWN, "Knigts of the Frozen Throne"],
 ];
 
 const CardTypeOptions = [
