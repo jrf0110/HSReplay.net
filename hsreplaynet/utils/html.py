@@ -129,6 +129,9 @@ class RequestMetaMixin:
 	def get(self, request, *args, **kwargs):
 		if hasattr(self, "stylesheets"):
 			self.request.head.add_stylesheets(*self.stylesheets)
+		if hasattr(self, "scripts"):
+			for script in self.scripts:
+				self.request.head.add_script("", src=script)
 		if hasattr(self, "title"):
 			self.request.head.title = self.title
 		if hasattr(self, "description"):
