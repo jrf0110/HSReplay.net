@@ -14,6 +14,8 @@ import Feature from "../components/Feature";
 import UserData from "../UserData";
 import ArchetypeList from "../components/metaoverview/ArchetypeList";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
+import InfoboxItem from "../components/InfoboxItem";
+import {commaSeparate} from "../helpers";
 
 interface MetaOverviewState {
 	mobileView?: boolean;
@@ -191,6 +193,18 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							<span className="infobox-value">Ranked Standard</span>
 						</li>
 						<InfoboxLastUpdated {...this.getLastUpdated()} />
+						<DataInjector
+							query={{params, url: "head_to_head_archetype_matchups"}}
+							extract={{data: (data) => ({value: commaSeparate(data.series.metadata.totals.contributors)})}}
+						>
+							<InfoboxItem header="Contributors"/>
+						</DataInjector>
+						<DataInjector
+							query={{params, url: "head_to_head_archetype_matchups"}}
+							extract={{data: (data) => ({value: commaSeparate(data.series.metadata.totals.total_games)})}}
+						>
+							<InfoboxItem header="Games"/>
+						</DataInjector>
 					</ul>
 				</section>
 			</aside>
