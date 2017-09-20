@@ -10,6 +10,7 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
+import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 
 interface DiscoverProps extends React.ClassAttributes<Discover> {
 	cardData: CardData;
@@ -77,6 +78,8 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 			}
 		}
 
+		const dataUrl = `/analytics/clustering/data/${dataset}/${format}/`;
+
 		return (
 			<div className="discover-container">
 				<aside className="infobox">
@@ -107,10 +110,18 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 						<InfoboxFilter value="full">Full</InfoboxFilter>
 					</InfoboxFilterGroup>
 					{adminControls}
+					<h2>Data</h2>
+					<ul>
+						<InfoboxLastUpdated
+							url={dataUrl}
+							params={{}}
+							modify={(data) => data.length && data[0].as_of && new Date(data[0].as_of)}
+						/>
+					</ul>
 				</aside>
 				<main>
 					<DataInjector
-						query={{url: `/analytics/clustering/data/${dataset}/${format}/`, params: {}}}
+						query={{url: dataUrl, params: {}}}
 						extract={{
 							data: (clusterData) => {
 								let maxGames = 0;
