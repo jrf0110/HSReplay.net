@@ -47,6 +47,7 @@ interface ClassAnalysisProps extends React.ClassAttributes<ClassAnalysis> {
 	clusterTab: string;
 	setClusterTab: (clusterTab: string) => void;
 	sampleSize: number;
+	canModifyArchetype: boolean;
 }
 
 const COLORS = [
@@ -133,7 +134,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	}
 
 	renderSignatureTabs(): JSX.Element[] {
-		const {data, format, playerClass} = this.props;
+		const {canModifyArchetype, data, format, playerClass} = this.props;
 		const clusterIds = Object.keys(data.cluster_map).sort();
 		return clusterIds.map((clusterId) => {
 			const color = this.getClusterColor(clusterId, clusterIds);
@@ -149,6 +150,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 							color={color}
 							format={format}
 							playerClass={playerClass}
+							canModifyArchetype={canModifyArchetype}
 						/>
 					}
 				>

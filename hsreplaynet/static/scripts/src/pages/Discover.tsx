@@ -153,6 +153,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							onSelectedDeckChanged={(deck) => this.setState({deck})}
 							playerClass={playerClass}
 							sampleSize={sampleSize === "full" ? Number.MAX_SAFE_INTEGER : +sampleSize}
+							canModifyArchetype={dataset === "latest"}
 						/>
 					</DataInjector>
 				</main>

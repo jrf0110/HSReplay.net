@@ -11,16 +11,17 @@ interface ClusterTabLabelProps extends React.ClassAttributes<ClusterTabLabel> {
 	color: string;
 	format: string;
 	playerClass: string;
+	canModifyArchetype: boolean;
 }
 
 const EXPERIMENTAL_CLUSTER_ID = "-1";
 
 export default class ClusterTabLabel extends React.Component<ClusterTabLabelProps, {}> {
 	render(): JSX.Element {
-		const {active, clusterId, clusterName, color, format, playerClass} = this.props;
+		const {active, canModifyArchetype, clusterId, clusterName, color, format, playerClass} = this.props;
 		let selector = null;
 		const hasFeature = UserData.hasFeature("archetype-selection");
-		if (hasFeature && clusterId !== EXPERIMENTAL_CLUSTER_ID && active) {
+		if (hasFeature && clusterId !== EXPERIMENTAL_CLUSTER_ID && active && canModifyArchetype) {
 			selector = (
 				<DataInjector
 					query={[
