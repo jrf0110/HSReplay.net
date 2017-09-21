@@ -151,8 +151,15 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 						/>
 					}
 				>
-					<VictoryAxis crossAxis={true} dependentAxis={true} style={{axis: {opacity: 0}, tickLabels: {opacity: 0}}}/>
-					<VictoryAxis crossAxis={true} style={{axis: {opacity: 0}, tickLabels: {opacity: 0}}}/>
+					<VictoryAxis
+						crossAxis={true}
+						dependentAxis={true}
+						style={{axis: {display: "none"}, tickLabels: {display: "none"}}}
+					/>
+					<VictoryAxis
+						crossAxis={true}
+						style={{axis: {display: "none"}, tickLabels: {display: "none"}}}
+					/>
 					<VictoryScatter
 						dataComponent={<PointWrapper selectedDatum={this.state.selected}/>}
 						data={sampled}
