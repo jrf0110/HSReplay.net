@@ -1070,6 +1070,10 @@ table .info-icon, .sort-header .info-icon {
 		&.selected {
 			background: $lightcyan;
 			filter: grayscale(0);
+
+			&:hover {
+				background: $lightercyan;
+			}
 		}
 	}
 
@@ -1088,15 +1092,23 @@ table .info-icon, .sort-header .info-icon {
 		}
 
 		&:hover {
-			color: $lightblue;
+			background: $lightblue1;
 		}
 
 		&.selected {
 			background: $lightcyan;
+
+			&:hover {
+				background: $lightercyan;
+			}
 		}
 
 		&.only {
 			color: gray;
+
+			&:hover {
+				background: $lightcyan;
+			}
 		}
 	}
 }
