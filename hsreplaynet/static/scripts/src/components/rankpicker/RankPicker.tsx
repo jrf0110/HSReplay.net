@@ -92,6 +92,9 @@ export default class RankPicker extends React.Component<RankPickerProps, RankPic
 			const rowSelected = lowerBoundSelected && upperBoundSelected;
 			if (rowSelected) {
 				rowClasses.push("selected");
+				if (selectedRows.length === 1) {
+					rowClasses.push("only");
+				}
 			}
 			if (rank === 0 || (rank - 1) % 5 === 0) {
 				const row = Math.floor((rank - 1) / 5);

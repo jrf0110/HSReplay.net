@@ -1024,6 +1024,7 @@ table .info-icon, .sort-header .info-icon {
 .rank-picker {
 	display: flex;
 	flex-wrap: wrap;
+	user-select: none;
 
 	.rank-selector {
 		border-bottom: 1px solid $darkblue;
@@ -1031,7 +1032,6 @@ table .info-icon, .sort-header .info-icon {
 		display: block;
 		filter: grayscale(0.9);
 		position: relative;
-		user-select: none;
 		width: 18%;
 
 		&.rank-selector-legend {
@@ -1093,6 +1093,10 @@ table .info-icon, .sort-header .info-icon {
 
 		&.selected {
 			background: $lightcyan;
+		}
+
+		&.only {
+			color: gray;
 		}
 	}
 }
