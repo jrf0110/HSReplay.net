@@ -191,6 +191,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 								<InfoboxFilter value="REGION_US">America</InfoboxFilter>
 								<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>
 								<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>
+								<InfoboxFilter value="REGION_CN">China</InfoboxFilter>
 								<InfoboxFilter value="ALL">All Regions</InfoboxFilter>
 							</InfoboxFilterGroup>
 						</PremiumWrapper>
