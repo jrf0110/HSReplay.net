@@ -7,6 +7,7 @@
 		{% if user.is_staff %}data-admin-url="{% url 'admin:decks_deck_change' deck.pk %}"{% endif %}
 		data-deck-id="{{ deck.shortid }}"
 		data-deck-name="{{ deck_name }}"
+		data-deck-wild="{{ deck_is_wild }}"
 		data-hero-id="{{ deck.hero_dbf_id }}"
 		data-deck-cards="{{ card_list }}"
 		data-deck-class="{{ deck.deck_class.name }}"

@@ -8,6 +8,7 @@ import Fragments from "../components/Fragments";
 const adminUrl = document.getElementById("deck-info").getAttribute("data-admin-url");
 const deckId = document.getElementById("deck-info").getAttribute("data-deck-id");
 const deckName= document.getElementById("deck-info").getAttribute("data-deck-name");
+const isWild = +document.getElementById("deck-info").getAttribute("data-deck-wild") === 1;
 const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
 const deckClass = document.getElementById("deck-info").getAttribute("data-deck-class");
 const heroDbfId = +document.getElementById("deck-info").getAttribute("data-hero-id");
@@ -19,7 +20,7 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				gameType: "RANKED_STANDARD",
+				gameType: isWild ? "RANKED_WILD" : "RANKED_STANDARD",
 				rankRange: "ALL",
 				region: "ALL",
 				selectedClasses: [],

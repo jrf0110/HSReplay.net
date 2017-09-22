@@ -212,6 +212,7 @@ class DeckDetailView(View):
 		context = {
 			"deck": deck,
 			"deck_name": deck_name,
+			"deck_is_wild": 1 if deck.format == FormatType.FT_WILD else 0,
 			"card_list": ",".join(str(id) for id in cards),
 		}
 		return render(request, self.template_name, context)
