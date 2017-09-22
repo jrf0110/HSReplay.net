@@ -37,7 +37,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 			label = <Tooltip content="Mirror&nbsp;matchup" simple>⟋</Tooltip>;
 			backgroundColor = "rgb(200,200,200)";
 		}
-		else if (this.props.matchupData.totalGames > 100) {
+		else if (this.props.matchupData.totalGames >= 30) {
 			// actual matchup
 			backgroundColor = getColorString(Colors.REDORANGEGREEN, 70, winrate / 100, false);
 			label = (
