@@ -78,6 +78,10 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			if (data) {
 				this.setState({deckData: data.series.data}, () => this.updateData(this.props.cardData));
 			}
+		}).catch((reason) => {
+			if (reason !== 202) {
+				console.error("Could not fetch deck data.", reason);
+			}
 		});
 	}
 
