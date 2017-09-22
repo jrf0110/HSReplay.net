@@ -133,6 +133,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		};
 		const chartParams = {GameType, RankRange, archetype_id};
 		const params = {GameType, RankRange, TimeRange};
+		const deckListParams = {GameType, RankRange};
 
 		return <div className="archetype-detail-container">
 			<aside className="infobox">
@@ -257,7 +258,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</DataInjector>
 							<DataInjector
 								query={[
-									{key: "deckData", params, url: "list_decks_by_win_rate"},
+									{key: "deckData", params: deckListParams, url: "list_decks_by_win_rate"},
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId},
 								]}
 								extract={{deckData: this.deckTileExtractor("total_games")}}
@@ -268,7 +269,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</DataInjector>
 							<DataInjector
 								query={[
-									{key: "deckData", params, url: "list_decks_by_win_rate"},
+									{key: "deckData", params: deckListParams, url: "list_decks_by_win_rate"},
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId},
 								]}
 								extract={{deckData: this.deckTileExtractor("win_rate")}}
