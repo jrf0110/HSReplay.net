@@ -50,7 +50,10 @@ export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 				onMouseLeave={() => this.props.onHover(false)}
 			>
 				<div className="archetype matchup-archetype">
-					<div className="class-icon-wrapper" onClick={() => this.props.onFavoriteChanged(!this.props.isFavorite)}>
+					<div className="class-icon-wrapper" onClick={(e) => {
+						e.preventDefault();
+						this.props.onFavoriteChanged(!this.props.isFavorite)
+					}}>
 						<img
 							className="class-icon"
 							src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
