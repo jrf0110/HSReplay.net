@@ -77,7 +77,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 		}
 		else {
 			// not enough data
-			label = <Tooltip content="Not enough games" simple>~</Tooltip>;
+			label = <Tooltip content="Not enough games" simple>⁓</Tooltip>;
 			backgroundColor = "rgb(200,200,200)";
 		}
 
