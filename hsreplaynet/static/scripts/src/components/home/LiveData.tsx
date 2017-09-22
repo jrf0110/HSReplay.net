@@ -29,6 +29,7 @@ interface LiveDataState {
 	cursor: number;
 	data: GameTypeData<PlayedCards>;
 	doUpdate?: boolean;
+	fetching?: boolean;
 	renderedGameTypes?: string[];
 }
 
@@ -48,6 +49,7 @@ export default class LiveData extends React.Component<LiveDataProps, LiveDataSta
 			cursor: 0,
 			data: null,
 			doUpdate: true,
+			fetching: false,
 			renderedGameTypes: [entranceAnimationOrder[0]],
 		};
 
@@ -56,9 +58,10 @@ export default class LiveData extends React.Component<LiveDataProps, LiveDataSta
 	}
 
 	fetchData() {
+		this.setState({fetching: true});
 		DataManager.get("/live/distributions/played_cards", {} , true).then((response: GameTypeData<ApiPlayedCards[]>) => {
 			if (_.isEmpty(response) || Object.keys(response).some((key) => _.isEmpty(response[key]))) {
-				this.setState({doUpdate: false});
+				this.setState({doUpdate: false, fetching: false});
 				return;
 			}
 
@@ -80,21 +83,21 @@ export default class LiveData extends React.Component<LiveDataProps, LiveDataSta
 				});
 			});
 
-			this.setState({data});
+			this.setState({data, fetching: false});
 		});
 	}
 
 	updateCursor() {
-		if (!this.state.doUpdate) {
+		const {cursor, data, doUpdate, fetching} = this.state;
+		if (!doUpdate) {
 			return;
 		}
-		const {cursor, data} = this.state;
 		if (data) {
 			const timestamps = Object.keys(data.BGT_RANKED_STANDARD).map(Number).filter((ts) => ts > cursor);
 			if (timestamps.length > 0) {
 				this.setState({cursor: Math.min(...timestamps)});
 			}
-			if (timestamps.length === 3) {
+			if (timestamps.length <= 3 && !fetching) {
 				this.fetchData();
 			}
 			setTimeout(() => this.updateCursor(), 5000);
