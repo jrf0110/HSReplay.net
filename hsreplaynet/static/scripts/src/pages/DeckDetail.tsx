@@ -102,7 +102,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 			const inventory = data.series;
 			const gameTypes = Object.keys(inventory);
-			if (gameTypes && gameTypes.indexOf(this.props.gameType) === -1) {
+			if (gameTypes && gameTypes.indexOf(this.props.gameType) === -1 && !UserData.isPremium()) {
 				const gameType = gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
 				this.props.setGameType(gameType);
 			}
@@ -694,8 +694,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return Object.keys(this.state.inventory).indexOf(gameType) !== -1;
 	}
 
-	getGameType(): string {
-		return this.hasGameType(this.props.gameType) ? this.props.gameType : "RANKED_STANDARD";
+	getGameType(forPersonal?: boolean): string {
+		return forPersonal || this.hasGameType(this.props.gameType) ? this.props.gameType : "RANKED_STANDARD";
 	}
 
 	hasRankRange(rankRange: string): boolean {
@@ -753,7 +753,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const getRegion = (account: string) => account && account.split("-")[0];
 		const getLo = (account: string) => account && account.split("-")[1];
 		return Object.assign({}, {
-			GameType: this.getGameType(),
+			GameType: this.getGameType(true),
 		}, this.state.account ? {
 			Region: getRegion(state.account),
 			account_lo: getLo(state.account),
