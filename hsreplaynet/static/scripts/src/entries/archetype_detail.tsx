@@ -18,7 +18,6 @@ const render = (cardData: CardData) => {
 			defaults={{
 				rankRange: "ELEVEN_THROUGH_TWENTY",
 				tab: "overview",
-				timeRange: "LAST_7_DAYS",
 			}}
 		>
 			<ArchetypeDetail

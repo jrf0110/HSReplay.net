@@ -48,8 +48,6 @@ interface ArchetypeDetailProps {
 	setRankRange?: (rankRange: string) => void;
 	tab?: string;
 	setTab?: (tab: string) => void;
-	timeRange?: string;
-	setTimeRange?: (timeFrame: string) => void;
 }
 
 export default class ArchetypeDetail extends React.Component<ArchetypeDetailProps, ArchetypeDetailState> {
@@ -125,15 +123,13 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 
 	render(): JSX.Element {
 		const gameType = this.getGameType();
-		const {GameType, RankRange, TimeRange, archetype_id} = {
+		const {GameType, RankRange, archetype_id} = {
 			GameType: gameType,
 			RankRange: this.props.rankRange,
-			TimeRange: this.props.timeRange,
 			archetype_id: this.props.archetypeId,
 		};
 		const chartParams = {GameType, RankRange, archetype_id};
-		const params = {GameType, RankRange, TimeRange};
-		const deckListParams = {GameType, RankRange};
+		const params = {GameType, RankRange};
 
 		return <div className="archetype-detail-container">
 			<aside className="infobox">
@@ -159,28 +155,16 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
 				</section>
-					<section id="time-frame-filter">
-						<PremiumWrapper
-							name="Archetype Detail Time Frame"
-						>
-							<h2>Time frame</h2>
-							<InfoboxFilterGroup
-								locked={!UserData.isPremium()}
-								selectedValue={this.props.timeRange}
-								onClick={(value) => this.props.setTimeRange(value)}
-							>
-								<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
-								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
-								<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
-							</InfoboxFilterGroup>
-						</PremiumWrapper>
-					</section>
 				<section id="info">
 					<h2>Data</h2>
 					<ul>
 						<li>
 							Game Type
 							<span className="infobox-value">Ranked Standard</span>
+						</li>
+						<li>
+							Time Frame
+							<span className="infobox-value">Last 7 days</span>
 						</li>
 					</ul>
 				</section>
@@ -258,7 +242,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</DataInjector>
 							<DataInjector
 								query={[
-									{key: "deckData", params: deckListParams, url: "list_decks_by_win_rate"},
+									{key: "deckData", params, url: "list_decks_by_win_rate"},
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId},
 								]}
 								extract={{deckData: this.deckTileExtractor("total_games")}}
@@ -269,7 +253,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</DataInjector>
 							<DataInjector
 								query={[
-									{key: "deckData", params: deckListParams, url: "list_decks_by_win_rate"},
+									{key: "deckData", params, url: "list_decks_by_win_rate"},
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId},
 								]}
 								extract={{deckData: this.deckTileExtractor("win_rate")}}
