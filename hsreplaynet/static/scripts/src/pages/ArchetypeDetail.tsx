@@ -155,7 +155,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
 							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+							<InfoboxFilter value="ELEVEN_THROUGH_TWENTY">Rank 11–20</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
 				</section>

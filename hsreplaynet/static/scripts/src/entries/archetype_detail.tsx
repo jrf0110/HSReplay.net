@@ -16,7 +16,7 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				rankRange: "ALL",
+				rankRange: "ELEVEN_THROUGH_TWENTY",
 				tab: "overview",
 				timeRange: "LAST_7_DAYS",
 			}}
