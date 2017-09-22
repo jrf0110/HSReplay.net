@@ -424,7 +424,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							winrate: matchups[id].win_rate,
 						};
 					}
-				}).filter((x) => x !== undefined);
+				}).filter((x) => x !== undefined && x.games > 100);
 				data.sort((a, b) => b.winrate - a.winrate);
 				const index = best ? 0 : data.length - 1;
 				return {...data[index]};
