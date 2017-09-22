@@ -34,7 +34,21 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 
 		if (this.props.matchupData.friendlyId === this.props.matchupData.opponentId) {
 			// mirror match
-			label = <Tooltip content="Mirror&nbsp;matchup" simple>⟋</Tooltip>;
+			label = (
+				<Tooltip content="Mirror&nbsp;matchup" simple>
+					<svg viewBox={"0 0 10 10"} style={{height: "1em", verticalAlign: "middle"}}>
+						<path
+							id="foo"
+							d="M1 9 L 9 1"
+							style={{
+								stroke: "black",
+								strokeWidth: "0.6pt",
+								strokeOpacity: 1,
+								strokeLinejoin: "round",
+							}} />
+					</svg>
+				</Tooltip>
+			);
 			backgroundColor = "rgb(200,200,200)";
 		}
 		else if (this.props.matchupData.totalGames >= 30) {
