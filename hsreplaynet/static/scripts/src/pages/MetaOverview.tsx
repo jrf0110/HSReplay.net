@@ -179,7 +179,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						/>
 					</PremiumWrapper>
 				</section>
-				<Feature feature="deck-region-filter">
+				<Feature feature="meta-region-filter">
 					<section id="region-filter">
 						<PremiumWrapper>
 							<InfoboxFilterGroup
