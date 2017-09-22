@@ -11,6 +11,7 @@ interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups
 	archetypeData?: any;
 	cardData?: CardData;
 	gameType?: string;
+	minGames?: number;
 }
 
 interface ArchetypeMatchupsState {
@@ -28,7 +29,7 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 	}
 
 	render(): JSX.Element {
-		const {archetypeMatchupData, archetypeId} = this.props;
+		const {archetypeMatchupData, archetypeId, minGames} = this.props;
 		const archetypeMatchups = archetypeMatchupData.series.data["" + archetypeId];
 
 		const opponentClasses: {[key: string]: ApiArchetypePopularity[]} = {};
@@ -38,6 +39,9 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 			if (opponentArchetype) {
 				const opponentClass = opponentArchetype.player_class_name;
 				const matchup = archetypeMatchups[opponentId];
+				if (matchup.total_games < (minGames || 0)) {
+					return;
+				}
 				if (!opponentClasses[opponentClass]) {
 					opponentClasses[opponentClass] = [];
 				}

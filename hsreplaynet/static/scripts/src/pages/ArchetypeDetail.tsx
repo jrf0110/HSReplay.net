@@ -328,6 +328,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								<ArchetypeMatchups
 									archetypeId={this.props.archetypeId}
 									cardData={this.props.cardData}
+									minGames={100}
 								/>
 							</DataInjector>
 						</Tab>
