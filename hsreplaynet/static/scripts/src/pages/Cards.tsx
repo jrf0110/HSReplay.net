@@ -92,6 +92,7 @@ interface CardsProps extends FragmentChildProps, React.ClassAttributes<Cards> {
 const PLACEHOLDER_MINION = STATIC_URL + "images/loading_minion.png";
 const PLACEHOLDER_SPELL = STATIC_URL + "images/loading_spell.png";
 const PLACEHOLDER_WEAPON = STATIC_URL + "images/loading_weapon.png";
+const PLACEHOLDER_HERO = STATIC_URL + "images/loading_hero.png";
 
 export default class Cards extends React.Component<CardsProps, CardsState> {
 	readonly filters = {
@@ -301,6 +302,8 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				spell.src = PLACEHOLDER_SPELL;
 				const weapon = new Image();
 				weapon.src = PLACEHOLDER_WEAPON;
+				const hero = new Image();
+				hero.src = PLACEHOLDER_HERO;
 			}
 		}
 	}
@@ -569,6 +572,8 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				return PLACEHOLDER_WEAPON;
 			case "SPELL":
 				return PLACEHOLDER_SPELL;
+			case "HERO":
+				return PLACEHOLDER_HERO;
 			default:
 				return PLACEHOLDER_MINION;
 		}
