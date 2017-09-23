@@ -74,11 +74,13 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 
 	fetchDeckData(props: ArchetypeDetailProps) {
 		const params = {GameType: this.getGameType(props), RankRange: props.rankRange};
+		const setDeckData = (data) => {
+			this.setState({deckData: data.series.data}, () => this.updateData(this.props.cardData));
+		};
 		DataManager.get("list_decks_by_win_rate", params).then((data) => {
-			if (data) {
-				this.setState({deckData: data.series.data}, () => this.updateData(this.props.cardData));
-			}
+			setDeckData(data);
 		}).catch((reason) => {
+			setDeckData(null);
 			if (reason !== 202) {
 				console.error("Could not fetch deck data.", reason);
 			}

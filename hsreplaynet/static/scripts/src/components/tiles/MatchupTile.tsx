@@ -35,6 +35,9 @@ export default class MatchupTile extends React.Component<MatchupTileProps, {}> {
 				</div>,
 			];
 		}
+		else {
+			content = "No matchup found";
+		}
 
 		let href = null;
 		if (this.props.archetypeId && this.props.archetypeName) {
