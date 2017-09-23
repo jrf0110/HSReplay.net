@@ -345,7 +345,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 
 		return (
 			<div className="decks">
-				<div className={filterClassNames.join(" ")} id="deckinfobox">
+				<div className={filterClassNames.join(" ")} id="decks-infobox">
 					{backButton}
 					<ResetHeader
 						onReset={() => this.props.reset()}
