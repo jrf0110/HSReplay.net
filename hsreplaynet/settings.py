@@ -271,7 +271,7 @@ OAUTH2_PROVIDER = {
 		"webhooks:read": "View your webhooks",
 		"webhooks:write": "Create and delete webhooks on your behalf",
 	},
-	"ALLOWED_REDIRECT_URI_SCHEMES": ["https"],
+	"ALLOWED_REDIRECT_URI_SCHEMES": ["https", "http"],
 	"SCOPES_BACKEND_CLASS": "hearthsim_identity.oauth2.models.ApplicationScopes",
 }
 
