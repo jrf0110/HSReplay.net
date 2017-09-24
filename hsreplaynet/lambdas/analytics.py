@@ -34,18 +34,25 @@ def refresh_stale_redshift_queries(event, context):
 	# We run for 55 seconds, since the majority of queries take < 5 seconds to finish
 	# And the next scheduled invocation of this will be starting a minute after this one.
 	while duration < target_duration_seconds:
+		logger.info("Runtime duration: %s" % str(duration))
 		available_slots = catalogue.get_available_cluster_slots()
+		logger.info("Available cluster slots: %s" % str(available_slots))
 		if available_slots <= 1:
+			sleep_duration = 5
+			logger.info("Sleeping for %i until more slots are available" % sleep_duration)
 			# If only 1 slot remains leave it for ETL or an IMMEDIATE query.
-			time.sleep(5)
+			time.sleep(sleep_duration)
 			current_time = time.time()
 			duration = current_time - start_time
 			continue
 
 		remaining_seconds = target_duration_seconds - duration
+		logger.info("Will block for queued query for %s seconds" % str(remaining_seconds))
 		refreshed_query = catalogue.refresh_next_pending_query(block_for=remaining_seconds)
 		if refreshed_query:
 			logger.info("Refreshed: %s" % refreshed_query.cache_key)
+		else:
+			logger.info("Nothing to refresh.")
 
 		current_time = time.time()
 		duration = current_time - start_time
