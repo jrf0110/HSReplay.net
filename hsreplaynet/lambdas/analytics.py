@@ -2,6 +2,7 @@ import json
 import logging
 import time
 from threading import Thread
+from urllib.parse import unquote
 
 from django.conf import settings
 from redis_semaphore import NotAvailable
@@ -67,7 +68,7 @@ def finish_async_redshift_query(event, context):
 
 	s3_event = event["Records"][0]["s3"]
 	bucket = s3_event["bucket"]["name"]
-	manifest_key = s3_event["object"]["key"]
+	manifest_key = unquote(s3_event["object"]["key"])
 
 	if bucket == settings.S3_UNLOAD_BUCKET:
 		logger.info("Finishing query: %s" % manifest_key)
