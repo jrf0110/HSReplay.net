@@ -17,7 +17,6 @@ from hearthstone.enums import FormatType
 
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
-from hsreplaynet import settings
 from hsreplaynet.decks.models import Archetype, ClusterSetSnapshot, ClusterSnapshot, Deck
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
@@ -207,23 +206,6 @@ def fetch_local_query_results(request, name):
 	# to always be true.
 	parameterized_query = _get_query_and_params(request, name)
 	return _fetch_query_results(parameterized_query, run_local=True, user=request.user)
-
-
-@staff_member_required
-def fetch_async_query_results(request, name):
-	# This end point triggers async queries using the unload command.
-	# The queries are sent in a "fire-and-forget" manner: we rely on an S3-triggered
-	# lambda to complete the cache persistance.
-	parameterized_query = _get_query_and_params(request, name)
-	if issubclass(parameterized_query.__class__, HttpResponse):
-		return parameterized_query
-	handle = parameterized_query.unload_result(
-		s3_bucket=settings.REDSHIFT_QUERY_UNLOAD_BUCKET,
-		aws_account_id=settings.REDSHIFT_QUERY_UNLOAD_ACCOUNT_ID,
-		iam_role_name=settings.REDSHIFT_QUERY_UNLOAD_ROLE_NAME,
-	)
-	result = {"msg": "Query is processing asynchronously. Check back later.", "handle": handle}
-	return JsonResponse(result, status=202)
 
 
 def _fetch_query_results(parameterized_query, run_local=False, user=None):

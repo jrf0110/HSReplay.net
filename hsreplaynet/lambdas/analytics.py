@@ -11,10 +11,84 @@ from hsreplaynet.analytics.processing import (
 )
 from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import SQS
-from hsreplaynet.utils.aws.redshift import get_redshift_query
+from hsreplaynet.utils.aws.redshift import get_redshift_catalogue, get_redshift_query
 from hsreplaynet.utils.aws.sqs import get_messages, get_or_create_queue
 from hsreplaynet.utils.influx import influx_metric
 from hsreplaynet.utils.synchronization import CountDownLatch
+
+
+@instrumentation.lambda_handler(
+	cpu_seconds=300,
+	requires_vpc_access=True,
+	memory=128,
+)
+def refresh_stale_redshift_queries(event, context):
+	"""A cron'd handler that attempts to refresh queries queued in Redis"""
+	logger = logging.getLogger("hsreplaynet.lambdas.refresh_stale_redshift_queries")
+	start_time = time.time()
+	catalogue = get_redshift_catalogue()
+	target_duration_seconds = 55
+	duration = 0
+
+	# We run for 55 seconds, since the majority of queries take < 5 seconds to finish
+	# And the next scheduled invocation of this will be starting a minute after this one.
+	while duration < target_duration_seconds:
+		available_slots = catalogue.get_available_cluster_slots()
+		if available_slots <= 1:
+			# If only 1 slot remains leave it for ETL or an IMMEDIATE query.
+			time.sleep(5)
+			current_time = time.time()
+			duration = current_time - start_time
+			continue
+
+		remaining_seconds = target_duration_seconds - duration
+		refreshed_query = catalogue.refresh_next_pending_query(block_for=remaining_seconds)
+		if refreshed_query:
+			logger.info("Refreshed: %s" % refreshed_query.cache_key)
+
+		current_time = time.time()
+		duration = current_time - start_time
+
+
+@instrumentation.lambda_handler(
+	cpu_seconds=300,
+	requires_vpc_access=True,
+	memory=512,
+)
+def finish_async_redshift_query(event, context):
+	"""A handler triggered by the arrival of an UNLOAD manifest on S3
+
+	The S3 trigger must be configured manually with:
+		prefix = PROD
+		suffix = manifest
+	"""
+	logger = logging.getLogger("hsreplaynet.lambdas.finish_async_redshift_query")
+	catalogue = get_redshift_catalogue()
+
+	s3_event = event["Records"][0]["s3"]
+	bucket = s3_event["bucket"]["name"]
+	manifest_key = s3_event["object"]["key"]
+
+	if bucket == settings.S3_UNLOAD_BUCKET:
+		logger.info("Finishing query: %s" % manifest_key)
+		parameterized_query = catalogue.refresh_cache_from_s3_manifest_key(
+			manifest_key=manifest_key
+		)
+
+		query_execute_metric_fields = {
+			"duration_seconds": parameterized_query.most_recent_duration,
+			"query_handle": parameterized_query.most_recent_query_handle
+		}
+		query_execute_metric_fields.update(
+			parameterized_query.supplied_non_filters_dict
+		)
+
+		influx_metric(
+			"finished_async_redshift_query",
+			query_execute_metric_fields,
+			query_name=parameterized_query.query_name,
+			**parameterized_query.supplied_filters_dict
+		)
 
 
 @instrumentation.lambda_handler(

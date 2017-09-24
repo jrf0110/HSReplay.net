@@ -14,6 +14,7 @@ from redis_semaphore import Semaphore
 from sqlalchemy.sql import and_
 
 from hearthsim_identity.accounts.models import BlizzardAccount
+from hsredshift.analytics.library.base import QueryRefreshPriority
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws import redshift
 from hsreplaynet.utils.aws.clients import LAMBDA
@@ -23,7 +24,15 @@ from hsreplaynet.utils.influx import influx_metric
 
 def execute_query(parameterized_query, run_local=False):
 	if run_local:
-		_do_execute_query_work(parameterized_query)
+		# IMMEDIATE Will cause the query to get run synchronously
+		parameterized_query.schedule_refresh(
+			priority=QueryRefreshPriority.IMMEDIATE
+		)
+		# _do_execute_query_work(parameterized_query)
+	# Uncomment to cut-over to async redshift queries
+	# else:
+	# 	# This will queue the query for refresh as resources are available
+	# 	parameterized_query.schedule_refresh()
 
 	# It's safe to launch multiple attempts to execute for the same query
 	# Because the dogpile lock will only allow one to execute

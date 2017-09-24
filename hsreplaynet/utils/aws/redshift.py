@@ -42,7 +42,15 @@ def get_new_redshift_session(autoflush=False):
 def get_redshift_catalogue():
 	cache = get_redshift_cache_redis_client()
 	engine = get_redshift_engine()
-	return RedshiftCatalogue.instance(cache, engine)
+	catalogue = RedshiftCatalogue.instance(
+		cache=cache,
+		engine=engine,
+		aws_access_key_id=settings.AWS_CREDENTIALS["AWS_ACCESS_KEY_ID"],
+		aws_secret_access_key=settings.AWS_CREDENTIALS["AWS_SECRET_ACCESS_KEY"],
+		s3_unload_bucket=settings.S3_UNLOAD_BUCKET,
+		s3_unload_namespace=settings.S3_UNLOAD_NAMESPACE,
+	)
+	return catalogue
 
 
 def get_redshift_query(query):

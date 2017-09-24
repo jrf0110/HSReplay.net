@@ -431,7 +431,8 @@ ARCHETYPE_QUERIES_FOR_IMMEDIATE_REFRESH = [
 	"list_decks_by_opponent_win_rate"
 ]
 
-
+S3_UNLOAD_NAMESPACE = "REPLACE_ME"
+S3_UNLOAD_BUCKET = "hsreplaynet-analytics-results"
 KERAS_MODELS_BUCKET = "hsreplaynet-keras-models"
 USE_ARCHETYPE_PREDICTION_LAMBDA = False
 
