@@ -21,12 +21,13 @@ from hsreplaynet.utils.synchronization import CountDownLatch
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
 	requires_vpc_access=True,
-	memory=128,
+	memory=512,
 )
 def refresh_stale_redshift_queries(event, context):
 	"""A cron'd handler that attempts to refresh queries queued in Redis"""
 	logger = logging.getLogger("hsreplaynet.lambdas.refresh_stale_redshift_queries")
 	start_time = time.time()
+	logger.info("Start Time: %s" % str(start_time))
 	catalogue = get_redshift_catalogue()
 	target_duration_seconds = 55
 	duration = 0
@@ -47,6 +48,9 @@ def refresh_stale_redshift_queries(event, context):
 			continue
 
 		remaining_seconds = target_duration_seconds - duration
+		if remaining_seconds < 1:
+			break
+
 		logger.info("Will block for queued query for %s seconds" % str(remaining_seconds))
 		refreshed_query = catalogue.refresh_next_pending_query(block_for=remaining_seconds)
 		if refreshed_query:
@@ -60,8 +64,9 @@ def refresh_stale_redshift_queries(event, context):
 
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
-	requires_vpc_access=True,
 	memory=512,
+	tracing=False,
+	requires_vpc_access=True,
 )
 def finish_async_redshift_query(event, context):
 	"""A handler triggered by the arrival of an UNLOAD manifest on S3
