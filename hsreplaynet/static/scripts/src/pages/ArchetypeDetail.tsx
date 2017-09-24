@@ -315,6 +315,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									{key: "archetypeMatchupData", params, url: "head_to_head_archetype_matchups"},
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
 								]}
+								extract={{
+									archetypeMatchupData: (data) => ({archetypeMatchupData: data.series.data["" + this.props.archetypeId]}),
+								}}
 							>
 								<ArchetypeMatchups
 									archetypeId={this.props.archetypeId}

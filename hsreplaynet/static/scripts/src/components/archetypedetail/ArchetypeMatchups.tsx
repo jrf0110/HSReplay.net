@@ -30,15 +30,14 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 
 	render(): JSX.Element {
 		const {archetypeMatchupData, archetypeId, minGames} = this.props;
-		const archetypeMatchups = archetypeMatchupData.series.data["" + archetypeId];
 
 		const opponentClasses: {[key: string]: ApiArchetypePopularity[]} = {};
 		const games: {[key: string]: number} = {};
-		Object.keys(archetypeMatchups).forEach((opponentId) => {
+		Object.keys(archetypeMatchupData).forEach((opponentId) => {
 			const opponentArchetype = this.getArchetype(+opponentId);
 			if (opponentArchetype) {
 				const opponentClass = opponentArchetype.player_class_name;
-				const matchup = archetypeMatchups[opponentId];
+				const matchup = archetypeMatchupData[opponentId];
 				if (matchup.total_games < (minGames || 0)) {
 					return;
 				}
