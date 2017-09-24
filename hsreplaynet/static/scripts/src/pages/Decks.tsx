@@ -183,7 +183,9 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 							return;
 						}
 					}
-					const cards = cardList(JSON.parse(deck.deck_list));
+					// hotfix for unload issue 2017-09-24
+					const fixedDeckList = (deck.deck_list || "").replace(/\\,/g, ",");
+					const cards = cardList(JSON.parse(fixedDeckList));
 					if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 						return;
 					}
