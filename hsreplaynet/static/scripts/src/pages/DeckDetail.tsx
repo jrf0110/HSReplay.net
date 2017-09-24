@@ -32,6 +32,7 @@ import CardTable from "../components/tables/CardTable";
 import * as _ from "lodash";
 import Feature from "../components/Feature";
 import PremiumPromo from "../components/PremiumPromo";
+import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -459,6 +460,21 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						>
 							{this.getMyStats()}
 						</Tab>
+						<Tab
+							label={(
+								<span className="text-premium">
+									Matchups&nbsp;
+									<InfoIcon
+										header="Archetype Matchups"
+										content="See how this deck performs against specific archetypes."
+									/>
+								</span>
+							)}
+							id="matchups"
+							hidden={!UserData.hasFeature("meta-overview")}
+						>
+							{this.renderMatchups(deckParams)}
+						</Tab>
 						<Tab label="Similar Decks" id="similar">
 							<DataInjector
 								fetchCondition={this.isWildDeck() !== undefined}
@@ -470,36 +486,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 										rawCardList={this.props.deckCards}
 										wildDeck={this.isWildDeck()}
 									/>
-								</TableLoading>
-							</DataInjector>
-						</Tab>
-						<Tab
-							label="Matchups"
-							id="matchups"
-							hidden={!UserData.hasFeature("meta-overview")}
-						>
-							<DataInjector
-								fetchCondition={this.isWildDeck() !== undefined}
-								query={[
-									{
-										key: "archetypeMatchupData",
-										params: deckParams,
-										url: "single_deck_archetype_matchups",
-									},
-									{
-										key: "classMatchupData",
-										params: deckParams,
-										url: "single_deck_base_winrate_by_opponent_class",
-									},
-									{
-										key: "archetypeData",
-										params: {},
-										url: "/api/v1/archetypes/",
-									},
-								]}
-							>
-								<TableLoading dataKeys={["archetypeMatchupData", "classMatchupData", "archetypeData"]}>
-									<DeckMatchups/>
 								</TableLoading>
 							</DataInjector>
 						</Tab>
@@ -649,6 +635,34 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							? "You have not played this deck against this class recently."
 							: "You have not played this deck recently."
 					}
+				/>
+			</DataInjector>
+		);
+	}
+
+	renderMatchups(deckParams: any): JSX.Element {
+		if (!UserData.isAuthenticated() || !UserData.isPremium()) {
+			return (
+				<PremiumPromo
+					imageName="deck_matchups_full.png"
+					text="View more details on how this decks performs against specific archetypes."
+				/>
+			);
+		}
+		return (
+			<DataInjector
+				query={[
+					{key: "archetypeMatchupData", params: deckParams, url: "single_deck_archetype_matchups"},
+					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+				]}
+				extract={{
+					archetypeMatchupData: (data) => ({archetypeMatchupData: data.series.data}),
+				}}
+			>
+				<ArchetypeMatchups
+					archetypeId={+this.props.archetypeId}
+					cardData={this.props.cardData}
+					minGames={100}
 				/>
 			</DataInjector>
 		);
