@@ -30,6 +30,7 @@ class ArchetypeList extends React.Component<ArchetypeListProps, {}> {
 				playerClass={key}
 				sortBy={this.props.sortBy}
 				sortDirection={this.props.sortDirection}
+				totalPopularity={true}
 			/>
 		));
 		return (

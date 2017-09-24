@@ -10,6 +10,7 @@ interface ClassArchetypesTileProps extends SortableProps, React.ClassAttributes<
 	playerClass: string;
 	cardData: CardData;
 	gameType: string;
+	totalPopularity?: boolean;
 }
 
 export default class ClassArchetypesTile extends React.Component<ClassArchetypesTileProps, {}> {
@@ -32,6 +33,7 @@ export default class ClassArchetypesTile extends React.Component<ClassArchetypes
 						gameType={this.props.gameType}
 						cardData={this.props.cardData}
 						playerClass={playerClass}
+						totalPopularity={this.props.totalPopularity}
 					/>
 				</div>
 			</div>

@@ -13,6 +13,7 @@ interface ArchetypeClassTableProps extends SortableProps, React.ClassAttributes<
 	gameType: string;
 	cardData: CardData;
 	playerClass: string;
+	totalPopularity?: boolean;
 }
 
 const CELL_HEIGHT = 36;
@@ -23,6 +24,7 @@ const MIN_HEADER_WIDTH = 150;
 export default class ArchetypeClassTable extends React.Component<ArchetypeClassTableProps, {}> {
 	render(): JSX.Element {
 		const {data, playerClass, sortBy, sortDirection} = this.props;
+		const columns = this.getColumns();
 		const rows  = [];
 		data.forEach((datum) => {
 			const archetype = this.props.archetypeData.find((a) => a.id === datum.archetype_id);
@@ -41,7 +43,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				});
 			}
 		});
-		const {dataKey} = this.columns.find((c) => c.sortKey === sortBy);
+		const {dataKey} = columns.find((c) => c.sortKey === sortBy);
 		const direction = sortDirection === "ascending" ? 1 : -1;
 		rows.sort((a, b) => {
 			if (dataKey === "archetype_name") {
@@ -59,7 +61,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 			return {
 				data: [
 					this.renderHeader(row.archetype),
-					...this.columns.slice(1).map((c) => row[c.dataKey]),
+					...columns.slice(1).map((c) => row[c.dataKey]),
 				],
 				href: row.archetype.url,
 			};
@@ -73,7 +75,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				sortBy={sortBy}
 				sortDirection={sortDirection}
 				onSortChanged={this.props.onSortChanged}
-				columns={this.columns}
+				columns={columns}
 				rowData={rowData}
 				rowHighlighting={true}
 			/>
@@ -106,29 +108,32 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 		);
 	}
 
-	readonly columns: TableColumn[] = [
-		{
-			dataKey: "archetype_name",
-			sortKey: "archetype",
-			text: "Archetype",
-		},
-		{
-			dataKey: "win_rate",
-			sortKey: "winrate",
-			text: "Winrate",
-			winrateData: true,
-		},
-		{
-			dataKey: "pct_of_class",
-			percent: true,
-			sortKey: "games",
-			text: "Popularity",
-		},
-		{
-			dataKey: "total_games",
-			prettify: true,
-			sortKey: "games",
-			text: "Games",
-		},
-	];
+	getColumns(): TableColumn[] {
+		const popularityKey = this.props.totalPopularity ? "pct_of_total" : "pct_of_class";
+		return [
+			{
+				dataKey: "archetype_name",
+				sortKey: "archetype",
+				text: "Archetype",
+			},
+			{
+				dataKey: "win_rate",
+				sortKey: "winrate",
+				text: "Winrate",
+				winrateData: true,
+			},
+			{
+				dataKey: popularityKey,
+				percent: true,
+				sortKey: "games",
+				text: "Popularity",
+			},
+			{
+				dataKey: "total_games",
+				prettify: true,
+				sortKey: "games",
+				text: "Games",
+			},
+		];
+	}
 }
