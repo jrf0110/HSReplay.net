@@ -475,7 +475,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						<Tab
 							label="Matchups"
 							id="matchups"
-							hidden={!UserData.hasFeature("deck-matchups")}
+							hidden={!UserData.hasFeature("meta-overview")}
 						>
 							<DataInjector
 								fetchCondition={this.isWildDeck() !== undefined}
