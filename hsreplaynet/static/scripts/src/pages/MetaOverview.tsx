@@ -17,6 +17,7 @@ import InfoboxItem from "../components/InfoboxItem";
 import {commaSeparate} from "../helpers";
 import RankPicker from "../components/rankpicker/RankPicker";
 import InfoIcon from "../components/InfoIcon";
+import PremiumPromo from "../components/PremiumPromo";
 
 interface MetaOverviewState {
 	mobileView?: boolean;
@@ -132,22 +133,19 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							/>
 						</DataInjector>
 					</Tab>
-					<Tab id="popularity" label="Popularity">
-						<DataInjector
-							query={[
-								{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-								{key: "popularityData", params: popularityParams, url: "archetype_popularity_by_rank"},
-							]}
-						>
-							<ArchetypePopularity
-								cardData={this.props.cardData}
-								gameType={this.props.gameType}
-								sortDirection={this.props.sortDirection}
-								setSortDirection={this.props.setSortDirection}
-								sortBy={this.props.popularitySortBy}
-								setSortBy={this.props.setPopularitySortBy}
-							/>
-						</DataInjector>
+					<Tab
+						label={
+							<span className="text-premium">
+								Popularity&nbsp;
+								<InfoIcon
+									header="Popularity"
+									content="Archetype popularity broken down by rank."
+								/>
+							</span>
+						}
+						id="popularity"
+					>
+						{this.renderPopularity(popularityParams)}
 					</Tab>
 				</TabList>
 			);
@@ -224,6 +222,34 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				{content}
 			</main>
 		</div>;
+	}
+
+	renderPopularity(popularityParams: any): JSX.Element {
+		if (!UserData.isAuthenticated() || !UserData.isPremium()) {
+			return (
+				<PremiumPromo
+					imageName="metaoverview_popularity_full.png"
+					text="Want a deeper insight into the meta? Find archetype popularities broken down by rank here."
+				/>
+			);
+		}
+		return (
+			<DataInjector
+				query={[
+					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+					{key: "popularityData", params: popularityParams, url: "archetype_popularity_by_rank"},
+				]}
+			>
+				<ArchetypePopularity
+					cardData={this.props.cardData}
+					gameType={this.props.gameType}
+					sortDirection={this.props.sortDirection}
+					setSortDirection={this.props.setSortDirection}
+					sortBy={this.props.popularitySortBy}
+					setSortBy={this.props.setPopularitySortBy}
+				/>
+			</DataInjector>
+		);
 	}
 
 	getLastUpdated(): any {
