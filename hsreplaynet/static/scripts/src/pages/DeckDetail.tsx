@@ -31,6 +31,7 @@ import DeckMatchups from "../components/deckdetail/DeckMatchups";
 import CardTable from "../components/tables/CardTable";
 import * as _ from "lodash";
 import Feature from "../components/Feature";
+import PremiumPromo from "../components/PremiumPromo";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -605,18 +606,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	getMyStats(): JSX.Element {
 		if (!UserData.isAuthenticated() || !UserData.isPremium()) {
 			return (
-				<div className="premium-promo">
-					<div className="premium-background">
-						<img src={STATIC_URL + `images/premium-promotional/mystatistics_full.png`} />
-					</div>
-					<div className="card text-center">
-						<h3><span className="text-premium">Premium</span> only</h3>
-						<p className="big">You play this deck? View your personal Mulligan Guide and card statistics right here.</p>
-						<p>
-							<a href="/premium/" className="btn promo-button hero-button">Learn more</a>
-						</p>
-					</div>
-				</div>
+				<PremiumPromo
+					imageName="mystatistics_full.png"
+					text="You play this deck? View your personal Mulligan Guide and card statistics right here."
+				/>
 			);
 		}
 
