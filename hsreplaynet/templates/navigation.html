@@ -37,8 +37,8 @@
 						</li>
 
 						{% feature "meta-overview" as ft_meta %}{% if ft_meta.enabled %}
-							<li{% nav_active 'discover' %}>
-								<a href="{% url 'discover' %}" id="navbar-link-cards">
+							<li{% nav_active 'discover' %} id="navbar-link-discover">
+								<a href="{% url 'discover' %}">
 									<span class="glyphicon glyphicon-eye-open"></span>
 									<span class="hidden-sm">Discover</span>
 								</a>
@@ -46,8 +46,8 @@
 						{% endif %}
 
 						{% feature "meta-overview" as ft_meta %}{% if ft_meta.enabled %}
-							<li{% nav_active 'meta_overview' %}>
-								<a href="{% url 'meta_overview' %}" id="navbar-link-cards">
+							<li{% nav_active 'meta_overview' %} id="navbar-link-meta">
+								<a href="{% url 'meta_overview' %}">
 									<span class="glyphicon glyphicon-random"></span>
 									<span class="hidden-sm">Meta</span>
 								</a>
