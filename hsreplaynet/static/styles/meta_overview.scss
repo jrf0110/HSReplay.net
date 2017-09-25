@@ -140,6 +140,13 @@
 			display: none;
 		}
 
+		.header-archetype-name {
+			width: 70px;
+			margin: 0 1px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
 		&.matchup-column-header-archetype {
 			&.ignored {
 				.header-archetype-name {
