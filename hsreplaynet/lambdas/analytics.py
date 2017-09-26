@@ -32,6 +32,13 @@ def refresh_stale_redshift_queries(event, context):
 	target_duration_seconds = 55
 	duration = 0
 
+	for queue_name in catalogue.query_queues:
+		influx_metric(
+			"redshift_refresh_queue_depth",
+			{"depth": catalogue.queue_size(queue_name)},
+			queue_name=queue_name,
+		)
+
 	# We run for 55 seconds, since the majority of queries take < 5 seconds to finish
 	# And the next scheduled invocation of this will be starting a minute after this one.
 	while duration < target_duration_seconds:
