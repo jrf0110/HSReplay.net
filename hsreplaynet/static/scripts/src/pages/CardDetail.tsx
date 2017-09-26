@@ -76,10 +76,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	cardHasDiscover(): boolean {
-		const hasDiscover = this.props.card && this.props.card.text
-			&& this.props.card.text.indexOf("Discover") !== -1;
-		const kalimos = this.props.card && this.props.dbfId === 41331;
-		return hasDiscover || kalimos || false;
+		if (!this.props.card) {
+			return false;
+		}
+		const hasDiscover = this.props.card.referencedTags && this.props.card.referencedTags.some(t => t === "DISCOVER");
+		const isKalimos = this.props.dbfId === 41331;
+		return hasDiscover || isKalimos;
 	}
 
 	cardIsNeutral(): boolean {
