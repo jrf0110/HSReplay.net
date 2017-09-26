@@ -49,7 +49,7 @@ def get_handle_status(handle, min_statements=1):
 	""" % handle
 	log.info("Fetching handle status for: %s" % handle)
 
-	rp = redshift.get_new_redshift_connection().execute(query)
+	rp = redshift.get_new_redshift_connection(etl_user=True).execute(query)
 	first_row = rp.first()
 	if first_row:
 		had_errors = first_row[0]
@@ -80,7 +80,7 @@ def get_redshift_metadata(refresh=False):
 		md = MetaData()
 
 		try:
-			md.reflect(redshift.get_redshift_engine())
+			md.reflect(redshift.get_redshift_engine(etl_user=True))
 		except InternalError:
 			# We get intermittent cache lookup failures
 			# Due to concurrent modifications of an internal postgres engine cache
@@ -88,7 +88,7 @@ def get_redshift_metadata(refresh=False):
 			# https://dba.stackexchange.com/questions/173815/redshift-internalerror-cache-lookup-failed-for-relation
 			time.sleep(5)
 			# We try one more time before raising the exception
-			md.reflect(redshift.get_redshift_engine())
+			md.reflect(redshift.get_redshift_engine(etl_user=True))
 
 		_md_cache["md"] = md
 	return _md_cache["md"]
@@ -1408,7 +1408,7 @@ class RedshiftStagingTrackTableManager(models.Manager):
 			staging_table_name = create_staging_table(
 				table,
 				track.track_prefix,
-				redshift.get_redshift_engine()
+				redshift.get_redshift_engine(etl_user=True)
 			)
 
 		# Create the firehose stream
@@ -1535,7 +1535,7 @@ class RedshiftStagingTrackTable(models.Model):
 			self.get_min_max_game_dates_from_staging_table()
 
 			def etl_task_func():
-				conn = redshift.get_new_redshift_connection()
+				conn = redshift.get_new_redshift_connection(etl_user=True)
 				conn.execute("SET QUERY_GROUP TO '%s'" % self.gathering_stats_handle)
 				conn.execute("ANALYZE %s;" % self.staging_table)
 
@@ -1613,7 +1613,7 @@ class RedshiftStagingTrackTable(models.Model):
 					staging_table=self.staging_table
 				)
 
-				conn = redshift.get_new_redshift_connection()
+				conn = redshift.get_new_redshift_connection(etl_user=True)
 				conn.execute(sql1)
 				conn.execute(sql2)
 				conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
@@ -1671,7 +1671,7 @@ class RedshiftStagingTrackTable(models.Model):
 				)
 
 				log.info("STATEMENT: %s" % sql)
-				conn = redshift.get_new_redshift_connection()
+				conn = redshift.get_new_redshift_connection(etl_user=True)
 				conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
 				conn.execute(sql)
 
@@ -1706,7 +1706,7 @@ class RedshiftStagingTrackTable(models.Model):
 					min_date,
 					max_date
 				)
-				conn = redshift.get_new_redshift_connection()
+				conn = redshift.get_new_redshift_connection(etl_user=True)
 				conn.execute("SET QUERY_GROUP TO '%s'" % self.refreshing_view_handle)
 				conn.execute(sql)
 
@@ -1740,7 +1740,7 @@ class RedshiftStagingTrackTable(models.Model):
 
 			def etl_task_func():
 				vacuum_target = 100 - settings.REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE
-				conn = redshift.get_new_redshift_connection()
+				conn = redshift.get_new_redshift_connection(etl_user=True)
 				conn.execute("SET QUERY_GROUP TO '%s';" % self.vacuum_query_handle)
 				conn.execute(
 					"VACUUM FULL %s TO %i PERCENT;" % (self.target_table, vacuum_target)
@@ -1777,7 +1777,7 @@ class RedshiftStagingTrackTable(models.Model):
 		))
 
 		def etl_task_func():
-			conn = redshift.get_new_redshift_connection()
+			conn = redshift.get_new_redshift_connection(etl_user=True)
 			conn.execute("SET QUERY_GROUP TO '%s'" % self.analyze_query_handle)
 			conn.execute("ANALYZE %s;" % self.target_table)
 
@@ -1804,7 +1804,7 @@ class RedshiftStagingTrackTable(models.Model):
 			error_handler(e)
 
 		try:
-			engine = redshift.get_redshift_engine()
+			engine = redshift.get_redshift_engine(etl_user=True)
 			conn = engine.connect()
 			conn.execution_options(isolation_level="AUTOCOMMIT")
 			conn.execute("DROP TABLE IF EXISTS %s;" % self.pre_insert_table_name)
@@ -1979,7 +1979,7 @@ class RedshiftStagingTrackTable(models.Model):
 			handle=self.vacuum_query_handle,
 		)
 
-		conn = redshift.get_new_redshift_connection()
+		conn = redshift.get_new_redshift_connection(etl_user=True)
 		rp1 = conn.execute(sql)
 
 		rows = list(rp1)
@@ -1995,7 +1995,7 @@ class RedshiftStagingTrackTable(models.Model):
 		query = """
 			SELECT pct_unsorted FROM pct_unsorted_rows WHERE table_name = '%s';
 		""" % self.target_table
-		return redshift.get_new_redshift_connection().execute(query).scalar()
+		return redshift.get_new_redshift_connection(etl_user=True).execute(query).scalar()
 
 	def vacuum_is_needed(self):
 		VACUUM_THRESHOLD = settings.REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE
@@ -2013,7 +2013,9 @@ class RedshiftStagingTrackTable(models.Model):
 
 	def _get_final_staging_table_size(self):
 		stmt = self._get_staging_table_size_stmt()
-		compiled_statement = stmt.compile(bind=redshift.get_redshift_engine())
+		compiled_statement = stmt.compile(
+			bind=redshift.get_redshift_engine(etl_user=True)
+		)
 
 		rp = compiled_statement.execute()
 		first_row = rp.first()
@@ -2027,7 +2029,9 @@ class RedshiftStagingTrackTable(models.Model):
 	def record_deduped_table_size(self):
 		if self.final_staging_table_size:
 			query = "select count(*) from %s;" % self.pre_insert_table_name
-			self.deduped_table_size = redshift.get_new_redshift_connection().execute(query).scalar()
+			self.deduped_table_size = redshift.get_new_redshift_connection(
+				etl_user=True
+			).execute(query).scalar()
 		else:
 			self.deduped_table_size = 0
 		self.save()
@@ -2035,14 +2039,14 @@ class RedshiftStagingTrackTable(models.Model):
 	def record_pre_insert_prod_table_size(self):
 		if self.target_eligible_for_prod_table_size_metric():
 			query = "select count(*) from %s;" % self.target_table
-			rp = redshift.get_new_redshift_connection().execute(query)
+			rp = redshift.get_new_redshift_connection(etl_user=True).execute(query)
 			self.pre_insert_table_size = rp.scalar()
 			self.save()
 
 	def record_post_insert_prod_table_size(self):
 		if self.target_eligible_for_prod_table_size_metric():
 			query = "select count(*) from %s;" % self.target_table
-			rp = redshift.get_new_redshift_connection().execute(query)
+			rp = redshift.get_new_redshift_connection(etl_user=True).execute(query)
 			self.post_insert_table_size = rp.scalar()
 			self.save()
 
@@ -2059,7 +2063,9 @@ class RedshiftStagingTrackTable(models.Model):
 
 	def get_min_max_game_dates_from_staging_table(self):
 		stmt = self._get_min_max_game_dates_stmt()
-		compiled_statement = stmt.compile(bind=redshift.get_redshift_engine())
+		compiled_statement = stmt.compile(
+			bind=redshift.get_redshift_engine(etl_user=True)
+		)
 
 		rp = compiled_statement.execute()
 		first_row = rp.first()

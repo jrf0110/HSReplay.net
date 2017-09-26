@@ -12,11 +12,13 @@ def get_redshift_cache_redis_client():
 	return caches["redshift"].client.get_client()
 
 
-def get_redshift_engine():
+def get_redshift_engine(etl_user=False):
 	db = settings.REDSHIFT_DATABASE
+	username = db["ETL_USER"] if etl_user else db["USER"]
+	password = db["ETL_PASSWORD"] if etl_user else db["PASSWORD"]
 	url = URL(
 		db["ENGINE"],
-		username=db["USER"], password=db["PASSWORD"],
+		username=username, password=password,
 		host=db["HOST"], port=db["PORT"],
 		database=db["NAME"]
 	)
@@ -26,8 +28,8 @@ def get_redshift_engine():
 	)
 
 
-def get_new_redshift_connection(autocommit=True):
-	conn = get_redshift_engine().connect()
+def get_new_redshift_connection(autocommit=True, etl_user=False):
+	conn = get_redshift_engine(etl_user).connect()
 	if autocommit:
 		conn.execution_options(isolation_level="AUTOCOMMIT")
 	return conn
