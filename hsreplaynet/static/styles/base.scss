@@ -439,15 +439,16 @@ body, html {
 
 .popover {
 	padding: 0;
-	border-color: $premium;
+	border-color: $lightblue;
 }
 
 .popover-title {
-	background-color: $premium;
+	background-color: $lightblue;
+	color: white;
 }
 
 .popover.bottom > .arrow:after {
-	border-bottom-color: $premium;
+	border-bottom-color: $lightblue;
 }
 
 .navbar-hsreplay .popover {
@@ -464,5 +465,18 @@ body, html {
 
 	&:hover, &:active {
 		text-decoration: none;
+	}
+}
+
+.premium-popover {
+	border-color: $premium;
+
+	.popover-title {
+		background-color: $premium;
+		color: black;
+	}
+
+	&.bottom > .arrow:after {
+		border-bottom-color: $premium;
 	}
 }

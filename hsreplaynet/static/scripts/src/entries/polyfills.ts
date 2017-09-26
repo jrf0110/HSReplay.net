@@ -41,6 +41,7 @@ if (document.location.pathname.match(/\/(replay|games|articles|decks|cards|meta|
 			html: true,
 			title: "Highly requested <a href=\"#\" id=\"premium-popover-close\" class=\"popover-close\" aria-hidden=\"true\">&times;</a>",
 			content: "We accept PayPal now!",
+			template: "<div class=\"popover premium-popover\"><div class=\"arrow\"></div><h3 class=\"popover-title\"></h3><div class=\"popover-content\"></div></div>",
 		});
 		($(premium) as any).on("shown.bs.popover", () => {
 			$("#premium-popover-close").click((evt) => {
