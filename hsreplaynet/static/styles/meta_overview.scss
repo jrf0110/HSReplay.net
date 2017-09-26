@@ -492,12 +492,21 @@
 }
 
 #tooltip-archetype-signature {
+	max-height: 96vh;
+	overflow: hidden;
+
 	h3 {
 		font-size: 1em;
 	}
 
 	p {
-		padding-top: 1em;
+		background: black;
+		bottom: 0;
+		left: 0;
+		padding: 8px;
+		position: absolute;
+		text-align: center;
+		width: 100%;
 	}
 
 	.loading-spinner {
@@ -507,6 +516,10 @@
 		.glyphicon {
 			color: #999;
 		}
+	}
+
+	.archetype-signature {
+		padding-bottom: calc(1.3em + 8px);
 	}
 }
 
