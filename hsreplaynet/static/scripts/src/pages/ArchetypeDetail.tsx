@@ -23,7 +23,6 @@ import PopularityLineChart from "../components/charts/PopularityLineChart";
 import InfoIcon from "../components/InfoIcon";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
 import {getHeroCardId} from "../helpers";
-import RankTile from "../components/tiles/RankTile";
 import ArchetypeSignature from "../components/archetypedetail/ArchetypeSignature";
 import { extractSignature } from "../extractors";
 
@@ -227,26 +226,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								/>
 							</DataInjector>
 							<DataInjector
-								query={{key: "popularityData", params: {}, url: "archetype_popularity_by_rank"}}
-								extract={{popularityData: this.rankTileExtractor("win_rate")}}
-							>
-								<RankTile
-									href="/meta/"
-									title="Best performing at"
-									type="performance"
-								/>
-							</DataInjector>
-							<DataInjector
-								query={{key: "popularityData", params: {}, url: "archetype_popularity_by_rank"}}
-								extract={{popularityData: this.rankTileExtractor("pct_of_rank")}}
-							>
-								<RankTile
-									href="/meta/#tab=popularity"
-									title="Most popular at"
-									type="popularity"
-								/>
-							</DataInjector>
-							<DataInjector
 								query={[
 									{key: "deckData", params, url: "list_decks_by_win_rate"},
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/" + this.props.archetypeId},
@@ -442,25 +421,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				data.sort((a, b) => b.winrate - a.winrate);
 				const index = best ? 0 : data.length - 1;
 				return {...data[index]};
-			}
-		};
-	}
-
-	rankTileExtractor(sortProp: string) {
-		return (popularityData) => {
-			const data = popularityData.series.data;
-			const rankData = Object.keys(data).map((rank) => {
-				if (+rank <= 20) {
-					return data[rank].find((archetype) => archetype.archetype_id === this.props.archetypeId);
-				}
-			}).filter((x) => x !== undefined);
-			if (rankData.length) {
-				rankData.sort((a, b) => b[sortProp] - a[sortProp] || (a.rank - b.rank));
-				return {
-					popularity: rankData[0].pct_of_rank,
-					rank: rankData[0].rank,
-					winrate: rankData[0].win_rate,
-				};
 			}
 		};
 	}

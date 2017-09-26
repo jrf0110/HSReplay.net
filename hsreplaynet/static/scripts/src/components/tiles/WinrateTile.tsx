@@ -40,7 +40,7 @@ export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
 		}
 
 		return (
-			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 				<a
 					className="tile winrate-tile"
 					href={this.props.href}

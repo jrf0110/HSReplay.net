@@ -41,7 +41,7 @@ export default class DeckTile extends React.Component<DeckTileProps, {}> {
 		}
 
 		return (
-			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 				<a className="tile deck-tile" href={href}>
 					<div className="tile-title">
 						{this.props.title}
