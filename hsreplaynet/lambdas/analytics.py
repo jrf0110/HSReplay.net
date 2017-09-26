@@ -64,7 +64,7 @@ def refresh_stale_redshift_queries(event, context):
 
 @instrumentation.lambda_handler(
 	cpu_seconds=300,
-	memory=512,
+	memory=1536,
 	tracing=False,
 	requires_vpc_access=True,
 )
