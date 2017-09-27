@@ -151,6 +151,10 @@ export default class PopularityMatrix extends React.Component<PopularityMatrixPr
 												onScroll={onScroll}
 												className={"matchup-matrix"}
 											/>
+											<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}/>
+											<div className={"gradient gradient-bottom" + (scrollbarHeight + clientHeight + scrollTop >= scrollHeight || bottom > 0 ? " gradient-hidden" : "")} style={{bottom: scrollbarHeight}}/>
+											<div className={"gradient gradient-left" + (scrollLeft <= 0 ? " gradient-hidden" : "")}/>
+											<div className={"gradient gradient-right" + (scrollbarWidth + clientWidth + scrollLeft >= scrollWidth || right > 0 ? " gradient-hidden" : "")} style={{right: scrollbarWidth}}/>
 										</div>
 										<div className="grid-container grid-container-right" style={{top: headerCellHeight, right}}>
 											<Grid
@@ -173,6 +177,8 @@ export default class PopularityMatrix extends React.Component<PopularityMatrixPr
 												scrollTop={scrollTop}
 												className={"matchup-header"}
 											/>
+											<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}/>
+											<div className={"gradient gradient-bottom" + (scrollbarHeight + clientHeight + scrollTop >= scrollHeight || bottom > 0 ? " gradient-hidden" : "")}/>
 										</div>
 										<div
 											className="matchup-header-cell matchup-header-bottom-left"

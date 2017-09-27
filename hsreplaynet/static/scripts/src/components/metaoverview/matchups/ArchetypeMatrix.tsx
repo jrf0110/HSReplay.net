@@ -222,6 +222,10 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												className={"matchup-matrix"}
 												ref={(ref) => this.matchupCells = ref}
 											/>
+											<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}/>
+											<div className={"gradient gradient-bottom" + (scrollbarHeight + clientHeight + scrollTop >= scrollHeight || bottom > 0 ? " gradient-hidden" : "")} style={{bottom: scrollbarHeight}}/>
+											<div className={"gradient gradient-left" + (scrollLeft <= 0 ? " gradient-hidden" : "")}/>
+											<div className={"gradient gradient-right" + (scrollbarWidth + clientWidth + scrollLeft >= scrollWidth || right > 0 ? " gradient-hidden" : "")} style={{right: scrollbarWidth}}/>
 										</div>
 										<div
 											className="matchup-header-cell matchup-header-bottom-left matchup-header-popularity"
@@ -303,6 +307,8 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												className={"matchup-header"}
 												ref={(ref) => this.rowFooters = ref}
 											/>
+											<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}/>
+											<div className={"gradient gradient-bottom" + (scrollbarHeight + clientHeight + scrollTop >= scrollHeight || bottom > 0 ? " gradient-hidden" : "")}/>
 										</div>
 									</div>
 								)}
