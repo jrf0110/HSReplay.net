@@ -27,7 +27,6 @@ import CardList from "../components/CardList";
 import CardDetailPieChart from "../components/charts/CardDetailPieChart";
 import ArchetypeSelector from "../components/ArchetypeSelector";
 import DeckCountersList from "../components/deckdetail/DeckCountersList";
-import DeckMatchups from "../components/deckdetail/DeckMatchups";
 import CardTable from "../components/tables/CardTable";
 import * as _ from "lodash";
 import Feature from "../components/Feature";
@@ -471,7 +470,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</span>
 							)}
 							id="matchups"
-							hidden={!UserData.hasFeature("meta-overview")}
+							hidden={!UserData.hasFeature("meta-overview") || this.state.hasData === false}
 						>
 							{this.renderMatchups(deckParams)}
 						</Tab>
@@ -658,6 +657,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				extract={{
 					archetypeMatchupData: (data) => ({archetypeMatchupData: data.series.data}),
 				}}
+				fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
 			>
 				<ArchetypeMatchups
 					archetypeId={+this.props.archetypeId}
