@@ -1,6 +1,8 @@
 import * as React from "react";
 import * as _ from "lodash";
 import { ArchetypeData } from "../../../interfaces";
+import Tooltip from "../../Tooltip";
+import {toTitleCase} from "../../../helpers";
 
 interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	archetypeData: ArchetypeData;
@@ -25,13 +27,15 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 	}
 
 	render() {
+		const {archetypeData, isIgnored} = this.props;
 		const classNames = ["matchup-column-header matchup-column-header-archetype"];
-		if (this.props.isIgnored) {
+		if (isIgnored) {
 			classNames.push("ignored");
 		}
 		if (this.props.highlight) {
 			classNames.push("highlight");
 		}
+		const tooltip = (isIgnored ? "Include " : "Ignore ") + toTitleCase(archetypeData.playerClass);
 		return (
 			<div
 				className={classNames.join(" ")}
@@ -43,21 +47,18 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 				onMouseLeave={() => this.props.onHover(false)}
 			>
 				<span className="header-archetype-name">
-					{this.props.archetypeData.name}
+					{archetypeData.name}
 				</span>
-				<span
-					className="btn-toggle-class"
-					onClick={(e) => {
-						this.props.onIgnoredChanged(!this.props.isIgnored, true);
-						e.stopPropagation();
-					}}
-				>
-					Class
-				</span>
-				<img
-					className="class-icon"
-					src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
-				/>
+				<Tooltip header={tooltip} simple={true}>
+					<img
+						className="class-icon"
+						src={`${STATIC_URL}images/64x/class-icons/${archetypeData.playerClass.toLowerCase()}.png`}
+						onClick={(e) => {
+							this.props.onIgnoredChanged(!this.props.isIgnored, true);
+							e.stopPropagation();
+						}}
+					/>
+				</Tooltip>
 			</div>
 		);
 	}
