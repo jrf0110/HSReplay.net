@@ -95,6 +95,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 
 		const archetypeDecks = deckData[playerClass].filter((deck) => deck.archetype_id === archetypeId);
 		if (!archetypeDecks.length) {
+			this.setState({popularDecks: []});
 			return;
 		}
 
