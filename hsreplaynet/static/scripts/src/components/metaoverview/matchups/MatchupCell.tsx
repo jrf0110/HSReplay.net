@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { MatchupData } from "../../../interfaces";
-import { getColorString, toDynamicFixed } from "../../../helpers";
+import {MatchupData} from "../../../interfaces";
+import {commaSeparate, getColorString, toDynamicFixed} from "../../../helpers";
 import {Colors} from "../../../Colors";
 import Tooltip from "../../Tooltip";
 
@@ -26,13 +26,14 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 	}
 
 	render() {
+		const {matchupData} = this.props;
 		let label: string|JSX.Element = "";
 		const color = "black";
 		let backgroundColor = "white";
-		const winrate = this.props.matchupData.winrate || 0;
+		const winrate = matchupData.winrate || 0;
 		const classNames = ["matchup-cell"];
 
-		if (this.props.matchupData.friendlyId === this.props.matchupData.opponentId) {
+		if (matchupData.friendlyId === matchupData.opponentId) {
 			// mirror match
 			label = (
 				<Tooltip content="Mirror&nbsp;matchup" simple>
@@ -51,7 +52,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 			);
 			backgroundColor = "rgb(200,200,200)";
 		}
-		else if (this.props.matchupData.totalGames >= 30) {
+		else if (matchupData.totalGames >= 30) {
 			// actual matchup
 			backgroundColor = getColorString(Colors.REDORANGEGREEN, 70, winrate / 100, false);
 			label = (
@@ -59,16 +60,33 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 					simple
 					id="tooltip-matchup-cell"
 					content={(
-						<table>
-							<tr>
-								<th>Winrate:</th>
-								<td>{toDynamicFixed(winrate, 2)}%</td>
-							</tr>
-							<tr>
-								<th>Games:</th>
-								<td>{this.props.matchupData.totalGames || 0}</td>
-							</tr>
-						</table>
+						<div>
+							<span
+								className={"tooltip-header player-class " + matchupData.friendlyPlayerClass.toLowerCase()}
+							>
+								{matchupData.friendlyName}
+							</span>
+							<table>
+								<tr>
+									<th>Versus:</th>
+									<td>
+										<span
+											className={"player-class " + matchupData.opponentPlayerClass.toLowerCase()}
+										>
+											{matchupData.opponentName}
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<th>Winrate:</th>
+									<td>{toDynamicFixed(winrate, 2)}%</td>
+								</tr>
+								<tr>
+									<th>Games:</th>
+									<td>{commaSeparate(matchupData.totalGames || 0)}</td>
+								</tr>
+							</table>
+						</div>
 					)}
 				>
 					{`${winrate.toFixed(2)}%`}
