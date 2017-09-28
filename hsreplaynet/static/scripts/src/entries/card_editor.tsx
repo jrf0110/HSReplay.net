@@ -184,6 +184,7 @@ const CardTypeOptions = [
 	[CardType.SPELL, "Spell"],
 	[CardType.WEAPON, "Weapon"],
 	[CardType.HERO, "Hero"],
+	[CardType.HERO_POWER, "Hero Power"],
 ];
 
 interface CardEditorFormState {
