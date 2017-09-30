@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist, SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
+from django.utils.timezone import now
 from django.views.generic import TemplateView, View
 from djstripe.settings import STRIPE_LIVE_MODE
 from stripe.error import CardError, InvalidRequestError
@@ -425,5 +426,23 @@ class PaypalSubscribeView(View):
 		except BillingPlan.DoesNotExist:
 			return self.fail()
 
-		prepared_agreement = plan.create_agreement(request.user)
+		# The start date of the plan is equal to a full period of the plan's
+		# payment definition after now.
+		# This is because the first period is paid as part of the "setup fee".
+		# Why? Because in Paypal, the start date can't be "now", it always has
+		# to be in the future. Putting it "in a few minutes" makes us prone to
+		# race conditions where the API call can fail, or the user can cancel
+		# their subscription before the first payment has arrived. On top of
+		# this, without a setup fee, Paypal will tell the user that there will
+		# be no initial payment, which is misleading.
+		start_date = now() + plan.regular_payment_definition.frequency_delta
+		override_merchant_preferences = {
+			"setup_fee": plan.regular_payment_definition.amount.copy(),
+		}
+
+		prepared_agreement = plan.create_agreement(
+			request.user, start_date=start_date,
+			override_merchant_preferences=override_merchant_preferences
+		)
+
 		return redirect(prepared_agreement.approval_url)
