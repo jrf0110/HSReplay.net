@@ -60,7 +60,10 @@ def refresh_stale_redshift_queries(event, context):
 			break
 
 		logger.info("Will block for queued query for %s seconds" % str(remaining_seconds))
-		refreshed_query = catalogue.refresh_next_pending_query(block_for=remaining_seconds)
+		refreshed_query = catalogue.refresh_next_pending_query(
+			block_for=remaining_seconds,
+			force=True
+		)
 		if refreshed_query:
 			logger.info("Refreshed: %s" % refreshed_query.cache_key)
 		else:
