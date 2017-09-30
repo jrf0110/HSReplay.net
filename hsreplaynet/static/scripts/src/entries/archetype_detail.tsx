@@ -9,6 +9,8 @@ const container = document.getElementById("archetype-container");
 const archetypeId = container.getAttribute("data-archetype-id");
 const archetypeName = container.getAttribute("data-archetype-name");
 const playerClass = container.getAttribute("data-archetype-player-class");
+const hasStandardData = container.getAttribute("data-has-standard-data") === "True";
+const hasWildData = container.getAttribute("data-has-wild-data") === "True";
 
 UserData.create();
 
@@ -25,8 +27,8 @@ const render = (cardData: CardData) => {
 				archetypeId={+archetypeId}
 				archetypeName={archetypeName}
 				playerClass={playerClass}
-				hasStandardData={true}
-				hasWildData={false}
+				hasStandardData={hasStandardData}
+				hasWildData={hasWildData}
 				gameType="RANKED_STANDARD"
 			/>
 		</Fragments>,

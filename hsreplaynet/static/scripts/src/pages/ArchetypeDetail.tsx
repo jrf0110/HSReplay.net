@@ -64,6 +64,11 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		this.fetchDeckData(props);
 	}
 
+	hasData(props?: ArchetypeDetailProps): boolean {
+		const {gameType, hasWildData, hasStandardData} = props || this.props;
+		return gameType === "RANKED_WILD" && hasWildData || hasStandardData;
+	}
+
 	fixGameTypeFragments() {
 		const gameType = this.getGameType();
 		if (gameType !== this.props.gameType) {
@@ -72,6 +77,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 	}
 
 	fetchDeckData(props: ArchetypeDetailProps) {
+		if (!this.hasData(props)) {
+			return;
+		}
 		const params = {GameType: this.getGameType(props), RankRange: props.rankRange};
 		const setDeckData = (data) => {
 			this.setState({deckData: data.series.data}, () => this.updateData(this.props.cardData));
@@ -137,45 +145,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		const chartParams = {GameType, RankRange, archetype_id};
 		const params = {GameType, RankRange};
 
-		return <div className="archetype-detail-container">
-			<aside className="infobox">
-				<h1>{this.props.archetypeName}</h1>
-				<img
-					className="hero-image"
-					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.playerClass, true) + ".jpg"}
-				/>
-				<section id="rank-range-filter">
-					<PremiumWrapper
-						name="Archetype Detail Rank Range"
-					>
-						<h2>Rank range</h2>
-						<InfoboxFilterGroup
-							selectedValue={this.props.rankRange}
-							onClick={(value) => this.props.setRankRange(value)}
-							tabIndex={0}
-						>
-							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-							<InfoboxFilter value="ELEVEN_THROUGH_TWENTY">Rank 11–20</InfoboxFilter>
-						</InfoboxFilterGroup>
-					</PremiumWrapper>
-				</section>
-				<section id="info">
-					<h2>Data</h2>
-					<ul>
-						<li>
-							Game Type
-							<span className="infobox-value">Ranked Standard</span>
-						</li>
-						<li>
-							Time Frame
-							<span className="infobox-value">Last 7 days</span>
-						</li>
-					</ul>
-				</section>
-			</aside>
-			<main>
+		let content = null;
+		if (this.hasData()) {
+			content = [
 				<section id="content-header">
 					<div className="container-fluid">
 						<div className="row">
@@ -250,7 +222,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</DataInjector>
 						</div>
 					</div>
-				</section>
+				</section>,
 				<section id="page-content">
 					<TabList tab={this.props.tab} setTab={this.props.setTab}>
 						<Tab label="Overview" id="overview">
@@ -369,7 +341,53 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</div>
 						</Tab>
 					</TabList>
+				</section>,
+			];
+		}
+		else {
+			content = <h3 className="message-wrapper">No data available</h3>;
+		}
+
+		return <div className="archetype-detail-container">
+			<aside className="infobox">
+				<h1>{this.props.archetypeName}</h1>
+				<img
+					className="hero-image"
+					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.playerClass, true) + ".jpg"}
+				/>
+				<section id="rank-range-filter">
+					<PremiumWrapper
+						name="Archetype Detail Rank Range"
+					>
+						<h2>Rank range</h2>
+						<InfoboxFilterGroup
+							selectedValue={this.props.rankRange}
+							onClick={(value) => this.props.setRankRange(value)}
+							tabIndex={0}
+						>
+							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+							<InfoboxFilter value="ELEVEN_THROUGH_TWENTY">Rank 11–20</InfoboxFilter>
+						</InfoboxFilterGroup>
+					</PremiumWrapper>
 				</section>
+				<section id="info">
+					<h2>Data</h2>
+					<ul>
+						<li>
+							Game Type
+							<span className="infobox-value">Ranked Standard</span>
+						</li>
+						<li>
+							Time Frame
+							<span className="infobox-value">Last 7 days</span>
+						</li>
+					</ul>
+				</section>
+			</aside>
+			<main>
+				{content}
 			</main>
 		</div>;
 	}

@@ -53,7 +53,9 @@ class ArchetypeDetailView(LoginRequiredMixin, RequestMetaMixin, View):
 		request.head.title = archetype.name
 
 		context = {
-			"archetype": archetype
+			"archetype": archetype,
+			"has_standard_data": archetype.standard_cluster is not None,
+			"has_wild_data": archetype.wild_cluster is not None,
 		}
 
 		return render(request, self.template_name, context)
