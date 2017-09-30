@@ -293,6 +293,8 @@ def _trigger_if_stale(parameterized_query, run_local=False):
 	if parameterized_query.result_is_stale or run_local:
 		attempt_request_triggered_query_execution(parameterized_query, run_local)
 		return True
+	else:
+		parameterized_query.preschedule_refresh()
 
 	return False
 
