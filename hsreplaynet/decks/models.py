@@ -852,8 +852,8 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 			for cluster in class_cluster.clusters:
 				cluster.save()
 
-	def update_archetype_signatures(self):
-		if all(c.neural_network_ready() for c in self.class_clusters):
+	def update_archetype_signatures(self, force=False):
+		if force or all(c.neural_network_ready() for c in self.class_clusters):
 			with transaction.atomic():
 				ClusterSetSnapshot.objects.filter(
 					live_in_production=True
