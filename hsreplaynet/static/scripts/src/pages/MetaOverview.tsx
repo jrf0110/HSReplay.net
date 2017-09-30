@@ -60,9 +60,16 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		};
 	}
 
+	getGameType(): string {
+		if (UserData.hasFeature("archetypes-gamemode-filter")) {
+			return this.props.gameType;
+		}
+		return "RANKED_STANDARD";
+	}
+
 	getParams(): any {
 		return {
-			GameType: this.props.gameType,
+			GameType: this.getGameType(),
 			RankRange: this.props.rankRange,
 			Region: this.props.region,
 			TimeRange: this.props.timeFrame,
@@ -71,7 +78,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 
 	getPopularityParams(): any {
 		return {
-			GameType: this.props.gameType,
+			GameType: this.getGameType(),
 			Region: this.props.region,
 			TimeRange: this.props.timeFrame,
 		};
@@ -99,7 +106,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					onSortChanged={(archetypeListSortBy, archetypeListSortDirection) => {
 						this.setState({archetypeListSortBy, archetypeListSortDirection});
 					}}
-					gameType={this.props.gameType}
+					gameType={this.getGameType()}
 					cardData={this.props.cardData}
 				/>
 			</DataInjector>
@@ -124,7 +131,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						>
 							<ArchetypeMatchups
 								cardData={this.props.cardData}
-								gameType={this.props.gameType}
+								gameType={this.getGameType()}
 								mobileView={this.state.mobileView}
 								setSortBy={this.props.setSortBy}
 								setSortDirection={this.props.setSortDirection}
@@ -177,6 +184,18 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						/>
 					</PremiumWrapper>
 				</section>
+				<Feature feature="archetypes-gamemode-filter">
+					<section id="gamemode-filter">
+						<InfoboxFilterGroup
+							header="Game Mode"
+							selectedValue={this.props.gameType}
+							onClick={(gameType) => this.props.setGameType(gameType)}
+						>
+							<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+							<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+						</InfoboxFilterGroup>
+					</section>
+				</Feature>
 				<Feature feature="meta-region-filter">
 					<section id="region-filter">
 						<PremiumWrapper>
@@ -199,7 +218,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					<h2>Data</h2>
 					<ul>
 						<li>
-							Game Type
+							Game Mode
 							<span className="infobox-value">Ranked Standard</span>
 						</li>
 						<InfoboxLastUpdated {...this.getLastUpdated()} />
@@ -242,7 +261,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			>
 				<ArchetypePopularity
 					cardData={this.props.cardData}
-					gameType={this.props.gameType}
+					gameType={this.getGameType()}
 					sortDirection={this.props.sortDirection}
 					setSortDirection={this.props.setSortDirection}
 					sortBy={this.props.popularitySortBy}

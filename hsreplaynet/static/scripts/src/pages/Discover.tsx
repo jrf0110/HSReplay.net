@@ -43,9 +43,9 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 
 	render(): JSX.Element {
 		const {cardData, tab, dataset, format, playerClass, sampleSize, setTab, zoomEnabled} = this.props;
-		let adminControls = null;
-		if (UserData.hasFeature("archetype-training")) {
-			adminControls = [
+		const adminControls = [];
+		if (UserData.hasFeature("archetypes-gamemode-filter")) {
+			adminControls.push(
 				<InfoboxFilterGroup
 					key="format-filter"
 					header="Format"
@@ -57,6 +57,10 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 					<InfoboxFilter value="FT_STANDARD">Standard</InfoboxFilter>
 					<InfoboxFilter value="FT_WILD">Wild</InfoboxFilter>
 				</InfoboxFilterGroup>,
+			);
+		}
+		if (UserData.hasFeature("archetype-training")) {
+			adminControls.push(
 				<InfoboxFilterGroup
 					key="cluster-data-filter"
 					header="Dataset"
@@ -66,7 +70,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 					<InfoboxFilter value="live">Live</InfoboxFilter>
 					<InfoboxFilter value="latest">Latest</InfoboxFilter>
 				</InfoboxFilterGroup>,
-			];
+			);
 			const {deck} = this.state;
 			if (deck !== null) {
 				adminControls.push(
