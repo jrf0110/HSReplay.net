@@ -44,7 +44,18 @@ export default class ClusterArchetypeSelector extends React.Component<ClusterArc
 					<li role="separator" className="divider"/>
 					<li><a href="#" onClick={(e) => this.onArchetypeClick(e, null)}>Remove Archetype</a></li>
 					<li role="separator" className="divider"/>
-					<li><a href="/admin/decks/archetype/">Edit Archetypes</a></li>
+					<li>
+						<a
+							href="/admin/decks/archetype/"
+							onClick={(e) => {
+								e.preventDefault();
+								// Absolutely no idea why this doesn't just work
+								window.open("/admin/decks/archetype/");
+							}}
+						>
+						Edit Archetypes
+						</a>
+					</li>
 				</ul>
 			</span>
 		);
