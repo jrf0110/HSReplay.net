@@ -306,11 +306,13 @@ def live_clustering_data(request, game_format):
 	if not snapshot:
 		raise Http404("No Snapshot exists")
 
+	external_names = {a.id: a.name for a in Archetype.objects.live()}
 	return HttpResponse(
 		content=json.dumps(
 			snapshot.to_chart_data(
 				with_external_ids=True,
-				as_of=snapshot.as_of.isoformat()
+				as_of=snapshot.as_of.isoformat(),
+				external_names=external_names
 			),
 			indent=4
 		),
@@ -329,11 +331,13 @@ def latest_clustering_data(request, game_format):
 			game_format=FormatType[game_format]
 		).latest()
 
+		external_names = {a.id: a.name for a in Archetype.objects.live()}
 		return HttpResponse(
 			content=json.dumps(
 				snapshot.to_chart_data(
 					include_ccp_signature=True,
-					as_of=snapshot.as_of.isoformat()
+					as_of=snapshot.as_of.isoformat(),
+					external_names=external_names
 				),
 				indent=4
 			),
