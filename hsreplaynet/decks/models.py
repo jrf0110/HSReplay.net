@@ -89,11 +89,12 @@ class DeckManager(models.Manager):
 		)
 
 		# New Style Deck Prediction
-		nn_archetype_id = ClusterSetSnapshot.objects.predict_archetype_id(
-			player_class,
-			game_format,
-			deck,
-		)
+		nn_archetype_id = None
+		# nn_archetype_id = ClusterSetSnapshot.objects.predict_archetype_id(
+		# 	player_class,
+		# 	game_format,
+		# 	deck,
+		# )
 
 		archetype_id = sig_archetype_id or nn_archetype_id
 		influx_metric(
