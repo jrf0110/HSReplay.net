@@ -457,6 +457,7 @@ class ClusterSetManager(models.Manager):
 		game_format=enums.FormatType.FT_STANDARD,
 		num_clusters=20,
 		merge_threshold=0.85,
+		inherit_threshold=0.85,
 		lookback=7,
 		min_observations=100,
 		experimental_threshold=1500,
@@ -486,7 +487,7 @@ class ClusterSetManager(models.Manager):
 
 			uninherited_id_set = cs_snapshot.inherit_from_previous(
 				previous_snapshot,
-				merge_threshold=merge_threshold
+				merge_threshold=inherit_threshold
 			)
 
 			if uninherited_id_set:

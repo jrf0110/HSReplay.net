@@ -8,6 +8,7 @@ class Command(BaseCommand):
 	def add_arguments(self, parser):
 		parser.add_argument("--num-clusters", default=50, type=int)
 		parser.add_argument("--merge-threshold", default=0.75, type=float)
+		parser.add_argument("--inherit-threshold", default=0.85, type=float)
 		parser.add_argument("--lookback", default=7, type=int)
 		parser.add_argument("--min-observations", default=100, type=int)
 		parser.add_argument("--experimental-threshold", default=1500, type=int)
@@ -19,6 +20,7 @@ class Command(BaseCommand):
 
 		num_clusters = options["num_clusters"]
 		merge_threshold = options["merge_threshold"]
+		inherit_threshold = options["inherit_threshold"]
 		lookback = options["lookback"]
 		min_observations = options["min_observations"]
 		experimental_threshold = options["experimental_threshold"]
@@ -29,6 +31,7 @@ class Command(BaseCommand):
 			FormatType.FT_STANDARD,
 			num_clusters=num_clusters,
 			merge_threshold=merge_threshold,
+			inherit_threshold=inherit_threshold,
 			lookback=lookback,
 			min_observations=min_observations,
 			experimental_threshold=experimental_threshold,
