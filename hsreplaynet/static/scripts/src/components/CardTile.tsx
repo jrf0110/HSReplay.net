@@ -12,6 +12,7 @@ interface CardTileProps {
 	noLink?: boolean;
 	countBoxSize?: number;
 	predicted?: boolean;
+	subtitle?: string;
 }
 
 export default class CardTile extends React.Component<CardTileProps, {}> {
@@ -65,6 +66,14 @@ export default class CardTile extends React.Component<CardTileProps, {}> {
 					src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.card.id + ".png"}
 				/>
 			);
+			if (this.props.subtitle) {
+				tooltip = (
+					<div className="card-image-container">
+						{tooltip}
+						<span className="card-image-subtitle">{this.props.subtitle}</span>
+					</div>
+				);
+			}
 		}
 
 		const label = this.props.customText || this.props.card.name;
@@ -75,7 +84,7 @@ export default class CardTile extends React.Component<CardTileProps, {}> {
 		}
 
 		let tile = (
-			<Tooltip content={tooltip} noBackground>
+			<Tooltip id="card-tooltip" content={tooltip} noBackground>
 				<div
 					className={classNames.join(" ")}
 					style={tileStyle}

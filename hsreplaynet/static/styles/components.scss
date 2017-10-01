@@ -109,6 +109,25 @@ table .info-icon, .sort-header .info-icon {
 	}
 }
 
+#card-tooltip {
+	.card-image-container {
+		position: relative;
+	}
+
+	.card-image-subtitle {
+		position: absolute;
+		width: 100%;
+		left: 0;
+		text-align: center;
+		bottom: 5%;
+		font-weight: bold;
+		text-shadow: -1px -1px 0 #000,
+			1px -1px 0 #000,
+			-1px 1px 0 #000,
+			1px 1px 0 #000;
+	}
+}
+
 .article-tooltip {
 	width: 0;
 	height: 0;
