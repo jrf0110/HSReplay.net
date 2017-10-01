@@ -16,13 +16,14 @@
 		<h1>{{ gg.format_friendly_name|default:"Replay" }}</h1>
 		<div id="replay-toggle-container"></div>
 
-		<h2>Players</h2>
-		<div
-			id="infobox-players-container"
+		<h2 class="hidden-lg">Decks</h2>
+		<section
+			id="infobox-players-container-small"
+			class="hidden-lg"
 			data-game-id="{{ replay.shortid }}" data-player-name="{{ replay.friendly_player.name }}"
 			data-opponent-name="{{ replay.opposing_player.name }}" data-build="{{ replay.global_game.build }}"
-		>
-		</div>
+		></section>
+
 		<h2>Game</h2>
 		<ul id="infobox-game">
 			<li>Played <span class="infobox-value"> {{ gg.match_start|naturaltime }} </span></li>
@@ -79,13 +80,20 @@
 	{% endwith %}
 	<main>
 		{% include "snippets/noscript.html" %}
-		<section id="joust-container" class="hidden-xs"
-			data-replayurl="{{ replay.replay_xml.url }}"
-			{% if user.joust_autoplay is False %}data-autoplay="false"{% endif %}
-			{% for player in players %}
-				data-player{{ forloop.counter }}="{{ player }}"
-			{% endfor %}
-		></section>
+		<section id="main-content-wrapper">
+			<section id="joust-container" class="hidden-xs"
+				data-replayurl="{{ replay.replay_xml.url }}"
+				{% if user.joust_autoplay is False %}data-autoplay="false"{% endif %}
+				{% for player in players %}
+					data-player{{ forloop.counter }}="{{ player }}"
+				{% endfor %}
+			></section>
+			<section
+				class="infobox visible-lg" id="infobox-players-container"
+				data-game-id="{{ replay.shortid }}" data-player-name="{{ replay.friendly_player.name }}"
+				data-opponent-name="{{ replay.opposing_player.name }}" data-build="{{ replay.global_game.build }}"
+			></section>
+		</section>
 		<section id="replay-comments" class="clearfix">
 			{% include "comments/comment_section.html" with object=replay %}
 		</section>

@@ -12,8 +12,8 @@ interface CardListProps {
 	cardList: CardId[];
 	predictedCardList?: CardId[];
 	cardHeight?: number;
-	name: string;
-	heroes: number[];
+	name?: string;
+	heroes?: number[];
 	showButton?: boolean;
 	id?: number;
 	deckClass?: string;
@@ -103,6 +103,7 @@ export default class CardList extends React.Component<CardListProps, any> {
 						height={cardHeight}
 						countBoxSize={customCounts && 50}
 						predicted={predicted}
+						subtitle={predicted ? "Predicted Card" : null}
 					/>,
 				);
 			};

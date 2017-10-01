@@ -105,14 +105,15 @@ if (deleteTarget) {
 }
 
 // Player info
-const playerInfo = document.getElementById("infobox-players-container");
-UserData.create();
-if (playerInfo) {
+const renderPlayerInfo = (playerInfo: HTMLElement, playerExpandDirection: "up"|"down") => {
+	if (!playerInfo) {
+		return;
+	}
 	const gameId = playerInfo.getAttribute("data-game-id");
 	const playerName = playerInfo.getAttribute("data-player-name");
 	const opponentName = playerInfo.getAttribute("data-opponent-name");
 	const build = +playerInfo.getAttribute("data-build");
-	const renderPlayerInfo = (cards?) => {
+	const renderPlayerInfoComponent = (cards?) => {
 		ReactDOM.render(
 			<PlayerInfo
 				gameId={gameId}
@@ -120,16 +121,22 @@ if (playerInfo) {
 				opponentName={opponentName}
 				build={build}
 				cardData={cards}
+				playerExpandDirection={playerExpandDirection}
 			/>,
 			playerInfo,
 		);
 	};
-	renderPlayerInfo();
+	renderPlayerInfoComponent();
 	const cardData = new CardData();
 	cardData.load((instance) => {
-		renderPlayerInfo(instance);
+		renderPlayerInfoComponent(instance);
 	});
-}
+
+};
+
+UserData.create();
+renderPlayerInfo(document.getElementById("infobox-players-container"), "up");
+renderPlayerInfo(document.getElementById("infobox-players-container-small"), "down");
 
 // fullscreen button for mobile
 let wasPlaying = !startPaused;

@@ -2,7 +2,12 @@ import * as React from "react";
 import CardList from "./CardList";
 import {GameReplay, GlobalGamePlayer} from "../interfaces";
 import CardData from "../CardData";
-import {getHeroDbfId} from "../helpers";
+import {getHeroCardId, getHeroDbfId} from "../helpers";
+import CopyDeckButton from "./CopyDeckButton";
+import Tooltip from "./Tooltip";
+import InfoIcon from "./InfoIcon";
+import DataManager from "../DataManager";
+import UserData from "../UserData";
 
 interface PlayerInfoProps {
 	build: number;
@@ -10,12 +15,12 @@ interface PlayerInfoProps {
 	opponentName: string;
 	playerName: string;
 	cardData: CardData;
+	playerExpandDirection: "up" | "down";
 }
 
 interface PlayerInfoState {
+	display?: "player" | "opponent" | "both" | "none";
 	game?: GameReplay;
-	showOpponentDeck?: boolean;
-	showPlayerDeck?: boolean;
 }
 
 export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerInfoState> {
@@ -23,9 +28,8 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	constructor(props: PlayerInfoProps, context: any) {
 		super(props, context);
 		this.state = {
+			display: props.playerExpandDirection === "up" ? "both" : "none",
 			game: null,
-			showOpponentDeck: false,
-			showPlayerDeck: false,
 		};
 		if (this.props.gameId) {
 			this.fetch();
@@ -33,11 +37,8 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	}
 
 	protected fetch() {
-		fetch("/api/v1/games/" + this.props.gameId + "/", {
-			credentials: "include",
-		}).then((response) => {
-			return response.json();
-		}).then((json: any) => {
+		DataManager.get("/api/v1/games/" + this.props.gameId + "/", {},
+		).then((json: any) => {
 			this.setState({
 				game: json,
 			});
@@ -45,80 +46,191 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	}
 
 	render(): JSX.Element {
-		let opponentClass = null;
-		let playerClass = null;
-		const playerDeck = [];
-		const opponentDeck = [];
+		let playerCards = null;
+		let opponentCards = null;
+		let playerName = null;
+		let opponentName = null;
+		let playerCopyButton = null;
+		let opponentCopyButton = null;
+		let opponentInfoIcon = null;
+		const opponentHeaderStyle = {};
+		const playerHeaderStyle = {};
 
 		if (this.state.game) {
 			const {friendly_deck, friendly_player, global_game, opposing_deck, opposing_player} = this.state.game;
-			playerClass = this.buildPlayerClass(friendly_player);
-			opponentClass = this.buildPlayerClass(opposing_player);
+			playerName = friendly_player.name;
+			opponentName = opposing_player.name;
 
 			if (opposing_deck && Array.isArray(opposing_deck.cards) && opposing_deck.cards.length > 0) {
-				opponentDeck.push(
-					<a
-						className={opponentClass.join(" ")}
-						onClick={() => this.setState({showOpponentDeck: !this.state.showOpponentDeck})}
-					>
-						{this.state.showOpponentDeck ? "Hide Deck" : "Show Deck"}
-					</a>,
+				const deckClass = this.toTitleCase(opposing_player.hero_class_name);
+				opponentCards = (
+					<CardList
+						cardData={this.props.cardData}
+						cardList={opposing_deck.cards}
+						predictedCardList={opposing_deck.predicted_cards}
+					/>
 				);
-				if (this.state.showOpponentDeck) {
-					const deckClass = this.toTitleCase(opposing_player.hero_class_name);
-					opponentDeck.push(
-						<CardList
+				if (
+					UserData.hasFeature("replay-predicted-cards")
+					&& opposing_deck.predicted_cards
+					&& opposing_deck.predicted_cards.length
+				) {
+					opponentCopyButton = (
+						<CopyDeckButton
 							cardData={this.props.cardData}
-							cardList={opposing_deck.cards}
-							predictedCardList={opposing_deck.predicted_cards}
-							heroes={[getHeroDbfId(this.props.cardData, opposing_player)]}
+							cards={opposing_deck.predicted_cards}
 							deckClass={deckClass}
+							heroes={[getHeroDbfId(this.props.cardData, opposing_player)]}
 							format={global_game.format}
 							name={this.pluralize(opposing_player.name) + " " + deckClass}
-							showButton={this.showCopyButton(opposing_player)}
-							id={1}
-						/>,
+							simple={true}
+							sourceUrl={window.location.toString()}
+						/>
+					);
+					opponentInfoIcon = (
+						<InfoIcon
+							header="Opponent Deck"
+							content="Based on cards seen, this is the most likely deck that was played."
+						/>
 					);
 				}
+				opponentHeaderStyle["backgroundImage"] = (
+					"url(https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(deckClass, true) + ".jpg)"
+				);
 			}
 			if (friendly_deck && Array.isArray(friendly_deck.cards) && friendly_deck.cards.length > 0) {
-				playerDeck.push(
-					<a className={playerClass.join(" ")} onClick={() => this.setState({showPlayerDeck: !this.state.showPlayerDeck})}>
-						{this.state.showPlayerDeck ? "Hide Deck" : "Show Deck"}
-					</a>,
+				const deckClass = this.toTitleCase(friendly_player.hero_class_name);
+				playerCards = (
+					<CardList
+						cardData={this.props.cardData}
+						cardList={friendly_deck.cards}
+					/>
 				);
-				if (this.state.showPlayerDeck) {
-					const deckClass = this.toTitleCase(friendly_player.hero_class_name);
-					playerDeck.push(
-						<CardList
+				if (friendly_deck.cards.length === 30) {
+					playerCopyButton = (
+						<CopyDeckButton
 							cardData={this.props.cardData}
-							cardList={friendly_deck.cards}
+							cards={friendly_deck.cards}
+							deckClass={deckClass}
 							heroes={[getHeroDbfId(this.props.cardData, friendly_player)]}
 							format={global_game.format}
-							deckClass={deckClass}
 							name={this.pluralize(friendly_player.name) + " " + deckClass}
-							showButton={this.showCopyButton(friendly_player)}
-							id={2}
-						/>,
+							simple={true}
+							sourceUrl={window.location.toString()}
+						/>
 					);
 				}
+				playerHeaderStyle["backgroundImage"] = (
+					"url(https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(deckClass, true) + ".jpg)"
+				);
 			}
 		}
+
+		const {display} = this.state;
+		const defaultDisplay = this.props.playerExpandDirection === "up" ? "both" : "none";
+
+		const opponentDeck = [];
+		const playerDeck = [];
+		const separator = defaultDisplay === "none" ? null : <div className="deck-separator"/>;
+		if (display === "opponent" || display === "both") {
+			opponentDeck.push(
+				<div className={"deck-container" + (display === "opponent" ? " full" : "")}>
+					{opponentCards}
+				</div>,
+			);
+		}
+		if (display === "both") {
+			opponentDeck.push(<div className="gradient-container"/>);
+		}
+		if (display === "player" || display === "both") {
+			playerDeck.push(
+				<div className={"deck-container" + (display === "player" ? " full" : "")}>
+					{playerCards}
+				</div>,
+			);
+		}
+		if (display === "both") {
+			playerDeck.push(<div className="gradient-container"/>);
+		}
+
+		const opponentExpandButton = (
+			<Tooltip simple={true} content={display === "opponent" ? "Collapse" : "Expand"}>
+				<span
+					className={"btn btn-primary glyphicon glyphicon-menu-" + (display === "opponent" ? "up" : "down")}
+					onClick={() => this.setState({
+						display: display === "opponent" ? defaultDisplay : "opponent",
+					})}
+				/>
+			</Tooltip>
+		);
+
+		const opponentHeader = (
+			<div
+				className="deck-header"
+				style={opponentHeaderStyle}
+			>
+				<div className="deck-header-fade"/>
+				<div className="deck-name">
+					<span>{(opponentName ? this.pluralize(opponentName) : "Opponent") + " Deck"}</span>
+					{opponentInfoIcon}
+				</div>
+				{opponentCopyButton}
+				{this.state.game ? opponentExpandButton : null}
+			</div>
+		);
+
+		const defaultDirection = this.props.playerExpandDirection;
+		const toggledDriection = this.props.playerExpandDirection === "up" ? "down" : "up";
+
+		const playerExpandButton = (
+			<Tooltip simple={true} content={display === "player" ? "Collapse" : "Expand"}>
+				<span
+					className={
+						"btn btn-primary glyphicon glyphicon-menu-"
+						+ (display === "player" ? toggledDriection : defaultDirection)
+					}
+					onClick={() => this.setState({
+						display: display === "player" ? defaultDisplay : "player",
+					})}
+				/>
+			</Tooltip>
+		);
+
+		const playerHeader = (
+			<div
+				className="deck-header"
+				style={playerHeaderStyle}
+			>
+				<div className="deck-header-fade"/>
+				<div className="deck-name">{(playerName ? this.pluralize(playerName) : "Player") + " Deck"}</div>
+				{playerCopyButton}
+				{this.state.game ? playerExpandButton : null}
+			</div>
+		);
+
+		const content = [
+			opponentHeader,
+			opponentDeck,
+			separator,
+		];
+
+		if (this.props.playerExpandDirection === "up") {
+			content.push(
+				playerDeck,
+				playerHeader,
+			);
+		}
 		else {
-			playerClass = opponentClass = this.buildPlayerClass(null);
+			content.push(
+				playerHeader,
+				playerDeck,
+			);
 		}
 
 		return (
-			<ul id="infobox-players">
-				<li>
-					{this.props.opponentName}
-					{opponentDeck}
-				</li>
-				<li>
-					{this.props.playerName}
-					{playerDeck}
-				</li>
-			</ul>
+			<div id="infobox-players">
+				{content}
+			</div>
 		);
 	}
 
