@@ -10,7 +10,7 @@ interface CopyDeckButtonProps extends React.ClassAttributes<CopyDeckButton> {
 	cardData: CardData;
 	name?: string;
 	deckClass?: string;
-	cards: number[];
+	cards: number[]|string[];
 	heroes: number[];
 	format: number;
 	sourceUrl?: string;
@@ -84,7 +84,11 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 
 	buildCopieableString(): string {
 		const dbfs = {};
-		for (let card of this.props.cards) {
+		let cards = this.props.cards;
+		if (cards.length > 0 && typeof(cards[0]) === "string") {
+			cards = (cards as string[]).map((cardId) => this.props.cardData.fromCardId(cardId).dbfId);
+		}
+		for (const card of cards) {
 			if (typeof dbfs[card] === "undefined") {
 				dbfs[card] = 1;
 			}
@@ -100,7 +104,7 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 		const deckstring = encodeDeckstring({
 			cards: tuples,
 			heroes: this.props.heroes,
-			format: format,
+			format,
 
 		});
 
