@@ -61,7 +61,7 @@ def get_redshift_query(query):
 
 def inflight_query_count(handle):
 	query = "SELECT count(*) FROM STV_INFLIGHT WHERE label = '%s';" % handle
-	return get_new_redshift_connection().execute(query).scalar()
+	return get_new_redshift_connection(etl_user=True).execute(query).scalar()
 
 
 def has_inflight_queries(handle):
@@ -78,5 +78,5 @@ def is_analyze_skipped(handle):
 		AND status = 'Skipped';
 	"""
 	query = query_template.format(handle=handle)
-	count = get_new_redshift_connection().execute(query).scalar()
+	count = get_new_redshift_connection(etl_user=True).execute(query).scalar()
 	return count >= 1
