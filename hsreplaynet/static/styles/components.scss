@@ -409,6 +409,17 @@ table .info-icon, .sort-header .info-icon {
 	}
 }
 
+.copy-deck-button-simple {
+	padding: 5px;
+	border: 1px solid white;
+	margin: 5px;
+	cursor: pointer;
+
+	&:hover {
+		background: $lightblue1;
+	}
+}
+
 .card-list + .copy-deck-wrapper {
 	padding: 1em 0 0.5em 0;
 }

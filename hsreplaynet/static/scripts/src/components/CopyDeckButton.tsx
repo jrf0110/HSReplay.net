@@ -14,7 +14,7 @@ interface CopyDeckButtonProps extends React.ClassAttributes<CopyDeckButton> {
 	heroes: number[];
 	format: number;
 	sourceUrl?: string;
-	disabled?: boolean;
+	simple?: boolean;
 }
 
 interface CopyDeckButtonState {
@@ -42,8 +42,19 @@ export default class CopyDeckButton extends React.Component<CopyDeckButtonProps,
 		else {
 			classNames.push("btn-primary");
 		}
-		if (this.props.disabled) {
-			classNames.push("disabled");
+		if (this.props.simple) {
+			classNames.push("glyphicon glyphicon-copy");
+			return (
+				<Tooltip
+					content={this.state.copied ? "Copied!" : "Copy Deck Code"}
+					simple={true}
+				>
+					<span
+						id={this.state.elementId}
+						className={classNames.join(" ")}
+					/>
+				</Tooltip>
+			);
 		}
 
 		return (
