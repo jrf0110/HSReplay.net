@@ -364,21 +364,32 @@ class PremiumDetailView(RequestMetaMixin, TemplateView):
 		return super().get(request, *args, **kwargs)
 
 
-class PaypalSuccessView(View):
+class BasePaypalView(View):
+	fail_url = reverse_lazy("premium")
+
+	def fail(self, message):
+		message = message + " Please contact us if you are seeing this in error."
+		messages.error(self.request, message)
+		return redirect(self.fail_url)
+
+
+class PaypalSuccessView(BasePaypalView):
 	success_url = reverse_lazy("premium")
 
 	def get(self, request):
 		from djpaypal.models import PreparedBillingAgreement
+
 		token = request.GET.get("token", "")
-		assert token, "Missing token!"
-		prepared_agreement = PreparedBillingAgreement.objects.get(id=token)
+		if not token:
+			return self.fail("Unable to complete subscription.")
+
+		try:
+			prepared_agreement = PreparedBillingAgreement.objects.get(id=token)
+		except PreparedBillingAgreement.DoesNotExist:
+			return self.fail("Invalid subscription token.")
+
 		if prepared_agreement.user != self.request.user:
-			messages.error(
-				self.request,
-				"You are not logged in as the correct user. "
-				"Please contact us if you are seeing this in error."
-			)
-			return redirect(self.success_url)
+			return self.fail("You are not logged in as the correct user.")
 
 		prepared_agreement.execute()
 
@@ -386,45 +397,32 @@ class PaypalSuccessView(View):
 		return redirect(self.success_url)
 
 
-class PaypalCancelView(View):
-	success_url = reverse_lazy("premium")
-
+class PaypalCancelView(BasePaypalView):
 	def get(self, request):
 		from djpaypal.models import PreparedBillingAgreement
 		token = request.GET.get("token", "")
 		if token:
-			prepared_agreement = PreparedBillingAgreement.objects.get(id=token)
+			try:
+				prepared_agreement = PreparedBillingAgreement.objects.get(id=token)
+			except PreparedBillingAgreement.DoesNotExist:
+				return self.fail("Invalid token while cancelling payment.")
+
 			prepared_agreement.cancel()
 
-		messages.error(
-			self.request,
-			"Your payment was interrupted. "
-			"Please contact us if you are seeing this in error."
-		)
-		return redirect(self.success_url)
+		return self.fail("Your payment was interrupted.")
 
 
-class PaypalSubscribeView(View):
-	fail_url = reverse_lazy("premium")
-
-	def fail(self, request):
-		messages.error(
-			self.request,
-			"Could not determine your plan. "
-			"Please contact us if you are seeing this in error."
-		)
-		return redirect(self.fail_url)
-
+class PaypalSubscribeView(BasePaypalView):
 	def post(self, request):
 		from djpaypal.models import BillingPlan
 		id = request.POST.get("plan", "")
 		if not id:
-			return self.fail()
+			return self.fail("Could not determine your plan.")
 
 		try:
 			plan = BillingPlan.objects.get(id=id)
 		except BillingPlan.DoesNotExist:
-			return self.fail()
+			return self.fail("Invalid Paypal plan.")
 
 		# The start date of the plan is equal to a full period of the plan's
 		# payment definition after now.
