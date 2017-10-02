@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import CheckoutProcess from "../checkout/CheckoutProcess";
 import CheckoutForm, {PaymentMethods} from "../components/payments/CheckoutForm";
 import UserData from "../UserData";
 
@@ -41,12 +40,15 @@ const loadCheckout = () => {
 	if (loadedCheckout) {
 		return;
 	}
+	if (!UserData.isAuthenticated()) {
+		return;
+	}
 	window.hsreplaynet_load_hscheckout(
 		document.getElementById("modal-checkout"),
 		document.getElementById("premium-plan-data"),
 	);
 	loadedCheckout = true;
-}
+};
 
 const openModal = (modalToOpen, label?: string) => {
 	if (modalIsOpen === true) {
