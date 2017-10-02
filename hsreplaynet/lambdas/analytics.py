@@ -33,10 +33,10 @@ def refresh_stale_redshift_queries(event, context):
 	target_duration_seconds = 55
 	duration = 0
 
-	for queue_name in catalogue.query_queues:
+	for queue_name in scheduler.query_queues:
 		influx_metric(
 			"redshift_refresh_queue_depth",
-			{"depth": catalogue.queue_size(queue_name)},
+			{"depth": scheduler.queue_size(queue_name)},
 			queue_name=queue_name,
 		)
 

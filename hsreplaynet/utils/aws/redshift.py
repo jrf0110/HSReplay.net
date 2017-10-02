@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from hsredshift.analytics.queries import RedshiftCatalogue
+from hsreplaynet.utils.influx import influx
 
 
 def get_redshift_cache_redis_client():
@@ -51,6 +52,7 @@ def get_redshift_catalogue():
 		aws_secret_access_key=settings.AWS_CREDENTIALS["AWS_SECRET_ACCESS_KEY"],
 		s3_unload_bucket=settings.S3_UNLOAD_BUCKET,
 		s3_unload_namespace=settings.S3_UNLOAD_NAMESPACE,
+		influx_client=influx
 	)
 	return catalogue
 
