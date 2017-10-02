@@ -425,6 +425,13 @@ class Archetype(models.Model):
 		return ""
 
 	@property
+	def standard_ccp_signature_pretty(self):
+		cluster = self.standard_cluster
+		if cluster:
+			return cluster.pretty_ccp_signature_string()
+		return ""
+
+	@property
 	def wild_signature_pretty(self):
 		cluster = self.wild_cluster
 		if cluster:

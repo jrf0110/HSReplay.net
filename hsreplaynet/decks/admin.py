@@ -84,12 +84,17 @@ class ArchetypeAdmin(admin.ModelAdmin):
 		"__str__",
 		"player_class_name",
 		"standard_signature_pretty",
+		"standard_ccp_signature_pretty",
 		"wild_signature_pretty",
 		"wild_signature_as_of",
 		"standard_signature_as_of"
 	)
 	list_filter = ("player_class", )
-	readonly_fields = ("standard_signature_pretty", "wild_signature_pretty")
+	readonly_fields = (
+		"standard_signature_pretty",
+		"standard_ccp_signature_pretty",
+		"wild_signature_pretty"
+	)
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
