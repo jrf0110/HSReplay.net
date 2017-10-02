@@ -1755,7 +1755,8 @@ class RedshiftStagingTrackTable(models.Model):
 			run_redshift_background_statement(
 				sql,
 				self.vacuum_query_handle,
-				engine
+				engine,
+				auto_commit=True
 			)
 
 			self.stage = RedshiftETLStage.VACUUMING
