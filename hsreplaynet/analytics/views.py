@@ -17,6 +17,7 @@ from hearthstone.enums import FormatType
 
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
+from hsredshift.analytics.scheduling import QueryRefreshPriority
 from hsreplaynet.decks.models import Archetype, ClusterSetSnapshot, ClusterSnapshot, Deck
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.utils import influx, log
@@ -55,7 +56,11 @@ def refresh_query_from_cache(request, name):
 	# Clear out any lingering dogpile locks on this query
 	evict_locks_cache(parameterized_query)
 
-	return _fetch_query_results(parameterized_query, user=request.user)
+	return _fetch_query_results(
+		parameterized_query,
+		user=request.user,
+		priority=QueryRefreshPriority.HIGH,
+	)
 
 
 @staff_member_required
@@ -208,13 +213,13 @@ def fetch_local_query_results(request, name):
 	return _fetch_query_results(parameterized_query, run_local=True, user=request.user)
 
 
-def _fetch_query_results(parameterized_query, run_local=False, user=None):
+def _fetch_query_results(parameterized_query, run_local=False, user=None, priority=None):
 	cache_is_populated = parameterized_query.cache_is_populated
 	is_cache_hit = parameterized_query.result_available
 	triggered_refresh = False
 
 	if is_cache_hit:
-		triggered_refresh = _trigger_if_stale(parameterized_query, run_local)
+		triggered_refresh = _trigger_if_stale(parameterized_query, run_local, priority)
 
 		response = HttpResponse(
 			content=parameterized_query.response_payload_data,
@@ -230,7 +235,7 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None):
 			# So we should only reach this block if the user just subscribed
 			# And we haven't rerun the global query yet.
 			triggered_refresh = True
-			attempt_request_triggered_query_execution(parameterized_query, run_local)
+			attempt_request_triggered_query_execution(parameterized_query, run_local, priority)
 			result = {"msg": "Query is processing. Check back later."}
 			response = JsonResponse(result, status=202)
 		else:
@@ -242,7 +247,7 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None):
 		# The cache is not populated yet for this query.
 		# Perhaps it's a new query or perhaps the cache was recently flushed.
 		# So attempt to trigger populating it
-		attempt_request_triggered_query_execution(parameterized_query, run_local)
+		attempt_request_triggered_query_execution(parameterized_query, run_local, priority)
 		result = {"msg": "Query is processing. Check back later."}
 		response = JsonResponse(result, status=202)
 
@@ -273,7 +278,7 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None):
 	return response
 
 
-def _trigger_if_stale(parameterized_query, run_local=False):
+def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
 	staleness = (datetime.utcnow() - parameterized_query.result_as_of).total_seconds()
 	query_fetch_metric_fields = {
 		"count": 1,
@@ -291,7 +296,7 @@ def _trigger_if_stale(parameterized_query, run_local=False):
 	)
 
 	if parameterized_query.result_is_stale or run_local:
-		attempt_request_triggered_query_execution(parameterized_query, run_local)
+		attempt_request_triggered_query_execution(parameterized_query, run_local, priority)
 		return True
 	else:
 		parameterized_query.preschedule_refresh()

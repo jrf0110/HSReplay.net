@@ -14,14 +14,14 @@ from redis_semaphore import Semaphore
 from sqlalchemy.sql import and_
 
 from hearthsim_identity.accounts.models import BlizzardAccount
-from hsredshift.analytics.library.base import QueryRefreshPriority
+from hsredshift.analytics.scheduling import QueryRefreshPriority
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws import redshift
 from hsreplaynet.utils.aws.sqs import write_messages_to_queue
 from hsreplaynet.utils.influx import influx_metric
 
 
-def execute_query(parameterized_query, run_local=False):
+def execute_query(parameterized_query, run_local=False, priority=None):
 	if run_local:
 		# IMMEDIATE Will cause the query to get run synchronously
 		log.info("run_local async refresh for: %s" % parameterized_query.cache_key)
@@ -32,8 +32,13 @@ def execute_query(parameterized_query, run_local=False):
 		# Uncomment to cut-over to async redshift queries
 	else:
 		# This will queue the query for refresh as resources are available
-		log.info("Scheduling refresh for: %s" % parameterized_query.cache_key)
-		parameterized_query.schedule_refresh()
+		log.info("Scheduling refresh for: %s (priority=%s)" % (
+			parameterized_query.unload_key,
+			priority,
+		))
+		parameterized_query.schedule_refresh(
+			priority=priority,
+		)
 
 	# # It's safe to launch multiple attempts to execute for the same query
 	# # Because the dogpile lock will only allow one to execute
@@ -392,12 +397,16 @@ def get_concurrent_redshift_query_queue_semaphore(queue_name):
 	return concurrent_redshift_query_semaphore
 
 
-def attempt_request_triggered_query_execution(parameterized_query, run_local=False):
+def attempt_request_triggered_query_execution(
+	parameterized_query,
+	run_local=False,
+	priority=None
+):
 	do_personal = settings.REDSHIFT_TRIGGER_PERSONALIZED_DATA_REFRESHES_FROM_QUERY_REQUESTS
 	if run_local or settings.REDSHIFT_TRIGGER_CACHE_REFRESHES_FROM_QUERY_REQUESTS:
-		execute_query(parameterized_query, run_local)
+		execute_query(parameterized_query, run_local, priority)
 	elif do_personal and parameterized_query.is_personalized:
-		execute_query(parameterized_query, run_local)
+		execute_query(parameterized_query, run_local, priority)
 	else:
 		log.debug("Triggering query from web app is disabled")
 
