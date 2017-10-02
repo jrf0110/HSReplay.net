@@ -29,6 +29,7 @@ def refresh_stale_redshift_queries(event, context):
 	start_time = time.time()
 	logger.info("Start Time: %s" % str(start_time))
 	catalogue = get_redshift_catalogue()
+	scheduler = catalogue.scheduler
 	target_duration_seconds = 55
 	duration = 0
 
@@ -43,7 +44,8 @@ def refresh_stale_redshift_queries(event, context):
 	# And the next scheduled invocation of this will be starting a minute after this one.
 	while duration < target_duration_seconds:
 		logger.info("Runtime duration: %s" % str(duration))
-		available_slots = catalogue.get_available_slots() - catalogue.get_queued_query_count()
+
+		available_slots = scheduler.get_available_slots() - scheduler.get_queued_query_count()
 		logger.info("Available cluster slots: %s" % str(available_slots))
 
 		if available_slots <= 1:
@@ -60,7 +62,7 @@ def refresh_stale_redshift_queries(event, context):
 			break
 
 		logger.info("Will block for queued query for %s seconds" % str(remaining_seconds))
-		refreshed_query = catalogue.refresh_next_pending_query(
+		refreshed_query = scheduler.refresh_next_pending_query(
 			block_for=remaining_seconds,
 			force=True  # This uses available cluster resources to refresh queries early
 		)
