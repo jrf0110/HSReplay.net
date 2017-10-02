@@ -8,6 +8,7 @@ const spawnSync = require("child_process").spawnSync;
 const url = require("url");
 const _ = require("lodash");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 
 const exportSettings = [
 	"STATIC_URL",
@@ -54,6 +55,17 @@ const settings = exportSettings.reduce((obj, current) => {
 }, {
 	INFLUX_DATABASE_JOUST: joustDb ? JSON.stringify(buildInfluxEndpoint(joustDb)) : undefined,
 });
+
+const isProduction = process.env.NODE_ENV === "production";
+
+const plugins = [];
+if (isProduction) {
+	plugins.push(
+		new UglifyJSPlugin({
+			parallel: true,
+		})
+	);
+}
 
 module.exports = (env) => {
 	env = env || {};
@@ -170,7 +182,7 @@ module.exports = (env) => {
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
 			new webpack.DefinePlugin(settings),
 			extractSCSS,
-		].concat(commons),
+		].concat(commons).concat(plugins),
 		watchOptions: {
 			// required in the Vagrant setup due to Vagrant inotify not working
 			poll: 1000,

@@ -2,7 +2,7 @@
 	"name": "hsreplaynet",
 	"private": true,
 	"scripts": {
-		"build": "webpack --optimize-minimize --bail",
+		"build": "cross-env NODE_ENV=production webpack --bail",
 		"lint": "tslint hsreplaynet/static/scripts/src/**/* --project tsconfig.json --type-check --force"
 	},
 	"dependencies": {
@@ -25,6 +25,7 @@
 		"blob": "0.0.4",
 		"clipboard": "^1.7.1",
 		"cookie_js": "^1.2.2",
+		"cross-env": "^5.0.5",
 		"css-loader": "^0.28.5",
 		"deckstrings": "^1.1.0",
 		"extract-text-webpack-plugin": "^3.0.0",
@@ -39,6 +40,7 @@
 		"tether-shepherd": "^1.8.1",
 		"ts-loader": "^2.3.4",
 		"typescript": "^2.5.2",
+		"uglifyjs-webpack-plugin": "^1.0.0-beta.2",
 		"victory": "^0.21.5",
 		"webpack": "^3.5.5",
 		"webpack-bundle-tracker": "^0.2.0",
