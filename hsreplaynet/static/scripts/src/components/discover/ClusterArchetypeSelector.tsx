@@ -86,6 +86,7 @@ export default class ClusterArchetypeSelector extends React.Component<ClusterArc
 				console.error(response.toString());
 			}
 			this.setState({working: false});
+			location.reload();
 		}).catch((reason) => {
 			console.error(reason);
 			this.setState({working: false});
