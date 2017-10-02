@@ -6,6 +6,7 @@ import {ClusterData, ClusterMetaData, DeckData} from "./ClassAnalysis";
 import * as _ from "lodash";
 import CardList from "../CardList";
 import ClusterSignature from "./ClusterSignature";
+import { commaSeparate } from "../../helpers";
 
 interface ClusterDetailProps extends React.ClassAttributes<ClusterDetail> {
 	cardData: CardData;
@@ -28,8 +29,29 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 				components: data.ccp_signatures[clusterId],
 				format: null,
 			};
+			const decks = data.data.filter((d) => "" + d.metadata.cluster_id === clusterId);
+			const totalGames = decks.map((d) => d.metadata.games).reduce((a, b) => a + b);
+			const eligibleDecks = decks.filter((d) => d.metadata.games > 1000).length;
+
 			cppData = (
 				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 400}}>
+					<h2>Cluster Info</h2>
+					<table className="table">
+						<tbody>
+							<tr>
+								<th>Total Games</th>
+								<td>{commaSeparate(totalGames)}</td>
+							</tr>
+							<tr>
+								<th>Total Decks</th>
+								<td>{decks.length}</td>
+							</tr>
+							<tr>
+								<th>Eligible Decks</th>
+								<td>{eligibleDecks}</td>
+							</tr>
+						</tbody>
+					</table>
 					<h2>Weighted Signature</h2>
 					<ClusterSignature
 						cardData={cardData}
