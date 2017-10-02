@@ -2,6 +2,7 @@ import * as React from "react";
 import {AutoSizer} from "react-virtualized";
 import {toDynamicFixed, toTitleCase} from "../../helpers";
 import PopularityLineChart from "./PopularityLineChart";
+import { LoadingStatus } from "../../interfaces";
 
 interface PopularityTileProps extends React.ClassAttributes<PopularityTile> {
 	chartData?: any;
@@ -9,6 +10,7 @@ interface PopularityTileProps extends React.ClassAttributes<PopularityTile> {
 	onClick?: () => void;
 	playerClass: string;
 	popularity?: number;
+	status?: LoadingStatus;
 }
 
 export default class PopularityTile extends React.Component<PopularityTileProps, {}> {
@@ -35,6 +37,9 @@ export default class PopularityTile extends React.Component<PopularityTileProps,
 				<h1>{toDynamicFixed(this.props.popularity, 2)}%</h1>,
 				<h3>of {toTitleCase(this.props.playerClass)} decks</h3>,
 			];
+		}
+		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
+			content = "Please check back later";
 		}
 
 		return (

@@ -1,4 +1,4 @@
-import { ApiArchetype, DeckObj, SortDirection } from "../interfaces";
+import {ApiArchetype, DeckObj, LoadingStatus, SortDirection} from "../interfaces";
 import TableLoading from "../components/loading/TableLoading";
 import {AutoSizer} from "react-virtualized";
 import DataManager from "../DataManager";
@@ -408,6 +408,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		if (data) {
 			return {games: data.total_games, winrate: data.win_rate};
 		}
+		return {status: LoadingStatus.NO_DATA};
 	}
 
 	extractPopularityData = (popularityData) => {
@@ -416,6 +417,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		if (archetype) {
 			return {popularity: archetype.pct_of_class};
 		}
+		return {status: LoadingStatus.NO_DATA};
 	}
 
 	matchupTileExtractor(best: boolean) {
@@ -441,6 +443,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				const index = best ? 0 : data.length - 1;
 				return {...data[index]};
 			}
+			return {status: LoadingStatus.NO_DATA};
 		};
 	}
 
@@ -450,15 +453,15 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			const gameType = this.getGameType();
 
 			if (!cardData || !props.archetypeData) {
-				return;
+				return {status: LoadingStatus.NO_DATA};
 			}
 			const classDecks = deckData.series.data[playerClass];
 			if (!classDecks) {
-				return;
+				return {status: LoadingStatus.NO_DATA};
 			}
 			const signatureData = extractSignature(props.archetypeData, gameType);
 			if (!signatureData) {
-				return;
+				return {status: LoadingStatus.NO_DATA};
 			}
 
 			const decks = classDecks.filter((deck) => deck.archetype_id === archetypeId);
@@ -486,6 +489,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 					winrate: decks[0].win_rate,
 				};
 			}
+			return {status: LoadingStatus.NO_DATA};
 		};
 	}
 }

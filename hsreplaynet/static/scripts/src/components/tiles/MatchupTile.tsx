@@ -1,5 +1,6 @@
 import * as React from "react";
 import {getArchetypeUrl, winrateData} from "../../helpers";
+import { LoadingStatus } from "../../interfaces";
 
 interface MatchupTileProps extends React.ClassAttributes<MatchupTile> {
 	archetypeId?: number;
@@ -8,6 +9,7 @@ interface MatchupTileProps extends React.ClassAttributes<MatchupTile> {
 	playerClass?: string;
 	title: string;
 	winrate?: number;
+	status?: LoadingStatus;
 }
 
 export default class MatchupTile extends React.Component<MatchupTileProps, {}> {
@@ -35,8 +37,8 @@ export default class MatchupTile extends React.Component<MatchupTileProps, {}> {
 				</div>,
 			];
 		}
-		else {
-			content = "No matchup found";
+		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
+			content = "Please check back later";
 		}
 
 		let href = null;

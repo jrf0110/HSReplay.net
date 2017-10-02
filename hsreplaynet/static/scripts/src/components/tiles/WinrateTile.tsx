@@ -2,6 +2,7 @@ import * as React from "react";
 import {AutoSizer} from "react-virtualized";
 import WinrateLineChart from "./WinrateLineChart";
 import {commaSeparate, toDynamicFixed, winrateData} from "../../helpers";
+import { LoadingStatus } from "../../interfaces";
 
 interface WinrateTileProps extends React.ClassAttributes<WinrateTile> {
 	chartData?: any;
@@ -9,6 +10,7 @@ interface WinrateTileProps extends React.ClassAttributes<WinrateTile> {
 	href: string;
 	onClick?: () => void;
 	winrate?: number;
+	status?: LoadingStatus;
 }
 
 export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
@@ -37,6 +39,9 @@ export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
 				</h1>,
 				<h3>over {commaSeparate(this.props.games)} games</h3>,
 			];
+		}
+		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
+			content = "Please check back later";
 		}
 
 		return (

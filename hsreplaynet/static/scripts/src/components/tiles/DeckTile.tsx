@@ -1,6 +1,7 @@
 import * as React from "react";
 import {winrateData} from "../../helpers";
 import CardIcon from "../CardIcon";
+import { LoadingStatus } from "../../interfaces";
 
 interface DeckTileProps extends React.ClassAttributes<DeckTile> {
 	cards?: any[];
@@ -8,6 +9,7 @@ interface DeckTileProps extends React.ClassAttributes<DeckTile> {
 	games?: number;
 	title: string;
 	winrate?: number;
+	status?: LoadingStatus;
 }
 
 export default class DeckTile extends React.Component<DeckTileProps, {}> {
@@ -36,8 +38,8 @@ export default class DeckTile extends React.Component<DeckTileProps, {}> {
 			];
 			href = `/decks/${this.props.deckId}/`;
 		}
-		else {
-			content = "No deck found";
+		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
+			content = "Please check back later";
 		}
 
 		return (
