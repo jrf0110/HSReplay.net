@@ -519,6 +519,9 @@ class RedshiftStagingTrackManager(models.Manager):
 
 	def do_maintenance(self):
 		log.info("Starting Redshift ETL Maintenance Cycle")
+		start_time = time.time()
+		target_duration_seconds = 55
+		duration = 0
 
 		# We use this as a shared value so 2 ETL Lambdas never start concurrently
 		LOCK_NAME = "REDSHIFT_ETL_MAINTENANCE_LOCK"
@@ -531,13 +534,49 @@ class RedshiftStagingTrackManager(models.Manager):
 
 				if tasks:
 					for task in tasks:
-						log.info("Next Task: %s" % str(task))
-						task()
-						log.info("Complete.")
+						remaining_seconds = target_duration_seconds - duration
+						if remaining_seconds < 5:
+							break
+
+						available_slots = self.get_available_etl_slots()
+						etl_queue_depth = self.get_etl_queue_depth()
+						current_available_slots = available_slots - etl_queue_depth
+						log.info(
+							"Currently available ETL slots: %i" % current_available_slots
+						)
+						if current_available_slots > 1:
+							log.info("Next Task: %s" % str(task))
+							task()
+							log.info("Complete.")
+						else:
+							log.info("Not enough free etl slots will sleep.")
+							time.sleep(5)
+							current_time = time.time()
+							duration = current_time - start_time
 			else:
 				log.info("Could not acquire lock. Will skip maintenance run.")
 
 		log.info("Maintenance Cycle Complete")
+
+	def get_etl_queue_depth(self):
+		query = """
+			SELECT count(*)
+			FROM stv_recents r
+			WHERE r.status<>'Done' AND r.user_name='etl_user'
+			AND r.pid NOT IN (SELECT i.pid FROM stv_inflight i);
+		"""
+		with redshift.get_redshift_engine(etl_user=True).connect() as conn:
+			return conn.execute(query).scalar()
+
+	def get_available_etl_slots(self):
+		# This uses the view defined in scripts/sql/wlm_queue_views.sql
+		q = """
+			SELECT slots
+			FROM WLM_QUEUE_STATE_VW
+			WHERE description = '(user group: etl)';
+			"""
+		with redshift.get_redshift_engine(etl_user=True).connect() as conn:
+			return conn.execute(q).scalar()
 
 	def get_ready_maintenance_tasks(self):
 		"""
