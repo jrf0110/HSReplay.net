@@ -210,6 +210,7 @@ def fetch_local_query_results(request, name):
 	# repeated attempts to run it on lambda are causing it's in-flight status
 	# to always be true.
 	parameterized_query = _get_query_and_params(request, name)
+	parameterized_query.mark_stale()
 	return _fetch_query_results(parameterized_query, run_local=True, user=request.user)
 
 
