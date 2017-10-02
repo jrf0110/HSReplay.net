@@ -5,7 +5,6 @@ import time
 from base64 import b64decode
 from datetime import datetime, timedelta
 from enum import IntEnum
-from threading import Lock, Thread
 from uuid import uuid4
 
 from django.conf import settings
@@ -15,13 +14,13 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django_intenum import IntEnumField
-from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import func, select
 
 from hsredshift.etl.models import create_staging_table, list_staging_eligible_tables
 from hsredshift.etl.views import (
 	get_materialized_view_list, get_materialized_view_update_statement, get_view_dependencies
 )
+from hsredshift.utils.sql import run_redshift_background_statement
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import redshift, streams
 from hsreplaynet.utils.fields import ShortUUIDField
@@ -472,47 +471,6 @@ class RedshiftETLStage(IntEnum):
 	ANALYZE_COMPLETE = 18
 	CLEANING_UP = 19
 	FINISHED = 20
-
-
-class BackgroundETLTaskThread(Thread):
-	def __init__(
-		self,
-		do_etl_task_func,
-		background_thread_can_complete,
-		do_task_completion_func=None,
-	):
-		Thread.__init__(self)
-		self._do_etl_task_func = do_etl_task_func
-		self._do_task_completion_func = do_task_completion_func
-		self._background_thread_can_complete = background_thread_can_complete
-
-	def run(self):
-		try:
-			self._do_etl_task_func()
-		except DatabaseError as e:
-			# If the lambda that launched this thread completes while
-			# Redshift is still processing the query, then when this daemon thread
-			# Is unfrozen and resumed in the next ETL cycle it will discover that
-			# It's connection has been invalidated
-			if "select() failed" in str(e):
-				log.debug(str(e))
-			else:
-				raise
-		else:
-			# If the parent process has already moved past the sleep window it provided for
-			# this task, then it will have acquired this lock, which will cause completion to be
-			# skipped. Likewise, if this line is reached when the thread is unfrozen in a subsequent
-			# lambda, the lock should still be acquired
-			do_task_completion = self._background_thread_can_complete.acquire(False)
-			log.info("do_task_completion = %s" % str(do_task_completion))
-
-			if do_task_completion:
-				# Providing a task completion func is optional
-				if self._do_task_completion_func:
-					self._do_task_completion_func()
-				# However, once we have acquired the lock, we must ALWAYS release it
-				# Otherwise the parent thread will block forever on the task
-				self._background_thread_can_complete.release()
 
 
 class RedshiftStagingTrackManager(models.Manager):
@@ -1573,16 +1531,20 @@ class RedshiftStagingTrackTable(models.Model):
 		if self.final_staging_table_size:
 			self.get_min_max_game_dates_from_staging_table()
 
-			def etl_task_func():
-				conn = redshift.get_new_redshift_connection(etl_user=True)
-				conn.execute("SET QUERY_GROUP TO '%s'" % self.gathering_stats_handle)
-				conn.execute("ANALYZE %s;" % self.staging_table)
-
-			self.launch_background_thread(
+			engine = redshift.get_redshift_engine(etl_user=True)
+			stmt = "ANALYZE %s;" % self.staging_table
+			run_redshift_background_statement(
+				stmt,
 				self.gathering_stats_handle,
-				etl_task_func,
-				stage=RedshiftETLStage.GATHERING_STATS
+				engine,
 			)
+
+			self.stage = RedshiftETLStage.GATHERING_STATS
+			self.set_stage_started_at(
+				RedshiftETLStage.GATHERING_STATS,
+				timezone.now()
+			)
+			self.save()
 
 		else:
 			# When there are no records in the table, then just inherit from the parent to be safe
@@ -1611,58 +1573,62 @@ class RedshiftStagingTrackTable(models.Model):
 
 		table_obj = self._get_table_obj()
 
-		def etl_task_func():
-			# Don't attempt deduplication if there is nothing in the staging table
-			if self.final_staging_table_size:
-				pre_table_name = self.pre_insert_table_name
-				game_id_val = "id" if self.target_table == "game" else "game_id"
-				column_names = ', '.join(['"%s"' % c.name for c in table_obj.columns])  # NOQA
+		# Don't attempt deduplication if there is nothing in the staging table
+		if self.final_staging_table_size:
+			pre_table_name = self.pre_insert_table_name
+			game_id_val = "id" if self.target_table == "game" else "game_id"
+			column_names = ', '.join(['"%s"' % c.name for c in table_obj.columns])  # NOQA
 
-				template1 = """
-				DROP TABLE IF EXISTS {pre_table};
-				"""
+			template1 = """
+			DROP TABLE IF EXISTS {pre_table};
+			"""
 
-				template2 = """
-				CREATE TABLE {pre_table_name} (LIKE {target_table_name});
-				"""
+			template2 = """
+			CREATE TABLE {pre_table_name} (LIKE {target_table_name});
+			"""
 
-				template3 = """
-				INSERT INTO {pre_table}
-				SELECT {column_names} FROM (
-					SELECT
-					ROW_NUMBER() OVER (PARTITION BY s.{game_id}, s.id ORDER BY s.id) AS rn,
-					s.*
-					FROM {staging_table} s
-				) t WHERE rn = 1; ANALYZE {pre_table};
-				"""
+			template3 = """
+			INSERT INTO {pre_table}
+			SELECT {column_names} FROM (
+				SELECT
+				ROW_NUMBER() OVER (PARTITION BY s.{game_id}, s.id ORDER BY s.id) AS rn,
+				s.*
+				FROM {staging_table} s
+			) t WHERE rn = 1; ANALYZE {pre_table};
+			"""
 
-				sql1 = template1.format(
-					pre_table=pre_table_name
-				)
+			sql1 = template1.format(
+				pre_table=pre_table_name
+			)
 
-				sql2 = template2.format(
-					pre_table_name=pre_table_name,
-					target_table_name=self.target_table
-				)
+			sql2 = template2.format(
+				pre_table_name=pre_table_name,
+				target_table_name=self.target_table
+			)
 
-				sql3 = template3.format(
-					pre_table=pre_table_name,
-					column_names=column_names,
-					game_id=game_id_val,
-					staging_table=self.staging_table
-				)
+			sql3 = template3.format(
+				pre_table=pre_table_name,
+				column_names=column_names,
+				game_id=game_id_val,
+				staging_table=self.staging_table
+			)
 
-				conn = redshift.get_new_redshift_connection(etl_user=True)
-				conn.execute(sql1)
-				conn.execute(sql2)
-				conn.execute("SET QUERY_GROUP TO '%s'" % self.dedupe_query_handle)
-				conn.execute(sql3)
+			engine = redshift.get_redshift_engine(etl_user=True)
+			engine.execute(sql1)
+			engine.execute(sql2)
 
-		self.launch_background_thread(
-			self.dedupe_query_handle,
-			etl_task_func,
-			stage=RedshiftETLStage.DEDUPLICATING
-		)
+			run_redshift_background_statement(
+				sql3,
+				self.dedupe_query_handle,
+				engine
+			)
+
+			self.stage = RedshiftETLStage.DEDUPLICATING
+			self.set_stage_started_at(
+				RedshiftETLStage.DEDUPLICATING,
+				timezone.now()
+			)
+			self.save()
 
 	def get_insert_task(self):
 		tmpl = "Inserting %s for track_prefix: %s"
@@ -1686,39 +1652,41 @@ class RedshiftStagingTrackTable(models.Model):
 			self.insert_query_handle
 		))
 
-		def etl_task_func():
-			template = """
-				INSERT INTO {target_table}
-				SELECT s.*
-				FROM {pre_staging_table} s
-				LEFT JOIN {target_table} t ON t.{game_id} = s.{game_id}
-					AND t.id = s.id AND t.game_date BETWEEN '{min_date}' AND '{max_date}'
-				WHERE t.id IS NULL;
-			"""
+		template = """
+			INSERT INTO {target_table}
+			SELECT s.*
+			FROM {pre_staging_table} s
+			LEFT JOIN {target_table} t ON t.{game_id} = s.{game_id}
+				AND t.id = s.id AND t.game_date BETWEEN '{min_date}' AND '{max_date}'
+			WHERE t.id IS NULL;
+		"""
 
-			if self.final_staging_table_size:
-				# Don't attempt to insert if there is nothing in the staging table
-				game_id_val = "id" if self.target_table == "game" else "game_id"
-				pre_staging_table_name = self.pre_insert_table_name
+		if self.final_staging_table_size:
+			# Don't attempt to insert if there is nothing in the staging table
+			game_id_val = "id" if self.target_table == "game" else "game_id"
+			pre_staging_table_name = self.pre_insert_table_name
 
-				sql = template.format(
-					pre_staging_table=pre_staging_table_name,
-					target_table=self.target_table,
-					min_date=self.min_game_date.isoformat(),
-					max_date=self.max_game_date.isoformat(),
-					game_id=game_id_val
-				)
+			sql = template.format(
+				pre_staging_table=pre_staging_table_name,
+				target_table=self.target_table,
+				min_date=self.min_game_date.isoformat(),
+				max_date=self.max_game_date.isoformat(),
+				game_id=game_id_val
+			)
 
-				log.info("STATEMENT: %s" % sql)
-				conn = redshift.get_new_redshift_connection(etl_user=True)
-				conn.execute("SET QUERY_GROUP TO '%s'" % self.insert_query_handle)
-				conn.execute(sql)
+			engine = redshift.get_redshift_engine(etl_user=True)
+			run_redshift_background_statement(
+				sql,
+				self.insert_query_handle,
+				engine
+			)
 
-		self.launch_background_thread(
-			self.insert_query_handle,
-			etl_task_func,
-			stage=RedshiftETLStage.INSERTING
-		)
+			self.stage = RedshiftETLStage.INSERTING
+			self.set_stage_started_at(
+				RedshiftETLStage.INSERTING,
+				timezone.now()
+			)
+			self.save()
 
 	def get_refresh_view_task(self):
 		task_name = "Refreshing View %s" % self.target_table
@@ -1736,24 +1704,28 @@ class RedshiftStagingTrackTable(models.Model):
 			self.refreshing_view_handle
 		))
 
-		def etl_task_func():
-			min_date = self.track.min_game_date
-			max_date = self.track.max_game_date
-			if min_date and max_date:
-				sql = get_materialized_view_update_statement(
-					self.target_table,
-					min_date,
-					max_date
-				)
-				conn = redshift.get_new_redshift_connection(etl_user=True)
-				conn.execute("SET QUERY_GROUP TO '%s'" % self.refreshing_view_handle)
-				conn.execute(sql)
+		min_date = self.track.min_game_date
+		max_date = self.track.max_game_date
+		if min_date and max_date:
+			sql = get_materialized_view_update_statement(
+				self.target_table,
+				min_date,
+				max_date
+			)
 
-		self.launch_background_thread(
-			self.refreshing_view_handle,
-			etl_task_func,
-			stage=RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
-		)
+			engine = redshift.get_redshift_engine(etl_user=True)
+			run_redshift_background_statement(
+				sql,
+				self.refreshing_view_handle,
+				engine
+			)
+
+			self.stage = RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS
+			self.set_stage_started_at(
+				RedshiftETLStage.REFRESHING_MATERIALIZED_VIEWS,
+				timezone.now()
+			)
+			self.save()
 
 	def get_vacuum_task(self):
 		tmpl = "Vacuuming %s for track_prefix: %s"
@@ -1777,19 +1749,21 @@ class RedshiftStagingTrackTable(models.Model):
 				self.vacuum_query_handle
 			))
 
-			def etl_task_func():
-				vacuum_target = 100 - settings.REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE
-				conn = redshift.get_new_redshift_connection(etl_user=True)
-				conn.execute("SET QUERY_GROUP TO '%s';" % self.vacuum_query_handle)
-				conn.execute(
-					"VACUUM FULL %s TO %i PERCENT;" % (self.target_table, vacuum_target)
-				)
-
-			self.launch_background_thread(
+			vacuum_target = 100 - settings.REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE
+			engine = redshift.get_redshift_engine(etl_user=True)
+			sql = "VACUUM FULL %s TO %i PERCENT;" % (self.target_table, vacuum_target)
+			run_redshift_background_statement(
+				sql,
 				self.vacuum_query_handle,
-				etl_task_func,
-				stage=RedshiftETLStage.VACUUMING
+				engine
 			)
+
+			self.stage = RedshiftETLStage.VACUUMING
+			self.set_stage_started_at(
+				RedshiftETLStage.VACUUMING,
+				timezone.now()
+			)
+			self.save()
 
 		else:
 			log.info("Unsorted row count is not large enough. Skipping vacuum.")
@@ -1815,16 +1789,20 @@ class RedshiftStagingTrackTable(models.Model):
 			self.analyze_query_handle
 		))
 
-		def etl_task_func():
-			conn = redshift.get_new_redshift_connection(etl_user=True)
-			conn.execute("SET QUERY_GROUP TO '%s'" % self.analyze_query_handle)
-			conn.execute("ANALYZE %s;" % self.target_table)
-
-		self.launch_background_thread(
+		engine = redshift.get_redshift_engine(etl_user=True)
+		sql = "ANALYZE %s;" % self.target_table
+		run_redshift_background_statement(
+			sql,
 			self.analyze_query_handle,
-			etl_task_func,
-			stage=RedshiftETLStage.ANALYZING
+			engine
 		)
+
+		self.stage = RedshiftETLStage.ANALYZING
+		self.set_stage_started_at(
+			RedshiftETLStage.ANALYZING,
+			timezone.now()
+		)
+		self.save()
 
 	def get_cleanup_task(self):
 		task_name = "Cleanup %s" % self.staging_table
@@ -1855,47 +1833,6 @@ class RedshiftStagingTrackTable(models.Model):
 		self.stage = RedshiftETLStage.FINISHED
 		self.save()
 		self.heartbeat_track_status_metrics()
-
-	def launch_background_thread(
-		self,
-		handle,
-		etl_task_func,
-		task_complete_func=None,
-		stage=None
-	):
-		background_thread_can_complete = Lock()
-
-		background_thread = BackgroundETLTaskThread(
-			etl_task_func,
-			background_thread_can_complete,
-			task_complete_func
-		)
-		background_thread.daemon = True
-		background_thread.start()
-
-		start_complete = False
-		while not start_complete:
-			time.sleep(1)
-			is_complete, had_errors, num_stmts, finished_at = get_handle_status(
-				handle,
-				1
-			)
-			analyze_skipped = redshift.is_analyze_skipped(handle)
-			start_complete = is_complete or analyze_skipped or redshift.has_inflight_queries(handle)
-
-		if stage:
-			# We don't record that a track table has started a stage until we know
-			# That we successfully started
-			self.stage = stage
-			self.set_stage_started_at(stage, timezone.now())
-			self.save()
-
-		# Either we acquire it immediately, in which case we have signaled to the thread
-		# That it is no longer safe to perform the task_completion_func
-		# Or the background thread has already acquired it and is doing the task completion
-		# In that case we block until the lock is released signaling the task_completion
-		# is finished
-		background_thread_can_complete.acquire(True)
 
 	def reset_to_stage(self, stage):
 		self.stage = stage
