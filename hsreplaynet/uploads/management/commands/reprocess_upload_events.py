@@ -1,4 +1,4 @@
-from dateutil import parse as parse_timestamp
+from dateutil.parser import parse as parse_timestamp
 from django.core.management.base import BaseCommand
 
 from hsreplaynet.uploads.processing import queue_upload_events_for_reprocessing
