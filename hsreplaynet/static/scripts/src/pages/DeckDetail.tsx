@@ -630,7 +630,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					sortDirection={this.state.personalSortDirection as SortDirection}
 					customNoDataMessage={
 						hasSelectedClass
-							? "You have not played this deck against this class recently."
+							? "You need to play at least five games against this class."
 							: "You have not played this deck recently."
 					}
 				/>
