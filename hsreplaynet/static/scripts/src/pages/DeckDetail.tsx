@@ -217,8 +217,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			</div>
 		);
 
-		const multiClassFeature = UserData.hasFeature("my-statistics-multi-class");
-		const filters = this.state.hasData !== false || multiClassFeature ? [
+		const filters = [
 			<PremiumWrapper name="Single Deck Opponent Selection">
 				<h2>
 					Select your opponent
@@ -235,10 +234,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					tabIndex={premiumTabIndex}
 					selectedClasses={this.props.selectedClasses}
 					selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
-					disabled={this.props.tab !== "mulligan-guide" && (!multiClassFeature || this.props.tab !== "my-statistics")}
+					disabled={this.props.tab !== "mulligan-guide" && this.props.tab !== "my-statistics"}
 				/>
 			</PremiumWrapper>,
-		] : [];
+		];
 		let header = null;
 		if (this.state.hasData === false) {
 			header = (
@@ -599,7 +598,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
-		const selectedClass = UserData.hasFeature("my-statistics-multi-class") && this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL";
+		const selectedClass = this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL";
 		const hasSelectedClass = selectedClass !== "ALL";
 		return (
 			<DataInjector
