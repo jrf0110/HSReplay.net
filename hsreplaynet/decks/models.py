@@ -28,6 +28,7 @@ from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.cards import card_db
 from hsreplaynet.utils.db import dictfetchall
 from hsreplaynet.utils.influx import influx_metric, influx_timer
+from hsreplaynet.utils.instrumentation import error_handler
 
 
 ALPHABET = string.ascii_letters + string.digits
@@ -548,7 +549,11 @@ class ClusterSetManager(models.Manager):
 				for uninherited_id in uninherited_id_set:
 					if uninherited_id not in allow_inheritence_miss_list:
 						msg = "external id %i was not inherited"
-						raise RuntimeError(msg % uninherited_id)
+						try:
+							raise RuntimeError(msg % uninherited_id)
+						except Exception as e:
+							error_handler(e)
+							pass
 
 			cs_snapshot.consolidate_clusters(merge_threshold)
 			cs_snapshot.create_experimental_clusters(
