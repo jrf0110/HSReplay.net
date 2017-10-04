@@ -7,6 +7,7 @@ import * as _ from "lodash";
 import CardList from "../CardList";
 import ClusterSignature from "./ClusterSignature";
 import { commaSeparate } from "../../helpers";
+import UserData from "../../UserData";
 
 interface ClusterDetailProps extends React.ClassAttributes<ClusterDetail> {
 	cardData: CardData;
@@ -22,41 +23,48 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 			components: data.signatures[clusterId],
 			format: null,
 		};
-		let cppData = null;
-		if (!_.isEmpty(data.ccp_signatures) && !_.isEmpty(data.ccp_signatures[clusterId])) {
-			const cppSignature: ApiArchetypeSignature = {
-				as_of: null,
-				components: data.ccp_signatures[clusterId],
-				format: null,
-			};
+		let adminData = null;
+		if (UserData.hasFeature("archetype-training")) {
+			const content = [];
 			const decks = data.data.filter((d) => "" + d.metadata.cluster_id === clusterId);
 			const totalGames = decks.map((d) => d.metadata.games).reduce((a, b) => a + b);
 			const eligibleDecks = decks.filter((d) => d.metadata.games > 1000).length;
-
-			cppData = (
-				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 400}}>
-					<h2>Cluster Info</h2>
-					<table className="table">
-						<tbody>
-							<tr>
-								<th>Total Games</th>
-								<td>{commaSeparate(totalGames)}</td>
-							</tr>
-							<tr>
-								<th>Total Decks</th>
-								<td>{decks.length}</td>
-							</tr>
-							<tr>
-								<th>Eligible Decks</th>
-								<td>{eligibleDecks}</td>
-							</tr>
-						</tbody>
-					</table>
-					<h2>Weighted Signature</h2>
+			content.push(
+				<h2>Cluster Info</h2>,
+				<table className="table">
+					<tbody>
+						<tr>
+							<th>Total Games</th>
+							<td>{commaSeparate(totalGames)}</td>
+						</tr>
+						<tr>
+							<th>Total Decks</th>
+							<td>{decks.length}</td>
+						</tr>
+						<tr>
+							<th>Eligible Decks</th>
+							<td>{eligibleDecks}</td>
+						</tr>
+					</tbody>
+				</table>,
+			);
+			if (!_.isEmpty(data.ccp_signatures) && !_.isEmpty(data.ccp_signatures[clusterId])) {
+				const cppSignature: ApiArchetypeSignature = {
+					as_of: null,
+					components: data.ccp_signatures[clusterId],
+					format: null,
+				};
+				content.push(
+					<h2>Weighted Signature</h2>,
 					<ClusterSignature
 						cardData={cardData}
 						signature={cppSignature}
-					/>
+					/>,
+				);
+			}
+			adminData = (
+				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 400}}>
+					{content}
 				</div>
 			);
 		}
@@ -81,7 +89,7 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 						signature={signature}
 					/>
 				</div>
-				{cppData}
+				{adminData}
 				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 300}}>
 					<h2>Most Popular Deck</h2>
 					<p className="text-center">{deck.metadata.games} games</p>
