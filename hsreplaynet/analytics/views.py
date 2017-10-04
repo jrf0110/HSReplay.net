@@ -303,7 +303,7 @@ def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
 		"redshift_response_payload_staleness",
 		query_fetch_metric_fields,
 		query_name=parameterized_query.query_name,
-		did_preschedule = did_preschedule,
+		did_preschedule=did_preschedule,
 		**parameterized_query.supplied_filters_dict
 	)
 
