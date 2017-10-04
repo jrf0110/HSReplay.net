@@ -324,6 +324,7 @@ def live_clustering_data(request, game_format):
 		content=json.dumps(
 			snapshot.to_chart_data(
 				with_external_ids=True,
+				include_ccp_signature=True,
 				as_of=snapshot.as_of.isoformat(),
 				external_names=external_names
 			),
