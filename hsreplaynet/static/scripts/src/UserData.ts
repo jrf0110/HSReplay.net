@@ -31,6 +31,9 @@ export interface Account {
 	lo: number;
 }
 
+/**
+ * @deprecated use withUser HOC instead (or getUser in static context)
+ */
 export default class UserData {
 	private static _instance: UserDataProps = null;
 	private static _settings = new Settings();
