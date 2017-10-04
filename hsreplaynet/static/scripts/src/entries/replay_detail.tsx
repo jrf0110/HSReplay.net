@@ -11,6 +11,7 @@ import DeleteReplayButton from "../components/DeleteReplayButton";
 import PlayerInfo from "../components/PlayerInfo";
 import UserData from "../UserData";
 import CardData from "../CardData";
+import HSReplayNetProvider from "../components/HSReplayNetProvider";
 
 // shortid
 let shortid = document.getElementById("replay-infobox").getAttribute("data-shortid");
@@ -115,14 +116,16 @@ const renderPlayerInfo = (playerInfo: HTMLElement, playerExpandDirection: "up"|"
 	const build = +playerInfo.getAttribute("data-build");
 	const renderPlayerInfoComponent = (cards?) => {
 		ReactDOM.render(
-			<PlayerInfo
-				gameId={gameId}
-				playerName={playerName}
-				opponentName={opponentName}
-				build={build}
-				cardData={cards}
-				playerExpandDirection={playerExpandDirection}
-			/>,
+			<HSReplayNetProvider>
+				<PlayerInfo
+					gameId={gameId}
+					playerName={playerName}
+					opponentName={opponentName}
+					build={build}
+					cardData={cards}
+					playerExpandDirection={playerExpandDirection}
+				/>
+			</HSReplayNetProvider>,
 			playerInfo,
 		);
 	};

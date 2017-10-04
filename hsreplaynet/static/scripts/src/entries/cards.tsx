@@ -4,6 +4,7 @@ import CardData from "../CardData";
 import Cards from "../pages/Cards";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
+import HSReplayNetProvider from "../components/HSReplayNetProvider";
 
 const container = document.getElementById("card-container");
 const personal = container.getAttribute("data-view-type") === "personal";
@@ -26,36 +27,38 @@ if (personal && !defaultAccount) {
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
-		<Fragments
-			defaults={{
-				text: "",
-				showSparse: false,
-				format: "",
-				gameType: "RANKED_STANDARD",
-				playerClass: "ALL",
-				rankRange: "ALL",
-				timeRange: personal ? "LAST_30_DAYS" : "LAST_14_DAYS",
-				exclude: "",
-				cost: [],
-				rarity: [],
-				set: [],
-				type: [],
-				race: [],
-				mechanics: [],
-				sortBy: "timesPlayed",
-				sortDirection: "descending",
-				display: "statistics",
-				uncollectible: "",
-			}}
-			debounce="text"
-			immutable={UserData.isPremium() ? null : ["rankRange", "timeRange"]}
-		>
-			<Cards
-				cardData={cardData}
-				personal={personal}
-				accounts={availableAccounts}
-			/>
-		</Fragments>,
+		<HSReplayNetProvider>
+			<Fragments
+				defaults={{
+					text: "",
+					showSparse: false,
+					format: "",
+					gameType: "RANKED_STANDARD",
+					playerClass: "ALL",
+					rankRange: "ALL",
+					timeRange: personal ? "LAST_30_DAYS" : "LAST_14_DAYS",
+					exclude: "",
+					cost: [],
+					rarity: [],
+					set: [],
+					type: [],
+					race: [],
+					mechanics: [],
+					sortBy: "timesPlayed",
+					sortDirection: "descending",
+					display: "statistics",
+					uncollectible: "",
+				}}
+				debounce="text"
+				immutable={UserData.isPremium() ? null : ["rankRange", "timeRange"]}
+			>
+				<Cards
+					cardData={cardData}
+					personal={personal}
+					accounts={availableAccounts}
+				/>
+			</Fragments>
+		</HSReplayNetProvider>,
 		container,
 	);
 };
