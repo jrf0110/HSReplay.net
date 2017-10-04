@@ -1,3 +1,4 @@
+import collections
 import hashlib
 import json
 import os
@@ -75,6 +76,46 @@ class DeckManager(models.Manager):
 			return Card.objects.get(card_id=hero_id).card_class
 		return enums.CardClass.INVALID
 
+	def bulk_update_to_archetype(self, deck_ids, archetype):
+		if isinstance(archetype, Archetype):
+			archetype_id = archetype.id
+		else:
+			archetype_id = archetype
+
+		timestamp = now().replace(tzinfo=None)
+		record_batch = []
+		id_batch = []
+		for deck_id in deck_ids:
+			record = "{deck_id}|{archetype_id}|{as_of}\n".format(
+				deck_id=str(deck_id),
+				archetype_id=str(archetype_id or ""),
+				as_of=timestamp.isoformat(sep=" "),
+			)
+			record_batch.append(record)
+			id_batch.append(deck_id)
+
+			if len(record_batch) >= 100:
+				full_record = "".join(record_batch)
+				FIREHOSE.put_record(
+					DeliveryStreamName=settings.ARCHETYPE_FIREHOSE_STREAM_NAME,
+					Record={
+						"Data": full_record.encode("utf-8"),
+					}
+				)
+				Deck.objects.filter(id__in=id_batch).update(archetype_id=archetype_id)
+				record_batch = []
+				id_batch = []
+
+		if len(record_batch):
+			full_record = "".join(record_batch)
+			FIREHOSE.put_record(
+				DeliveryStreamName=settings.ARCHETYPE_FIREHOSE_STREAM_NAME,
+				Record={
+					"Data": full_record.encode("utf-8"),
+				}
+			)
+			Deck.objects.filter(id__in=id_batch).update(archetype_id=archetype_id)
+
 	def classify_deck_with_archetype(self, deck, player_class, game_format):
 		if game_format not in (enums.FormatType.FT_STANDARD, enums.FormatType.FT_WILD):
 			return
@@ -116,13 +157,18 @@ class DeckManager(models.Manager):
 		if archetype_id:
 			deck.update_archetype(archetype_id)
 
-	def get_by_shortid(self, shortid):
+	def get_digest_from_shortid(self, shortid):
 		try:
 			id = string_to_int(shortid, ALPHABET)
 		except ValueError:
 			raise Deck.DoesNotExist("Invalid deck ID")
 		digest = hex(id)[2:].rjust(32, "0")
-		return Deck.objects.get(digest=digest)
+		return digest
+
+	def get_by_shortid(self, shortid):
+		return Deck.objects.get(
+			digest=self.get_digest_from_shortid(shortid)
+		)
 
 
 def generate_digest_from_deck_list(id_list):
@@ -868,9 +914,24 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 				).update(live_in_production=False)
 				self.live_in_production = True
 				self.save()
+				self.synchronize_deck_archetype_assignments()
 		else:
 			msg = "Cannot promote to live=True because the neural network is not ready"
 			raise RuntimeError(msg)
+
+	def synchronize_deck_archetype_assignments(self):
+		for_update = collections.defaultdict(list)
+
+		for class_cluster in self.class_clusters:
+			for cluster in class_cluster.clusters:
+				if cluster.external_id and cluster.external_id != -1:
+					for data_point in cluster.data_points:
+						digest = Deck.objects.get_digest_from_shortid(data_point["shortid"])
+						for_update[cluster.external_id].append(digest)
+
+		for external_id, digests in for_update.items():
+			deck_ids = Deck.objects.filter(digest__in=digests).values_list("id", flat=True)
+			Deck.objects.bulk_update_to_archetype(deck_ids, external_id)
 
 	def train_neural_network(
 		self,
