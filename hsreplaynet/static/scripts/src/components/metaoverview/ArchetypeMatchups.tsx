@@ -14,6 +14,7 @@ import LoadingSpinner from "../LoadingSpinner";
 import {withLoading} from "../loading/Loading";
 import {getOtherArchetype} from "../../helpers";
 import LowDataWarning from "./LowDataWarning";
+import {withUser} from "../../utils/user";
 
 interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
 	archetypeData?: any;
@@ -350,4 +351,8 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 	}
 }
 
-export default withLoading(["archetypeData", "matchupData", "popularityData"])(ArchetypeMatchups);
+export default withUser(
+	withLoading(
+		["archetypeData", "matchupData", "popularityData"]
+	)(ArchetypeMatchups)
+);

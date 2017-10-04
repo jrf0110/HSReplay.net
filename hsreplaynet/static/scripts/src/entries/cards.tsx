@@ -2,18 +2,16 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import Cards from "../pages/Cards";
-import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import HSReplayNetProvider from "../components/HSReplayNetProvider";
+import {getUser} from "../utils/user";
 
 const container = document.getElementById("card-container");
 const personal = container.getAttribute("data-view-type") === "personal";
 
-UserData.create();
-const availableAccounts = UserData.getAccounts();
-const defaultAccount = UserData.getDefaultAccountKey();
+const user = getUser();
 
-if (personal && !defaultAccount) {
+if (personal && !user.getDefaultAccountKey()) {
 	if (typeof ga === "function") {
 		ga("send", {
 			hitType: "event",
@@ -50,12 +48,12 @@ const render = (cardData: CardData) => {
 					uncollectible: "",
 				}}
 				debounce="text"
-				immutable={UserData.isPremium() ? null : ["rankRange", "timeRange"]}
+				immutable={user.isPremium() ? null : ["rankRange", "timeRange"]}
 			>
 				<Cards
 					cardData={cardData}
 					personal={personal}
-					accounts={availableAccounts}
+					accounts={user.getAccounts()}
 				/>
 			</Fragments>
 		</HSReplayNetProvider>,

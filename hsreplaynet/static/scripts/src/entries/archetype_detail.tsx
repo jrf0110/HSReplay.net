@@ -2,9 +2,9 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import ArchetypeDetail from "../pages/ArchetypeDetail";
-import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import HSReplayNetProvider from "../components/HSReplayNetProvider";
+import { getUser } from "../utils/user";
 
 const container = document.getElementById("archetype-container");
 const archetypeId = container.getAttribute("data-archetype-id");
@@ -13,7 +13,7 @@ const playerClass = container.getAttribute("data-archetype-player-class");
 const hasStandardData = container.getAttribute("data-has-standard-data") === "True";
 const hasWildData = container.getAttribute("data-has-wild-data") === "True";
 
-UserData.create();
+const user = getUser();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -23,7 +23,7 @@ const render = (cardData: CardData) => {
 					rankRange: "ELEVEN_THROUGH_TWENTY",
 					tab: "overview",
 				}}
-				immutable={!UserData.isPremium() ? ["rankRange"] : null}
+				immutable={!user.isPremium() ? ["rankRange"] : null}
 			>
 				<ArchetypeDetail
 					cardData={cardData}

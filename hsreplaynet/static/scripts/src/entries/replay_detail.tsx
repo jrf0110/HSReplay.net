@@ -9,7 +9,6 @@ import VisibilityDropdown from "../components/VisibilityDropdown";
 import {Visibility} from "../interfaces";
 import DeleteReplayButton from "../components/DeleteReplayButton";
 import PlayerInfo from "../components/PlayerInfo";
-import UserData from "../UserData";
 import CardData from "../CardData";
 import HSReplayNetProvider from "../components/HSReplayNetProvider";
 
@@ -137,7 +136,6 @@ const renderPlayerInfo = (playerInfo: HTMLElement, playerExpandDirection: "up"|"
 
 };
 
-UserData.create();
 renderPlayerInfo(document.getElementById("infobox-players-container"), "up");
 renderPlayerInfo(document.getElementById("infobox-players-container-small"), "down");
 

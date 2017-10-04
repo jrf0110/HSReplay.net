@@ -2,13 +2,13 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {cardArt, image} from "../helpers";
 import MyReplays from "../pages/MyReplays";
-import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import CardData from "../CardData";
 import HSReplayNetProvider from "../components/HSReplayNetProvider";
+import { getUser } from "../utils/user";
 
-UserData.create();
-let username = UserData.getUsername();
+const user = getUser();
+let username = user.getUsername();
 
 // override username from url if available
 const query = location.search;

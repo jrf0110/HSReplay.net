@@ -1,13 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
-import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import MyDecks from "../pages/MyDecks";
 import HSReplayNetProvider from "../components/HSReplayNetProvider";
 
 const container = document.getElementById("my-decks-container");
-UserData.create();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(

@@ -2,10 +2,11 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import DeckDetail from "../pages/DeckDetail";
-import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import HSReplayNetProvider from "../components/HSReplayNetProvider";
+import {getUser} from "../utils/user";
 
+const user = getUser();
 const adminUrl = document.getElementById("deck-info").getAttribute("data-admin-url");
 const deckId = document.getElementById("deck-info").getAttribute("data-deck-id");
 const deckName= document.getElementById("deck-info").getAttribute("data-deck-name");
@@ -15,7 +16,6 @@ const deckClass = document.getElementById("deck-info").getAttribute("data-deck-c
 const heroDbfId = +document.getElementById("deck-info").getAttribute("data-hero-id");
 const archetypeId = document.getElementById("deck-info").getAttribute("data-archetype-id");
 const archetypeName = document.getElementById("deck-info").getAttribute("data-archetype-name");
-UserData.create();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -28,7 +28,7 @@ const render = (cardData: CardData) => {
 					selectedClasses: [],
 					tab: "mulligan-guide",
 				}}
-				immutable={!UserData.isPremium() ? ["selectedClasses", "rankRange", "region"] : null}
+				immutable={!user.isPremium() ? ["selectedClasses", "rankRange", "region"] : null}
 			>
 				<DeckDetail
 					adminUrl={adminUrl}

@@ -2,12 +2,12 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import CardData from "../CardData";
 import Decks from "../pages/Decks";
-import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 import HSReplayNetProvider from "../components/HSReplayNetProvider";
+import {getUser} from "../utils/user";
 
 const container = document.getElementById("decks-container");
-UserData.create();
+const user = getUser();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -27,7 +27,7 @@ const render = (cardData: CardData) => {
 					timeRange: "LAST_30_DAYS",
 					trainingData: "",
 				}}
-				immutable={!UserData.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange", "region"] : null}
+				immutable={!user.isPremium() ? ["account", "timeRange", "opponentClass", "rankRange", "region"] : null}
 			>
 				<Decks
 					cardData={cardData}

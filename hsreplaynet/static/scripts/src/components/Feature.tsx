@@ -1,15 +1,17 @@
 import * as React from "react";
-import UserData from "../UserData";
+import {UserProps, withUser} from "../utils/user";
 
-interface FeatureProps {
+interface FeatureProps extends React.Props<Feature> {
 	feature: string;
 }
 
-export default class Feature extends React.Component<FeatureProps, {}> {
+class Feature extends React.Component<FeatureProps & UserProps, {}> {
 	render(): JSX.Element {
-		if (!UserData.hasFeature(this.props.feature)) {
+		if (!this.props.user.hasFeature(this.props.feature)) {
 			return null;
 		}
 		return React.Children.only(this.props.children);
 	}
 }
+
+export default withUser(Feature);
