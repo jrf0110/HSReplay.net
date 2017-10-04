@@ -281,6 +281,16 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None, priori
 
 def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
 	staleness = (datetime.utcnow() - parameterized_query.result_as_of).total_seconds()
+
+	did_preschedule = False
+	result = False
+	if parameterized_query.result_is_stale or run_local:
+		attempt_request_triggered_query_execution(parameterized_query, run_local, priority)
+		result = True
+	else:
+		did_preschedule = True
+		parameterized_query.preschedule_refresh()
+
 	query_fetch_metric_fields = {
 		"count": 1,
 		"staleness": int(staleness)
@@ -293,16 +303,11 @@ def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
 		"redshift_response_payload_staleness",
 		query_fetch_metric_fields,
 		query_name=parameterized_query.query_name,
+		did_preschedule = did_preschedule,
 		**parameterized_query.supplied_filters_dict
 	)
 
-	if parameterized_query.result_is_stale or run_local:
-		attempt_request_triggered_query_execution(parameterized_query, run_local, priority)
-		return True
-	else:
-		parameterized_query.preschedule_refresh()
-
-	return False
+	return result
 
 
 def live_clustering_data(request, game_format):
