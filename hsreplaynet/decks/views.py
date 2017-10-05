@@ -22,7 +22,9 @@ from .models import Archetype, ClusterSnapshot, Deck
 @method_decorator(view_requires_feature_access("meta-overview"), name="dispatch")
 class MetaOverviewView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "meta_overview/meta_overview.html"
-	title = "Meta Overview"
+	title = "Hearthstone Meta"
+	description = "Explore the Hearthstone meta game and find out " \
+		"how the archetypes match up."
 
 
 ##
@@ -32,6 +34,8 @@ class MetaOverviewView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 class DiscoverView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 	template_name = "decks/discover.html"
 	title = "Discover"
+	description = "Engage with the up-and-coming Hearthstone meta game " \
+		"to discover the newest archetypes and what's next."
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
