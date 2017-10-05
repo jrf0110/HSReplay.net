@@ -216,8 +216,13 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 				<Feature feature="meta-region-filter">
 					<section id="region-filter">
 						<PremiumWrapper>
+							<h2>Region</h2>
+							<InfoIcon
+								className="pull-right"
+								header="Region Filter"
+								content="Replay volume from the Chinese region is too low for reliable statistics."
+							/>
 							<InfoboxFilterGroup
-								header="Region"
 								locked={!UserData.isPremium()}
 								selectedValue={this.props.region}
 								onClick={(region) => this.props.setRegion(region)}
