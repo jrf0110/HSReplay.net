@@ -144,4 +144,4 @@ class ArchetypeViewSet(
 	def get_permission_classes(self):
 		if self.request.method in SAFE_METHODS:
 			return ()
-		return (UserHasFeature("archetype-selection"), )
+		return (UserHasFeature("archetype-training"), )

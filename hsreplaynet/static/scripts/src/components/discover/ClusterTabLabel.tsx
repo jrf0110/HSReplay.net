@@ -20,7 +20,7 @@ export default class ClusterTabLabel extends React.Component<ClusterTabLabelProp
 	render(): JSX.Element {
 		const {active, canModifyArchetype, clusterId, clusterName, color, format, playerClass} = this.props;
 		let selector = null;
-		const hasFeature = UserData.hasFeature("archetype-selection");
+		const hasFeature = UserData.hasFeature("archetype-training");
 		if (hasFeature && clusterId !== EXPERIMENTAL_CLUSTER_ID && active && canModifyArchetype) {
 			selector = (
 				<DataInjector
