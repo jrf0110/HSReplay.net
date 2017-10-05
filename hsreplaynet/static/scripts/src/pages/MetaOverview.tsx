@@ -158,6 +158,16 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			);
 		}
 
+		const regionFilters = [
+			<InfoboxFilter value="REGION_US">America</InfoboxFilter>,
+			<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>,
+			<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>,
+		];
+		if (UserData.hasFeature("region-filter-china")) {
+			regionFilters.push(<InfoboxFilter value="REGION_CN">China</InfoboxFilter>);
+		}
+		regionFilters.push(<InfoboxFilter value="ALL">All Regions</InfoboxFilter>);
+
 		return <div className="meta-overview-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
@@ -205,11 +215,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 								selectedValue={this.props.region}
 								onClick={(region) => this.props.setRegion(region)}
 							>
-								<InfoboxFilter value="REGION_US">America</InfoboxFilter>
-								<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>
-								<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>
-								<InfoboxFilter value="REGION_CN">China</InfoboxFilter>
-								<InfoboxFilter value="ALL">All Regions</InfoboxFilter>
+								{regionFilters}
 							</InfoboxFilterGroup>
 						</PremiumWrapper>
 					</section>
