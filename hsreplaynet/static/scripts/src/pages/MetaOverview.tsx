@@ -97,7 +97,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					{params, url: "archetype_popularity_distribution_stats"},
 				]}
 				extract={{
-					data: (data) => ({data: data.series.data}),
+					data: (data) => ({data: data.series.data, timestamp: data.as_of}),
 				}}
 			>
 				<ArchetypeList

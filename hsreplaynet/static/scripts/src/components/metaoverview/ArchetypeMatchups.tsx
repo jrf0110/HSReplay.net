@@ -13,6 +13,7 @@ import CardData from "../../CardData";
 import LoadingSpinner from "../LoadingSpinner";
 import {withLoading} from "../loading/Loading";
 import {getOtherArchetype} from "../../helpers";
+import LowDataWarning from "./LowDataWarning";
 
 interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
 	archetypeData?: any;
@@ -86,29 +87,41 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 			sortDirection: this.props.sortDirection,
 		};
 
+		const {popularityData} = this.props;
+
 		return (
-			<ArchetypeMatrix
-				customWeights={this.state.customWeights}
-				onCustomWeightsChanged={(archetypeId: number, popularity: number) => {
-					this.onCustomPopularitiesChanged(archetypeId, popularity);
-				}}
-				useCustomWeights={this.state.useCustomWeights}
-				onUseCustomWeightsChanged={(useCustomWeights: boolean) => {
-					this.setState({useCustomWeights}, () => {
-						if (this.props.sortBy !== "none") {
-							this.props.setSortBy("none");
-						}
-						else {
-							this.updateData(this.props);
-						}
-					});
-				}}
-				ignoredColumns={this.state.ignoredColumns.filter((id) => this.state.sortedIds.indexOf(id) !== -1)}
-				onIgnoreChanged={
-					(archetypeId: number, ignore: boolean) => this.onIgnoreChanged(archetypeId, ignore)
-				}
-				{...commonProps}
-			/>
+			<div>
+				<LowDataWarning
+					date={new Date(popularityData.as_of)}
+					numArchetypes={
+						Object.keys(popularityData.series.data).map((key) => {
+							return popularityData.series.data[key].length;
+						}).reduce((a, b) => a + b)
+					}
+				/>
+				<ArchetypeMatrix
+					customWeights={this.state.customWeights}
+					onCustomWeightsChanged={(archetypeId: number, popularity: number) => {
+						this.onCustomPopularitiesChanged(archetypeId, popularity);
+					}}
+					useCustomWeights={this.state.useCustomWeights}
+					onUseCustomWeightsChanged={(useCustomWeights: boolean) => {
+						this.setState({useCustomWeights}, () => {
+							if (this.props.sortBy !== "none") {
+								this.props.setSortBy("none");
+							}
+							else {
+								this.updateData(this.props);
+							}
+						});
+					}}
+					ignoredColumns={this.state.ignoredColumns.filter((id) => this.state.sortedIds.indexOf(id) !== -1)}
+					onIgnoreChanged={
+						(archetypeId: number, ignore: boolean) => this.onIgnoreChanged(archetypeId, ignore)
+					}
+					{...commonProps}
+				/>
+			</div>
 		);
 	}
 

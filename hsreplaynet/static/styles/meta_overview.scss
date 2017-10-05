@@ -27,6 +27,24 @@
 	>h3 {
 		border-bottom: 1px solid $darkgrey;
 	}
+
+	.low-data-warning {
+		color: $blue;
+		padding: 20px;
+		margin-top: 0;
+		margin-bottom: 8px;
+
+		&.severe {
+			color: $red;
+		}
+	}
+
+	#archetypes {
+		.low-data-warning {
+			width: 100%;
+			padding: 10px;
+		}
+	}
 }
 
 .archetype-matrix-container {
