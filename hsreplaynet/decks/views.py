@@ -1,7 +1,6 @@
 import json
 
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
@@ -20,7 +19,7 @@ from .models import Archetype, ClusterSnapshot, Deck
 # Meta overview pages
 
 @method_decorator(view_requires_feature_access("meta-overview"), name="dispatch")
-class MetaOverviewView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+class MetaOverviewView(RequestMetaMixin, TemplateView):
 	template_name = "meta_overview/meta_overview.html"
 	title = "Hearthstone Meta"
 	description = "Explore the Hearthstone meta game and find out " \
@@ -31,7 +30,7 @@ class MetaOverviewView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 # Discover pages
 
 @method_decorator(view_requires_feature_access("meta-overview"), name="dispatch")
-class DiscoverView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
+class DiscoverView(RequestMetaMixin, TemplateView):
 	template_name = "decks/discover.html"
 	title = "Discover"
 	description = "Engage with the up-and-coming Hearthstone meta game " \
@@ -47,7 +46,7 @@ class DiscoverView(LoginRequiredMixin, RequestMetaMixin, TemplateView):
 # Archetype pages
 
 @method_decorator(view_requires_feature_access("archetype-detail"), name="dispatch")
-class ArchetypeDetailView(LoginRequiredMixin, RequestMetaMixin, View):
+class ArchetypeDetailView(RequestMetaMixin, View):
 	template_name = "archetypes/archetype_detail.html"
 	title = "Archetype"
 
