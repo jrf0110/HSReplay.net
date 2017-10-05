@@ -16,14 +16,13 @@
 
 	{% block javascript %}{% endblock %}
 	{% block adsense %}{% endblock %}
+	{% block footerjs %}
+		<script type="text/javascript">{% spaceless %}{% include "footerjs.js" %}{% endspaceless %}</script>
+	{% endblock %}
 	{% endblock %}
 </head>
 <body>
 	{% block body %}
-	{% endblock %}
-
-	{% block footerjs %}
-		<script type="text/javascript">{% spaceless %}{% include "footerjs.js" %}{% endspaceless %}</script>
 	{% endblock %}
 </body>
 </html>
