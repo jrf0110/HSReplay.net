@@ -66,7 +66,9 @@ class HTMLHead:
 
 		if self.favicon:
 			url = static(self.favicon)
-			tags.append(HTMLTag("link", attrs={"rel": "icon", "type": "image/png", "href": url}))
+			tags.append(
+				HTMLTag("link", attrs={"rel": "icon", "type": "image/x-icon", "href": url})
+			)
 
 		if self.apple_touch_icon:
 			url = static(self.apple_touch_icon)
