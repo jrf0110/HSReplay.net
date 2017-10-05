@@ -10,7 +10,6 @@ import {
 } from "../../interfaces";
 import UserData from "../../UserData";
 import CardData from "../../CardData";
-import ArchetypeList from "./matchups/ArchetypeList";
 import LoadingSpinner from "../LoadingSpinner";
 import {withLoading} from "../loading/Loading";
 import {getOtherArchetype} from "../../helpers";
@@ -86,11 +85,6 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 			sortBy: this.props.sortBy,
 			sortDirection: this.props.sortDirection,
 		};
-
-		if (this.props.mobileView) {
-			return <ArchetypeList {...commonProps}/>;
-
-		}
 
 		return (
 			<ArchetypeMatrix
