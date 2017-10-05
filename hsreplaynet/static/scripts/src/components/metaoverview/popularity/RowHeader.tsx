@@ -7,6 +7,7 @@ import CardData from "../../../CardData";
 import { ArchetypeRankPopularity } from "../../../interfaces";
 import ArchetypeSignature from "../../archetypedetail/ArchetypeSignature";
 import ArchetypeSignatureTooltip from "../ArchetypeSignatureTooltip";
+import OtherArchetype from "../OtherArchetype";
 
 interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 	archetypeData?: ArchetypeRankPopularity;
@@ -35,7 +36,12 @@ export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 	renderName(): JSX.Element | string {
 		const {archetypeData} = this.props;
 		if (archetypeData.id < 0) {
-			return archetypeData.name;
+			return (
+				<OtherArchetype
+					name={archetypeData.name}
+					playerClass={archetypeData.playerClass}
+				/>
+			);
 		}
 		return (
 			<a

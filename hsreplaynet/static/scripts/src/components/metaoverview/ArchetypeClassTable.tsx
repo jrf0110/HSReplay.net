@@ -6,6 +6,7 @@ import ArchetypeSignature from "../archetypedetail/ArchetypeSignature";
 import DataInjector from "../DataInjector";
 import CardData from "../../CardData";
 import ArchetypeSignatureTooltip from "./ArchetypeSignatureTooltip";
+import OtherArchetype from "./OtherArchetype";
 
 interface ArchetypeClassTableProps extends SortableProps, React.ClassAttributes<ArchetypeClassTable> {
 	data: ApiArchetypePopularity[];
@@ -83,16 +84,16 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 	}
 
 	renderHeader(archetype: ApiArchetype) {
-		const name = (
-			<a
-				className={"player-class " + archetype.player_class_name.toLowerCase()}
-				href={archetype.url}
-			>
-				{archetype.name}
-			</a>
-		);
+		const className = "player-class " + archetype.player_class_name.toLowerCase();
 		if (archetype.id < 0) {
-			return  name;
+			return (
+				<span className={className}>
+					<OtherArchetype
+						name={archetype.name}
+						playerClass={archetype.player_class_name}
+					/>
+				</span>
+			);
 		}
 
 		return (
@@ -103,7 +104,12 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				archetypeName={archetype.name}
 				gameType={this.props.gameType}
 			>
-				{name}
+				<a
+					className={className}
+					href={archetype.url}
+				>
+					{archetype.name}
+				</a>
 			</ArchetypeSignatureTooltip>
 		);
 	}
