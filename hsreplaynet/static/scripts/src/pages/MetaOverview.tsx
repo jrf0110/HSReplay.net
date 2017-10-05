@@ -168,6 +168,21 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		}
 		regionFilters.push(<InfoboxFilter value="ALL">All Regions</InfoboxFilter>);
 
+		let rankRangeFilter = null;
+		if (["archetypes", "matchups"].indexOf(this.props.tab) !== -1 ) {
+			rankRangeFilter = (
+				<section id="rank-range-filter">
+					<PremiumWrapper>
+						<h2>Rank Range</h2>
+						<RankPicker
+							selected={this.props.rankRange}
+							onSelectionChanged={(rankRange) => this.props.setRankRange(rankRange)}
+						/>
+					</PremiumWrapper>
+				</section>
+			);
+		}
+
 		return <div className="meta-overview-container">
 			<aside className="infobox">
 				<h1>Meta Overview</h1>
@@ -185,15 +200,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
 				</section>
-				<section id="rank-range-filter">
-					<PremiumWrapper>
-						<h2>Rank Range</h2>
-						<RankPicker
-							selected={this.props.rankRange}
-							onSelectionChanged={(rankRange) => this.props.setRankRange(rankRange)}
-						/>
-					</PremiumWrapper>
-				</section>
+				{rankRangeFilter}
 				<Feature feature="archetypes-gamemode-filter">
 					<section id="gamemode-filter">
 						<InfoboxFilterGroup
