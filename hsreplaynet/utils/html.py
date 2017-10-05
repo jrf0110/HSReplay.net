@@ -42,6 +42,7 @@ class HTMLHead:
 		# self.favicon = ""
 
 		self.favicon = "images/favicon.ico"
+		self.apple_touch_icon = "images/hsreplay-thumbnail.png"
 		self.add_stylesheets(
 			"vendor/bootstrap/css/bootstrap.min.css",
 			"https://fonts.googleapis.com/css?family=Noto+Sans:400,700",
@@ -66,6 +67,14 @@ class HTMLHead:
 		if self.favicon:
 			url = static(self.favicon)
 			tags.append(HTMLTag("link", attrs={"rel": "icon", "type": "image/png", "href": url}))
+
+		if self.apple_touch_icon:
+			url = static(self.apple_touch_icon)
+			tags.append(HTMLTag("link", attrs={
+				"rel": "apple-touch-icon",
+				"sizes": "400x400",
+				"href": url
+			}))
 
 		tags += self._link_tags
 
