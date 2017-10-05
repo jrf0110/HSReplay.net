@@ -10,6 +10,7 @@ import RowHeader from "./RowHeader";
 import RowFooter from "./RowFooter";
 import ColumnFooter from "./ColumnFooter";
 import ArchetypeSearch from "../../ArchetypeSearch";
+import InfoIcon from "../../InfoIcon";
 
 interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	archetypes: ArchetypeData[];
@@ -246,7 +247,11 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 													}
 													checked={this.props.useCustomWeights}
 												/>
-												&nbsp;Custom&nbsp;weights
+												&nbsp;Custom&nbsp;weights&nbsp;
+												<InfoIcon
+													header="Custom weights"
+													content="Check this box to provide your own popularity weights, e.g. based on tournament popularity data you may have."
+												/>
 											</label>
 										</div>
 										<div className="grid-container grid-container-bottom" style={{left: headerCellWidth, bottom}}>
