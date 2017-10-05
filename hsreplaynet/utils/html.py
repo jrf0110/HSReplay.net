@@ -96,6 +96,12 @@ class HTMLHead:
 		for k, v in self.opengraph.items():
 			tags.append(HTMLTag("meta", attrs={"property": k, "content": v}))
 
+		if self.base_title:
+			tags.append(HTMLTag("meta", attrs={
+				"name": "apple-mobile-web-app-title",
+				"content": self.base_title
+			}))
+
 		tags += self._script_tags
 
 		return tags
