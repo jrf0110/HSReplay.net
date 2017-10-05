@@ -43,6 +43,7 @@ class HTMLHead:
 
 		self.favicon = "images/favicon.ico"
 		self.apple_touch_icon = "images/hsreplay-thumbnail.png"
+		self.mask_icon = "images/mask-icon.svg"
 		self.add_stylesheets(
 			"vendor/bootstrap/css/bootstrap.min.css",
 			"https://fonts.googleapis.com/css?family=Noto+Sans:400,700",
@@ -76,6 +77,14 @@ class HTMLHead:
 				"rel": "apple-touch-icon",
 				"sizes": "400x400",
 				"href": url
+			}))
+
+		if self.mask_icon:
+			url = static(self.mask_icon)
+			tags.append(HTMLTag("link", attrs={
+				"rel": "mask-icon",
+				"href": url,
+				"color": "#1d3657"
 			}))
 
 		tags += self._link_tags
