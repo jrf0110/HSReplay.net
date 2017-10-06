@@ -631,7 +631,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					customNoDataMessage={
 						hasSelectedClass
 							? "You need to play at least five games against this class."
-							: "You have not played this deck recently."
+							: "You need to play at least five games with this deck."
 					}
 				/>
 			</DataInjector>
