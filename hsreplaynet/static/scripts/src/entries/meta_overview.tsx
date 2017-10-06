@@ -21,6 +21,7 @@ const render = (cardData: CardData) => {
 				tab: "archetypes",
 				timeFrame: "LAST_7_DAYS",
 			}}
+			immutable={!UserData.isPremium() ? ["rankRange", "region", "timeFrame"] : null}
 		>
 			<MetaOverview
 				cardData={cardData}

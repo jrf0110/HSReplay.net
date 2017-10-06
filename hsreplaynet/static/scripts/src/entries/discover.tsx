@@ -18,6 +18,7 @@ const render = (cardData: CardData) => {
 				tab: "decks",
 				zoomEnabled: "",
 			}}
+			immutable={!UserData.hasFeature("archetype-training") ? ["dataset", "format"] : null}
 		>
 			<Discover
 				cardData={cardData}

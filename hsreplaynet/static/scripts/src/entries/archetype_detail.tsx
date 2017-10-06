@@ -21,6 +21,7 @@ const render = (cardData: CardData) => {
 				rankRange: "ELEVEN_THROUGH_TWENTY",
 				tab: "overview",
 			}}
+			immutable={!UserData.isPremium() ? ["rankRange"] : null}
 		>
 			<ArchetypeDetail
 				cardData={cardData}
