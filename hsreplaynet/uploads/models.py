@@ -1147,7 +1147,7 @@ class RedshiftStagingTrack(models.Model):
 			# self.schedule_global_query_cache_warming()
 			return False, None
 
-		if self._any_tables_are_in_stage(RedshiftETLStage.CLEANING_UP):
+		if self.stage == RedshiftETLStage.CLEANING_UP:
 			return True, RedshiftETLStage.CLEANING_UP
 
 		if self._all_tables_are_in_stage(RedshiftETLStage.ANALYZE_COMPLETE):
