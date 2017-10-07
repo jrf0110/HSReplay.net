@@ -9,7 +9,7 @@ interface Domain {
 	y: [number, number];
 }
 
-interface ClusterChartState {
+interface VictoryClusterChartState {
 	chartKey?: string;
 	domain?: Domain;
 	entireDomain?: Domain;
@@ -17,7 +17,7 @@ interface ClusterChartState {
 	selected?: ClusterMetaData;
 }
 
-interface ClusterChartProps extends React.ClassAttributes<ClusterChart> {
+interface VictoryClusterChartProps extends React.ClassAttributes<VictoryClusterChart> {
 	clusterIds: string[];
 	colors: string[];
 	data: DeckData[];
@@ -33,8 +33,8 @@ interface ClusterChartProps extends React.ClassAttributes<ClusterChart> {
 const MIN_POINT_SIZE = 5;
 const MAX_POINT_SIZE = 45;
 
-export default class ClusterChart extends React.Component<ClusterChartProps, ClusterChartState> {
-	constructor(props: ClusterChartProps, state: ClusterChartState) {
+export default class VictoryClusterChart extends React.Component<VictoryClusterChartProps, VictoryClusterChartState> {
+	constructor(props: VictoryClusterChartProps, state: VictoryClusterChartState) {
 		super(props, state);
 		const domain = this.getEntireDomain(props.data);
 		this.state = {
@@ -73,7 +73,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 		return Object.keys(grouped).map((key) => grouped[key]);
 	}
 
-	componentWillUpdate(nextProps: ClusterChartProps) {
+	componentWillUpdate(nextProps: VictoryClusterChartProps) {
 		if (nextProps.playerClass !== this.props.playerClass) {
 			// the chartKey is used to reset the zoom domain
 			// when the selected player class changes

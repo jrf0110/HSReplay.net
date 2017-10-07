@@ -1,6 +1,5 @@
 import * as React from "react";
 import CardData from "../../CardData";
-import ClusterChart from "./ClusterChart";
 import ClusterDetail from "./ClusterDetail";
 import ClusterTabLabel from "./ClusterTabLabel";
 import DeckInfo from "./DeckInfo";
@@ -9,6 +8,9 @@ import TabList from "../layout/TabList";
 import { withLoading } from "../loading/Loading";
 import {AutoSizer} from "react-virtualized";
 import {toTitleCase} from "../../helpers";
+import UserData from "../../UserData";
+import ClusterChart from "../d3/ClusterChart";
+import VictoryClusterChart from "./VictoryClusterChart";
 
 export interface ClusterData {
 	cluster_map: {[clusterId: number]: number};
@@ -87,8 +89,27 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 						<div className="cluster-chart-container" style={{height: chartHeight}}>
 							<AutoSizer>
 								{({height, width}) => {
+									if (UserData.hasFeature("discover-d3")) {
+										return (
+											<ClusterChart
+												colors={this.getColors()}
+												height={height}
+												width={width}
+												data={data.data}
+												clusterIds={clusterIds}
+												maxGames={maxGames}
+												playerClass={playerClass}
+												onPointClicked={(deck) => {
+													this.setState({selectedDeck: deck});
+													if (this.props.onSelectedDeckChanged) {
+														this.props.onSelectedDeckChanged(deck);
+													}
+												}}
+											/>
+										);
+									}
 									return (
-										<ClusterChart
+										<VictoryClusterChart
 											colors={this.getColors()}
 											height={height}
 											width={width}

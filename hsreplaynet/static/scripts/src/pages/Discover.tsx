@@ -12,6 +12,7 @@ import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import HideLoading from "../components/loading/HideLoading";
+import ClusterChart from "../components/d3/ClusterChart";
 
 interface DiscoverProps extends React.ClassAttributes<Discover> {
 	cardData: CardData;
@@ -71,20 +72,6 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 					<InfoboxFilter value="latest">Latest</InfoboxFilter>
 				</InfoboxFilterGroup>,
 			);
-			const {deck} = this.state;
-			if (deck !== null) {
-				adminControls.push(
-					<h2 key="admin-header">Admin</h2>,
-					<DataInjector
-						key="admin-info"
-						query={{url: `/api/v1/decks/${deck.shortid}/`, params: {}}}
-					>
-						<HideLoading>
-							<AdminDeckInfo playerClass={playerClass}/>
-						</HideLoading>
-					</DataInjector>,
-				);
-			}
 		}
 
 		let sampleControls = null;
