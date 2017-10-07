@@ -381,6 +381,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			);
 		}
 
+		const {deckName, deckClass} = this.props;
+		const copyDeckName = deckName ? deckName.replace(/ Deck$/, "") : toTitleCase(this.props.deckClass);
+
 		return <div className="deck-detail-container">
 			<aside className="infobox">
 				<img
@@ -394,7 +397,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						heroes={[this.props.heroDbfId]}
 						format={this.getGameType() === "RANKED_STANDARD" ? 2 : 1}
 						deckClass={this.props.deckClass}
-						name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
+						name={copyDeckName}
 						sourceUrl={window.location.toString()}
 					/>
 				</div>
