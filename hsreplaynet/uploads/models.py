@@ -502,7 +502,9 @@ class RedshiftStagingTrackManager(models.Manager):
 						log.info(
 							"Currently available ETL slots: %i" % current_available_slots
 						)
-						if current_available_slots > 1 or task._name.startswith("Cleanup"):
+						if current_available_slots > 1:
+							# If we want to by-pass the slot check we can add
+							# this to the if clause or task._name.startswith("Cleanup")
 							log.info("Next Task: %s" % str(task))
 							task()
 							log.info("Complete.")
