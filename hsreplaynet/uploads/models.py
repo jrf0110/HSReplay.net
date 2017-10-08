@@ -496,9 +496,7 @@ class RedshiftStagingTrackManager(models.Manager):
 						if remaining_seconds < 5:
 							break
 
-						available_slots = self.get_available_etl_slots()
-						etl_queue_depth = self.get_etl_queue_depth()
-						current_available_slots = available_slots - etl_queue_depth
+						current_available_slots = self.get_current_available_slots()
 						log.info(
 							"Currently available ETL slots: %i" % current_available_slots
 						)
@@ -517,6 +515,9 @@ class RedshiftStagingTrackManager(models.Manager):
 				log.info("Could not acquire lock. Will skip maintenance run.")
 
 		log.info("Maintenance Cycle Complete")
+
+	def get_current_available_slots(self):
+		return self.get_available_etl_slots() - self.get_etl_queue_depth()
 
 	def get_etl_queue_depth(self):
 		query = """
@@ -1753,7 +1754,12 @@ class RedshiftStagingTrackTable(models.Model):
 
 			vacuum_target = 100 - settings.REDSHIFT_PCT_UNSORTED_ROWS_TOLERANCE
 			engine = redshift.get_redshift_engine(etl_user=True)
-			sql = "VACUUM FULL %s TO %i PERCENT;" % (self.target_table, vacuum_target)
+			available_slots = RedshiftStagingTrack.objects.get_current_available_slots()
+			sql = """
+				SET wlm_query_slot_count TO %i;
+				VACUUM FULL %s TO %i PERCENT;
+				SET wlm_query_slot_count TO 1;
+			""" % (available_slots, self.target_table, vacuum_target)
 			run_redshift_background_statement(
 				sql,
 				self.vacuum_query_handle,
