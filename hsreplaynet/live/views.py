@@ -5,7 +5,7 @@ from django.http import Http404, JsonResponse
 from hearthstone.enums import BnetGameType
 
 from hsreplaynet.live.distributions import (
-	get_played_cards_distribution, get_player_class_distribution
+	get_live_stats_redis, get_played_cards_distribution, get_player_class_distribution
 )
 
 
@@ -13,7 +13,10 @@ _PLAYER_CLASS_CACHE = defaultdict(dict)
 
 
 def _get_base_ts(bucket_size=5):
-	current_ts = datetime.utcnow()
+	redis = get_live_stats_redis()
+	seconds_since_epoch, microseconds_into_current_second = redis.time()
+	current_ts = datetime.utcfromtimestamp(seconds_since_epoch)
+
 	td = timedelta(seconds=60, microseconds=current_ts.microsecond)
 	base_ts = current_ts - td
 	base_ts = base_ts - timedelta(seconds=(base_ts.second % bucket_size))
