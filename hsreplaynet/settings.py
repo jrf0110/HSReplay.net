@@ -381,7 +381,7 @@ REDSHIFT_STAGING_BUFFER_SIZE_MB = 10
 
 # This controls how often we transfer records from the staging tables
 # Into the production tables
-REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES = 120
+REDSHIFT_ETL_TRACK_TARGET_ACTIVE_DURATION_MINUTES = 180
 
 # This controls how long we must wait after closing a Firehose stream for new data
 # Before we transfer the records from the staging track into the prod tables
