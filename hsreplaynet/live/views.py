@@ -23,6 +23,19 @@ def _get_base_ts(bucket_size=5):
 	return base_ts
 
 
+def _get_most_recent_tick_ts(tick=5):
+	redis = get_live_stats_redis()
+	seconds_since_epoch, microseconds_into_current_second = redis.time()
+	current_ts = datetime.utcfromtimestamp(seconds_since_epoch)
+
+	td = timedelta(microseconds=current_ts.microsecond)
+	most_recent_tick_ts = current_ts - td
+	most_recent_tick_ts = most_recent_tick_ts - timedelta(
+		seconds=(most_recent_tick_ts.second % tick)
+	)
+	return most_recent_tick_ts
+
+
 def _validate_game_type(game_type_name):
 	if not hasattr(BnetGameType, game_type_name):
 		raise Http404("Invalid GameType")
@@ -32,16 +45,23 @@ def fetch_player_class_distribution(request, game_type_name):
 	"""Return the last 60 seconds of player class data using a 5 minute sliding window"""
 	_validate_game_type(game_type_name)
 
+	# How many seconds back in time to start.
+	lookback = request.GET.get("lookback", 1800)
+	# How many seconds are in the window we calculate the distribution over.
+	window = request.GET.get("window", 300)
+	# How many seconds between data points.
+	tick = request.GET.get("tick", 5)
+
 	player_class_popularity = get_player_class_distribution(game_type_name)
 
 	# base_ts ensures we generate the result at most once per bucket_size seconds
-	base_ts = _get_base_ts(bucket_size=5)
+	most_recent_tick_ts = _get_most_recent_tick_ts(tick=tick)
+	start_ts = most_recent_tick_ts - timedelta(seconds=lookback)
+	end_ts = start_ts + timedelta(seconds=window)
 
-	if _PLAYER_CLASS_CACHE[game_type_name].get("as_of", None) != base_ts:
+	if _PLAYER_CLASS_CACHE[game_type_name].get("as_of", None) != most_recent_tick_ts:
 		result = []
-		for i in range(0, 61, 5):
-			end_ts = base_ts + timedelta(seconds=i)
-			start_ts = end_ts - timedelta(seconds=300)
+		while end_ts <= most_recent_tick_ts:
 			data = player_class_popularity.distribution(
 				start_ts=start_ts,
 				end_ts=end_ts
@@ -50,7 +70,10 @@ def fetch_player_class_distribution(request, game_type_name):
 				"ts": int(end_ts.timestamp()),
 				"data": data
 			})
-		_PLAYER_CLASS_CACHE[game_type_name]["as_of"] = base_ts
+			start_ts = start_ts + timedelta(seconds=tick)
+			end_ts = start_ts + timedelta(seconds=window)
+
+		_PLAYER_CLASS_CACHE[game_type_name]["as_of"] = most_recent_tick_ts
 		_PLAYER_CLASS_CACHE[game_type_name]["payload"] = result
 
 	return JsonResponse(
