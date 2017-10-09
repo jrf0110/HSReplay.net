@@ -46,7 +46,7 @@ def fetch_player_class_distribution(request, game_type_name):
 	_validate_game_type(game_type_name)
 
 	# How many seconds back in time to start.
-	lookback = int(request.GET.get("lookback", 1800))
+	lookback = int(request.GET.get("lookback", 600))
 	# How many seconds are in the window we calculate the distribution over.
 	window = int(request.GET.get("window", 300))
 	# How many seconds between data points.
