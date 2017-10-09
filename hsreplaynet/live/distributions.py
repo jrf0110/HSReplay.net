@@ -48,7 +48,7 @@ class PopularityWinrateDistribution:
 		return result
 
 
-def get_player_class_distribution(game_type, redis_client=None, ttl=600):
+def get_player_class_distribution(game_type, redis_client=None, ttl=3200):
 	if redis_client:
 		redis = redis_client
 	else:
