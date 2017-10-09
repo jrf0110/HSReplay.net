@@ -13,10 +13,7 @@ _PLAYER_CLASS_CACHE = defaultdict(dict)
 
 
 def _get_base_ts(bucket_size=5):
-	redis = get_live_stats_redis()
-	seconds_since_epoch, microseconds_into_current_second = redis.time()
-	current_ts = datetime.utcfromtimestamp(seconds_since_epoch)
-
+	current_ts = datetime.utcnow()
 	td = timedelta(seconds=60, microseconds=current_ts.microsecond)
 	base_ts = current_ts - td
 	base_ts = base_ts - timedelta(seconds=(base_ts.second % bucket_size))
