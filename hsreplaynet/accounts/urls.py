@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
 
-from hearthsim_identity.accounts.api import CreateAccountClaimView
+from hearthsim_identity.accounts.api import CreateAccountClaimView, UserDetailsView
 
 from . import views
 from .api import TwitchSocialAccountListView
@@ -14,6 +14,7 @@ urlpatterns = [
 ]
 
 api_urlpatterns = [
+	url(r"^v1/account/$", UserDetailsView.as_view()),
 	url(r"^v1/claim_account/$", CreateAccountClaimView.as_view()),
 	url(r"^v1/account/social/twitch/", TwitchSocialAccountListView.as_view()),
 ]
