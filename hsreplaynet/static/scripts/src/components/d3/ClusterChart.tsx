@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import {DeckData} from "../discover/ClassAnalysis";
 
 interface ClusterChartState {
+	initialized?: boolean;
 	scaling?: number;
 	selectedDatum?: DeckData;
 }
@@ -32,13 +33,10 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 	constructor(props: ClusterChartProps, state: ClusterChartState) {
 		super(props, state);
 		this.state = {
+			initialized: false,
 			scaling: 1,
 			selectedDatum: null,
 		};
-	}
-
-	componentDidMount() {
-		this.initialize();
 	}
 
 	componentWillReceiveProps(nextProps: ClusterChartProps) {
@@ -52,7 +50,11 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 			this.initialize();
 		}
 		if (prevProps.width !== this.props.width || prevProps.height !== this.props.height) {
-			this.updatePosition(d3.select(this.container).selectAll(".deck-circle"));
+			if (!this.state.initialized) {
+				this.initialize();
+				this.setState({initialized: true});
+			}
+			this.updatePosition(d3.select(this.container).selectAll("circle").transition().duration(300));
 			this.updateZoom();
 		}
 		if (prevState.scaling !== this.state.scaling) {
@@ -62,7 +64,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 
 	initialize() {
 		this.reset();
-		this.updatePosition(d3.select(this.container).selectAll("circle"));
+		this.updatePosition(d3.select(this.container).selectAll("circle").transition().duration(300));
 		this.updateZoom();
 		this.updateInteraction();
 	}
@@ -79,7 +81,9 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 			.append("circle")
 			.attr("class", "deck-circle")
 			.attr("cursor", "pointer")
-			.attr("stroke", "black");
+			.attr("stroke", "black")
+			.attr("cx", this.props.width / 2)
+			.attr("cy", this.props.height / 2);
 
 		const {colors, clusterIds} = this.props;
 		container.selectAll(".deck-circle")
@@ -136,7 +140,8 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 		container.selectAll(".deck-circle")
 			.on("mouseover", onMouseOver)
 			.on("mouseleave", onMouseLeave)
-			.on("click", onClick);
+			.on("click", onClick)
+			.on("touchstart", onClick);
 	}
 
 	updateZoom() {
