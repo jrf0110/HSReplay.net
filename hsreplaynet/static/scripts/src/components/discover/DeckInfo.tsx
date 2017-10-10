@@ -3,6 +3,7 @@ import CardData from "../../CardData";
 import CardList from "../CardList";
 import DataInjector from "../DataInjector";
 import { ClusterMetaData } from "./ClassAnalysis";
+import UserData from "../../UserData";
 
 interface DeckInfoProps extends React.ClassAttributes<DeckInfo> {
 	cardData: CardData;
@@ -21,9 +22,10 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 		let content = null;
 		if (deck === null) {
 			infoboxClassNames.push("no-deck");
+			const msg = (UserData.hasFeature("discover-d3") ? "Hover" : "Click") + " any deck for more details";
 			content = (
 				<div className="no-deck-message">
-					<p>Click any deck for more details</p>
+					<p>{msg}</p>
 				</div>
 			);
 		}

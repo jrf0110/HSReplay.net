@@ -11,6 +11,7 @@ import {toTitleCase} from "../../helpers";
 import UserData from "../../UserData";
 import ClusterChart from "../d3/ClusterChart";
 import VictoryClusterChart from "./VictoryClusterChart";
+import TourManager from "../../TourManager";
 
 export interface ClusterData {
 	cluster_map: {[clusterId: number]: number};
@@ -67,6 +68,45 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 		};
 	}
 
+	componentDidMount() {
+		this.showTour(false);
+	}
+
+	showTour(force: boolean) {
+		if (!UserData.hasFeature("discover-d3")) {
+			return;
+		}
+		new TourManager().createTour(
+			"discover-introduction",
+			[
+				{
+					id: "introduction",
+					text: [
+						"On this page you can find the deck clusters that were automatically detected by our archetype algorithm.",
+						"Each dot represents a deck and the distance between decks is proportional to their similarity.",
+					],
+					title: "Discover Introduction",
+				},
+				{
+					id: "interaction",
+					text: [
+						"<b>Hover</b> any deck to see the full list of cards on the right. The last hovered deck will stay selected.",
+						"",
+						`
+							<b>Click</b> any deck to focus it.
+							Focusing a deck will cause the cursor to return to it when no other deck is hovered.
+							This allows to easier comparison of two distant decks and interaction with the deck list on the right.
+						`,
+						"Click the same deck again to un-focus it.",
+					],
+					title: "Interaction",
+				},
+			],
+			null,
+			force,
+		);
+	}
+
 	componentWillReceiveProps(nextProps: ClassAnalysisProps) {
 		if (nextProps.playerClass !== this.props.playerClass) {
 			this.setState({selectedDeck: null});
@@ -79,6 +119,7 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 		const {selectedDeck} = this.state;
 		const clusterIds = Object.keys(data.cluster_map).sort();
 		const chartHeight = "calc(100vh - 125px)";
+		const hasFeature = UserData.hasFeature("discover-d3");
 		return (
 			<TabList
 				setTab={this.props.setClusterTab}
@@ -87,9 +128,19 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 				<Tab id="decks" label={this.renderChartTabLabel()} highlight={true}>
 					<div className="class-tab-content">
 						<div className="cluster-chart-container" style={{height: chartHeight}}>
+							{
+								hasFeature ? (
+									<span
+										className="btn btn-primary btn-help"
+										onClick={() => this.showTour(true)}
+									>
+										Info
+									</span>
+								) : null
+							}
 							<AutoSizer>
 								{({height, width}) => {
-									if (UserData.hasFeature("discover-d3")) {
+									if (hasFeature) {
 										return (
 											<ClusterChart
 												colors={this.getColors()}
