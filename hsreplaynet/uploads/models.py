@@ -1829,14 +1829,15 @@ class RedshiftStagingTrackTable(models.Model):
 		except Exception as e:
 			error_handler(e)
 
-		try:
-			engine = redshift.get_redshift_engine(etl_user=True)
-			conn = engine.connect()
-			conn.execution_options(isolation_level="AUTOCOMMIT")
-			conn.execute("DROP TABLE IF EXISTS %s;" % self.pre_insert_table_name)
-			conn.execute("DROP TABLE IF EXISTS %s;" % self.staging_table)
-		except Exception as e:
-			error_handler(e)
+		if not settings.REDSHIFT_ETL_KEEP_STAGING_TABLES:
+			try:
+				engine = redshift.get_redshift_engine(etl_user=True)
+				conn = engine.connect()
+				conn.execution_options(isolation_level="AUTOCOMMIT")
+				conn.execute("DROP TABLE IF EXISTS %s;" % self.pre_insert_table_name)
+				conn.execute("DROP TABLE IF EXISTS %s;" % self.staging_table)
+			except Exception as e:
+				error_handler(e)
 
 		self.cleaning_up_ended_at = timezone.now()
 		self.stage = RedshiftETLStage.FINISHED

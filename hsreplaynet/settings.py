@@ -398,6 +398,9 @@ REDSHIFT_ETL_CONCURRENT_TRACK_LIMIT = 2
 # Old replays or players with messed up system clocks
 REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS = 36
 
+# Set this to True to not delete staging and pre tables during CLEANING_UP
+REDSHIFT_ETL_KEEP_STAGING_TABLES = True
+
 # The percent of unsorted rows that can be in a table after inserts
 # Before a vacuum will be triggered. The Redshift default is 5
 # However we use 0 in order to prefer small vacuums after each track loads
