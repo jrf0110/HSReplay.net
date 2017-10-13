@@ -371,7 +371,7 @@ def parse_upload_event(upload_event, meta):
 	log_bytes = upload_event.log_bytes()
 	if not log_bytes:
 		raise ValidationError("The uploaded log file is empty.")
-	influx_metric("raw_power_log_upload_num_bytes", {"size": len(log_bytes)})
+
 	powerlog = StringIO(log_bytes.decode("utf-8"))
 	upload_event.file.close()
 
