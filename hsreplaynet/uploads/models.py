@@ -1234,11 +1234,10 @@ class RedshiftStagingTrack(models.Model):
 		self.stage = RedshiftETLStage.INITIALIZING
 		self.save()
 
-		for table in list_staging_eligible_tables():
-			RedshiftStagingTrackTable.objects.create_table_for_track(
-				table,
-				self
-			)
+		RedshiftStagingTrackTable.objects.create_tables_for_track(
+			list_staging_eligible_tables(),
+			self
+		)
 
 		for view in get_materialized_view_list():
 			RedshiftStagingTrackTable.objects.create_view_table_for_track(
@@ -1398,13 +1397,18 @@ class RedshiftStagingTrackTableManager(models.Manager):
 
 		return track_table
 
-	def staging_table_exists(self, staging_table_name):
-		return staging_table_name in get_redshift_metadata(refresh=True).tables
+	def staging_table_exists(self, staging_table_name, refresh=True):
+		return staging_table_name in get_redshift_metadata(refresh).tables
 
-	def create_table_for_track(self, table, track):
+	def create_tables_for_track(self, tables, track):
+		get_redshift_metadata(refresh=True)
+		for table in tables:
+			self.create_table_for_track(table, track, refresh=False)
+
+	def create_table_for_track(self, table, track, refresh=True):
 		staging_table_name = track.track_prefix + table.name
 		# Create the staging table in redshift
-		if not self.staging_table_exists(staging_table_name):
+		if not self.staging_table_exists(staging_table_name, refresh):
 			staging_table_name = create_staging_table(
 				table,
 				track.track_prefix,
