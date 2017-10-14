@@ -4,6 +4,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView
 from rest_framework.serializers import HyperlinkedModelSerializer, SerializerMethodField
 
+from hsreplaynet.api.permissions import OAuth2HasScopes
 from hsreplaynet.api.serializers import UserSerializer
 
 
@@ -25,6 +26,9 @@ class TwitchSocialAccountSerializer(HyperlinkedModelSerializer):
 class TwitchSocialAccountListView(ListAPIView):
 	queryset = SocialAccount.objects.filter(provider="twitch")
 	authentication_classes = (SessionAuthentication, OAuth2Authentication)
+	permission_classes = (
+		OAuth2HasScopes(read_scopes=["account.social:read"], write_scopes=[]),
+	)
 	serializer_class = TwitchSocialAccountSerializer
 
 	def get_queryset(self):

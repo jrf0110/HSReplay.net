@@ -266,6 +266,7 @@ REST_FRAMEWORK = {
 
 OAUTH2_PROVIDER = {
 	"SCOPES": {
+		"account.social:read": "Access information about your connected social accounts",
 		"games:read": "View your replays",
 		"games:write": "Update and delete your replays",
 		"webhooks:read": "View your webhooks",
