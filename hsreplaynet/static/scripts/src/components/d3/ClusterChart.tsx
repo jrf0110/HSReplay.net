@@ -2,8 +2,10 @@ import * as React from "react";
 import * as _ from "lodash";
 import * as d3 from "d3";
 import {DeckData} from "../discover/ClassAnalysis";
+import {hexToHsl, stringifyHsl} from "../../helpers";
 
 interface ClusterChartState {
+	dragging?: boolean;
 	initialized?: boolean;
 	scaling?: number;
 	selectedDatum?: DeckData;
@@ -20,7 +22,7 @@ interface ClusterChartProps extends React.ClassAttributes<ClusterChart> {
 	width: number;
 }
 
-const PADDING = 20;
+const PADDING = 50;
 const MIN_POINT_SIZE = 5;
 const MAX_POINT_SIZE = 45;
 const STROKE_WIDTH = 1.5;
@@ -28,11 +30,14 @@ const STROKE_WIDTH_SELECTED = 2.5;
 
 export default class ClusterChart extends React.Component<ClusterChartProps, ClusterChartState> {
 	private container: SVGGElement;
+	private decks: SVGGElement;
+	private voronoi: SVGGElement;
 	private svg: SVGSVGElement;
 
 	constructor(props: ClusterChartProps, state: ClusterChartState) {
 		super(props, state);
 		this.state = {
+			dragging: false,
 			initialized: false,
 			scaling: 1,
 			selectedDatum: null,
@@ -54,59 +59,70 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 				this.initialize();
 				this.setState({initialized: true});
 			}
-			this.updatePosition(d3.select(this.container).selectAll("circle").transition().duration(300));
+			this.updatePosition(d3.select(this.decks).selectAll("circle").transition().duration(500));
 			this.updateZoom();
-		}
-		if (prevState.scaling !== this.state.scaling) {
-			this.updateInteraction();
+			this.updateVoronoi();
 		}
 	}
 
 	initialize() {
-		this.reset();
-		this.updatePosition(d3.select(this.container).selectAll("circle").transition().duration(300));
+		this.renderChart();
+		this.updatePosition(d3.select(this.decks).selectAll("circle").transition().duration(500));
 		this.updateZoom();
-		this.updateInteraction();
 	}
 
-	reset() {
-		const container = d3.select(this.container);
+	renderChart() {
+		const container = d3.select(this.decks);
 
 		d3.select(this.svg).call(d3.zoom().transform, d3.zoomIdentity);
-		container.attr("transform", null);
+		d3.select(this.container).attr("transform", null);
 
-		const decks = container.selectAll(".deck-circle").data(this.props.data);
+		const decks = container.selectAll(".deck-circle").data(this.props.data, (d: any) => d.metadata.shortid);
 		decks.exit().remove();
 		decks.enter()
 			.append("circle")
 			.attr("class", "deck-circle")
-			.attr("cursor", "pointer")
-			.attr("stroke", "black")
 			.attr("cx", this.props.width / 2)
-			.attr("cy", this.props.height / 2);
-
-		const {colors, clusterIds} = this.props;
-		container.selectAll(".deck-circle")
+			.attr("cy", this.props.height / 2)
 			.attr("r", this.pointSize)
-			.attr("fill", (p: any) => colors[clusterIds.indexOf("" + p.metadata.cluster_id)] || "gray")
+			.attr("fill", (d: any) => this.fillColor(d))
+			.attr("stroke", (d: any) => this.strokeColor(d))
 			.attr("stroke-width", this.state.scaling);
 
 		container.select("#highlight").remove();
 		container.append("circle")
 			.attr("id", "highlight")
 			.attr("r", 0)
-			.attr("stroke", "black")
-			.attr("fill", "rgba(49,138,185,.2)")
-			.attr("pointer-events", "none")
 			.attr("stroke-width", STROKE_WIDTH);
+
+		this.updateVoronoi();
 	}
 
-	updateInteraction() {
-		const container = d3.select(this.container);
-		const highlightRadius = (d) => (this.pointSize(d) + 5) * this.state.scaling;
+	updateVoronoi() {
+		const scale = this.scale();
+		const voronoi = d3.voronoi()
+			.extent([[-1, -1], [this.props.width + 1, this.props.height + 1]]);
 
-		const onMouseOver = (datum: any) => {
-			const highlight = container.select("#highlight")
+		const getKey = (coordiantes: [number, number]) => {
+			return "" + coordiantes[0] + coordiantes[1];
+		};
+
+		const dataLookup = {};
+		this.props.data.forEach((datum) => {
+			dataLookup[getKey([scale.x(datum.x), scale.y(datum.y)])] = datum;
+		});
+
+		const findDatum = (coordinates: [number, number]) => {
+			return dataLookup[getKey(coordinates)];
+		};
+
+		const onHover = (d: any) => {
+			if (this.state.dragging) {
+				return;
+			}
+			const datum = dataLookup[getKey(d.data)];
+			const highlightRadius = (d1) => (this.pointSize(d1) + 5) * this.state.scaling;
+			const highlight = d3.select("#highlight")
 				.datum(datum)
 				.transition().duration(100)
 				.attr("r", highlightRadius)
@@ -115,33 +131,79 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 				.on("end", () => this.props.onPointClicked(datum.metadata));
 		};
 
-		const onMouseLeave = (datum: any) => {
-			const {selectedDatum} = this.state;
-			if (!selectedDatum) {
+		const onExit = (d: any) => {
+			if (this.state.dragging) {
 				return;
 			}
-			const highlight = container.select("#highlight")
-				.datum(selectedDatum)
+			const datum = this.state.selectedDatum;
+			const highlightRadius = (d1) => datum ? ((this.pointSize(d1) + 5) * this.state.scaling) : 0;
+			const highlight = d3.select("#highlight")
+				.datum(datum)
 				.transition().delay(400).duration(100)
 				.attr("r", highlightRadius)
 				.attr("stroke-width", STROKE_WIDTH_SELECTED * this.state.scaling);
-			this.updatePosition(highlight)
-				.on("end", () => this.props.onPointClicked(selectedDatum.metadata));
+			if (this.state.selectedDatum) {
+				this.updatePosition(highlight);
+			}
+			highlight.on("end", () => this.props.onPointClicked(datum ? datum.metadata : null));
 		};
 
-		const onClick = (datum: any) => {
+		const onClick = (d: any) => {
+			const datum = dataLookup[getKey(d.data)];
 			const {selectedDatum} = this.state;
 			const newDatum = selectedDatum && selectedDatum.metadata.shortid === datum.metadata.shortid ? null : datum;
-			container.select("#highlight")
+			d3.select("#highlight")
 				.attr("stroke-width", (newDatum === null ? STROKE_WIDTH : STROKE_WIDTH_SELECTED) * this.state.scaling);
 			this.setState({selectedDatum: newDatum});
 		};
 
-		container.selectAll(".deck-circle")
-			.on("mouseover", onMouseOver)
-			.on("mouseleave", onMouseLeave)
+		const polygons = voronoi.polygons(this.props.data.map((d: any) => {
+			return [scale.x(d.x), scale.y(d.y)] as [number, number];
+		}));
+		const hoverGroups = d3.select(this.voronoi).selectAll("g")
+			.data(polygons, (d: any) => getKey(d));
+
+		hoverGroups.exit().remove();
+
+		const newGroups = hoverGroups.enter().append("g");
+
+		newGroups.append("path")
+			.data(polygons, (d: any) => getKey(d))
+				.attr("fill", "none")
+				.attr("id", (d: any, i: number) => "cell-" + i)
+				.attr("d", (d: any) => (d ? "M" + d.join("L") + "Z" : null));
+
+		newGroups.append("clipPath")
+			.attr("id", (d: any, i: number) => "clip-" + i)
+			.append("use")
+				.attr("xlink:href", (d: any, i: number) => "#cell-" + i);
+
+		newGroups.append("circle")
+			.attr("class", "group-circle")
+			.attr("r", Math.min(this.props.height, this.props.width) * 0.035)
+			.attr("cx", (d: any) => d.data[0])
+			.attr("cy", (d: any) => d.data[1])
+			.attr("fill", (d: any) => this.fillColor(findDatum(d.data)))
+			.attr("stroke-width", this.state.scaling)
+			.attr("opacity", 0)
+			.on("mouseover", onHover)
+			.on("mouseleave", onExit)
 			.on("click", onClick)
-			.on("touchstart", onClick);
+			.transition().delay(400)
+			.attr("stroke", (d: any) => this.strokeColor(findDatum(d.data)))
+			.attr("opacity", 0.8)
+			.attr("fill-opacity", 0.1)
+			.attr("clip-path", (d: any, i: number) => `url(#clip-${i})`);
+	}
+
+	fillColor(d: any) {
+		return this.props.colors[this.props.clusterIds.indexOf("" + d.metadata.cluster_id || "gray")];
+	}
+
+	strokeColor(d: any) {
+		const fill = this.fillColor(d);
+		const hsl = hexToHsl(fill);
+		return stringifyHsl(hsl[0], hsl[1], hsl[2] * 0.5);
 	}
 
 	updateZoom() {
@@ -158,22 +220,35 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 				container.select("#highlight")
 					.attr("r", (d) => d ? (this.pointSize(d) + 5) * scaling : 0)
 					.attr("stroke-width",  STROKE_WIDTH * scaling);
+				const minDimension = Math.min(this.props.height, this.props.width) / Math.sqrt(d3.event.transform.k);
+				container.selectAll(".group-circle")
+					.attr("stroke-width", scaling)
+					.attr("r", minDimension * 0.035);
 				this.setState({scaling});
-			});
+			})
+			.on("start", () => this.setState({dragging: true}))
+			.on("end", () => this.setState({dragging: false}));
 		d3.select(this.svg).call(zoom);
 	}
 
 	updatePosition(selection: any): any {
-		const {height, width} = this.props;
-		const xValues = this.props.data.map((d) => d.x);
-		const yValues = this.props.data.map((d) => d.y);
-		const xDomain = [d3.min(xValues), d3.max(xValues)];
-		const yDomain = [d3.min(yValues), d3.max(yValues)];
-		const x = d3.scaleLinear().domain(xDomain).range([PADDING, width - PADDING]);
-		const y = d3.scaleLinear().domain(yDomain).range([height - PADDING, PADDING]);
+		const scale = this.scale();
 		return selection
-			.attr("cx", (p: any) => p ? x(p.x) : width / 2)
-			.attr("cy", (p: any) => p ? y(p.y) : height / 2);
+			.attr("cx", (p: any) => p ? scale.x(p.x) : this.props.width / 2)
+			.attr("cy", (p: any) => p ? scale.y(p.y) : this.props.height / 2);
+	}
+
+	scale(): {x: d3.ScaleLinear<number, number>, y: d3.ScaleLinear<number, number>} {
+		return {
+			x: this.scaleDimension("x"),
+			y: this.scaleDimension("y"),
+		};
+	}
+
+	scaleDimension(dimension: "x" | "y"): d3.ScaleLinear<number, number> {
+		const domain = d3.extent(this.props.data.map((d) => d[dimension]));
+		const range = dimension === "x" ? [PADDING, this.props.width - PADDING] : [this.props.height - PADDING, PADDING];
+		return d3.scaleLinear().domain(domain).range(range);
 	}
 
 	pointSize = (p) => {
@@ -198,7 +273,10 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 				className="cluster-chart-wrapper"
 				ref={(svg) => this.svg = svg}
 			>
-				<g ref={(container) => this.container = container}/>
+				<g ref={(ref) => this.container = ref}>
+					<g ref={(ref) => this.decks = ref}/>
+					<g ref={(ref) => this.voronoi = ref}/>
+				</g>
 			</svg>
 		);
 	}

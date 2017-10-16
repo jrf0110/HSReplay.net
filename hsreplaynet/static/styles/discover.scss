@@ -97,6 +97,20 @@
 				padding: 3px;
 				opacity: 0.6;
 			}
+
+			.group-circle {
+				cursor: pointer;
+			}
+
+			#highlight {
+				stroke: black;
+				fill: rgba(49, 138, 185, .2);
+				pointer-events: none;
+			}
+
+			.deck-circle {
+				fill-opacity: 0.8;
+			}
 		}
 
 		.btn-help {

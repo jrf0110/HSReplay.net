@@ -74,23 +74,38 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 			);
 		}
 
-		let sampleControls = null;
-		if (zoomEnabled === "true") {
-			sampleControls = (
+		let zoomControls = [];
+		if (!UserData.hasFeature("discover-d3")) {
+			zoomControls.push(
 				<InfoboxFilterGroup
-					key="cluster-sample-size"
-					header="Sample size"
-					selectedValue={sampleSize}
+					key="cluster-settings"
+					header="Settings"
+					deselectable={true}
+					selectedValue={zoomEnabled}
 					onClick={(value) => {
-						UserData.setSetting("discover-samplesize", value);
-						this.props.setSampleSize(value);
+						this.props.setZoomEnabled(value);
 					}}
 				>
-					<InfoboxFilter value="250">250</InfoboxFilter>
-					<InfoboxFilter value="500">500</InfoboxFilter>
-					<InfoboxFilter value="full">Full</InfoboxFilter>
-				</InfoboxFilterGroup>
+					<InfoboxFilter value="true">Enable Zoom</InfoboxFilter>
+				</InfoboxFilterGroup>,
 			);
+			if (zoomEnabled === "true") {
+				zoomControls = [
+					<InfoboxFilterGroup
+						key="cluster-sample-size"
+						header="Sample size"
+						selectedValue={sampleSize}
+						onClick={(value) => {
+							UserData.setSetting("discover-samplesize", value);
+							this.props.setSampleSize(value);
+						}}
+					>
+						<InfoboxFilter value="250">250</InfoboxFilter>
+						<InfoboxFilter value="500">500</InfoboxFilter>
+						<InfoboxFilter value="full">Full</InfoboxFilter>
+					</InfoboxFilterGroup>,
+				];
+			}
 		}
 
 		const dataUrl = `/analytics/clustering/data/${dataset}/${format}/`;
@@ -118,18 +133,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							this.props.setPlayerClass(playerClasses[0]);
 						}}
 					/>
-					<InfoboxFilterGroup
-						key="cluster-settings"
-						header="Settings"
-						deselectable={true}
-						selectedValue={zoomEnabled}
-						onClick={(value) => {
-							this.props.setZoomEnabled(value);
-						}}
-					>
-						<InfoboxFilter value="true">Enable Zoom</InfoboxFilter>
-					</InfoboxFilterGroup>
-					{sampleControls}
+					{zoomControls}
 					{adminControls}
 					<h2>Data</h2>
 					<ul>

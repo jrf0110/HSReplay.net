@@ -90,14 +90,14 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 				{
 					id: "interaction",
 					text: [
-						"<b>Hover</b> any deck to see the full list of cards on the right. The last hovered deck will stay selected.",
+						"<b>Hover</b> any deck to see the full list of cards on the right.",
 						"",
 						`
 							<b>Click</b> any deck to focus it.
 							Focusing a deck will cause the cursor to return to it when no other deck is hovered.
-							This allows to easier comparison of two distant decks and interaction with the deck list on the right.
+							This allows for easier comparison of two distant decks and interaction with the deck list on the right.
 						`,
-						"Click the same deck again to un-focus it.",
+						"Click the same deck again to defocus it.",
 					],
 					title: "Interaction",
 				},

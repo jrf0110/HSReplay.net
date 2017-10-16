@@ -22,10 +22,21 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 		let content = null;
 		if (deck === null) {
 			infoboxClassNames.push("no-deck");
-			const msg = (UserData.hasFeature("discover-d3") ? "Hover" : "Click") + " any deck for more details";
+			let msg = null;
+			if (UserData.hasFeature("discover-d3")) {
+				msg = (
+					<p>
+						<strong>Hover</strong> any deck for more details.<br/>
+						<strong>Click</strong> any deck to focus/defocus it.
+					</p>
+				);
+			}
+			else {
+				msg = (<p>Click any deck for more details</p>);
+			}
 			content = (
 				<div className="no-deck-message">
-					<p>{msg}</p>
+					{msg}
 				</div>
 			);
 		}
