@@ -122,11 +122,9 @@ def _get_query_and_params(request, name):
 				# Supplying only either Region or account_lo is a bad request
 				return HttpResponseBadRequest()
 
+			# Map numeric region to FilterEnum
 			if supplied_params["Region"].isdigit():
 				supplied_region = supplied_params["Region"]
-				if not supplied_region.isdigit():
-					return HttpResponseBadRequest()
-
 				region_member = Region.from_int(int(supplied_region))
 				supplied_params["Region"] = region_member.name
 
