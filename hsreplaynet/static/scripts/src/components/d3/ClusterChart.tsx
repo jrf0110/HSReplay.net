@@ -65,6 +65,11 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 		}
 	}
 
+	getData(): DeckData[] {
+		// Duplicate coordinates in the dataset will cause the voronoi generation to error.
+		return _.uniqBy(this.props.data, (d) => "" + d.x + d.y);
+	}
+
 	initialize() {
 		this.renderChart();
 		this.updatePosition(d3.select(this.decks).selectAll("circle").transition().duration(500));
@@ -77,7 +82,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 		d3.select(this.svg).call(d3.zoom().transform, d3.zoomIdentity);
 		d3.select(this.container).attr("transform", null);
 
-		const decks = container.selectAll(".deck-circle").data(this.props.data, (d: any) => d.metadata.shortid);
+		const decks = container.selectAll(".deck-circle").data(this.getData(), (d: any) => d.metadata.shortid);
 		decks.exit().remove();
 		decks.enter()
 			.append("circle")
@@ -108,7 +113,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 		};
 
 		const dataLookup = {};
-		this.props.data.forEach((datum) => {
+		this.getData().forEach((datum) => {
 			dataLookup[getKey([scale.x(datum.x), scale.y(datum.y)])] = datum;
 		});
 
@@ -157,7 +162,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 			this.setState({selectedDatum: newDatum});
 		};
 
-		const polygons = voronoi.polygons(this.props.data.map((d: any) => {
+		const polygons = voronoi.polygons(this.getData().map((d: any) => {
 			return [scale.x(d.x), scale.y(d.y)] as [number, number];
 		}));
 		const hoverGroups = d3.select(this.voronoi).selectAll("g")
@@ -246,7 +251,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 	}
 
 	scaleDimension(dimension: "x" | "y"): d3.ScaleLinear<number, number> {
-		const domain = d3.extent(this.props.data.map((d) => d[dimension]));
+		const domain = d3.extent(this.getData().map((d) => d[dimension]));
 		const range = dimension === "x" ? [PADDING, this.props.width - PADDING] : [this.props.height - PADDING, PADDING];
 		return d3.scaleLinear().domain(domain).range(range);
 	}
