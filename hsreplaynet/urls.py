@@ -8,7 +8,6 @@ from .views import DownloadsView, HomeView
 
 urlpatterns = [
 	url(r"^$", HomeView.as_view(), name="home"),
-	url(r"^api/", include("hsreplaynet.api.urls")),
 	url(r"^analytics/", include("hsreplaynet.analytics.urls")),
 	url(r"^live/", include("hsreplaynet.live.urls")),
 	url(r"^games/", include("hsreplaynet.games.urls")),
@@ -28,6 +27,7 @@ if not settings.ENV_LAMBDA:
 	# These pages are not registered on Lambda as they are not needed there
 	urlpatterns += [
 		url(r"^admin/", include("hsreplaynet.admin.urls")),
+		url(r"^api/", include("hsreplaynet.api.urls")),
 		url(r"^articles/", include("hsreplaynet.articles.urls")),
 		url(r"^account/", include("hsreplaynet.accounts.urls")),
 		url(r"^account/billing/", include("hsreplaynet.billing.urls")),
