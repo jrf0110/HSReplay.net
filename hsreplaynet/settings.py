@@ -400,6 +400,7 @@ REDSHIFT_ETL_CONCURRENT_TRACK_LIMIT = 2
 REDSHIFT_ETL_UPLOAD_DELAY_LIMIT_HOURS = 36
 
 # Set this to True to not delete staging and pre tables during CLEANING_UP
+# Make sure this is not continuously True since we're limited to 9999 tables in Redshift
 REDSHIFT_ETL_KEEP_STAGING_TABLES = False
 
 # The percent of unsorted rows that can be in a table after inserts
