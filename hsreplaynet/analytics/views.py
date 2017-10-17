@@ -96,15 +96,8 @@ def _get_query_and_params(request, name):
 
 	if query.is_personalized:
 		if request.user and request.user.is_authenticated:
-			if "Region" not in supplied_params:
-				default_blizzard_account = request.user.blizzard_accounts.first()
-
-				if default_blizzard_account:
-					supplied_params["Region"] = default_blizzard_account.region.name
-					supplied_params["account_lo"] = default_blizzard_account.account_lo
-				else:
-					raise Http404("User does not have any Blizzard Accounts.")
-			else:
+			if "Region" in supplied_params and "account_lo" in supplied_params:
+				# The parameters region and account_lo were both supplied, use these
 				supplied_region = supplied_params["Region"]
 				supplied_account_lo = supplied_params["account_lo"]
 				if not (supplied_region.isdigit() and supplied_account_lo.isdigit()):
@@ -116,6 +109,18 @@ def _get_query_and_params(request, name):
 				).exists()
 				if not user_owns_blizzard_account and not request.user.is_staff:
 					return HttpResponseForbidden()
+			elif "Region" not in supplied_params and "account_lo" not in supplied_params:
+				# Neither region nor account_lo were supplied, default to first
+				default_blizzard_account = request.user.blizzard_accounts.first()
+
+				if default_blizzard_account:
+					supplied_params["Region"] = default_blizzard_account.region.name
+					supplied_params["account_lo"] = default_blizzard_account.account_lo
+				else:
+					raise Http404("User does not have any Blizzard Accounts.")
+			else:
+				# Supplying only either Region or account_lo is a bad request
+				return HttpResponseBadRequest()
 
 			if supplied_params["Region"].isdigit():
 				supplied_region = supplied_params["Region"]
