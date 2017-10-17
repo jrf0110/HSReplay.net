@@ -143,7 +143,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 
 		let archetypeInfo = null;
-		if (this.props.archetypeName && UserData.hasFeature("archetype-detail")) {
+		if (this.props.archetypeName) {
 			archetypeInfo = (
 				<li>
 					Archetype
@@ -472,7 +472,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</span>
 							)}
 							id="matchups"
-							hidden={!UserData.hasFeature("meta-overview") || this.state.hasData === false}
+							hidden={this.state.hasData === false}
 						>
 							{this.renderMatchups(deckParams)}
 						</Tab>

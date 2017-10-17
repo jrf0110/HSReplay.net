@@ -175,13 +175,11 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 					return;
 				}
 				data[key].forEach((deck) => {
-					if (UserData.hasFeature("archetype-detail")) {
-						if (deck.archetype_id && archetypes.every((a) => a.id !== "" + deck.archetype_id)) {
-							archetypes.push({id: "" + deck.archetype_id, playerClass: key});
-						}
-						if (this.props.archetypes.length && this.props.archetypes.indexOf("" + deck.archetype_id) === -1) {
-							return;
-						}
+					if (deck.archetype_id && archetypes.every((a) => a.id !== "" + deck.archetype_id)) {
+						archetypes.push({id: "" + deck.archetype_id, playerClass: key});
+					}
+					if (this.props.archetypes.length && this.props.archetypes.indexOf("" + deck.archetype_id) === -1) {
+						return;
 					}
 					// hotfix for unload issue 2017-09-24
 					const fixedDeckList = (deck.deck_list || "").replace(/\\,/g, ",");

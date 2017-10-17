@@ -87,7 +87,7 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 		};
 
 		let deckName = null;
-		if (this.props.archetypeName && UserData.hasFeature("archetype-detail")) {
+		if (this.props.archetypeName) {
 			deckName = (
 				<span className="deck-name" style={deckNameStyle}>
 					{this.props.archetypeName}

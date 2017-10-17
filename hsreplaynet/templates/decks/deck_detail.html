@@ -11,10 +11,8 @@
 		data-hero-id="{{ deck.hero_dbf_id }}"
 		data-deck-cards="{{ card_list }}"
 		data-deck-class="{{ deck.deck_class.name }}"
-		{% feature "archetype-detail" as ft_archetype %}{% if ft_archetype.enabled %}
 		data-archetype-id="{{ deck.archetype.id }}"
 		data-archetype-name="{{ deck.archetype.name }}"
-		{% endif %}
 	>
 	</div>
 	<div id="deck-container"></div>

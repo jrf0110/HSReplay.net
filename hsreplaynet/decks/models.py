@@ -204,6 +204,8 @@ class Deck(models.Model):
 		db_table = "cards_deck"
 
 	def __str__(self):
+		if self.archetype:
+			return str(self.archetype)
 		if self.deck_class:
 			return "%s Deck" % (self.deck_class.name.capitalize())
 		return "Neutral Deck"

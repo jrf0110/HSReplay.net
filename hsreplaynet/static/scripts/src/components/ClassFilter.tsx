@@ -74,7 +74,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, {}> {
 		});
 
 		let archetypeFilter = null;
-		if (this.props.archetypes && UserData.hasFeature("archetype-detail")) {
+		if (this.props.archetypes) {
 			archetypeFilter = (
 				<DataInjector query={{params: {}, url: "/api/v1/archetypes/"}}>
 					<ArchetypeFilter

@@ -18,7 +18,6 @@ from .models import Archetype, ClusterSnapshot, Deck
 ##
 # Meta overview pages
 
-@method_decorator(view_requires_feature_access("meta-overview"), name="dispatch")
 class MetaOverviewView(RequestMetaMixin, TemplateView):
 	template_name = "meta_overview/meta_overview.html"
 	title = "Hearthstone Meta"
@@ -29,7 +28,6 @@ class MetaOverviewView(RequestMetaMixin, TemplateView):
 ##
 # Discover pages
 
-@method_decorator(view_requires_feature_access("meta-overview"), name="dispatch")
 class DiscoverView(RequestMetaMixin, TemplateView):
 	template_name = "decks/discover.html"
 	title = "Discover"
@@ -45,7 +43,6 @@ class DiscoverView(RequestMetaMixin, TemplateView):
 ##
 # Archetype pages
 
-@method_decorator(view_requires_feature_access("archetype-detail"), name="dispatch")
 class ArchetypeDetailView(RequestMetaMixin, View):
 	template_name = "archetypes/archetype_detail.html"
 	title = "Archetype"
@@ -184,23 +181,13 @@ class DeckDetailView(View):
 		if len(cards) != 30:
 			raise Http404("Deck list is too small.")
 
-		# TODO: remove this check and move string to models.Deck.__str__ once released
-		try:
-			feature = Feature.objects.get(name="archetype-detail")
-		except Feature.DoesNotExist:
-			has_feature = False
-		else:
-			has_feature = feature.enabled_for_user(request.user)
-		deck_name = (
-			"%s Deck" % str(deck.archetype) if has_feature and deck.archetype else str(deck)
-		)
-
+		deck_name = str(deck)
 		request.head.title = deck_name
 
 		if deck.deck_class:
 			deck_url = request.build_absolute_uri(deck.get_absolute_url())
 			request.head.add_meta(
-				{"property": "x-hearthstone:deck", "content": str(deck)},
+				{"property": "x-hearthstone:deck", "content": deck_name},
 				{"property": "x-hearthstone:deck:deckstring", "content": deck.deckstring},
 				{"property": "x-hearthstone:deck:hero", "content": deck.hero},
 				{"property": "x-hearthstone:deck:cards", "content": ",".join(deck.card_id_list())},
@@ -211,7 +198,7 @@ class DeckDetailView(View):
 			"name": "description",
 			"content": (
 				"{name} stats and decklist. Import it: {deckstring}"
-			).format(name=str(deck), deckstring=deck.deckstring),
+			).format(name=deck_name, deckstring=deck.deckstring),
 		})
 
 		context = {
