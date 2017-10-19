@@ -62,6 +62,11 @@ def merge_users(base_user, user):
 	else:
 		log.info("No Stripe customers to merge.")
 
+	# dj-paypal
+	do_queryset(user.paypal_payers)
+	do_queryset(user.preparedbillingagreement_set)
+	do_queryset(user.billingagreement_set)
+
 
 class Command(BaseCommand):
 	def add_arguments(self, parser):
