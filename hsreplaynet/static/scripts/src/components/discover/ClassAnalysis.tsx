@@ -10,7 +10,6 @@ import {AutoSizer} from "react-virtualized";
 import {toTitleCase} from "../../helpers";
 import UserData from "../../UserData";
 import ClusterChart from "../d3/ClusterChart";
-import VictoryClusterChart from "./VictoryClusterChart";
 import TourManager from "../../TourManager";
 
 export interface ClusterData {
@@ -49,9 +48,7 @@ interface ClassAnalysisProps extends React.ClassAttributes<ClassAnalysis> {
 	playerClass: string;
 	clusterTab: string;
 	setClusterTab: (clusterTab: string) => void;
-	sampleSize: number;
 	canModifyArchetype: boolean;
-	zoomEnabled: boolean;
 }
 
 const COLORS = [
@@ -73,9 +70,6 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	}
 
 	showTour(force: boolean) {
-		if (!UserData.hasFeature("discover-d3")) {
-			return;
-		}
 		new TourManager().createTour(
 			"discover-introduction",
 			[
@@ -115,11 +109,10 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 	}
 
 	render(): JSX.Element {
-		const {data, maxGames, playerClass, sampleSize, zoomEnabled} = this.props;
+		const {data, maxGames, playerClass} = this.props;
 		const {selectedDeck} = this.state;
 		const clusterIds = Object.keys(data.cluster_map).sort();
 		const chartHeight = "calc(100vh - 125px)";
-		const hasFeature = UserData.hasFeature("discover-d3");
 		return (
 			<TabList
 				setTab={this.props.setClusterTab}
@@ -128,39 +121,16 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 				<Tab id="decks" label={this.renderChartTabLabel()} highlight={true}>
 					<div className="class-tab-content">
 						<div className="cluster-chart-container" style={{height: chartHeight}}>
-							{
-								hasFeature ? (
-									<span
-										className="btn btn-primary btn-help"
-										onClick={() => this.showTour(true)}
-									>
-										Info
-									</span>
-								) : null
-							}
+							<span
+								className="btn btn-primary btn-help"
+								onClick={() => this.showTour(true)}
+							>
+								Info
+							</span>
 							<AutoSizer>
 								{({height, width}) => {
-									if (hasFeature) {
-										return (
-											<ClusterChart
-												colors={this.getColors()}
-												height={height}
-												width={width}
-												data={data.data}
-												clusterIds={clusterIds}
-												maxGames={maxGames}
-												playerClass={playerClass}
-												onPointClicked={(deck) => {
-													this.setState({selectedDeck: deck});
-													if (this.props.onSelectedDeckChanged) {
-														this.props.onSelectedDeckChanged(deck);
-													}
-												}}
-											/>
-										);
-									}
 									return (
-										<VictoryClusterChart
+										<ClusterChart
 											colors={this.getColors()}
 											height={height}
 											width={width}
@@ -174,8 +144,6 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 													this.props.onSelectedDeckChanged(deck);
 												}
 											}}
-											sampleSize={sampleSize}
-											zoomEnabled={zoomEnabled}
 										/>
 									);
 								}}

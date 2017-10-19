@@ -24,10 +24,6 @@ interface DiscoverProps extends React.ClassAttributes<Discover> {
 	setPlayerClass?: (tab: string) => void;
 	setTab?: (clusterTab: string) => void;
 	tab?: string;
-	sampleSize?: string;
-	setSampleSize?: (sampleSize: string) => void;
-	zoomEnabled?: string;
-	setZoomEnabled?: (zoomEnabled: string) => void;
 }
 
 interface DiscoverState {
@@ -43,7 +39,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 	}
 
 	render(): JSX.Element {
-		const {cardData, tab, dataset, format, playerClass, sampleSize, setTab, zoomEnabled} = this.props;
+		const {cardData, tab, dataset, format, playerClass, setTab} = this.props;
 		const adminControls = [];
 		if (UserData.hasFeature("archetypes-gamemode-filter")) {
 			adminControls.push(
@@ -74,56 +70,12 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 			);
 		}
 
-		let zoomControls = [];
-		if (!UserData.hasFeature("discover-d3")) {
-			zoomControls.push(
-				<InfoboxFilterGroup
-					key="cluster-settings"
-					header="Settings"
-					deselectable={true}
-					selectedValue={zoomEnabled}
-					onClick={(value) => {
-						this.props.setZoomEnabled(value);
-					}}
-				>
-					<InfoboxFilter value="true">Enable Zoom</InfoboxFilter>
-				</InfoboxFilterGroup>,
-			);
-			if (zoomEnabled === "true") {
-				zoomControls = [
-					<InfoboxFilterGroup
-						key="cluster-sample-size"
-						header="Sample size"
-						selectedValue={sampleSize}
-						onClick={(value) => {
-							UserData.setSetting("discover-samplesize", value);
-							this.props.setSampleSize(value);
-						}}
-					>
-						<InfoboxFilter value="250">250</InfoboxFilter>
-						<InfoboxFilter value="500">500</InfoboxFilter>
-						<InfoboxFilter value="full">Full</InfoboxFilter>
-					</InfoboxFilterGroup>,
-				];
-			}
-		}
-
 		const dataUrl = `/analytics/clustering/data/${dataset}/${format}/`;
 
 		return (
 			<div className="discover-container">
 				<aside className="infobox">
 					<h1>Discover</h1>
-					{
-						UserData.hasFeature("discover-d3") ? null : (
-							<p className="alert-infobox">
-								<strong>Introduction:</strong><br/>
-								This page shows the deck clusters automatically detected by our archetype algorithm.
-								Each dot represents a deck. The distance between decks is proportional to their similarity.
-								<br/><br/>Click the decks to discover new variations to try out.
-							</p>
-						)
-					}
 					<h2>Class</h2>
 					<ClassFilter
 						minimal={true}
@@ -133,7 +85,6 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							this.props.setPlayerClass(playerClasses[0]);
 						}}
 					/>
-					{zoomControls}
 					{adminControls}
 					<h2>Data</h2>
 					<ul>
@@ -174,9 +125,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							format={format}
 							onSelectedDeckChanged={(deck) => this.setState({deck})}
 							playerClass={playerClass}
-							sampleSize={sampleSize === "full" ? Number.MAX_SAFE_INTEGER : +sampleSize}
 							canModifyArchetype={dataset === "latest"}
-							zoomEnabled={zoomEnabled === "true"}
 						/>
 					</DataInjector>
 				</main>

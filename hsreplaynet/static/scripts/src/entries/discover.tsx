@@ -14,9 +14,7 @@ const render = (cardData: CardData) => {
 				dataset: "live",
 				format: "FT_STANDARD",
 				playerClass: "DRUID",
-				sampleSize: UserData.getSetting("discover-samplesize") || "250",
 				tab: "decks",
-				zoomEnabled: "",
 			}}
 			immutable={!UserData.hasFeature("archetype-training") ? ["dataset", "format"] : null}
 		>
