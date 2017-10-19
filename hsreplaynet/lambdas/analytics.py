@@ -10,6 +10,7 @@ from redis_semaphore import NotAvailable
 from hsreplaynet.analytics.processing import (
 	_do_execute_query, get_concurrent_redshift_query_queue_semaphore
 )
+from hsreplaynet.settings import REDSHIFT_PREEMPTIVELY_REFRESH_QUERIES
 from hsreplaynet.utils import instrumentation
 from hsreplaynet.utils.aws.clients import SQS
 from hsreplaynet.utils.aws.redshift import get_redshift_catalogue, get_redshift_query
@@ -64,7 +65,8 @@ def refresh_stale_redshift_queries(event, context):
 		logger.info("Will block for queued query for %s seconds" % str(remaining_seconds))
 		refreshed_query = scheduler.refresh_next_pending_query(
 			block_for=remaining_seconds,
-			force=True  # This uses available cluster resources to refresh queries early
+			# This uses available cluster resources to refresh queries early
+			force=REDSHIFT_PREEMPTIVELY_REFRESH_QUERIES
 		)
 		if refreshed_query:
 			logger.info("Refreshed: %s" % refreshed_query.cache_key)
