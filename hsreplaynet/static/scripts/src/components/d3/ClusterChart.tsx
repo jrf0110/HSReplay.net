@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as _ from "lodash";
 import * as d3 from "d3";
-import {DeckData} from "../discover/ClassAnalysis";
+import {ClusterMetaData, DeckData} from "../discover/ClassAnalysis";
 import {hexToHsl, stringifyHsl} from "../../helpers";
 
 interface ClusterChartState {
@@ -16,6 +16,7 @@ interface ClusterChartProps extends React.ClassAttributes<ClusterChart> {
 	colors: string[];
 	data: DeckData[];
 	height: number;
+	highlightCards: string[];
 	maxGames: number;
 	onPointClicked: (data) => void;
 	playerClass: string;
@@ -63,6 +64,9 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 			this.updateZoom();
 			this.updateVoronoi();
 		}
+		if (!_.isEqual(prevProps.highlightCards, this.props.highlightCards)) {
+			this.updateHighlightedCards();
+		}
 	}
 
 	getData(): DeckData[] {
@@ -74,6 +78,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 		this.renderChart();
 		this.updatePosition(d3.select(this.decks).selectAll("circle").transition().duration(500));
 		this.updateZoom();
+		this.updateHighlightedCards();
 	}
 
 	renderChart() {
@@ -201,6 +206,11 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 			.attr("clip-path", (d: any, i: number) => `url(#clip-${i})`);
 	}
 
+	updateHighlightedCards() {
+		d3.select(this.container).selectAll(".deck-circle")
+			.attr("opacity", (d: any) => this.containsHighlightCard(d.metadata) ? 1 : 0.1);
+	}
+
 	fillColor(d: any) {
 		return this.props.colors[this.props.clusterIds.indexOf("" + d.metadata.cluster_id || "gray")];
 	}
@@ -266,8 +276,30 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 			nextProps.playerClass !== this.props.playerClass
 			|| nextProps.width !== this.props.width
 			|| nextProps.height !== this.props.height
+			|| !_.isEqual(nextProps.highlightCards, this.props.highlightCards)
 			|| nextState.scaling !== this.state.scaling
 		);
+	}
+
+	containsHighlightCard(metadata: ClusterMetaData): boolean {
+		const {highlightCards} = this.props;
+		if (!highlightCards.length || !metadata || !metadata.deck_list) {
+			return true;
+		}
+		let cardList = [];
+		JSON.parse(metadata.deck_list).forEach((c: any[]) => {
+			for (let i = 0; i < c[1]; i++) {
+				cardList.push("" + c[0]);
+			}
+		});
+		return highlightCards.every((dbfId) => {
+			const index = cardList.indexOf("" + dbfId);
+			if (index === -1) {
+				return false;
+			}
+			cardList = cardList.splice(index, 1);
+			return true;
+		});
 	}
 
 	render(): JSX.Element {

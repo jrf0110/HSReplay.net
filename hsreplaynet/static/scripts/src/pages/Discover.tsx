@@ -13,11 +13,16 @@ import InfoIcon from "../components/InfoIcon";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import HideLoading from "../components/loading/HideLoading";
 import ClusterChart from "../components/d3/ClusterChart";
+import CardSearch from "../components/CardSearch";
+import { Limit } from "../components/ObjectSearch";
+import { cardSorting, isCollectibleCard, isWildSet } from "../helpers";
 
 interface DiscoverProps extends React.ClassAttributes<Discover> {
 	cardData: CardData;
 	dataset?: string;
 	format?: string;
+	includedCards?: string[];
+	setIncludedCards?: (includedCards: string[]) => void;
 	playerClass?: string;
 	setDataset?: (dataset: string) => void;
 	setFormat?: (format: string) => void;
@@ -27,6 +32,7 @@ interface DiscoverProps extends React.ClassAttributes<Discover> {
 }
 
 interface DiscoverState {
+	cards?: any[];
 	deck: ClusterMetaData;
 }
 
@@ -34,12 +40,26 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 	constructor(props: DiscoverProps, state: DiscoverState) {
 		super(props, state);
 		this.state = {
+			cards: null,
 			deck: null,
 		};
 	}
 
+	componentWillReceiveProps(nextProps: DiscoverProps) {
+		if (!this.state.cards && nextProps.cardData) {
+			const cards = [];
+			nextProps.cardData.all().forEach((card) => {
+				if (card.name && isCollectibleCard(card)) {
+					cards.push(card);
+				}
+			});
+			cards.sort(cardSorting);
+			this.setState({cards});
+		}
+	}
+
 	render(): JSX.Element {
-		const {cardData, tab, dataset, format, playerClass, setTab} = this.props;
+		const {cardData, tab, dataset, format, includedCards, playerClass, setTab} = this.props;
 		const adminControls = [];
 		if (UserData.hasFeature("archetypes-gamemode-filter")) {
 			adminControls.push(
@@ -72,6 +92,20 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 
 		const dataUrl = `/analytics/clustering/data/${dataset}/${format}/`;
 
+		let filteredCards = Array.isArray(this.state.cards) ? this.state.cards : [];
+		if (format.endsWith("_STANDARD")) {
+			filteredCards = filteredCards.filter((card) => !isWildSet(card.set));
+		}
+		filteredCards = filteredCards.filter((card) => {
+			const cardClass = card.cardClass;
+			return cardClass === "NEUTRAL" || playerClass === cardClass;
+		});
+
+		let selectedCards = null;
+		if (cardData && includedCards) {
+			selectedCards = includedCards.map((dbfId) => cardData.fromDbf(dbfId)).filter((card) => !!card);
+		}
+
 		return (
 			<div className="discover-container">
 				<aside className="infobox">
@@ -83,8 +117,20 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 						selectedClasses={[playerClass as FilterOption]}
 						selectionChanged={(playerClasses) => {
 							this.props.setPlayerClass(playerClasses[0]);
+							this.props.setIncludedCards([]);
 						}}
 					/>
+					<section id="include-cards-filter">
+						<h2 id="card-search-include-label">Included Cards</h2>
+						<CardSearch
+							id="card-search-include"
+							label="card-search-include-label"
+							availableCards={filteredCards}
+							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
+							selectedCards={selectedCards}
+							cardLimit={Limit.SINGLE}
+						/>
+					</section>
 					{adminControls}
 					<h2>Data</h2>
 					<ul>
@@ -123,6 +169,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							clusterTab={tab}
 							setClusterTab={setTab}
 							format={format}
+							highlightCards={includedCards}
 							onSelectedDeckChanged={(deck) => this.setState({deck})}
 							playerClass={playerClass}
 							canModifyArchetype={dataset === "latest"}

@@ -13,6 +13,7 @@ const render = (cardData: CardData) => {
 			defaults={{
 				dataset: "live",
 				format: "FT_STANDARD",
+				includedCards: [],
 				playerClass: "DRUID",
 				tab: "decks",
 			}}
