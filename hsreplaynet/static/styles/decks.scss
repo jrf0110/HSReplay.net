@@ -1,20 +1,6 @@
 .decks {
 	display: flex;
 
-	#decks-infobox {
-		.object-search-results {
-			width: calc(100% - 20px);
-
-			li {
-				padding: 0;
-
-				.card-tile {
-					cursor: pointer;
-				}
-			}
-		}
-	}
-
 	.deck-list-wrapper {
 		min-height: 1180px;
 		padding: 20px;

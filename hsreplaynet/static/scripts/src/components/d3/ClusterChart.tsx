@@ -1,10 +1,11 @@
 import * as React from "react";
 import * as _ from "lodash";
 import * as d3 from "d3";
-import {DeckData} from "../discover/ClassAnalysis";
+import {ClusterMetaData, DeckData} from "../discover/ClassAnalysis";
 import {hexToHsl, stringifyHsl} from "../../helpers";
 
 interface ClusterChartState {
+	decks?: {[shortId: string]: number[]};
 	dragging?: boolean;
 	initialized?: boolean;
 	scaling?: number;
@@ -16,6 +17,8 @@ interface ClusterChartProps extends React.ClassAttributes<ClusterChart> {
 	colors: string[];
 	data: DeckData[];
 	height: number;
+	includedCards: number[];
+	excludedCards: number[];
 	maxGames: number;
 	onPointClicked: (data) => void;
 	playerClass: string;
@@ -37,11 +40,18 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 	constructor(props: ClusterChartProps, state: ClusterChartState) {
 		super(props, state);
 		this.state = {
+			decks: {},
 			dragging: false,
 			initialized: false,
 			scaling: 1,
 			selectedDatum: null,
 		};
+	}
+
+	componentDidMount() {
+		if (this.props.data) {
+			this.updateDecks();
+		}
 	}
 
 	componentWillReceiveProps(nextProps: ClusterChartProps) {
@@ -63,6 +73,22 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 			this.updateZoom();
 			this.updateVoronoi();
 		}
+		if (!_.isEqual(prevProps.includedCards, this.props.includedCards)
+			|| !_.isEqual(prevProps.excludedCards, this.props.excludedCards)) {
+			this.updateFilteredCards();
+		}
+		if (this.props.data && !_.isEqual(prevProps.data, this.props.data)) {
+			this.updateDecks();
+		}
+	}
+
+	updateDecks() {
+		const decks = {};
+		this.props.data.forEach((d) => {
+			const cards: Array<[string, string]> = JSON.parse(d.metadata.deck_list);
+			decks[d.metadata.shortid] = cards.map(([dbfId, count]) => +dbfId);
+		});
+		this.setState({decks});
 	}
 
 	getData(): DeckData[] {
@@ -74,6 +100,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 		this.renderChart();
 		this.updatePosition(d3.select(this.decks).selectAll("circle").transition().duration(500));
 		this.updateZoom();
+		this.updateFilteredCards();
 	}
 
 	renderChart() {
@@ -201,6 +228,11 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 			.attr("clip-path", (d: any, i: number) => `url(#clip-${i})`);
 	}
 
+	updateFilteredCards() {
+		d3.select(this.container).selectAll(".deck-circle")
+			.attr("opacity", (d: any) => this.containsFilteredCards(d.metadata) ? 1 : 0.1);
+	}
+
 	fillColor(d: any) {
 		return this.props.colors[this.props.clusterIds.indexOf("" + d.metadata.cluster_id || "gray")];
 	}
@@ -264,9 +296,25 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 	shouldComponentUpdate(nextProps: ClusterChartProps, nextState: ClusterChartState) {
 		return (
 			nextProps.playerClass !== this.props.playerClass
+			|| !_.isEqual(nextProps.data, this.props.data)
 			|| nextProps.width !== this.props.width
 			|| nextProps.height !== this.props.height
+			|| !_.isEqual(nextProps.includedCards, this.props.includedCards)
+			|| !_.isEqual(nextProps.excludedCards, this.props.excludedCards)
 			|| nextState.scaling !== this.state.scaling
+		);
+	}
+
+	containsFilteredCards(metadata: ClusterMetaData): boolean {
+		if (!metadata || !metadata.deck_list) {
+			return true;
+		}
+		const {excludedCards: excluded, includedCards: included} = this.props;
+		const cards = this.state.decks[metadata.shortid];
+		return (
+			!cards
+			|| (!included || !included.length || included.every((dbfId) => cards.indexOf(dbfId) !== -1))
+			&& (!excluded || !excluded.length || excluded.every((dbfId) => cards.indexOf(dbfId) === -1))
 		);
 	}
 

@@ -43,6 +43,8 @@ interface ClassAnalysisProps extends React.ClassAttributes<ClassAnalysis> {
 	cardData: CardData;
 	data?: ClusterData;
 	format: string;
+	includedCards: number[];
+	excludedCards: number[];
 	maxGames?: number;
 	onSelectedDeckChanged?: (data: ClusterMetaData) => void;
 	playerClass: string;
@@ -144,6 +146,8 @@ class ClassAnalysis extends React.Component<ClassAnalysisProps, ClassAnalysisSta
 													this.props.onSelectedDeckChanged(deck);
 												}
 											}}
+											includedCards={this.props.includedCards}
+											excludedCards={this.props.excludedCards}
 										/>
 									);
 								}}

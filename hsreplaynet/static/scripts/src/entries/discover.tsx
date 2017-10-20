@@ -12,7 +12,9 @@ const render = (cardData: CardData) => {
 		<Fragments
 			defaults={{
 				dataset: "live",
+				excludedCards: [],
 				format: "FT_STANDARD",
+				includedCards: [],
 				playerClass: "DRUID",
 				tab: "decks",
 			}}
