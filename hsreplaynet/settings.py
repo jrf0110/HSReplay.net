@@ -377,7 +377,7 @@ REDSHIFT_QUERY_UNLOAD_BUCKET = "hsreplaynet-analytics-results"
 
 # This controls whether we preemptively refresh queries before they go stale from the
 # refresh_stale_redshift_queries lambda
-REDSHIFT_PREEMPTIVELY_REFRESH_QUERIES = False
+REDSHIFT_PREEMPTIVELY_REFRESH_QUERIES = True
 
 # Range is from 60 - 900
 REDSHIFT_STAGING_BUFFER_INTERVAL_SECONDS = 120
