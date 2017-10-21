@@ -36,6 +36,7 @@ class FeatureInviteRedeemView(LoginRequiredMixin, FormView):
 	def form_valid(self, form):
 		invite = FeatureInvite.objects.get(uuid=form.cleaned_data["uuid"])
 		try:
+			# TODO: invite had no side effect if redeem_for_user returns False
 			invite.redeem_for_user(self.request.user)
 		except FeatureError:
 			messages.error(self.request, "This code has expired.")

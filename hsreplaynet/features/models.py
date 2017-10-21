@@ -190,6 +190,8 @@ class FeatureInvite(models.Model):
 		if not self.is_valid:
 			self.delete()
 
+		return bool(redeemed)
+
 	def redeem_coupon(self, user):
 		from djstripe.models import Coupon
 
