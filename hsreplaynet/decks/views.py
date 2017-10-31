@@ -51,6 +51,7 @@ class ArchetypeDetailView(RequestMetaMixin, View):
 		archetype = get_object_or_404(Archetype, id=id)
 
 		request.head.title = archetype.name
+		request.head.set_canonical_url(archetype.get_absolute_url())
 
 		context = {
 			"archetype": archetype,
