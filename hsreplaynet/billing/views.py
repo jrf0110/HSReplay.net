@@ -98,19 +98,15 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 	success_url = reverse_lazy("billing_methods")
 
 	def process_checkout_form(self, customer):
-		if self.request.POST.get("stripeTokenType") != "card":
-			# We always expect a card as token.
-			raise SuspiciousOperation("Invalid Stripe token type")
-
 		# The token represents the customer's payment method
-		token = self.request.POST.get("stripeToken", "")
-		if not token.startswith("tok_"):
+		source = self.request.POST.get("stripeSource", "")
+		if not source.startswith("src_"):
 			# We either didn't get a token, or it was malformed. Discard outright.
-			raise SuspiciousOperation("Invalid Stripe token")
+			raise SuspiciousOperation("Invalid Stripe source")
 
 		try:
 			# Saving the token as a payment method will create the payment source for us.
-			customer.add_card(token)
+			customer.add_card(source)
 		except InvalidRequestError:
 			# Most likely, we got a bad token (eg. bad request)
 			# This is logged by Stripe.
@@ -222,7 +218,7 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		# Get the customer first so we can reuse it
 		customer = self.get_customer()
 
-		if "stripeTokenType" in request.POST:
+		if "stripeSource" in request.POST:
 			# If there is a stripe token in the form, that means the user added a card.
 			# We need to add the card first, before attempting to subscribe.
 			self.process_checkout_form(customer)
