@@ -36,7 +36,7 @@
 		"moment": "^2.18.1",
 		"node-sass": "^4.5.3",
 		"raven-js": "^3.17.0",
-		"react-stripe-elements": "^0.0.8",
+		"react-stripe-elements": "^1.2.0",
 		"react-virtualized": "^9.9.0",
 		"sass-loader": "^6.0.6",
 		"tether-shepherd": "^1.8.1",
