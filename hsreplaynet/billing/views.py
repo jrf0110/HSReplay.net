@@ -373,10 +373,6 @@ class PremiumDetailView(RequestMetaMixin, TemplateView):
 		context["random_quote"] = random.choice(self.quotes)
 		return context
 
-	def get(self, request, *args, **kwargs):
-		self.request.head.add_script(src="https://js.stripe.com/v3/")
-		return super().get(request, *args, **kwargs)
-
 
 class BasePaypalView(View):
 	fail_url = reverse_lazy("premium")

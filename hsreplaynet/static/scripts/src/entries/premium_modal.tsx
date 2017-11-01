@@ -166,21 +166,27 @@ window.hsreplaynet_load_hscheckout = (targetElement: HTMLDivElement, plansElemen
 	const csrfToken = targetElement.getAttribute("data-csrf-token");
 	const defaultSource = targetElement.getAttribute("data-stripe-default-source");
 	const planData = JSON.parse(plansElements.textContent);
-	ReactDOM.render(
-		<CheckoutForm
-			csrfElement={{__html: csrfToken}}
-			stripeDefaultSource={defaultSource}
-			stripeApiKey={apiKey}
-			stripeCoupon={stripeCoupon}
-			stripePlans={planData.stripe}
-			stripeCheckoutImageUrl={stripeCheckoutImage}
-			stripeCheckoutSubmitUrl={stripeCheckoutSubmitUrl}
-			stripeElementsSubmitUrl={stripeElementsSubmitUrl}
-			paypalPlans={planData.paypal}
-			paypalSubmitUrl={paypalSubmitUrl}
-		/>,
-		targetElement
-	);
+
+	const stripe = document.createElement("script");
+	stripe.src = "https://js.stripe.com/v3/";
+	stripe.onload = () => {
+		ReactDOM.render(
+			<CheckoutForm
+				csrfElement={{__html: csrfToken}}
+				stripeDefaultSource={defaultSource}
+				stripeApiKey={apiKey}
+				stripeCoupon={stripeCoupon}
+				stripePlans={planData.stripe}
+				stripeCheckoutImageUrl={stripeCheckoutImage}
+				stripeCheckoutSubmitUrl={stripeCheckoutSubmitUrl}
+				stripeElementsSubmitUrl={stripeElementsSubmitUrl}
+				paypalPlans={planData.paypal}
+				paypalSubmitUrl={paypalSubmitUrl}
+			/>,
+			targetElement
+		);
+	}
+	document.head.appendChild(stripe);
 };
 
 window.hsreplaynet_load_premium_modal = (label?: string) => {
