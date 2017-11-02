@@ -350,16 +350,6 @@ class Deck(models.Model):
 			return result
 
 
-@receiver(models.signals.post_save, sender=Deck)
-def update_deck_size_field(sender, instance, **kwargs):
-	current_deck_size = sum(i.count for i in instance.includes.all())
-
-	if instance.size != current_deck_size:
-		instance.size = current_deck_size
-		# Make sure to only save when updating to prevent recursion
-		instance.save()
-
-
 class Include(models.Model):
 	id = models.BigAutoField(primary_key=True)
 	deck = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name="includes")
