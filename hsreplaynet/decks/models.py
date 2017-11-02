@@ -350,6 +350,14 @@ class Deck(models.Model):
 			return result
 
 
+@receiver(models.signals.pre_save, sender=Deck)
+def update_deck_archetype(sender, instance, **kwargs):
+	if instance.id is not None:
+		orig = Deck.objects.get(id=instance.id)
+		if orig.archetype_id != instance.archetype_id:
+			instance.sync_archetype_to_firehose()
+
+
 class Include(models.Model):
 	id = models.BigAutoField(primary_key=True)
 	deck = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name="includes")
