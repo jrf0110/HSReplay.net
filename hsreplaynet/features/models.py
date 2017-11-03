@@ -143,8 +143,12 @@ class FeatureInvite(models.Model):
 	def __str__(self):
 		if self.coupon:
 			return "Coupon for %r" % (self.coupon)
+		if self.subscribe_to:
+			return "Subscription to %r" % (str(self.subscribe_to))
 		features = self.features.all()
-		return "Invitation to %s" % (", ".join(str(f) for f in features))
+		if len(features):
+			return "Invitation to %s" % (", ".join(str(f) for f in features))
+		return "Empty invite"
 
 	@property
 	def is_valid(self):
