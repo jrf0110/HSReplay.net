@@ -177,6 +177,7 @@ const CardSetOptions = [
 	[CardSet.GANGS, "Mean Streets of Gadgetzan"],
 	[CardSet.UNGORO, "Journey to Un'Goro"],
 	[CardSet.ICECROWN, "Knigts of the Frozen Throne"],
+	[CardSet.LOOTAPALOOZA, "Kobolds and Catacombs"],
 ];
 
 const CardTypeOptions = [

@@ -29,7 +29,7 @@ const render = (cardData: CardData) => {
 		>
 			<Decks
 				cardData={cardData}
-				latestSet="ICECROWN"
+				latestSet="LOOTAPALOOZA"
 				promoteLatestSet={false}
 			/>
 		</Fragments>,

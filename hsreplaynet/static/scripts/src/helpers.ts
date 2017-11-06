@@ -242,6 +242,7 @@ export const setNames = {
 	"gangs": "Mean Streets of Gadgetzan",
 	"ungoro": "Journey to Un'Goro",
 	"icecrown": "Knights of the Frozen Throne",
+	"lootapalooza": "Kobolds and Catacombs",
 };
 
 export function isCollectibleCard(card: any) {

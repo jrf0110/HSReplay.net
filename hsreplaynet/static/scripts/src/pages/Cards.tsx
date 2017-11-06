@@ -106,7 +106,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
 		race: ["BEAST", "DEMON", "DRAGON", "ELEMENTAL", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
 		rarity: ["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"],
-		set: ["CORE", "EXPERT1", "ICECROWN", "UNGORO", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "HOF"],
+		set: ["CORE", "EXPERT1", "LOOTAPALOOZA", "ICECROWN", "UNGORO", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "HOF"],
 		type: ["HERO", "MINION", "SPELL", "WEAPON"],
 	};
 	readonly multiClassGroups = {
