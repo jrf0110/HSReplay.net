@@ -74,9 +74,6 @@ export function getChartScheme(theme: ChartSchemeType): ChartScheme {
 		case "cardtype":
 			scheme = cardtypeScheme;
 			break;
-		case "cardset":
-			scheme = cardsetScheme;
-			break;
 		case "cost":
 			scheme = costScheme;
 			break;
@@ -169,64 +166,6 @@ const cardtypeScheme: ChartScheme = {
 		fill: "rgba(196, 30, 59, 0.5)",
 		stroke: "rgba(196, 30, 59, 0.9)",
 		name: "Weapon",
-	},
-};
-
-const cardsetScheme: ChartScheme = {
-	"core": {
-		fill: "rgba(211, 211, 211, 0.5)",
-		stroke: "rgba(211, 211, 211, 0.9)",
-		name: "Basic",
-	},
-	"expert1": {
-		fill: "rgba(230, 204, 128, 0.5)",
-		stroke: "rgba(230, 204, 128, 0.9)",
-		name: "Classic",
-	},
-	"naxx": {
-		fill: "rgba(55, 219, 0, 0.5)",
-		stroke: "rgba(55, 219, 0, 0.9)",
-		name: "Curse of Naxxramas",
-	},
-	"gvg": {
-		fill: "rgba(255, 212, 0, 0.5)",
-		stroke: "rgba(255, 212, 0, 0.9)",
-		name: "Goblins vs Gnomes",
-	},
-	"brm": {
-		fill: "rgba(255, 116, 0, 0.5)",
-		stroke: "rgba(255, 116, 0, 0.9)",
-		name: "Blackrock Mountain",
-	},
-	"tgt": {
-		fill: "rgba(153, 0, 0, 0.5)",
-		stroke: "rgba(153, 0, 0, 0.9)",
-		name: "The Grand Tournament",
-	},
-	"loe": {
-		fill: "rgba(0, 200, 200, 0.5)",
-		stroke: "rgba(0, 200, 200, 0.9)",
-		name: "League of Explorers",
-	},
-	"og": {
-		fill: "rgba(170, 0, 255, 0.5)",
-		stroke: "rgba(180, 0, 255, 0.9)",
-		name: "Whispers of the Old Gods",
-	},
-	"kara": {
-		fill: "rgba(255, 128, 229, 0.5)",
-		stroke: "rgba(255, 128, 229, 0.9)",
-		name: "One Night in Karazhan",
-	},
-	"gangs": {
-		fill: "rgba(65, 27, 136, 0.5)",
-		stroke: "rgba(65, 27, 136, 0.9)",
-		name: "Mean Streets of Gadgetzan",
-	},
-	"ungoro": {
-		fill: "rgba(0, 95, 0, 0.5)",
-		stroke: "rgba(0, 95, 0, 0.9)",
-		name: "Journey to Un'Goro",
 	},
 };
 
