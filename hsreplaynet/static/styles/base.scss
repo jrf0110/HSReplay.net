@@ -260,6 +260,7 @@ body, html {
 	top: 50px;
 	z-index: 100;
 	text-align: center;
+	pointer-events: none;
 
 	ul.inner {
 		background-color: $blue;
