@@ -20,7 +20,7 @@ from hsredshift.etl.models import create_staging_table, list_staging_eligible_ta
 from hsredshift.etl.views import (
 	get_materialized_view_list, get_materialized_view_update_statement, get_view_dependencies
 )
-from hsredshift.utils.sql import run_redshift_background_statement
+from hsredshift.utils.sql import is_in_flight, run_redshift_background_statement
 from hsreplaynet.utils import aws, log
 from hsreplaynet.utils.aws import redshift, streams
 from hsreplaynet.utils.fields import ShortUUIDField
@@ -48,7 +48,8 @@ def get_handle_status(handle, min_statements=1):
 	""" % handle
 	log.info("Fetching handle status for: %s" % handle)
 
-	rp = redshift.get_new_redshift_connection(etl_user=True).execute(query)
+	conn = redshift.get_new_redshift_connection(etl_user=True)
+	rp = conn.execute(query)
 	first_row = rp.first()
 	if first_row:
 		had_errors = first_row[0]
@@ -64,7 +65,10 @@ def get_handle_status(handle, min_statements=1):
 		return is_complete, had_errors, num_statements, finished_at
 
 	else:
-		log.info("No records in SVL_QLOG yet for handle.")
+		log.info("No records in SVL_QLOG yet for handle")
+		if not is_in_flight(conn, handle):
+			log.warn("%s does not seem to be in_flight" % (handle))
+			# TODO: Return an error state so we can fail or restart
 		return False, None, None, None
 
 
