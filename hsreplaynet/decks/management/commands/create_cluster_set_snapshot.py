@@ -29,7 +29,7 @@ class Command(BaseCommand):
 		min_observations = options["min_observations"]
 		experimental_threshold = options["experimental_threshold"]
 		inheritence_miss_tokens = options["allow_inheritence_miss"].split(",")
-		allow_inheritence_miss = [s.strip() for s in inheritence_miss_tokens]
+		allow_inheritence_miss = [int(s.strip()) for s in inheritence_miss_tokens if s]
 
 		ClusterSetSnapshot.objects.snapshot(
 			FormatType.FT_STANDARD,
