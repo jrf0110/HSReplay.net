@@ -133,7 +133,12 @@ class Command(BaseCommand):
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
 
 			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
-			if len(self.signature_weights[format][player_class]):
+			if player_class not in self.signature_weights[format]:
+				raise RuntimeError(
+					"%r not found for %r. Are signatures present?" % (player_class, format)
+				)
+
+			if self.signature_weights[format][player_class]:
 				new_archetype_id = classify_deck(
 					dbf_map, self.signature_weights[format][player_class]
 				)
