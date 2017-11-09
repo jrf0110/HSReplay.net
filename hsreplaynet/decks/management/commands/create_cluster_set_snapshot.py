@@ -1,3 +1,5 @@
+import logging
+
 from django.core.management.base import BaseCommand
 from hearthstone.enums import FormatType
 
@@ -15,8 +17,10 @@ class Command(BaseCommand):
 		parser.add_argument("--allow-inheritence-miss", default="", type=str)
 
 	def handle(self, *args, **options):
-		for k, v in options.items():
-			self.stdout.write("%s: %s" % (k, v))
+		logger = logging.getLogger("hsarchetypes")
+		logger.setLevel(logging.DEBUG)
+		stream_handler = logging.StreamHandler()
+		logger.addHandler(stream_handler)
 
 		num_clusters = options["num_clusters"]
 		merge_threshold = options["merge_threshold"]
