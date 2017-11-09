@@ -6,6 +6,7 @@ import Fragments from "../components/Fragments";
 import Discover from "../pages/Discover";
 
 const container = document.getElementById("discover-container");
+UserData.create();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
