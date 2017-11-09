@@ -526,6 +526,7 @@ class ClusterSetManager(models.Manager):
 			min_observations=min_observations
 		)
 
+		inheritance_missed = []
 		with transaction.atomic():
 			cs_snapshot = create_cluster_set(
 				data,
@@ -548,12 +549,7 @@ class ClusterSetManager(models.Manager):
 			if uninherited_id_set:
 				for uninherited_id in uninherited_id_set:
 					if uninherited_id not in allow_inheritence_miss_list:
-						msg = "external id %i was not inherited"
-						try:
-							raise RuntimeError(msg % uninherited_id)
-						except Exception as e:
-							error_handler(e)
-							pass
+						inheritance_missed.append(uninherited_id)
 
 			cs_snapshot.consolidate_clusters(merge_threshold)
 			cs_snapshot.create_experimental_clusters(
@@ -572,6 +568,13 @@ class ClusterSetManager(models.Manager):
 				for cluster in class_cluster.clusters:
 					cluster.class_cluster = class_cluster
 					cluster.save()
+
+		if inheritance_missed:
+			raise RuntimeError(
+				"Inheritance missed on archetypes {}".format(
+					", ".join(inheritance_missed)
+				)
+			)
 
 		return cs_snapshot
 
