@@ -541,16 +541,6 @@ class ClusterSetManager(models.Manager):
 				live_in_production=True
 			).first()
 
-			uninherited_id_set = cs_snapshot.inherit_from_previous(
-				previous_snapshot,
-				merge_threshold=inherit_threshold
-			)
-
-			if uninherited_id_set:
-				for uninherited_id in uninherited_id_set:
-					if uninherited_id not in allow_inheritence_miss_list:
-						inheritance_missed.append(uninherited_id)
-
 			cs_snapshot.consolidate_clusters(merge_threshold)
 			cs_snapshot.create_experimental_clusters(
 				experimental_cluster_threshold=experimental_threshold
@@ -561,6 +551,15 @@ class ClusterSetManager(models.Manager):
 			cs_snapshot.latest = True
 			cs_snapshot.save()
 
+			uninherited_id_set = cs_snapshot.inherit_from_previous(
+				previous_snapshot,
+				merge_threshold=inherit_threshold
+			)
+
+			for uninherited_id in uninherited_id_set:
+				if uninherited_id not in allow_inheritence_miss_list:
+					inheritance_missed.append(str(uninherited_id))
+
 			for class_cluster in cs_snapshot.class_clusters:
 				class_cluster.cluster_set = cs_snapshot
 				class_cluster.save()
@@ -568,6 +567,15 @@ class ClusterSetManager(models.Manager):
 				for cluster in class_cluster.clusters:
 					cluster.class_cluster = class_cluster
 					cluster.save()
+
+			uninherited_id_set = cs_snapshot.inherit_from_previous(
+				previous_snapshot,
+				merge_threshold=inherit_threshold
+			)
+
+			for uninherited_id in uninherited_id_set:
+				if uninherited_id not in allow_inheritence_miss_list:
+					inheritance_missed.append(str(uninherited_id))
 
 		if inheritance_missed:
 			raise RuntimeError(
