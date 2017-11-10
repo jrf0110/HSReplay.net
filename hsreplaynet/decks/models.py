@@ -449,6 +449,8 @@ class Archetype(models.Model):
 	@property
 	def standard_signature(self):
 		cluster = self.standard_cluster
+		if not cluster:
+			return {}
 		return {
 			"as_of": cluster.class_cluster.cluster_set.as_of,
 			"format": int(cluster.class_cluster.cluster_set.game_format),
@@ -458,6 +460,8 @@ class Archetype(models.Model):
 	@property
 	def wild_signature(self):
 		cluster = self.wild_cluster
+		if not cluster:
+			return {}
 		return {
 			"as_of": cluster.class_cluster.cluster_set.as_of,
 			"format": int(cluster.class_cluster.cluster_set.game_format),
