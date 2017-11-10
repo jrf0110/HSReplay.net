@@ -542,9 +542,6 @@ class ClusterSetManager(models.Manager):
 			).first()
 
 			cs_snapshot.consolidate_clusters(merge_threshold)
-			cs_snapshot.create_experimental_clusters(
-				experimental_cluster_threshold=experimental_threshold
-			)
 
 			ClusterSetSnapshot.objects.update(latest=False)
 			cs_snapshot.game_format = game_format
@@ -560,6 +557,10 @@ class ClusterSetManager(models.Manager):
 				if uninherited_id not in allow_inheritence_miss_list:
 					inheritance_missed.append(str(uninherited_id))
 
+			cs_snapshot.create_experimental_clusters(
+				experimental_cluster_threshold=experimental_threshold
+			)
+
 			for class_cluster in cs_snapshot.class_clusters:
 				class_cluster.cluster_set = cs_snapshot
 				class_cluster.update_cluster_signatures()
@@ -568,15 +569,6 @@ class ClusterSetManager(models.Manager):
 				for cluster in class_cluster.clusters:
 					cluster.class_cluster = class_cluster
 					cluster.save()
-
-			uninherited_id_set = cs_snapshot.inherit_from_previous(
-				previous_snapshot,
-				merge_threshold=inherit_threshold
-			)
-
-			for uninherited_id in uninherited_id_set:
-				if uninherited_id not in allow_inheritence_miss_list:
-					inheritance_missed.append(str(uninherited_id))
 
 		if inheritance_missed:
 			raise RuntimeError(
