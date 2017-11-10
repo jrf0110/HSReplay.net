@@ -11,6 +11,8 @@ def dictfetchall(cursor):
 
 
 def execute_query(query):
-	cursor = connection.cursor()
-	cursor.execute(query)
-	return dictfetchall(cursor)
+	with connection.cursor() as cursor:
+		cursor.execute(query)
+		ret = dictfetchall(cursor)
+
+	return ret
