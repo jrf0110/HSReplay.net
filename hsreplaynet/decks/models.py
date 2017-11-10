@@ -28,7 +28,6 @@ from hsreplaynet.utils.aws.redshift import get_redshift_query
 from hsreplaynet.utils.cards import card_db
 from hsreplaynet.utils.db import dictfetchall
 from hsreplaynet.utils.influx import influx_metric, influx_timer
-from hsreplaynet.utils.instrumentation import error_handler
 
 
 ALPHABET = string.ascii_letters + string.digits
@@ -122,8 +121,7 @@ class DeckManager(models.Manager):
 			return
 
 		signature_weights = ClusterSnapshot.objects.get_signature_weights(
-			game_format,
-			player_class
+			game_format, player_class
 		)
 
 		sig_archetype_id = classify_deck(
@@ -433,22 +431,31 @@ class Archetype(models.Model):
 		return self.name
 
 	@property
+	def promoted_clusters(self):
+		return ClusterSnapshot.objects.filter(
+			class_cluster__player_class=self.player_class,
+			external_id=self.id
+		).exclude(
+			class_cluster__cluster_set__promoted_on=None
+		).order_by("-class_cluster__cluster_set__promoted_on")
+
+	@property
 	def standard_cluster(self):
 		return ClusterSnapshot.objects.get_live_cluster_for_archetype(
-			enums.FormatType.FT_STANDARD,
-			self
+			enums.FormatType.FT_STANDARD, self
 		)
 
 	@property
 	def wild_cluster(self):
 		return ClusterSnapshot.objects.get_live_cluster_for_archetype(
-			enums.FormatType.FT_WILD,
-			self
+			enums.FormatType.FT_WILD, self
 		)
 
 	@property
 	def standard_signature(self):
-		cluster = self.standard_cluster
+		cluster = self.promoted_clusters.filter(
+			class_cluster__cluster_set__game_format=enums.FormatType.FT_STANDARD
+		).first()
 		if not cluster:
 			return {}
 		return {
@@ -459,7 +466,9 @@ class Archetype(models.Model):
 
 	@property
 	def wild_signature(self):
-		cluster = self.wild_cluster
+		cluster = self.promoted_clusters.filter(
+			class_cluster__cluster_set__game_format=enums.FormatType.FT_WILD
+		).first()
 		if not cluster:
 			return {}
 		return {
@@ -495,16 +504,12 @@ class Archetype(models.Model):
 		cluster = self.wild_cluster
 		if cluster:
 			return cluster.class_cluster.cluster_set.as_of
-		else:
-			return None
 
 	@property
 	def standard_signature_as_of(self):
 		cluster = self.standard_cluster
 		if cluster:
 			return cluster.class_cluster.cluster_set.as_of
-		else:
-			return None
 
 	def get_absolute_url(self):
 		return reverse("archetype_detail", kwargs={"id": self.id, "slug": slugify(self.name)})
@@ -880,6 +885,7 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 	as_of = models.DateTimeField(default=timezone.now)
 	game_format = IntEnumField(enum=enums.FormatType, default=enums.FormatType.FT_STANDARD)
 	live_in_production = models.BooleanField(default=False)
+	promoted_on = models.DateTimeField(null=True)
 	latest = models.BooleanField(default=False)
 	training_run_id = models.IntegerField(null=True, blank=True)
 
@@ -926,6 +932,7 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 					live_in_production=True
 				).update(live_in_production=False)
 				self.live_in_production = True
+				self.promoted_on = now()
 				self.save()
 				self.synchronize_deck_archetype_assignments()
 		else:

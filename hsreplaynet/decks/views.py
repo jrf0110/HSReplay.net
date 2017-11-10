@@ -55,8 +55,8 @@ class ArchetypeDetailView(RequestMetaMixin, View):
 
 		context = {
 			"archetype": archetype,
-			"has_standard_data": archetype.standard_cluster is not None,
-			"has_wild_data": archetype.wild_cluster is not None,
+			"has_standard_data": archetype.standard_signature is not None,
+			"has_wild_data": archetype.wild_signature is not None,
 		}
 
 		return render(request, self.template_name, context)
