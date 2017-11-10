@@ -562,6 +562,7 @@ class ClusterSetManager(models.Manager):
 
 			for class_cluster in cs_snapshot.class_clusters:
 				class_cluster.cluster_set = cs_snapshot
+				class_cluster.update_cluster_signatures()
 				class_cluster.save()
 
 				for cluster in class_cluster.clusters:
