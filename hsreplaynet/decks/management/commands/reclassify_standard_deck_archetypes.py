@@ -130,6 +130,10 @@ class Command(BaseCommand):
 
 			current_archetype_id = row["archetype_id"]
 			player_class = CardClass(row["player_class"])
+			if player_class == CardClass.NEUTRAL:
+				# Most likely noise
+				self.stderr.write("Found and skipping NEUTRAL data: %r" % (row))
+				continue
 			format = FormatType.FT_STANDARD if row["game_type"] == 2 else FormatType.FT_WILD
 
 			dbf_map = {dbf_id: count for dbf_id, count in json.loads(row["deck_list"])}
