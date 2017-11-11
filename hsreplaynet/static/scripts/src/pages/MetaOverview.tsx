@@ -337,15 +337,16 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 	getLastUpdated(): any {
 		const obj = {params: null, url: null};
 		switch (this.props.tab) {
-			case "archetypes":
-			case "matchups":
-				obj.url = "archetype_popularity_distribution_stats";
-				obj.params = this.getParams();
-				break;
 			case "popularity":
-			default:
 				obj.url = "archetype_popularity_by_rank";
 				obj.params = this.getPopularityParams();
+				break;
+			case "archetypes":
+			case "matchups":
+			case "tierlist":
+			default:
+				obj.url = "archetype_popularity_distribution_stats";
+				obj.params = this.getParams();
 				break;
 		}
 		return obj;
