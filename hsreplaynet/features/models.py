@@ -4,6 +4,7 @@ from uuid import uuid4
 from django.contrib.auth.models import Group
 from django.db import models
 from django.dispatch.dispatcher import receiver
+from django.core.validators import MaxValueValidator
 from django.urls import reverse
 from django.utils.timezone import now
 from django_intenum import IntEnumField
@@ -73,12 +74,30 @@ class Feature(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	status = IntEnumField(enum=FeatureStatus, default=FeatureStatus.OFF)
 	read_only = models.BooleanField(default=False)
+	rollout_percent = models.PositiveIntegerField(
+		default=100,
+		validators=[MaxValueValidator(100)],
+		help_text=(
+			"This may be set to a value lower than 100 to further restrict "
+			"the user pool with access to this feature."
+		)
+	)
 
 	def __str__(self):
 		return self.name
 
+	def is_user_part_of_rollout(self, user):
+		if user.is_authenticated:
+			base = user.pk
+		else:
+			base = id(user)
+		return base % 100 <= self.rollout_percent
+
 	def enabled_for_user(self, user):
 		if self.status == FeatureStatus.OFF:
+			return False
+
+		if not self.is_user_part_of_rollout(user):
 			return False
 
 		if self.status == FeatureStatus.STAFF_ONLY:
