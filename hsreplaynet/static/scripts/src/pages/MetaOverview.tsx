@@ -21,9 +21,10 @@ import InfoIcon from "../components/InfoIcon";
 import PremiumPromo from "../components/PremiumPromo";
 
 interface MetaOverviewState {
-	mobileView?: boolean;
 	archetypeListSortBy: string;
 	archetypeListSortDirection: SortDirection;
+	mobileView?: boolean;
+	showFilters?: boolean;
 }
 
 interface MetaOverviewProps {
@@ -58,6 +59,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			archetypeListSortBy: "archetype",
 			archetypeListSortDirection: "ascending",
 			mobileView: window.innerWidth <= mobileWidth,
+			showFilters: false,
 		};
 	}
 
@@ -114,9 +116,29 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			);
 		}
 
+		const infoboxClassNames = ["infobox full-sm"];
+		const contentClassNames = [];
+		if (!this.state.showFilters) {
+			infoboxClassNames.push("hidden-xs hidden-sm");
+		}
+		else {
+			contentClassNames.push("hidden-xs hidden-sm");
+		}
+
+		const backButton = (
+			<button
+				className="btn btn-primary btn-full visible-sm visible-xs"
+				type="button"
+				onClick={() => this.setState({showFilters: false})}
+			>
+				Back
+			</button>
+		);
+
 		return (
 			<div className="meta-overview-container">
-				<aside className="infobox">
+				<aside className={infoboxClassNames.join(" ")}>
+					{backButton}
 					<h1>Meta Overview</h1>
 					<section id="time-frame-filter">
 						<PremiumWrapper>
@@ -186,8 +208,17 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							</DataInjector>
 						</ul>
 					</section>
+					{backButton}
 				</aside>
-				<main>
+				<main className={contentClassNames.join(" ")}>
+					<button
+						className="btn btn-default btn-filters visible-xs visible-sm"
+						type="button"
+						onClick={() => this.setState({showFilters: true})}
+					>
+						<span className="glyphicon glyphicon-filter" />
+						Filters
+					</button>
 					<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
 						<Tab
 							id="tierlist"
