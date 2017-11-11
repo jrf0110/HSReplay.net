@@ -240,10 +240,14 @@ class Deck(models.Model):
 		return enums.CardClass.INVALID
 
 	@cached_property
-	def deckstring(self):
+	def card_dbf_id_packed_list(self):
 		cardlist = self.card_dbf_id_list()
 		sorted_list = sorted(set(cardlist))
-		cards = [(id, cardlist.count(id)) for id in sorted_list]
+		return [(id, cardlist.count(id)) for id in sorted_list]
+
+	@cached_property
+	def deckstring(self):
+		cards = self.card_dbf_id_packed_list
 		return deckstrings.write_deckstring(cards, [self.hero_dbf_id], self.format)
 
 	@cached_property
