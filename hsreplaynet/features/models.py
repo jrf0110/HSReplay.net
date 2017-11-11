@@ -101,7 +101,6 @@ class Feature(models.Model):
 			return False
 
 		if self.status == FeatureStatus.STAFF_ONLY:
-			# If the user is staff we will have already returned True
 			return user.is_superuser or user.is_staff
 
 		if self.status == FeatureStatus.AUTHORIZED_ONLY:
