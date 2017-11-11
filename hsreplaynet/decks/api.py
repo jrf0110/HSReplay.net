@@ -42,14 +42,32 @@ class ArchetypeSerializer(serializers.ModelSerializer):
 
 class ArchetypeListSerializer(ArchetypeSerializer):
 	player_class_name = serializers.SerializerMethodField()
+	standard_signature_core = serializers.SerializerMethodField()
+	wild_signature_core = serializers.SerializerMethodField()
 	url = serializers.ReadOnlyField(source="get_absolute_url")
 
 	class Meta:
 		model = Archetype
-		fields = ("id", "name", "player_class", "player_class_name", "url")
+		fields = (
+			"id", "name", "player_class", "player_class_name", "url",
+			"standard_signature_core", "wild_signature_core"
+		)
 
 	def get_player_class_name(self, instance):
 		return instance.player_class.name
+
+	def get_standard_signature_core(self, instance):
+		return self.core_signature(instance.standard_signature)
+
+	def get_wild_signature_core(self, instance):
+		return self.core_signature(instance.wild_signature)
+
+	def core_signature(self, signature):
+		if signature:
+			components = sorted(signature["components"], key=lambda x: x[1], reverse=True)
+			signature["components"] = [dbf for dbf, weight in components if weight > 0.9][:10]
+			return signature
+		return None;
 
 
 class ArchetypeWriteSerializer(serializers.ModelSerializer):
