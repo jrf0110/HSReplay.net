@@ -89,101 +89,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		const params = this.getParams();
 		const popularityParams = this.getPopularityParams();
 
-		let content = null;
-
-		const archetypeList = (
-			<DataInjector
-				query={[
-					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-					{params, url: "archetype_popularity_distribution_stats"},
-				]}
-				extract={{
-					data: (data) => ({data: data.series.data, timestamp: data.as_of}),
-				}}
-			>
-				<ArchetypeList
-					sortBy={this.state.archetypeListSortBy}
-					sortDirection={this.state.archetypeListSortDirection}
-					onSortChanged={(archetypeListSortBy, archetypeListSortDirection) => {
-						this.setState({archetypeListSortBy, archetypeListSortDirection});
-					}}
-					gameType={this.getGameType()}
-					cardData={this.props.cardData}
-				/>
-			</DataInjector>
-		);
-
-		const tierList = (
-			<DataInjector
-				query={[
-					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-					{key: "deckData", params: {GameType: this.getGameType()}, url: "list_decks_by_win_rate"},
-					{params, url: "archetype_popularity_distribution_stats"},
-				]}
-				extract={{
-					data: (data) => ({data: data.series.data, timestamp: data.as_of}),
-				}}
-			>
-				<ArchetypeTierList
-					gameType={this.getGameType()}
-					cardData={this.props.cardData}
-				/>
-			</DataInjector>
-		);
-
-		if (this.state.mobileView) {
-			content = <div id="archetypes">{archetypeList}</div>;
-		}
-		else {
-			content = (
-				<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
-					<Tab
-						id="tierlist"
-						label="Tier List"
-						hidden={!UserData.hasFeature("meta-tierlist")}
-					>
-						{tierList}
-					</Tab>
-					<Tab id="archetypes" label="By Class">
-						{archetypeList}
-					</Tab>
-					<Tab id="matchups" label="Matchups">
-						<DataInjector
-							query={[
-								{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-								{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-								{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
-							]}
-						>
-							<ArchetypeMatchups
-								cardData={this.props.cardData}
-								gameType={this.getGameType()}
-								mobileView={this.state.mobileView}
-								setSortBy={this.props.setSortBy}
-								setSortDirection={this.props.setSortDirection}
-								sortBy={this.props.sortBy}
-								sortDirection={this.props.sortDirection}
-							/>
-						</DataInjector>
-					</Tab>
-					<Tab
-						label={
-							<span className="text-premium">
-								Popularity&nbsp;
-								<InfoIcon
-									header="Popularity"
-									content="Archetype popularity broken down by rank."
-								/>
-							</span>
-						}
-						id="popularity"
-					>
-						{this.renderPopularity(popularityParams)}
-					</Tab>
-				</TabList>
-			);
-		}
-
 		const regionFilters = [
 			<InfoboxFilter value="REGION_US">America</InfoboxFilter>,
 			<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>,
@@ -209,82 +114,165 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			);
 		}
 
-		return <div className="meta-overview-container">
-			<aside className="infobox">
-				<h1>Meta Overview</h1>
-				<section id="time-frame-filter">
-					<PremiumWrapper>
-						<h2>Time Frame</h2>
-						<InfoboxFilterGroup
-							locked={!UserData.isPremium()}
-							selectedValue={this.props.timeFrame}
-							onClick={(value) => this.props.setTimeFrame(value)}
-						>
-							<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
-							<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
-							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
-						</InfoboxFilterGroup>
-					</PremiumWrapper>
-				</section>
-				{rankRangeFilter}
-				<Feature feature="archetypes-gamemode-filter">
-					<section id="gamemode-filter">
-						<InfoboxFilterGroup
-							header="Game Mode"
-							selectedValue={this.props.gameType}
-							onClick={(gameType) => this.props.setGameType(gameType)}
-						>
-							<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-							<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-						</InfoboxFilterGroup>
-					</section>
-				</Feature>
-				<Feature feature="meta-region-filter">
-					<section id="region-filter">
+		return (
+			<div className="meta-overview-container">
+				<aside className="infobox">
+					<h1>Meta Overview</h1>
+					<section id="time-frame-filter">
 						<PremiumWrapper>
-							<h2>Region</h2>
-							<InfoIcon
-								className="pull-right"
-								header="Region Filter"
-								content="Replay volume from the Chinese region is too low for reliable statistics."
-							/>
+							<h2>Time Frame</h2>
 							<InfoboxFilterGroup
 								locked={!UserData.isPremium()}
-								selectedValue={this.props.region}
-								onClick={(region) => this.props.setRegion(region)}
+								selectedValue={this.props.timeFrame}
+								onClick={(value) => this.props.setTimeFrame(value)}
 							>
-								{regionFilters}
+								<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
+								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+								<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
 							</InfoboxFilterGroup>
 						</PremiumWrapper>
 					</section>
-				</Feature>
-				<section id="info">
-					<h2>Data</h2>
-					<ul>
-						<li>
-							Game Mode
-							<span className="infobox-value">Ranked Standard</span>
-						</li>
-						<InfoboxLastUpdated {...this.getLastUpdated()} />
-						<DataInjector
-							query={{params, url: "head_to_head_archetype_matchups"}}
-							extract={{data: (data) => ({value: commaSeparate(data.series.metadata.totals.contributors)})}}
+					{rankRangeFilter}
+					<Feature feature="archetypes-gamemode-filter">
+						<section id="gamemode-filter">
+							<InfoboxFilterGroup
+								header="Game Mode"
+								selectedValue={this.props.gameType}
+								onClick={(gameType) => this.props.setGameType(gameType)}
+							>
+								<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
+								<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+							</InfoboxFilterGroup>
+						</section>
+					</Feature>
+					<Feature feature="meta-region-filter">
+						<section id="region-filter">
+							<PremiumWrapper>
+								<h2>Region</h2>
+								<InfoIcon
+									className="pull-right"
+									header="Region Filter"
+									content="Replay volume from the Chinese region is too low for reliable statistics."
+								/>
+								<InfoboxFilterGroup
+									locked={!UserData.isPremium()}
+									selectedValue={this.props.region}
+									onClick={(region) => this.props.setRegion(region)}
+								>
+									{regionFilters}
+								</InfoboxFilterGroup>
+							</PremiumWrapper>
+						</section>
+					</Feature>
+					<section id="info">
+						<h2>Data</h2>
+						<ul>
+							<li>
+								Game Mode
+								<span className="infobox-value">Ranked Standard</span>
+							</li>
+							<InfoboxLastUpdated {...this.getLastUpdated()} />
+							<DataInjector
+								query={{params, url: "head_to_head_archetype_matchups"}}
+								extract={{data: (data) => ({value: commaSeparate(data.series.metadata.totals.contributors)})}}
+							>
+								<InfoboxItem header="Contributors"/>
+							</DataInjector>
+							<DataInjector
+								query={{params, url: "head_to_head_archetype_matchups"}}
+								extract={{data: (data) => ({value: commaSeparate(data.series.metadata.totals.total_games)})}}
+							>
+								<InfoboxItem header="Games"/>
+							</DataInjector>
+						</ul>
+					</section>
+				</aside>
+				<main>
+					<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
+						<Tab
+							id="tierlist"
+							label="Tier List"
+							hidden={!UserData.hasFeature("meta-tierlist")}
 						>
-							<InfoboxItem header="Contributors"/>
-						</DataInjector>
-						<DataInjector
-							query={{params, url: "head_to_head_archetype_matchups"}}
-							extract={{data: (data) => ({value: commaSeparate(data.series.metadata.totals.total_games)})}}
+							<DataInjector
+								query={[
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+									{key: "deckData", params: {GameType: this.getGameType()}, url: "list_decks_by_win_rate"},
+									{params, url: "archetype_popularity_distribution_stats"},
+								]}
+								extract={{
+									data: (data) => ({data: data.series.data, timestamp: data.as_of}),
+								}}
+							>
+								<ArchetypeTierList
+									gameType={this.getGameType()}
+									cardData={this.props.cardData}
+								/>
+							</DataInjector>
+						</Tab>
+						<Tab id="archetypes" label="By Class">
+							<DataInjector
+								query={[
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+									{params, url: "archetype_popularity_distribution_stats"},
+								]}
+								extract={{
+									data: (data) => ({data: data.series.data, timestamp: data.as_of}),
+								}}
+							>
+								<ArchetypeList
+									sortBy={this.state.archetypeListSortBy}
+									sortDirection={this.state.archetypeListSortDirection}
+									onSortChanged={(archetypeListSortBy, archetypeListSortDirection) => {
+										this.setState({archetypeListSortBy, archetypeListSortDirection});
+									}}
+									gameType={this.getGameType()}
+									cardData={this.props.cardData}
+								/>
+							</DataInjector>
+						</Tab>
+						<Tab
+							id="matchups"
+							label="Matchups"
+							hidden={this.state.mobileView}
 						>
-							<InfoboxItem header="Games"/>
-						</DataInjector>
-					</ul>
-				</section>
-			</aside>
-			<main>
-				{content}
-			</main>
-		</div>;
+							<DataInjector
+								query={[
+									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
+									{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+								]}
+							>
+								<ArchetypeMatchups
+									cardData={this.props.cardData}
+									gameType={this.getGameType()}
+									mobileView={this.state.mobileView}
+									setSortBy={this.props.setSortBy}
+									setSortDirection={this.props.setSortDirection}
+									sortBy={this.props.sortBy}
+									sortDirection={this.props.sortDirection}
+								/>
+							</DataInjector>
+						</Tab>
+						<Tab
+							label={
+								<span className="text-premium">
+									Popularity&nbsp;
+									<InfoIcon
+										header="Popularity"
+										content="Archetype popularity broken down by rank."
+									/>
+								</span>
+							}
+							id="popularity"
+							hidden={this.state.mobileView}
+						>
+							{this.renderPopularity(popularityParams)}
+						</Tab>
+					</TabList>
+				</main>
+			</div>
+		);
 	}
 
 	renderPopularity(popularityParams: any): JSX.Element {
