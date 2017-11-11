@@ -457,28 +457,31 @@ class Archetype(models.Model):
 
 	@property
 	def standard_signature(self):
-		cluster = self.promoted_clusters.filter(
-			class_cluster__cluster_set__game_format=enums.FormatType.FT_STANDARD
-		).first()
-		if not cluster:
-			return {}
-		return {
-			"as_of": cluster.class_cluster.cluster_set.as_of,
-			"format": int(cluster.class_cluster.cluster_set.game_format),
-			"components": [(int(dbf_id), weight) for dbf_id, weight in cluster.signature.items()],
-		}
+		return self.get_signature(enums.FormatType.FT_STANDARD)
 
 	@property
 	def wild_signature(self):
+		return self.get_signature(enums.FormatType.FT_WILD)
+
+	@property
+	def standard_ccp_signature(self):
+		return self.get_signature(enums.FormatType.FT_STANDARD, True)
+
+	@property
+	def wild_ccp_signature(self):
+		return self.get_signature(enums.FormatType.FT_WILD, True)
+
+	def get_signature(self, game_format, use_ccp=False):
 		cluster = self.promoted_clusters.filter(
-			class_cluster__cluster_set__game_format=enums.FormatType.FT_WILD
+			class_cluster__cluster_set__game_format=game_format
 		).first()
 		if not cluster:
 			return {}
+		signature = cluster.ccp_signature if use_ccp else cluster.signature
 		return {
 			"as_of": cluster.class_cluster.cluster_set.as_of,
 			"format": int(cluster.class_cluster.cluster_set.game_format),
-			"components": [(int(dbf_id), weight) for dbf_id, weight in cluster.signature.items()],
+			"components": [(int(dbf_id), weight) for dbf_id, weight in signature.items()],
 		}
 
 	@property
