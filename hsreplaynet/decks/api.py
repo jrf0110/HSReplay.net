@@ -65,7 +65,7 @@ class ArchetypeListSerializer(ArchetypeSerializer):
 	def core_signature(self, signature):
 		if signature:
 			components = sorted(signature["components"], key=lambda x: x[1], reverse=True)
-			signature["components"] = [dbf for dbf, weight in components if weight > 0.5]
+			signature["components"] = [dbf for dbf, weight in components][:10]
 			return signature
 		return None;
 
