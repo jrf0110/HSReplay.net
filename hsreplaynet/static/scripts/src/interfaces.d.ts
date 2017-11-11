@@ -236,12 +236,20 @@ export interface ApiArchetype {
 	player_class: number;
 	player_class_name: string;
 	standard_signature?: ApiArchetypeSignature;
+	standard_signature_core?: ApiArchetypeSignatureCore;
 	wild_signature?: ApiArchetypeSignature;
+	wild_signature_core?: ApiArchetypeSignatureCore;
 	url: string;
 }
 
 export interface ApiArchetypeSignature {
 	components: [number, number][];
+	as_of: Date;
+	format: FormatType;
+}
+
+export interface ApiArchetypeSignatureCore {
+	components: number[];
 	as_of: Date;
 	format: FormatType;
 }

@@ -12,6 +12,7 @@ import ArchetypePopularity from "../components/metaoverview/ArchetypePopularity"
 import Feature from "../components/Feature";
 import UserData from "../UserData";
 import ArchetypeList from "../components/metaoverview/ArchetypeList";
+import ArchetypeTierList from "../components/metaoverview/ArchetypeTierList";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import InfoboxItem from "../components/InfoboxItem";
 import {commaSeparate} from "../helpers";
@@ -112,13 +113,38 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			</DataInjector>
 		);
 
+		const tierList = (
+			<DataInjector
+				query={[
+					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+					{key: "deckData", params: {GameType: this.getGameType()}, url: "list_decks_by_win_rate"},
+					{params, url: "archetype_popularity_distribution_stats"},
+				]}
+				extract={{
+					data: (data) => ({data: data.series.data, timestamp: data.as_of}),
+				}}
+			>
+				<ArchetypeTierList
+					gameType={this.getGameType()}
+					cardData={this.props.cardData}
+				/>
+			</DataInjector>
+		);
+
 		if (this.state.mobileView) {
 			content = <div id="archetypes">{archetypeList}</div>;
 		}
 		else {
 			content = (
 				<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
-					<Tab id="archetypes" label="Archetypes">
+					<Tab
+						id="tierlist"
+						label="Tier List"
+						hidden={!UserData.hasFeature("meta-tierlist")}
+					>
+						{tierList}
+					</Tab>
+					<Tab id="archetypes" label="By Class">
 						{archetypeList}
 					</Tab>
 					<Tab id="matchups" label="Matchups">
@@ -169,7 +195,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		regionFilters.push(<InfoboxFilter value="ALL">All Regions</InfoboxFilter>);
 
 		let rankRangeFilter = null;
-		if (["archetypes", "matchups"].indexOf(this.props.tab) !== -1 ) {
+		if (["tierlist", "archetypes", "matchups"].indexOf(this.props.tab) !== -1 ) {
 			rankRangeFilter = (
 				<section id="rank-range-filter">
 					<PremiumWrapper>

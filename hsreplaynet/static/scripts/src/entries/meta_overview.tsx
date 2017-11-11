@@ -6,6 +6,7 @@ import Fragments from "../components/Fragments";
 import MetaOverview from "../pages/MetaOverview";
 
 UserData.create();
+const tab = UserData.hasFeature("meta-tierlist") ? "tierlist" : "archetypes";
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
@@ -18,7 +19,7 @@ const render = (cardData: CardData) => {
 				region: "ALL",
 				sortBy: "popularity",
 				sortDirection: "descending",
-				tab: "archetypes",
+				tab,
 				timeFrame: "LAST_7_DAYS",
 			}}
 			immutable={!UserData.isPremium() ? ["rankRange", "region", "timeFrame"] : null}
