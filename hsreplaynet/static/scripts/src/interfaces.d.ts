@@ -236,9 +236,9 @@ export interface ApiArchetype {
 	player_class: number;
 	player_class_name: string;
 	standard_signature?: ApiArchetypeSignature;
-	standard_signature_core?: ApiArchetypeSignatureCore;
+	standard_ccp_signature_core?: ApiArchetypeSignatureCore;
 	wild_signature?: ApiArchetypeSignature;
-	wild_signature_core?: ApiArchetypeSignatureCore;
+	wild_ccp_signature_core?: ApiArchetypeSignatureCore;
 	url: string;
 }
 
