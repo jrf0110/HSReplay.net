@@ -57,7 +57,7 @@ export default class ArchetypeListItem extends React.Component<ArchetypeListItem
 							{coreCards.slice(0, 8)}
 						</ul>
 					</div>
-					<div className="col-xs-12 col-md-4">
+					<div className="archetype-btn-container col-xs-12 col-md-4">
 						<a className="btn btn-primary btn-deck" href={`/decks/${deck.deck_id}`}>
 							View most popular deck
 						</a>

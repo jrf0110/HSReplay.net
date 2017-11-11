@@ -559,19 +559,24 @@
 }
 
 .archetype-tier-list {
-	padding-top: 10px;
+	padding: 0 10px;
 
 	.tier {
+		margin-top: 10px;
+		border-left: 1px solid black;
+		border-right: 1px solid black;
+
 		.tier-header {
 			font-weight: bold;
 			background: $blue;
 			color: white;
-			padding: 5px;
+			padding: 8px;
 			text-transform: uppercase;
+			font-size: 1.1em;
 
 			.info-icon {
 				color: white;
-				padding-right: 5px;
+				padding-left: 10px;
 			}
 		}
 	}
@@ -610,7 +615,7 @@
 		.archetype-header {
 			display: flex;
 			flex-direction: row;
-			padding-left: 5px;
+			padding: 0;
 		}
 
 		.archetype-icon {
@@ -647,8 +652,8 @@
 		.archetype-cards {
 			display: flex;
 			flex-direction: column;
-			padding-left: 5px;
-			padding-top: 5px;
+			padding: 5px 0 0 5px;
+			overflow: hidden;
 
 			.archetype-card-list {
 				padding-left: 0;
@@ -662,9 +667,25 @@
 			}
 		}
 
-		.btn-deck {
-			margin: 5px auto 0 auto;
-			text-transform: uppercase;
+		.archetype-btn-container {
+			height: 64px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 0;
+
+			.btn-deck {
+				margin: 0 auto;
+				text-transform: uppercase;
+			}
+
+			@media(max-width: 991px) {
+				height: 34px;
+
+				.btn-deck {
+					width: 100%
+				}
+			}
 		}
 	}
 

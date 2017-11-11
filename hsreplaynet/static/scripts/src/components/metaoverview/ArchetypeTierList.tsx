@@ -66,11 +66,11 @@ class ArchetypeTierList extends React.Component<ArchetypeTierListProps, {}> {
 						return (
 							<div className="tier" key={"tier" + index}>
 								<div className="tier-header">
+									Tier {index + 1}
 									<InfoIcon
 										header={`Tier ${index + 1}: ${this.tierInfoHeader[index]}`}
 										content={this.tierInfo[index]}
 									/>
-									Tier {index + 1}
 								</div>
 								{tier}
 							</div>
