@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.views.generic import RedirectView
 
 from . import views
-from .api import DeckDetailView, GetOrCreateDeckView
+from .api import DeckDetailView, GetOrCreateDeckView, MyDecksAPIView
 
 
 archetype_detail = views.ArchetypeDetailView.as_view()
@@ -43,6 +43,7 @@ urlpatterns = [
 ]
 
 api_urlpatterns = [
+	url(r"^v1/analytics/decks/summary/$", MyDecksAPIView.as_view()),
 	url(r"^v1/decks/$", GetOrCreateDeckView.as_view()),
 	url(r"^v1/decks/(?P<shortid>\w+)/$", DeckDetailView.as_view()),
 ]
