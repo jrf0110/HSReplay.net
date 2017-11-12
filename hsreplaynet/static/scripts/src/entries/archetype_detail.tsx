@@ -18,7 +18,7 @@ const render = (cardData: CardData) => {
 	ReactDOM.render(
 		<Fragments
 			defaults={{
-				rankRange: "ELEVEN_THROUGH_TWENTY",
+				rankRange: "LEGEND_THROUGH_TWENTY",
 				tab: "overview",
 			}}
 			immutable={!UserData.isPremium() ? ["rankRange"] : null}

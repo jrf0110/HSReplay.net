@@ -15,7 +15,7 @@ const render = (cardData: CardData) => {
 				gameType: "RANKED_STANDARD",
 				popularitySortBy: "total",
 				popularitySortDirection: "descending",
-				rankRange: "ELEVEN_THROUGH_TWENTY",
+				rankRange: "LEGEND_THROUGH_TWENTY",
 				region: "ALL",
 				sortBy: "popularity",
 				sortDirection: "descending",
