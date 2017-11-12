@@ -32,6 +32,15 @@ export default class ArchetypeListItem extends React.Component<ArchetypeListItem
 			.filter((d) => d.archetype_id === archetype.id)
 			.sort((a, b) => b.total_games - a.total_games)[0];
 
+		let deckButton = null;
+		if (deck) {
+			deckButton = (
+				<a className="btn btn-primary btn-deck" href={`/decks/${deck.deck_id}`}>
+					View most popular deck
+				</a>
+			);
+		}
+
 		return (
 			<li
 				className="archetype-list-item"
@@ -58,9 +67,7 @@ export default class ArchetypeListItem extends React.Component<ArchetypeListItem
 						</ul>
 					</div>
 					<div className="archetype-btn-container col-xs-12 col-md-4">
-						<a className="btn btn-primary btn-deck" href={`/decks/${deck.deck_id}`}>
-							View most popular deck
-						</a>
+						{deckButton}
 					</div>
 					<div className="clearfix"/>
 				</a>
