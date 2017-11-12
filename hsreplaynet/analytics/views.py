@@ -331,7 +331,7 @@ def live_clustering_data(request, game_format):
 				as_of=snapshot.as_of.isoformat(),
 				external_names=external_names
 			),
-			indent=4
+			indent="\t"
 		),
 		content_type="application/json"
 	)
@@ -357,7 +357,7 @@ def latest_clustering_data(request, game_format):
 					as_of=snapshot.as_of.isoformat(),
 					external_names=external_names
 				),
-				indent=4
+				indent="\t"
 			),
 			content_type="application/json"
 		)
@@ -373,7 +373,7 @@ def clustering_details(request, id):
 				include_ccp_signature=True,
 				as_of=snapshot.as_of.isoformat()
 			),
-			indent=4
+			indent="\t"
 		),
 		content_type="application/json"
 	)
@@ -409,7 +409,7 @@ def list_clustering_data(request, game_format):
 		}
 
 	return HttpResponse(
-		content=json.dumps(response, indent=4),
+		content=json.dumps(response, indent="\t"),
 		content_type="application/json"
 	)
 
