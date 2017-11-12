@@ -289,7 +289,7 @@ class MyDecksAPIView(APIView):
 
 		ret = {
 			"render_as": "table",
-			"series": final_series,
+			"series": {"data": final_series},
 			"as_of": as_of,
 		}
 
