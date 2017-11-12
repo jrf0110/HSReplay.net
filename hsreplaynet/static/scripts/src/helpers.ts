@@ -808,22 +808,24 @@ export function getOtherArchetype(archetypeId: number): ApiArchetype {
 		return undefined;
 	}
 	const classId = -archetypeId;
-	const classes = [
-		"INVALID", "DEATHKNIGHT",
-		"DRUID", "HUNTER", "MAGE",
-		"PALADIN", "PRIEST", "ROGUE",
-		"SHAMAN", "WARLOCK", "WARRIOR",
-	];
 
-	if (!classes[classId]) {
+	if (!cardClass[classId]) {
 		return undefined;
 	}
 
 	return {
 		id: archetypeId,
-		name: "Other " + toTitleCase(classes[classId]),
+		name: "Other " + toTitleCase(cardClass[classId]),
 		player_class: -archetypeId,
-		player_class_name: classes[classId],
+		player_class_name: cardClass[classId],
 		url: "",
 	};
 }
+
+export const cardClass = [
+	"INVALID", "DEATHKNIGHT",
+	"DRUID", "HUNTER", "MAGE",
+	"PALADIN", "PRIEST", "ROGUE",
+	"SHAMAN", "WARLOCK", "WARRIOR",
+	"DREAM", "NEUTRAL",
+];

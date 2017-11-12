@@ -9,7 +9,7 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import NoDecksMessage from "../components/NoDecksMessage";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import {cardSorting, isCollectibleCard, isWildSet, sortCards} from "../helpers";
+import {cardClass, cardSorting, isCollectibleCard, isWildSet, sortCards} from "../helpers";
 import {DeckObj, FragmentChildProps, TableData} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
@@ -138,12 +138,41 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 
 		const params = this.getPersonalParams();
 
-		if (!DataManager.has("single_account_lo_decks_summary", params)
+		if (!DataManager.has(this.getDataUrl(), params)
 			|| !DataManager.has("list_decks_by_win_rate", {GameType: this.props.gameType})) {
 			this.setState({loading: true});
 		}
 
 		return DataManager.get("list_decks_by_win_rate", {GameType: this.props.gameType}).then((deckData) => {
+			if (UserData.hasFeature("mydecks-rds-api")) {
+				return DataManager.get("/api/v1/analytics/decks/summary/", params).then((data: TableData) => {
+					if (data && data.series) {
+						Object.keys(data.series.data).forEach((shortId) => {
+							const deck = Object.assign({}, data.series.data[shortId]) as any;
+							const playerClass = cardClass[deck.player_class];
+							if (this.props.playerClasses.length && this.props.playerClasses.indexOf(playerClass as FilterOption) === -1) {
+								return;
+							}
+							const cards = cardList(deck.deck_list);
+							if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
+								return;
+							}
+							if (
+								this.props.includedSet !== "ALL" &&
+								cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
+							) {
+								return;
+							}
+							deck.player_class = playerClass;
+							const globalDeck = deckData.series.data[playerClass].find((d) => d.deck_id === deck.deck_id);
+							deck.hasGlobalData = !!globalDeck;
+							deck.archetype_id = deck.archetype_id || globalDeck && globalDeck.archetype_id;
+							pushDeck(deck, cards);
+						});
+					}
+					return deckElements;
+				});
+			}
 			return DataManager.get("single_account_lo_decks_summary", params).then((data: TableData) => {
 				if (data && data.series) {
 					Object.keys(data.series.data).forEach((playerClass) => {
@@ -446,7 +475,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 						<h2>Data</h2>
 						<ul>
 							<InfoboxLastUpdated
-								url={"single_account_lo_decks_summary"}
+								url={this.getDataUrl()}
 								params={this.getPersonalParams()}
 							/>
 						</ul>
@@ -477,5 +506,10 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 			GameType: this.props.gameType,
 			TimeRange: this.props.timeRange,
 		};
+	}
+
+	getDataUrl(): string {
+		const hasRdsApiFeature = UserData.hasFeature("mydecks-rds-api");
+		return hasRdsApiFeature ? "/api/v1/analytics/decks/summary/" : "single_account_lo_decks_summary";
 	}
 }
