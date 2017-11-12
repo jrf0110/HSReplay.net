@@ -345,7 +345,8 @@ def latest_clustering_data(request, game_format):
 
 	if snapshot_exists:
 		snapshot = ClusterSetSnapshot.objects.filter(
-			game_format=FormatType[game_format]
+			game_format=FormatType[game_format],
+			latest=True
 		).latest()
 
 		external_names = {a.id: a.name for a in Archetype.objects.live()}
