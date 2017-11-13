@@ -164,6 +164,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 								return;
 							}
 							deck.player_class = playerClass;
+							deck.deck_id = shortId;
 							const globalDeck = deckData.series.data[playerClass].find((d) => d.deck_id === deck.deck_id);
 							deck.hasGlobalData = !!globalDeck;
 							deck.archetype_id = deck.archetype_id || globalDeck && globalDeck.archetype_id;
