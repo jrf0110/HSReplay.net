@@ -506,7 +506,9 @@ export function getHeroCardId(playerClass: string, skin: boolean) {
 	];
 
 	const hasSkin = [
-		"WARRIOR", "SHAMAN", "ROGUE", "PALADIN", "HUNTER", "MAGE", "PRIEST",
+		"WARRIOR", "SHAMAN", "ROGUE",
+		"PALADIN", "HUNTER", "MAGE",
+		"PRIEST", "WARLOCK",
 	];
 
 	const index = sorted.indexOf(playerClass.toUpperCase());
