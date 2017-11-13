@@ -234,7 +234,7 @@ export default class ClusterChart extends React.Component<ClusterChartProps, Clu
 	}
 
 	fillColor(d: any) {
-		return this.props.colors[this.props.clusterIds.indexOf("" + d.metadata.cluster_id || "gray")];
+		return this.props.colors[this.props.clusterIds.indexOf("" + d.metadata.cluster_id)] || "#888888";
 	}
 
 	strokeColor(d: any) {
