@@ -13,10 +13,9 @@ def get_archetype_ids(cluster_set):
 
 class Command(BaseCommand):
 	def add_arguments(self, parser):
-		parser.add_argument("--force", default=0, type=int)
+		parser.add_argument("--force", action="store_true")
 
 	def handle(self, *args, **options):
-		force = bool(options["force"])
 		current_set = ClusterSetSnapshot.objects.filter(live_in_production=True).first()
 		cluster_set = ClusterSetSnapshot.objects.filter(latest=True).first()
 		if cluster_set:
@@ -24,7 +23,7 @@ class Command(BaseCommand):
 				archetypes_in_production = get_archetype_ids(current_set)
 				archetypes_to_go = get_archetype_ids(cluster_set)
 				remainder = set(archetypes_in_production) - set(archetypes_to_go)
-				if remainder:
-					raise CommandError("Archetypes missing: %r. Will not promote.")
+				if remainder and not options["force"]:
+					raise CommandError("Archetypes missing: %r. Will not promote." % (remainder))
 
-			cluster_set.update_archetype_signatures(force=force)
+			cluster_set.update_archetype_signatures(force=True)
