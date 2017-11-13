@@ -109,4 +109,4 @@ class ArchetypeTierList extends React.Component<ArchetypeTierListProps, {}> {
 	];
 }
 
-export default withLoading(["data", "deckData", "archetypeData"])(ArchetypeTierList);
+export default withLoading(["data", "deckData", "archetypeData", "cardData"])(ArchetypeTierList);
