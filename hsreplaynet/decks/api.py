@@ -253,7 +253,9 @@ class MyDecksAPIView(APIView):
 
 		data_by_deck = {}
 		deck_ids = set(row["deck_list_id"] for row in data)
-		decks_played = {deck.id: deck for deck in Deck.objects.filter(id__in=deck_ids)}
+		decks_played = {
+			deck.id: deck for deck in Deck.objects.filter(id__in=deck_ids, size=30)
+		}
 
 		for row in data:
 			if row["deck_list_id"] not in data_by_deck:
