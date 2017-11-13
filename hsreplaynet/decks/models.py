@@ -579,7 +579,11 @@ class ClusterSetManager(models.Manager):
 
 			for class_cluster in cs_snapshot.class_clusters:
 				class_cluster.cluster_set = cs_snapshot
-				class_cluster.update_cluster_signatures()
+				# Don't use pcp_adjustments after consolidation is complete
+				# In order to leave signatures for tooltips unaffected.
+				class_cluster.update_cluster_signatures(
+					use_pcp_adjustment=False
+				)
 				class_cluster.save()
 
 				for cluster in class_cluster.clusters:
