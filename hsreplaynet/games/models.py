@@ -471,16 +471,6 @@ class GameReplay(models.Model):
 	def region(self):
 		return self.friendly_player.pegasus_account.region
 
-	def related_replays(self, num=3):
-		"""
-		Returns RelatedReplayRecommendation objects similar to this one.
-
-		The criteria used to generate the recommendations may vary across game types.
-		"""
-		from hsreplaynet.games.recommendations import recommend_related_replays
-
-		return recommend_related_replays(self, num)
-
 	def serialize(self):
 		from hsreplaynet.api.serializers import GameReplaySerializer
 		from .processing import get_replay_url
