@@ -2,7 +2,7 @@
 
 -r base.txt
 
-django-allauth==0.33.0
+django-allauth==0.34.0
 django-contrib-comments==1.8.0
 django-loginas==0.3.3
 django-webpack-loader==0.5.0
@@ -11,7 +11,7 @@ humanize==0.5.1
 # redis requirements
 django-rq==0.9.6
 django-rq-dashboard==0.3.3
-rq==0.8.2
+rq==0.9.1
 
 markdown==2.6.9
 numpy
