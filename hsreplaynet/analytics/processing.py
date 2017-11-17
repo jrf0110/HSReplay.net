@@ -278,11 +278,17 @@ def enable_premium_accounts_for_users_in_redshift(users):
 
 
 def enable_all_premium_users_in_redshift():
+	from djpaypal.models import BillingAgreement
 	from djstripe.models import Subscription
-	users = []
+
+	users = set()
+
 	for subscription in Subscription.objects.active():
-		user = subscription.customer.subscriber
-		users.append(user)
+		users.add(subscription.customer.subscriber)
+
+	for agreement in BillingAgreement.objects.filter(state="Active"):
+		users.add(agreement.user)
+
 	enable_premium_accounts_for_users_in_redshift(users)
 
 
