@@ -60,3 +60,18 @@ def userdata(request):
 		data["ipcountry"] = request.META["HTTP_CF_IPCOUNTRY"]
 
 	return {"userdata": data}
+
+
+def debug(request):
+	if not request.user.is_staff and not settings.DEBUG:
+		return {}
+
+	import django
+	import socket
+	import sys
+
+	return {
+		"django_version": django.__version__,
+		"python_version": sys.version,
+		"server_ip": socket.gethostbyname(socket.gethostname()),
+	}
