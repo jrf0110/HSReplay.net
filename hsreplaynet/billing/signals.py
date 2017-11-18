@@ -13,6 +13,14 @@ def sync_premium_accounts_for_stripe_subscription(event, **kwargs):
 		user = event.customer.subscriber
 		enable_premium_accounts_for_users_in_redshift([user])
 
+		if event.customer.subscriptions.count() > 1:
+			try:
+				raise RuntimeError(
+					"Customer %r (%r) has multiple subscriptions!" % (user, event.customer.stripe_id)
+				)
+			except Exception as e:
+				error_handler(e)
+
 
 @djpaypal_webhooks.webhook_handler("billing.subscription.*")
 def sync_premium_accounts_for_paypal_subscription(sender, event, **kwargs):
