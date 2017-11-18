@@ -26,5 +26,5 @@ def on_paypal_webhook_error(sender, instance, **kwargs):
 	if instance.exception:
 		try:
 			raise Exception("%s - %s" % (instance.exception, instance.id))
-		except Exception:
-			error_handler()
+		except Exception as e:
+			error_handler(e)
