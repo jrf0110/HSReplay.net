@@ -31,18 +31,18 @@ class PaymentsMixin:
 		"""
 		Return whether a customer is allowed to cancel (at end of period).
 		"""
-		if not customer or not customer.subscriptions.exists():
+		if not customer or not customer.active_subscriptions.exists():
 			# Safeguard
 			return False
 
 		# We only allow end-of-period cancel if the current subscription is active.
-		return customer.subscription.is_valid()
+		return customer.active_subscriptions.exists()
 
 	def can_cancel_immediately(self, customer):
 		"""
 		Returns whether a customer is allowed to cancel immediately.
 		"""
-		if not customer or not customer.subscriptions.exists():
+		if not customer or not customer.active_subscriptions.exists():
 			# Safeguard
 			return False
 
@@ -51,7 +51,11 @@ class PaymentsMixin:
 			return True
 
 		# Otherwise, we only allow immediate cancel if the subscription is not active.
-		return not customer.subscription.is_valid()
+		for subscription in customer.active_subscriptions.all():
+			if not subscription.is_valid():
+				return True
+
+		return False
 
 	def can_remove_payment_methods(self, customer):
 		"""
@@ -149,8 +153,14 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		return True
 
 	def handle_subscribe(self, customer):
-		if customer.subscription:
+		if customer.active_subscriptions.exists():
 			# The customer is already subscribed
+
+			if customer.active_subscriptions.count() > 1:
+				messages.error(
+					self.request, "You have multiple subscriptions. Please contact us."
+				)
+				return False
 
 			if customer.subscription.cancel_at_period_end:
 				# The customer's subscription was canceled and is now being re-activated
@@ -238,6 +248,10 @@ class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 	success_url = reverse_lazy("billing_methods")
 
 	def handle_form(self, request):
+		if self.customer.active_subscriptions.count() > 1:
+			messages.error(request, "You have multiple subscriptions. Please contact us.")
+			return False
+
 		if not self.customer.subscription:
 			# The customer is not subscribed
 			messages.error(request, "You are not subscribed.")
