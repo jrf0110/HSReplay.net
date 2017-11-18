@@ -31,7 +31,7 @@ class PaymentsMixin:
 		"""
 		Return whether a customer is allowed to cancel (at end of period).
 		"""
-		if not customer or not customer.subscription:
+		if not customer or not customer.subscriptions.exists():
 			# Safeguard
 			return False
 
@@ -42,7 +42,7 @@ class PaymentsMixin:
 		"""
 		Returns whether a customer is allowed to cancel immediately.
 		"""
-		if not customer or not customer.subscription:
+		if not customer or not customer.subscriptions.exists():
 			# Safeguard
 			return False
 
