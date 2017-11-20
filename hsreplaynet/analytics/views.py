@@ -283,8 +283,6 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None, priori
 
 
 def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
-	staleness = (datetime.utcnow() - parameterized_query.result_as_of).total_seconds()
-
 	did_preschedule = False
 	result = False
 	if parameterized_query.result_is_stale or run_local:
@@ -296,8 +294,14 @@ def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
 
 	query_fetch_metric_fields = {
 		"count": 1,
-		"staleness": int(staleness)
 	}
+
+	as_of = parameterized_query.result_as_of
+	if as_of is not None:
+		query_fetch_metric_fields["staleness"] = int(
+			(datetime.utcnow() - as_of).total_seconds()
+		)
+
 	query_fetch_metric_fields.update(
 		parameterized_query.supplied_non_filters_dict
 	)
