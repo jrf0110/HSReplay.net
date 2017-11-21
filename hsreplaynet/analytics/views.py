@@ -2,6 +2,7 @@ import json
 from calendar import timegm
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import (
 	Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
@@ -285,10 +286,19 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None, priori
 def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
 	did_preschedule = False
 	result = False
+
+	as_of = parameterized_query.result_as_of
+	if as_of is not None:
+		staleness = int(
+				(datetime.utcnow() - as_of).total_seconds()
+			)
+	else:
+		staleness = None
+
 	if parameterized_query.result_is_stale or run_local:
 		attempt_request_triggered_query_execution(parameterized_query, run_local, priority)
 		result = True
-	else:
+	elif staleness and staleness > settings.MINIMUM_QUERY_REFRESH_INTERVAL:
 		did_preschedule = True
 		parameterized_query.preschedule_refresh()
 
@@ -296,11 +306,8 @@ def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
 		"count": 1,
 	}
 
-	as_of = parameterized_query.result_as_of
-	if as_of is not None:
-		query_fetch_metric_fields["staleness"] = int(
-			(datetime.utcnow() - as_of).total_seconds()
-		)
+	if staleness:
+		query_fetch_metric_fields["staleness"] = staleness
 
 	query_fetch_metric_fields.update(
 		parameterized_query.supplied_non_filters_dict

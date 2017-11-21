@@ -435,6 +435,10 @@ REDSHIFT_PERSONALIZED_QUERY_QUEUE_NAME = "redshift_personalized_query_queue"
 # an accurate distribution of games
 REDSHIFT_USE_MATCH_START_AS_GAME_DATE = False
 
+# Prescheduling Redshift Queries For Refresh Will Not Occur More Frequently Than This.
+#  20 Minutes = 1200
+MINIMUM_QUERY_REFRESH_INTERVAL = 1200
+
 ARCHETYPE_QUERIES_FOR_IMMEDIATE_REFRESH = [
 	"head_to_head_archetype_matchups",
 	"archetype_popularity_distribution_stats",
