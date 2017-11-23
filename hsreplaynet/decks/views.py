@@ -1,7 +1,7 @@
 import json
 
 from django.conf import settings
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView, View
@@ -243,6 +243,25 @@ class ClusterSnapshotUpdateView(View):
 		).first()
 		return cluster
 
+	def _cluster_for_archetype_exists(
+		self,
+		player_class,
+		game_format,
+		archetype_id,
+		exclude_cluster_id=None
+	):
+		player_class_enum = CardClass[player_class.upper()]
+		game_format_enum = FormatType[game_format.upper()]
+		result = ClusterSnapshot.objects.filter(
+			class_cluster__player_class=player_class_enum,
+			class_cluster__cluster_set__latest=True,
+			class_cluster__cluster_set__game_format=game_format_enum,
+			external_id=int(archetype_id)
+		)
+		if exclude_cluster_id is not None:
+			result = result.exclude(cluster_id=int(exclude_cluster_id))
+		return result.exists()
+
 	def get(self, request, game_format, player_class, cluster_id):
 		cluster = self._get_cluster(player_class, game_format, cluster_id)
 		return JsonResponse({"cluster_id": cluster.cluster_id}, status=200)
@@ -260,6 +279,15 @@ class ClusterSnapshotUpdateView(View):
 			cluster.external_id = None
 			cluster.name = "NEW"
 		else:
+			if self._cluster_for_archetype_exists(
+				player_class,
+				game_format,
+				archetype_id,
+				exclude_cluster_id=cluster.cluster_id
+			):
+				return HttpResponseBadRequest(
+					"Archetype is already assigned to another cluster"
+				)
 			archetype = Archetype.objects.get(id=int(archetype_id))
 			cluster.external_id = int(archetype_id)
 			cluster.name = archetype.name
