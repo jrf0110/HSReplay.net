@@ -20,9 +20,12 @@ export default class ArchetypeListItem extends React.Component<ArchetypeListItem
 		const coreCards = [];
 
 		const {cardData} = this.props;
-		archetype.standard_ccp_signature_core.components.forEach((dbfId) => {
-			coreCards.push(<li><CardIcon card={cardData.fromDbf(dbfId)}/></li>);
-		});
+		const signature = archetype.standard_ccp_signature_core;
+		if (signature) {
+			signature.components.forEach((dbfId) => {
+				coreCards.push(<li><CardIcon card={cardData.fromDbf(dbfId)}/></li>);
+			});
+		}
 
 		const {color} = winrateData(50, this.props.archetype.win_rate, 3);
 		const hero = getHeroCardId(archetype.player_class_name, true);

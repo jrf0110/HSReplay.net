@@ -28,7 +28,7 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 
 	render(): JSX.Element {
 		const {cardData, signature, showValues} = this.props;
-		if (!signature || !cardData) {
+		if (!signature || !signature.components || !cardData) {
 			return null;
 		}
 
