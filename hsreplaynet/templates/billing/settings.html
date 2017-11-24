@@ -1,7 +1,7 @@
 {% extends "account/base.html" %}
 {% load static from static %}
 {% load feature from features %}
-{% load htmltime pretty_card setting from web_extras %}
+{% load currency_amount htmltime pretty_card setting from web_extras %}
 
 {% block content %}
 
@@ -153,6 +153,15 @@
 				{% endif %}
 			{% endfor %}
 		</ul>
+		{% endif %}
+
+		{% if customer.account_balance %}
+			<hr/>
+			<h4>Credits</h4>
+			<p>
+				Your account balance is <strong>{% currency_amount customer.account_balance customer.currency %}</strong>.<br/>
+				<em>When making a payment, these credits will be withdrawn first.</em>
+			</p>
 		{% endif %}
 
 		<hr/>

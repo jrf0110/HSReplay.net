@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 
 from django import template
 from django.conf import settings
@@ -76,6 +77,14 @@ def nav_active(context, name, css="active"):
 	if request.path == reverse(name):
 		return mark_safe(' class="%s"' % (mark_for_escaping(css)))
 	return ""
+
+
+@register.simple_tag
+def currency_amount(amount, currency):
+	from djstripe.utils import get_friendly_currency_amount
+
+	amount = Decimal(amount) / 100
+	return get_friendly_currency_amount(amount, currency)
 
 
 @register.filter
