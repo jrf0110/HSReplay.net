@@ -62,6 +62,15 @@
 						You are currently on a free trial, started on <strong>{{ sub.trial_start|htmltime }}</strong>.
 						Your subscription begins on <strong>{{ sub.trial_end|htmltime }}</strong>.
 					</p>
+				{% elif sub.status == "past_due" %}
+					<hr/>
+					<p class="alert alert-danger">
+						Your membership is past due.
+						You will not be able to use the Premium features until a successful payment.<br/>
+						{% if latest_invoice and latest_invoice.next_payment_attempt %}
+							Next payment attempt on <strong>{{ latest_invoice.next_payment_attempt|htmltime }}</strong>.
+						{% endif %}
+					</p
 				{% else %}
 					<p>
 						Subscribed since <strong>{{ sub.start|htmltime }}</strong>.

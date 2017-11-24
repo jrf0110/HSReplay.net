@@ -38,10 +38,17 @@ class PaymentsMixin:
 		# We only allow end-of-period cancel if the current subscription is active.
 		return customer.active_subscriptions.exists()
 
+	def has_subscription_past_due(self, customer):
+		return customer.subscriptions.filter(status="past_due").exists()
+
 	def can_cancel_immediately(self, customer):
 		"""
 		Returns whether a customer is allowed to cancel immediately.
 		"""
+		if self.has_subscription_past_due(customer):
+			# Can always do an immediate cancel when past due
+			return True
+
 		if not customer or not customer.active_subscriptions.exists():
 			# Safeguard
 			return False
@@ -87,6 +94,11 @@ class PaymentsMixin:
 			context["can_cancel"] = self.can_cancel(customer)
 			context["can_cancel_immediately"] = self.can_cancel_immediately(customer)
 			context["can_remove_payment_methods"] = self.can_remove_payment_methods(customer)
+			context["has_subscription_past_due"] = self.has_subscription_past_due(customer)
+			try:
+				context["latest_invoice"] = customer.invoices.latest("date")
+			except ObjectDoesNotExist:
+				context["latest_invoice"] = None
 		else:
 			# When anonymous, the customer is None, thus has no payment methods
 			context["payment_methods"] = []
