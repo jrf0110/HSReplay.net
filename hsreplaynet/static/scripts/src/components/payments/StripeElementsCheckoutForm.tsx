@@ -232,7 +232,7 @@ class StripeElementsCheckoutForm extends React.Component<StripeElementsCheckoutF
 					width: "100%",
 				}}
 			>
-				<div>
+				<div style={{margin: "25px 0 10px 0"}}>
 					<label id="choose-plan">Choose your plan</label>
 					<BtnGroup
 						className="btn-group btn-group-flex"
