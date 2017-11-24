@@ -303,7 +303,7 @@ class StripeElementsCheckoutForm extends React.Component<StripeElementsCheckoutF
 					{this.getButtons()}
 				</div>
 				<input type="hidden" name="stripeToken" value={this.state.sourceId}/>
-				<input type="hidden" name="stripeTokenType" value={"card"}/>
+				<input type="hidden" name="stripeTokenType" value={"source"}/>
 				<div dangerouslySetInnerHTML={this.props.csrfElement}></div>
 			</form>
 		);
