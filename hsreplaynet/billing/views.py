@@ -109,7 +109,7 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 
 		# The token represents the customer's payment method
 		token = self.request.POST.get("stripeToken", "")
-		if not token.startswith("tok_"):
+		if not token.startswith(("tok_", "src_")):
 			# We either didn't get a token, or it was malformed. Discard outright.
 			raise SuspiciousOperation("Invalid Stripe token")
 
@@ -298,8 +298,9 @@ class UpdateCardView(LoginRequiredMixin, View):
 
 	def handle_form(self, request):
 		stripe_id = request.POST.get("stripe_id", "")
-		if not stripe_id.startswith("card_"):
+		if not stripe_id.startswith(("card_", "src_")):
 			# The Stripe ID of a card always starts with card_
+			# For sources, it's always src_
 			return False
 
 		# `customer` is the StripeCustomer instance matching the current user
