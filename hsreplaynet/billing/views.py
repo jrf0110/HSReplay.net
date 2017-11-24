@@ -170,19 +170,22 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		return True
 
 	def handle_subscribe(self, customer):
-		if customer.active_subscriptions.exists():
+		if customer.valid_subscriptions.exists():
 			# The customer is already subscribed
 
-			if customer.active_subscriptions.count() > 1:
+			if customer.valid_subscriptions.count() > 1:
+				# The customer is already in an error state -- this should not happen.
 				messages.error(
 					self.request, "You have multiple subscriptions. Please contact us."
 				)
 				return False
 
-			if customer.subscription.cancel_at_period_end:
+			subscription = customer.subscription
+
+			if subscription.cancel_at_period_end:
 				# The customer's subscription was canceled and is now being re-activated
 				try:
-					customer.subscription.reactivate()
+					subscription.reactivate()
 				except InvalidRequestError:
 					# Maybe the subscription already ran out.
 					# Sync the subscriptions and display an error.
@@ -190,6 +193,13 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 					messages.error(self.request, "Your subscription has expired.")
 					return False
 				return True
+
+			if subscription.state == "past_due":
+				messages.error(
+					self.request,
+					"Your current subscription is still active. "
+					"If you are having billing issues, please contact us!"
+				)
 
 			messages.error(self.request, "You are already subscribed!")
 			return False
