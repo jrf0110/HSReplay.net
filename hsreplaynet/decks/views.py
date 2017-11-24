@@ -49,6 +49,8 @@ class ArchetypeDetailView(RequestMetaMixin, View):
 
 	def get(self, request, id, slug):
 		archetype = get_object_or_404(Archetype, id=id)
+		if archetype.deleted:
+			raise Http404("Archetype was deleted")
 
 		request.head.title = archetype.name
 		request.head.set_canonical_url(archetype.get_absolute_url())
