@@ -102,11 +102,14 @@ class BillingView(LoginRequiredMixin, RequestMetaMixin, PaymentsMixin, TemplateV
 class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 	success_url = reverse_lazy("billing_methods")
 
-	def process_checkout_form(self, customer):
-		if self.request.POST.get("stripeTokenType") != "card":
-			# We always expect a card as token.
-			raise SuspiciousOperation("Invalid Stripe token type")
+	def process_elements_checkout_form(self, customer):
+		source_id = self.request.POST.get("stripeToken", "")
+		if not source_id:
+			raise SuspiciousOperation("Missing stripeToken")
 
+		return self.process_legacy_checkout_form(customer)
+
+	def process_legacy_checkout_form(self, customer):
 		# The token represents the customer's payment method
 		token = self.request.POST.get("stripeToken", "")
 		if not token.startswith(("tok_", "src_")):
@@ -233,10 +236,13 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		# Get the customer first so we can reuse it
 		customer = self.get_customer()
 
-		if "stripeTokenType" in request.POST:
-			# If there is a stripe token in the form, that means the user added a card.
-			# We need to add the card first, before attempting to subscribe.
-			self.process_checkout_form(customer)
+		token_type = request.POST.get("stripeTokenType", "")
+		if token_type == "card":
+			self.process_legacy_checkout_form(customer)
+		elif token_type == "source":
+			self.process_elements_checkout_form(customer)
+		elif token_type:
+			raise NotImplementedError("Unknown token type: %r" % (token_type))
 
 		if "plan" in request.POST:
 			# Optionally, a plan can be specified. We attempt subscribing to it if there is one.
@@ -305,16 +311,26 @@ class UpdateCardView(LoginRequiredMixin, View):
 
 		# `customer` is the StripeCustomer instance matching the current user
 		customer = request.user.stripe_customer
-		sources = customer.sources.all()
+		legacy_cards = customer.legacy_cards.all()
+		sources = customer.sources_v3.all()
+
 		try:
 			# Get the payment method matching the stripe id, scoped to the customer
-			card = sources.get(stripe_id=stripe_id)
+			card = legacy_cards.get(stripe_id=stripe_id)
+			source = None
 		except ObjectDoesNotExist:
-			return False
+			try:
+				source = sources.get(stripe_id=stripe_id)
+				card = None
+			except ObjectDoesNotExist:
+				return False
 
 		if "delete" in request.POST:
 			# Delete payment method
-			card.remove()
+			if card:
+				card.remove()
+			elif source:
+				source.detach()
 
 			# If the default card is deleted, Stripe will automatically choose
 			# a new default. A webhook will trigger to let us know that.
@@ -327,7 +343,7 @@ class UpdateCardView(LoginRequiredMixin, View):
 		elif "set_default" in request.POST:
 			# Set the default payment method
 			stripe_customer = customer.api_retrieve()
-			stripe_customer.default_source = card.stripe_id
+			stripe_customer.default_source = stripe_id
 			try:
 				stripe_customer.save()
 			except InvalidRequestError:
