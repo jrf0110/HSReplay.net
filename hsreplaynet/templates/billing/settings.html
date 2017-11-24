@@ -1,7 +1,7 @@
 {% extends "account/base.html" %}
 {% load static from static %}
 {% load feature from features %}
-{% load setting htmltime from web_extras %}
+{% load htmltime pretty_card setting from web_extras %}
 
 {% block content %}
 
@@ -173,7 +173,7 @@
 				>
 					{% if card == customer.default_source %}<span class="label label-success">Default</span>{% endif %}
 					<h4 class="card-title">
-						{{ card.brand }} &bull;&bull;&bull;&bull; {{ card.last4 }}
+						{{ card|pretty_card }}
 					</h4>
 
 					<span class="card-expiry">Expires <time>{{ card.exp_month }}/{{ card.exp_year }}</time></span>
@@ -211,7 +211,7 @@
 				>
 					{% if source == customer.default_source %}<span class="label label-success">Default</span>{% endif %}
 					<h4 class="card-title">
-						{{ source.source_data.brand }} &bull;&bull;&bull;&bull; {{ source.source_data.last4 }}
+						{{ source|pretty_card }}
 					</h4>
 					<span class="card-expiry">Expires <time>{{ source.source_data.exp_month }}/{{ source.source_data.exp_year }}</time></span>
 

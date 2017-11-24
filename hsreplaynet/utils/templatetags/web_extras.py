@@ -76,3 +76,26 @@ def nav_active(context, name, css="active"):
 	if request.path == reverse(name):
 		return mark_safe(' class="%s"' % (mark_for_escaping(css)))
 	return ""
+
+
+@register.filter
+def pretty_card(source):
+	from djstripe.models import Card, PaymentMethod, Source
+
+	if isinstance(source, PaymentMethod):
+		try:
+			source = source.get_object()
+		except Card.DoesNotExist:
+			return "(invalid card)"
+
+	if isinstance(source, Card):
+		brand = source.brand
+		last4 = source.last4
+	elif isinstance(source, Source):
+		if source.type != "card":
+			return str(source)
+
+		brand = source.source_data["brand"]
+		last4 = source.source_data["last4"]
+
+	return f"{brand} •••• {last4}"
