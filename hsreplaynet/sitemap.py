@@ -51,7 +51,7 @@ class ArticleSitemap(Sitemap):
 	priority = 0.8
 
 	def items(self):
-		return Article.objects.filter(listed=True).filter(draft=False)
+		return Article.objects.filter(listed=True, draft=False)
 
 
 class ArchetypeSitemap(Sitemap):
