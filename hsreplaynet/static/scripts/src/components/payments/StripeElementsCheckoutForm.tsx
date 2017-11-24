@@ -2,6 +2,7 @@ import * as React from "react";
 import {CardElement, injectStripe} from "react-stripe-elements";
 import BtnGroup from "../BtnGroup";
 import {CheckoutFormInstanceProps} from "./CheckoutForm";
+import UserData from "../../UserData";
 
 const enum StripeCheckoutStep {
 	READY_TO_PAY,
@@ -44,7 +45,7 @@ class StripeElementsCheckoutForm extends React.Component<StripeElementsCheckoutF
 			step: StripeCheckoutStep.READY_TO_PAY,
 			errorMessage: null,
 			selectedPlan: this.props.plans ? this.props.plans[0].stripeId : null,
-			email: "",
+			email: UserData.getEmail(),
 		};
 	}
 
