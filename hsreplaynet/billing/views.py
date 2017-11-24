@@ -82,7 +82,8 @@ class PaymentsMixin:
 
 		if customer:
 			# `payment_methods` is a queryset of the customer's payment sources
-			context["payment_methods"] = customer.sources.all()
+			context["legacy_cards"] = customer.legacy_cards.all()
+			context["sources"] = customer.sources_v3.all()
 			context["can_cancel"] = self.can_cancel(customer)
 			context["can_cancel_immediately"] = self.can_cancel_immediately(customer)
 			context["can_remove_payment_methods"] = self.can_remove_payment_methods(customer)
