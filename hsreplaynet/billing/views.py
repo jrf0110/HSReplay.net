@@ -65,7 +65,8 @@ class PaymentsMixin:
 		Will be False if there is at least one active subscription, which is
 		not scheduled to be cancelled.
 		"""
-		if customer.sources.count() > 1:
+		sources_count = customer.legacy_cards.count() + customer.sources_v3.count()
+		if sources_count > 1:
 			return True
 
 		return not customer.active_subscriptions.filter(
