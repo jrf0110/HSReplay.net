@@ -194,7 +194,7 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 					return False
 				return True
 
-			if subscription.state == "past_due":
+			if subscription.status == "past_due":
 				messages.error(
 					self.request,
 					"Your current subscription is still active. "
