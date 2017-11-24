@@ -183,7 +183,7 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 				}}
 			>
 				<div style={{margin: "25px 0"}}>
-					<label id="choose-plan">Choose your plan:</label>
+					<label id="choose-plan">Choose your plan</label>
 					<BtnGroup
 						className="btn-group btn-group-flex"
 						buttons={this.getPlanButtons()}

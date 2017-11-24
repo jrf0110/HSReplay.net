@@ -107,7 +107,7 @@ export default class PaypalCheckoutForm extends React.Component<PaypalCheckoutFo
 				ref={(ref) => this.form = ref}
 			>
 				<div style={{margin: "25px 0 10px 0"}}>
-					<label htmlFor="paypal-plan" id="choose-plan">Choose your plan:</label>
+					<label htmlFor="paypal-plan" id="choose-plan">Choose your plan</label>
 					<BtnGroup
 						className="btn-group btn-group-flex"
 						buttons={this.getPlanButtons()}

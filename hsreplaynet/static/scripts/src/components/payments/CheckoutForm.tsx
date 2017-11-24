@@ -83,7 +83,7 @@ export default class CheckoutForm extends React.Component<CheckoutFormProps, Che
 
 		return (
 			<div style={{textAlign: "center"}}>
-				<label id="payment-method">Payment method:</label>
+				<label id="payment-method">Payment method</label>
 				<BtnGroup
 					name="method"
 					className="btn-group btn-group-flex"
