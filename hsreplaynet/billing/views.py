@@ -267,15 +267,20 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 	success_url = reverse_lazy("billing_methods")
 
+	def fail(self, message):
+		message += " Please contact us if you are receiving this in error."
+		messages.error(self.request, message)
+		return False
+
 	def handle_form(self, request):
 		if self.customer.active_subscriptions.count() > 1:
-			messages.error(request, "You have multiple subscriptions. Please contact us.")
-			return False
+			return self.fail("You are multiple subscriptions - something is wrong.")
 
-		if not self.customer.subscription:
+		subscription = self.customer.subscription
+
+		if not subscription:
 			# The customer is not subscribed
-			messages.error(request, "You are not subscribed.")
-			return False
+			return self.fail("You are not subscribed.")
 
 		# Whether the cancellation has effect at the end of the period or immediately
 		# True by default (= the subscription remains, will cancel once it ends)
@@ -290,18 +295,9 @@ class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 			if self.can_cancel_immediately(self.customer):
 				at_period_end = False
 			else:
-				messages.error(
-					request,
-					"Your subscription cannot be canceled immediately."
-					"Please contact us if you are receiving this in error."
-				)
+				return self.fail("Your subscription cannot be canceled immediately.")
 		else:
-			messages.error(
-				request,
-				"Could not cancel your subscription."
-				"Please contact us if you are seeing this error."
-			)
-			return False
+			return self.fail("Could not cancel your subscription.")
 
 		self.customer.subscription.cancel(at_period_end=at_period_end)
 		return True
