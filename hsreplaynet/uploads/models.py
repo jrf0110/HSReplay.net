@@ -443,15 +443,6 @@ class UploadEvent(models.Model):
 		process_upload_event(self)
 
 
-@receiver(models.signals.post_delete, sender=UploadEvent)
-def cleanup_uploaded_log_file(sender, instance, **kwargs):
-	from hsreplaynet.utils import delete_file_async
-
-	file = instance.file
-	if file.name:
-		delete_file_async(file.name)
-
-
 class RedshiftETLStage(IntEnum):
 	ERROR = 0
 	CREATED = 1

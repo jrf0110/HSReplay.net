@@ -26,17 +26,6 @@ def delete_file(name):
 		default_storage.delete(name)
 
 
-def delete_file_async(name):
-	"""
-	Enqueue a RQ job to delete a file by name from the default storage
-	"""
-	from redis import Redis
-	from rq import Queue
-
-	job_queue = Queue(connection=Redis())
-	job_queue.enqueue(delete_file, name)
-
-
 def get_client_ip(request):
 	"""
 	Get the IP of a client from the request

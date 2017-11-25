@@ -501,7 +501,7 @@ class ReplayAlias(models.Model):
 
 @receiver(models.signals.post_delete, sender=GameReplay)
 def cleanup_hsreplay_file(sender, instance, **kwargs):
-	from hsreplaynet.utils import delete_file_async
+	from hsreplaynet.utils import delete_file
 	file = instance.replay_xml
 	if file.name:
 		delete_file_async(file.name)

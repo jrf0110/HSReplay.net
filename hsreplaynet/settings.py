@@ -77,8 +77,6 @@ INSTALLED_APPS_WEB = [
 	"allauth.socialaccount.providers.discord",
 	"allauth.socialaccount.providers.twitch",
 	"oauth2_provider",
-	"django_rq",
-	"django_rq_dashboard",
 	"djstripe",
 	"djpaypal",
 	"loginas",
@@ -228,20 +226,6 @@ ADVISORY_LOCK_NAMESPACES = {
 
 # If False, then we will use RQ for async processing
 PROCESS_REDSHIFT_QUERIES_VIA_LAMBDA = True
-
-##
-# RQ
-# https://github.com/ui/django-rq
-
-RQ_QUEUES = {
-	"default": {
-		"HOST": "localhost",
-		"PORT": 6379,
-		"DB": 0,
-		"PASSWORD": "",
-		"DEFAULT_TIMEOUT": 360,
-	}
-}
 
 
 ##
