@@ -20,6 +20,8 @@ The full backend stack is written in Python 3.
 * OAuth2: [Django OAuth Toolkit](https://github.com/evonove/django-oauth-toolkit)
 * Storage backends: [Django-Storages](https://github.com/jschneier/django-storages)
 * Short IDs: [ShortUUID](https://github.com/stochastic-technologies/shortuuid)
+* Stripe: [dj-stripe](https://github.com/dj-stripe/dj-stripe)
+* PayPal: [dj-paypal](https://github.com/HearthSim/dj-paypal)
 
 
 ### Production stack
@@ -28,14 +30,15 @@ The full backend stack is written in Python 3.
 * Web server: [Caddy](https://caddyserver.com/)
 * App server: [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/)
 * Database: [PostgreSQL (RDS)](https://aws.amazon.com/rds/postgresql/)
+* OLAP: [AWS Redshift](https://aws.amazon.com/redshift/)
 * Hosting: [Amazon Web Services](https://aws.amazon.com/)
-* Analytics: [InfluxDB](https://influxdata.com/)
+* Metrics: [InfluxDB](https://influxdata.com/)
 * Exception tracking: [Sentry](https://sentry.io/)
 * CI: [Jenkins](https://jenkins.io/)
 * Payments: [Stripe](https://stripe.com/)
 
 Replays are processed on [Amazon Lambda](https://aws.amazon.com/lambda/details/)
-using the Python 2.7 runtime.
+using the Python 3.6 runtime.
 
 
 ## Installation
