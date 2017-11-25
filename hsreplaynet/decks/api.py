@@ -258,6 +258,10 @@ class MyDecksAPIView(APIView):
 		}
 
 		for row in data:
+			if row["deck_list_id"] not in decks_played:
+				# Most likely a deck with <30 cards
+				continue
+
 			if row["deck_list_id"] not in data_by_deck:
 				data_by_deck[row["deck_list_id"]] = {
 					"player_class": row["card_class"],
