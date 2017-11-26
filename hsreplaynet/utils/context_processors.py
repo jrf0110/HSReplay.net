@@ -73,5 +73,4 @@ def debug(request):
 	return {
 		"django_version": django.__version__,
 		"python_version": sys.version,
-		"server_ip": socket.gethostbyname(socket.gethostname()),
 	}
