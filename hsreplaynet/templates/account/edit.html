@@ -92,6 +92,12 @@
 				<p class="text-center">
 					<strong style="font-size: 1.5em"><a href="{{ reflink.get_absolute_url }}">https://hsreplay.net{{ reflink.get_absolute_url }}</a></strong>
 				</p>
+
+				{% if hits %}
+				<p>
+					You have referred <strong>{{ hits }} friend{{ hits|pluralize }}</strong> so far. Keep it up!
+				</p>
+				{% endif %}
 			</div>
 		</section>
 		{% endif %}

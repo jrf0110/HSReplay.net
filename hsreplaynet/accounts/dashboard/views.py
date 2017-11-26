@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic import (
 	CreateView, DeleteView, ListView, TemplateView, UpdateView, View
 )
-from django_reflinks.models import ReferralLink
+from django_reflinks.models import ReferralHit, ReferralLink
 from oauth2_provider.generators import generate_client_secret
 from oauth2_provider.models import AccessToken, get_application_model
 from shortuuid import ShortUUID
@@ -41,6 +41,9 @@ class EditAccountView(LoginRequiredMixin, RequestMetaMixin, UpdateView):
 		if feature_enabled_for_user("reflinks", self.request.user):
 			try:
 				context["reflink"] = ReferralLink.objects.get(user=self.request.user)
+				context["hits"] = ReferralHit.objects.filter(
+					referral_link=context["reflink"]
+				).exclude(confirmed=None).count()
 			except ReferralLink.DoesNotExist:
 				context["reflink"] = ReferralLink.objects.create(
 					identifier=ShortUUID().uuid()[:6], user=self.request.user
