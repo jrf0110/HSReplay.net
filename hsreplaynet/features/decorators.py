@@ -3,9 +3,7 @@ from functools import wraps
 from django.core.exceptions import PermissionDenied
 from django.views.generic import View
 
-from hsreplaynet.utils.instrumentation import error_handler
-
-from .models import Feature
+from .utils import feature_enabled_for_user
 
 
 def view_requires_feature_access(feature_name):
@@ -19,13 +17,7 @@ def view_requires_feature_access(feature_name):
 			else:
 				request = arg1
 
-			try:
-				feature = Feature.objects.get(name=feature_name)
-			except Feature.DoesNotExist as e:
-				error_handler(e)
-				is_enabled = False
-			else:
-				is_enabled = feature.enabled_for_user(request.user)
+			is_enabled = feature_enabled_for_user(feature_name, request.user)
 
 			if is_enabled:
 				return view_func(arg1, *args, **kwargs)
