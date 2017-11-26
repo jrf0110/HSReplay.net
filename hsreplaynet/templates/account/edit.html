@@ -80,6 +80,22 @@
 			</div>
 		</section>
 
+		{% if reflink and not reflink.disabled %}
+		<section id="refer-a-friend" class="box-section">
+			<h3>Refer a friend!</h3>
+			<div class="inner">
+				<p>
+					Love the site? Share it with your friends!
+					Send them your personalized referral link and earn <strong>$1.00 USD</strong> of Premium credit the first time they subscribe to <a href="/premium/">HearthSim Premium</a>!
+				</p>
+
+				<p class="text-center">
+					<strong style="font-size: 1.5em"><a href="{{ reflink.get_absolute_url }}">https://hsreplay.net{{ reflink.get_absolute_url }}</a></strong>
+				</p>
+			</div>
+		</section>
+		{% endif %}
+
 		<button type="submit" class="btn btn-primary right">Update settings</button>
 	</form>
 {% endblock %}

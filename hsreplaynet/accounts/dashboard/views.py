@@ -7,10 +7,13 @@ from django.urls import reverse_lazy
 from django.views.generic import (
 	CreateView, DeleteView, ListView, TemplateView, UpdateView, View
 )
+from django_reflinks.models import ReferralLink
 from oauth2_provider.generators import generate_client_secret
 from oauth2_provider.models import AccessToken, get_application_model
+from shortuuid import ShortUUID
 
 from hearthsim_identity.accounts.models import AccountDeleteRequest, User
+from hsreplaynet.features.utils import feature_enabled_for_user
 from hsreplaynet.utils import log
 from hsreplaynet.utils.html import RequestMetaMixin
 from hsreplaynet.utils.influx import influx_metric
@@ -31,6 +34,19 @@ class EditAccountView(LoginRequiredMixin, RequestMetaMixin, UpdateView):
 
 	def get_object(self, queryset=None):
 		return self.request.user
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+
+		if feature_enabled_for_user("reflinks", self.request.user):
+			try:
+				context["reflink"] = ReferralLink.objects.get(user=self.request.user)
+			except ReferralLink.DoesNotExist:
+				context["reflink"] = ReferralLink.objects.create(
+					identifier=ShortUUID().uuid()[:6], user=self.request.user
+				)
+
+		return context
 
 
 class APIAccountView(LoginRequiredMixin, RequestMetaMixin, View):
