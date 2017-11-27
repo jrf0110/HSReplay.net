@@ -3,6 +3,8 @@ Miscellaneous middleware objects
 https://docs.djangoproject.com/en/1.10/topics/http/middleware/
 """
 
+from ipaddress import ip_address
+
 from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
 
@@ -76,17 +78,15 @@ class SetRemoteAddrFromForwardedFor:
 	"""
 
 	HEADER = "HTTP_X_FORWARDED_FOR"
-	# A set of IPs for which the Middleware will trigger.
-	# Other IPs will not be replaced.
-	INTERNAL_IPS = ("0.0.0.0", "127.0.0.1")
 
 	def __init__(self, get_response):
 		self.get_response = get_response
 
 	def __call__(self, request):
 		# Check the original IP; only proceed if it's not a "real" IP
-		ip = request.META.get("REMOTE_ADDR", "127.0.0.1")
-		if ip in self.INTERNAL_IPS and self.HEADER in request.META:
+		ip = ip_address(request.META.get("REMOTE_ADDR", "127.0.0.1"))
+
+		if self.HEADER in request.META and ip.is_private:
 			value = request.META[self.HEADER]
 			# HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs. The
 			# client's IP will be the first one.
