@@ -87,6 +87,7 @@ INSTALLED_APPS_WEB = [
 	"hsreplaynet.articles",
 	"hsreplaynet.billing",
 	"hsreplaynet.packs",
+	"hsreplaynet.web",
 ]
 
 INSTALLED_APPS = INSTALLED_APPS_CORE
@@ -104,9 +105,9 @@ MIDDLEWARE = [
 	"django.middleware.gzip.GZipMiddleware",
 	"django_reflinks.middleware.AnonymousReferralMiddleware",
 	"django_reflinks.middleware.ReferralLinkMiddleware",
-	"hsreplaynet.utils.middleware.DoNotTrackMiddleware",
-	"hsreplaynet.utils.middleware.SetRemoteAddrFromForwardedFor",
-	"hsreplaynet.utils.middleware.MetaTagsMiddleware",
+	"hsreplaynet.web.middleware.DoNotTrackMiddleware",
+	"hsreplaynet.web.middleware.SetRemoteAddrFromForwardedFor",
+	"hsreplaynet.web.middleware.MetaTagsMiddleware",
 ]
 
 
@@ -122,8 +123,8 @@ TEMPLATES = [{
 			"django.template.context_processors.request",
 			"django.contrib.auth.context_processors.auth",
 			"django.contrib.messages.context_processors.messages",
-			"hsreplaynet.utils.context_processors.userdata",
-			"hsreplaynet.utils.context_processors.debug",
+			"hsreplaynet.web.context_processors.userdata",
+			"hsreplaynet.web.context_processors.debug",
 			"hsreplaynet.billing.context_processors.premium",
 		],
 	},

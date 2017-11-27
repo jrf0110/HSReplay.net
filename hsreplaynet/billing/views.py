@@ -13,7 +13,7 @@ from django.views.generic import TemplateView, View
 from djstripe.settings import STRIPE_LIVE_MODE
 from stripe.error import CardError, InvalidRequestError
 
-from hsreplaynet.utils.html import RequestMetaMixin
+from hsreplaynet.web.html import RequestMetaMixin
 
 
 STRIPE_DEBUG = not STRIPE_LIVE_MODE and settings.DEBUG

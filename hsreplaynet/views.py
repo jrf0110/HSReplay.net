@@ -6,7 +6,7 @@ from hearthstone.enums import BnetGameType, CardClass
 
 from .analytics.views import fetch_query_results
 from .games.models import GameReplay
-from .utils.html import RequestMetaMixin
+from .web.html import RequestMetaMixin
 
 
 SITE_DESCRIPTION = "Watch and share Hearthstone replays directly from your web browser. \

@@ -15,8 +15,8 @@ from shortuuid import ShortUUID
 from hearthsim_identity.accounts.models import AccountDeleteRequest, User
 from hsreplaynet.features.utils import feature_enabled_for_user
 from hsreplaynet.utils import log
-from hsreplaynet.utils.html import RequestMetaMixin
 from hsreplaynet.utils.influx import influx_metric
+from hsreplaynet.web.html import RequestMetaMixin
 from hsreplaynet.webhooks.models import WebhookDelivery, WebhookEndpoint
 
 

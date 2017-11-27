@@ -10,7 +10,7 @@ from hearthstone.enums import CardClass, CardSet, CardType, FormatType, Rarity
 
 from hsreplaynet.features.decorators import view_requires_feature_access
 from hsreplaynet.features.models import Feature
-from hsreplaynet.utils.html import RequestMetaMixin
+from hsreplaynet.web.html import RequestMetaMixin
 
 from .models import Archetype, ClusterSnapshot, Deck
 
