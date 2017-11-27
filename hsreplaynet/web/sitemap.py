@@ -2,8 +2,8 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from django_hearthstone.cards.models import Card
 
-from .articles.models import Article
-from .decks.models import Archetype
+from hsreplaynet.articles.models import Article
+from hsreplaynet.decks.models import Archetype
 
 
 class StaticViewSitemap(Sitemap):

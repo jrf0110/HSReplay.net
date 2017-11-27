@@ -22,7 +22,7 @@ if not settings.ENV_LAMBDA:
 	from django.contrib.flatpages.views import flatpage
 	from django.contrib.sitemaps.views import sitemap
 	from .billing.views import PremiumDetailView
-	from .sitemap import SITEMAPS
+	from .web.sitemap import SITEMAPS
 
 	# These pages are not registered on Lambda as they are not needed there
 	urlpatterns += [
