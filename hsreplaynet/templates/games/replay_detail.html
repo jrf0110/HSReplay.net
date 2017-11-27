@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
-{% load web_extras %}
+{% load naturaltime from humanize %}
 {% load render_bundle from webpack_loader %}
-{% load humanize %}
+{% load web_extras %}
 
 {% block error_reporting %}
 	{% comment %}Disable error reporting since it conflicts with Joust's Sentry{% endcomment %}
