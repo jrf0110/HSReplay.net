@@ -289,9 +289,7 @@ def _trigger_if_stale(parameterized_query, run_local=False, priority=None):
 
 	as_of = parameterized_query.result_as_of
 	if as_of is not None:
-		staleness = int(
-				(datetime.utcnow() - as_of).total_seconds()
-			)
+		staleness = int((datetime.utcnow() - as_of).total_seconds())
 	else:
 		staleness = None
 

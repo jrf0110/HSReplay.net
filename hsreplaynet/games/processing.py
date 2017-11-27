@@ -820,7 +820,7 @@ def do_process_upload_event(upload_event):
 									},
 									target_table=target_table
 								)
-				except:
+				except Exception:
 					raise
 				else:
 					global_game.loaded_into_redshift = timezone.now()

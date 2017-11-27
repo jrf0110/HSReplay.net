@@ -2,6 +2,7 @@ import pytest
 
 from hsreplaynet.decks.models import Archetype, Deck
 
+
 HERO_CARD_ID = "HERO_05"
 
 DECK_LIST = [

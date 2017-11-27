@@ -67,7 +67,6 @@ class ArchetypeListSerializer(ArchetypeSerializer):
 			components = sorted(signature["components"], key=lambda x: x[1], reverse=True)
 			signature["components"] = [dbf for dbf, weight in components][:10]
 			return signature
-		return None;
 
 
 class ArchetypeWriteSerializer(serializers.ModelSerializer):

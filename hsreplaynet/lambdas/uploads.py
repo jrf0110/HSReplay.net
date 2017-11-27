@@ -297,7 +297,7 @@ def load_replay_into_redshift(event, context):
 		exporter = RedshiftPublishingExporter(packet_tree).export()
 		exporter.set_game_info(metadata)
 		flush_exporter_to_firehose(exporter)
-	except:
+	except Exception:
 		logger.info(metadata_str)
 		raise
 	else:

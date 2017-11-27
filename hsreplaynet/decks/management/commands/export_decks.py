@@ -58,7 +58,7 @@ class Command(BaseCommand):
 	def generate_deck_feature_vector(self, reverse_map, includes):
 		try:
 			return {reverse_map[id]: count for id, count in includes}
-		except:
+		except Exception:
 			return None
 
 	def handle(self, *args, **options):
