@@ -67,7 +67,6 @@ def debug(request):
 		return {}
 
 	import django
-	import socket
 	import sys
 
 	return {

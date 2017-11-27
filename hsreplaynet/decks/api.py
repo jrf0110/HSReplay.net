@@ -3,6 +3,7 @@ from statistics import mean
 from django.db import connection
 from django.utils.timezone import now
 from django_hearthstone.cards.models import Card
+from hearthstone.enums import PlayState
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import NotFound, ValidationError
@@ -17,9 +18,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from hearthsim_identity.accounts.models import BlizzardAccount
-from hearthstone.enums import PlayState
-from hsreplaynet.api.permissions import UserHasFeature
 from hsredshift.analytics import filters
+from hsreplaynet.api.permissions import UserHasFeature
 
 from ..utils.db import dictfetchall
 from .models import Archetype, Deck

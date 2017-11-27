@@ -10,7 +10,6 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
-from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django_intenum import IntEnumField

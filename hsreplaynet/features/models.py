@@ -2,9 +2,9 @@ from enum import IntEnum
 from uuid import uuid4
 
 from django.contrib.auth.models import Group
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.dispatch.dispatcher import receiver
-from django.core.validators import MaxValueValidator
 from django.urls import reverse
 from django.utils.timezone import now
 from django_intenum import IntEnumField
