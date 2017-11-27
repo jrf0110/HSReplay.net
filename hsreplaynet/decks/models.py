@@ -22,10 +22,10 @@ from hsarchetypes import classify_deck
 from hsarchetypes.clustering import ClassClusters, Cluster, ClusterSet, create_cluster_set
 from shortuuid.main import int_to_string, string_to_int
 
+from hsreplaynet.utils import card_db
 from hsreplaynet.utils.aws import s3_object_exists
 from hsreplaynet.utils.aws.clients import FIREHOSE, LAMBDA, S3
 from hsreplaynet.utils.aws.redshift import get_redshift_query
-from hsreplaynet.utils.cards import card_db
 from hsreplaynet.utils.db import dictfetchall
 from hsreplaynet.utils.influx import influx_metric, influx_timer
 
