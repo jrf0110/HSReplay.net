@@ -1,5 +1,3 @@
-{% load feature from features %}
-
 <script type="application/json" id="premium-plan-data">
 	{
 		"stripe": [
@@ -15,7 +13,7 @@
 				"amount": {{ stripe_semiannual_plan.amount_in_cents|default:"null" }},
 				"currency": "{{ stripe_semiannual_plan.currency }}"
 			}
-		]{% feature "paypal" as ft_paypal %}{% if ft_paypal.enabled %},
+		],
 		"paypal": [
 			{
 				"paypalId": "{{ paypal_monthly_plan.id }}",
@@ -30,6 +28,5 @@
 				"currency": "{{ paypal_semiannual_plan.regular_payment_definition.amount.currency }}"
 			}
 		]
-		{% endif %}
 	}
 </script>
