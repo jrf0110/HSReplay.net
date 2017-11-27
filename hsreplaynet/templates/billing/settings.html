@@ -160,7 +160,10 @@
 			<h4>Credits</h4>
 			<p>
 				Your account balance is <strong>{% currency_amount customer.account_balance customer.currency %}</strong>.<br/>
-				<em>When making a payment, these credits will be withdrawn first.</em>
+				<em>
+					When making a payment, these credits will be withdrawn first.
+					Payments made using PayPal are not supported.
+				</em>
 			</p>
 		{% endif %}
 
