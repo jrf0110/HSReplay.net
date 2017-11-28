@@ -10,6 +10,8 @@ hsreplaynet/static/scripts/src/hearthstone.d.ts
 hsreplaynet/static/styles/main.css*
 hsreplaynet/static/vendor/
 
+tests/logdata/
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
