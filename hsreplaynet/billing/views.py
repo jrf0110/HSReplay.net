@@ -284,7 +284,7 @@ class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 
 	def handle_form(self, request):
 		if self.customer.active_subscriptions.count() > 1:
-			return self.fail("You are multiple subscriptions - something is wrong.")
+			return self.fail("You have multiple subscriptions - something is wrong.")
 
 		subscription = self.customer.subscription
 
