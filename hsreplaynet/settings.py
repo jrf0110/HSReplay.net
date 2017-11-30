@@ -451,7 +451,8 @@ WEBHOOKS = {
 	"SCHEME_WHITELIST": ["http", "https"],
 	"NETLOC_BLACKLIST": ["localhost"],
 	"IP_BLACKLIST": ["127.0.0.1", "::1"],
-	"USER_AGENT": "HSReplayNet-Webhook/1.0"
+	"USER_AGENT": "HSReplayNet-Webhook/1.0",
+	"USE_LAMBDA": False,
 }
 
 

@@ -155,7 +155,7 @@ class Webhook(models.Model):
 		self.status = WebhookStatus.PENDING
 		self.save()
 
-		if settings.ENV_AWS:
+		if settings.WEBHOOKS["USE_LAMBDA"]:
 			from hsreplaynet.utils.aws.clients import LAMBDA
 			LAMBDA.invoke(
 				FunctionName="trigger_webhook",
