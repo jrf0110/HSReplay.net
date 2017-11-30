@@ -13,7 +13,7 @@ send_test_payload.short_description = "Send test payload"
 
 def redeliver(admin, request, queryset):
 	for obj in queryset:
-		obj.deliver(timeout=10)
+		obj.schedule_delivery()
 
 
 redeliver.short_description = "Redeliver payload"
