@@ -128,6 +128,7 @@ def lambda_handler(
 				"aws_log_group_name": context.log_group_name,
 				"aws_log_stream_name": context.log_stream_name,
 				"aws_cloudwatch_url": cloudwatch_url,
+				"event": event,
 				"admin_url": build_admin_url(tracing_id),
 				"tracing_id": tracing_id
 			})
