@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 from functools import wraps
 
 from django.conf import settings
@@ -52,17 +51,11 @@ def get_lambda_descriptors():
 	return _lambda_descriptors
 
 
-def build_cloudwatch_url(log_group_name, log_stream_name):
+def get_cloudwatch_url(log_group_name, log_stream_name, region="us-east-1"):
 	baseurl = "https://console.aws.amazon.com/cloudwatch/home"
-	tpl = "?region=%s#logEventViewer:group=%s;stream=%s;start=%s;end=%s;tz=UTC"
-	start = datetime.now()
-	end = start + timedelta(days=1)
+	tpl = "?region=%s#logEventViewer:group=%s;stream=%s"
 	return baseurl + tpl % (
-		settings.AWS_DEFAULT_REGION,
-		log_group_name,
-		log_stream_name,
-		start.strftime("%Y-%m-%dT%H:%M:%SZ"),
-		end.strftime("%Y-%m-%dT%H:%M:%SZ")
+		region, log_group_name, log_stream_name,
 	)
 
 
@@ -109,14 +102,12 @@ def lambda_handler(
 
 		@wraps(func)
 		def wrapper(event, context):
+			cloudwatch_url = get_cloudwatch_url(context)
+
 			tracing_id = get_tracing_id(event) if tracing else ""
 
 			# Provide additional metadata to sentry in case the exception
 			# gets trapped and reported within the function.
-			cloudwatch_url = build_cloudwatch_url(
-				context.log_group_name,
-				context.log_stream_name
-			)
 			# Tags context can be used to group exceptions
 			sentry.tags_context({
 				"aws_function_name": context.function_name
@@ -125,7 +116,7 @@ def lambda_handler(
 			sentry.extra_context({
 				"aws_log_group_name": context.log_group_name,
 				"aws_log_stream_name": context.log_stream_name,
-				"aws_cloudwatch_url": cloudwatch_url,
+				"aws_cloudwatch_url": get_cloudwatch_url(context),
 				"event": event,
 				"admin_url": build_admin_url(tracing_id),
 				"tracing_id": tracing_id
