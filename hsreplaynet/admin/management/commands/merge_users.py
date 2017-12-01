@@ -32,6 +32,9 @@ def merge_users(base_user, user):
 	# Emails
 	do_queryset(user.emailaddress_set)
 
+	# OAuth2
+	do_queryset(user.oauth2_provider_grant)
+
 	# Social accounts
 	do_queryset(user.socialaccount_set)
 
