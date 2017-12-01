@@ -14,34 +14,28 @@ def error_handler(e):
 		sentry.captureException()
 
 
-def get_tracing_id(event):
+def get_shortid(event) -> str:
 	"""
 	Returns the Authorization token as a unique identifier.
 	Used in the Lambda logging system to trace sessions.
 	"""
-	UNKNOWN_ID = "unknown-id"
-	if "Records" in event:
-		records = event["Records"]
+	if "Records" not in event:
+		return ""
 
-		if len(records) > 1:
-			# This is a kinesis batch invocation
-			return ":".join(r["kinesis"]["partitionKey"] for r in records)
+	event_data = event["Records"][0]
 
-		event_data = records[0]
+	if "s3" in event_data:
+		from hsreplaynet.uploads.models import RawUpload
+		s3_event = event_data["s3"]
+		raw_upload = RawUpload.from_s3_event(s3_event)
+		return raw_upload.shortid
 
-		if "s3" in event_data:
-			from hsreplaynet.uploads.models import RawUpload
-			# We are in the process_s3_object Lambda
-			# FIXME: Shouldn't depend on RawUpload.
-			s3_event = event_data["s3"]
-			raw_upload = RawUpload.from_s3_event(s3_event)
-			return raw_upload.shortid
-		elif "kinesis" in event_data:
-			kinesis_event = event_data["kinesis"]
-			# We always use the shortid as the partitionKey in kinesis streams
-			return kinesis_event["partitionKey"]
+	elif "kinesis" in event_data:
+		kinesis_event = event_data["kinesis"]
+		# We always use the shortid as the partitionKey in kinesis streams
+		return kinesis_event["partitionKey"]
 
-	return UNKNOWN_ID
+	return ""
 
 
 _lambda_descriptors = []
@@ -51,16 +45,12 @@ def get_lambda_descriptors():
 	return _lambda_descriptors
 
 
-def get_cloudwatch_url(log_group_name, log_stream_name, region="us-east-1"):
+def get_cloudwatch_url(context, region="us-east-1"):
 	baseurl = "https://console.aws.amazon.com/cloudwatch/home"
 	tpl = "?region=%s#logEventViewer:group=%s;stream=%s"
 	return baseurl + tpl % (
-		region, log_group_name, log_stream_name,
+		region, context.log_group_name, context.log_stream_name,
 	)
-
-
-def build_admin_url(shortid):
-	return "https://dev.hsreplay.net/admin/uploads/uploadevent/?shortid=%s" % (shortid)
 
 
 def lambda_handler(
@@ -104,8 +94,6 @@ def lambda_handler(
 		def wrapper(event, context):
 			cloudwatch_url = get_cloudwatch_url(context)
 
-			tracing_id = get_tracing_id(event) if tracing else ""
-
 			# Provide additional metadata to sentry in case the exception
 			# gets trapped and reported within the function.
 			# Tags context can be used to group exceptions
@@ -113,14 +101,20 @@ def lambda_handler(
 				"aws_function_name": context.function_name
 			})
 			# Extra context is just attached to the exception in Sentry
-			sentry.extra_context({
+			extra_context = {
 				"aws_log_group_name": context.log_group_name,
 				"aws_log_stream_name": context.log_stream_name,
 				"aws_cloudwatch_url": get_cloudwatch_url(context),
 				"event": event,
-				"admin_url": build_admin_url(tracing_id),
-				"tracing_id": tracing_id
-			})
+			}
+
+			if tracing:
+				extra_context["shortid"] = get_shortid(event)
+				extra_context["upload_url"] = "https://hsreplay.net/uploads/upload/%s/" % (
+					extra_context["shortid"]
+				)
+
+			sentry.extra_context(extra_context)
 
 			try:
 				measurement = "%s_duration_ms" % (func.__name__)
