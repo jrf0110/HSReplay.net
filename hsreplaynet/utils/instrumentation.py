@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -111,7 +110,6 @@ def lambda_handler(
 		@wraps(func)
 		def wrapper(event, context):
 			tracing_id = get_tracing_id(event) if tracing else ""
-			os.environ["TRACING_REQUEST_ID"] = tracing_id
 
 			# Provide additional metadata to sentry in case the exception
 			# gets trapped and reported within the function.
