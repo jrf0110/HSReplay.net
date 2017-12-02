@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='redshiftstagingtrack',
             name='stage',
-            field=django_intenum.IntEnumField(choices=[(0, 'ERROR'), (1, 'CREATED'), (2, 'INITIALIZING'), (3, 'INITIALIZED'), (4, 'ACTIVE'), (5, 'IN_QUIESCENCE'), (6, 'READY_TO_LOAD'), (7, 'GATHERING_STATS'), (8, 'GATHERING_STATS_COMPLETE'), (9, 'DEDUPLICATING'), (10, 'DEDUPLICATION_COMPLETE'), (11, 'INSERTING'), (12, 'INSERT_COMPLETE'), (13, 'VACUUMING'), (14, 'VACUUM_COMPLETE'), (15, 'ANALYZING'), (16, 'ANALYZE_COMPLETE'), (17, 'CLEANING_UP'), (18, 'FINISHED')], default=1, validators=[django_intenum.IntEnumValidator(hsreplaynet.uploads.models.RedshiftETLStage)]),
+            field=django_intenum.IntEnumField(default=1, enum=hsreplaynet.uploads.models.RedshiftETLStage),
         ),
         migrations.AddField(
             model_name='redshiftstagingtracktable',
@@ -104,7 +104,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='redshiftstagingtracktable',
             name='stage',
-            field=django_intenum.IntEnumField(choices=[(0, 'ERROR'), (1, 'CREATED'), (2, 'INITIALIZING'), (3, 'INITIALIZED'), (4, 'ACTIVE'), (5, 'IN_QUIESCENCE'), (6, 'READY_TO_LOAD'), (7, 'GATHERING_STATS'), (8, 'GATHERING_STATS_COMPLETE'), (9, 'DEDUPLICATING'), (10, 'DEDUPLICATION_COMPLETE'), (11, 'INSERTING'), (12, 'INSERT_COMPLETE'), (13, 'VACUUMING'), (14, 'VACUUM_COMPLETE'), (15, 'ANALYZING'), (16, 'ANALYZE_COMPLETE'), (17, 'CLEANING_UP'), (18, 'FINISHED')], default=1, validators=[django_intenum.IntEnumValidator(hsreplaynet.uploads.models.RedshiftETLStage)]),
+            field=django_intenum.IntEnumField(default=1, enum=hsreplaynet.uploads.models.RedshiftETLStage),
         ),
         migrations.AddField(
             model_name='redshiftstagingtracktable',

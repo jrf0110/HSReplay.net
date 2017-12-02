@@ -108,7 +108,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='webhook',
             name='status',
-            field=django_intenum.IntEnumField(choices=[(0, 'UNKNOWN'), (1, 'PENDING'), (2, 'IN_PROGRESS'), (3, 'SUCCESS'), (4, 'ERROR')], default=0, validators=[django_intenum.IntEnumValidator(hsreplaynet.webhooks.models.WebhookStatus)]),
+            field=django_intenum.IntEnumField(default=0, enum=hsreplaynet.webhooks.models.WebhookStatus),
         ),
         migrations.AlterField(
             model_name='webhook',

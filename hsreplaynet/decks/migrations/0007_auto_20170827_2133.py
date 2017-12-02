@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             name='ClassClusterSnapshot',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('player_class', django_intenum.IntEnumField(choices=[(0, 'INVALID'), (1, 'DEATHKNIGHT'), (2, 'DRUID'), (3, 'HUNTER'), (4, 'MAGE'), (5, 'PALADIN'), (6, 'PRIEST'), (7, 'ROGUE'), (8, 'SHAMAN'), (9, 'WARLOCK'), (10, 'WARRIOR'), (11, 'DREAM'), (12, 'NEUTRAL')], default=0, validators=[django_intenum.IntEnumValidator(hearthstone.enums.CardClass)])),
+                ('player_class', django_intenum.IntEnumField(default=0, enum=hearthstone.enums.CardClass)),
             ],
         ),
         migrations.CreateModel(
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('as_of', models.DateTimeField(default=django.utils.timezone.now)),
-                ('game_format', django_intenum.IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=2, validators=[django_intenum.IntEnumValidator(hearthstone.enums.FormatType)])),
+                ('game_format', django_intenum.IntEnumField(default=2, enum=hearthstone.enums.FormatType)),
             ],
             options={
                 'get_latest_by': 'as_of',

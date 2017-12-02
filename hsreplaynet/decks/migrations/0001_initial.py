@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(blank=True, max_length=250)),
-                ('player_class', django_intenum.IntEnumField(choices=[(0, 'INVALID'), (1, 'DEATHKNIGHT'), (2, 'DRUID'), (3, 'HUNTER'), (4, 'MAGE'), (5, 'PALADIN'), (6, 'PRIEST'), (7, 'ROGUE'), (8, 'SHAMAN'), (9, 'WARLOCK'), (10, 'WARRIOR'), (11, 'DREAM'), (12, 'NEUTRAL')], default=0, validators=[django_intenum.IntEnumValidator(hearthstone.enums.CardClass)])),
+                ('player_class', django_intenum.IntEnumField(default=0, enum=hearthstone.enums.CardClass)),
             ],
             options={
                 'db_table': 'cards_archetype',
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             name='Signature',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('format', django_intenum.IntEnumField(choices=[(0, 'FT_UNKNOWN'), (1, 'FT_WILD'), (2, 'FT_STANDARD')], default=2, validators=[django_intenum.IntEnumValidator(hearthstone.enums.FormatType)])),
+                ('format', django_intenum.IntEnumField(default=2, enum=hearthstone.enums.FormatType)),
                 ('as_of', models.DateTimeField()),
                 ('archetype', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='decks.Archetype')),
             ],

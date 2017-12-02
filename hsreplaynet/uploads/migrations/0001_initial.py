@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('game_id', models.BigIntegerField(blank=True, db_column='game_id', null=True)),
                 ('created', models.DateTimeField(auto_now_add=True, db_index=True)),
                 ('upload_ip', models.GenericIPAddressField(null=True)),
-                ('status', django_intenum.IntEnumField(choices=[(0, 'UNKNOWN'), (1, 'PROCESSING'), (2, 'SERVER_ERROR'), (3, 'PARSING_ERROR'), (4, 'SUCCESS'), (5, 'UNSUPPORTED'), (6, 'VALIDATION_ERROR'), (7, 'VALIDATING'), (8, 'UNSUPPORTED_CLIENT'), (9, 'PENDING')], default=0, validators=[django_intenum.IntEnumValidator(hsreplaynet.uploads.models.UploadEventStatus)], db_index=True)),
+                ('status', django_intenum.IntEnumField(default=0, enum=hsreplaynet.uploads.models.UploadEventStatus, db_index=True)),
                 ('tainted', models.BooleanField(default=False)),
                 ('error', models.TextField(blank=True)),
                 ('traceback', models.TextField(blank=True)),
