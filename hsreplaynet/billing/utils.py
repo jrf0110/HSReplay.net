@@ -1,3 +1,7 @@
+from datetime import timedelta
+
+from django_reflinks.models import ReferralHit
+from django.utils import timezone
 from djpaypal.models import WebhookEvent
 from djstripe.models import Event, Subscription
 
@@ -12,6 +16,16 @@ def get_premium_cache_warming_contexts_from_subscriptions():
 			context = PremiumUserCacheWarmingContext.from_user(user)
 			result.append(context)
 	return result
+
+
+def user_referred_by(user):
+	time_window = timezone.now() - timedelta(days=14)
+	hits = ReferralHit.objects.filter(hit_user=user, created__gt=time_window)
+
+	if not hits.exists():
+		return
+
+	return hits.latest("created").referral_link
 
 
 def user_stripe_subscribe_events(user):
