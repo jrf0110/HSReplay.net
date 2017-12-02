@@ -220,11 +220,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						Filters
 					</button>
 					<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
-						<Tab
-							id="tierlist"
-							label="Tier List"
-							hidden={!UserData.hasFeature("meta-tierlist")}
-						>
+						<Tab id="tierlist" label="Tier List">
 							<DataInjector
 								query={[
 									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
