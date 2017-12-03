@@ -197,7 +197,7 @@ def fetch_query_results(request, name):
 		response["Last-Modified"] = http_date(last_modified)
 
 	# Always send Cache-Control headers
-	if parameterized_query.is_personalized:
+	if parameterized_query.is_personalized or parameterized_query.has_premium_values:
 		patch_cache_control(response, no_cache=True, private=True)
 	else:
 		patch_cache_control(response, no_cache=True, public=True)
