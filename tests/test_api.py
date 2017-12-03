@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from djstripe.models import Customer
 from oauth2_provider.models import AccessToken, Grant
 
 from hearthsim_identity.accounts.models import AccountClaim, AuthToken, User
@@ -104,6 +105,12 @@ def test_oauth_api(admin_user, client, settings):
 	redirect_uri = "https://localhost:8443/"
 	client_id = "client-id"
 	client_secret = "secret"
+
+	# Avoids a Stripe API call which would fail
+	Customer.objects.create(
+		subscriber=admin_user, livemode=False,
+		account_balance=0, delinquent=False,
+	)
 
 	app = Application.objects.create(
 		name="Test OAuth2 Application",
