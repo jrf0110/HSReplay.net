@@ -275,7 +275,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 								this.props.setIncludedSet(this.props.latestSet);
 							}}
 						>
-							Latest expansion only
+							New decks only
 						</a>
 					</div>
 				);
@@ -411,7 +411,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 							onClick={(value) => this.props.setIncludedSet(value || "ALL")}
 						>
 							<InfoboxFilter value={this.props.latestSet}>
-								Latest Expansion
+								Any new card
 								{this.props.promoteLatestSet ? <span className="infobox-value new-decks-note">New Decks!</span> : null}
 							</InfoboxFilter>
 						</InfoboxFilterGroup>
