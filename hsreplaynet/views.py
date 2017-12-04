@@ -22,7 +22,7 @@ HERO_IDS = {
 	CardClass.PRIEST: "HERO_09a",
 	CardClass.ROGUE: "HERO_03a",
 	CardClass.SHAMAN: "HERO_02a",
-	CardClass.WARLOCK: "HERO_07",
+	CardClass.WARLOCK: "HERO_07a",
 	CardClass.WARRIOR: "HERO_01a",
 }
 
