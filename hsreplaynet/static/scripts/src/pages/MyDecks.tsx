@@ -266,7 +266,7 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 				for(let i = 0; i < userAccounts.length; i++) {
 					let account = userAccounts[i];
 					if (`${account.region}-${account.lo}` === this.state.account) {
-						accountDisplayName = account.display;
+						accountDisplayName = account.battletag;
 						break;
 					}
 				}

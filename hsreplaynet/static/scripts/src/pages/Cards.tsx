@@ -335,7 +335,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 					let accounts = this.props.accounts;
 					for (let i = 0; i < accounts.length; i++) {
 						if(`${accounts[i].region}-${accounts[i].lo}` === this.state.account) {
-							accountDisplayName = accounts[i].display;
+							accountDisplayName = accounts[i].battletag;
 							break;
 						}
 					}
