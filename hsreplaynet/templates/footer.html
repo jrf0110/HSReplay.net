@@ -12,26 +12,6 @@
 	This website is not affiliated with Blizzard Entertainment.
 </p>
 
-{% if user.is_staff or debug %}
-	<p>
-		{% setting "RAVEN_CONFIG" as raven_config %}
-		{% if raven_config.release %}
-			<a href="https://github.com/HearthSim/HSReplay.net/commits/{{ raven_config.release }}">
-				@<abbr title="{{ raven_config.release }}">{{ raven_config.release|slice:":12" }}</abbr>
-			</a>
-		{% else %}
-			@unknown revision
-		{% endif %}
-
-		&middot; {{ python_version }}
-		&middot; {{ django_version }}
-
-		{% if debug %}
-		&middot; <strong>Running in DEBUG mode</strong>
-		{% endif %}
-	</p>
-{% endif %}
-
 <ul class="horizontal-icons">
 	{% setting 'HSREPLAY_TWITTER_HANDLE' as twitter_handle %}
 	<li><a href="https://twitter.com/{{ twitter_handle }}" target="_blank" rel="me" class="social-button">
@@ -51,3 +31,23 @@
 		{% include "snippets/facebook_button.svg" with fill="#9e9e9e" width=28 height=28 selector=".social-button" %}
 	</a></li>
 </ul>
+
+{% if user.is_staff or debug %}
+	<p>
+		{% setting "RAVEN_CONFIG" as raven_config %}
+		{% if raven_config.release %}
+			<a href="https://github.com/HearthSim/HSReplay.net/commits/{{ raven_config.release }}">
+				@<abbr title="{{ raven_config.release }}">{{ raven_config.release|slice:":12" }}</abbr>
+			</a>
+		{% else %}
+			@unknown revision
+		{% endif %}
+
+		&middot; {{ python_version }}
+		&middot; {{ django_version }}
+
+		{% if debug %}
+			&middot; <strong>Running in DEBUG mode</strong>
+		{% endif %}
+	</p>
+{% endif %}
