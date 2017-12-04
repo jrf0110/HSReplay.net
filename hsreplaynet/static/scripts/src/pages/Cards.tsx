@@ -330,6 +330,17 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 		if (this.props.personal) {
 			if (this.state.account) {
+				let accountDisplayName = "";
+				if (this.props.accounts && this.props.accounts.length) {
+					let accounts = this.props.accounts;
+					for (let i = 0; i < accounts.length; i++) {
+						if(`${accounts[i].region}-${accounts[i].lo}` === this.state.account) {
+							accountDisplayName = accounts[i].display;
+							break;
+						}
+					}
+				}
+
 				content.push(
 					<div className="table-wrapper">
 						<DataInjector
@@ -356,7 +367,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 								numCards={this.state.numCards}
 								customNoDataMessage={[
 									<h2>All set!</h2>,
-									<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>,
+									<p>We've successfully linked your Hearthstone account <strong>{accountDisplayName}</strong> and will analyze incoming replays.</p>,
 									<p>After you've played some games you'll find statistics for all the cards you play right here.</p>,
 									<p className="text-muted">Note: It may take a few hours for new data to appear on this page.</p>,
 								]}

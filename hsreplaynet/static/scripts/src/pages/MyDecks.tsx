@@ -262,10 +262,18 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 				content = <NoDecksMessage>{resetButton}</NoDecksMessage>;
 			}
 			else {
+				let accountDisplayName = "";
+				for(let i = 0; i < userAccounts.length; i++) {
+					let account = userAccounts[i];
+					if (`${account.region}-${account.lo}` === this.state.account) {
+						accountDisplayName = account.display;
+						break;
+					}
+				}
 				content = (
 					<div className="message-wrapper">
 						<h2>All set!</h2>
-						<p>We've successfully linked your Hearthstone account and will analyze incoming replays.</p>
+						<p>We've successfully linked your Hearthstone account <strong>{accountDisplayName}</strong> and will analyze incoming replays.</p>
 						<p>After you've played some games you'll find statistics for all the decks you play right here.</p>
 						<p className="text-muted">Note: It may take a few hours for new data to appear on this page.</p>
 					</div>
