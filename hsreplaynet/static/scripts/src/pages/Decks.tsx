@@ -189,7 +189,10 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 					}
 					if (
 						this.props.includedSet !== "ALL" &&
-						cards.every((cardObj) => cardObj.card.set !== this.props.includedSet)
+						cards.every((cardObj) => (
+							cardObj.card.set !== this.props.includedSet ||
+							cardObj.card.dbfId === 45988  // "Marin the Fox" was released outside the expansion
+						))
 					) {
 						return;
 					}
