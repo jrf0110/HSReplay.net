@@ -263,7 +263,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 		else {
 			const isWild = this.props.gameType === "RANKED_WILD";
 			const gameType = isWild ? "Wild" : "Standard";
-			const minGames = isWild ? 200 : 1000;
+			const minGames = isWild ? 200 : 400;
 			const helpMessage = `${gameType} decks require at least 10 unique pilots and ${minGames} recorded games in the selected time frame to be listed.`;
 			let infoRow = null;
 			if (this.props.promoteLatestSet && this.props.includedSet === "ALL") {
