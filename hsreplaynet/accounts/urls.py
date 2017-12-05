@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
 
-from hearthsim_identity.accounts.api import CreateAccountClaimView, UserDetailsView
+from hearthsim.identity.accounts.api import CreateAccountClaimView, UserDetailsView
 
 from . import views
 from .api import TwitchSocialAccountListView

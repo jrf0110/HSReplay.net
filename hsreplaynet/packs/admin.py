@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from hearthsim_identity.utils import admin_urlify as urlify
+from hearthsim.identity.utils import admin_urlify as urlify
 
 from .models import Pack, PackCard
 

@@ -17,7 +17,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_RE
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from hearthsim_identity.accounts.models import BlizzardAccount
+from hearthsim.identity.accounts.models import BlizzardAccount
 from hsredshift.analytics import filters
 from hsreplaynet.api.permissions import UserHasFeature
 

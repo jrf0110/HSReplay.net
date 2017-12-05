@@ -4,7 +4,7 @@ from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
 
-from hearthsim_identity.accounts.models import AuthToken, User
+from hearthsim.identity.accounts.models import AuthToken, User
 from hsreplaynet.uploads.models import UploadEvent
 
 

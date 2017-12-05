@@ -4,9 +4,9 @@ import pytest
 from djstripe.models import Customer
 from oauth2_provider.models import AccessToken, Grant
 
-from hearthsim_identity.accounts.models import AccountClaim, AuthToken, User
-from hearthsim_identity.api.models import APIKey
-from hearthsim_identity.oauth2.models import Application
+from hearthsim.identity.accounts.models import AccountClaim, AuthToken, User
+from hearthsim.identity.api.models import APIKey
+from hearthsim.identity.oauth2.models import Application
 from hsreplaynet.webhooks.models import WebhookEndpoint
 
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from hearthsim_identity.utils import admin_urlify
+from hearthsim.identity.utils import admin_urlify
 
 from .models import (
 	Archetype, ClassClusterSnapshot, ClusterSetSnapshot, ClusterSnapshot, Deck, Include

@@ -5,8 +5,8 @@ import pytest
 from django.core.files.storage import default_storage
 from hearthstone.enums import CardType
 
-from hearthsim_identity.accounts.models import AuthToken
-from hearthsim_identity.api.models import APIKey
+from hearthsim.identity.accounts.models import AuthToken
+from hearthsim.identity.api.models import APIKey
 from hsreplaynet.lambdas.uploads import process_raw_upload
 from hsreplaynet.uploads.models import UploadEvent, _generate_upload_key
 

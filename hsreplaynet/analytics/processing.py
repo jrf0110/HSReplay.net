@@ -13,7 +13,7 @@ from redis_lock import Lock as RedisLock
 from redis_semaphore import Semaphore
 from sqlalchemy.sql import and_
 
-from hearthsim_identity.accounts.models import BlizzardAccount
+from hearthsim.identity.accounts.models import BlizzardAccount
 from hsredshift.analytics.scheduling import QueryRefreshPriority
 from hsreplaynet.utils import log
 from hsreplaynet.utils.aws import redshift

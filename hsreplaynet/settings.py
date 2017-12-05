@@ -50,8 +50,8 @@ INSTALLED_APPS_CORE = [
 	"rest_framework",
 	"django_hearthstone.cards",
 	"django_hearthstone.scenarios",
-	"hearthsim_identity.accounts",
-	"hearthsim_identity.api",
+	"hearthsim.identity.accounts",
+	"hearthsim.identity.api",
 	"hsreplaynet.analytics",
 	"hsreplaynet.decks",
 	"hsreplaynet.features",
@@ -82,7 +82,7 @@ INSTALLED_APPS_WEB = [
 	"djpaypal",
 	"loginas",
 	"webpack_loader",
-	"hearthsim_identity.oauth2",
+	"hearthsim.identity.oauth2",
 	"hsreplaynet.admin",
 	"hsreplaynet.articles",
 	"hsreplaynet.billing",
@@ -262,7 +262,7 @@ OAUTH2_PROVIDER = {
 		"webhooks:write": "Create and delete webhooks on your behalf",
 	},
 	"ALLOWED_REDIRECT_URI_SCHEMES": ["https", "http"],
-	"SCOPES_BACKEND_CLASS": "hearthsim_identity.oauth2.models.ApplicationScopes",
+	"SCOPES_BACKEND_CLASS": "hearthsim.identity.oauth2.models.ApplicationScopes",
 }
 
 OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2.Application"

@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.utils.http import is_safe_url
 from django.views.generic import View
 
-from hearthsim_identity.accounts.models import AccountClaim
+from hearthsim.identity.accounts.models import AccountClaim
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.utils import get_uuid_object_or_404, log
 from hsreplaynet.utils.influx import influx_metric

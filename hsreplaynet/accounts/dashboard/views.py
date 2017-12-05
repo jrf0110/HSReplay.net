@@ -12,7 +12,7 @@ from oauth2_provider.generators import generate_client_secret
 from oauth2_provider.models import AccessToken, get_application_model
 from shortuuid import ShortUUID
 
-from hearthsim_identity.accounts.models import AccountDeleteRequest, User
+from hearthsim.identity.accounts.models import AccountDeleteRequest, User
 from hsreplaynet.features.utils import feature_enabled_for_user
 from hsreplaynet.utils import log
 from hsreplaynet.utils.influx import influx_metric

@@ -8,7 +8,7 @@ from django_hearthstone.cards.models import Card
 from django_intenum import IntEnumField
 from hearthstone.enums import BnetGameType, FormatType, PlayState
 
-from hearthsim_identity.accounts.models import AuthToken, Visibility
+from hearthsim.identity.accounts.models import AuthToken, Visibility
 from hsreplaynet.utils.fields import PlayerIDField, ShortUUIDField
 from hsreplaynet.utils.synchronization import acquire_redshift_lock, release_redshift_lock
 

@@ -41,7 +41,7 @@ if not settings.ENV_LAMBDA:
 		url(r"^features/", include("hsreplaynet.features.urls")),
 		url(r"^profile/", include("hsreplaynet.profiles.urls")),
 		url(r"^pages/", include("django.contrib.flatpages.urls")),
-		url(r"^oauth2/", include("hearthsim_identity.oauth2.urls")),
+		url(r"^oauth2/", include("hearthsim.identity.oauth2.urls")),
 		url(r"^ref/", include("django_reflinks.urls")),
 		# decks and cards
 		url(r"^", include("hsreplaynet.decks.urls")),

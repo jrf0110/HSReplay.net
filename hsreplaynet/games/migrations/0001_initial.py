@@ -9,7 +9,7 @@ import hearthstone.enums
 from django.conf import settings
 from django.db import migrations, models
 
-import hearthsim_identity.accounts.models
+import hearthsim.identity.accounts.models
 import hsreplaynet.games.models
 import hsreplaynet.utils.fields
 
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('disconnected', models.BooleanField(default=False)),
                 ('reconnecting', models.BooleanField(default=False, help_text='Whether the player is reconnecting to an existing game', verbose_name='Is reconnecting')),
                 ('resumable', models.NullBooleanField()),
-                ('visibility', django_intenum.IntEnumField(default=1, enum=hearthsim_identity.accounts.models.Visibility)),
+                ('visibility', django_intenum.IntEnumField(default=1, enum=hearthsim.identity.accounts.models.Visibility)),
                 ('hide_player_names', models.BooleanField(default=False)),
                 ('views', models.PositiveIntegerField(default=0)),
             ],

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from hearthsim_identity.api.models import APIKey as LegacyAPIKey
+from hearthsim.identity.api.models import APIKey as LegacyAPIKey
 from hsreplaynet.uploads.models import UploadEventStatus
 
 

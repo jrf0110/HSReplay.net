@@ -9,8 +9,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from hsreplay.document import HSReplayDocument
 
-from hearthsim_identity.accounts.models import AuthToken
-from hearthsim_identity.api.models import APIKey as LegacyAPIKey
+from hearthsim.identity.accounts.models import AuthToken
+from hearthsim.identity.api.models import APIKey as LegacyAPIKey
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
 from hsreplaynet.api.serializers import UploadEventSerializer
