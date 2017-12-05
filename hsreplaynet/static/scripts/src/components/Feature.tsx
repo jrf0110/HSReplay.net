@@ -10,6 +10,7 @@ export default class Feature extends React.Component<FeatureProps, {}> {
 		if (!UserData.hasFeature(this.props.feature)) {
 			return null;
 		}
-		return React.Children.only(this.props.children);
+		const {feature, children, ...props} = this.props;
+		return React.cloneElement(React.Children.only(this.props.children), props);
 	}
 }

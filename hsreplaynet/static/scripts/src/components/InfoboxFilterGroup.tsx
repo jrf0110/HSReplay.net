@@ -1,4 +1,6 @@
 import * as React from "react";
+import * as PropTypes from "prop-types";
+import InfoIcon from "./InfoIcon";
 
 interface InfoboxFilterGroupProps {
 	classNames?: string[];
@@ -6,10 +8,10 @@ interface InfoboxFilterGroupProps {
 	collapsible?: boolean;
 	deselectable?: boolean;
 	header?: string;
-	locked?: boolean;
+	infoHeader?: string;
+	infoContent?: string;
 	onClick: (value: string, sender: string) => void;
 	selectedValue: string | string[];
-	tabIndex?: number;
 	disabled?: boolean;
 }
 
@@ -36,13 +38,11 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 			return this.props.selectedValue.indexOf(value) !== -1;
 		};
 
-		const cloneWidthProps = (child) => {
+		const cloneWithProps = (child) => {
 			return React.cloneElement(child, Object.assign({}, child.props, {
-				selected: selected(typeof child.props === "object" ? child.props.value : ""),
+				selected: (value: string) => selected(value),
 				onClick: typeof child.props.onClick !== "undefined" ? child.props.onClick : this.props.onClick,
 				deselectable: this.props.deselectable,
-				locked: this.props.locked,
-				tabIndex: this.props.tabIndex,
 				disabled: this.props.disabled || child.props.disabled,
 			}));
 		};
@@ -50,6 +50,7 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 		let header = null;
 		if (this.props.header) {
 			let icon = null;
+			let infoIcon = null;
 			let headerClassName = null;
 			const collapsible = this.props.collapsed || this.props.collapsible;
 			if (collapsible) {
@@ -62,6 +63,13 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 				}
 			}
 			const toggle = () => this.setState({collapsed: !this.state.collapsed});
+			if (this.props.infoHeader || this.props.infoContent) {
+				infoIcon = <InfoIcon
+					className="pull-right"
+					header={this.props.infoHeader}
+					content={this.props.infoContent}
+				/>;
+			}
 			header = (
 				<h2
 					className={headerClassName}
@@ -91,6 +99,7 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 				>
 					{icon}
 					{this.props.header}
+					{infoIcon}
 				</h2>
 			);
 		}
@@ -99,7 +108,7 @@ export default class InfoboxFilterGroup extends React.Component<InfoboxFilterGro
 			<div className="infobox-filter-group">
 				{header}
 				<ul className={this.props.classNames && this.props.classNames.join(" ")}>
-					{!this.state.collapsed && React.Children.map(this.props.children, cloneWidthProps)}
+					{!this.state.collapsed && React.Children.map(this.props.children, cloneWithProps)}
 				</ul>
 			</div>
 		);

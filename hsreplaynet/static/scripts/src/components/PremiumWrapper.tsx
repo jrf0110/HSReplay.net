@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as PropTypes from "prop-types";
 import InfoIcon from "./InfoIcon";
 import {showModal} from "../Premium";
 import {ClickTouch, TooltipContent} from "./Tooltip";
@@ -28,6 +29,14 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 			touchCount: 0,
 			triggered: [],
 		};
+	}
+
+	static childContextTypes = {
+		requiresPremium: PropTypes.bool,
+	};
+
+	getChildContext() {
+		return { requiresPremium: true };
 	}
 
 	public trigger(wrapper: PremiumWrapper) {
@@ -82,11 +91,13 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 	}
 
 	render(): JSX.Element {
+		const {name, iconStyle, infoHeader, infoContent, children, ...childProps} = this.props;
+
 		let infoIcon = null;
 		if (this.props.infoHeader) {
 			infoIcon = <InfoIcon
-				header={this.props.infoHeader}
-				content={this.props.infoContent}
+				header={infoHeader}
+				content={infoContent}
 			/>;
 		}
 
@@ -126,14 +137,14 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 					if (!this.shouldAppear()) {
 						return;
 					}
-					showModal(this.props.name);
+					showModal(name);
 				}}
 				tabIndex={this.shouldAppear() ? 0 : -1}
 			>
 				<img
 					className="premium-icon"
 					src={STATIC_URL + "images/premium.png"}
-					style={this.props.iconStyle}
+					style={iconStyle}
 					role="presentation"
 				/>
 				{infoIcon}
@@ -141,7 +152,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 					<h4><span className="text-premium">Premium</span> only</h4>
 					{this.state.touchCount > 0 ? <span>Tap for more details…</span> : null}
 				</div>
-				{this.props.children}
+				{React.Children.map(children, (child: React.ReactElement<any>) => React.cloneElement(child, Object.assign({}, childProps, child.props)))}
 			</div>
 		);
 	}

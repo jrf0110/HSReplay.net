@@ -445,7 +445,6 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 								UserData.setDefaultAccount(account);
 								this.setState({account});
 							}}
-							tabIndex={accounts.length > 1 ? 0 : -1}
 						>
 							{accounts}
 						</InfoboxFilterGroup>

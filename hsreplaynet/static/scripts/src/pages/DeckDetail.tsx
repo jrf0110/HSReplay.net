@@ -176,7 +176,6 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							UserData.setDefaultAccount(account);
 							this.setState({account});
 						}}
-						tabIndex={accounts.length > 1 ? 0 : -1}
 					>
 						{accounts}
 					</InfoboxFilterGroup>
@@ -268,10 +267,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				>
 					<h2>Rank range</h2>
 					<InfoboxFilterGroup
-						locked={!isPremium}
 						selectedValue={this.getRankRange()}
 						onClick={(rankRange) => this.props.setRankRange(rankRange)}
-						tabIndex={premiumTabIndex}
 					>
 						{infoBoxFilter("rankRange", "LEGEND_ONLY", "Legend only")}
 						{infoBoxFilter("rankRange", "LEGEND_THROUGH_FIVE", "Legend–5")}
@@ -291,10 +288,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					>
 						<InfoboxFilterGroup
 							header="Region"
-							locked={!isPremium}
 							selectedValue={this.getRegion()}
 							onClick={(region) => this.props.setRegion(region)}
-							tabIndex={premiumTabIndex}
 						>
 							{infoBoxFilter("region", "REGION_US", "America")}
 							{infoBoxFilter("region", "REGION_EU", "Europe")}

@@ -15,6 +15,8 @@ import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData, {Account} from "../UserData";
 import {CardObj, FragmentChildProps, LoadingStatus, SortDirection} from "../interfaces";
 import CardTable from "../components/tables/CardTable";
+import InfoIcon from "../components/InfoIcon";
+import Feature from "../components/Feature";
 
 interface CardFilters {
 	cost: any;
@@ -688,7 +690,6 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			);
 		}
 		else {
-			const premiumTabIndex = UserData.isPremium() ? 0 : -1;
 			filters.push(
 				<h2>Deck Class</h2>,
 				<ClassFilter
@@ -707,43 +708,43 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 					<InfoboxFilter value="class">Neutral cards only</InfoboxFilter>
 				</InfoboxFilterGroup>,
 				modeFilter,
-				<PremiumWrapper
-					name="Card List Time Frame"
-					infoHeader="Time Frame"
-					infoContent="Get the most recent data on which cards are hot right now!"
-				>
+				<section>
 					<InfoboxFilterGroup
 						header="Time Frame"
-						locked={!UserData.isPremium()}
+						infoHeader="Time Framge"
+						infoContent="Get the most recent data on which cards are hot right now!"
 						selectedValue={this.props.timeRange}
 						onClick={(value) => this.props.setTimeRange(value)}
-						tabIndex={premiumTabIndex}
 					>
-						<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
-						<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
-						<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+						<PremiumWrapper
+							name="Card List Time Frame"
+							iconStyle={{display: "none"}}
+						>
+							<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
+							<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+						</PremiumWrapper>
 						<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
 					</InfoboxFilterGroup>
-				</PremiumWrapper>,
-				<PremiumWrapper
-					name="Card List Rank Range"
+				</section>,
+				<InfoboxFilterGroup
+					header="Rank Range"
 					infoHeader="Rank Range"
 					infoContent="Check out which cards are played at certain rank ranges on the ranked ladder!"
+					onClick={(value) => this.props.setRankRange(value)}
+					selectedValue={this.props.gameType !== "ARENA" && this.props.rankRange}
+					disabled={this.props.gameType === "ARENA"}
 				>
-					<InfoboxFilterGroup
-						header="Rank Range"
-						locked={!UserData.isPremium()}
-						onClick={(value) => this.props.setRankRange(value)}
-						selectedValue={this.props.gameType !== "ARENA" && this.props.rankRange}
-						disabled={this.props.gameType === "ARENA"}
-						tabIndex={premiumTabIndex}
+					<PremiumWrapper
+						name="Card List Rank Range"
+						iconStyle={{display: "none"}}
 					>
 						<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 						<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
 						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-					</InfoboxFilterGroup>
-				</PremiumWrapper>,
+					</PremiumWrapper>
+					<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+				</InfoboxFilterGroup>,
 			);
 		}
 
@@ -754,7 +755,6 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 					header="Time Frame"
 					selectedValue={this.props.timeRange}
 					onClick={(value) => this.props.setTimeRange(value)}
-					tabIndex={0}
 				>
 					<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
 					<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
@@ -782,7 +782,6 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 							UserData.setDefaultAccount(account);
 							this.setState({account});
 						}}
-						tabIndex={accounts.length > 1 ? 0 : -1}
 					>
 						{accounts}
 					</InfoboxFilterGroup>,

@@ -472,44 +472,42 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 						</InfoboxFilterGroup>
 					</section>
 					<section id="time-frame-filter">
-						<PremiumWrapper
-							name="Deck List Time Frame"
+						<InfoboxFilterGroup
+							header="Time frame"
 							infoHeader="Time Frame"
 							infoContent="Want to see which decks are hot right now? Look at data from a time frame of your choosing!"
+							selectedValue={this.props.timeRange}
+							onClick={(value) => this.props.setTimeRange(value)}
 						>
-							<h2>Time frame</h2>
-							<InfoboxFilterGroup
-								locked={!UserData.isPremium()}
-								selectedValue={this.props.timeRange}
-								onClick={(value) => this.props.setTimeRange(value)}
-								tabIndex={premiumTabIndex}
+							<PremiumWrapper
+								name="Deck List Time Frame"
+								iconStyle={{display: "none"}}
 							>
 								<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
 								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
 								<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
-								<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
-							</InfoboxFilterGroup>
-						</PremiumWrapper>
+							</PremiumWrapper>
+							<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+						</InfoboxFilterGroup>
 					</section>
 					<section id="rank-range-filter">
-						<PremiumWrapper
-							name="Deck List Rank Range"
+						<InfoboxFilterGroup
+							header="Rank range"
 							infoHeader="Rank Range"
 							infoContent="Ready to climb the ladder? Check out how decks perform at certain rank ranges!"
+							selectedValue={this.props.rankRange}
+							onClick={(value) => this.props.setRankRange(value)}
 						>
-							<h2>Rank Range</h2>
-							<InfoboxFilterGroup
-								locked={!UserData.isPremium()}
-								selectedValue={this.props.rankRange}
-								onClick={(value) => this.props.setRankRange(value)}
-								tabIndex={premiumTabIndex}
+							<PremiumWrapper
+								name="Deck List Rank Range"
+								iconStyle={{display: "none"}}
 							>
 								<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 								<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
 								<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-								<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-							</InfoboxFilterGroup>
-						</PremiumWrapper>
+							</PremiumWrapper>
+							<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+						</InfoboxFilterGroup>
 					</section>
 					<Feature feature="deck-region-filter">
 						<section id="region-filter">
@@ -520,10 +518,8 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 							>
 								<InfoboxFilterGroup
 									header="Region"
-									locked={!isPremium}
 									selectedValue={this.props.region}
 									onClick={(region) => this.props.setRegion(region)}
-									tabIndex={premiumTabIndex}
 								>
 									<InfoboxFilter value="REGION_US">America</InfoboxFilter>
 									<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>

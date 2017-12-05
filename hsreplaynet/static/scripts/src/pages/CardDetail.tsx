@@ -484,11 +484,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				>
 					<h2>Rank range</h2>
 					<InfoboxFilterGroup
-						locked={!isPremium}
 						selectedValue={!this.isArena() && this.props.rankRange}
 						onClick={(value) => this.props.setRankRange(value)}
 						disabled={this.isArena()}
-						tabIndex={!isPremium ? -1 : 0}
 					>
 						<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 						<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>

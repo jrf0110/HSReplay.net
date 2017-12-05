@@ -105,7 +105,9 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		if (["tierlist", "archetypes", "matchups"].indexOf(this.props.tab) !== -1 ) {
 			rankRangeFilter = (
 				<section id="rank-range-filter">
-					<PremiumWrapper>
+					<PremiumWrapper
+						name="Meta Overview Rank Range"
+					>
 						<h2>Rank Range</h2>
 						<RankPicker
 							selected={this.props.rankRange}
@@ -141,18 +143,20 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					{backButton}
 					<h1>Meta Overview</h1>
 					<section id="time-frame-filter">
-						<PremiumWrapper>
-							<h2>Time Frame</h2>
-							<InfoboxFilterGroup
-								locked={!UserData.isPremium()}
-								selectedValue={this.props.timeFrame}
-								onClick={(value) => this.props.setTimeFrame(value)}
+						<InfoboxFilterGroup
+							header="Time Frame"
+							selectedValue={this.props.timeFrame}
+							onClick={(value) => this.props.setTimeFrame(value)}
+						>
+							<PremiumWrapper
+								name="Meta Overview Time Frame"
+								iconStyle={{display: "none"}}
 							>
 								<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
 								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
-								<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
-							</InfoboxFilterGroup>
-						</PremiumWrapper>
+							</PremiumWrapper>
+							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+						</InfoboxFilterGroup>
 					</section>
 					{rankRangeFilter}
 					<Feature feature="archetypes-gamemode-filter">
@@ -177,7 +181,6 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 									content="Replay volume from the Chinese region is too low for reliable statistics."
 								/>
 								<InfoboxFilterGroup
-									locked={!UserData.isPremium()}
 									selectedValue={this.props.region}
 									onClick={(region) => this.props.setRegion(region)}
 								>

@@ -363,7 +363,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						<InfoboxFilterGroup
 							selectedValue={this.props.rankRange}
 							onClick={(value) => this.props.setRankRange(value)}
-							tabIndex={0}
 						>
 							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>

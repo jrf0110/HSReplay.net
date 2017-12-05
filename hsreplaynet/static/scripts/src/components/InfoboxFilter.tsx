@@ -1,23 +1,57 @@
 import * as React from "react";
+import * as PropTypes from "prop-types";
+import UserData from "../UserData";
 
-interface InfoboxFilterProps {
+interface InfoboxFilterProps extends React.ClassAttributes<InfoboxFilter> {
 	classNames?: string[];
 	deselectable?: string;
 	disabled?: boolean;
-	locked?: boolean;
 	onClick?: (newValue: string, sender: string) => void;
-	selected?: boolean;
-	tabIndex?: number;
+	selected?: boolean | ((value: string)  => boolean);
+	overridePremium?: boolean;
 	value: string;
 }
 
 export default class InfoboxFilter extends React.Component<InfoboxFilterProps, {}> {
 	private ref;
 
+	static contextTypes = {
+		requiresPremium: PropTypes.bool,
+	};
+
+	private isPremiumFilter(): boolean {
+		const premiumOverride = this.props.overridePremium;
+		if(typeof premiumOverride !== "undefined") {
+			return !!premiumOverride;
+		}
+		const premiumFromContext = this.context.requiresPremium;
+		if (typeof premiumFromContext === "undefined") {
+			return false;
+		}
+		return !!premiumFromContext;
+	}
+
+	private isSelected(): boolean {
+		if(typeof this.props.selected === "function") {
+			return this.props.selected(this.props.value);
+		}
+		return this.props.selected;
+	}
+
 	render(): JSX.Element {
 		const onClick = () => {
-			if (!this.props.disabled && !this.props.locked && (!this.props.selected || this.props.deselectable)) {
-				this.props.onClick(this.props.selected ? null : this.props.value, this.props.value);
+			if (this.isPremiumFilter() && !UserData.isPremium()) {
+				return;
+			}
+			if (this.props.disabled) {
+				return;
+			}
+			if(this.isSelected() && !this.props.deselectable) {
+				return;
+			}
+			const newValue = this.isSelected() ? null : this.props.value;
+			if (typeof this.props.onClick === "function") {
+				this.props.onClick(newValue, this.props.value);
 			}
 		};
 
@@ -25,7 +59,7 @@ export default class InfoboxFilter extends React.Component<InfoboxFilterProps, {
 		if (this.props.classNames) {
 			classNames.push(this.props.classNames.join(" "));
 		}
-		if (this.props.selected) {
+		if (this.isSelected()) {
 			classNames.push("selected");
 			if (!this.props.deselectable) {
 				classNames.push("no-deselect");
@@ -33,6 +67,10 @@ export default class InfoboxFilter extends React.Component<InfoboxFilterProps, {
 		}
 		if(this.props.disabled) {
 			classNames.push("disabled");
+		}
+
+		if(this.isPremiumFilter()) {
+			classNames.push("text-premium");
 		}
 
 		return (
@@ -51,11 +89,16 @@ export default class InfoboxFilter extends React.Component<InfoboxFilterProps, {
 					}
 					onClick();
 				}}
-				tabIndex={this.props.disabled ? -1 : (typeof this.props.tabIndex === "undefined" ? 0 : this.props.tabIndex)}
+				tabIndex={this.props.disabled || (this.isPremiumFilter() && !UserData.isPremium()) ? -1 : 0}
 				role={this.props.deselectable ? "checkbox" : "radio"}
 				aria-disabled={this.props.disabled}
-				aria-checked={this.props.selected}
+				aria-checked={this.isSelected()}
 			>
+				{this.isPremiumFilter() ? <img
+					className="inline-premium-icon"
+					src={STATIC_URL + "images/premium.png"}
+					role="presentation"
+				/> : null}
 				{this.props.children}
 			</li>
 		);
