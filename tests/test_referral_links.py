@@ -19,11 +19,11 @@ def test_user_referred_by(admin_user, admin_client):
 	assert resp.status_code == 302
 	assert ReferralHit.objects.count() == 1
 
-	assert user_referred_by(user) == ReferralLink.objects.get(pk=link.pk)
+	assert user_referred_by(user) == ReferralHit.objects.first()
 
 	user.date_joined = timezone.now() - datetime.timedelta(days=3)
 	user.save()
-	assert user_referred_by(user) == ReferralLink.objects.get(pk=link.pk)
+	assert user_referred_by(user) == ReferralHit.objects.first()
 
 	user.date_joined = timezone.now() - datetime.timedelta(days=30)
 	user.save()

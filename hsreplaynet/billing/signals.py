@@ -6,11 +6,14 @@ from djstripe import webhooks as djstripe_webhooks
 from hsreplaynet.analytics.processing import enable_premium_accounts_for_users_in_redshift
 from hsreplaynet.utils.instrumentation import error_handler
 
+from .utils import check_for_referrals
+
 
 @djstripe_webhooks.handler("customer.subscription.created")
 def sync_premium_accounts_for_stripe_subscription(event, **kwargs):
 	if event.customer and event.customer.subscriber:
 		user = event.customer.subscriber
+		check_for_referrals(user)
 		enable_premium_accounts_for_users_in_redshift([user])
 
 		if event.customer.active_subscriptions.count() > 1:
@@ -26,6 +29,7 @@ def sync_premium_accounts_for_stripe_subscription(event, **kwargs):
 def sync_premium_accounts_for_paypal_subscription(sender, event, **kwargs):
 	subscription = event.get_resource()
 	if subscription.user and subscription.user.is_premium:
+		check_for_referrals(subscription.user)
 		enable_premium_accounts_for_users_in_redshift([subscription.user])
 
 

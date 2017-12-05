@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -11,6 +12,14 @@ class Referral(models.Model):
 	credit_request_id = models.CharField(
 		max_length=255, blank=True, db_index=True,
 		help_text="The Stripe Request-Id for the balance credit."
+	)
+
+	processed = models.BooleanField(default=False)
+	credited_user = models.ForeignKey(
+		settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="referrals"
+	)
+	hit_user = models.OneToOneField(
+		settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
 	)
 
 	created = models.DateTimeField(auto_now_add=True)

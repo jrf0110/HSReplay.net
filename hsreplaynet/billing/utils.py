@@ -1,11 +1,15 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.utils import timezone
 from django_reflinks.models import ReferralHit
 from djpaypal.models import WebhookEvent
 from djstripe.models import Event, Subscription
+from djstripe.settings import _get_idempotency_key
 
 from hsreplaynet.analytics.processing import PremiumUserCacheWarmingContext
+
+from .models import Referral
 
 
 def get_premium_cache_warming_contexts_from_subscriptions():
@@ -16,6 +20,41 @@ def get_premium_cache_warming_contexts_from_subscriptions():
 			context = PremiumUserCacheWarmingContext.from_user(user)
 			result.append(context)
 	return result
+
+
+def check_for_referrals(user):
+	if user_subscription_events_count(user) != 1:
+		return
+
+	referral_hit = user_referred_by(user)
+	if not referral_hit:
+		return
+
+	user_to_credit = referral_hit.referral_link.user
+	cents_amount_to_credit = 100
+
+	ref, created = Referral.objects.get_or_create(
+		hit_user=user, defaults={
+			"referral_hit": referral_hit,
+			"credited_amount": cents_amount_to_credit,
+			"credited_user": user_to_credit,
+		}
+	)
+
+	if ref.processed:
+		return
+
+	ik = _get_idempotency_key(
+		"customer", f"referral:{user.pk}", settings.STRIPE_LIVE_MODE
+	)
+
+	customer_to_credit = user.stripe_customer.api_retrieve()
+	customer_to_credit.account_balance += cents_amount_to_credit
+	customer_to_credit.save(idempotency_key=ik)
+
+	ref.processed = True
+	ref.credit_request_id = customer_to_credit.last_request.request_id
+	ref.save()
 
 
 def user_referred_by(user):
@@ -29,7 +68,7 @@ def user_referred_by(user):
 	if not hits.exists():
 		return
 
-	return hits.latest("created").referral_link
+	return hits.latest("created")
 
 
 def user_stripe_subscribe_events(user):
