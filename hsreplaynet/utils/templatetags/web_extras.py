@@ -93,7 +93,7 @@ def pretty_card(source):
 
 	if isinstance(source, PaymentMethod):
 		try:
-			source = source.get_object()
+			source = source.resolve()
 		except Card.DoesNotExist:
 			return "(invalid card)"
 
