@@ -421,6 +421,7 @@ def get_cluster_set_data(
 	game_format=FormatType.FT_STANDARD,
 	lookback=7,
 	min_observations=100,
+	min_pilots=10,
 	block=True
 ):
 	from hsreplaynet.utils.aws.redshift import get_redshift_query
@@ -430,6 +431,7 @@ def get_cluster_set_data(
 	parameterized_query = query.build_full_params(dict(
 		TimeRange="LAST_%i_DAYS" % lookback,
 		min_games=min_observations,
+		min_pilots=min_pilots,
 		GameType=gt,
 	))
 

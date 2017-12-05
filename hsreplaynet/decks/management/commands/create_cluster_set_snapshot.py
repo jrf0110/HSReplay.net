@@ -13,6 +13,7 @@ class Command(BaseCommand):
 		parser.add_argument("--inherit-threshold", default=0.85, type=float)
 		parser.add_argument("--lookback", default=7, type=int)
 		parser.add_argument("--min-observations", default=100, type=int)
+		parser.add_argument("--min-pilots", default=10, type=int)
 		parser.add_argument("--experimental-threshold", default=1500, type=int)
 		parser.add_argument("--allow-inheritence-miss", default="", type=str)
 
@@ -27,6 +28,7 @@ class Command(BaseCommand):
 		inherit_threshold = options["inherit_threshold"]
 		lookback = options["lookback"]
 		min_observations = options["min_observations"]
+		min_pilots = options["min_pilots"]
 		experimental_threshold = options["experimental_threshold"]
 		inheritence_miss_tokens = options["allow_inheritence_miss"].split(",")
 		allow_inheritence_miss = [int(s.strip()) for s in inheritence_miss_tokens if s]
@@ -38,6 +40,7 @@ class Command(BaseCommand):
 			inherit_threshold=inherit_threshold,
 			lookback=lookback,
 			min_observations=min_observations,
+			min_pilots=min_pilots,
 			experimental_threshold=experimental_threshold,
 			allow_inheritence_miss_list=allow_inheritence_miss
 		)

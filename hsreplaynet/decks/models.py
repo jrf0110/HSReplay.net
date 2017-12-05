@@ -531,6 +531,7 @@ class ClusterSetManager(models.Manager):
 		inherit_threshold=0.85,
 		lookback=7,
 		min_observations=100,
+		min_pilots=10,
 		experimental_threshold=1500,
 		allow_inheritence_miss_list=[]
 	):
@@ -539,7 +540,8 @@ class ClusterSetManager(models.Manager):
 		data = get_cluster_set_data(
 			game_format=game_format,
 			lookback=lookback,
-			min_observations=min_observations
+			min_observations=min_observations,
+			min_pilots=min_pilots
 		)
 
 		inheritance_missed = []
