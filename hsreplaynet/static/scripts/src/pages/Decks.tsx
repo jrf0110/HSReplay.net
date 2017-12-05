@@ -266,7 +266,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 			const minGames = isWild ? 200 : 400;
 			const helpMessage = `${gameType} decks require at least 10 unique pilots and ${minGames} recorded games in the selected time frame to be listed.`;
 			let infoRow = null;
-			if (this.props.promoteLatestSet && this.props.includedSet === "ALL") {
+			if (this.props.promoteLatestSet && this.props.timeRange === "LAST_30_DAYS") {
 				infoRow = (
 					<div className="info-row text-center">
 						<span>Showing decks from all expansions.&nbsp;</span>
@@ -275,7 +275,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 							className="btn btn-default"
 							onClick={(event) => {
 								event.preventDefault();
-								this.props.setIncludedSet(this.props.latestSet);
+								this.props.setTimeRange("CURRENT_EXPANSION");
 							}}
 						>
 							New decks only
@@ -415,7 +415,6 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 						>
 							<InfoboxFilter value={this.props.latestSet}>
 								Any new card
-								{this.props.promoteLatestSet ? <span className="infobox-value new-decks-note">New Decks!</span> : null}
 							</InfoboxFilter>
 						</InfoboxFilterGroup>
 						<CardSearch
@@ -488,6 +487,12 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 								<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
 							</PremiumWrapper>
 							<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+							<Feature feature={"current-expansion-filter"}>
+								<InfoboxFilter value="CURRENT_EXPANSION">
+									Kobolds and Catacombs
+									<span className="infobox-value">Free!</span>
+								</InfoboxFilter>
+							</Feature>
 						</InfoboxFilterGroup>
 					</section>
 					<section id="rank-range-filter">

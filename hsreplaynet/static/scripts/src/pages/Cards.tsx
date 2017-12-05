@@ -725,6 +725,12 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
 						</PremiumWrapper>
 						<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
+						<Feature feature={"current-expansion-filter"}>
+							<InfoboxFilter value="CURRENT_EXPANSION">
+								Kobolds and Catacombs
+								<span className="infobox-value">Free!</span>
+							</InfoboxFilter>
+						</Feature>
 					</InfoboxFilterGroup>
 				</section>,
 				<InfoboxFilterGroup

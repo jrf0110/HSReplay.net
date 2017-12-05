@@ -48,7 +48,7 @@ const render = (cardData: CardData) => {
 				uncollectible: "",
 			}}
 			debounce="text"
-			immutable={UserData.isPremium() ? null : ["rankRange", "timeRange"]}
+			immutable={UserData.isPremium() ? null : ["rankRange"]}
 		>
 			<Cards
 				cardData={cardData}
