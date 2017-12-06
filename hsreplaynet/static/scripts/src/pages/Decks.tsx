@@ -490,7 +490,7 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 							<Feature feature={"current-expansion-filter"}>
 								<InfoboxFilter value="CURRENT_EXPANSION">
 									Kobolds and Catacombs
-									<span className="infobox-value">Free!</span>
+									<span className="infobox-value">New!</span>
 								</InfoboxFilter>
 							</Feature>
 						</InfoboxFilterGroup>
