@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as PropTypes from "prop-types";
-import InfoIcon from "./InfoIcon";
+import InfoIcon, { InfoIconProps } from "./InfoIcon";
 
 interface InfoboxFilterGroupProps {
 	classNames?: string[];
@@ -8,8 +8,8 @@ interface InfoboxFilterGroupProps {
 	collapsible?: boolean;
 	deselectable?: boolean;
 	header?: string;
-	infoHeader?: string;
-	infoContent?: string;
+	infoHeader?: InfoIconProps["header"];
+	infoContent?: InfoIconProps["content"];
 	onClick: (value: string, sender: string) => void;
 	selectedValue: string | string[];
 	disabled?: boolean;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as PropTypes from "prop-types";
-import InfoIcon from "./InfoIcon";
+import InfoIcon, { InfoIconProps } from "./InfoIcon";
 import {showModal} from "../Premium";
 import {ClickTouch, TooltipContent} from "./Tooltip";
 import UserData from "../UserData";
@@ -8,8 +8,8 @@ import UserData from "../UserData";
 interface PremiumWrapperProps {
 	name?: string; // used for tracking only
 	iconStyle?: any;
-	infoHeader?: string;
-	infoContent?: TooltipContent | ClickTouch<TooltipContent>;
+	infoHeader?: InfoIconProps["header"];
+	infoContent?: InfoIconProps["content"];
 }
 
 interface PremiumWrapperState {
