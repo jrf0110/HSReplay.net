@@ -766,6 +766,12 @@ def capture_played_card_stats(global_game, played_cards, is_friendly_player):
 def do_process_upload_event(upload_event):
 	meta = json.loads(upload_event.metadata)
 
+	# Hack until we do something better
+	# We need the correct tz, but here it's stored as UTC because it goes through DRF
+	# https://github.com/encode/django-rest-framework/commit/7d6d043531
+	descriptor_data = json.loads(upload_event.descriptor_data)
+	meta["match_start"] = descriptor_data["upload_metadata"]["match_start"]
+
 	# Parse the UploadEvent's file
 	parser = parse_upload_event(upload_event, meta)
 	# Validate the resulting object and metadata
