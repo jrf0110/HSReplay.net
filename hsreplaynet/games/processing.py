@@ -771,8 +771,9 @@ def do_process_upload_event(upload_event):
 	# Hack until we do something better
 	# We need the correct tz, but here it's stored as UTC because it goes through DRF
 	# https://github.com/encode/django-rest-framework/commit/7d6d043531
-	descriptor_data = json.loads(upload_event.descriptor_data)
-	meta["match_start"] = descriptor_data["upload_metadata"]["match_start"]
+	if upload_event.descriptor_data:
+		descriptor_data = json.loads(upload_event.descriptor_data)
+		meta["match_start"] = descriptor_data["upload_metadata"]["match_start"]
 
 	# Parse the UploadEvent's file
 	parser = parse_upload_event(upload_event, meta)
