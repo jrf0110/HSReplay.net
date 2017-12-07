@@ -25,6 +25,9 @@ class Command(BaseCommand):
 		parser.add_argument(
 			"--booster-type", choices=VALID_BOOSTERS, help="Filter by booster type"
 		)
+		parser.add_argument(
+			"--username", help="Filter by username"
+		)
 		parser.add_argument("--format", choices=("csv", "json"), default="csv")
 
 	def get_rows(self, qs):
@@ -49,6 +52,10 @@ class Command(BaseCommand):
 		if booster_type:
 			booster_type = Booster[booster_type]
 			packs = packs.filter(booster_type=booster_type)
+
+		username = options.get("username", "")
+		if username:
+			packs = packs.filter(user__username=username)
 
 		rows = self.get_rows(packs)
 		value = ""
