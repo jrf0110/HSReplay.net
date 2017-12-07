@@ -367,6 +367,8 @@ def parse_upload_event(upload_event, meta):
 	if match_start != orig_match_start:
 		upload_event.tainted = True
 		upload_event.save()
+		difference = (orig_match_start - match_start).seconds
+		influx_metric("tainted_replay", {"count": 1, "difference": difference})
 
 	log_bytes = upload_event.log_bytes()
 	if not log_bytes:
