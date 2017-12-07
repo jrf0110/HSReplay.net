@@ -456,6 +456,10 @@ class Archetype(models.Model):
 		)
 
 	@property
+	def sankey_visualization(self):
+		return self.standard_cluster.sankey_visualization()
+
+	@property
 	def standard_signature(self):
 		return self.get_signature(enums.FormatType.FT_STANDARD)
 
@@ -534,7 +538,7 @@ class ClusterSetManager(models.Manager):
 		min_pilots=10,
 		experimental_threshold=1500,
 		allow_inheritence_miss_list=[],
-		dry_run=False
+		dry_run=True
 	):
 		from hsreplaynet.analytics.processing import get_cluster_set_data
 
@@ -902,6 +906,80 @@ class ClusterSnapshot(models.Model, Cluster):
 		row = "<tr><td>%s</td><td>%s</td></tr>"
 		rows = [row % (db[int(dbf)].name, round(weight, 4)) for dbf, weight in components]
 		return table % "".join(rows)
+
+	def _sankey_other_cards(self, cutoff_threshold=.1):
+		data = {i: {"total_observations": 0} for i in range(0, 11)}
+		db = card_db()
+		other_cards = set()
+		all_observations = 0
+		for data_point in self.data_points:
+			cards = data_point["cards"]
+			for dbf_id, count in cards.items():
+				card = db[int(dbf_id)]
+				card_cost = min(10, card.cost)
+				all_observations += data_point["observations"]
+				data[card_cost]["total_observations"] += data_point["observations"]
+
+				if dbf_id not in data[card_cost]:
+					data[card_cost][dbf_id] = 0
+
+				data[card_cost][dbf_id] += data_point["observations"]
+
+		if all_observations > 0:
+			for mana_cost, card_observations in data.items():
+				total_observations = card_observations["total_observations"]
+				if total_observations > 0:
+					for dbf_id, observations in card_observations.items():
+						if dbf_id != "total_observations":
+							prevalance = float(observations / total_observations)
+							if prevalance < cutoff_threshold:
+								other_cards.add(dbf_id)
+
+		return other_cards
+
+	def sankey_visualization(self):
+		nodes = set()
+		links = collections.defaultdict(lambda: collections.defaultdict(int))
+		db = card_db()
+		other_cards = self._sankey_other_cards()
+		for data_point in self.data_points:
+			observations = data_point["observations"]
+			cards = data_point["cards"]
+			for source_dbf, count in cards.items():
+				source_card = db[int(source_dbf)]
+				source_cost = min(10, source_card.cost)
+				for target_dbf, count in cards.items():
+					target_card = db[int(target_dbf)]
+					target_cost = min(10, target_card.cost)
+
+					if target_cost == source_cost + 1:
+						if source_dbf not in other_cards:
+							source = str(source_dbf)
+						else:
+							source = "-1:%i" % source_cost
+
+						if target_dbf not in other_cards:
+							target = str(target_dbf)
+						else:
+							target = "-1:%i" % target_cost
+
+						nodes.add(source)
+						nodes.add(target)
+						links[source][target] += observations
+
+		result = {
+			"links": [],
+			"nodes": [{"name": n} for n in nodes],
+		}
+		for source_dbf, targets in links.items():
+			for target_dbf, observations in targets.items():
+				result["links"].append({
+					"source": source_dbf,
+					"target": target_dbf,
+					"value": observations
+				})
+
+		return result
 
 
 class ClusterSetSnapshot(models.Model, ClusterSet):

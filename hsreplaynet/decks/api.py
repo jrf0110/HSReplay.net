@@ -33,7 +33,7 @@ class ArchetypeSerializer(serializers.ModelSerializer):
 		model = Archetype
 		fields = (
 			"id", "name", "player_class", "player_class_name", "url",
-			"standard_signature", "wild_signature"
+			"standard_signature", "wild_signature", "sankey_visualization"
 		)
 
 	def get_player_class_name(self, instance):
