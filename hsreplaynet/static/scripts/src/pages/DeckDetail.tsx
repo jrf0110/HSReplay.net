@@ -256,26 +256,29 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		}
 		else {
 			filters.push(
-				<PremiumWrapper
-					name="Single Deck Rank Range"
-					infoHeader="Deck breakdown rank range"
-					infoContent={[
-						<p>Check out how this deck performs at higher ranks!</p>,
-						<br/>,
-						<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
-					]}
-				>
-					<h2>Rank range</h2>
+				<div>
 					<InfoboxFilterGroup
+						header="Rank Range"
+						infoHeader="Deck breakdown rank range"
+						infoContent={[
+							<p>Check out how this deck performs at higher ranks!</p>,
+							<br/>,
+							<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
+						]}
 						selectedValue={this.getRankRange()}
 						onClick={(rankRange) => this.props.setRankRange(rankRange)}
 					>
-						{infoBoxFilter("rankRange", "LEGEND_ONLY", "Legend only")}
-						{infoBoxFilter("rankRange", "LEGEND_THROUGH_FIVE", "Legend–5")}
-						{infoBoxFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend–10")}
+						<PremiumWrapper
+							name="Single Deck Rank Range"
+							iconStyle={{display: "none"}}
+						>
+							{infoBoxFilter("rankRange", "LEGEND_ONLY", "Legend only")}
+							{infoBoxFilter("rankRange", "LEGEND_THROUGH_FIVE", "Legend–5")}
+							{infoBoxFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend–10")}
+						</PremiumWrapper>
 						{infoBoxFilter("rankRange", "ALL", "Legend–25")}
 					</InfoboxFilterGroup>
-				</PremiumWrapper>,
+				</div>,
 				<Feature feature="deck-region-filter">
 					<PremiumWrapper
 						name="Single Deck Region"
