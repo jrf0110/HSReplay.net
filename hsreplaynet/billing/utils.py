@@ -4,22 +4,10 @@ from django.conf import settings
 from django.utils import timezone
 from django_reflinks.models import ReferralHit
 from djpaypal.models import WebhookEvent
-from djstripe.models import Event, Subscription
+from djstripe.models import Event
 from djstripe.settings import _get_idempotency_key
 
-from hsreplaynet.analytics.processing import PremiumUserCacheWarmingContext
-
 from .models import Referral
-
-
-def get_premium_cache_warming_contexts_from_subscriptions():
-	result = []
-	for subscription in Subscription.objects.active():
-		user = subscription.customer.subscriber
-		if user:
-			context = PremiumUserCacheWarmingContext.from_user(user)
-			result.append(context)
-	return result
 
 
 def check_for_referrals(user):

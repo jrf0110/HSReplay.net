@@ -177,14 +177,6 @@ def warm_redshift_cache_for_user_context(context):
 	fill_personalized_query_queue([context])
 
 
-def fill_redshift_cache_warming_queue(eligible_queries=None):
-	from hsreplaynet.billing.utils import (
-		get_premium_cache_warming_contexts_from_subscriptions
-	)
-	contexts = get_premium_cache_warming_contexts_from_subscriptions()
-	fill_personalized_query_queue(contexts, eligible_queries)
-
-
 def fill_global_query_queue(eligible_queries=None, filter_fresh_queries=True):
 	queue_name = settings.REDSHIFT_ANALYTICS_QUERY_QUEUE_NAME
 	messages = get_queries_for_cache_warming(eligible_queries)
