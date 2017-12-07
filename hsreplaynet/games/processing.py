@@ -438,10 +438,9 @@ def validate_parser(parser, meta):
 			log.error("Cannot find player %i name. Replay not supported.", player.player_id)
 			raise GameTooShort("The game was too short to parse correctly")
 
-		heroes = list(player.heroes)
-		if not heroes:
+		player._hero = player.starting_hero
+		if not player._hero:
 			raise UnsupportedReplay("No hero found for player %r" % (player.name))
-		player._hero = heroes[0]
 
 		try:
 			db_hero = Card.objects.get(card_id=player._hero.card_id)
