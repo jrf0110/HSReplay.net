@@ -8,20 +8,23 @@ from hsreplaynet.decks.models import ClusterSetSnapshot
 
 class Command(BaseCommand):
 	def add_arguments(self, parser):
-		parser.add_argument("--num-clusters", default=50, type=int)
-		parser.add_argument("--merge-threshold", default=0.75, type=float)
-		parser.add_argument("--inherit-threshold", default=0.85, type=float)
-		parser.add_argument("--lookback", default=7, type=int)
-		parser.add_argument("--min-observations", default=100, type=int)
-		parser.add_argument("--min-pilots", default=10, type=int)
-		parser.add_argument("--experimental-threshold", default=1500, type=int)
+		parser.add_argument("--num-clusters", default=10, type=int)
+		parser.add_argument("--merge-threshold", default=0.7, type=float)
+		parser.add_argument("--inherit-threshold", default=0.7, type=float)
+		parser.add_argument("--lookback", default=1, type=int)
+		parser.add_argument("--min-observations", default=10, type=int)
+		parser.add_argument("--min-pilots", default=1, type=int)
+		parser.add_argument("--experimental-threshold", default=500, type=int)
 		parser.add_argument("--allow-inheritence-miss", default="", type=str)
 
 	def handle(self, *args, **options):
-		logger = logging.getLogger("hsarchetypes")
+		logger = logging.getLogger()
 		logger.setLevel(logging.DEBUG)
 		stream_handler = logging.StreamHandler()
 		logger.addHandler(stream_handler)
+
+		for k, v in options.items():
+			logger.info("%s:\t%s" % (k, v))
 
 		num_clusters = options["num_clusters"]
 		merge_threshold = options["merge_threshold"]

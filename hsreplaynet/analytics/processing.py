@@ -428,8 +428,12 @@ def get_cluster_set_data(
 
 	gt = "RANKED_STANDARD" if game_format == FormatType.FT_STANDARD else "RANKED_WILD"
 	query = get_redshift_query("list_cluster_set_data")
+	time_range_val = "LAST_%i_DAY" % lookback
+	if lookback > 1:
+		time_range_val += "S"
+
 	parameterized_query = query.build_full_params(dict(
-		TimeRange="LAST_%i_DAYS" % lookback,
+		TimeRange=time_range_val,
 		min_games=min_observations,
 		min_pilots=min_pilots,
 		GameType=gt,
@@ -438,6 +442,16 @@ def get_cluster_set_data(
 	if not parameterized_query.result_available or parameterized_query.result_is_stale:
 		if block:
 			attempt_request_triggered_query_execution(parameterized_query, run_local=True)
+			sleep_counter = 0
+			MAX_SLEEP = 120
+			while not parameterized_query.result_available:
+				if sleep_counter >= MAX_SLEEP:
+					raise RuntimeError(
+						"Waited %i seconds, clustering data not available" % MAX_SLEEP
+					)
+				time.sleep(1)
+				sleep_counter += 1
+
 		else:
 			attempt_request_triggered_query_execution(parameterized_query)
 			return []

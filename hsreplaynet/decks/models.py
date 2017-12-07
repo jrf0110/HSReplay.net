@@ -533,7 +533,8 @@ class ClusterSetManager(models.Manager):
 		min_observations=100,
 		min_pilots=10,
 		experimental_threshold=1500,
-		allow_inheritence_miss_list=[]
+		allow_inheritence_miss_list=[],
+		dry_run=False
 	):
 		from hsreplaynet.analytics.processing import get_cluster_set_data
 
@@ -543,6 +544,16 @@ class ClusterSetManager(models.Manager):
 			min_observations=min_observations,
 			min_pilots=min_pilots
 		)
+
+		log.info("\nClustering Raw Data Volume:")
+		total_data_points = 0
+		for player_class_name, data_points in data.items():
+			data_points_for_class = len(data_points)
+			total_data_points += data_points_for_class
+			log.info(
+				"\t%s: %i Data Points" % (player_class_name, data_points_for_class)
+			)
+		log.info("\tTotal Data Points: %i\n" % total_data_points)
 
 		inheritance_missed = []
 		with transaction.atomic():
@@ -579,18 +590,19 @@ class ClusterSetManager(models.Manager):
 				experimental_cluster_threshold=experimental_threshold
 			)
 
-			for class_cluster in cs_snapshot.class_clusters:
-				class_cluster.cluster_set = cs_snapshot
-				# Don't use pcp_adjustments after consolidation is complete
-				# In order to leave signatures for tooltips unaffected.
-				class_cluster.update_cluster_signatures(
-					use_pcp_adjustment=False
-				)
-				class_cluster.save()
+			if not dry_run:
+				for class_cluster in cs_snapshot.class_clusters:
+					class_cluster.cluster_set = cs_snapshot
+					# Don't use pcp_adjustments after consolidation is complete
+					# In order to leave signatures for tooltips unaffected.
+					class_cluster.update_cluster_signatures(
+						use_pcp_adjustment=False
+					)
+					class_cluster.save()
 
-				for cluster in class_cluster.clusters:
-					cluster.class_cluster = class_cluster
-					cluster.save()
+					for cluster in class_cluster.clusters:
+						cluster.class_cluster = class_cluster
+						cluster.save()
 
 		if inheritance_missed:
 			log.warn(
