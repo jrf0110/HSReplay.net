@@ -270,8 +270,8 @@ export function getChartMetaData(
 
 	if (seasonTicks) {
 		const offset = 12 * 60 * 60 * 1000;
-		const minDate = new Date(xMin.x);
-		const maxDate = new Date(xMax.x);
+		const minDate = new Date("" + xMin.x);
+		const maxDate = new Date("" + xMax.x);
 		const season = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
 		if (season.getTime() >= minDate.getTime()) {
 			ticks.push(season.getTime() - offset);
@@ -357,7 +357,7 @@ export function commaSeparate(n: number|string): string {
 export function toTimeSeries(series: ChartSeries): ChartSeries {
 	const timeSeries = {
 		data: series.data.map((d) => {
-			return {x: new Date(d.x).getTime(), y: d.y};
+			return {x: new Date("" + d.x).getTime(), y: d.y};
 		}),
 		name: series.name,
 		metadata: series.metadata,
