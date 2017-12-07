@@ -93,7 +93,7 @@ module.exports = (env) => {
 		articles: makeEntry("articles"),
 		premium_modal: makeEntry("premium_modal"),
 		home: makeEntry("home"),
-		polyfills: ["babel-polyfill", "whatwg-fetch", makeEntry("polyfills")],
+		vendor: ["babel-polyfill", "whatwg-fetch", makeEntry("polyfills")],
 	};
 
 	// flatten the entry points for config
@@ -182,6 +182,10 @@ module.exports = (env) => {
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
 			new webpack.DefinePlugin(settings),
 			extractSCSS,
+			new webpack.optimize.CommonsChunkPlugin({
+				name: "vendor",
+				minChunks: Infinity,
+			}),
 		].concat(commons).concat(plugins),
 		watchOptions: {
 			// required in the Vagrant setup due to Vagrant inotify not working
