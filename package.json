@@ -31,7 +31,7 @@
 		"d3": "^4.12.0",
 		"deckstrings": "^1.1.0",
 		"extract-text-webpack-plugin": "^3.0.2",
-		"hearthstonejson": "^0.7.0",
+		"hearthstonejson": "^0.7.1",
 		"lodash": "^4.17.4",
 		"moment": "^2.19.3",
 		"node-sass": "^4.7.2",
