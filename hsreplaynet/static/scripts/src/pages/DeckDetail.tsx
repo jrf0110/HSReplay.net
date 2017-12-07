@@ -259,10 +259,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<div>
 					<InfoboxFilterGroup
 						header="Rank Range"
-						infoHeader="Deck breakdown rank range"
+						infoHeader="Rank Range"
 						infoContent={[
 							<p>Check out how this deck performs at higher ranks!</p>,
-							<br/>,
 							<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
 						]}
 						selectedValue={this.getRankRange()}

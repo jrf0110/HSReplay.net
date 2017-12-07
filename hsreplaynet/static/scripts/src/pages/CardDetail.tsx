@@ -477,23 +477,24 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 						Arena
 					</InfoboxFilter>
 				</InfoboxFilterGroup>
-				<PremiumWrapper
-					name="Single Card Rank Range"
-					infoHeader="Rank range"
+				<InfoboxFilterGroup
+					header="Rank Range"
+					infoHeader="Rank Range"
 					infoContent="Check out how this card performs at higher ranks!"
+					selectedValue={!this.isArena() && this.props.rankRange}
+					onClick={(value) => this.props.setRankRange(value)}
+					disabled={this.isArena()}
 				>
-					<h2>Rank range</h2>
-					<InfoboxFilterGroup
-						selectedValue={!this.isArena() && this.props.rankRange}
-						onClick={(value) => this.props.setRankRange(value)}
-						disabled={this.isArena()}
+					<PremiumWrapper
+						name="Single Card Rank Range"
+						iconStyle={{display: "none"}}
 					>
 						<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 						<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
 						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-					</InfoboxFilterGroup>
-				</PremiumWrapper>
+					</PremiumWrapper>
+					<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+				</InfoboxFilterGroup>
 				<h2>Data</h2>
 				<ul>
 					<li>

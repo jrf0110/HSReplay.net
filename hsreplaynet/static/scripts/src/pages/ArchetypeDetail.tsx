@@ -356,20 +356,23 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.playerClass, true) + ".jpg"}
 				/>
 				<section id="rank-range-filter">
-					<PremiumWrapper
-						name="Archetype Detail Rank Range"
+					<InfoboxFilterGroup
+						header="Rank Range"
+						infoHeader="Archetype by rank"
+						infoContent="Check out how this archetype performs at various rank ranges!"
+						selectedValue={this.props.rankRange}
+						onClick={(value) => this.props.setRankRange(value)}
 					>
-						<h2>Rank range</h2>
-						<InfoboxFilterGroup
-							selectedValue={this.props.rankRange}
-							onClick={(value) => this.props.setRankRange(value)}
+						<PremiumWrapper
+							name="Archetype Detail Rank Range"
+							iconStyle={{display: "none"}}
 						>
 							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
 							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
 							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_TWENTY">Legend–20</InfoboxFilter>
-						</InfoboxFilterGroup>
-					</PremiumWrapper>
+						</PremiumWrapper>
+						<InfoboxFilter value="LEGEND_THROUGH_TWENTY">Legend–20</InfoboxFilter>
+					</InfoboxFilterGroup>
 				</section>
 				<section id="info">
 					<h2>Data</h2>
