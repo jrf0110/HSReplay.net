@@ -10,7 +10,7 @@ export default class SemanticAge extends React.Component<SemanticAgeProps, {}> {
 	private interval: number;
 
 	componentDidMount() {
-		this.interval = setInterval(() => {
+		this.interval = window.setInterval(() => {
 			// rerender to refresh the timestamp
 			this.forceUpdate();
 		}, 5000);
