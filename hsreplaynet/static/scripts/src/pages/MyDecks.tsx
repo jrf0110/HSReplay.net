@@ -17,6 +17,7 @@ import Fragments from "../components/Fragments";
 import InfoIcon from "../components/InfoIcon";
 import {decode as decodeDeckstring} from "deckstrings";
 import {Limit} from "../components/ObjectSearch";
+import Feature from "../components/Feature";
 
 interface MyDecksState {
 	account?: string;
@@ -477,6 +478,12 @@ export default class MyDecks extends React.Component<MyDecksProps, MyDecksState>
 							<InfoboxFilter value="PREVIOUS_SEASON">Previous Season</InfoboxFilter>
 							<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
 							<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
+							<Feature feature={"current-expansion-filter"}>
+								<InfoboxFilter value="CURRENT_EXPANSION">
+									Kobolds and Catacombs
+									<span className="infobox-value">New!</span>
+								</InfoboxFilter>
+							</Feature>
 						</InfoboxFilterGroup>
 					</section>
 					<section id="side-bar-data">
