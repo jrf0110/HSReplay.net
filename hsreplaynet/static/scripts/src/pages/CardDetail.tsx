@@ -94,7 +94,8 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		}
 		const hasDiscover = this.props.card.referencedTags && this.props.card.referencedTags.some(t => t === "DISCOVER");
 		const isKalimos = this.props.dbfId === 41331;
-		return hasDiscover || isKalimos;
+		const isRunespear = this.props.dbfId === 46305;
+		return hasDiscover || isKalimos || isRunespear;
 	}
 
 	cardIsNeutral(): boolean {
