@@ -269,16 +269,16 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 			if (this.props.promoteLatestSet && this.props.timeRange === "LAST_30_DAYS") {
 				infoRow = (
 					<div className="info-row text-center">
-						<span>Showing decks from all expansions.&nbsp;</span>
+						<span>We've added a <strong>Kobolds and Katacombs</strong> time filter so you can keep up with the latest decks!&nbsp;&nbsp;</span>
 						<a
 							href="#"
-							className="btn btn-default"
+							className="btn btn-primary"
 							onClick={(event) => {
 								event.preventDefault();
 								this.props.setTimeRange("CURRENT_EXPANSION");
 							}}
 						>
-							New decks only
+							Enable now
 						</a>
 					</div>
 				);

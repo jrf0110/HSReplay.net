@@ -30,7 +30,7 @@ const render = (cardData: CardData) => {
 			<Decks
 				cardData={cardData}
 				latestSet="LOOTAPALOOZA"
-				promoteLatestSet={false}
+				promoteLatestSet={UserData.hasFeature("current-expansion-filter")}
 			/>
 		</Fragments>,
 		container,
