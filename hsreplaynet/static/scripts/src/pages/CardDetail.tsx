@@ -69,8 +69,21 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	cardHasTargetReqs(): boolean {
+		const target_requirements = [
+			"REQ_TARGET_TO_PLAY",
+			"REQ_TARGET_FOR_COMBO",
+			"REQ_TARGET_IF_AVAILABLE",
+			"REQ_TARGET_IF_AVAILABE_AND_ELEMENTAL_PLAYED_LAST_TURN", // [sic]
+			"REQ_TARGET_IF_AVAILABLE_AND_DRAGON_IN_HAND",
+			"REQ_TARGET_IF_AVAILABLE_AND_MINIMUM_FRIENDLY_MINIONS",
+		];
 		if (this.props.card && this.props.card.playRequirements) {
-			return Object.keys(this.props.card.playRequirements).some((req) => req.toLowerCase().indexOf("target") !== -1);
+			const card_requirements = Object.keys(this.props.card.playRequirements);
+			for(let i = 0; i < target_requirements.length; i++) {
+				if(card_requirements.indexOf(target_requirements[i]) !== -1) {
+					return true;
+				}
+			}
 		}
 		return false;
 	}
