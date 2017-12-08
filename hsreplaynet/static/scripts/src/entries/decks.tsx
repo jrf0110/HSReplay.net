@@ -22,7 +22,7 @@ const render = (cardData: CardData) => {
 				opponentClasses: [],
 				rankRange: "ALL",
 				region: "ALL",
-				timeRange: "LAST_30_DAYS",
+				timeRange: UserData.hasFeature("current-expansion-filter") ? "CURRENT_EXPANSION" : "LAST_30_DAYS",
 				trainingData: "",
 			}}
 			immutable={!UserData.isPremium() ? ["account", "opponentClass", "rankRange", "region"] : null}

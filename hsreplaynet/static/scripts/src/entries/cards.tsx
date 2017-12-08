@@ -34,7 +34,7 @@ const render = (cardData: CardData) => {
 				gameType: "RANKED_STANDARD",
 				playerClass: "ALL",
 				rankRange: "ALL",
-				timeRange: personal ? "LAST_30_DAYS" : "LAST_14_DAYS",
+				timeRange: personal ? "LAST_30_DAYS" : (UserData.hasFeature("current-expansion-filter") ? "CURRENT_EXPANSION" : "LAST_14_DAYS"),
 				exclude: "",
 				cost: [],
 				rarity: [],

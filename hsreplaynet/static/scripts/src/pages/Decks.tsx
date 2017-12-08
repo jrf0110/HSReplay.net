@@ -265,24 +265,6 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 			const gameType = isWild ? "Wild" : "Standard";
 			const minGames = isWild ? 200 : 400;
 			const helpMessage = `${gameType} decks require at least 10 unique pilots and ${minGames} recorded games in the selected time frame to be listed.`;
-			let infoRow = null;
-			if (this.props.promoteLatestSet && this.props.timeRange === "LAST_30_DAYS") {
-				infoRow = (
-					<div className="info-row text-center">
-						<span>We've added a <strong>Kobolds and Katacombs</strong> time filter so you can keep up with the latest decks!&nbsp;&nbsp;</span>
-						<a
-							href="#"
-							className="btn btn-primary"
-							onClick={(event) => {
-								event.preventDefault();
-								this.props.setTimeRange("CURRENT_EXPANSION");
-							}}
-						>
-							Enable now
-						</a>
-					</div>
-				);
-			}
 			content = (
 				<Fragments
 					defaults={{
@@ -293,7 +275,6 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 					ref={(ref) => this.deckListsFragmentsRef}
 				>
 					<DeckList
-						infoRow={infoRow}
 						decks={this.state.filteredDecks}
 						pageSize={12}
 						helpMessage={helpMessage}
