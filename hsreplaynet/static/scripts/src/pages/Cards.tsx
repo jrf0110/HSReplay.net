@@ -403,7 +403,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			const warnFields = ["includedPopularity", "timesPlayed", "includedWinrate", "playedWinrate"];
 			if (!this.props.showSparse) {
 				const warning = (
-					<div className="info-row text-center">
+					<div className="info-row text-center text-help">
 						<span className="hidden-xs hidden-sm">Some cards were hidden due to a low amount of data.&nbsp;</span>
 						<a
 							href="#"
