@@ -93,9 +93,12 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			return false;
 		}
 		const hasDiscover = this.props.card.referencedTags && this.props.card.referencedTags.some(t => t === "DISCOVER");
-		const isKalimos = this.props.dbfId === 41331;
-		const isRunespear = this.props.dbfId === 46305;
-		return hasDiscover || isKalimos || isRunespear;
+		const implicit = [
+			41331, // Kalimos, Primal Lord
+			43329, // Kobold Hermit
+			46305, // The Runespear
+		];
+		return hasDiscover || implicit.indexOf(this.props.dbfId) !== -1;
 	}
 
 	cardIsNeutral(): boolean {
