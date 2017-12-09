@@ -538,7 +538,7 @@ class ClusterSetManager(models.Manager):
 		min_pilots=10,
 		experimental_threshold=1500,
 		allow_inheritence_miss_list=[],
-		dry_run=True
+		dry_run=False
 	):
 		from hsreplaynet.analytics.processing import get_cluster_set_data
 
