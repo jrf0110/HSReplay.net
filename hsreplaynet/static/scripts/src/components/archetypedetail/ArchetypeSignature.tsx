@@ -33,7 +33,7 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 		}
 
 		const buckets: Bucket[] = [
-			{title: "Core Cards", threshold: 0.9, cards: []},
+			{title: "Core Cards", threshold: 0.8, cards: []},
 			{title: "Popular Tech Cards", threshold: 0.5, cards: []},
 		];
 
