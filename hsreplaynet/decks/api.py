@@ -1,3 +1,4 @@
+import json
 from statistics import mean
 
 from django.db import connection
@@ -67,6 +68,21 @@ class ArchetypeListSerializer(ArchetypeSerializer):
 			components = sorted(signature["components"], key=lambda x: x[1], reverse=True)
 			signature["components"] = [dbf for dbf, weight in components][:10]
 			return signature
+
+	def to_representation(self, instance):
+		from django.core.cache import caches
+		from django.core.serializers.json import DjangoJSONEncoder
+
+		cache = caches["redshift"]
+		key = "ArchetypeListSerializer::" + str(instance.pk)
+		cached = cache.get(key)
+		if cached:
+			return cached
+
+		ret = super().to_representation(instance)
+		ret = json.loads(json.dumps(ret, cls=DjangoJSONEncoder))
+		cache.set(key, ret, 600)
+		return ret
 
 
 class ArchetypeWriteSerializer(serializers.ModelSerializer):
