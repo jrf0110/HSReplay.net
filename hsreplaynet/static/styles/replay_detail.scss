@@ -10,7 +10,8 @@
 }
 
 #joust-container {
-	width: 100%;
+	width: 0;
+	flex-grow: 1;
 }
 
 #infobox-players-container {
@@ -148,11 +149,7 @@
 }
 
 @media (min-width: 768px) {
-	#replay-infobox {
-		min-width: 300px;
-	}
-
-	#infobox-players-container {
-		min-width: 300px;
+	#replay-infobox, #infobox-players-container {
+		width: 300px;
 	}
 }
