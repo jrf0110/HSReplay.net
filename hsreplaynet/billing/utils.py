@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.db import transaction
 from django.utils import timezone
 from django_reflinks.models import ReferralHit
 from djpaypal.models import WebhookEvent
@@ -40,8 +41,12 @@ def check_for_referrals(user):
 	customer_to_credit.account_balance += cents_amount_to_credit
 	customer_to_credit.save(idempotency_key=ik)
 
-	ref.processed = True
-	ref.credit_request_id = customer_to_credit.last_request.request_id
+	with transaction.atomic():
+		ref.processed = True
+		# Waiting for https://github.com/stripe/stripe-python/pull/371
+		# ref.credit_request_id = customer_to_credit.last_request.request_id
+		ref.apply_referral_plan()
+
 	ref.save()
 
 
