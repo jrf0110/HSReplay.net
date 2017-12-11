@@ -204,6 +204,14 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 			messages.error(self.request, "You are already subscribed!")
 			return False
 
+		lazy_discounts = customer.subscriber.lazy_discounts.filter(used=False)
+		if lazy_discounts.exists():
+			for discount in lazy_discounts:
+				discount.apply()
+
+			# Refresh customer
+			customer = customer.__class__.objects.get(pk=customer)
+
 		# The Stripe ID of the plan should be included in the POST
 		plan_id = self.request.POST.get("plan")
 		# Have to check that it's a plan that users can subscribe to.
