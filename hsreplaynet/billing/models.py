@@ -2,7 +2,7 @@ from datetime import timedelta
 from uuid import uuid4
 
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 
@@ -28,6 +28,25 @@ class LazyDiscount(models.Model):
 
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
+
+	def apply(self):
+		if self.expires and self.expires > timezone.now():
+			# Discount expired. Delete it instead.
+			self.delete()
+			return False
+
+		if self.used:
+			# Discount has already been used. Skip.
+			return False
+
+		with transaction.atomic():
+			self.user.stripe_customer.add_coupon(
+				self.coupon, idempotency_key=self.idempotency_key
+			)
+			self.used = True
+			self.save()
+
+		return True
 
 
 class Referral(models.Model):
