@@ -1,5 +1,33 @@
+from datetime import timedelta
+from uuid import uuid4
+
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+
+
+class LazyDiscount(models.Model):
+	"""
+	A coupon discount that is applied to a user without being tracked in Stripe.
+	This discount allows for an expiration date individual to the user.
+	"""
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+		related_name="lazy_discounts"
+	)
+	coupon = models.ForeignKey("djstripe.Coupon", on_delete=models.CASCADE)
+	referral_source = models.OneToOneField(
+		"billing.Referral", on_delete=models.CASCADE, unique=True
+	)
+	expires = models.DateTimeField(null=True)
+	used = models.BooleanField(default=False)
+	idempotency_key = models.UUIDField(
+		unique=True, default=uuid4, editable=False,
+		help_text="Idempotency key to be used when applying the coupon."
+	)
+
+	created = models.DateTimeField(auto_now_add=True)
+	updated = models.DateTimeField(auto_now=True)
 
 
 class Referral(models.Model):
@@ -24,3 +52,43 @@ class Referral(models.Model):
 
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f"{self.hit_user} referred by {self.referral_hit}"
+
+	def apply_referral_plan(self):
+		try:
+			plan = ReferralLinkPlan.objects.get(referral_link=self.referral_hit.referral_link)
+		except ReferralLinkPlan.DoesNotExist:
+			# No plan associated with the link
+			return
+
+		if not plan.apply_coupon:
+			# No coupon to apply
+			return
+
+		if plan.coupon_expiry:
+			expires = timezone.now() + timedelta(days=plan.coupon_expiry)
+		else:
+			expires = None
+
+		LazyDiscount.objects.get_or_create(referral_source=self, defaults={
+			"user": self.hit_user,
+			"coupon": plan.apply_coupon,
+			"expires": expires,
+		})
+
+
+class ReferralLinkPlan(models.Model):
+	referral_link = models.OneToOneField(
+		"django_reflinks.ReferralLink", on_delete=models.CASCADE,
+		related_name="plan"
+	)
+	apply_coupon = models.CharField(max_length=255, blank=True)
+	coupon_expiry = models.PositiveIntegerField(default=0)
+
+	created = models.DateTimeField(auto_now_add=True)
+	updated = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f"Referral Plan for {self.referral_link}"
