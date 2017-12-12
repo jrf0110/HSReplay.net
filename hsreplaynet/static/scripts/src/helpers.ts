@@ -654,6 +654,8 @@ export function slangToCardId(slang: string): string|null {
 		case "477": // Flamewreath Faceless
 		case "4mana77":
 			return "OG_024";
+		case "nzoth": // N'Zoth, the Corruptor
+			return "OG_133";
 	}
 	return null;
 }
