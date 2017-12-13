@@ -71,6 +71,7 @@ class Command(BaseCommand):
 
 	def add_arguments(self, parser):
 		parser.add_argument("--lookback", nargs="?", type=int, default=7)
+		parser.add_argument("--dry-run", action="store_true", default=False)
 
 	def get_archetype_name(self, archetype_id):
 		if archetype_id in self.archetype_map:
@@ -79,6 +80,7 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		conn = redshift.get_new_redshift_connection()
+		is_dry_run = options["dry_run"]
 
 		end_ts = date.today()
 		start_ts = end_ts - timedelta(days=options["lookback"])
@@ -117,10 +119,12 @@ class Command(BaseCommand):
 		result_set = list(conn.execute(compiled_statement))
 		total_rows = len(result_set)
 		self.stdout.write("%i decks to update" % (total_rows))
+		if is_dry_run:
+			self.stdout.write("Dry run, will not flush to databases" % (total_rows))
 
 		for counter, row in enumerate(result_set):
 			deck_id = row["deck_id"]
-			if counter % 100000 == 0:
+			if not is_dry_run and counter % 100000 == 0:
 				self.flush_db_buffer()
 				self.flush_firehose_buffer()
 
@@ -160,10 +164,14 @@ class Command(BaseCommand):
 					counter, pct_complete, deck_id, current_name, new_name
 				))
 
-				self.buffer_archetype_update(deck_id, new_archetype_id)
+				if not is_dry_run:
+					self.buffer_archetype_update(deck_id, new_archetype_id)
 
-		self.flush_db_buffer()
-		self.flush_firehose_buffer()
+		if not is_dry_run:
+			self.flush_db_buffer()
+			self.flush_firehose_buffer()
+		else:
+			self.stdout.write("Dry run complete" % (total_rows))
 
 	def buffer_archetype_update(self, deck_id, new_archetype_id):
 		if new_archetype_id not in self.db_archetypes_to_update:
