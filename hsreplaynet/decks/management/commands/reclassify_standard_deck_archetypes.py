@@ -1,4 +1,5 @@
 import json
+import math
 import time
 from datetime import date, datetime, timedelta
 
@@ -81,6 +82,7 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		conn = redshift.get_new_redshift_connection()
 		is_dry_run = options["dry_run"]
+		verbosity = options["verbosity"]
 
 		end_ts = date.today()
 		start_ts = end_ts - timedelta(days=options["lookback"])
@@ -120,7 +122,7 @@ class Command(BaseCommand):
 		total_rows = len(result_set)
 		self.stdout.write("%i decks to update" % (total_rows))
 		if is_dry_run:
-			self.stdout.write("Dry run, will not flush to databases" % (total_rows))
+			self.stdout.write("Dry run, will not flush to databases")
 
 		for counter, row in enumerate(result_set):
 			deck_id = row["deck_id"]
@@ -152,16 +154,17 @@ class Command(BaseCommand):
 				)
 
 				if new_archetype_id == current_archetype_id:
-					self.stdout.write("Deck %r - Nothing to do." % (deck_id))
+					if verbosity > 1:
+						self.stdout.write("Deck %r - Nothing to do." % (deck_id))
 					continue
 
 				current_name = self.get_archetype_name(current_archetype_id)
 				new_name = self.get_archetype_name(new_archetype_id)
 
-				pct_complete = str(round((100.0 * counter / total_rows), 4))
+				pct_complete = str(math.floor(100.0 * counter / total_rows))
 
-				self.stdout.write("\t(%r, %s) Updating Deck ID: %r - %s => %s\n" % (
-					counter, pct_complete, deck_id, current_name, new_name
+				self.stdout.write("\t[%s%%] Reclassifying deck %r: %s => %s\n" % (
+					pct_complete, deck_id, current_name, new_name
 				))
 
 				if not is_dry_run:
@@ -171,7 +174,7 @@ class Command(BaseCommand):
 			self.flush_db_buffer()
 			self.flush_firehose_buffer()
 		else:
-			self.stdout.write("Dry run complete" % (total_rows))
+			self.stdout.write("Dry run complete")
 
 	def buffer_archetype_update(self, deck_id, new_archetype_id):
 		if new_archetype_id not in self.db_archetypes_to_update:
