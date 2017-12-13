@@ -656,6 +656,10 @@ export function slangToCardId(slang: string): string|null {
 			return "OG_024";
 		case "nzoth": // N'Zoth, the Corruptor
 			return "OG_133";
+		case "cta": // Call to Arms
+			return "LOOT_093";
+		case "tms": // To My Side!
+			return "LOOT_217";
 	}
 	return null;
 }
