@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from hearthsim.identity.utils import admin_urlify
+from hearthsim.identity.utils import EstimatedCountPaginator, admin_urlify
 
 from .models import (
 	Archetype, ClassClusterSnapshot, ClusterSetSnapshot, ClusterSnapshot, Deck, Include
@@ -19,6 +19,8 @@ class DeckAdmin(admin.ModelAdmin):
 	inlines = (IncludeInline, )
 	readonly_fields = ("shortid", )
 	raw_id_fields = ("guessed_full_deck", )
+	show_full_result_count = False
+	paginator = EstimatedCountPaginator
 
 	def get_ordering(self, request):
 		return ["-id"]
