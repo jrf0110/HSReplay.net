@@ -131,6 +131,10 @@ module.exports = (env) => {
 		},
 		resolve: {
 			extensions: [".ts", ".tsx", ".js"],
+			alias: {
+				// we need to this to get the fully bundled d3, instead of the independent module
+				"d3": "d3/build/d3.js",
+			}
 		},
 		module: {
 			rules: [
