@@ -1,6 +1,6 @@
 import * as React from "react";
 
-interface TabProps {
+interface TabProps extends React.ClassAttributes<Tab> {
 	id: string;
 	hidden?: boolean;
 	disabled?: boolean;
@@ -8,7 +8,7 @@ interface TabProps {
 	highlight?: boolean;
 }
 
-export default class Tab extends React.Component<TabProps, {}> {
+export default class Tab extends React.Component<TabProps> {
 	render() {
 		return <div>{this.props.children}</div>;
 	}
