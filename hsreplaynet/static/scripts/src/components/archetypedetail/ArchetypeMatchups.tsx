@@ -55,6 +55,10 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 			}
 		});
 
+		if (Object.keys(opponentClasses).length === 0) {
+			return <h3 className="message-wrapper">Not enough games for meaningful matchup data available.</h3>;
+		}
+
 		Object.keys(opponentClasses).forEach((key) => {
 			opponentClasses[key].forEach((data) => {
 				data.pct_of_class *= 100.0 / games[key];
@@ -75,6 +79,7 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 				sortDirection={this.state.sortDirection}
 			/>
 		));
+
 		return (
 			<div className="class-tile-container">
 				{tiles}
