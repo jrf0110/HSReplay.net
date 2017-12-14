@@ -51,9 +51,11 @@ export default class CardTile extends React.Component<CardTileProps, {}> {
 			const gemClassNames = ["card-gem"];
 			gemClassNames.push("rarity-" + (this.props.card.rarity || "free").toLowerCase());
 
+			const cost = !this.props.card.hideStats ? this.props.card.cost : "";
+
 			gem = (
 				<div className={gemClassNames.join(" ")} style={gemStyle}>
-					<span className="card-cost" style={costStyle}>{this.props.card.cost}</span>
+					<span className="card-cost" style={costStyle}>{cost}</span>
 				</div>
 			);
 		}
