@@ -495,6 +495,7 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 
 		is_spectated_replay = meta.get("spectator_mode", False)
 		is_friendly_player = player.player_id == meta["friendly_player"]
+		is_dungeon_run = meta.get("scenario_id", 0) == 2663
 		decklist_from_meta = player_meta.get("deck")
 		decklist_from_replay = [c.initial_card_id for c in player.initial_deck if c.card_id]
 
@@ -503,7 +504,13 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 			decklist_from_replay
 		)
 
-		if not decklist_from_meta or is_spectated_replay or not meta_decklist_is_superset:
+		# We disregard the meta decklist if it's not matching the replay decklist
+		# We always want to use it in dungeon run though, since the initial deck is garbage
+		disregard_meta = not meta_decklist_is_superset and (
+			not is_dungeon_run or not is_friendly_player
+		)
+
+		if not decklist_from_meta or is_spectated_replay or disregard_meta:
 			# Spectated replays never know more than is in the replay data
 			# But may have erroneous data from the spectator's client's memory
 			# Read from before they entered the spectated game
