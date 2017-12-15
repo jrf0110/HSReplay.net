@@ -51,13 +51,16 @@ function sortCardData(
 		cardData.sort((a, b) => cardSorting(a.card.card, b.card.card, -direction));
 	}
 	else {
-		const key = columns.find((x) => x.sortKey === sortBy).dataKey;
-		cardData.sort((a, b) => {
-			const aValue = (a.data ? a.data[key] : 0) || 0;
-			const bValue = (b.data ? b.data[key] : 0) || 0;
-			return (bValue - aValue) * direction
-				|| (a.card.card.name > b.card.card.name ? -direction : direction);
-		});
+		const column = columns.find((x) => x.sortKey === sortBy);
+		if (column) {
+			const key = column.dataKey;
+			cardData.sort((a, b) => {
+				const aValue = (a.data ? a.data[key] : 0) || 0;
+				const bValue = (b.data ? b.data[key] : 0) || 0;
+				return (bValue - aValue) * direction
+					|| (a.card.card.name > b.card.card.name ? -direction : direction);
+			});
+		}
 	}
 	return cardData;
 }
