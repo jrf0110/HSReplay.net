@@ -9,7 +9,7 @@ import { ApiCardStatsData, generateCardTableRowData } from "./cardtable/RowDataG
 
 interface CardTableProps extends SortableProps, React.ClassAttributes<CardTable> {
 	baseWinrate?: number;
-	cards: CardObj[];
+	cards?: CardObj[];
 	columns: CardTableColumnKey[];
 	data?: ApiCardStatsData[];
 	numCards?: number;
