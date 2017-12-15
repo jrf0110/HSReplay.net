@@ -25,6 +25,7 @@ import WinrateLineChart from "../components/charts/WinrateLineChart";
 import {getHeroCardId} from "../helpers";
 import ArchetypeSignature from "../components/archetypedetail/ArchetypeSignature";
 import { extractSignature } from "../extractors";
+import CardTable from "../components/tables/CardTable";
 
 interface ArchetypeDetailState {
 	deckData?: any;
@@ -32,6 +33,8 @@ interface ArchetypeDetailState {
 	popularDecksPage?: number;
 	popularDecksSortBy?: string;
 	popularDecksSortDirection?: SortDirection;
+	mulliganGuideSortBy?: string;
+	mulliganGuideSortDirection?: string;
 }
 
 interface ArchetypeDetailProps {
@@ -58,6 +61,8 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			popularDecksPage: 1,
 			popularDecksSortBy: "popularity",
 			popularDecksSortDirection: "descending",
+			mulliganGuideSortBy: "card",
+			mulliganGuideSortDirection: "ascending",
 		};
 
 		this.fixGameTypeFragments();
@@ -278,6 +283,9 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								/>
 							</DataInjector>
 						</Tab>
+						<Tab label="Mulligan Guide" id="mulligan-guide" hidden={!UserData.hasFeature("archetype-mulligan-guide")}>
+							{this.renderMulliganGuide(params)}
+						</Tab>
 						<Tab label="Popular Decks" id="similar">
 							<DeckList
 								decks={this.state.popularDecks}
@@ -493,5 +501,63 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			}
 			return {status: LoadingStatus.NO_DATA};
 		};
+	}
+
+	renderMulliganGuide(params) {
+		const {cardData} = this.props;
+
+		if (!cardData) {
+			return null;
+		}
+
+		return (
+			<DataInjector
+				query={[
+					{
+						key: "mulliganData",
+						params: {
+							GameType: this.getGameType(),
+							RankRange: "ALL",
+							archetype_id: this.props.archetypeId,
+						},
+						url: "single_archetype_mulligan_guide",
+					},
+					{
+						key: "matchupData",
+						params,
+						url: "head_to_head_archetype_matchups"
+					},
+				]}
+				extract={{
+					mulliganData: (data) => ({
+						data: data.series.data["ALL"],
+						cards: data.series.data["ALL"].map((row) => ({card: cardData.fromDbf(row.dbf_id), count: 1})),
+					}),
+					matchupData: (matchupData) => {
+						const data = matchupData.series.metadata["" + this.props.archetypeId];
+						if (data) {
+							return {baseWinrate: data.win_rate};
+						}
+						return {status: LoadingStatus.NO_DATA};
+					},
+				}}
+			>
+				<CardTable
+					columns={[
+						"mulliganWinrate",
+						"keepPercent",
+						"drawnWinrate",
+						"playedWinrate",
+						"turnsInHand",
+						"turnPlayed",
+					]}
+					onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
+						this.setState({mulliganGuideSortBy: sortBy, mulliganGuideSortDirection: sortDirection})
+					}}
+					sortBy={this.state.mulliganGuideSortBy}
+					sortDirection={this.state.mulliganGuideSortDirection as SortDirection}
+				/>
+			</DataInjector>
+		);
 	}
 }
