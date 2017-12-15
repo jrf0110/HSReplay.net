@@ -91,7 +91,8 @@ class Feature(models.Model):
 			base = user.pk
 		else:
 			base = id(user)
-		return base % 100 <= self.rollout_percent
+		offset = self.pk
+		return (base + offset) % 100 <= self.rollout_percent
 
 	def enabled_for_user(self, user):
 		if self.status == FeatureStatus.OFF:
