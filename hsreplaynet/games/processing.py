@@ -490,12 +490,13 @@ def update_global_players(global_game, entity_tree, meta, upload_event, exporter
 	players = {}
 	played_cards = exporter.export_played_cards()
 
+	is_spectated_replay = meta.get("spectator_mode", False)
+	is_dungeon_run = meta.get("scenario_id", 0) == 2663
+
 	for player in entity_tree.players:
+		is_friendly_player = player.player_id == meta["friendly_player"]
 		player_meta = meta.get("player%i" % (player.player_id), {})
 
-		is_spectated_replay = meta.get("spectator_mode", False)
-		is_friendly_player = player.player_id == meta["friendly_player"]
-		is_dungeon_run = meta.get("scenario_id", 0) == 2663
 		decklist_from_meta = player_meta.get("deck")
 		decklist_from_replay = [c.initial_card_id for c in player.initial_deck if c.card_id]
 
