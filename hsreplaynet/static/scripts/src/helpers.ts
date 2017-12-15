@@ -479,6 +479,12 @@ export function cardSorting(a: any, b: any, direction = 1): number {
 	if (a.cost < b.cost) {
 		return -direction;
 	}
+	if (!a.hideStats && b.hideStats) {
+		return direction;
+	}
+	if (a.hideStats && !b.hideStats) {
+		return -direction;
+	}
 	if (a.name > b.name) {
 		return direction;
 	}
