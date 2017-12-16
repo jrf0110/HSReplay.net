@@ -11,8 +11,8 @@ from hearthsim.identity.oauth2.permissions import OAuth2HasScopes
 from hsreplaynet.games.models import GameReplay
 from hsreplaynet.uploads.models import UploadEvent
 
-from . import serializers
-from .permissions import IsOwnerOrReadOnly
+from .. import serializers
+from ..permissions import IsOwnerOrReadOnly
 
 
 class WriteOnlyOnceViewSet(
@@ -25,13 +25,13 @@ class UploadEventViewSet(WriteOnlyOnceViewSet):
 	authentication_classes = (AuthTokenAuthentication, SessionAuthentication)
 	permission_classes = (RequireAuthToken, LegacyAPIKeyPermission)
 	queryset = UploadEvent.objects.all()
-	serializer_class = serializers.UploadEventSerializer
+	serializer_class = serializers.games.UploadEventSerializer
 	lookup_field = "shortid"
 
 
 class GameReplayDetail(RetrieveUpdateDestroyAPIView):
 	queryset = GameReplay.objects.live()
-	serializer_class = serializers.GameReplaySerializer
+	serializer_class = serializers.games.GameReplaySerializer
 	lookup_field = "shortid"
 	permission_classes = (IsOwnerOrReadOnly, )
 
@@ -46,7 +46,7 @@ class GameReplayList(ListAPIView):
 	permission_classes = (
 		OAuth2HasScopes(read_scopes=["games:read"], write_scopes=["games:write"]),
 	)
-	serializer_class = serializers.GameReplayListSerializer
+	serializer_class = serializers.games.GameReplayListSerializer
 
 	def check_permissions(self, request):
 		if not request.user.is_authenticated:

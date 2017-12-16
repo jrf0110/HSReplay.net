@@ -31,7 +31,7 @@ if not settings.ENV_LAMBDA:
 		url(r"^articles/", include("hsreplaynet.articles.urls")),
 		url(r"^account/", include("hsreplaynet.accounts.urls")),
 		url(r"^account/billing/", include("hsreplaynet.billing.urls")),
-		url(r"^comments/", include("hsreplaynet.comments.urls")),
+		url(r"^comments/", include("django_comments.urls")),
 		url(r"^premium/$", PremiumDetailView.as_view(), name="premium"),
 		url(r"^contact/$", flatpage, {"url": "/contact/"}, name="contact_us"),
 		url(r"^about/premium/$", RedirectView.as_view(pattern_name="premium", permanent=True)),
