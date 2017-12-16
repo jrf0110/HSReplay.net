@@ -123,9 +123,9 @@ TEMPLATES = [{
 			"django.template.context_processors.request",
 			"django.contrib.auth.context_processors.auth",
 			"django.contrib.messages.context_processors.messages",
-			"hsreplaynet.web.context_processors.userdata",
 			"hsreplaynet.web.context_processors.debug",
-			"hsreplaynet.billing.context_processors.premium",
+			"hsreplaynet.web.context_processors.premium",
+			"hsreplaynet.web.context_processors.userdata",
 		],
 	},
 }]
