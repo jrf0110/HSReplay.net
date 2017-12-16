@@ -4,7 +4,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView
 from rest_framework.serializers import HyperlinkedModelSerializer, SerializerMethodField
 
-from hsreplaynet.api.permissions import OAuth2HasScopes
+from hearthsim.identity.oauth2.permissions import OAuth2HasScopes
 from hsreplaynet.api.serializers import UserSerializer
 
 
