@@ -26,16 +26,6 @@ def delete_file(name):
 		default_storage.delete(name)
 
 
-def get_client_ip(request):
-	"""
-	Get the IP of a client from the request
-	"""
-	x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-	if x_forwarded_for:
-		return x_forwarded_for.split(",")[0]
-	return request.META.get("REMOTE_ADDR")
-
-
 def guess_ladder_season(timestamp):
 	epoch = datetime.datetime(2014, 1, 1, tzinfo=timestamp.tzinfo)
 	epoch_season = 1
