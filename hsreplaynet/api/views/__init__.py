@@ -1,4 +1,4 @@
-from . import comments, games
+from . import accounts, comments, games
 
 
-__all__ = ["comments", "games"]
+__all__ = ["accounts", "comments", "games"]
