@@ -142,7 +142,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	"""
 	Generic processing logic for raw log files.
 	"""
-	from hsreplaynet.api.serializers.games import UploadEventSerializer
+	from ..games.serializers import UploadEventSerializer
 
 	logger = logging.getLogger("hsreplaynet.lambdas.process_raw_upload")
 
