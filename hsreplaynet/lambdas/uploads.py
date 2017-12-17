@@ -13,7 +13,6 @@ from hearthsim.identity.accounts.models import AuthToken
 from hearthsim.identity.api.models import APIKey as LegacyAPIKey
 from hsredshift.etl.exporters import RedshiftPublishingExporter
 from hsredshift.etl.firehose import flush_exporter_to_firehose
-from hsreplaynet.api.serializers import UploadEventSerializer
 from hsreplaynet.uploads.models import (
 	RawUpload, UploadEvent, UploadEventStatus, _generate_upload_key
 )
@@ -143,6 +142,8 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 	"""
 	Generic processing logic for raw log files.
 	"""
+	from hsreplaynet.api.serializers.games import UploadEventSerializer
+
 	logger = logging.getLogger("hsreplaynet.lambdas.process_raw_upload")
 
 	obj, created = UploadEvent.objects.get_or_create(

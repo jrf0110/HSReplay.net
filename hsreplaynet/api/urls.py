@@ -10,7 +10,6 @@ from hsreplaynet.decks.urls import api_urlpatterns as decks_urlpatterns
 from hsreplaynet.features.api import FeatureViewSet
 from hsreplaynet.features.urls import api_urlpatterns as features_urlpatterns
 from hsreplaynet.packs.api import PackViewSet
-from hsreplaynet.webhooks.api import WebhookViewSet
 
 from . import views
 
@@ -21,7 +20,7 @@ router.register(r"features", FeatureViewSet)
 router.register(r"uploads", views.games.UploadEventViewSet)
 router.register(r"packs", PackViewSet)
 router.register(r"tokens", AuthTokenViewSet)
-router.register(r"webhooks", WebhookViewSet)
+router.register(r"webhooks", views.webhooks.WebhookViewSet)
 
 urlpatterns = [
 	url(r"^v1/account/$", UserDetailsView.as_view()),
