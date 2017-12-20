@@ -536,7 +536,7 @@ class ClusterSetManager(models.Manager):
 		lookback=7,
 		min_observations=100,
 		min_pilots=10,
-		experimental_threshold=1500,
+		experimental_threshold=.01,
 		allow_inheritence_miss_list=[],
 		dry_run=False
 	):
@@ -551,13 +551,28 @@ class ClusterSetManager(models.Manager):
 
 		log.info("\nClustering Raw Data Volume:")
 		total_data_points = 0
+		total_observations = 0
+		experimental_thresholds = {}
 		for player_class_name, data_points in data.items():
 			data_points_for_class = len(data_points)
+			observations_for_class = sum(d["observations"] for d in data_points)
+			total_observations += observations_for_class
+			threshold_for_class = int(observations_for_class * experimental_threshold)
+			experimental_thresholds[player_class_name] = threshold_for_class
 			total_data_points += data_points_for_class
 			log.info(
-				"\t%s: %i Data Points" % (player_class_name, data_points_for_class)
+				"\t%s: %i Data Points,\t%i Observations,\tExperimental Threshold: %i" % (
+					player_class_name,
+					data_points_for_class,
+					observations_for_class,
+					threshold_for_class
+				)
 			)
-		log.info("\tTotal Data Points: %i\n" % total_data_points)
+		log.info(
+			"\tTotal Data Points: %i, Observations: %i\n" % (
+				total_data_points, total_observations
+			)
+		)
 
 		inheritance_missed = []
 		with transaction.atomic():
@@ -591,7 +606,7 @@ class ClusterSetManager(models.Manager):
 					inheritance_missed.append(str(uninherited_id))
 
 			cs_snapshot.create_experimental_clusters(
-				experimental_cluster_threshold=experimental_threshold
+				experimental_cluster_thresholds=experimental_thresholds
 			)
 
 			if not dry_run:

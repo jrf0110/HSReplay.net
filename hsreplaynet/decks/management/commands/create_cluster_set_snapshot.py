@@ -14,7 +14,7 @@ class Command(BaseCommand):
 		parser.add_argument("--lookback", default=1, type=int)
 		parser.add_argument("--min-observations", default=10, type=int)
 		parser.add_argument("--min-pilots", default=1, type=int)
-		parser.add_argument("--experimental-threshold", default=500, type=int)
+		parser.add_argument("--experimental-threshold", default=.01, type=float)
 		parser.add_argument("--allow-inheritence-miss", default="", type=str)
 
 	def handle(self, *args, **options):
