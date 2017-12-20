@@ -15,7 +15,6 @@ class Command(BaseCommand):
 		parser.add_argument("--min-observations", default=10, type=int)
 		parser.add_argument("--min-pilots", default=1, type=int)
 		parser.add_argument("--experimental-threshold", default=.01, type=float)
-		parser.add_argument("--allow-inheritence-miss", default="", type=str)
 
 	def handle(self, *args, **options):
 		logger = logging.getLogger()
@@ -33,8 +32,6 @@ class Command(BaseCommand):
 		min_observations = options["min_observations"]
 		min_pilots = options["min_pilots"]
 		experimental_threshold = options["experimental_threshold"]
-		inheritence_miss_tokens = options["allow_inheritence_miss"].split(",")
-		allow_inheritence_miss = [int(s.strip()) for s in inheritence_miss_tokens if s]
 
 		ClusterSetSnapshot.objects.snapshot(
 			FormatType.FT_STANDARD,
@@ -45,5 +42,4 @@ class Command(BaseCommand):
 			min_observations=min_observations,
 			min_pilots=min_pilots,
 			experimental_threshold=experimental_threshold,
-			allow_inheritence_miss_list=allow_inheritence_miss
 		)

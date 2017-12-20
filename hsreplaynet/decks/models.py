@@ -537,7 +537,6 @@ class ClusterSetManager(models.Manager):
 		min_observations=100,
 		min_pilots=10,
 		experimental_threshold=.01,
-		allow_inheritence_miss_list=[],
 		dry_run=False
 	):
 		from hsreplaynet.analytics.processing import get_cluster_set_data
@@ -602,8 +601,7 @@ class ClusterSetManager(models.Manager):
 			)
 
 			for uninherited_id in uninherited_id_set:
-				if uninherited_id not in allow_inheritence_miss_list:
-					inheritance_missed.append(str(uninherited_id))
+				inheritance_missed.append(str(uninherited_id))
 
 			cs_snapshot.create_experimental_clusters(
 				experimental_cluster_thresholds=experimental_thresholds
