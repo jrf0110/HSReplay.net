@@ -344,7 +344,8 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 	}
 
 	getPopularity(archetype: ApiArchetype, popularityData: any): ApiArchetypePopularity {
-		return popularityData.series.data[archetype.player_class_name].find((a) => {
+		const data = popularityData.series.data[archetype.player_class_name];
+		return data && data.find((a) => {
 			return a.archetype_id === archetype.id;
 		});
 	}
