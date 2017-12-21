@@ -92,21 +92,26 @@ class MacroPattern(markdown.inlinepatterns.Pattern):
 		return markdown.util.etree.fromstring(html)
 
 
-def do_card(id=None, name=None, render=False, link=True, tooltip=None):
-	if not id and not name:
-		raise ValueError("Argument id or name is required.")
+def do_card(
+	dbf_id=None, card_id=None, id=None, name=None, render=False, link=True, tooltip=None
+):
 
 	from django_hearthstone.cards.models import Card
 
-	if id and name:
+	# TODO: rename `id` argument to `card_id`
+
+	if dbf_id is not None:
+		card = Card.objects.get(dbf_id=dbf_id)
+	elif card_id is not None:
+		card = Card.objects.get(card_id=card_id)
+	elif id is not None:
 		card = Card.objects.get(card_id=id)
-		name = escape(name)
-	elif id:
-		card = Card.objects.get(card_id=id)
-		name = escape(card.name)
 	elif name:
 		card = Card.objects.get(name=name)
-		name = escape(card.name)
+	else:
+		raise ValueError("Argument id or name is required.")
+
+	name = escape(name or card.name)
 
 	if render:
 		card_render_url = escape(card.get_card_render_url())
