@@ -1020,6 +1020,12 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 			self._class_clusters = list(self.classclustersnapshot_set.all())
 		return self._class_clusters
 
+	@class_clusters.setter
+	def class_clusters(self, cc):
+		self._class_clusters = cc
+		for class_cluster in cc:
+			class_cluster.cluster_set = self
+
 	@property
 	def cluster_set_key_prefix(self):
 		template = "models/{game_format}/{cluster_set_id}/{run_id}/"
@@ -1028,12 +1034,6 @@ class ClusterSetSnapshot(models.Model, ClusterSet):
 			cluster_set_id=self.id,
 			run_id=self.training_run_id,
 		)
-
-	@class_clusters.setter
-	def class_clusters(self, cc):
-		self._class_clusters = cc
-		for class_cluster in cc:
-			class_cluster.cluster_set = self
 
 	def update_all_signatures(self):
 		for class_cluster in self.class_clusters:
