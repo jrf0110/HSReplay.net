@@ -65,7 +65,6 @@ class ClusterSnapshotAdmin(admin.ModelAdmin):
 		"id",
 		"cluster_id",
 		"experimental",
-		"pretty_signature_html",
 		admin_urlify("archetype"),
 		"name",
 		"rules"
@@ -76,6 +75,7 @@ class ClusterSnapshotAdmin(admin.ModelAdmin):
 		"class_cluster__cluster_set__game_format",
 		"class_cluster__player_class",
 	)
+	raw_id_fields = ("class_cluster", )
 	readonly_fields = ("pretty_signature_html",)
 
 
