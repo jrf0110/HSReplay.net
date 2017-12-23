@@ -102,12 +102,16 @@ class DeckCreationSerializer(serializers.Serializer):
 		child=serializers.IntegerField(min_value=1),
 		min_length=30, max_length=30
 	)
+	archetype_id = serializers.IntegerField(read_only=True)
 
 	def save(self):
 		self.validated_data["cards"].sort()
 		card_ids = [Card.get_string_id(id) for id in self.validated_data["cards"]]
-		deck, created = Deck.objects.get_or_create_from_id_list(card_ids)
+		deck, created = Deck.objects.get_or_create_from_id_list(
+			card_ids, classify_archetype=True
+		)
 		self.validated_data["shortid"] = deck.shortid
+		self.validated_data["archetype_id"] = deck.archetype_id
 		return created
 
 
