@@ -31,7 +31,11 @@ export default class ArchetypeListItem extends React.Component<ArchetypeListItem
 		const hero = getHeroCardId(archetype.player_class_name, true);
 		const backgroundImage = `url(https://art.hearthstonejson.com/v1/256x/${hero}.jpg)`;
 
-		const deck = this.props.deckData[archetype.player_class_name]
+		const deckData = this.props.deckData[archetype.player_class_name];
+		if (!deckData) {
+			return null;
+		}
+		const deck = deckData
 			.filter((d) => d.archetype_id === archetype.id)
 			.sort((a, b) => b.total_games - a.total_games)[0];
 
