@@ -4644,9 +4644,9 @@ watchpack@^1.4.0:
     chokidar "^1.7.0"
     graceful-fs "^4.1.2"
 
-webpack-bundle-tracker@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/webpack-bundle-tracker/-/webpack-bundle-tracker-0.2.0.tgz#291198b374f040a9c52046ecd26df45f00a073c3"
+webpack-bundle-tracker@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/webpack-bundle-tracker/-/webpack-bundle-tracker-0.2.1.tgz#5dcdbf828e3eca841fddc99e3690b56a5586042a"
   dependencies:
     deep-extend "^0.4.1"
     mkdirp "^0.5.1"
