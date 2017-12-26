@@ -138,6 +138,19 @@ def process_s3_create_handler(event, context):
 	process_raw_upload(raw_upload, reprocessing, log_group_name, log_stream_name)
 
 
+def auth_token_from_header(header: str):
+	header = header.lower()
+
+	method, _, token = header.partition(" ")
+	if method != "token":
+		return
+
+	try:
+		return AuthToken.objects.get(key=token)
+	except (AuthToken.DoesNotExist, ValueError):
+		pass
+
+
 def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_stream_name=""):
 	"""
 	Generic processing logic for raw log files.
@@ -192,7 +205,7 @@ def process_raw_upload(raw_upload, reprocess=False, log_group_name="", log_strea
 		if not obj.user_agent:
 			raise ValidationError("Missing User-Agent header")
 		header = headers.get("authorization", "")
-		token = AuthToken.get_token_from_header(header)
+		token = auth_token_from_header(header)
 		if not token:
 			msg = "Malformed or Invalid Authorization Header: %r" % (header)
 			logger.error(msg)
