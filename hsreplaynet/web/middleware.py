@@ -77,7 +77,10 @@ class SetRemoteAddrFromForwardedFor:
 	The code is from Django 1.0, but removed as unfit for general use.
 	"""
 
-	HEADER = "HTTP_X_FORWARDED_FOR"
+	HEADERS = [
+		"HTTP_CF_CONNECTING_IP",
+		"HTTP_X_FORWARDED_FOR",
+	]
 
 	def __init__(self, get_response):
 		self.get_response = get_response
@@ -86,12 +89,12 @@ class SetRemoteAddrFromForwardedFor:
 		# Check the original IP; only proceed if it's not a "real" IP
 		ip = ip_address(request.META.get("REMOTE_ADDR", "127.0.0.1"))
 
-		if self.HEADER in request.META and ip.is_private:
-			value = request.META[self.HEADER]
-			# HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs. The
-			# client's IP will be the first one.
-			real_ip = value.split(",")[0].strip()
-			request.META["REMOTE_ADDR"] = real_ip
+		if ip.is_private:
+			for header in self.HEADERS:
+				if header in request.META:
+					real_ip = request.META[header].split(",")[0].strip()
+					request.META["REMOTE_ADDR"] = real_ip
+					break
 
 		response = self.get_response(request)
 		return response
