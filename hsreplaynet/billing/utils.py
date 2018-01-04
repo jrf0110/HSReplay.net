@@ -38,7 +38,7 @@ def check_for_referrals(user):
 	)
 
 	customer_to_credit = user.stripe_customer.api_retrieve()
-	customer_to_credit.account_balance += cents_amount_to_credit
+	customer_to_credit.account_balance -= cents_amount_to_credit
 	customer_to_credit.save(idempotency_key=ik)
 
 	with transaction.atomic():
