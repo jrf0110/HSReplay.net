@@ -155,18 +155,18 @@
 		</ul>
 		{% endif %}
 
-		{% if customer.account_balance > 0 %}
+		{% if customer.pending_charges %}
 			<hr/>
 			<h4>Unattempted charges</h4>
 			<p>
-				You have <strong>{% currency_amount customer.account_balance customer.currency %}</strong> in pending charges.<br/>
+				You have <strong>{% currency_amount customer.pending_charges customer.currency %}</strong> in pending charges.<br/>
 				This may have been from a previous unattempted charge.
 			</p>
-		{% elif customer.account_balance < 0 %}
+		{% elif customer.credits %}
 			<hr/>
 			<h4>Credits</h4>
 			<p>
-				Your account balance is <strong>{% currency_amount customer.account_balance customer.currency %}</strong>.<br/>
+				Your account balance is <strong>{% currency_amount customer.credits customer.currency %}</strong>.<br/>
 				<em>
 					When making a payment, these credits will be withdrawn first.
 					Payments made using PayPal are not supported.
