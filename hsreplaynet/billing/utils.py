@@ -20,7 +20,7 @@ def check_for_referrals(user):
 		return
 
 	user_to_credit = referral_hit.referral_link.user
-	cents_amount_to_credit = 100
+	cents_amount_to_credit = 250
 
 	ref, created = Referral.objects.get_or_create(
 		hit_user=user, defaults={
