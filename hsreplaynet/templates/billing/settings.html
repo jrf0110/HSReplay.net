@@ -155,7 +155,14 @@
 		</ul>
 		{% endif %}
 
-		{% if customer.account_balance %}
+		{% if customer.account_balance > 0 %}
+			<hr/>
+			<h4>Unattempted charges</h4>
+			<p>
+				You have <strong>{% currency_amount customer.account_balance customer.currency %}</strong> in pending charges.<br/>
+				This may have been from a previous unattempted charge.
+			</p>
+		{% elif customer.account_balance < 0 %}
 			<hr/>
 			<h4>Credits</h4>
 			<p>
