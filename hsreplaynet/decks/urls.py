@@ -37,7 +37,7 @@ urlpatterns = [
 	url(r"^discover/$", discover, name="discover"),
 	url(r"^meta/$", meta_overview, name="meta_overview"),
 	url(
-		r"^archetypes/",
+		r"^archetypes/$",
 		RedirectView.as_view(pattern_name="meta_overview", permanent=False)
 	),
 	url(
