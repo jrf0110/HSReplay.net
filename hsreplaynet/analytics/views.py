@@ -25,8 +25,8 @@ from hsreplaynet.utils import influx, log
 from hsreplaynet.utils.aws.redshift import get_redshift_query
 
 from .processing import (
-	attempt_request_triggered_query_execution, deck_is_eligible_for_global_stats,
-	evict_locks_cache, get_concurrent_redshift_query_queue_semaphore
+	attempt_request_triggered_query_execution, evict_locks_cache,
+	get_concurrent_redshift_query_queue_semaphore
 )
 
 
@@ -145,7 +145,7 @@ def _get_query_and_params(request, name):
 			# Anonymous or Fake Users Can Never Request Personal Stats
 			return HttpResponseForbidden()
 	else:
-		if deck and not deck_is_eligible_for_global_stats(deck):
+		if deck and not deck.eligible_for_global_stats:
 			return HttpResponseForbidden()
 
 		try:

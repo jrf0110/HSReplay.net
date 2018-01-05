@@ -232,6 +232,11 @@ class Deck(models.Model):
 		fields = ("id", "count", "deck_id", "card__name")
 		return self.includes.all().select_related("card").only(*fields)
 
+	@property
+	def eligible_for_global_stats(self):
+		from hsreplaynet.analytics.processing import _get_global_stats_eligible_decks
+		return self.digest in _get_global_stats_eligible_decks()
+
 	def get_absolute_url(self):
 		return reverse("deck_detail", kwargs={"id": self.shortid})
 

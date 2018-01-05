@@ -203,12 +203,7 @@ def run_local_warm_queries(eligible_queries=None):
 _eligible_decks_cache = {}
 
 
-def deck_is_eligible_for_global_stats(deck):
-	return deck.digest in _get_global_stats_eligible_decks()
-
-
 def _get_global_stats_eligible_decks():
-
 	query = redshift.get_redshift_query("list_decks_by_win_rate")
 	standard_query = query.build_full_params(dict(
 		TimeRange="LAST_30_DAYS",
