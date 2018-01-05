@@ -21,10 +21,6 @@ update_cluster_archetype = views.ClusterSnapshotUpdateView.as_view()
 
 
 urlpatterns = [
-	url(
-		r"^archetypes/(?P<id>\d+)/(?P<slug>[\w-]+)?",
-		archetype_detail, name="archetype_detail"
-	),
 	url(r"^cards/$", cards, name="cards"),
 	url(r"^cards/editor/", card_editor, name="card_editor"),
 	url(r"^cards/gallery/$", RedirectView.as_view(pattern_name="cards", permanent=True)),
@@ -40,6 +36,14 @@ urlpatterns = [
 	url(r"^decks/(?P<id>\w+)/$", deck_detail, name="deck_detail"),
 	url(r"^discover/$", discover, name="discover"),
 	url(r"^meta/$", meta_overview, name="meta_overview"),
+	url(
+		r"^archetypes/",
+		RedirectView.as_view(pattern_name="meta_overview", permanent=False)
+	),
+	url(
+		r"^archetypes/(?P<id>\d+)/(?P<slug>[\w-]+)?",
+		archetype_detail, name="archetype_detail"
+	),
 ]
 
 api_urlpatterns = [
