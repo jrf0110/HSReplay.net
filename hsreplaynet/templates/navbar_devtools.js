@@ -59,6 +59,8 @@ document.getElementById("free-mode").onclick = function() {
 		document.cookie = "free-mode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
 	}
 	else {
-		document.cookie = "free-mode=true; expires=Thu, 01 Jan 2018 00:00:00 UTC; path=/";
+		var date = new Date();
+		date.setFullYear(date.getFullYear() + 1);
+		document.cookie = "free-mode=true; expires=" + date.toUTCString() + "; path=/";
 	}
 };
