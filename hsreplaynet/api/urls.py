@@ -29,6 +29,8 @@ urlpatterns = [
 	url(r"^v1/comments/(?P<pk>\d+)/$", views.comments.CommentDetailView.as_view()),
 	url(r"^v1/games/$", views.games.GameReplayList.as_view()),
 	url(r"^v1/games/(?P<shortid>.+)/$", views.games.GameReplayDetail.as_view()),
+	url(r"^v1/analytics/global/$", views.analytics.GlobalAnalyticsQueryView.as_view()),
+	url(r"^v1/analytics/personal/$", views.analytics.PersonalAnalyticsQueryView.as_view()),
 	url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
 
