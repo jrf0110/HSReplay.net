@@ -2,7 +2,7 @@ import * as React from "react";
 
 interface PremiumPromoProps extends React.ClassAttributes<PremiumPromo> {
 	imageName: string;
-	text: string;
+	text: string | JSX.Element;
 }
 
 export default class PremiumPromo extends React.Component<PremiumPromoProps, {}> {
