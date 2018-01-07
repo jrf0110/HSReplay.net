@@ -5,7 +5,7 @@ from django.views.decorators.cache import patch_cache_control
 from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.serializers import CharField, ChoiceField, IntegerField, Serializer
 from rest_framework.views import APIView
 
@@ -18,11 +18,6 @@ from hsreplaynet.analytics.views import (
 )
 from hsreplaynet.decks.models import Deck
 from hsreplaynet.utils.aws.redshift import get_redshift_query
-
-
-class UserOwnsBlizzardAccount(BasePermission):
-	def has_permission(self, request, view):
-		return view.serializer.blizzard_account.user == request.user
 
 
 class GlobalAnalyticsRequestSerializer(Serializer):
@@ -70,6 +65,9 @@ class PersonalAnalyticsRequestSerializer(GlobalAnalyticsRequestSerializer):
 			except BlizzardAccount.DoesNotExist:
 				return False
 
+			if self.blizzard_account.user != self.context["request"].user:
+				return False
+
 		return ret
 
 
@@ -84,14 +82,14 @@ class AnalyticsQueryView(APIView):
 		return False
 
 	def get(self, request, **kwargs):
-		self.serializer = self.serializer_class(data=request.GET)
-		self.serializer.is_valid(raise_exception=True)
+		serializer = self.serializer_class(data=request.GET)
+		serializer.is_valid(raise_exception=True)
 
-		supplied_params = self.serializer.validated_data.copy()
+		supplied_params = serializer.validated_data.copy()
 		if "Region" in supplied_params:
 			supplied_params["Region"] = Region.from_int(supplied_params["Region"]).name
 
-		query = self.serializer.query
+		query = serializer.query
 
 		try:
 			parameterized_query = query.build_full_params(supplied_params)
@@ -135,6 +133,4 @@ class GlobalAnalyticsQueryView(AnalyticsQueryView):
 
 class PersonalAnalyticsQueryView(AnalyticsQueryView):
 	serializer_class = PersonalAnalyticsRequestSerializer
-	permission_classes = (
-		IsAuthenticated, UserOwnsBlizzardAccount
-	) + AnalyticsQueryView.permission_classes
+	permission_classes = (IsAuthenticated, ) + AnalyticsQueryView.permission_classes
