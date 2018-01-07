@@ -265,6 +265,21 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 							</div>
 						</Tab>
 						<Tab
+							label={
+								<span className="text-premium">
+									Mulligan Guide&nbsp;
+									<InfoIcon
+										header="Archetype Mulligan Guide"
+										content="See how the various cards perform in this archetype."
+									/>
+								</span>
+							}
+							id="mulligan-guide"
+							hidden={!UserData.hasFeature("archetype-mulligan-guide")}
+						>
+							{this.renderMulliganGuide(params)}
+						</Tab>
+						<Tab
 							label="Matchups"
 							id="matchups"
 						>
@@ -283,21 +298,6 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 									minGames={100}
 								/>
 							</DataInjector>
-						</Tab>
-						<Tab
-							label={
-								<span className="text-premium">
-									Mulligan Guide&nbsp;
-									<InfoIcon
-										header="Archetype Mulligan Guide"
-										content="See how the various cards perform in this archetype."
-									/>
-								</span>
-							}
-							id="mulligan-guide"
-							hidden={!UserData.hasFeature("archetype-mulligan-guide")}
-						>
-							{this.renderMulliganGuide(params)}
 						</Tab>
 						<Tab label="Popular Decks" id="similar">
 							<DeckList
