@@ -85,14 +85,14 @@ class AnalyticsQueryView(APIView):
 		serializer = self.serializer_class(data=request.GET)
 		serializer.is_valid(raise_exception=True)
 
-		supplied_params = serializer.validated_data.copy()
+		supplied_params = request.GET.copy()
+		supplied_params.update(serializer.validated_data)
+		del supplied_params["query"]
 		if "Region" in supplied_params:
 			supplied_params["Region"] = Region.from_int(supplied_params["Region"]).name
 
-		query = serializer.query
-
 		try:
-			parameterized_query = query.build_full_params(supplied_params)
+			parameterized_query = serializer.query.build_full_params(supplied_params)
 		except InvalidOrMissingQueryParameterError as e:
 			raise PermissionDenied(str(e)) from e
 
