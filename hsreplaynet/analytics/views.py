@@ -231,11 +231,7 @@ def _fetch_query_results(parameterized_query, run_local=False, user=None, priori
 			content_type=parameterized_query.response_payload_type
 		)
 	elif cache_is_populated and parameterized_query.is_global:
-		user_is_premium = user and not user.is_anonymous and user.is_premium
-		if (
-			parameterized_query.is_backfillable and parameterized_query.is_personalized and
-			user_is_premium
-		):
+		if parameterized_query.is_backfillable and parameterized_query.is_personalized:
 			# Premium users should have cache entries even if the result set is empty
 			# So we should only reach this block if the user just subscribed
 			# And we haven't rerun the global query yet.
