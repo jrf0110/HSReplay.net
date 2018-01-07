@@ -26,6 +26,7 @@ import {getHeroCardId} from "../helpers";
 import ArchetypeSignature from "../components/archetypedetail/ArchetypeSignature";
 import { extractSignature } from "../extractors";
 import CardTable from "../components/tables/CardTable";
+import PremiumPromo from "../components/PremiumPromo";
 
 interface ArchetypeDetailState {
 	deckData?: any;
@@ -283,7 +284,19 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								/>
 							</DataInjector>
 						</Tab>
-						<Tab label="Mulligan Guide" id="mulligan-guide" hidden={!UserData.hasFeature("archetype-mulligan-guide")}>
+						<Tab
+							label={
+								<span className="text-premium">
+									Mulligan Guide&nbsp;
+									<InfoIcon
+										header="Archetype Mulligan Guide"
+										content="See how the various cards perform in this archetype."
+									/>
+								</span>
+							}
+							id="mulligan-guide"
+							hidden={!UserData.hasFeature("archetype-mulligan-guide")}
+						>
 							{this.renderMulliganGuide(params)}
 						</Tab>
 						<Tab label="Popular Decks" id="similar">
@@ -510,6 +523,15 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 			return null;
 		}
 
+		if (!UserData.isPremium()) {
+			return (
+				<PremiumPromo
+					imageName="mulligan_guide.png"
+					text={"View the combined Mulligan Guide using data from all decks for this archetype."}
+				/>
+			);
+		}
+
 		return (
 			<DataInjector
 				query={[
@@ -530,7 +552,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				]}
 				extract={{
 					mulliganData: (data) => ({
-						data: data.series.data["ALL"],
+						data: data.series.data["ALL"].filter((row) => row.rank <= 40),
 						cards: data.series.data["ALL"].map((row) => ({card: cardData.fromDbf(row.dbf_id), count: 1})),
 					}),
 					matchupData: (matchupData) => {
