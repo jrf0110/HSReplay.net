@@ -2,6 +2,7 @@ from calendar import timegm
 
 from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
+from oauth2_provider.contrib.rest_framework import OAuth2Authentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import BasePermission, IsAuthenticated
@@ -9,6 +10,7 @@ from rest_framework.serializers import CharField, ChoiceField, IntegerField, Ser
 from rest_framework.views import APIView
 
 from hearthsim.identity.accounts.models import BlizzardAccount
+from hearthsim.identity.oauth2.permissions import OAuth2HasScopes
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet.analytics.views import (
@@ -73,7 +75,8 @@ class PersonalAnalyticsRequestSerializer(GlobalAnalyticsRequestSerializer):
 
 
 class AnalyticsQueryView(APIView):
-	authentication_classes = (SessionAuthentication, )
+	authentication_classes = (SessionAuthentication, OAuth2Authentication)
+	permission_classes = (OAuth2HasScopes(read_scopes=["tournaments:read"], write_scopes=[]), )
 
 	def get(self, request, **kwargs):
 		self.serializer = self.serializer_class(data=request.GET)
@@ -126,4 +129,6 @@ class GlobalAnalyticsQueryView(AnalyticsQueryView):
 
 class PersonalAnalyticsQueryView(AnalyticsQueryView):
 	serializer_class = PersonalAnalyticsRequestSerializer
-	permission_classes = (IsAuthenticated, UserOwnsBlizzardAccount)
+	permission_classes = (
+		IsAuthenticated, UserOwnsBlizzardAccount
+	) + AnalyticsQueryView.permission_classes
