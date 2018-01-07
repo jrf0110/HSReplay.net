@@ -14,8 +14,7 @@ from hearthsim.identity.oauth2.permissions import OAuth2HasScopes
 from hsredshift.analytics.filters import Region
 from hsredshift.analytics.library.base import InvalidOrMissingQueryParameterError
 from hsreplaynet.analytics.views import (
-	_fetch_query_results, _trigger_if_stale,
-	get_conditional_response, user_is_eligible_for_query
+	_fetch_query_results, _trigger_if_stale, get_conditional_response
 )
 from hsreplaynet.decks.models import Deck
 from hsreplaynet.utils.aws.redshift import get_redshift_query
@@ -78,6 +77,12 @@ class AnalyticsQueryView(APIView):
 	authentication_classes = (SessionAuthentication, OAuth2Authentication)
 	permission_classes = (OAuth2HasScopes(read_scopes=["tournaments:read"], write_scopes=[]), )
 
+	def _check_premium(self, request):
+		user = request.user
+		if user.is_authenticated:
+			return user.is_premium or hasattr(request.auth, "scope")
+		return False
+
 	def get(self, request, **kwargs):
 		self.serializer = self.serializer_class(data=request.GET)
 		self.serializer.is_valid(raise_exception=True)
@@ -93,8 +98,9 @@ class AnalyticsQueryView(APIView):
 		except InvalidOrMissingQueryParameterError as e:
 			raise PermissionDenied(str(e)) from e
 
-		if not user_is_eligible_for_query(request.user, query, parameterized_query):
-			raise PermissionDenied("You do not have access to this query.")
+		if parameterized_query.has_premium_values:
+			if not self._check_premium(request):
+				raise PermissionDenied("You do not have access to this query.")
 
 		last_modified = parameterized_query.result_as_of
 		if last_modified:
