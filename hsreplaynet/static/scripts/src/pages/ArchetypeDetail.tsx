@@ -526,7 +526,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 		if (!UserData.isPremium()) {
 			return (
 				<PremiumPromo
-					imageName="mulligan_guide.png"
+					imageName="archetype_mulligan_guide.png"
 					text={"View the combined Mulligan Guide using data from all decks for this archetype."}
 				/>
 			);
