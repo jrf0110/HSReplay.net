@@ -3,6 +3,12 @@ from django.contrib import admin
 from . import models
 
 
+@admin.register(models.CancellationRequest)
+class CancellationRequestAdmin(admin.ModelAdmin):
+	list_display = ("__str__", "user", "created")
+	raw_id_fields = ("user", )
+
+
 @admin.register(models.LazyDiscount)
 class LazyDiscountAdmin(admin.ModelAdmin):
 	list_display = ("__str__", "user", "coupon", "used", "created", "updated")

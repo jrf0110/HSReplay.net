@@ -2,8 +2,21 @@ from datetime import timedelta
 from uuid import uuid4
 
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
 from django.utils import timezone
+
+
+class CancellationRequest(models.Model):
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+		related_name="cancellation_requests"
+	)
+	subscription_id = models.CharField(max_length=255)
+	reasons = JSONField()
+
+	created = models.DateTimeField(auto_now_add=True)
+	updated = models.DateTimeField(auto_now=True)
 
 
 class LazyDiscount(models.Model):
