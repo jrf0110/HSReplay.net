@@ -552,8 +552,13 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 				]}
 				extract={{
 					mulliganData: (data) => ({
-						data: data.series.data["ALL"].filter((row) => row.rank <= 40),
-						cards: data.series.data["ALL"].map((row) => ({card: cardData.fromDbf(row.dbf_id), count: 1})),
+						data: data.series.data["ALL"],
+						cards: data.series.data["ALL"]
+							.filter((row) => row.rank <= 40)
+							.map((row) => ({
+								card: cardData.fromDbf(row.dbf_id),
+								count: 1,
+							})),
 					}),
 					matchupData: (matchupData) => {
 						const data = matchupData.series.metadata["" + this.props.archetypeId];
