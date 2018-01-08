@@ -539,7 +539,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 						key: "mulliganData",
 						params: {
 							GameType: this.getGameType(),
-							RankRange: "ALL",
+							RankRange: this.props.rankRange,
 							archetype_id: this.props.archetypeId,
 						},
 						url: "single_archetype_mulligan_guide",
