@@ -15,6 +15,8 @@ from stripe.error import CardError, InvalidRequestError
 
 from hsreplaynet.web.html import RequestMetaMixin
 
+from .models import CancellationRequest
+
 
 STRIPE_DEBUG = not STRIPE_LIVE_MODE and settings.DEBUG
 
@@ -282,7 +284,8 @@ class SubscribeView(LoginRequiredMixin, PaymentsMixin, View):
 		return redirect(self.get_success_url())
 
 
-class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
+class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, TemplateView):
+	template_name = "billing/cancel_subscription.html"
 	success_url = reverse_lazy("billing_methods")
 
 	def fail(self, message):
@@ -316,6 +319,15 @@ class CancelSubscriptionView(LoginRequiredMixin, PaymentsMixin, View):
 				return self.fail("Your subscription cannot be canceled immediately.")
 		else:
 			return self.fail("Could not cancel your subscription.")
+
+		CancellationRequest.objects.create(
+			user=request.user,
+			subscription_id=self.customer.subscription.stripe_id,
+			reasons={
+				k: (True if v == "on" else v) for k, v in request.POST.items() if k.startswith("r-")
+			}
+		)
+		messages.info(self.request, "Your subscription has been cancelled.")
 
 		self.customer.subscription.cancel(at_period_end=at_period_end)
 		return True

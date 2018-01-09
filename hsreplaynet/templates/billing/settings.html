@@ -35,26 +35,10 @@
 				</p>
 			{% else %}
 
-				{% if not billing.read_only %}
-					<form method="POST" action="{% url 'premium_cancel' %}" class="premium-plan-form">
-						{% csrf_token %}
-						{% if can_cancel %}
-							<button
-								type="submit" name="cancel" value="at_period_end" class="btn btn-danger"
-								onclick="return confirm('Your subscription will remain available until {{ sub.current_period_end|date:'F d, Y' }}. Proceed?')
-							">
-								Cancel subscription
-							</button>
-						{% endif %}
-						{% if can_cancel_immediately %}
-							<button
-								type="submit" name="cancel" value="immediately" class="btn btn-danger"
-								onclick="return confirm('Your subscription will be immediately canceled, no refund will be issued. Proceed?')
-							">
-								Cancel immediately
-							</button>
-						{% endif %}
-					</form>
+				{% if can_cancel or can_cancel_immediately and billing.read_only %}
+					<p class="premium-plan-form">
+						<a href="{% url 'premium_cancel' %}" class="btn btn-danger">Cancel subscription</a>
+					</p>
 				{% endif %}
 
 				{% if sub.status == "trialing" %}
