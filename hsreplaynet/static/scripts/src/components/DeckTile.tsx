@@ -1,14 +1,13 @@
 import * as React from "react";
+import * as _ from "lodash";
 import CardIcon from "./CardIcon";
 import ManaCurve from "./ManaCurve";
 import moment from "moment";
-import {ApiArchetype, CardObj, DeckObj} from "../interfaces";
+import { CardObj, DeckObj, User } from "../interfaces";
 import {cardSorting, getFragments, getHeroCardId, toPrettyNumber, toTitleCase} from "../helpers";
-import ArchetypeSelector from "./ArchetypeSelector";
 import UserData from "../UserData";
 import Tooltip from "./Tooltip";
 import DataInjector from "./DataInjector";
-import HideLoading from "./loading/HideLoading";
 import SemanticAge from "./SemanticAge";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
@@ -19,7 +18,21 @@ interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	lastPlayed?: Date;
 }
 
-export default class DeckTile extends React.Component<DeckTileProps, any> {
+interface StreamsProps {
+	streams: any[];
+}
+
+class DeckTile extends React.Component<DeckTileProps & StreamsProps> {
+
+	public getUrl(customTab?: string) {
+		const {hrefTab} = this.props;
+		const tab = customTab ? {tab: customTab} : hrefTab && {tab: hrefTab};
+		const fragments = ["gameType", "rankRange"];
+		if (UserData.hasFeature("deck-region-filter")) {
+			fragments.push("region");
+		}
+		return `/decks/${this.props.deckId}/` + getFragments(fragments, tab);
+	}
 
 	render(): JSX.Element {
 		const cards = this.props.cards || [];
@@ -115,21 +128,23 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 			);
 		}
 
-		let headerData = null;
+		let headerData = [];
 		if (this.props.lastPlayed) {
-			headerData = <span className="last-played"><SemanticAge date={this.props.lastPlayed} /></span>;
+			headerData = [<span key="last-played" className="last-played"><SemanticAge date={this.props.lastPlayed} /></span>];
 		}
 		else if (dustCost !== null) {
-			headerData = <span className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span>;
+			headerData = [<span key="dust-cost" className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span>];
+			if (this.props.streams && this.props.streams.length > 0) {
+				const streamCount = this.props.streams.length;
+				const url = streamCount === 1 ? `https://twitch.tv/${this.props.streams[0].twitch.name}` : this.getUrl("twitch");
+				headerData.push(
+					<a key="live-now" className="live-now text-twitch" href={url}>
+						<img src={`${STATIC_URL}/images/socialauth/twitch.png`} />
+						&nbsp;{streamCount > 1 ? `${streamCount} streams` : "Live now"}
+					</a>
+				);
+			}
 		}
-
-		const {hrefTab} = this.props;
-		const tab = hrefTab && {tab: hrefTab};
-		const fragments = ["gameType", "rankRange"];
-		if (UserData.hasFeature("deck-region-filter")) {
-			fragments.push("region");
-		}
-		const href = `/decks/${this.props.deckId}/` + getFragments(fragments, tab);
 
 		return (
 			<li
@@ -139,11 +154,13 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				}}
 				key={this.props.deckId}
 			>
-				<a href={href}>
+				<a href={this.getUrl()}>
 					<div className="deck-tile">
 						<div className="col-lg-2 col-md-2 col-sm-2 col-xs-6">
 							{deckName}
-							{headerData}
+							<small>
+								{headerData}
+							</small>
 							{globalDataIndicator}
 						</div>
 						<div className="col-lg-1 col-md-1 col-sm-1 col-xs-3">
@@ -170,5 +187,44 @@ export default class DeckTile extends React.Component<DeckTileProps, any> {
 				</a>
 			</li>
 		);
+	}
+}
+
+export default class InjectedDeckTile extends React.Component<DeckTileProps> {
+	render() {
+		const props = _.omit(this.props, "children") as any;
+
+		return (
+			<DataInjector
+				query={[
+					{ key: "streams", params: {}, url: "/live/streaming-now/" },
+				]}
+				extract={{
+					streams: (data) =>
+					{
+						const deck = [];
+						this.props.cards.forEach((card) => {
+							for(let i = 0; i < card.count; i++) {
+								deck.push(card.card.dbfId);
+							}
+						});
+						return (
+							{
+								streams: data.filter(
+									(stream) => (
+										Array.isArray(stream.deck) &&
+										stream.deck.length &&
+										_.difference(stream.deck.map(Number), deck).length === 0
+									),
+								),
+							}
+						);
+					},
+				}}
+				fetchCondition={UserData.hasFeature("twitch-stream-promotion")}
+			>
+				<DeckTile {...props} />
+			</DataInjector>
+		)
 	}
 }

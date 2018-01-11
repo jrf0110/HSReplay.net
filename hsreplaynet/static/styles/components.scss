@@ -260,18 +260,43 @@ table .info-icon, .sort-header .info-icon {
 							white-space: pre;
 						}
 
-						.dust-cost, .last-played {
-							font-size: 0.9em;
+						.dust-cost, .last-played, .live-now {
 							line-height: 20px;
-							margin-left: 40px;
-							opacity: 0.6;
 							white-space: nowrap;
+							display: inline-block;
+							margin-right: 0.8em;
+							text-shadow: white 0 0 4px;
+						}
+
+						.dust-cost, .last-played {
+							opacity: 0.6;
+						}
+
+						.live-now {
+							opacity: 1;
+							font-weight: bold;
+						}
+
+						a.live-now {
+							&:active, &:hover {
+								text-decoration: none;
+							}
 						}
 
 						.dust-cost {
 							background-size: contain;
 							background-repeat: no-repeat;
 							padding-left: 16px;
+						}
+
+						> small {
+							display: block;
+							font-size: 0.9em;
+							margin-left: 40px;
+
+							> * {
+								vertical-align: top;
+							}
 						}
 
 						.win-rate, .game-count, .duration {
