@@ -167,6 +167,10 @@ class StreamingNowView(APIView):
 		for k in client.keys(":*:twitch_*"):
 			details = cache.get(k.decode()[3:])
 
+			if not details.get("deck") or not details.get("hero"):
+				# Skip the obvious garbage
+				continue
+
 			twitch_user_id = details.pop("twitch_user_id")
 			try:
 				socialaccount = SocialAccount.objects.get(uid=twitch_user_id, provider="twitch")
