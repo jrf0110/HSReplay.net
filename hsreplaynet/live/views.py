@@ -1,8 +1,12 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+from allauth.socialaccount.models import SocialAccount
+from django.core.cache import caches
 from django.http import Http404, JsonResponse
 from hearthstone.enums import BnetGameType
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from hsreplaynet.live.distributions import (
 	get_live_stats_redis, get_played_cards_distribution, get_player_class_distribution
@@ -151,3 +155,30 @@ def fetch_played_cards_distribution_for_gametype(request, game_type_name):
 		{"data": _PLAYED_CARDS_CACHE[game_type_name].get("payload", [])},
 		json_dumps_params=dict(indent=4)
 	)
+
+
+class StreamingNowView(APIView):
+	def get(self, request):
+		ret = []
+		cache = caches["live_stats"]
+
+		# Need direct client access for keys list
+		client = cache.client.get_client()
+		for k in client.keys(":*:twitch_*"):
+			details = cache.get(k.decode()[3:])
+
+			twitch_user_id = details.pop("twitch_user_id")
+			try:
+				socialaccount = SocialAccount.objects.get(uid=twitch_user_id, provider="twitch")
+			except SocialAccount.DoesNotExist:
+				# Maybe it was deleted since or something
+				continue
+
+			details["twitch"] = {
+				"name": socialaccount.extra_data.get("name"),
+				"display_name": socialaccount.extra_data.get("display_name"),
+			}
+
+			ret.append(details)
+
+		return Response(data=ret)

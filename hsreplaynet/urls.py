@@ -9,7 +9,6 @@ from .views import DownloadsView, HomeView
 urlpatterns = [
 	url(r"^$", HomeView.as_view(), name="home"),
 	url(r"^analytics/", include("hsreplaynet.analytics.urls")),
-	url(r"^live/", include("hsreplaynet.live.urls")),
 	url(r"^games/", include("hsreplaynet.games.urls")),
 	url(r"^uploads/", include("hsreplaynet.uploads.urls")),
 
@@ -39,6 +38,7 @@ if not settings.ENV_LAMBDA:
 		url(r"^about/tos/$", flatpage, {"url": "/about/tos/"}, name="terms_of_service"),
 		url(r"^downloads/", DownloadsView.as_view(), name="downloads"),
 		url(r"^features/", include("hsreplaynet.features.urls")),
+		url(r"^live/", include("hsreplaynet.live.urls")),
 		url(r"^profile/", include("hsreplaynet.profiles.urls")),
 		url(r"^pages/", include("django.contrib.flatpages.urls")),
 		url(r"^oauth2/", include("hearthsim.identity.oauth2.urls")),

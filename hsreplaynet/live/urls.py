@@ -19,4 +19,8 @@ urlpatterns = [
 		views.fetch_played_cards_distribution_for_gametype,
 		name="live_fetch_played_cards_distribution_for_gametype"
 	),
+	url(
+		r"^streaming-now/$",
+		views.StreamingNowView.as_view(),
+	)
 ]
