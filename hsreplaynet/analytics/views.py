@@ -1,6 +1,7 @@
 import json
 from calendar import timegm
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
@@ -9,7 +10,7 @@ from django.http import (
 )
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.utils.cache import get_conditional_response
+from django.utils.cache import get_conditional_response, patch_vary_headers
 from django.utils.decorators import method_decorator
 from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
@@ -195,6 +196,15 @@ def fetch_query_results(request, name):
 	# Add Last-Modified header
 	if response.status_code in (200, 304):
 		response["Last-Modified"] = http_date(last_modified)
+
+	# Add CORS header if permitted - can be replaced by middleware in future
+	origin = urlparse(request.META.get("HTTP_ORIGIN", ""))
+	if origin.netloc in settings.ANALATYICS_CORS_ORIGIN_WHITELIST:
+		response["Access-Control-Allow-Origin"] = origin.geturl()
+		response["Access-Control-Allow-Methods"] = "GET, HEAD"
+
+	# Always patch vary header so browsers do not cache CORS
+	patch_vary_headers(response, ["Origin"])
 
 	# Always send Cache-Control headers
 	if parameterized_query.is_personalized or parameterized_query.has_premium_values:
