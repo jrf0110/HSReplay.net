@@ -179,7 +179,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 				value = "" + value;
 				break;
 			case "boolean":
-				value = value === TRUE_STRING || value === true;
+				value = value === TRUE_STRING || value == true;
 				break;
 		}
 		return value;
