@@ -389,15 +389,17 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 					</section>
 					<section id="include-cards-filter">
 						<h2 id="card-search-include-label">Included Cards</h2>
-						<InfoboxFilterGroup
-							deselectable
-							selectedValue={this.props.includedSet}
-							onClick={(value) => this.props.setIncludedSet(value || "ALL")}
-						>
-							<InfoboxFilter value={this.props.latestSet}>
-								Any new card
-							</InfoboxFilter>
-						</InfoboxFilterGroup>
+						<Feature feature="new-card-filter">
+							<InfoboxFilterGroup
+								deselectable
+								selectedValue={this.props.includedSet}
+								onClick={(value) => this.props.setIncludedSet(value || "ALL")}
+							>
+								<InfoboxFilter value={this.props.latestSet}>
+									Any new card
+								</InfoboxFilter>
+							</InfoboxFilterGroup>
+						</Feature>
 						<CardSearch
 							id="card-search-include"
 							label="card-search-include-label"
