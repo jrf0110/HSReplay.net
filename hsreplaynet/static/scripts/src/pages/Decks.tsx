@@ -18,6 +18,7 @@ import {decode as decodeDeckstring} from "deckstrings";
 import DataManager from "../DataManager";
 import {Limit} from "../components/ObjectSearch";
 import Feature from "../components/Feature";
+import { BnetGameType } from "../hearthstone";
 
 interface DecksState {
 	availableArchetypes?: string[];
@@ -56,6 +57,8 @@ interface DecksProps extends FragmentChildProps, React.ClassAttributes<Decks> {
 	setArchetypes?: (archetypes: string[]) => void;
 	trainingData?: string;
 	setTrainingData?: (trainingData: string) => void;
+	withStream?: boolean;
+	setWithStream?: (withStream: boolean) => void;
 }
 
 export default class Decks extends React.Component<DecksProps, DecksState> {
@@ -87,7 +90,8 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 			this.props.timeRange !== prevProps.timeRange ||
 			this.props.cardData !== prevProps.cardData ||
 			this.props.includedSet !== prevProps.includedSet ||
-			this.props.trainingData !== prevProps.trainingData
+			this.props.trainingData !== prevProps.trainingData ||
+			this.props.withStream !== prevProps.withStream
 		) {
 			this.updateFilteredDecks();
 			this.deckListsFragmentsRef && this.deckListsFragmentsRef.reset("page");
@@ -158,6 +162,10 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 			deck.cards = cards;
 			deckElements.push(deck);
 		};
+		const decksMatch = (a, b) => {
+			//console.log(a, b);
+			return _.differenceWith(a, b, (a, b) => a[0] === b[0] && a[1] === b[1]).length === 0;
+		};
 		const params = this.getParams();
 		const query = this.getQueryName();
 		if (!DataManager.has(query, params)) {
@@ -168,8 +176,43 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 			if (Object.keys(params).some((key) => params[key] !== newParams[key])) {
 				return Promise.reject("Params changed");
 			}
-
 			const data = deckData.series.data;
+			return Promise.resolve(data);
+		})
+		.then(data => {
+			if(this.props.withStream) {
+				return DataManager.get("/live/streaming-now/", null).then((streams) => {
+					// convert the flat list of dbfIds to [dbfId, count] pairs
+					streams = streams.map((stream) => {
+						const deck = stream.deck;
+						if (!Array.isArray(deck)) {
+							return stream;
+						}
+						const cards = [];
+						for(let i = 0; i < deck.length; i++) {
+							let index = null;
+							let dbfId = deck[i];
+							for(let j = 0; j < cards.length; j++) {
+								if(cards[j][0] === dbfId) {
+									index = j;
+									break;
+								}
+							}
+							if (index === null) {
+								cards.push([dbfId, 1]);
+							}
+							else {
+								cards[index][1]++;
+							}
+						}
+						return Object.assign({}, stream,{deck: cards});
+					});
+					return Promise.resolve({data, streams})
+				});
+			}
+			return Promise.resolve({data, streams: null});
+		})
+		.then(({data, streams}) => {
 			Object.keys(data).forEach((key) => {
 				if (playerClasses.length && playerClasses.indexOf(key as FilterOption) === -1) {
 					return;
@@ -183,7 +226,8 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 					}
 					// hotfix for unload issue 2017-09-24
 					const fixedDeckList = (deck.deck_list || "").replace(/\\,/g, ",");
-					const cards = cardList(JSON.parse(fixedDeckList));
+					const rawCards = JSON.parse(fixedDeckList);
+					const cards = cardList(rawCards);
 					if (missingIncludedCards(cards) || containsExcludedCards(cards)) {
 						return;
 					}
@@ -195,6 +239,19 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 						))
 					) {
 						return;
+					}
+					if (streams !== null) {
+						let matchesAtLeastOne = false;
+						for (let i = 0; i < streams.length; i++) {
+							const stream = streams[i];
+							if (decksMatch(stream.deck, rawCards)) {
+								matchesAtLeastOne = true;
+								break;
+							}
+						}
+						if (!matchesAtLeastOne) {
+							return;
+						}
 					}
 					deck.player_class = key;
 					pushDeck(deck, cards);
@@ -515,6 +572,20 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 									<InfoboxFilter value="ALL">All Regions</InfoboxFilter>
 								</InfoboxFilterGroup>
 							</PremiumWrapper>
+						</section>
+					</Feature>
+					<Feature feature="twitch-stream-promotion">
+						<section id="stream-filter">
+							<InfoboxFilterGroup
+								header="Community"
+								deselectable
+								selectedValue={this.props.withStream ? "WITH_STREAM" : null}
+								onClick={(value) => this.props.setWithStream(!this.props.withStream)}
+							>
+								<InfoboxFilter value="WITH_STREAM">
+									Stream available
+								</InfoboxFilter>
+							</InfoboxFilterGroup>
 						</section>
 					</Feature>
 					<section id="side-bar-data">
