@@ -3,6 +3,7 @@ node_modules/
 build/
 __pycache__/
 .vagrant/
+.tox/
 
 hsreplaynet/static/fonts/
 hsreplaynet/static/bundles/
