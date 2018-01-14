@@ -7,7 +7,7 @@ interface FeatureProps {
 
 export default class Feature extends React.Component<FeatureProps, {}> {
 	render(): JSX.Element {
-		if (!UserData.hasFeature(this.props.feature)) {
+		if (!this.props.children || !UserData.hasFeature(this.props.feature)) {
 			return null;
 		}
 		const {feature, children, ...props} = this.props;
