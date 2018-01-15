@@ -242,7 +242,7 @@ table .info-icon, .sort-header .info-icon {
 					height: 85px;
 					display: flex;
 					padding-top: 10px;
-
+					overflow: hidden;
 
 					>div {
 						font-weight: bold;
@@ -297,6 +297,7 @@ table .info-icon, .sort-header .info-icon {
 							display: block;
 							font-size: 0.9em;
 							margin-left: 40px;
+							white-space: nowrap;
 
 							> * {
 								vertical-align: top;
