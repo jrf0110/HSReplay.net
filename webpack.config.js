@@ -144,7 +144,7 @@ module.exports = (env) => {
 					use: [
 						{
 							loader: "babel-loader",
-							query: {
+							options: {
 								presets: [
 									"react",
 									["es2015", {modules: false}],
