@@ -178,6 +178,11 @@ class StreamingNowView(APIView):
 				# Maybe it was deleted since or something
 				continue
 
+			ebs_settings = socialaccount.user.settings.get("twitch_ebs", {})
+			if not ebs_settings.get("promote_on_hsreplaynet", True):
+				# User has explicitly opted out of stream promotion
+				continue
+
 			details["twitch"] = {
 				"name": socialaccount.extra_data.get("name"),
 				"display_name": socialaccount.extra_data.get("display_name"),
