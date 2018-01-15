@@ -158,12 +158,18 @@ def fetch_played_cards_distribution_for_gametype(request, game_type_name):
 
 
 class StreamingNowView(APIView):
-	def get(self, request):
-		ret = []
+	def _get_data(self):
 		cache = caches["live_stats"]
+
+		cache_key = "StreamingNowView::get"
+		cached = cache.get(cache_key)
+		if cached:
+			return cached
 
 		# Need direct client access for keys list
 		client = cache.client.get_client()
+		ret = []
+
 		for k in client.keys(":*:twitch_*"):
 			details = cache.get(k.decode()[3:])
 
@@ -190,4 +196,11 @@ class StreamingNowView(APIView):
 
 			ret.append(details)
 
+		cache.set(cache_key, ret, timeout=30)
+
+		return ret
+
+	def get(self, request):
+		return Response(data=self._get_data())
+		ret = []
 		return Response(data=ret)
