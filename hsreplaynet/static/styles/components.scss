@@ -237,148 +237,6 @@ table .info-icon, .sort-header .info-icon {
 				background: linear-gradient(to right, $offwhite 1%, rgba(251, 247, 246, 0.7) 100px, $offwhite 256px);
 				display: block;
 				color: black;
-
-				.deck-tile {
-					height: 85px;
-					display: flex;
-					padding-top: 10px;
-					overflow: hidden;
-
-					>div {
-						font-weight: bold;
-
-						>span {
-							display: block;
-						}
-
-						.deck-name {
-							background-size: contain;
-							background-repeat: no-repeat;
-							line-height: 34px;
-							padding-left: 40px;
-							margin: 5px 0 0 5px;
-							white-space: pre;
-						}
-
-						.dust-cost, .last-played, .live-now {
-							line-height: 20px;
-							white-space: nowrap;
-							display: inline-block;
-							margin-right: 0.8em;
-							text-shadow: white 0 0 2px;
-						}
-
-						.dust-cost, .last-played {
-							opacity: 0.6;
-						}
-
-						.live-now {
-							opacity: 0.8;
-							font-weight: bold;
-						}
-
-						a.live-now {
-							transition: opacity 0.3s;
-
-							&:active, &:hover, &:focus {
-								opacity: 1;
-								color: $twitch-purple;
-								text-decoration: none;
-							}
-						}
-
-						.dust-cost {
-							background-size: contain;
-							background-repeat: no-repeat;
-							padding-left: 16px;
-						}
-
-						> small {
-							display: block;
-							font-size: 0.9em;
-							margin-left: 40px;
-							white-space: nowrap;
-
-							> * {
-								vertical-align: top;
-							}
-						}
-
-						.win-rate, .game-count, .duration {
-							text-align: center;
-							margin-top: 15px;
-						}
-					}
-
-					.card-list {
-						display: flex;
-						list-style-type: none;
-						margin-right: 20px;
-
-						>li {
-							float: left;
-							min-width: 15px;
-
-							&.unchanged {
-								display: none;
-							}
-
-							&.added {
-								.card-icon {
-									border: 2px solid lime;
-								}
-							}
-
-							&.reduced {
-								.card-icon {
-									border: 2px solid red;
-								}
-							}
-
-							&.removed {
-								.card-icon::before {
-									color: red;
-									content: "✕";
-									font-size: 32px;
-									left: 2px;
-									position: absolute;
-									text-align: center;
-									top: -10px;
-								}
-
-								.card-icon {
-									border: 2px solid red;
-								}
-							}
-
-							.card-icon {
-								float: left;
-								line-height: 50px;
-								margin: 15px 3px 0 7px;
-							}
-						}
-
-						.unchanged:hover {
-							filter: grayscale(0);
-							z-index: 999;
-						}
-					}
-
-					.mana-curve {
-						width: 48px;
-						padding-top: 15px;
-						margin: 0 auto;
-					}
-
-					.duration {
-						font-size: 0.9em;
-						white-space: nowrap;
-
-						.glyphicon {
-							top: 2px;
-						}
-					}
-				}
 			}
 
 			> a {
@@ -405,6 +263,147 @@ table .info-icon, .sort-header .info-icon {
 	}
 }
 
+.deck-tile {
+	height: 85px;
+	display: flex;
+	padding-top: 10px;
+	overflow: hidden;
+
+	>div {
+		font-weight: bold;
+
+		>span {
+			display: block;
+		}
+
+		.deck-name {
+			background-size: contain;
+			background-repeat: no-repeat;
+			line-height: 34px;
+			padding-left: 40px;
+			margin: 5px 0 0 5px;
+			white-space: pre;
+		}
+
+		.dust-cost, .last-played, .live-now {
+			line-height: 20px;
+			white-space: nowrap;
+			display: inline-block;
+			margin-right: 0.8em;
+			text-shadow: white 0 0 2px;
+		}
+
+		.dust-cost, .last-played {
+			opacity: 0.6;
+		}
+
+		.live-now {
+			opacity: 0.8;
+			font-weight: bold;
+		}
+
+		a.live-now {
+			transition: opacity 0.3s;
+
+			&:active, &:hover, &:focus {
+				opacity: 1;
+				color: $twitch-purple;
+				text-decoration: none;
+			}
+		}
+
+		.dust-cost {
+			background-size: contain;
+			background-repeat: no-repeat;
+			padding-left: 16px;
+		}
+
+		> small {
+			display: block;
+			font-size: 0.9em;
+			margin-left: 40px;
+			white-space: nowrap;
+
+			> * {
+				vertical-align: top;
+			}
+		}
+
+		.win-rate, .game-count, .duration {
+			text-align: center;
+			margin-top: 15px;
+		}
+	}
+
+	.card-list {
+		display: flex;
+		list-style-type: none;
+		margin-right: 20px;
+
+		>li {
+			float: left;
+			min-width: 15px;
+
+			&.unchanged {
+				display: none;
+			}
+
+			&.added {
+				.card-icon {
+					border: 2px solid lime;
+				}
+			}
+
+			&.reduced {
+				.card-icon {
+					border: 2px solid red;
+				}
+			}
+
+			&.removed {
+				.card-icon::before {
+					color: red;
+					content: "✕";
+					font-size: 32px;
+					left: 2px;
+					position: absolute;
+					text-align: center;
+					top: -10px;
+				}
+
+				.card-icon {
+					border: 2px solid red;
+				}
+			}
+
+			.card-icon {
+				float: left;
+				line-height: 50px;
+				margin: 15px 3px 0 7px;
+			}
+		}
+
+		.unchanged:hover {
+			filter: grayscale(0);
+			z-index: 999;
+		}
+	}
+
+	.mana-curve {
+		width: 48px;
+		padding-top: 15px;
+		margin: 0 auto;
+	}
+
+	.duration {
+		font-size: 0.9em;
+		white-space: nowrap;
+
+		.glyphicon {
+			top: 2px;
+		}
+	}
+}
 
 .hdt-button {
 	cursor: pointer;
