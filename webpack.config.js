@@ -149,7 +149,7 @@ module.exports = (env) => {
 									"react",
 									["es2015", {modules: false}],
 								],
-								cacheDirectory: path.join(".cache", "babel-loader"),
+								cacheDirectory: path.join(__dirname, ".cache", "babel-loader"),
 							},
 						},
 						{
