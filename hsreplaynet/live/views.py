@@ -192,6 +192,7 @@ class StreamingNowView(APIView):
 			details["twitch"] = {
 				"name": socialaccount.extra_data.get("name"),
 				"display_name": socialaccount.extra_data.get("display_name"),
+				"_id": socialaccount.extra_data.get("_id"),
 			}
 
 			ret.append(details)
