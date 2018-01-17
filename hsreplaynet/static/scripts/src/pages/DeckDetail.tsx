@@ -32,6 +32,7 @@ import * as _ from "lodash";
 import Feature from "../components/Feature";
 import PremiumPromo from "../components/PremiumPromo";
 import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
+import StreamList from "../components/StreamList";
 
 interface TableDataCache {
 	[key: string]: TableData;
@@ -523,6 +524,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 								</TableLoading>
 							</DataInjector>
 						</Tab>
+						<Tab
+							label="Streams"
+							hidden={!UserData.hasFeature("twitch-stream-promotion")}
+							id="streams"
+						>
+							{this.renderStreamers()}
+						</Tab>
 					</TabList>
 				</section>
 			</main>
@@ -633,6 +641,33 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							? "You need to play at least five games against this class."
 							: "You need to play at least five games with this deck."
 					}
+				/>
+			</DataInjector>
+		);
+	}
+
+	renderStreamers(): JSX.Element {
+		return (
+			<DataInjector
+				query={[
+					{ key: "streams", params: {}, url: "/live/streaming-now/" },
+				]}
+				extract={{
+					streams: (data) =>
+					{
+						const thisDeck = this.props.deckCards.split(",").map(Number);
+						return (
+							{
+								streams: data.filter(
+									(stream) => _.difference(stream.deck.map(Number), thisDeck).length === 0,
+								),
+							}
+						);
+					},
+				}}
+			>
+				<StreamList
+					customNoDataMessage={"No streams available"}
 				/>
 			</DataInjector>
 		);

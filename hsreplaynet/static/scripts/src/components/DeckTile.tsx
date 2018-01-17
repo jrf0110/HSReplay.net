@@ -136,9 +136,8 @@ class DeckTile extends React.Component<DeckTileProps & StreamsProps> {
 			headerData = [<span key="dust-cost" className="dust-cost" style={dustCostStyle}>{this.props.dustCost}</span>];
 			if (this.props.streams && this.props.streams.length > 0) {
 				const streamCount = this.props.streams.length;
-				const url = streamCount === 1 ? `https://twitch.tv/${this.props.streams[0].twitch.name}` : this.getUrl("twitch");
 				headerData.push(
-					<a key="live-now" className="live-now text-twitch" href={url}>
+					<a key="live-now" className="live-now text-twitch" href={this.getUrl("streams")}>
 						<img src={`${STATIC_URL}/images/socialauth/twitch.png`} />
 						&nbsp;{streamCount > 1 ? `${streamCount} streams` : "Live now"}
 					</a>

@@ -1171,3 +1171,68 @@ table .info-icon, .sort-header .info-icon {
 		}
 	}
 }
+
+.stream-list {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	list-style-type: none;
+	padding-left: 0;
+	margin-top: 10px;
+
+	> li {
+		flex: 1;
+		min-width: 0;
+		max-width: 400px;
+		margin: 10px;
+	}
+}
+
+.stream-thumbnail {
+	display: inline-block;
+	width: 100%;
+
+	figure {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		width: 100%;
+
+		img {
+			display: block;
+			height: auto;
+			width: 100%;
+		}
+
+		figcaption {
+			color: black;
+			justify-content: space-between;
+			white-space: nowrap;
+			width: 100%;
+
+			strong {
+				display: block;
+				width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			span {
+				float: right;
+			}
+		}
+	}
+
+	&:hover {
+		text-decoration: none;
+
+		figcaption strong {
+			text-decoration: underline;
+		}
+
+		img {
+			filter: brightness(50%);
+		}
+	}
+}
