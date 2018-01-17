@@ -529,7 +529,8 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							hidden={!UserData.hasFeature("twitch-stream-promotion") && this.props.tab !== "streams"}
 							id="streams"
 						>
-							{this.renderStreamers()}
+							<h3 className="text-center">Live on Twitch</h3>
+							{this.renderStreams()}
 						</Tab>
 					</TabList>
 				</section>
@@ -646,7 +647,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		);
 	}
 
-	renderStreamers(): JSX.Element {
+	renderStreams(): JSX.Element {
 		return (
 			<DataInjector
 				query={[
