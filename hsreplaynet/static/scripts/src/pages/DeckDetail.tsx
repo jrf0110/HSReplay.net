@@ -526,7 +526,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						</Tab>
 						<Tab
 							label="Streams"
-							hidden={!UserData.hasFeature("twitch-stream-promotion")}
+							hidden={!UserData.hasFeature("twitch-stream-promotion") && this.props.tab !== "streams"}
 							id="streams"
 						>
 							{this.renderStreamers()}
