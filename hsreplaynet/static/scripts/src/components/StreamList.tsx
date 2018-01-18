@@ -23,14 +23,14 @@ interface Props extends React.ClassAttributes<StreamList> {
 }
 
 interface State {
-	metadata?: TwitchStream[];
+	metadata: TwitchStream[] | null;
 }
 
 class StreamList extends React.Component<Props, State> {
 	constructor(props: Props) {
 		super(props);
 		this.state = {
-			metadata: [],
+			metadata: null,
 		};
 	}
 
@@ -55,6 +55,10 @@ class StreamList extends React.Component<Props, State> {
 			!Array.isArray(this.props.streams)
 		) {
 			return null;
+		}
+
+		if (this.state.metadata === null) {
+			return <h3 className="message-wrapper">Loading...</h3>;
 		}
 
 		return (
