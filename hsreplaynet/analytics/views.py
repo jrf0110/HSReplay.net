@@ -173,6 +173,9 @@ def user_is_eligible_for_query(user, query, params):
 
 
 def fetch_query_results(request, name):
+	if name == "single_card_details":  # 2017-01-18 emergency fix
+		return HttpResponse(status=204)
+
 	parameterized_query = _get_query_and_params(request, name)
 	if issubclass(parameterized_query.__class__, HttpResponse):
 		return parameterized_query
