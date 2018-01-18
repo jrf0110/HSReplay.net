@@ -6,6 +6,7 @@ interface TabProps extends React.ClassAttributes<Tab> {
 	disabled?: boolean;
 	label?: string | JSX.Element;
 	highlight?: boolean;
+	scrollTo?: boolean;
 }
 
 export default class Tab extends React.Component<TabProps> {

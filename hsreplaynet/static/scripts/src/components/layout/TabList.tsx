@@ -7,9 +7,11 @@ interface Props extends React.ClassAttributes<TabList> {
 	tabFragment?: string;
 }
 
-export default class TabList extends React.Component<Props> {
+export default class TabList extends React.ComponentClass<Props> {
+	private contentRef: HTMLDivElement | null = null;
+
 	render() {
-		const children = this.getValidChildren(this.props.children);
+		const children = TabList.getValidChildren(this.props.children);
 
 		if (!children.length) {
 			return;
@@ -18,7 +20,7 @@ export default class TabList extends React.Component<Props> {
 		const canSwitch = typeof this.props.setTab === "function";
 
 		const tabs = children.map((child: any) => {
-			const {id, disabled, highlight} = child.props;
+			const {id, disabled, highlight, scrollTo} = child.props;
 			const isActive = id === this.props.tab;
 
 			const label = (
@@ -75,7 +77,7 @@ export default class TabList extends React.Component<Props> {
 				<ul className="nav nav-tabs content-tabs">
 					{tabs}
 				</ul>
-				<div className="tab-content">
+				<div className="tab-content" ref={(ref) => this.contentRef = ref}>
 					{body}
 				</div>
 			</div>
@@ -83,14 +85,29 @@ export default class TabList extends React.Component<Props> {
 	}
 
 	componentDidMount() {
-		this.ensureVisibleTab(this.props);
+		TabList.ensureVisibleTab(this.props);
+		const tab = TabList.getCurrentTab(this.props);
+		if(this.contentRef && tab && tab.props.scrollTo) {
+			window.addEventListener("load", () => window.scrollTo(0, this.contentRef.getBoundingClientRect().top), {
+				once: true,
+			});
+		}
 	}
 
 	componentWillReceiveProps(nextProps) {
-		this.ensureVisibleTab(nextProps);
+		TabList.ensureVisibleTab(nextProps);
 	}
 
-	private getValidChildren(children, excludeDisabled?: boolean, warn?: boolean): React.ReactChild[] {
+	static getCurrentTab(props: Props): React.ComponentElement | null {
+		return React.Children.toArray(props.children).find((child: any) => {
+			if(child.type !== Tab) {
+				return false;
+			}
+			return child.props && child.props.id == props.tab
+		}) as Tab || null;
+	}
+
+	static getValidChildren(children, excludeDisabled?: boolean, warn?: boolean): Tab[] {
 		return React.Children.toArray(children).filter((child: any) => {
 			if (child.type !== Tab) {
 				if (warn) {
@@ -108,10 +125,10 @@ export default class TabList extends React.Component<Props> {
 				return false;
 			}
 			return true;
-		});
+		}) as Tab[];
 	}
 
-	private ensureVisibleTab(props): void {
+	static ensureVisibleTab(props: Props): void {
 		if (typeof props.setTab !== "function") {
 			// if we can't switch tab there's nothing we can do
 			return;
@@ -125,7 +142,7 @@ export default class TabList extends React.Component<Props> {
 
 		if (!validChildren.find((child) => child.props.id === props.tab)) {
 			// no selected child, manually select closest
-			this.props.setTab(validChildren[0].props.id);
+			props.setTab(validChildren[0].props.id);
 		}
 	}
 }
