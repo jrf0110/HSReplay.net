@@ -1,13 +1,13 @@
 import * as React from "react";
 import Tab from "./Tab";
 
-interface TabListProps {
+interface Props extends React.ClassAttributes<TabList> {
 	tab: string;
 	setTab(tab?: string): void;
 	tabFragment?: string;
 }
 
-export default class TabList extends React.Component<TabListProps, {}> {
+export default class TabList extends React.Component<Props> {
 	render() {
 		const children = this.getValidChildren(this.props.children);
 
@@ -111,7 +111,7 @@ export default class TabList extends React.Component<TabListProps, {}> {
 		});
 	}
 
-	private ensureVisibleTab(props) {
+	private ensureVisibleTab(props): void {
 		if (typeof props.setTab !== "function") {
 			// if we can't switch tab there's nothing we can do
 			return;
