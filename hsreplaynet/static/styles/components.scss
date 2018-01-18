@@ -1183,7 +1183,7 @@ table .info-icon, .sort-header .info-icon {
 
 	> li {
 		flex: 1;
-		min-width: 0;
+		min-width: 300px;
 		max-width: 400px;
 		margin: 10px;
 	}
@@ -1194,8 +1194,6 @@ table .info-icon, .sort-header .info-icon {
 	width: 100%;
 
 	figure {
-		display: flex;
-		flex-direction: column;
 		overflow: hidden;
 		width: 100%;
 
@@ -1210,12 +1208,16 @@ table .info-icon, .sort-header .info-icon {
 			justify-content: space-between;
 			white-space: nowrap;
 			width: 100%;
+			margin-top: 0.25em;
+
+			&, * {
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
 
 			strong {
 				display: block;
 				width: 100%;
-				overflow: hidden;
-				text-overflow: ellipsis;
 			}
 
 			span {
@@ -1234,5 +1236,27 @@ table .info-icon, .sort-header .info-icon {
 		img {
 			filter: brightness(50%);
 		}
+
+		.stream-thumbnail-default-image {
+			color: rgb(120, 120, 120);
+		}
+	}
+}
+
+.stream-thumbnail-default-image {
+	position: relative;
+	width: 100%;
+	color: rgb(191, 191, 191);
+	background-color: rgb(225, 225, 225);
+	font-size: 3em;
+	border: solid 1px rgb(191, 191, 191);
+
+	> * {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 }

@@ -80,6 +80,15 @@ class StreamList extends React.Component<Props, State> {
 						</li>
 					);
 				})}
+				<li>
+					<StreamThumbnail
+						title="Add your own stream to HSReplay.net…"
+						displayName="Using our Twitch Extension for Hearthstone Deck Tracker."
+						url={"https://hsdecktracker.net/twitch/setup/"}
+						thumbnailWidth={400}
+						thumbnailHeight={225}
+					/>
+				</li>
 			</ul>
 		)
 	}
