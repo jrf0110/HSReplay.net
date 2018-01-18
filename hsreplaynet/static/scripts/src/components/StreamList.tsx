@@ -1,6 +1,7 @@
 import * as React from "react";
 import { withLoading } from "./loading/Loading";
 import StreamThumbnail from "./StreamThumbnail";
+import UserData from "../UserData";
 
 interface Stream {
 	twitch: {
@@ -20,6 +21,7 @@ interface TwitchStream {
 
 interface Props extends React.ClassAttributes<StreamList> {
 	streams?: Stream[];
+	verifyExtension?: boolean;
 }
 
 interface State {
@@ -35,18 +37,63 @@ class StreamList extends React.Component<Props, State> {
 	}
 
 	componentDidMount() {
-		this.fetchMetadata();
+		Promise.all([
+			StreamList.fetchMetadata(this.props.streams),
+			this.props.verifyExtension ? StreamList.fetchEnabled() : Promise.resolve(null)
+		]).then(([streamsForDeck, streamsWithExtension]): void => {
+			let eligibleStreams;
+			if (streamsWithExtension !== null) {
+				eligibleStreams = streamsForDeck.filter((streamForDeck) =>
+					!!streamsWithExtension.find((streamWithExtension): boolean =>
+						streamWithExtension.id === streamForDeck.user_id)
+				);
+			}
+			else {
+				eligibleStreams = streamsForDeck;
+			}
+			this.setState({metadata: eligibleStreams});
+		});
 	}
 
-	async fetchMetadata() {
-		const params = this.props.streams.map((stream) => `user_login=${stream.twitch.name}`);
-		const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join("&")}`, {
-			headers: {
-				"Client-ID": "k0lqdqxso1o3knvydfheacq3jbqidg",
+	static async fetchMetadata(streams: Stream[]): Promise<TwitchStream[]> {
+		const user_params = streams.map((stream) => `user_login=${stream.twitch.name}`);
+		let resultSet = [];
+		let cursor = null;
+		do {
+			const params = user_params.slice();
+			if (cursor !== null) {
+				params.push(`after=${cursor}`);
 			}
-		});
-		const json = await response.json();
-		this.setState({metadata: json.data});
+			const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join("&")}`, {
+				headers: {
+					"Client-ID": "k0lqdqxso1o3knvydfheacq3jbqidg",
+				}
+			});
+			const {pagination, data} = await response.json();
+			cursor = pagination.cursor;
+			resultSet = resultSet.concat(data);
+		} while(cursor);
+		return resultSet;
+	}
+
+	static async fetchEnabled(): Promise<{id: string}[]> {
+		let resultSet = [];
+		let cursor = null;
+		do {
+			let url = `https://api.twitch.tv/extensions/${"apwln3g3ia45kk690tzabfp525h9e1"}/live_activated_channels`;
+			if(cursor) {
+				url += `?cursor=${cursor}`;
+			}
+			const response = await fetch(url, {
+				headers: {
+					"Client-ID": "k0lqdqxso1o3knvydfheacq3jbqidg",
+				}
+			});
+			const json = await response.json();
+			resultSet = resultSet.concat(json.channels);
+			cursor = json.cursor;
+		} while(cursor);
+		return resultSet;
 	}
 
 	render() {
