@@ -91,10 +91,8 @@ class Feature(models.Model):
 			base = user.pk
 		else:
 			base = id(user)
-		if self.created:
-			offset = int(self.created.microsecond / 10000)
-		else:
-			offset = 0
+
+		offset = int(self.created.microsecond / 10000)
 		return (base + offset) % 100 <= self.rollout_percent
 
 	def enabled_for_user(self, user):
