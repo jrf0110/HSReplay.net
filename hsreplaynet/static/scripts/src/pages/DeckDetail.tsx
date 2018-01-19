@@ -13,7 +13,10 @@ import CardData from "../CardData";
 import * as React from "react";
 import TableLoading from "../components/loading/TableLoading";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
-import {getArchetypeUrl, getDustCost, getHeroCardId, isWildSet, toTitleCase} from "../helpers";
+import {
+	compareDecks, getArchetypeUrl, getDustCost, getHeroCardId, isWildSet,
+	toTitleCase,
+} from "../helpers";
 import {ApiArchetype, CardObj, RenderData, SortDirection, TableData} from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
@@ -660,7 +663,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						return (
 							{
 								streams: data.filter(
-									(stream) => _.difference(stream.deck.map(Number), thisDeck).length === 0,
+									(stream) => compareDecks(stream.deck.map(Number), thisDeck),
 								),
 							}
 						);

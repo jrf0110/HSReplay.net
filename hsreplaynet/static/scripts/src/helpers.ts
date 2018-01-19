@@ -836,6 +836,30 @@ export function getOtherArchetype(archetypeId: number): ApiArchetype {
 	};
 }
 
+export function compareDecks(dbfIdsA: number[], dbfIdsB: number[]): boolean {
+	const lengthB = dbfIdsB.length;
+	if (dbfIdsA.length !== lengthB) {
+		return false;
+	}
+	dbfIdsA = dbfIdsA.slice();
+	dbfIdsB = dbfIdsB.slice();
+	let a = undefined;
+	while((a = dbfIdsA.pop()) !== undefined) {
+		let found = false;
+		for(let i = 0; i < lengthB; i++) {
+			if(dbfIdsB[i] === a) {
+				dbfIdsB[i] = undefined;
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			return false;
+		}
+	}
+	return dbfIdsB.every((x) => x === undefined);
+}
+
 export const cardClass = [
 	"INVALID", "DEATHKNIGHT",
 	"DRUID", "HUNTER", "MAGE",

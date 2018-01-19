@@ -8,7 +8,10 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
-import {cardSorting, isCollectibleCard, isWildSet, sortCards} from "../helpers";
+import {
+	cardSorting, compareDecks, isCollectibleCard, isWildSet,
+	sortCards,
+} from "../helpers";
 import {ApiTrainingData, DeckObj, FragmentChildProps} from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import UserData from "../UserData";
@@ -182,31 +185,6 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 		.then(data => {
 			if(this.props.withStream) {
 				return DataManager.get("/live/streaming-now/", null).then((streams) => {
-					// convert the flat list of dbfIds to [dbfId, count] pairs
-					streams = streams.map((stream) => {
-						const deck = stream.deck;
-						if (!Array.isArray(deck)) {
-							return stream;
-						}
-						const cards = [];
-						for(let i = 0; i < deck.length; i++) {
-							let index = null;
-							let dbfId = deck[i];
-							for(let j = 0; j < cards.length; j++) {
-								if(cards[j][0] === dbfId) {
-									index = j;
-									break;
-								}
-							}
-							if (index === null) {
-								cards.push([dbfId, 1]);
-							}
-							else {
-								cards[index][1]++;
-							}
-						}
-						return Object.assign({}, stream,{deck: cards});
-					});
 					return Promise.resolve({data, streams})
 				});
 			}
@@ -241,10 +219,16 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 						return;
 					}
 					if (streams !== null) {
+						const flatList = [];
+						for(let i = 0; i < rawCards.length; i++) {
+							for(let j = 0; j < rawCards[i][1]; j++) {
+								flatList.push(rawCards[i][0]);
+							}
+						}
 						let matchesAtLeastOne = false;
 						for (let i = 0; i < streams.length; i++) {
 							const stream = streams[i];
-							if (decksMatch(stream.deck, rawCards)) {
+							if (compareDecks(stream.deck, flatList)) {
 								matchesAtLeastOne = true;
 								break;
 							}

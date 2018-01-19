@@ -4,7 +4,10 @@ import CardIcon from "./CardIcon";
 import ManaCurve from "./ManaCurve";
 import moment from "moment";
 import { CardObj, DeckObj, User } from "../interfaces";
-import {cardSorting, getFragments, getHeroCardId, toPrettyNumber, toTitleCase} from "../helpers";
+import {
+	cardSorting, compareDecks, getFragments, getHeroCardId, toPrettyNumber,
+	toTitleCase,
+} from "../helpers";
 import UserData from "../UserData";
 import Tooltip from "./Tooltip";
 import DataInjector from "./DataInjector";
@@ -213,7 +216,7 @@ export default class InjectedDeckTile extends React.Component<DeckTileProps> {
 									(stream) => (
 										Array.isArray(stream.deck) &&
 										stream.deck.length &&
-										_.difference(stream.deck.map(Number), deck).length === 0
+										compareDecks(stream.deck.map(Number), deck)
 									),
 								),
 							}
