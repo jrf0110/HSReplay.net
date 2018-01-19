@@ -12,6 +12,7 @@ import UserData from "../UserData";
 import Tooltip from "./Tooltip";
 import DataInjector from "./DataInjector";
 import SemanticAge from "./SemanticAge";
+import { Stream } from "./StreamList";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
@@ -22,7 +23,7 @@ interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 }
 
 interface StreamsProps {
-	streams: any[];
+	streams: Stream[];
 }
 
 class DeckTile extends React.Component<DeckTileProps & StreamsProps> {

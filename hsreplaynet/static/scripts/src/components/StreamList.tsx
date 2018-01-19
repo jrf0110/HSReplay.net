@@ -3,7 +3,10 @@ import { withLoading } from "./loading/Loading";
 import StreamThumbnail from "./StreamThumbnail";
 import UserData from "../UserData";
 
-interface Stream {
+export interface Stream {
+	deck: number[];
+	hero: number;
+	format: number;
 	twitch: {
 		_id: number;
 		name: string,
@@ -11,7 +14,7 @@ interface Stream {
 	};
 }
 
-interface TwitchStream {
+export interface TwitchStream {
 	language: string;
 	thumbnail_url: string;
 	title: string;
@@ -70,8 +73,10 @@ class StreamList extends React.Component<Props, State> {
 				}
 			});
 			const {pagination, data} = await response.json();
-			cursor = pagination.cursor;
-			resultSet = resultSet.concat(data);
+			cursor = pagination ? pagination.cursor : null;
+			if (data) {
+				resultSet = resultSet.concat(data);
+			}
 		} while(cursor);
 		return resultSet;
 	}
