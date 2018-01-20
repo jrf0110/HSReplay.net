@@ -18,7 +18,7 @@ export default class WinrateBox extends React.Component<Props> {
 		let chart = null;
 		if (this.props.chartData) {
 			chart = (
-				<AutoSizer>
+				<AutoSizer disableHeight>
 					{({width}) => (
 						<WinrateLineChart
 							data={this.props.chartData}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getArchetypeUrl, getHeroColor, getPieTranslate, hexToHsl, stringifyHsl, toTitleCase } from "../../helpers";
+import { getArchetypeUrl, getHeroColor, hexToHsl, stringifyHsl, toTitleCase } from "../../helpers";
 import { VictoryLabel, VictoryLegend, VictoryPie } from "victory";
 import { ApiArchetype } from "../../interfaces";
 
@@ -37,18 +37,19 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 
 	private getChartData(): any {
 		const archetypes = this.props.matchupData.series.data[this.props.playerClass];
+		const radius = this.pieSize / 2;
 		const data = archetypes.map((matchup) => {
 			const id = matchup.archetype_id;
 			const archetype = this.getArchetype(id);
 			const selected = id === this.props.selectedArchetypeId;
 			const scale = selected ? 1.1 : (this.state.hovering === id ? 1.05 : 1.0);
-			const translate = getPieTranslate(this.pieSize, this.pieSize, this.piePadding);
+			//const translate = getPieTranslate(this.pieSize, this.pieSize, this.piePadding);
 			return {
 				archetypeId: id,
 				isSelectedArchetype: id === this.props.selectedArchetypeId,
 				stroke: pageBackground,
 				strokeWidth: selected ? 2 : 0,
-				transform: translate + ` scale(${scale})`,
+				transform: `translate(${radius}px, ${radius}px) scale(${scale})`,
 				url: archetype && archetype.url,
 				x: archetype ? this.getArchetypeName(archetype) : "Other",
 				y: matchup.pct_of_class,
@@ -88,6 +89,7 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 		return (
 			<svg viewBox="0 0 400 600">
 				<VictoryPie
+					standalone={false}
 					labels={(d) => {
 						if (d.y >= 5 || d.isSelectedArchetype) {
 							return (d.y).toFixed(1) + "%";
@@ -109,10 +111,11 @@ export default class ArchetypeDistributionPieChart extends React.Component<Arche
 					events={this.mouseEvents()}
 				/>
 				<VictoryLegend
+					standalone={false}
 					data={legendData}
-					width={400}
-					height={600}
-					padding={{top: 360, left: 80}}
+					rowGutter={-7}
+					x={72}
+					y={358}
 					style={{
 						data: {
 							cursor,

@@ -8,7 +8,6 @@ import {getChartMetaData, sliceZeros, toDynamicFixed, toTimeSeries} from "../../
 import {RenderData} from "../../interfaces";
 import ChartHighlighter from "./ChartHighlighter";
 import WinLossGradient from "./gradients/WinLossGradient";
-import SvgDefsWrapper from "./SvgDefsWrapper";
 
 interface WinrateLineChartProps {
 	data?: RenderData;
@@ -61,7 +60,7 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 					padding={padding}
 					domain={{x: metadata.xDomain, y: metadata.yDomain}}
 					containerComponent={<VictoryVoronoiContainer
-						dimension="x"
+						voronoiDimension="x"
 					/>}
 				>
 					<VictoryAxis
@@ -101,16 +100,17 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 							axis: {visibility: "hidden"},
 						}}
 					/>
-					<SvgDefsWrapper defs={<WinLossGradient id={filterId} metadata={metadata} />}>
-						<VictoryArea
-							data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 50}))}
-							groupComponent={<VictoryClipContainer clipPadding={5}/>}
-							interpolation="monotoneX"
-							labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor} />}
-							labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
-							style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
-						/>
-					</SvgDefsWrapper>
+					<defs>
+						<WinLossGradient id={filterId} metadata={metadata} />
+					</defs>
+					<VictoryArea
+						data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 50}))}
+						groupComponent={<VictoryClipContainer clipPadding={5}/>}
+						interpolation="monotoneX"
+						labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor} />}
+						labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}
+						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3 * factor}}}
+					/>
 				</VictoryChart>
 			</div>
 		);

@@ -1,6 +1,9 @@
 import * as React from "react";
 import {VictoryContainer, VictoryLabel, VictoryLegend, VictoryPie} from "victory";
-import { getChartScheme, getPieTranslate, toTitleCase } from "../../helpers";
+import {
+	getChartScheme, pieScaleTransform,
+	toTitleCase,
+} from "../../helpers";
 import {ChartScheme, RenderData} from "../../interfaces";
 
 interface CardDetailPieChartProps {
@@ -15,8 +18,6 @@ interface CardDetailPieChartProps {
 }
 
 export default class CardDetailPieChart extends React.Component<CardDetailPieChartProps, {}> {
-	private readonly pieSize = 400;
-
 	render(): JSX.Element {
 		const series = this.props.data.series[0];
 		let data = series.data;
@@ -79,11 +80,9 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 			});
 		}
 
-		const padding = {top: 0, bottom: 10, left: 120, right: 90};
-		const transform = getPieTranslate(this.pieSize, this.pieSize, padding);
-
 		return <svg viewBox={this.props.customViewbox || "0 0 400 400"}>
 			<VictoryPie
+				standalone={false}
 				containerComponent={<VictoryContainer title="" />}
 				animate={{duration: 300}}
 				labels={(d) => {
@@ -92,16 +91,15 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 					}
 					return this.props.percentage ? ((d.y).toFixed(1) + "%") : d.y;
 				}}
-				height={this.pieSize}
-				width={this.pieSize}
-				padding={padding}
+				height={400}
+				width={400}
+				padding={{left: 150, right: 50}}
 				data={data}
 				style={{
 					data: {
-						transform,
 						transition: "transform .2s ease-in-out",
 						fill,
-						stoke: stroke,
+						stroke,
 						strokeWidth: series.data.length > 1 ? 2 : 0,
 					},
 				}}
@@ -111,24 +109,31 @@ export default class CardDetailPieChart extends React.Component<CardDetailPieCha
 						eventHandlers: {
 							onMouseOver: () => {
 								return [{
-									mutation: (props) => {
-										return {
-											style: Object.assign({}, props.style, {transform: transform + " scale(1.1)"}),
-										};
-									},
+									mutation: (props) => ({
+										style: Object.assign({}, props.style, {
+											transform: pieScaleTransform(props, 1.1),
+										}),
+									}),
 								}];
 							},
 							onMouseOut: () => {
 								this.setState({text: null});
 								return [{
-									mutation: () => null,
+									mutation: (props) => ({
+										style: Object.assign({}, props.style, {transform: null}),
+									}),
 								}];
 							},
 						},
 					},
 				]}
-			/>,
-			<VictoryLegend data={legendData} width={100} height={400} padding={{top: 90}}/>,
+			/>
+			<VictoryLegend
+				y={80}
+				standalone={false}
+				data={legendData}
+				rowGutter={-7}
+			/>
 			{this.props.title ? <VictoryLabel
 				textAnchor="middle"
 				verticalAnchor="middle"

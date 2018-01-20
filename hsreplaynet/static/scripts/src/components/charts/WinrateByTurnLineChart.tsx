@@ -8,7 +8,6 @@ import {getChartMetaData} from "../../helpers";
 import {RenderData} from "../../interfaces";
 import ChartHighlighter from "./ChartHighlighter";
 import WinLossGradient from "./gradients/WinLossGradient";
-import SvgDefsWrapper from "./SvgDefsWrapper";
 
 interface WinrateByTurnLineChartProps extends React.ClassAttributes<WinrateByTurnLineChart> {
 	data?: RenderData;
@@ -59,7 +58,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 				domainPadding={{x: 5, y: 10}}
 				padding={padding}
 				domain={{x: metaData.xDomain, y: yDomain}}
-				containerComponent={<VictoryVoronoiContainer dimension="x" />}
+				containerComponent={<VictoryVoronoiContainer voronoiDimension="x" />}
 			>
 				<VictoryAxis
 					tickCount={series.data.length}
@@ -106,14 +105,15 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 					labels={(d) => "Turn " + d.x + "\n" + d.y + "%"}
 					labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
 				/>
-				<SvgDefsWrapper defs={<WinLossGradient id={filterId} metadata={metaData} />}>
-					<VictoryArea
-						data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 50}))}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
-						interpolation="monotoneX"
-						scale="linear"
-					/>
-				</SvgDefsWrapper>
+				<defs>
+					<WinLossGradient id={filterId} metadata={metaData} />
+				</defs>
+				<VictoryArea
+					data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 50}))}
+					style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
+					interpolation="monotoneX"
+					scale="linear"
+				/>
 			</VictoryChart>
 		);
 

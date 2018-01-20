@@ -19,7 +19,7 @@ export default class PopularityBox extends React.Component<Props> {
 		let chart = null;
 		if (this.props.chartData) {
 			chart = (
-				<AutoSizer>
+				<AutoSizer disableHeight>
 					{({width}) => (
 						<PopularityLineChart
 							data={this.props.chartData}

@@ -6,13 +6,15 @@ import {
 import {getChartMetaData, toTimeSeries} from "../../helpers";
 import {RenderData} from "../../interfaces";
 
-interface PopularityLineChartProps {
+interface Props extends React.ClassAttributes<PopularityLineChart> {
 	data?: RenderData;
 	height: number;
 	width: number;
 }
 
-export default class PopularityLineChart extends React.Component<PopularityLineChartProps, any> {
+export default class PopularityLineChart extends React.Component<Props> {
+
+	private filterId = _.uniqueId("popularity-gradient-");
 
 	render(): JSX.Element {
 		const series = toTimeSeries(this.props.data.series.find((x) => x.name === "popularity_over_time") || this.props.data.series[0]);
@@ -20,16 +22,9 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 		const metadata = getChartMetaData(series.data, undefined, true, 1);
 		metadata.yDomain = [0, Math.max(10, metadata.yDomain[1])];
 
-		const filterId = _.uniqueId("popularity-gradient-");
 
 		return (
-			<svg viewBox={`0 0 ${this.props.width} ${this.props.height}`} style={{position: "absolute"}}>
-				<defs>
-					<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
-						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
-						<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
-					</linearGradient>
-				</defs>,
+			<div style={{height: `${this.props.height}px`, width: `${this.props.width}px`}}>
 				<VictoryChart
 					height={this.props.height}
 					width={this.props.width}
@@ -44,16 +39,23 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 					<VictoryAxis
 						dependentAxis
 						scale="sqrt"
+						tickValues={[0, 5, 20, 50, 100]}
 						tickFormat={(tick) => ""}
 						style={{axis: {visibility: "hidden"}, grid: {stroke: "transparent"}}}
 					/>
+					<defs>
+						<linearGradient id={this.filterId} x1="50%" y1="100%" x2="50%" y2="0%">
+							<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
+							<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
+						</linearGradient>
+					</defs>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: metadata.yDomain[0]}; })}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 1}}}
 						interpolation="monotoneX"
+						style={{data: {fill: `url(#${this.filterId})`, stroke: "black", strokeWidth: 1}}}
 					/>
 				</VictoryChart>
-			</svg>
+			</div>
 		);
 	}
 }

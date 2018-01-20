@@ -1,25 +1,28 @@
 import * as React from "react";
 import { GameReplay } from "../../interfaces";
 import { VictoryContainer, VictoryPie} from "victory";
-import { getHeroColor, getPieTranslate } from "../../helpers";
+import {
+	getHeroColor, pieScaleTransform,
+} from "../../helpers";
 
 interface ClassDistributionPieChartState {
 	hoveringSlice: any;
 }
 
-export interface ClassDistributionPieChartProps{
+export interface ClassDistributionPieChartProps extends React.ClassAttributes<ClassDistributionPieChart> {
 	data: any[];
 	loading?: boolean;
 	onPieceClicked?: (name: string) => void;
 }
 
 export default class ClassDistributionPieChart extends React.Component<ClassDistributionPieChartProps, ClassDistributionPieChartState> {
-	constructor() {
-		super();
+	constructor(props: ClassDistributionPieChartProps) {
+		super(props);
 		this.state = {
 			hoveringSlice: null,
 		};
 	}
+
 	render(): JSX.Element {
 		let text = "";
 		const data = this.props.data && this.props.data.length ? this.props.data : [{x: " ", y: 1, color: "lightgrey"}];
@@ -53,7 +56,6 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 
 		const pieSize = 400;
 		const padding = {top: 0, bottom: 10, left: 80, right: 80};
-		const translate = getPieTranslate(pieSize, pieSize, padding);
 
 		return (
 			<div className="chart-wrapper">
@@ -64,7 +66,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 						data: {
 							fill: (d) => d.color || getHeroColor(d.xName),
 							strokeWidth: 2,
-							transform: translate,
+							//transform: translate,
 							transition: "transform .2s ease-in-out",
 						},
 						labels: {fill: "#FFFFFF", fontSize: 20},
@@ -81,7 +83,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 									mutation: (props) => {
 										this.setState({hoveringSlice: props.slice.data});
 										return {
-											style: Object.assign({}, props.style, {stroke: "white", transform: translate + " scale(1.05)"}),
+											style: Object.assign({}, props.style, {stroke: "white", transform: pieScaleTransform(props, 1.05)}),
 										};
 									},
 								}];
@@ -89,7 +91,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 							onMouseOut: () => {
 								this.setState({hoveringSlice: null});
 								return [{
-									mutation: () => null,
+									mutation: (props) => ({style: Object.assign({}, props.style, {transform: null})})
 								}];
 							},
 							onClick: () => {
@@ -97,7 +99,7 @@ export default class ClassDistributionPieChart extends React.Component<ClassDist
 									this.props.onPieceClicked(this.state.hoveringSlice.x.toLowerCase());
 								}
 								return [{
-									mutation: () => null,
+									mutation: (props) => ({style: Object.assign({}, props.style, {transform: null})})
 								}];
 							},
 						},

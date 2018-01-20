@@ -15,6 +15,8 @@ interface WinrateLineChartProps {
 
 export default class WinrateLineChart extends React.Component<WinrateLineChartProps, any> {
 
+	private filterId = _.uniqueId("popularity-gradient-");
+
 	render(): JSX.Element {
 		const series = toTimeSeries(this.props.data.series.find((x) => x.name === "winrates_over_time") || this.props.data.series[0]);
 		const metadata = getChartMetaData(series.data, 50, true, 10);
@@ -22,13 +24,8 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 		const yTicks = [50];
 		metadata.yDomain.forEach((value) => yTicks.indexOf(value) === -1 && yTicks.push(value));
 
-		const filterId = _.uniqueId("winrate-by-time-gradient-");
-
 		return (
-			<svg viewBox={`0 0 ${this.props.width} ${this.props.height}`} style={{position: "absolute"}}>
-				<defs>
-					<WinLossGradient id={filterId} metadata={metadata} />
-				</defs>,
+			<div style={{height: `${this.props.height}px`, width: `${this.props.width}px`}}>
 				<VictoryChart
 					height={this.props.height}
 					width={this.props.width}
@@ -45,13 +42,16 @@ export default class WinrateLineChart extends React.Component<WinrateLineChartPr
 						tickFormat={(tick) => ""}
 						style={{axis: {visibility: "hidden"}, grid: {stroke: "transparent"}}}
 					/>
+					<defs>
+						<WinLossGradient id={this.filterId} metadata={metadata} />
+					</defs>
 					<VictoryArea
 						data={series.data.map((p) => {return {x: p.x, y: p.y, _y0: 50}; })}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 1}}}
+						style={{data: {fill: `url(#${this.filterId})`, stroke: "black", strokeWidth: 1}}}
 						interpolation="monotoneX"
 					/>
 				</VictoryChart>
-			</svg>
+			</div>
 		);
 	}
 }

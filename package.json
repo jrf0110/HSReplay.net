@@ -16,7 +16,7 @@
 		"@types/react-virtualized": "^9.7.3",
 		"@types/stripe": "^4.9.0",
 		"@types/stripe-checkout": "^1.0.1",
-		"@types/victory": "^0.9.11",
+		"@types/victory": "^0.9.14",
 		"babel": "^6.23.0",
 		"babel-core": "^6.26.0",
 		"babel-loader": "^7.1.2",
@@ -44,7 +44,7 @@
 		"ts-loader": "^3.2.0",
 		"typescript": "^2.6.2",
 		"uglifyjs-webpack-plugin": "^1.1.2",
-		"victory": "^0.21.5",
+		"victory": "^0.24.5",
 		"webpack": "^3.10.0",
 		"webpack-bundle-tracker": "^0.2.1",
 		"whatwg-fetch": "^2.0.3"

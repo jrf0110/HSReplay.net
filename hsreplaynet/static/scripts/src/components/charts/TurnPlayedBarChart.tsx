@@ -7,7 +7,6 @@ import {RenderData} from "../../interfaces";
 import {getChartMetaData} from "../../helpers";
 import {VictoryVoronoiContainer} from "victory";
 import ChartHighlighter from "./ChartHighlighter";
-import SvgDefsWrapper from "./SvgDefsWrapper";
 
 interface TurnPlayedBarChartProps {
 	data?: RenderData;
@@ -40,7 +39,7 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 				height={height}
 				padding={padding}
 				width={width}
-				containerComponent={<VictoryVoronoiContainer dimension="x" />}
+				containerComponent={<VictoryVoronoiContainer voronoiDimension="x" />}
 			>
 				<VictoryAxis
 					label="Turn"
@@ -79,20 +78,17 @@ export default class TurnPlayedBarChart extends React.Component<TurnPlayedBarCha
 					labels={(d) => "Turn " + d.x + "\n" + d.y + "%"}
 					labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
 				/>
-				<SvgDefsWrapper
-					defs={(
-						<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
-							<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
-							<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
-						</linearGradient>
-					)}
-				>
-					<VictoryArea
-						data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 0}))}
-						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
-						interpolation="monotoneX"
-					/>
-				</SvgDefsWrapper>
+				<defs>
+					<linearGradient id={filterId} x1="50%" y1="100%" x2="50%" y2="0%">
+						<stop stopColor="rgba(255, 255, 255, 0)" offset={0}/>
+						<stop stopColor="rgba(0, 128, 255, 0.6)" offset={1}/>
+					</linearGradient>
+				</defs>
+				<VictoryArea
+					data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 0}))}
+					style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
+					interpolation="monotoneX"
+				/>
 			</VictoryChart>
 		);
 

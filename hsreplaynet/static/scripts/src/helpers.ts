@@ -795,10 +795,9 @@ export function stringifyHsl(h: number, s: number, l: number): string {
 	return `hsl(${Math.floor(h)},${Math.floor(s)}%,${Math.floor(l)}%)`;
 }
 
-export function getPieTranslate(width: number, height: number, padding: any): string {
-	const x = width / 2 + (padding.left - padding.right);
-	const y = height / 2 + (padding.top - padding.bottom);
-	return `translate(${x}px, ${y}px)`;
+export function pieScaleTransform(props: {origin: {x: number, y: number}}, scale: number): string {
+	const origin = Object.assign({x: 0, y: 0}, props.origin);
+	return `translate(${origin.x}px, ${origin.y}px) scale(1.1)`;
 }
 
 export function getHeroCard(cardData: CardData, player: GlobalGamePlayer): any {
