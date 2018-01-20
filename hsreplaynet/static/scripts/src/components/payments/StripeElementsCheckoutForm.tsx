@@ -94,15 +94,19 @@ class StripeElementsCheckoutForm extends React.Component<StripeElementsCheckoutF
 		// handle errors
 		if (result.error) {
 			let errorMessage = "An internal error occurred.";
-			const isValidationError = result.error.type === "validation_error";
+			const presentErrorToUser = [
+				"validation_error",
+				"card_error",
+				"invalid_request_error",
+			].indexOf(result.error.type) !== -1;
 
-			if (isValidationError && result.error.message) {
+			if (presentErrorToUser && result.error.message) {
 				errorMessage = result.error.message;
 			}
 			this.setState({step: StripeCheckoutStep.READY_TO_PAY, errorMessage});
 
-			if (!isValidationError) {
-				throw new Error(result.error.message)
+			if (!presentErrorToUser) {
+				throw new Error(`${result.error.type}: ${result.error.message}`)
 			}
 			return;
 		}
