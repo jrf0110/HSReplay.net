@@ -43,8 +43,8 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 	private matchupCells: Grid = null;
 	private rowFooters: Grid = null;
 
-	constructor(props: ArchetypeMatrixProps, state: ArchetypeMatrixState) {
-		super();
+	constructor(props: ArchetypeMatrixProps, context?: any) {
+		super(props, context);
 		this.state = {
 			highlightColumn: null,
 			highlightRow: null,

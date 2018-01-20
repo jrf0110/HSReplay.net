@@ -41,8 +41,8 @@ const rankMap = {
 };
 
 export default class RankPicker extends React.Component<RankPickerProps, RankPickerState> {
-	constructor(props: RankPickerProps, state: RankPickerState) {
-		super();
+	constructor(props: RankPickerProps, context?: any) {
+		super(props, context);
 		this.state = {
 			forceSet: false,
 		};

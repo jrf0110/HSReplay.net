@@ -43,8 +43,8 @@ interface ArchetypeMatchupsState {
 const popularityCutoff = 0;
 
 class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, ArchetypeMatchupsState> {
-	constructor(props: ArchetypeMatchupsProps, state: ArchetypeMatchupsState) {
-		super();
+	constructor(props: ArchetypeMatchupsProps, context?: any) {
+		super(props, context);
 		this.state = {
 			apiArchetypes: [],
 			archetypeData: [],

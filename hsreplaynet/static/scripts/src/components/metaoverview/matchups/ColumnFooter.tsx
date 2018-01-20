@@ -20,8 +20,8 @@ interface ColumnFooterState {
 }
 
 export default class ColumnFooter extends React.Component<ColumnFooterProps, ColumnFooterState> {
-	constructor(props: ColumnFooterProps, state: ColumnFooterState) {
-		super();
+	constructor(props: ColumnFooterProps, context?: any) {
+		super(props, context);
 		this.state = {
 			text: "" + props.customWeight,
 		};

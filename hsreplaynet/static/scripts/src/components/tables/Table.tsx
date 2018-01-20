@@ -47,8 +47,8 @@ const HEADER_WIDTH_RATIO = 0.33;
 const INFO_ROW_HEIGHT = 50;
 
 export default class Table extends React.Component<TableProps, TableState> {
-	constructor(props: TableProps, state: TableState) {
-		super();
+	constructor(props: TableProps, context?: any) {
+		super(props, context);
 		this.state = {
 			hoveringRow: -1,
 		};
