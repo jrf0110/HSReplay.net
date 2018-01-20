@@ -124,6 +124,7 @@ export default class CheckoutForm extends React.Component<CheckoutFormProps, Che
 							<StripeElementsCheckoutForm
 								plans={this.props.stripePlans}
 								defaultSource={this.props.stripeDefaultSource}
+								coupon={this.props.stripeCoupon}
 								submitUrl={this.props.stripeElementsSubmitUrl}
 								csrfElement={this.props.csrfElement}
 								onDisable={(disabled: boolean) => this.setState({disabled})}

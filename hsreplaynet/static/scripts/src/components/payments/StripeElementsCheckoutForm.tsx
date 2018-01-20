@@ -21,6 +21,7 @@ export interface StripePlan {
 interface StripeElementsCheckoutFormProps extends CheckoutFormInstanceProps, React.ClassAttributes<StripeElementsCheckoutForm> {
 	plans: StripePlan[];
 	defaultSource?: string;
+	coupon?: string;
 }
 
 interface StripeElementsCheckoutFormState {
@@ -196,6 +197,19 @@ class StripeElementsCheckoutForm extends React.Component<StripeElementsCheckoutF
 		}));
 	}
 
+	getCouponMessage() {
+		if (!this.props.coupon) {
+			return null;
+		}
+
+		return (
+			<p className="alert alert-success text-center" style={{marginTop: "20px"}}>
+				You have an active coupon for <strong>{this.props.coupon}</strong>.<br/>
+				This amount will be deducted from your purchase.
+			</p>
+		);
+	}
+
 	componentWillUpdate(nextProps: StripeElementsCheckoutFormProps, nextState: StripeElementsCheckoutFormState) {
 		if (nextState.step !== this.state.step) {
 			this.props.onDisable(nextState.step !== StripeCheckoutStep.READY_TO_PAY);
@@ -246,6 +260,7 @@ class StripeElementsCheckoutForm extends React.Component<StripeElementsCheckoutF
 						required
 					/>
 				</div>
+				{this.getCouponMessage()}
 				<div style={{
 					margin: "25px auto",
 					width: "100%",
