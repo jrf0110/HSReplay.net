@@ -183,6 +183,11 @@ module.exports = (env) => {
 		plugins: [
 			new BundleTracker({path: __dirname, filename: "./build/webpack-stats.json"}),
 			new webpack.DefinePlugin(settings),
+			new webpack.DefinePlugin({
+				'process.env': {
+					'NODE_ENV': JSON.stringify(isProduction ? "production" : "development")
+				}
+			}),
 			extractSCSS,
 			new webpack.optimize.CommonsChunkPlugin({
 				name: "vendor",
