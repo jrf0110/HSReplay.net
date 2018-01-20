@@ -39,7 +39,7 @@
 		"raven-js": "^3.20.1",
 		"react": "15.6.1",
 		"react-dom": "15.6.1",
-		"react-stripe-elements": "^1.2.0",
+		"react-stripe-elements": "^1.4.0",
 		"react-virtualized": "^9.9.0",
 		"sass-loader": "^6.0.6",
 		"tether-shepherd": "^1.8.1",

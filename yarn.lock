@@ -3783,9 +3783,9 @@ react-dom@15.6.1:
     object-assign "^4.1.0"
     prop-types "^15.5.10"
 
-react-stripe-elements@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/react-stripe-elements/-/react-stripe-elements-1.2.0.tgz#06665f0e0c01c336ca4a7d30fb95adb9c6375725"
+react-stripe-elements@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/react-stripe-elements/-/react-stripe-elements-1.4.0.tgz#8f3c0ffd09122f8a505aa408cdd706dbdb6d2cc9"
   dependencies:
     prop-types "^15.5.10"
 
