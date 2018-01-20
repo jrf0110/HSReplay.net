@@ -225,6 +225,11 @@ const classColorScheme: ChartScheme = {
 		fill: "rgba(199, 156, 110, 0.7)",
 		name: "Warrior",
 	},
+	other: {
+		stroke: "rgba(122, 122, 122, 1)",
+		fill: "rgba(122, 122, 122, 0.7)",
+		name: "Other",
+	}
 };
 
 export const setNames = {
