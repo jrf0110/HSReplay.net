@@ -177,7 +177,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		document.addEventListener("scroll", this.scrollCb);
 	}
 
-	componentDidUnmount() {
+	componentWillUnmount() {
 		document.removeEventListener("scroll", this.scrollCb);
 	}
 
@@ -643,7 +643,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		const isStatsView = this.isStatsView();
 
 		const filters = [
-			<ResetHeader onReset={() => this.resetFilters()} showReset={showReset}>
+			<ResetHeader key="reset" onReset={() => this.resetFilters()} showReset={showReset}>
 				{this.props.personal ? "My Cards" : (isStatsView ? "Cards" : "Gallery")}
 			</ResetHeader>,
 		];

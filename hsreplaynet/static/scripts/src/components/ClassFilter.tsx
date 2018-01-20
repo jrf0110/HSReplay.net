@@ -120,6 +120,7 @@ export default class ClassFilter extends React.Component<ClassFilterProps, {}> {
 
 		return (
 			<span
+				key={className}
 				className={wrapperClassNames.join(" ")}
 				onClick={(event) => {
 					if (this.props.disabled) {

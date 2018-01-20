@@ -17,7 +17,7 @@ export default class ManaCurve extends React.Component<ManaCurveProps, any> {
 
 		costs.forEach((cost, index) => {
 			bars.push(
-				<li>
+				<li key={index}>
 					<span
 						style={{height: (100 * cost / maxCost) + "%"}}
 						data-count={cost || ""}

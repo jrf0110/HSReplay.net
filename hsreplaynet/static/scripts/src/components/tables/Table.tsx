@@ -213,7 +213,7 @@ export default class Table extends React.Component<TableProps, TableState> {
 			column.infoHeader,
 			column.infoText,
 		);
-		style["line-height"] = this.props.cellHeight;
+		style["lineHeight"] = `${this.props.cellHeight}px`;
 		return (
 			<div className="table-column-header" style={style} key={key}>
 				{content}
@@ -245,8 +245,7 @@ export default class Table extends React.Component<TableProps, TableState> {
 			}
 		}
 		style["color"] = color;
-
-		style["line-height"] = this.props.cellHeight;
+		style["lineHeight"] = `${this.props.cellHeight}px`;
 
 		let backgroundColor = null;
 		if (rowIndex % 2 === 0) {
