@@ -10,16 +10,21 @@ import {RenderData} from "../../interfaces";
 import ChartHighlighter from "./ChartHighlighter";
 import SvgDefsWrapper from "./SvgDefsWrapper";
 
-interface PopularityLineChartProps{
+interface PopularityLineChartProps extends React.ClassAttributes<PopularityLineChart> {
 	data?: RenderData;
 	maxYDomain: 10 | 100;
 	widthRatio?: number;
 	width?: number;
 	height?: number;
 	absolute?: boolean;
+	scale?: string;
 }
 
-export default class PopularityLineChart extends React.Component<PopularityLineChartProps, any> {
+export default class PopularityLineChart extends React.Component<PopularityLineChartProps> {
+	static defaultProps = {
+		scale: "sqrt",
+	};
+
 	private readonly colorMin = "rgba(0, 196, 255, 1.0)";
 	private readonly colorMax = "rgba(255, 128, 0, 1.0)";
 
@@ -62,7 +67,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 					/>
 					<VictoryAxis
 						dependentAxis
-						scale="sqrt"
+						scale={this.props.scale as any}
 						label={"Popularity"}
 						axisLabelComponent={
 							<VictoryLabel
@@ -87,6 +92,7 @@ export default class PopularityLineChart extends React.Component<PopularityLineC
 						<VictoryArea
 							data={series.data.map((p) => ({x: p.x, y: p.y, _y0: metadata.yDomain[0]}))}
 							groupComponent={<VictoryClipContainer clipPadding={5}/>}
+							scale={this.props.scale as any}
 							interpolation="monotoneX"
 							labelComponent={<ChartHighlighter xCenter={metadata.xCenter} sizeFactor={factor}/>}
 							labels={(d) => moment(d.x).format("YYYY-MM-DD") + ": " + sliceZeros(toDynamicFixed(d.y, 2)) + "%"}

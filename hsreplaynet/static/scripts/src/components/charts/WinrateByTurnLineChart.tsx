@@ -10,14 +10,14 @@ import ChartHighlighter from "./ChartHighlighter";
 import WinLossGradient from "./gradients/WinLossGradient";
 import SvgDefsWrapper from "./SvgDefsWrapper";
 
-interface WinrateByTurnLineChartProps {
+interface WinrateByTurnLineChartProps extends React.ClassAttributes<WinrateByTurnLineChart> {
 	data?: RenderData;
 	opponentClass?: string;
 	widthRatio?: number;
 	premiumLocked?: boolean;
 }
 
-export default class WinrateByTurnLineChart extends React.Component<WinrateByTurnLineChartProps, any> {
+export default class WinrateByTurnLineChart extends React.Component<WinrateByTurnLineChartProps> {
 	constructor(props: WinrateByTurnLineChartProps, state: any) {
 		super(props, state);
 		this.state = {
@@ -83,6 +83,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 							y={yCenter}
 						/>
 					}
+					scale="linear"
 					tickValues={yTicks}
 					tickFormat={(tick) => {
 						if (tick === 50) {
@@ -100,6 +101,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 				<VictoryScatter
 					data={series.data}
 					symbol="circle"
+					scale="linear"
 					size={1}
 					labels={(d) => "Turn " + d.x + "\n" + d.y + "%"}
 					labelComponent={<ChartHighlighter xCenter={metaData.xCenter} />}
@@ -109,6 +111,7 @@ export default class WinrateByTurnLineChart extends React.Component<WinrateByTur
 						data={series.data.map((p) => ({x: p.x, y: p.y, _y0: 50}))}
 						style={{data: {fill: `url(#${filterId})`, stroke: "black", strokeWidth: 0.3}}}
 						interpolation="monotoneX"
+						scale="linear"
 					/>
 				</SvgDefsWrapper>
 			</VictoryChart>
