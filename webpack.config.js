@@ -93,7 +93,7 @@ module.exports = (env) => {
 		articles: makeEntry("articles"),
 		premium_modal: makeEntry("premium_modal"),
 		home: makeEntry("home"),
-		vendor: ["babel-polyfill", "whatwg-fetch", makeEntry("polyfills")],
+		vendor: ["babel-polyfill", "whatwg-fetch", makeEntry("export-react"), makeEntry("polyfills")],
 	};
 
 	// flatten the entry points for config
@@ -176,8 +176,6 @@ module.exports = (env) => {
 			],
 		},
 		externals: {
-			"react": "React",
-			"react-dom": "ReactDOM",
 			"jquery": "jQuery",
 			"joust": "Joust",
 			"sunwell": "Sunwell",

@@ -8,8 +8,6 @@
 {% block javascript %}
 <script type="text/javascript" src="{% static 'vendor/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'vendor/react.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'vendor/react-dom.min.js' %}"></script>
 {% block error_reporting %}
 	{% setting "RAVEN_CONFIG_FRONTEND" as raven_config_frontend %}
 	{% if raven_config_frontend %}

@@ -41,20 +41,6 @@ OUTFILE="$STATICDIR/$PKGNAME.min.js"
 wget --no-verbose "$SOURCE" -O "$OUTFILE"
 
 
-# React
-
-VERSION="15.6.1"
-BASEURL="https://cdnjs.cloudflare.com/ajax/libs/react/$VERSION"
-
-OUTFILE="$STATICDIR/react.min.js"
-SOURCE="$BASEURL/react.min.js"
-wget --no-verbose "$SOURCE" -O "$OUTFILE"
-
-OUTFILE="$STATICDIR/react-dom.min.js"
-SOURCE="$BASEURL/react-dom.min.js"
-wget --no-verbose "$SOURCE" -O "$OUTFILE"
-
-
 # Raven
 
 PKGNAME="raven"
