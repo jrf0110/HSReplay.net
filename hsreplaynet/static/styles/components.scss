@@ -731,7 +731,7 @@ table .info-icon, .sort-header .info-icon {
 }
 
 
-.tile {
+.box {
 	border: 1px solid black;
 	color: black;
 	cursor: pointer;
@@ -751,10 +751,7 @@ table .info-icon, .sort-header .info-icon {
 		background: #f1f2f4;
 	}
 
-	&.winrate-tile {
-	}
-
-	.tile-title {
+	.box-title {
 		// font-weight: bold;
 		text-transform: uppercase;
 		font-size: 1.3em;
@@ -765,7 +762,7 @@ table .info-icon, .sort-header .info-icon {
 		padding: 5px 0;
 	}
 
-	.tile-content {
+	.box-content {
 		display: flex;
 		justify-content: center;
 		flex-direction: column;
@@ -780,11 +777,11 @@ table .info-icon, .sort-header .info-icon {
 		}
 	}
 
-	.tile-chart {
+	.box-chart {
 		height: 50px;
 	}
 
-	.tile-data {
+	.box-data {
 		font-size: 1.5em;
 
 		.winrate {
@@ -804,14 +801,14 @@ table .info-icon, .sort-header .info-icon {
 		}
 	}
 
-	&.matchup-tile {
+	&.matchup-box {
 		.player-class {
 			padding-left: 50px;
 			font-size: 1.8em;
 		}
 	}
 
-	&.deck-tile {
+	&.deck-box {
 		.tech-cards {
 			margin: 0 25px;
 			display: flex;
@@ -819,7 +816,7 @@ table .info-icon, .sort-header .info-icon {
 		}
 	}
 
-	&.rank-tile {
+	&.rank-box {
 		.rank-icon {
 			width: 100px;
 			height: 100px;
@@ -827,8 +824,8 @@ table .info-icon, .sort-header .info-icon {
 		}
 	}
 
-	&.class-tile {
-		.tile-title {
+	&.class-box{
+		.box-title {
 			text-transform: none;
 			text-align: left;
 			padding: 1px 1px 2px 1px;

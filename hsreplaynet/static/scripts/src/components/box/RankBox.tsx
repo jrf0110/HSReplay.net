@@ -1,7 +1,7 @@
 import * as React from "react";
 import {toDynamicFixed, winrateData} from "../../helpers";
 
-interface RankTileProps extends React.ClassAttributes<RankTile> {
+interface Props extends React.ClassAttributes<RankBox> {
 	href: string;
 	popularity?: number;
 	rank?: number;
@@ -10,7 +10,7 @@ interface RankTileProps extends React.ClassAttributes<RankTile> {
 	type: "performance" | "popularity";
 }
 
-export default class RankTile extends React.Component<RankTileProps, {}> {
+export default class RankBox extends React.Component<Props> {
 
 	render(): JSX.Element {
 		let content = null;
@@ -35,7 +35,7 @@ export default class RankTile extends React.Component<RankTileProps, {}> {
 					src={`${STATIC_URL}images/ranked-medals/${rankMedalName}.png`}
 				/>,
 				<h2>{this.props.rank ? "Rank " + this.props.rank : "Legend"}</h2>,
-				<div className="tile-data">
+				<div className="box-data">
 					{data}
 				</div>,
 			];
@@ -43,11 +43,11 @@ export default class RankTile extends React.Component<RankTileProps, {}> {
 
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-				<a className="tile rank-tile" href={this.props.href}>
-					<div className="tile-title">
+				<a className="box rank-box" href={this.props.href}>
+					<div className="box-title">
 						{this.props.title}
 					</div>
-					<div className="tile-content">
+					<div className="box-content">
 						{content}
 					</div>
 				</a>

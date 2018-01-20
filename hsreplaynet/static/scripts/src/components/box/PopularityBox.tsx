@@ -1,26 +1,27 @@
 import * as React from "react";
 import {AutoSizer} from "react-virtualized";
-import WinrateLineChart from "./WinrateLineChart";
-import {commaSeparate, toDynamicFixed, winrateData} from "../../helpers";
+import {toDynamicFixed, toTitleCase} from "../../helpers";
+import PopularityLineChart from "./PopularityLineChart";
 import { LoadingStatus } from "../../interfaces";
 
-interface WinrateTileProps extends React.ClassAttributes<WinrateTile> {
+interface Props extends React.ClassAttributes<PopularityBox> {
 	chartData?: any;
-	games?: number;
 	href: string;
 	onClick?: () => void;
-	winrate?: number;
+	playerClass: string;
+	popularity?: number;
 	status?: LoadingStatus;
 }
 
-export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
+export default class PopularityBox extends React.Component<Props> {
+
 	render(): JSX.Element {
 		let chart = null;
 		if (this.props.chartData) {
 			chart = (
 				<AutoSizer>
 					{({width}) => (
-						<WinrateLineChart
+						<PopularityLineChart
 							data={this.props.chartData}
 							height={50}
 							width={width}
@@ -31,13 +32,10 @@ export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
 		}
 
 		let content = null;
-		if (this.props.winrate !== undefined && this.props.games !== undefined) {
-			const wrData = winrateData(50, this.props.winrate, 3);
+		if (this.props.popularity !== undefined) {
 			content = [
-				<h1 style={{color: wrData.color}}>
-					{toDynamicFixed(this.props.winrate, 2)}%
-				</h1>,
-				<h3>over {commaSeparate(this.props.games)} games</h3>,
+				<h1>{toDynamicFixed(this.props.popularity, 2)}%</h1>,
+				<h3>of {toTitleCase(this.props.playerClass)} decks</h3>,
 			];
 		}
 		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
@@ -47,7 +45,7 @@ export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 				<a
-					className="tile winrate-tile"
+					className="box popularity-box"
 					href={this.props.href}
 					onClick={(event) => {
 						if (this.props.onClick) {
@@ -56,13 +54,13 @@ export default class WinrateTile extends React.Component<WinrateTileProps, {}> {
 						}
 					}}
 				>
-					<div className="tile-title">
-						Winrate
+					<div className="box-title">
+						Popularity
 					</div>
-					<div className="tile-content">
+					<div className="box-content">
 						{content}
 					</div>
-					<div className="tile-chart">
+					<div className="box-chart">
 						{chart}
 					</div>
 				</a>

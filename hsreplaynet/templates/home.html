@@ -85,54 +85,54 @@
 			</ul>
 			<div class="tab-content">
 				<div id="ranked-standard" class="tab-pane active">
-				<div class="class-tiles tab-content">
+				<div class="class-boxes tab-content">
 					{% for player_class in player_classes %}
-						<a class="tile class-tile" href="{{ player_class.standard_url }}" style="background-image:url({{ player_class.image_url }})" data-winrate="{{ player_class.standard_winrate }}">
-							<div class="tile-title">
+						<a class="box class-box" href="{{ player_class.standard_url }}" style="background-image:url({{ player_class.image_url }})" data-winrate="{{ player_class.standard_winrate }}">
+							<div class="box-title">
 								<span class="player-class {{ player_class.name|lower }}">{{ player_class.name }}</span>
 
 							</div>
-							<div class="tile-content" data-winrate="{{ player_class.standard_winrate }}">
-								<span class="class-tile-winrate" data-winrate="{{ player_class.standard_winrate }}">
+							<div class="box-content" data-winrate="{{ player_class.standard_winrate }}">
+								<span class="class-box-winrate" data-winrate="{{ player_class.standard_winrate }}">
 									{{ player_class.standard_winrate|floatformat:2 }}%
 								</span>
-								<span class="class-tile-footer">View top {{ player_class.name }} decks</span>
+								<span class="class-box-footer">View top {{ player_class.name }} decks</span>
 							</div>
 						</a>
 					{% endfor %}
 				</div>
 				</div>
 				<div id="ranked-wild" class="tab-pane">
-				<div class="class-tiles">
+				<div class="class-boxes">
 					{% for player_class in player_classes %}
-						<a class="tile class-tile" href="{{ player_class.wild_url }}" style="background-image:url({{ player_class.image_url }})" data-winrate="{{ player_class.wild_winrate }}">
-							<div class="tile-title">
+						<a class="box class-box" href="{{ player_class.wild_url }}" style="background-image:url({{ player_class.image_url }})" data-winrate="{{ player_class.wild_winrate }}">
+							<div class="box-title">
 								<span class="player-class {{ player_class.name|lower }}">{{ player_class.name }}</span>
 
 							</div>
-							<div class="tile-content" data-winrate="{{ player_class.wild_winrate }}">
-								<span class="class-tile-winrate" data-winrate="{{ player_class.wild_winrate }}">
+							<div class="box-content" data-winrate="{{ player_class.wild_winrate }}">
+								<span class="class-box-winrate" data-winrate="{{ player_class.wild_winrate }}">
 									{{ player_class.wild_winrate|floatformat:2 }}%
 								</span>
-								<span class="class-tile-footer">View top {{ player_class.name }} decks</span>
+								<span class="class-box-footer">View top {{ player_class.name }} decks</span>
 							</div>
 						</a>
 					{% endfor %}
 				</div>
 				</div>
 				<div id="arena" class="tab-pane">
-				<div class="class-tiles">
+				<div class="class-boxes">
 					{% for player_class in player_classes %}
-						<a class="tile class-tile" href="{{ player_class.arena_url }}" style="background-image:url({{ player_class.image_url }})" data-winrate="{{ player_class.arena_winrate }}">
-							<div class="tile-title">
+						<a class="box class-box" href="{{ player_class.arena_url }}" style="background-image:url({{ player_class.image_url }})" data-winrate="{{ player_class.arena_winrate }}">
+							<div class="box-title">
 								<span class="player-class {{ player_class.name|lower }}">{{ player_class.name }}</span>
 
 							</div>
-							<div class="tile-content" data-winrate="{{ player_class.arena_winrate }}">
-								<span class="class-tile-winrate" data-winrate="{{ player_class.arena_winrate }}">
+							<div class="box-content" data-winrate="{{ player_class.arena_winrate }}">
+								<span class="class-box-winrate" data-winrate="{{ player_class.arena_winrate }}">
 									{{ player_class.arena_winrate|floatformat:2 }}%
 								</span>
-								<span class="class-tile-footer">View top {{ player_class.name }} cards</span>
+								<span class="class-box-footer">View top {{ player_class.name }} cards</span>
 							</div>
 						</a>
 					{% endfor %}

@@ -15,10 +15,6 @@ import CardData from "../CardData";
 import * as React from "react";
 import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
 import ArchetypeDistributionPieChart from "../components/archetypedetail/ArchetypeDistributionPieChart";
-import WinrateTile from "../components/tiles/WinrateTile";
-import PopularityTile from "../components/tiles/PopularityTile";
-import MatchupTile from "../components/tiles/MatchupTile";
-import DeckTile from "../components/tiles/DeckTile";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import InfoIcon from "../components/InfoIcon";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
@@ -27,6 +23,10 @@ import ArchetypeSignature from "../components/archetypedetail/ArchetypeSignature
 import { extractSignature } from "../extractors";
 import CardTable from "../components/tables/CardTable";
 import PremiumPromo from "../components/PremiumPromo";
+import WinrateBox from "../components/box/WinrateBox";
+import PopularityBox from "../components/box/PopularityBox";
+import MatchupBox from "../components/box/MatchupBox";
+import DeckBox from "../components/box/DeckBox";
 
 interface ArchetypeDetailState {
 	deckData?: any;
@@ -164,7 +164,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								]}
 								extract={{matchupData: this.extractMatchupData}}
 							>
-								<WinrateTile
+								<WinrateBox
 									href="#tab=overtime"
 									onClick={() => this.props.setTab("overtime")}
 								/>
@@ -176,7 +176,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								]}
 								extract={{popularityData: this.extractPopularityData}}
 							>
-								<PopularityTile
+								<PopularityBox
 									href="#tab=overtime"
 									onClick={() => this.props.setTab("overtime")}
 									playerClass={this.props.playerClass}
@@ -189,7 +189,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								]}
 								extract={{matchupData: this.matchupTileExtractor(true)}}
 							>
-								<MatchupTile
+								<MatchupBox
 									title="Best Matchup"
 								/>
 							</DataInjector>
@@ -200,7 +200,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								]}
 								extract={{matchupData: this.matchupTileExtractor(false)}}
 							>
-								<MatchupTile
+								<MatchupBox
 									title="Worst Matchup"
 								/>
 							</DataInjector>
@@ -211,7 +211,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								]}
 								extract={{deckData: this.deckTileExtractor("total_games")}}
 							>
-								<DeckTile
+								<DeckBox
 									title="Most popular deck"
 								/>
 							</DataInjector>
@@ -222,7 +222,7 @@ export default class ArchetypeDetail extends React.Component<ArchetypeDetailProp
 								]}
 								extract={{deckData: this.deckTileExtractor("win_rate")}}
 							>
-								<DeckTile
+								<DeckBox
 									title="Best performing deck"
 								/>
 							</DataInjector>

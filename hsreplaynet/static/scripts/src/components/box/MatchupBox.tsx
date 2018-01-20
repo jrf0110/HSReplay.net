@@ -1,27 +1,27 @@
 import * as React from "react";
-import {winrateData} from "../../helpers";
-import CardIcon from "../CardIcon";
+import {getArchetypeUrl, winrateData} from "../../helpers";
 import { LoadingStatus } from "../../interfaces";
 
-interface DeckTileProps extends React.ClassAttributes<DeckTile> {
-	cards?: any[];
-	deckId?: string;
+interface Props extends React.ClassAttributes<MatchupBox> {
+	archetypeId?: number;
+	archetypeName?: string;
 	games?: number;
+	playerClass?: string;
 	title: string;
 	winrate?: number;
 	status?: LoadingStatus;
 }
 
-export default class DeckTile extends React.Component<DeckTileProps, {}> {
+export default class MatchupBox extends React.Component<Props> {
 	render(): JSX.Element {
 		let content = null;
-		let href = null;
-		if (this.props.cards && this.props.deckId && this.props.games !== undefined && this.props.winrate !== undefined) {
-			const cardIcons = this.props.cards.map((card) => <CardIcon card={card} size={50}/>);
+		if (this.props.playerClass && this.props.games !== undefined && this.props.winrate !== undefined) {
 			const wrData = winrateData(50, this.props.winrate, 3);
 			content = [
-				<div className="tech-cards">
-					{cardIcons}
+				<div>
+					<span className={`player-class ${this.props.playerClass.toLowerCase()}`}>
+						{this.props.archetypeName}
+					</span>
 				</div>,
 				<div className="stats-table">
 					<table>
@@ -36,19 +36,23 @@ export default class DeckTile extends React.Component<DeckTileProps, {}> {
 					</table>
 				</div>,
 			];
-			href = `/decks/${this.props.deckId}/`;
 		}
 		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
 			content = "Please check back later";
 		}
 
+		let href = null;
+		if (this.props.archetypeId && this.props.archetypeName) {
+			href = getArchetypeUrl(this.props.archetypeId, this.props.archetypeName);
+		}
+
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-4">
-				<a className="tile deck-tile" href={href}>
-					<div className="tile-title">
+				<a className="box matchup-box" href={href}>
+					<div className="box-title">
 						{this.props.title}
 					</div>
-					<div className="tile-content">
+					<div className="box-content">
 						{content}
 					</div>
 				</a>

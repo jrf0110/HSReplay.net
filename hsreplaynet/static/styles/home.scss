@@ -312,14 +312,14 @@ ul.home-steps .promo-button {
 		}
 	}
 
-	.class-tiles {
+	.class-boxes {
 		display: flex;
 		justify-content: center;
 		flex-wrap: wrap;
 		padding: 1em 0;
 	}
 
-	.class-tile {
+	.class-box {
 		box-shadow: none;
 		height: auto;
 		margin: 15px;
@@ -339,7 +339,7 @@ ul.home-steps .promo-button {
 		top: -2px;
 	}
 
-	.tile-content {
+	.box-content {
 		background-color: rgba(255, 255, 255, 0.7);
 		transition: background-color 0.2s linear;
 		text-align: center;
@@ -349,7 +349,7 @@ ul.home-steps .promo-button {
 		}
 	}
 
-	.class-tile-winrate {
+	.class-box-winrate {
 		margin: 1.3em 0;
 		font-size: 2.5em;
 		font-weight: bold;
@@ -359,7 +359,7 @@ ul.home-steps .promo-button {
 			1px 1px 18px rgba(255, 255, 255, 0.6);
 	}
 
-	.class-tile-footer {
+	.class-box-footer {
 		font-size: 1.1em;
 		margin: 0;
 		padding: 5px 0;
