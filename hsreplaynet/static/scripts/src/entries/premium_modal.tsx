@@ -166,6 +166,7 @@ window.hsreplaynet_load_hscheckout = (targetElement: HTMLDivElement, plansElemen
 	const csrfToken = targetElement.getAttribute("data-csrf-token");
 	const defaultSource = targetElement.getAttribute("data-stripe-default-source");
 	const planData = JSON.parse(plansElements.textContent);
+	const supportStripeElements = targetElement.getAttribute("data-support-stripe-elements") === "1";
 
 	const stripe = document.createElement("script");
 	stripe.src = "https://js.stripe.com/v3/";
@@ -182,6 +183,7 @@ window.hsreplaynet_load_hscheckout = (targetElement: HTMLDivElement, plansElemen
 				stripeElementsSubmitUrl={stripeElementsSubmitUrl}
 				paypalPlans={planData.paypal}
 				paypalSubmitUrl={paypalSubmitUrl}
+				supportStripeElements={supportStripeElements}
 			/>,
 			targetElement
 		);

@@ -183,7 +183,7 @@
 			{% if user.is_authenticated %}
 				<h3 class="text-center">{{ random_quote }}</h3>
 				<div class="form-group">
-				{% include "premium/checkout_form.html" with id="premium-detail-checkout" %}
+				{% include "premium/checkout_form.html" with id="premium-detail-checkout" support_stripe_elements="1" %}
 				<script type="text/javascript">
 					window.hsreplaynet_load_hscheckout(
 						document.getElementById("premium-detail-checkout"),

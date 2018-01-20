@@ -23,6 +23,7 @@ interface CheckoutFormProps extends React.ClassAttributes<CheckoutForm> {
 	stripeCheckoutSubmitUrl: string;
 	paypalPlans: PaypalPlan[];
 	paypalSubmitUrl: string;
+	supportStripeElements?: boolean;
 	csrfElement: { __html: string };
 }
 
@@ -50,7 +51,7 @@ export default class CheckoutForm extends React.Component<CheckoutFormProps, Che
 	getValidPaymentMethods() {
 		const methods = [];
 
-		if (UserData.hasFeature("stripe-elements")) {
+		if (UserData.hasFeature("stripe-elements") && this.props.supportStripeElements) {
 			methods.push({
 				method: PaymentMethods.CREDITCARD,
 				label: <strong><span className="glyphicon glyphicon-credit-card"></span>&nbsp;Credit Card</strong>,

@@ -18,6 +18,7 @@
 	{% endwith %}
 	data-paypal-submit-url="{% url 'pp_subscribe' %}"
 	data-csrf-token="{% csrf_token %}"
+	data-support-stripe-elements="{{ support_stripe_elements|default:"0" }}"
 ></div>
 <noscript>
 	<p class="alert alert-danger">
