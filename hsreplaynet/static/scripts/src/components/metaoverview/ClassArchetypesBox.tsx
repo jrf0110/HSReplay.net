@@ -4,7 +4,7 @@ import CardData from "../../CardData";
 import {toTitleCase} from "../../helpers";
 import ArchetypeClassTable from "./ArchetypeClassTable";
 
-interface ClassArchetypesTileProps extends SortableProps, React.ClassAttributes<ClassArchetypesTile> {
+interface Props extends SortableProps, React.ClassAttributes<ClassArchetypesBox> {
 	data: ApiArchetypePopularity[];
 	archetypeData: ApiArchetype[];
 	playerClass: string;
@@ -13,17 +13,17 @@ interface ClassArchetypesTileProps extends SortableProps, React.ClassAttributes<
 	totalPopularity?: boolean;
 }
 
-export default class ClassArchetypesTile extends React.Component<ClassArchetypesTileProps, {}> {
+export default class ClassArchetypesBox extends React.Component<Props> {
 	render(): JSX.Element {
 		const {playerClass} = this.props;
 		return (
-			<div className="tile class-tile">
-				<div className="tile-title">
+			<div className="box class-box">
+				<div className="box-title">
 					<span className={`player-class ${playerClass.toLowerCase()}`}>
 						{toTitleCase(playerClass)}
 					</span>
 				</div>
-				<div className="tile-content">
+				<div className="box-content">
 					<ArchetypeClassTable
 						data={this.props.data}
 						archetypeData={this.props.archetypeData}

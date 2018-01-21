@@ -841,7 +841,7 @@ table .info-icon, .sort-header .info-icon {
 	}
 }
 
-.class-tile-container {
+.class-box-container {
 	padding: 10px;
 	display: flex;
 	flex-wrap: wrap;
@@ -855,7 +855,7 @@ table .info-icon, .sort-header .info-icon {
 		margin: 1px;
 	}
 
-	.class-tile {
+	.class-box {
 		height: auto;
 		cursor: unset;
 		flex-basis: calc(33% - 20px);
@@ -873,7 +873,7 @@ table .info-icon, .sort-header .info-icon {
 		}
 	}
 
-	.tile-content {
+	.box-content {
 		justify-content: unset;
 	}
 

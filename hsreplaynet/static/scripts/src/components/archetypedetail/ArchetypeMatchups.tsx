@@ -1,8 +1,7 @@
 import React from "react";
-import ClassMatchup from "../ClassMatchup";
-import {ApiArchetype, ApiArchetypePopularity, SortableProps, SortDirection} from "../../interfaces";
+import {ApiArchetype, ApiArchetypePopularity, SortDirection} from "../../interfaces";
 import {withLoading} from "../loading/Loading";
-import ClassArchetypesTile from "../metaoverview/ClassArchetypesTile";
+import ClassArchetypesBox from "../metaoverview/ClassArchetypesBox";
 import CardData from "../../CardData";
 
 interface ArchetypeMatchupsProps extends React.ClassAttributes<ArchetypeMatchups> {
@@ -66,7 +65,7 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 		});
 
 		const tiles = Object.keys(opponentClasses).sort().map((key) => (
-			<ClassArchetypesTile
+			<ClassArchetypesBox
 				archetypeData={this.props.archetypeData}
 				cardData={this.props.cardData}
 				data={opponentClasses[key]}
@@ -81,7 +80,7 @@ class ArchetypeMatchups extends React.Component<ArchetypeMatchupsProps, Archetyp
 		));
 
 		return (
-			<div className="class-tile-container">
+			<div className="class-box-container">
 				{tiles}
 			</div>
 		);

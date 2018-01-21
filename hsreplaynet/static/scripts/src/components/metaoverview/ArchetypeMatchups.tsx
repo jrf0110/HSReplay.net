@@ -10,7 +10,6 @@ import {
 } from "../../interfaces";
 import UserData from "../../UserData";
 import CardData from "../../CardData";
-import LoadingSpinner from "../LoadingSpinner";
 import {withLoading} from "../loading/Loading";
 import {getOtherArchetype} from "../../helpers";
 import LowDataWarning from "./LowDataWarning";

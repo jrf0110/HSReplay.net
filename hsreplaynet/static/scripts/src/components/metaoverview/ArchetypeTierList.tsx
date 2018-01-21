@@ -1,13 +1,8 @@
 import React from "react";
-import { ApiArchetype, ApiArchetypePopularity, SortableProps, SortDirection } from "../../interfaces";
+import { ApiArchetype, ApiArchetypePopularity } from "../../interfaces";
 import { withLoading } from "../loading/Loading";
-import ArchetypeClassTable from "./ArchetypeClassTable";
-import { toTitleCase } from "../../helpers";
 import CardData from "../../CardData";
-import ClassArchetypesTile from "./ClassArchetypesTile";
-import LowDataWarning from "./LowDataWarning";
 import ArchetypeListItem from "./ArchetypeListItem";
-import DataInjector from "../DataInjector";
 import InfoIcon from "../InfoIcon";
 
 interface ClassArchetypeData {

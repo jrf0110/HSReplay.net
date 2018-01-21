@@ -1,17 +1,15 @@
 import React from "react";
-import { ApiArchetype, ApiArchetypePopularity, SortableProps, SortDirection } from "../../interfaces";
+import { ApiArchetype, ApiArchetypePopularity, SortableProps } from "../../interfaces";
 import { withLoading } from "../loading/Loading";
-import ArchetypeClassTable from "./ArchetypeClassTable";
-import { toTitleCase } from "../../helpers";
 import CardData from "../../CardData";
-import ClassArchetypesTile from "./ClassArchetypesTile";
 import LowDataWarning from "./LowDataWarning";
+import ClassArchetypesBox from "./ClassArchetypesBox";
 
 interface ClassArchetypeData {
 	[playerClass: string]: ApiArchetypePopularity[];
 }
 
-interface ArchetypeListProps extends SortableProps, React.ClassAttributes<ArchetypeList> {
+interface Props extends SortableProps, React.ClassAttributes<ArchetypeList> {
 	data?: ClassArchetypeData;
 	archetypeData?: ApiArchetype[];
 	cardData: CardData;
@@ -19,11 +17,11 @@ interface ArchetypeListProps extends SortableProps, React.ClassAttributes<Archet
 	timestamp?: string;
 }
 
-class ArchetypeList extends React.Component<ArchetypeListProps, {}> {
+class ArchetypeList extends React.Component<Props> {
 	render(): JSX.Element {
 		const {data} = this.props;
 		const tiles = Object.keys(data).sort().map((key) => (
-			<ClassArchetypesTile
+			<ClassArchetypesBox
 				archetypeData={this.props.archetypeData}
 				cardData={this.props.cardData}
 				data={data[key]}
@@ -36,7 +34,7 @@ class ArchetypeList extends React.Component<ArchetypeListProps, {}> {
 			/>
 		));
 		return (
-			<div className="class-tile-container">
+			<div className="class-box-container">
 					<LowDataWarning
 						date={new Date(this.props.timestamp)}
 						numArchetypes={Object.keys(data).map((key) => data[key].length).reduce((a, b) => a + b)}
