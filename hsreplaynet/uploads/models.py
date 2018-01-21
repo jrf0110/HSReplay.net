@@ -64,7 +64,7 @@ def get_handle_status(handle, min_statements=1):
 		return is_complete, had_errors, num_statements, finished_at
 
 	else:
-		log.info("No records in SVL_QLOG yet for handle")
+		log.info("No records in SVL_QLOG for handle yet")
 		if not is_in_flight(conn, handle):
 			log.warn("%s does not seem to be in_flight" % (handle))
 			# TODO: Return an error state so we can fail or restart
