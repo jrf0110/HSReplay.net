@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import * as moment from "moment";
-import * as React from "react";
+import React from "react";
 import {
 	VictoryArea, VictoryAxis, VictoryChart, VictoryLabel,
 } from "victory";

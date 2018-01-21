@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {cardSorting, cleanText} from "../helpers";
 import ObjectSearch, { Limit } from "./ObjectSearch";
 import { ApiArchetype } from "../interfaces";

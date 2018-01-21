@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import InfoboxFilterGroup from "./InfoboxFilterGroup";
 import InfoboxFilter from "./InfoboxFilter";
 import UserData from "../UserData";

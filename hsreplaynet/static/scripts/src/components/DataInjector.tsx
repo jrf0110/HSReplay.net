@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { cloneComponent } from "../helpers";
 import { LoadingStatus } from "../interfaces";
 import DataManager from "../DataManager";

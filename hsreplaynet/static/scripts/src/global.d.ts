@@ -101,7 +101,7 @@ declare module "joust" {
 }
 
 declare module "victory" {
-	import * as React from "react";
+	import React from "react";
 
 	export interface VictoryAreaProps extends VictoryMultiLabeableProps {}
 

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import CardData from "../CardData";
 import RecommendedDecksList from "../components/carddetail/RecommendedDecksList";
 import CardRankingTable from "../components/CardRankingTable";

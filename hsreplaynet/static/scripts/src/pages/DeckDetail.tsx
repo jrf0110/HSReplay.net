@@ -10,7 +10,7 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import ChartLoading from "../components/loading/ChartLoading";
 import HideLoading from "../components/loading/HideLoading";
 import CardData from "../CardData";
-import * as React from "react";
+import React from "react";
 import TableLoading from "../components/loading/TableLoading";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import {

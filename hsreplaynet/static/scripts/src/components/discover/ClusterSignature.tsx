@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import CardTable from "../tables/CardTable";
 import { ApiArchetypeSignature, SortDirection } from "../../interfaces";
 import CardData from "../../CardData";

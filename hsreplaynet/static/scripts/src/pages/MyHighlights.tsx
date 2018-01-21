@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import CardData from "../CardData";
 import ClassArenaChart from "../components/charts/ClassAreaChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";

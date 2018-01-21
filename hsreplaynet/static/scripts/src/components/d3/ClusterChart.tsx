@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import * as _ from "lodash";
 import * as d3 from "d3";
 import {ClusterMetaData, DeckData} from "../discover/ClassAnalysis";

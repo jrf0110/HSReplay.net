@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import InfoIcon from "../InfoIcon";
 import DataInjector, { Query } from "../DataInjector";
 import ChartLoading from "../loading/ChartLoading";

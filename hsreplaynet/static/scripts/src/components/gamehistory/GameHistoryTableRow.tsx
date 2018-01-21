@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {GlobalGamePlayer, ImageProps, CardArtProps} from "../../interfaces";
 import ClassIcon from "../ClassIcon";
 import GameHistoryPlayer from "./GameHistoryPlayer";

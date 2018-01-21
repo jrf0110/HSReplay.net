@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import HideLoading from "./loading/HideLoading";
 import DataInjector from "./DataInjector";
 import Tooltip from "./Tooltip";

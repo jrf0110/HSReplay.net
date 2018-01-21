@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import * as _ from "lodash";
 import CardIcon from "./CardIcon";
 import ManaCurve from "./ManaCurve";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { getArchetypeUrl, toTitleCase, winrateData } from "../helpers";
 
 export interface ArchetypeData {

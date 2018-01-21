@@ -1,5 +1,5 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import {cardArt, image} from "../helpers";
 import MyReplays from "../pages/MyReplays";
 import UserData from "../UserData";

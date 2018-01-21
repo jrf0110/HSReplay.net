@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { SortDirection, TableData, TableHeaderProps } from "../../interfaces";
 import CardData from "../../CardData";
 import CardTile from "../CardTile";

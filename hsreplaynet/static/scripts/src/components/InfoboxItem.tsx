@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 interface InfoboxItemProps extends React.ClassAttributes<InfoboxItem> {
 	header: string;

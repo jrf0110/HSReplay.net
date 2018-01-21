@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import StripeElementsCheckoutForm, {StripePlan} from "./StripeElementsCheckoutForm";
 import PaypalCheckoutForm, {PaypalPlan} from "./PaypalCheckoutForm";
 import BtnGroup from "../BtnGroup";

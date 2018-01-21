@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {
 	VictoryAxis, VictoryBar, VictoryChart, VictoryContainer,
 	VictoryLabel, VictoryStack, VictoryTooltip

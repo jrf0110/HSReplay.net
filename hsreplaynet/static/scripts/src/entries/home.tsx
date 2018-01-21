@@ -1,5 +1,5 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import CardData from "../CardData";
 import LiveData from "../components/home/LiveData";
 import { winrateData } from "../helpers";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import Tab from "./Tab";
 
 interface Props extends React.ClassAttributes<TabList> {

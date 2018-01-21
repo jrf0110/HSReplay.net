@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import GameHistoryTableRow from "./GameHistoryTableRow";
 import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../../interfaces";
 import GameHistoryList from "./GameHistoryList";

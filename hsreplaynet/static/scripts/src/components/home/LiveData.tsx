@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import * as _ from "lodash";
 import CardTile from "../CardTile";
 import CardData from "../../CardData";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {winrateData} from "../../helpers";
 import CardIcon from "../CardIcon";
 import { LoadingStatus } from "../../interfaces";

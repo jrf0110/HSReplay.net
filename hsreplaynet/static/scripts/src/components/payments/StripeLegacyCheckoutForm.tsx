@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {CardElement, injectStripe} from "react-stripe-elements";
 import BtnGroup from "../BtnGroup";
 import {CheckoutFormInstanceProps} from "./CheckoutForm";

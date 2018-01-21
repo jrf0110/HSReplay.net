@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { getCardUrl, getFragments } from "../helpers";
 import Tooltip from "./Tooltip";
 

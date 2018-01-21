@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import PropMultiplexer from "./PropMultiplexer";
 import HighlightPointComponent from "./HighlightPointComponent";
 import {Flyout, VictoryLabel, VictoryTooltip} from "victory";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {toTitleCase} from "../helpers";
 import ClassIcon from "./ClassIcon";
 import DataInjector from "./DataInjector";

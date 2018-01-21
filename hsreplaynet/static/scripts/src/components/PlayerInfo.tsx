@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import CardList from "./CardList";
 import {GameReplay, GlobalGamePlayer} from "../interfaces";
 import CardData from "../CardData";

@@ -1,5 +1,5 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import ShareGameDialog from "../components/ShareGameDialog";
 import JoustEmbedder from "../JoustEmbedder";
 import MetricsReporter from "../metrics/MetricsReporter";

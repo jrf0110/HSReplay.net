@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import * as _ from "lodash";
 import {ApiArchetypeSignature} from "../../interfaces";
 import CardData from "../../CardData";

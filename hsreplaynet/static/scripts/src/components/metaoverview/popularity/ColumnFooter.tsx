@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {commaSeparate} from "../../../helpers";
 
 interface ColumnFooterProps extends React.ClassAttributes<ColumnFooter> {

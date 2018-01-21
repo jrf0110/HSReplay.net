@@ -1,7 +1,7 @@
 import {Launcher} from "joust";
 import * as Joust from "joust";
 import Raven from "raven-js";
-import * as React from "react";
+import React from "react";
 import {cardArt, joustAsset} from "./helpers";
 import BatchingMiddleware from "./metrics/BatchingMiddleware";
 import InfluxMetricsBackend from "./metrics/InfluxMetricsBackend";

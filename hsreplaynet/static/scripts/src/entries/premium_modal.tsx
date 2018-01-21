@@ -1,5 +1,5 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import CheckoutForm, {PaymentMethods} from "../components/payments/CheckoutForm";
 import UserData from "../UserData";
 

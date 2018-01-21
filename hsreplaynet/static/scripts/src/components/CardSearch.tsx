@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {cardSorting, cleanText, slangToCardId} from "../helpers";
 import ObjectSearch, {Limit} from "./ObjectSearch";
 import CardTile from "./CardTile";

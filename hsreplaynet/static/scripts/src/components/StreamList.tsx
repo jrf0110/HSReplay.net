@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { withLoading } from "./loading/Loading";
 import StreamThumbnail from "./StreamThumbnail";
 import UserData from "../UserData";

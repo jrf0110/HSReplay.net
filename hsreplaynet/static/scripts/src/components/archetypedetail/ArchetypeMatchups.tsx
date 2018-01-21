@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import ClassMatchup from "../ClassMatchup";
 import {ApiArchetype, ApiArchetypePopularity, SortableProps, SortDirection} from "../../interfaces";
 import {withLoading} from "../loading/Loading";

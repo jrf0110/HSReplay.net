@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import CardData from "../../CardData";
 import { DeckObj, TableData } from "../../interfaces";
 import DeckList from "../DeckList";

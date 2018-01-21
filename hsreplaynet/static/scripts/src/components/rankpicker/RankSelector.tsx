@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 interface RankSelectorProps extends React.ClassAttributes<RankSelector> {
 	classNames: string[];

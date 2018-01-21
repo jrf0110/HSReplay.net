@@ -1,5 +1,5 @@
 import MatchupCell from "./MatchupCell";
-import * as React from "react";
+import React from "react";
 import SortHeader from "../../SortHeader";
 import CardData from "../../../CardData";
 import {AutoSizer, Grid, ScrollSync} from "react-virtualized";

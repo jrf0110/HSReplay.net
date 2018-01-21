@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { getArchetypeUrl } from "../../../helpers";
 import Feature from "../../Feature";
 import Tooltip from "../../Tooltip";

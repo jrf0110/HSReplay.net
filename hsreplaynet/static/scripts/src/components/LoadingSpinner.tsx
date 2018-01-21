@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 interface LoadingSpinnerProps extends React.ClassAttributes<LoadingSpinner> {
 	active?: boolean;

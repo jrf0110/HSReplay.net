@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { SortDirection, TableData, TableHeaderProps } from "../../interfaces";
 import ClassFilter, { FilterOption } from "../ClassFilter";
 import UserData from "../../UserData";

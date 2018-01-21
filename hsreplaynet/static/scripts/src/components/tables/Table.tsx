@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {AutoSizer, Grid, ScrollSync} from "react-virtualized";
 import { CardObj, SortableProps, SortDirection } from "../../interfaces";
 import scrollbarSize from "dom-helpers/util/scrollbarSize";

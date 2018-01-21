@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { toDynamicFixed } from "../../../helpers";
 
 interface PopularityCellProps extends React.ClassAttributes<PopularityCell> {

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {Point} from "victory-core";
 
 interface HighlightPointComponentProps {

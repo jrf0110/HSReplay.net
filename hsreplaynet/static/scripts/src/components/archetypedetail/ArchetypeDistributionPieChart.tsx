@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { getArchetypeUrl, getHeroColor, hexToHsl, stringifyHsl, toTitleCase } from "../../helpers";
 import { VictoryLabel, VictoryLegend, VictoryPie } from "victory";
 import { ApiArchetype } from "../../interfaces";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import RowSelector, { Mode } from "./RowSelector";
 import RankSelector from "./RankSelector";
 

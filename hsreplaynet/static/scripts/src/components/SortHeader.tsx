@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import InfoIcon from "./InfoIcon";
 import SortIndicator from "./SortIndicator";
 import { SortDirection, TableHeaderProps } from "../interfaces";

@@ -1,7 +1,7 @@
 import PremiumWrapper from "../components/PremiumWrapper";
 import InfoboxFilter from "../components/InfoboxFilter";
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
-import * as React from "react";
+import React from "react";
 import CardData from "../CardData";
 import DataInjector from "../components/DataInjector";
 import ArchetypeMatchups from "../components/metaoverview/ArchetypeMatchups";

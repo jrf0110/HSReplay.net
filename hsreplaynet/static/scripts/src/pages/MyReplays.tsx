@@ -1,5 +1,5 @@
 import {cookie} from "cookie_js";
-import * as React from "react";
+import React from "react";
 import ClassDistributionPieChart from "../components/charts/ClassDistributionPieChart";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";
 import GameHistoryList from "../components/gamehistory/GameHistoryList";

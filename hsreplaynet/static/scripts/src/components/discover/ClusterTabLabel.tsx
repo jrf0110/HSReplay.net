@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import DataInjector from "../DataInjector";
 import ClusterArchetypeSelector from "./ClusterArchetypeSelector";
 import UserData from "../../UserData";

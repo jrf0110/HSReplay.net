@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {Colors} from "./Colors";
 import {ApiArchetype, ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, GlobalGamePlayer} from "./interfaces";
 import {CardData as CardMeta} from "hearthstonejson";

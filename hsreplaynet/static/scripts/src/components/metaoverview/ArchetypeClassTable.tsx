@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { ApiArchetype, ApiArchetypePopularity, SortableProps } from "../../interfaces";
 import Table, { TableColumn } from "../tables/Table";
 import Tooltip from "../Tooltip";

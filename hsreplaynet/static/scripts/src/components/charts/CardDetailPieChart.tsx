@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {VictoryContainer, VictoryLabel, VictoryLegend, VictoryPie} from "victory";
 import {
 	getChartScheme, pieScaleTransform,

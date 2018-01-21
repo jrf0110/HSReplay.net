@@ -12,7 +12,7 @@ import InfoboxFilter from "../components/InfoboxFilter";
 import PremiumWrapper from "../components/PremiumWrapper";
 import DeckList from "../components/DeckList";
 import CardData from "../CardData";
-import * as React from "react";
+import React from "react";
 import ArchetypeMatchups from "../components/archetypedetail/ArchetypeMatchups";
 import ArchetypeDistributionPieChart from "../components/archetypedetail/ArchetypeDistributionPieChart";
 import PopularityLineChart from "../components/charts/PopularityLineChart";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import CardData from "../CardData";
 import DataInjector from "../components/DataInjector";
 import TableLoading from "../components/loading/TableLoading";

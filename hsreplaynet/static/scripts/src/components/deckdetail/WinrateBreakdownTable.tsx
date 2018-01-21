@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { SortDirection, TableData } from "../../interfaces";
 import { toTitleCase, winrateData } from "../../helpers";
 import SortableTable from "../SortableTable";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {encode as encodeDeckstring} from "deckstrings";
 import Tooltip from "./Tooltip";
 import * as _ from "lodash";

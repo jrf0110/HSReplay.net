@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { DeckObj } from "../../interfaces";
 import DeckList from "../DeckList";
 import Fragments from "../Fragments";

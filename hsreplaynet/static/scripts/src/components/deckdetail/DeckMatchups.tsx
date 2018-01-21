@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import ClassMatchup, { ArchetypeData } from "../ClassMatchup";
 
 interface DeckMatchupsProps extends React.ClassAttributes<DeckMatchups> {

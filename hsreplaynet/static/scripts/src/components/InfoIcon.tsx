@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import Tooltip, {ClickTouch, TooltipContent} from "./Tooltip";
 
 export interface InfoIconProps extends React.ClassAttributes<InfoIcon> {

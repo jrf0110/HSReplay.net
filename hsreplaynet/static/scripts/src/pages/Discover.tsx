@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import * as _ from "lodash";
 import AdminDeckInfo from "../components/discover/AdminDeckInfo";
 import CardData from "../CardData";

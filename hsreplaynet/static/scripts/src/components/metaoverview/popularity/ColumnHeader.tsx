@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { ArchetypeRankData, SortDirection } from "../../../interfaces";
 import SortIndicator from "../../SortIndicator";
 

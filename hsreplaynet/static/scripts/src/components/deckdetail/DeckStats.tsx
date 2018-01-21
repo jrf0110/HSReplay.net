@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { toPrettyNumber } from "../../helpers";
 import { TableData } from "../../interfaces";
 import InfoboxLastUpdated from "../InfoboxLastUpdated";

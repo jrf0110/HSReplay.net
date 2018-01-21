@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import ArchetypeSelector from "../ArchetypeSelector";
 import DataInjector from "../DataInjector";
 import HideLoading from "../loading/HideLoading";

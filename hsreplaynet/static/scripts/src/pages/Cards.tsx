@@ -1,5 +1,5 @@
 import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
-import * as React from "react";
+import React from "react";
 import CardData from "../CardData";
 import CardImage from "../components/CardImage";
 import ClassFilter, {FilterOption} from "../components/ClassFilter";

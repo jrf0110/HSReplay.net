@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import CardTile from "../CardTile";
 import Table, {BaseTableProps} from "./Table";
 import * as _ from "lodash";

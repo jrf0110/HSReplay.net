@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {VictoryContainer, VictoryLabel, VictoryPie} from "victory";
 import {ChartSchemeData, RenderData} from "../../interfaces";
 
