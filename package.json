@@ -3,7 +3,7 @@
 	"private": true,
 	"scripts": {
 		"build": "cross-env NODE_ENV=production webpack --bail",
-		"lint": "tslint hsreplaynet/static/scripts/src/**/* --project tsconfig.json --type-check --force"
+		"lint": "tslint \"hsreplaynet/static/scripts/src/**/*\" --project tsconfig.json"
 	},
 	"dependencies": {
 		"@types/d3": "^4.12.0",
