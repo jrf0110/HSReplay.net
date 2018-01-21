@@ -147,7 +147,21 @@ module.exports = (env) => {
 							options: {
 								presets: [
 									"react",
-									["es2015", {modules: false}],
+									[
+										"env",
+										{
+											targets: {
+												"browsers": [
+													"ie >= 11",
+													"last 2 chrome versions",
+													"last 2 firefox versions",
+													"last 2 edge versions",
+													"safari >= 9"
+												],
+											},
+											modules: false,
+										}
+									],
 								],
 								cacheDirectory: path.join(__dirname, ".cache", "babel-loader"),
 							},
