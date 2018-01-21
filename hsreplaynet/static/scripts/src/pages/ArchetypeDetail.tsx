@@ -670,7 +670,11 @@ export default class ArchetypeDetail extends React.Component<
 						(a.deck_id > b.deck_id ? 1 : -1)
 					);
 				});
-				const prevalences = signatureData.signature.components
+				const components = signatureData.signature.components;
+				if (!components) {
+					return { status: LoadingStatus.NO_DATA };
+				}
+				const prevalences = components
 					.slice()
 					.map(([dbfId, prevalence]) => {
 						return { card: cardData.fromDbf(dbfId), prevalence };
