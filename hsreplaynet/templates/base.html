@@ -13,15 +13,17 @@
 	{% if raven_config_frontend %}
 		<script src="{% static 'vendor/raven.min.js' %}"></script>
 		<script>
-			var raven = Raven.config("{{ raven_config_frontend.dsn }}", {
-				release: "{{ raven_config_frontend.release }}",
-				environment: "{% if debug %}development{% else %}production{% endif %}",
-			}).install();
-			{% if user.is_authenticated %}
-			raven.setUserContext({
-				username: "{{ user.username }}",
-			});
-			{% endif %}
+			if (Raven && typeof Raven.config === "function") {
+				var raven = Raven.config("{{ raven_config_frontend.dsn }}", {
+					release: "{{ raven_config_frontend.release }}",
+					environment: "{% if debug %}development{% else %}production{% endif %}",
+				}).install();
+				{% if user.is_authenticated %}
+				raven.setUserContext({
+					username: "{{ user.username }}",
+				});
+				{% endif %}
+			}
 		</script>
 	{% endif %}
 {% endblock %}
