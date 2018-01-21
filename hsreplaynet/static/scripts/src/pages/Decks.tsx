@@ -183,13 +183,6 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 			deck.cards = cards;
 			deckElements.push(deck);
 		};
-		const decksMatch = (a, b) => {
-			//console.log(a, b);
-			return (
-				_.differenceWith(a, b, (a, b) => a[0] === b[0] && a[1] === b[1])
-					.length === 0
-			);
-		};
 		const params = this.getParams();
 		const query = this.getQueryName();
 		if (!DataManager.has(query, params)) {
