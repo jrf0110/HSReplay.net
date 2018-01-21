@@ -100,11 +100,6 @@ declare module "joust" {
 	export function launcher(target: string | HTMLElement): Launcher;
 }
 
-declare module "cookie_js" {
-	import * as cookiejs from "cookiejs";
-	export {cookiejs as cookie};
-}
-
 declare module "victory" {
 	import * as React from "react";
 
@@ -217,4 +212,29 @@ declare module "sunwell" {
 	export default class Sunwell {
 		constructor(options?: any);
 	}
+}
+
+/* Cookie.js */
+
+declare module 'cookie_js' {
+	export = cookie;
+}
+
+declare namespace cookie {
+	export var cookie: Cookie;
+}
+
+declare namespace Cookie {
+	export function set(key : string, value : string, options? : any) : void;
+	export function set(obj : any, options? : any) : void;
+	export function remove(key : string) : void;
+	export function remove(keys : string[]) : void;
+	export function remove(...args : string[]) : void;
+	export function removeSpecific(key : string, options?: any) : void;
+	export function removeSpecific(keys : string[], options?: any): void;
+	export function empty() : void;
+	export function get(key : string, fallback?: string) : string;
+	export function get(keys : string[], fallback?: string) : any;
+	export function all() : any;
+	export function enabled() : boolean;
 }

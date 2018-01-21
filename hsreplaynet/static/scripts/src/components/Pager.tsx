@@ -82,12 +82,12 @@ export default class Pager extends React.Component<PagerProps, {}> {
 		return <nav className="btn-group">
 			<ul className="pagination">
 				{
-					action(previous, [
-						<span className="glyphicon glyphicon-arrow-left"></span>,
-						<span className={"space-left" + (!this.props.minimal ? " hidden-lg" : "")}>Previous</span>,
-					], {title: "Previous page"})
+					action(previous, <>
+						<span className="glyphicon glyphicon-arrow-left"></span>
+						<span className={"space-left" + (!this.props.minimal ? " hidden-lg" : "")}>Previous</span>
+					</>, {title: "Previous page"})
 				}
-				{!this.props.minimal ? pages.map((page: Page) => {
+				{!this.props.minimal ? pages.map((page: Page, index: number) => {
 					let content = null;
 					const classNames = ["visible-lg-inline"];
 
@@ -119,7 +119,7 @@ export default class Pager extends React.Component<PagerProps, {}> {
 					}
 
 					return (
-						<li className={classNames.join(" ")} key={pageNumber}>
+						<li className={classNames.join(" ")} key={pageNumber || `spacing-${index}`}>
 							{content}
 						</li>
 					);
@@ -134,10 +134,10 @@ export default class Pager extends React.Component<PagerProps, {}> {
 					</li>
 				) : null}
 				{
-					action(next, [
-						<span className={"space-right" + (!this.props.minimal ? " hidden-lg" : "")}>Next</span>,
-						<span className="glyphicon glyphicon-arrow-right"></span>,
-					], {title: "Next page"})
+					action(next, <>
+						<span className={"space-right" + (!this.props.minimal ? " hidden-lg" : "")}>Next</span>
+						<span className="glyphicon glyphicon-arrow-right"></span>
+					</>, {title: "Next page"})
 				}
 			</ul>
 		</nav>;

@@ -132,6 +132,7 @@ export default class DeckList extends React.Component<DeckListProps, DeckListSta
 			const archetype = this.state.archetypeData.find((x) => x.id === deck.archetypeId);
 			deckTiles.push(
 				<DeckTile
+					key={deck.deckId}
 					cards={deck.cards}
 					deckId={deck.deckId}
 					duration={deck.duration}

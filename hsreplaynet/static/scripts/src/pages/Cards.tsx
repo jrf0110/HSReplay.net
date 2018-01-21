@@ -17,6 +17,7 @@ import {CardObj, FragmentChildProps, LoadingStatus, SortDirection} from "../inte
 import CardTable from "../components/tables/CardTable";
 import InfoIcon from "../components/InfoIcon";
 import Feature from "../components/Feature";
+const Fragment = React.Fragment;
 
 interface CardFilters {
 	cost: any;
@@ -649,7 +650,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		];
 
 		const modeFilter = (
-				<section id="mode-filter">
+				<section id="mode-filter" key="mode-filter">
 					<InfoboxFilterGroup
 						header="Game Mode"
 						selectedValue={this.props.gameType}
@@ -670,6 +671,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 					header="Display"
 					selectedValue={this.props.display}
 					onClick={(value) => this.props.setDisplay(value)}
+					key="display"
 				>
 					<InfoboxFilter value="statistics">Statistics view</InfoboxFilter>
 					<InfoboxFilter value="gallery">Gallery view</InfoboxFilter>
@@ -679,78 +681,82 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 		if (this.props.personal || !isStatsView) {
 			filters.push(
-				<h2>Class</h2>,
-				<ClassFilter
-					filters="AllNeutral"
-					hideAll
-					minimal
-					selectedClasses={[this.props.playerClass as FilterOption]}
-					selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
-				/>,
+				<Fragment key="class">
+					<h2>Class</h2>
+					<ClassFilter
+						filters="AllNeutral"
+						hideAll
+						minimal
+						selectedClasses={[this.props.playerClass as FilterOption]}
+						selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
+					/>
+				</Fragment>
 			);
 		}
 		else {
 			filters.push(
-				<h2>Deck Class</h2>,
-				<ClassFilter
-					filters="All"
-					hideAll
-					minimal
-					selectedClasses={[this.props.playerClass as FilterOption]}
-					selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
-				/>,
-				<InfoboxFilterGroup
-					deselectable
-					selectedValue={this.props.exclude}
-					onClick={(value) => this.props.setExclude(value)}
-				>
-					<InfoboxFilter value="neutral">Class cards only</InfoboxFilter>
-					<InfoboxFilter value="class">Neutral cards only</InfoboxFilter>
-				</InfoboxFilterGroup>,
-				modeFilter,
-				<section>
+				<Fragment key="class">
+					<h2>Deck Class</h2>
+					<ClassFilter
+						filters="All"
+						hideAll
+						minimal
+						selectedClasses={[this.props.playerClass as FilterOption]}
+						selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
+					/>
 					<InfoboxFilterGroup
-						header="Time Frame"
-						infoHeader="Time Framge"
-						infoContent="Get the most recent data on which cards are hot right now!"
-						selectedValue={this.props.timeRange}
-						onClick={(value) => this.props.setTimeRange(value)}
+						deselectable
+						selectedValue={this.props.exclude}
+						onClick={(value) => this.props.setExclude(value)}
+					>
+						<InfoboxFilter value="neutral">Class cards only</InfoboxFilter>
+						<InfoboxFilter value="class">Neutral cards only</InfoboxFilter>
+					</InfoboxFilterGroup>
+					{modeFilter}
+					<section>
+						<InfoboxFilterGroup
+							header="Time Frame"
+							infoHeader="Time Framge"
+							infoContent="Get the most recent data on which cards are hot right now!"
+							selectedValue={this.props.timeRange}
+							onClick={(value) => this.props.setTimeRange(value)}
+						>
+							<PremiumWrapper
+								name="Card List Time Frame"
+								iconStyle={{display: "none"}}
+							>
+								<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
+								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+								<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+							</PremiumWrapper>
+							<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
+							<Feature feature={"current-expansion-filter"}>
+								<InfoboxFilter value="CURRENT_EXPANSION">
+									Kobolds and Catacombs
+									<span className="infobox-value">New!</span>
+								</InfoboxFilter>
+							</Feature>
+						</InfoboxFilterGroup>
+					</section>
+					<InfoboxFilterGroup
+						header="Rank Range"
+						infoHeader="Rank Range"
+						infoContent="Check out which cards are played at certain rank ranges on the ranked ladder!"
+						onClick={(value) => this.props.setRankRange(value)}
+						selectedValue={this.props.gameType !== "ARENA" && this.props.rankRange}
+						disabled={this.props.gameType === "ARENA"}
 					>
 						<PremiumWrapper
-							name="Card List Time Frame"
+							name="Card List Rank Range"
 							iconStyle={{display: "none"}}
 						>
-							<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
-							<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
-							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
 						</PremiumWrapper>
-						<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
-						<Feature feature={"current-expansion-filter"}>
-							<InfoboxFilter value="CURRENT_EXPANSION">
-								Kobolds and Catacombs
-								<span className="infobox-value">New!</span>
-							</InfoboxFilter>
-						</Feature>
+						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 					</InfoboxFilterGroup>
-				</section>,
-				<InfoboxFilterGroup
-					header="Rank Range"
-					infoHeader="Rank Range"
-					infoContent="Check out which cards are played at certain rank ranges on the ranked ladder!"
-					onClick={(value) => this.props.setRankRange(value)}
-					selectedValue={this.props.gameType !== "ARENA" && this.props.rankRange}
-					disabled={this.props.gameType === "ARENA"}
-				>
-					<PremiumWrapper
-						name="Card List Rank Range"
-						iconStyle={{display: "none"}}
-					>
-						<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
-						<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
-						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-					</PremiumWrapper>
-					<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-				</InfoboxFilterGroup>,
+				</Fragment>
 			);
 		}
 
@@ -761,6 +767,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 					header="Time Frame"
 					selectedValue={this.props.timeRange}
 					onClick={(value) => this.props.setTimeRange(value)}
+					key="timeframe"
 				>
 					<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
 					<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
@@ -777,12 +784,12 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		}
 
 		if (this.props.personal && this.props.accounts.length > 0) {
-			const accounts = [];
-			this.props.accounts.forEach((acc) => {
-				accounts.push(
-					<InfoboxFilter value={acc.region + "-" + acc.lo}>
+			const accounts = this.props.accounts.map((acc) => {
+				const value = `${acc.region}-${acc.lo}`;
+				return (
+					<InfoboxFilter value={value} key={value}>
 						{acc.display}
-					</InfoboxFilter>,
+					</InfoboxFilter>
 				);
 			});
 			if (accounts.length) {
@@ -794,6 +801,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 							UserData.setDefaultAccount(account);
 							this.setState({account});
 						}}
+						key="accounts"
 					>
 						{accounts}
 					</InfoboxFilterGroup>,
@@ -807,20 +815,22 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				: "single_account_lo_individual_card_stats";
 			const lastUpdatedParams = isStatsView ? this.getParams() : this.getPersonalParams();
 			filters.push(
-				<h2>Data</h2>,
-				<ul>
-					<InfoboxLastUpdated
-						url={lastUpdatedUrl}
-						params={lastUpdatedParams}
-					/>
-				</ul>,
-				<InfoboxFilterGroup
-					deselectable
-					selectedValue={this.props.showSparse ? "show" : null}
-					onClick={(value) => this.props.setShowSparse(value === "show" ? true : false)}
-				>
-					<InfoboxFilter value="show">Show sparse data</InfoboxFilter>
-				</InfoboxFilterGroup>,
+				<Fragment key="data">
+					<h2>Data</h2>
+					<ul>
+						<InfoboxLastUpdated
+							url={lastUpdatedUrl}
+							params={lastUpdatedParams}
+						/>
+					</ul>
+					<InfoboxFilterGroup
+						deselectable
+						selectedValue={this.props.showSparse ? "show" : null}
+						onClick={(value) => this.props.setShowSparse(value === "show" ? true : false)}
+					>
+						<InfoboxFilter value="show">Show sparse data</InfoboxFilter>
+					</InfoboxFilterGroup>
+				</Fragment>
 			);
 		}
 

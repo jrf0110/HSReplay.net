@@ -1,4 +1,4 @@
-import moment from "moment";
+import * as moment from "moment";
 
 export function getDuration(from: Date, to: Date): string {
 	return moment(from).from(moment(to), true);

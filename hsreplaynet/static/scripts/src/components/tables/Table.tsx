@@ -180,6 +180,7 @@ export default class Table extends React.Component<TableProps, TableState> {
 	}
 
 	rowHeaderRenderer = ({rowIndex, key, style}) => {
+		style = Object.assign({}, style);
 		if (rowIndex % 2 === 0) {
 			style["background"] = "white";
 		}
@@ -202,7 +203,7 @@ export default class Table extends React.Component<TableProps, TableState> {
 				{row.data[0]}
 			</div>
 		);
-	}
+	};
 
 	columnHeaderRenderer = ({columnIndex, key, style}) => {
 		const column = this.props.columns[columnIndex + 1];
@@ -213,13 +214,15 @@ export default class Table extends React.Component<TableProps, TableState> {
 			column.infoHeader,
 			column.infoText,
 		);
-		style["lineHeight"] = `${this.props.cellHeight}px`;
+		style = Object.assign({}, style,{
+			lineHeight: `${this.props.cellHeight}px`,
+		});
 		return (
 			<div className="table-column-header" style={style} key={key}>
 				{content}
 			</div>
 		);
-	}
+	};
 
 	columnCellRenderer = ({columnIndex, rowIndex, key, style}) => {
 		const column = this.props.columns[columnIndex + 1];
@@ -244,14 +247,17 @@ export default class Table extends React.Component<TableProps, TableState> {
 				content = toPrettyNumber(+content);
 			}
 		}
-		style["color"] = color;
-		style["lineHeight"] = `${this.props.cellHeight}px`;
 
-		let backgroundColor = null;
+		let background = null;
 		if (rowIndex % 2 === 0) {
-			 backgroundColor = "white";
+			background = "white";
 		}
-		style["background"] = backgroundColor;
+
+		style = Object.assign({}, style,{
+			color,
+			lineHeight: `${this.props.cellHeight}px`,
+			background,
+		});
 
 		const props = {
 			className: "table-cell",
@@ -269,7 +275,7 @@ export default class Table extends React.Component<TableProps, TableState> {
 		}
 
 		return <div {...props}>{content}</div>;
-	}
+	};
 
 	rowHighlighting(rowIndex: number): {onMouseEnter, onMouseLeave} {
 		if (!this.props.rowHighlighting) {
