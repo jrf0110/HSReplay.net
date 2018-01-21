@@ -3,7 +3,12 @@
 	"private": true,
 	"scripts": {
 		"build": "cross-env NODE_ENV=production webpack --bail",
-		"lint": "tslint \"hsreplaynet/static/scripts/src/**/*\" --project tsconfig.json"
+		"lint": "yarn lint:prettier; yarn lint:tslint",
+		"lint:prettier": "prettier -l \"{hsreplaynet/static/scripts/src/**/*.ts{,x},*.js}\"",
+		"lint:tslint": "tslint \"hsreplaynet/static/scripts/src/**/*\" --project tsconfig.json",
+		"format": "yarn format:prettier; yarn format:tslint",
+		"format:prettier": "prettier --write \"{hsreplaynet/static/scripts/src/**/*.ts{,x},*.js}\"",
+		"format:tslint": "tslint \"hsreplaynet/static/scripts/src/**/*\" --project tsconfig.json --fix"
 	},
 	"dependencies": {
 		"@types/d3": "^4.12.0",
@@ -50,7 +55,12 @@
 		"whatwg-fetch": "^2.0.3"
 	},
 	"devDependencies": {
-		"tslint": "^5.8.0",
+		"prettier": "^1.10.2",
+		"tslint": "^5.9.1",
+		"tslint-config-prettier": "^1.6.0",
 		"tslint-react": "^3.2.0"
+	},
+	"prettier": {
+		"useTabs": true
 	}
 }

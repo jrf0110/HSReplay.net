@@ -1,22 +1,13 @@
 {
 	"extends": [
 		"tslint:recommended",
-		"tslint-react"
+		"tslint-react",
+		"tslint-config-prettier"
 	],
 	"rules": {
-		"indent": [
-			true,
-			"tabs"
-		],
 		"interface-name": [
 			true,
 			"never-prefix"
-		],
-		"import-spacing": true,
-		"jsx-curly-spacing": [
-			true,
-			"never"
-
 		],
 		"jsx-no-lambda": false,
 		"jsx-no-multiline-js": false,
@@ -39,11 +30,6 @@
 				"import-sources-order": "any",
 				"named-imports-order": "case-insensitive"
 			}
-		],
-		"one-line": [
-			true,
-			"check-open-brace",
-			"check-whitespace"
 		],
 		"switch-default": false,
 		"variable-name": [
