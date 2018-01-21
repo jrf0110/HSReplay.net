@@ -24,6 +24,19 @@ declare module "clipboard" {
 	}
 }
 
+declare module "cookie_js" {
+	export = cookie;
+}
+
+declare namespace cookie {
+	namespace Cookie {
+		export function set(): void;
+		export function get(): void;
+	}
+
+	export var cookie: Cookie;
+}
+
 declare module "joust" {
 	export class Launcher {
 		width(width: number): Launcher;
@@ -98,11 +111,6 @@ declare module "joust" {
 	export function release(): string;
 
 	export function launcher(target: string | HTMLElement): Launcher;
-}
-
-declare module "cookie_js" {
-	import * as cookiejs from "cookiejs";
-	export {cookiejs as cookie};
 }
 
 declare module "victory" {

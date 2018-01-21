@@ -2,7 +2,7 @@ import * as React from "react";
 import * as _ from "lodash";
 import CardIcon from "./CardIcon";
 import ManaCurve from "./ManaCurve";
-import moment from "moment";
+import * as moment from "moment";
 import { CardObj, DeckObj, User } from "../interfaces";
 import {
 	cardSorting, compareDecks, getFragments, getHeroCardId, toPrettyNumber,
@@ -225,6 +225,7 @@ export default class InjectedDeckTile extends React.Component<DeckTileProps> {
 					},
 				}}
 				fetchCondition={UserData.hasFeature("twitch-stream-promotion")}
+				key={props.deckId}
 			>
 				<DeckTile {...props} />
 			</DataInjector>
