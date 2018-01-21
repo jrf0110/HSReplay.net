@@ -14,7 +14,9 @@ const setupLightbox = () => {
 
 const renderLightbox = (target, page?, hidden?) => {
 	const group = target.getAttribute("data-lightbox-group");
-	const relatedTargets = document.querySelectorAll("[data-lightbox-group=" + group + "]");
+	const relatedTargets = document.querySelectorAll(
+		"[data-lightbox-group=" + group + "]"
+	);
 	if (typeof page === "undefined") {
 		page = 1;
 		for (let i = 0; i < relatedTargets.length; i++) {
@@ -23,28 +25,30 @@ const renderLightbox = (target, page?, hidden?) => {
 				break;
 			}
 		}
-	}
-	else {
+	} else {
 		target = relatedTargets.item(Math.max(page - 1, 0));
 	}
-	ReactDOM.render(<Lightbox
-		body={{
-			__html: target ? target.innerHTML : null,
-		}}
-		hidden={hidden}
-		currentPage={page}
-		setCurrentPage={(page) => {
-			renderLightbox(target, page);
-		}}
-		pageCount={relatedTargets.length || 1}
-		close={() => {
-			renderLightbox(target, page, true);
-		}}
-	/>, container);
+	ReactDOM.render(
+		<Lightbox
+			body={{
+				__html: target ? target.innerHTML : null
+			}}
+			hidden={hidden}
+			currentPage={page}
+			setCurrentPage={page => {
+				renderLightbox(target, page);
+			}}
+			pageCount={relatedTargets.length || 1}
+			close={() => {
+				renderLightbox(target, page, true);
+			}}
+		/>,
+		container
+	);
 };
 
 for (let target of targets) {
-	target.addEventListener("click", (event) => {
+	target.addEventListener("click", event => {
 		// prevent following the link
 		event.preventDefault();
 

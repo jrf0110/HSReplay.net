@@ -9,7 +9,10 @@ interface QuestCompletionDetailProps {
 	query: Query | Query[];
 }
 
-export default class QuestCompletionDetail extends React.Component<QuestCompletionDetailProps, {}> {
+export default class QuestCompletionDetail extends React.Component<
+	QuestCompletionDetailProps,
+	{}
+> {
 	render(): JSX.Element {
 		return (
 			<div className="container-fluid">

@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {cardArt, image} from "../helpers";
+import { cardArt, image } from "../helpers";
 import MyReplays from "../pages/MyReplays";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
@@ -29,7 +29,7 @@ const render = (cardData: CardData) => {
 				format: "",
 				result: "",
 				hero: "ALL",
-				opponent: "ALL",
+				opponent: "ALL"
 			}}
 			debounce={"name"}
 		>
@@ -40,7 +40,7 @@ const render = (cardData: CardData) => {
 				username={username}
 			/>
 		</Fragments>,
-		document.getElementById("my-games-container"),
+		document.getElementById("my-games-container")
 	);
 };
 

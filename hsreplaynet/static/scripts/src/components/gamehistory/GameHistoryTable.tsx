@@ -1,14 +1,24 @@
 import React from "react";
 import GameHistoryTableRow from "./GameHistoryTableRow";
-import {GameReplay, CardArtProps, ImageProps, GlobalGamePlayer} from "../../interfaces";
+import {
+	GameReplay,
+	CardArtProps,
+	ImageProps,
+	GlobalGamePlayer
+} from "../../interfaces";
 import GameHistoryList from "./GameHistoryList";
 
-interface GameHistoryTableProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryTable> {
+interface GameHistoryTableProps
+	extends ImageProps,
+		CardArtProps,
+		React.ClassAttributes<GameHistoryTable> {
 	games: GameReplay[];
 }
 
-export default class GameHistoryTable extends React.Component<GameHistoryTableProps, {}> {
-
+export default class GameHistoryTable extends React.Component<
+	GameHistoryTableProps,
+	{}
+> {
 	render(): JSX.Element {
 		let columns = [];
 		this.props.games.forEach((game: GameReplay, i: number) => {
@@ -35,7 +45,10 @@ export default class GameHistoryTable extends React.Component<GameHistoryTablePr
 					disconnected={game.disconnected}
 					scenarioId={game.global_game.scenario_id}
 					turns={game.global_game.num_turns}
-					won={GameHistoryList.hasWon(game.friendly_player, game.opposing_player)}
+					won={GameHistoryList.hasWon(
+						game.friendly_player,
+						game.opposing_player
+					)}
 					friendlyPlayer={game.friendly_player}
 					opposingPlayer={game.opposing_player}
 				/>
@@ -45,23 +58,31 @@ export default class GameHistoryTable extends React.Component<GameHistoryTablePr
 			<div className="match-table">
 				<div className="match-table-header">
 					<div className="match-table-row">
-						<div className="match-table-cell auto-size match-header"><span>Match</span></div>
-						<div className="match-table-cell auto-size hide-below-768"></div>
-						<div className="match-table-cell auto-size"></div>
-						<div className="match-table-cell auto-size hide-below-768"></div>
-						<div className="match-table-cell auto-size"></div>
-						<div className="match-table-cell"></div>
-						<div className="match-table-cell hide-below-1100">Opponent</div>
+						<div className="match-table-cell auto-size match-header">
+							<span>Match</span>
+						</div>
+						<div className="match-table-cell auto-size hide-below-768" />
+						<div className="match-table-cell auto-size" />
+						<div className="match-table-cell auto-size hide-below-768" />
+						<div className="match-table-cell auto-size" />
+						<div className="match-table-cell" />
+						<div className="match-table-cell hide-below-1100">
+							Opponent
+						</div>
 						<div className="match-table-cell">Result</div>
 						<div className="match-table-cell">Mode</div>
-						<div className="match-table-cell hide-below-1600">Duration</div>
-						<div className="match-table-cell hide-below-768">Turns</div>
-						<div className="match-table-cell hide-below-500">Played</div>
+						<div className="match-table-cell hide-below-1600">
+							Duration
+						</div>
+						<div className="match-table-cell hide-below-768">
+							Turns
+						</div>
+						<div className="match-table-cell hide-below-500">
+							Played
+						</div>
 					</div>
 				</div>
-				<div className="match-table-body">
-					{columns}
-				</div>
+				<div className="match-table-body">{columns}</div>
 			</div>
 		);
 	}

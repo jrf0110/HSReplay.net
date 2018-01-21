@@ -20,6 +20,6 @@ for (let i = 0; i < containers.length; i++) {
 				numVisibleBars={numVisibleBars && +numVisibleBars}
 			/>,
 			container
-		)
+		);
 	}
 }

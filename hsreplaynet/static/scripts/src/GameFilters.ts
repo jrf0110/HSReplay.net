@@ -1,11 +1,11 @@
-import {GameReplay, GlobalGamePlayer} from "./interfaces";
-import {BnetGameType, FormatType} from "./hearthstone";
-import {getHeroCard} from "./helpers";
+import { GameReplay, GlobalGamePlayer } from "./interfaces";
+import { BnetGameType, FormatType } from "./hearthstone";
+import { getHeroCard } from "./helpers";
 import CardData from "./CardData";
 
 export function nameMatch(game: GameReplay, name: string): boolean {
 	const players = [game.friendly_player, game.opposing_player];
-	return players.some((player) => {
+	return players.some(player => {
 		const pName = player.name.toLowerCase();
 		if (pName.indexOf(name) !== -1) {
 			return true;
@@ -22,15 +22,25 @@ export function modeMatch(game: GameReplay, mode: string): boolean {
 		case "arena":
 			return game.global_game.game_type === BnetGameType.BGT_ARENA;
 		case "ranked":
-			return game.global_game.game_type === BnetGameType.BGT_RANKED_STANDARD
-				|| game.global_game.game_type === BnetGameType.BGT_RANKED_WILD;
+			return (
+				game.global_game.game_type ===
+					BnetGameType.BGT_RANKED_STANDARD ||
+				game.global_game.game_type === BnetGameType.BGT_RANKED_WILD
+			);
 		case "casual":
-			return game.global_game.game_type === BnetGameType.BGT_CASUAL_STANDARD
-				|| game.global_game.game_type === BnetGameType.BGT_CASUAL_WILD;
+			return (
+				game.global_game.game_type ===
+					BnetGameType.BGT_CASUAL_STANDARD ||
+				game.global_game.game_type === BnetGameType.BGT_CASUAL_WILD
+			);
 		case "brawl":
-			return game.global_game.game_type === BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI
-				|| game.global_game.game_type === BnetGameType.BGT_TAVERNBRAWL_2P_COOP
-				|| game.global_game.game_type === BnetGameType.BGT_TAVERNBRAWL_PVP;
+			return (
+				game.global_game.game_type ===
+					BnetGameType.BGT_TAVERNBRAWL_1P_VERSUS_AI ||
+				game.global_game.game_type ===
+					BnetGameType.BGT_TAVERNBRAWL_2P_COOP ||
+				game.global_game.game_type === BnetGameType.BGT_TAVERNBRAWL_PVP
+			);
 		case "friendly":
 			return game.global_game.game_type === BnetGameType.BGT_FRIENDS;
 		case "adventure":
@@ -40,7 +50,11 @@ export function modeMatch(game: GameReplay, mode: string): boolean {
 	}
 }
 
-export function formatMatch(game: GameReplay, format: string, mode: string): boolean {
+export function formatMatch(
+	game: GameReplay,
+	format: string,
+	mode: string
+): boolean {
 	if (!(!mode || mode === "ranked" || mode === "casual")) {
 		return true;
 	}
@@ -65,7 +79,11 @@ export function resultMatch(game: GameReplay, result: string): boolean {
 	}
 }
 
-export function heroMatch(cardData: CardData, player: GlobalGamePlayer, hero: string): boolean {
+export function heroMatch(
+	cardData: CardData,
+	player: GlobalGamePlayer,
+	hero: string
+): boolean {
 	if (!cardData) {
 		return false;
 	}

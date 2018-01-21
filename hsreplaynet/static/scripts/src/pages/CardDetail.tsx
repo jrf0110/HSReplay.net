@@ -7,7 +7,7 @@ import PopularityLineChart from "../components/charts/PopularityLineChart";
 import TurnPlayedBarChart from "../components/charts/TurnPlayedBarChart";
 import WinrateByTurnLineChart from "../components/charts/WinrateByTurnLineChart";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
-import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import ClassFilter, { FilterOption } from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
 import DataText from "../components/DataText";
 import InfoboxFilter from "../components/InfoboxFilter";
@@ -17,12 +17,15 @@ import HideLoading from "../components/loading/HideLoading";
 import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import {
-	getChartScheme, getDustCost, isCollectibleCard,
-	isWildSet, setNames, toPrettyNumber, toTitleCase,
+	getChartScheme,
+	getDustCost,
+	isCollectibleCard,
+	isWildSet,
+	setNames,
+	toPrettyNumber,
+	toTitleCase
 } from "../helpers";
-import {
-	RenderData, TableData,
-} from "../interfaces";
+import { RenderData, TableData } from "../interfaces";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import InfoIcon from "../components/InfoIcon";
 import UserData from "../UserData";
@@ -60,11 +63,14 @@ interface CardDetailProps {
 	tab?: string;
 }
 
-export default class CardDetail extends React.Component<CardDetailProps, CardDetailState> {
+export default class CardDetail extends React.Component<
+	CardDetailProps,
+	CardDetailState
+> {
 	constructor(props: CardDetailProps, state: CardDetailState) {
 		super(props, state);
 		this.state = {
-			showInfo: false,
+			showInfo: false
 		};
 	}
 
@@ -75,12 +81,14 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			"REQ_TARGET_IF_AVAILABLE",
 			"REQ_TARGET_IF_AVAILABE_AND_ELEMENTAL_PLAYED_LAST_TURN", // [sic]
 			"REQ_TARGET_IF_AVAILABLE_AND_DRAGON_IN_HAND",
-			"REQ_TARGET_IF_AVAILABLE_AND_MINIMUM_FRIENDLY_MINIONS",
+			"REQ_TARGET_IF_AVAILABLE_AND_MINIMUM_FRIENDLY_MINIONS"
 		];
 		if (this.props.card && this.props.card.playRequirements) {
-			const card_requirements = Object.keys(this.props.card.playRequirements);
-			for(let i = 0; i < target_requirements.length; i++) {
-				if(card_requirements.indexOf(target_requirements[i]) !== -1) {
+			const card_requirements = Object.keys(
+				this.props.card.playRequirements
+			);
+			for (let i = 0; i < target_requirements.length; i++) {
+				if (card_requirements.indexOf(target_requirements[i]) !== -1) {
 					return true;
 				}
 			}
@@ -92,33 +100,40 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 		if (!this.props.card) {
 			return false;
 		}
-		const hasDiscover = this.props.card.referencedTags && this.props.card.referencedTags.some(t => t === "DISCOVER");
+		const hasDiscover =
+			this.props.card.referencedTags &&
+			this.props.card.referencedTags.some(t => t === "DISCOVER");
 		const implicit = [
 			41331, // Kalimos, Primal Lord
 			43329, // Kobold Hermit
-			46305, // The Runespear
+			46305 // The Runespear
 		];
 		return hasDiscover || implicit.indexOf(this.props.dbfId) !== -1;
 	}
 
 	cardIsNeutral(): boolean {
-		return (this.props.card && this.props.card.playerClass === "NEUTRAL") || false;
+		return (
+			(this.props.card && this.props.card.playerClass === "NEUTRAL") ||
+			false
+		);
 	}
 
 	cardHasAdapt(): boolean {
 		return (
-			this.props.card &&
-			this.props.card.referencedTags &&
-			this.props.card.referencedTags.indexOf("ADAPT") !== -1
-		) || false;
+			(this.props.card &&
+				this.props.card.referencedTags &&
+				this.props.card.referencedTags.indexOf("ADAPT") !== -1) ||
+			false
+		);
 	}
 
 	cardIsQuest(): boolean {
 		return (
-			this.props.card &&
-			this.props.card.mechanics &&
-			this.props.card.mechanics.indexOf("QUEST") !== -1
-		) || false;
+			(this.props.card &&
+				this.props.card.mechanics &&
+				this.props.card.mechanics.indexOf("QUEST") !== -1) ||
+			false
+		);
 	}
 
 	componentWillReceiveProps(nextProps: CardDetailProps) {
@@ -136,37 +151,50 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			if (!isCollectibleCard(this.props.card)) {
 				content = (
 					<div className="message-wrapper">
-						<h3>Sorry, we currently don't have statistics for non-collectible cards.</h3>
-						<a href="/cards/" className="promo-button">Show available cards</a>
+						<h3>
+							Sorry, we currently don't have statistics for
+							non-collectible cards.
+						</h3>
+						<a href="/cards/" className="promo-button">
+							Show available cards
+						</a>
 					</div>
 				);
-			}
-			else {
+			} else {
 				let utilization = [];
 				let cardStatsLoading = false;
 
 				if (utilization.length) {
 					const colWidth = 12 / utilization.length;
-					utilization = utilization.map((obj) => (
-						<div className={"col-lg-" + colWidth + " col-md-" + colWidth}>
+					utilization = utilization.map(obj => (
+						<div
+							className={
+								"col-lg-" + colWidth + " col-md-" + colWidth
+							}
+						>
 							{obj}
 						</div>
 					));
-				}
-				else if (cardStatsLoading) {
-					utilization.push(<h3 className="message-wrapper">Loading…</h3>);
-				}
-				else {
-					utilization.push(<h3 className="message-wrapper">
-						No utilization data for this card available
-					</h3>);
+				} else if (cardStatsLoading) {
+					utilization.push(
+						<h3 className="message-wrapper">Loading…</h3>
+					);
+				} else {
+					utilization.push(
+						<h3 className="message-wrapper">
+							No utilization data for this card available
+						</h3>
+					);
 				}
 
 				const headerContent = [
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper">
 							<DataInjector
-								query={{url: "single_card_stats_over_time", params: this.getParams()}}
+								query={{
+									url: "single_card_stats_over_time",
+									params: this.getParams()
+								}}
 							>
 								<ChartLoading>
 									<PopularityLineChart
@@ -184,7 +212,10 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 					<div className="col-lg-6 col-md-6">
 						<div className="chart-wrapper">
 							<DataInjector
-								query={{url: "single_card_stats_over_time", params: this.getParams()}}
+								query={{
+									url: "single_card_stats_over_time",
+									params: this.getParams()
+								}}
 							>
 								<ChartLoading>
 									<WinrateLineChart
@@ -198,37 +229,48 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 								content="Winrate of decks that include at least one copy of this card."
 							/>
 						</div>
-					</div>,
+					</div>
 				];
 
 				const turnStatsQuery = {
 					params: this.getParams(),
-					url: (
+					url:
 						this.props.opponentClass !== "ALL"
-						? "/analytics/query/single_card_stats_by_turn_and_opponent"
-						: "/analytics/query/single_card_stats_by_turn"
-					),
+							? "/analytics/query/single_card_stats_by_turn_and_opponent"
+							: "/analytics/query/single_card_stats_by_turn"
 				};
 
-				const turnStatsNoDataCondition = (data: RenderData): boolean => {
+				const turnStatsNoDataCondition = (
+					data: RenderData
+				): boolean => {
 					if (this.props.opponentClass !== "ALL" && isPremium) {
-						const selectedSeries = data.series.find((s) => s.metadata.opponent_class === this.props.opponentClass);
-						return !selectedSeries || selectedSeries.data.length < 2;
+						const selectedSeries = data.series.find(
+							s =>
+								s.metadata.opponent_class ===
+								this.props.opponentClass
+						);
+						return (
+							!selectedSeries || selectedSeries.data.length < 2
+						);
 					}
 					return data.series[0].data.length < 2;
 				};
 
-				const turnPlayedChart = <TurnPlayedBarChart
-					opponentClass={this.props.opponentClass}
-					widthRatio={2}
-					premiumLocked={!isPremium}
-				/>;
+				const turnPlayedChart = (
+					<TurnPlayedBarChart
+						opponentClass={this.props.opponentClass}
+						widthRatio={2}
+						premiumLocked={!isPremium}
+					/>
+				);
 
-				const winrateByTurnChart = <WinrateByTurnLineChart
-					opponentClass={this.props.opponentClass}
-					widthRatio={2}
-					premiumLocked={!isPremium}
-				/>;
+				const winrateByTurnChart = (
+					<WinrateByTurnLineChart
+						opponentClass={this.props.opponentClass}
+						widthRatio={2}
+						premiumLocked={!isPremium}
+					/>
+				);
 
 				const turnCharts = (
 					<div className="container-fluid">
@@ -239,23 +281,32 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									filters="All"
 									hideAll
 									minimal
-									selectedClasses={[this.props.opponentClass as FilterOption]}
-									selectionChanged={(selected) => isPremium && this.props.setOpponentClass(selected[0])}
+									selectedClasses={[
+										this.props.opponentClass as FilterOption
+									]}
+									selectionChanged={selected =>
+										isPremium &&
+										this.props.setOpponentClass(selected[0])
+									}
 								/>
 							</div>
 						</div>
 						<div className="row">
 							<div className="col-lg-6 col-md-6">
 								<div className="chart-wrapper">
-									{isPremium ?
-										<DataInjector
-											query={turnStatsQuery}
-										>
-											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
+									{isPremium ? (
+										<DataInjector query={turnStatsQuery}>
+											<ChartLoading
+												noDataCondition={
+													turnStatsNoDataCondition
+												}
+											>
 												{turnPlayedChart}
 											</ChartLoading>
-										</DataInjector> :
-									turnPlayedChart}
+										</DataInjector>
+									) : (
+										turnPlayedChart
+									)}
 									<InfoIcon
 										header="Popularity by turn"
 										content="Percentage of the time this card is played on a given turn."
@@ -264,16 +315,19 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 							</div>
 							<div className="col-lg-6 col-md-6">
 								<div className="chart-wrapper">
-									{isPremium ?
-										<DataInjector
-											query={turnStatsQuery}
-										>
-											<ChartLoading noDataCondition={turnStatsNoDataCondition}>
+									{isPremium ? (
+										<DataInjector query={turnStatsQuery}>
+											<ChartLoading
+												noDataCondition={
+													turnStatsNoDataCondition
+												}
+											>
 												{winrateByTurnChart}
 											</ChartLoading>
-										</DataInjector> :
+										</DataInjector>
+									) : (
 										winrateByTurnChart
-									}
+									)}
 									<InfoIcon
 										header="Winrate by turn"
 										content="Percentage of games won when this card is played on a given turn."
@@ -286,22 +340,35 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 
 				content = [
 					<section id="content-header">
-						<h1>{this.props.card && this.props.card.name} - Statistics</h1>
+						<h1>
+							{this.props.card && this.props.card.name} -
+							Statistics
+						</h1>
 						{headerContent}
 					</section>,
 					<section id="page-content">
 						<Fragments
 							defaults={{
-								tab: "",
+								tab: ""
 							}}
 							keepDefaults={true}
 						>
-							<TabList tab={this.props.tab} setTab={this.props.setTab}>
-								<Tab label="Recommended Decks" id="recommended-decks" disabled={this.isArena()}>
+							<TabList
+								tab={this.props.tab}
+								setTab={this.props.setTab}
+							>
+								<Tab
+									label="Recommended Decks"
+									id="recommended-decks"
+									disabled={this.isArena()}
+								>
 									<DataInjector
 										query={{
-											params: {GameType: this.props.gameType, RankRange: this.props.rankRange},
-											url: "list_decks_by_win_rate",
+											params: {
+												GameType: this.props.gameType,
+												RankRange: this.props.rankRange
+											},
+											url: "list_decks_by_win_rate"
 										}}
 									>
 										<TableLoading>
@@ -313,7 +380,7 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									</DataInjector>
 								</Tab>
 								<Tab
-									label={(
+									label={
 										<span className="text-premium">
 											Turn Details&nbsp;
 											<InfoIcon
@@ -321,26 +388,36 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 												content="Learn when this card is usually played in the different matchups and how that affects the winrate."
 											/>
 										</span>
-									)}
+									}
 									id="turn-statistics"
 								>
 									<PremiumWrapper
 										name="Single Card Turn Statistics"
-										iconStyle={{display: "none"}}
+										iconStyle={{ display: "none" }}
 									>
 										{turnCharts}
 									</PremiumWrapper>
 								</Tab>
-								<Tab label="Class Distribution" id="class-distribution" hidden={!this.cardIsNeutral()}>
+								<Tab
+									label="Class Distribution"
+									id="class-distribution"
+									hidden={!this.cardIsNeutral()}
+								>
 									<h3>Class Distribution</h3>
 									<div id="class-chart">
 										<DataInjector
-											query={{url: "single_card_class_distribution_by_include_count", params: this.getParams()}}
+											query={{
+												url:
+													"single_card_class_distribution_by_include_count",
+												params: this.getParams()
+											}}
 										>
 											<ChartLoading>
 												<CardDetailPieChart
 													removeEmpty
-													scheme={getChartScheme("class")}
+													scheme={getChartScheme(
+														"class"
+													)}
 													sortByValue
 													groupSparseData
 													percentage
@@ -349,16 +426,28 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										</DataInjector>
 									</div>
 								</Tab>
-								<Tab label="Targets" id="targets" hidden={!this.cardHasTargetReqs()}>
+								<Tab
+									label="Targets"
+									id="targets"
+									hidden={!this.cardHasTargetReqs()}
+								>
 									<div className="card-tables">
 										<h3>Most popular targets</h3>
 										<DataInjector
-											query={{url: "single_card_popular_targets", params: this.getParams()}}
-											modify={(data) => this.mergeHeroes(data)}
+											query={{
+												url:
+													"single_card_popular_targets",
+												params: this.getParams()
+											}}
+											modify={data =>
+												this.mergeHeroes(data)
+											}
 										>
 											<TableLoading>
 												<CardRankingTable
-													cardData={this.props.cardData}
+													cardData={
+														this.props.cardData
+													}
 													numRows={12}
 													dataKey={"ALL"}
 												/>
@@ -366,15 +455,25 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 										</DataInjector>
 									</div>
 								</Tab>
-								<Tab label="Discover" id="discover" hidden={!this.cardHasDiscover()}>
+								<Tab
+									label="Discover"
+									id="discover"
+									hidden={!this.cardHasDiscover()}
+								>
 									<div className="card-tables">
 										<h3>Most popular Discover choices</h3>
 										<DataInjector
-											query={{url: "single_card_choices_by_winrate", params: this.getParams()}}
+											query={{
+												url:
+													"single_card_choices_by_winrate",
+												params: this.getParams()
+											}}
 										>
 											<TableLoading>
 												<CardRankingTable
-													cardData={this.props.cardData}
+													cardData={
+														this.props.cardData
+													}
 													numRows={12}
 													dataKey={"ALL"}
 													tooltips={{
@@ -383,27 +482,37 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 																header="Popularity for Discover"
 																content="A card's percentage represents how often the card was picked over others if it was available for choice."
 															/>
-														),
+														)
 													}}
 												/>
 											</TableLoading>
 										</DataInjector>
 									</div>
 								</Tab>
-								<Tab label="Adapt" id="adapt" hidden={!this.cardHasAdapt()}>
+								<Tab
+									label="Adapt"
+									id="adapt"
+									hidden={!this.cardHasAdapt()}
+								>
 									<DataInjector
 										query={{
 											params: this.getParams(),
-											url: (
-												isPremium && this.props.opponentClass !== "ALL"
-													? "single_card_adapt_stats_by_opponent" : "single_card_adapt_stats"
-											),
+											url:
+												isPremium &&
+												this.props.opponentClass !==
+													"ALL"
+													? "single_card_adapt_stats_by_opponent"
+													: "single_card_adapt_stats"
 										}}
 									>
 										<AdaptDetail
 											cardData={this.props.cardData}
-											opponentClass={this.props.opponentClass}
-											setOpponentClass={this.props.setOpponentClass}
+											opponentClass={
+												this.props.opponentClass
+											}
+											setOpponentClass={
+												this.props.setOpponentClass
+											}
 										/>
 									</DataInjector>
 								</Tab>
@@ -411,13 +520,18 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									label="Quest Contributors"
 									id="quest-contributors"
 									hidden={
-										!UserData.hasFeature("card-quest-data") ||
+										!UserData.hasFeature(
+											"card-quest-data"
+										) ||
 										!this.cardIsQuest() ||
 										this.isArena()
 									}
 								>
 									<DataInjector
-										query={{params: this.getParams(), url: "quest_contributor_stats"}}
+										query={{
+											params: this.getParams(),
+											url: "quest_contributor_stats"
+										}}
 									>
 										<QuestContributors
 											cardData={this.props.cardData}
@@ -428,22 +542,27 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 									label="Quest Completion"
 									id="quest-completion"
 									hidden={
-										!UserData.hasFeature("card-quest-data") ||
+										!UserData.hasFeature(
+											"card-quest-data"
+										) ||
 										!this.cardIsQuest() ||
 										this.isArena()
 									}
 								>
 									<QuestCompletionDetail
-										query={{params: this.getParams(), url: "quest_completion_stats_by_turn"}}
+										query={{
+											params: this.getParams(),
+											url:
+												"quest_completion_stats_by_turn"
+										}}
 									/>
 								</Tab>
 							</TabList>
 						</Fragments>
-					</section>,
+					</section>
 				];
 			}
-		}
-		else {
+		} else {
 			content = <h3 className="message-wrapper">Loading…</h3>;
 		}
 
@@ -452,7 +571,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			race = (
 				<li>
 					Race
-					<span className="infobox-value">{toTitleCase(this.props.card.race)}</span>
+					<span className="infobox-value">
+						{toTitleCase(this.props.card.race)}
+					</span>
 				</li>
 			);
 		}
@@ -463,117 +584,173 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 				Cost
 				{this.props.card ? (
 					<span className="infobox-value">
-						{dustCostValue > 0 ? (dustCostValue + " Dust") : "Not craftable"}
+						{dustCostValue > 0
+							? dustCostValue + " Dust"
+							: "Not craftable"}
 					</span>
-				)  : null}
+				) : null}
 			</li>
 		);
 
-		return <div className="card-detail-container">
-			<aside className="infobox" id="card-detail-infobox">
-				<h1 className="art">
-					<img
-						className="card-image"
-						src={"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" + this.props.cardId + ".png"}
-						alt={this.props.card ? this.props.card.name : null}
-					/>
-				</h1>
-				<p>{this.getCleanFlavorText()}</p>
-				<InfoboxFilterGroup
-					header="Game Mode"
-					selectedValue={this.props.gameType}
-					onClick={(value) => this.props.setGameType(value)}
-				>
-					<InfoboxFilter disabled={this.props.card && isWildSet(this.props.card.set)} value="RANKED_STANDARD">
-						Ranked Standard
-					</InfoboxFilter>
-					<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-					<InfoboxFilter
-						disabled={(this.props.card && isWildSet(this.props.card.set)) || this.cardIsQuest()}
-						value="ARENA">
-						Arena
-					</InfoboxFilter>
-				</InfoboxFilterGroup>
-				<InfoboxFilterGroup
-					header="Rank Range"
-					infoHeader="Rank Range"
-					infoContent="Check out how this card performs at higher ranks!"
-					selectedValue={!this.isArena() && this.props.rankRange}
-					onClick={(value) => this.props.setRankRange(value)}
-					disabled={this.isArena()}
-				>
-					<PremiumWrapper
-						name="Single Card Rank Range"
-						iconStyle={{display: "none"}}
+		return (
+			<div className="card-detail-container">
+				<aside className="infobox" id="card-detail-infobox">
+					<h1 className="art">
+						<img
+							className="card-image"
+							src={
+								"https://art.hearthstonejson.com/v1/render/latest/enUS/256x/" +
+								this.props.cardId +
+								".png"
+							}
+							alt={this.props.card ? this.props.card.name : null}
+						/>
+					</h1>
+					<p>{this.getCleanFlavorText()}</p>
+					<InfoboxFilterGroup
+						header="Game Mode"
+						selectedValue={this.props.gameType}
+						onClick={value => this.props.setGameType(value)}
 					>
-						<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
-						<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
-						<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
-					</PremiumWrapper>
-					<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
-				</InfoboxFilterGroup>
-				<h2>Data</h2>
-				<ul>
-					<li>
-						Sample size
-						<span className="infobox-value">
-							<DataInjector
-								fetchCondition={!!this.props.card && isCollectibleCard(this.props.card)}
-								query={{url: "single_card_stats_over_time", params: this.getParams()}}
-								modify={(data) => {
-									if (data) {
-										const series = data.series.find((x) => x.metadata.is_winrate_data);
-										return toPrettyNumber(series.metadata.num_data_points) + " replays";
+						<InfoboxFilter
+							disabled={
+								this.props.card &&
+								isWildSet(this.props.card.set)
+							}
+							value="RANKED_STANDARD"
+						>
+							Ranked Standard
+						</InfoboxFilter>
+						<InfoboxFilter value="RANKED_WILD">
+							Ranked Wild
+						</InfoboxFilter>
+						<InfoboxFilter
+							disabled={
+								(this.props.card &&
+									isWildSet(this.props.card.set)) ||
+								this.cardIsQuest()
+							}
+							value="ARENA"
+						>
+							Arena
+						</InfoboxFilter>
+					</InfoboxFilterGroup>
+					<InfoboxFilterGroup
+						header="Rank Range"
+						infoHeader="Rank Range"
+						infoContent="Check out how this card performs at higher ranks!"
+						selectedValue={!this.isArena() && this.props.rankRange}
+						onClick={value => this.props.setRankRange(value)}
+						disabled={this.isArena()}
+					>
+						<PremiumWrapper
+							name="Single Card Rank Range"
+							iconStyle={{ display: "none" }}
+						>
+							<InfoboxFilter value="LEGEND_ONLY">
+								Legend only
+							</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_FIVE">
+								Legend–5
+							</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_TEN">
+								Legend–10
+							</InfoboxFilter>
+						</PremiumWrapper>
+						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
+					</InfoboxFilterGroup>
+					<h2>Data</h2>
+					<ul>
+						<li>
+							Sample size
+							<span className="infobox-value">
+								<DataInjector
+									fetchCondition={
+										!!this.props.card &&
+										isCollectibleCard(this.props.card)
 									}
-									return null;
-								}}
-							>
-								<HideLoading><DataText /></HideLoading>
-							</DataInjector>
-						</span>
-					</li>
-					<li>
-						Time frame
-						<span className="infobox-value">Last 30 days</span>
-					</li>
-					<InfoboxLastUpdated
-						fetchCondition={!!this.props.card && isCollectibleCard(this.props.card)}
-						url={"single_card_stats_over_time"}
-						params={this.getParams()}
-					/>
-				</ul>
-				<h2>Card</h2>
-				<ul>
-					<li>
-						Class
-						<span className="infobox-value">{this.props.card && toTitleCase(this.props.card.playerClass)}</span>
-					</li>
-					<li>
-						Type
-						<span className="infobox-value">{this.props.card && toTitleCase(this.props.card.type)}</span>
-					</li>
-					<li>
-						Rarity
-						<span className="infobox-value">{this.props.card && toTitleCase(this.props.card.rarity)}</span>
-					</li>
-					<li>
-						Set
-						<span className="infobox-value">
-							{this.props.card && this.props.card.set && setNames[this.props.card.set.toLowerCase()]}
-						</span>
-					</li>
-					{race}
-					{craftingCost}
-					<li>
-						Artist
-						<span className="infobox-value">{this.props.card && this.props.card.artist}</span>
-					</li>
-				</ul>
-			</aside>
-			<main>
-				{content}
-			</main>
-		</div>;
+									query={{
+										url: "single_card_stats_over_time",
+										params: this.getParams()
+									}}
+									modify={data => {
+										if (data) {
+											const series = data.series.find(
+												x => x.metadata.is_winrate_data
+											);
+											return (
+												toPrettyNumber(
+													series.metadata
+														.num_data_points
+												) + " replays"
+											);
+										}
+										return null;
+									}}
+								>
+									<HideLoading>
+										<DataText />
+									</HideLoading>
+								</DataInjector>
+							</span>
+						</li>
+						<li>
+							Time frame
+							<span className="infobox-value">Last 30 days</span>
+						</li>
+						<InfoboxLastUpdated
+							fetchCondition={
+								!!this.props.card &&
+								isCollectibleCard(this.props.card)
+							}
+							url={"single_card_stats_over_time"}
+							params={this.getParams()}
+						/>
+					</ul>
+					<h2>Card</h2>
+					<ul>
+						<li>
+							Class
+							<span className="infobox-value">
+								{this.props.card &&
+									toTitleCase(this.props.card.playerClass)}
+							</span>
+						</li>
+						<li>
+							Type
+							<span className="infobox-value">
+								{this.props.card &&
+									toTitleCase(this.props.card.type)}
+							</span>
+						</li>
+						<li>
+							Rarity
+							<span className="infobox-value">
+								{this.props.card &&
+									toTitleCase(this.props.card.rarity)}
+							</span>
+						</li>
+						<li>
+							Set
+							<span className="infobox-value">
+								{this.props.card &&
+									this.props.card.set &&
+									setNames[this.props.card.set.toLowerCase()]}
+							</span>
+						</li>
+						{race}
+						{craftingCost}
+						<li>
+							Artist
+							<span className="infobox-value">
+								{this.props.card && this.props.card.artist}
+							</span>
+						</li>
+					</ul>
+				</aside>
+				<main>{content}</main>
+			</div>
+		);
 	}
 
 	isArena(): boolean {
@@ -585,18 +762,18 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 			return tableData;
 		}
 		const all = [];
-		const hero = {dbf_id: -1, popularity: 0, is_opponent_hero: true};
-		tableData.series.data.ALL.forEach((x) => {
-			const card = x.dbf_id !== -1 ? this.props.cardData.fromDbf(x.dbf_id) : null;
+		const hero = { dbf_id: -1, popularity: 0, is_opponent_hero: true };
+		tableData.series.data.ALL.forEach(x => {
+			const card =
+				x.dbf_id !== -1 ? this.props.cardData.fromDbf(x.dbf_id) : null;
 			if (card && card.type === "HERO") {
 				hero.popularity += +x.popularity;
-			}
-			else {
+			} else {
 				all.push(x);
 			}
 		});
 		all.push(hero);
-		return {series: {data: {ALL: all}}};
+		return { series: { data: { ALL: all } } };
 	}
 
 	getCleanFlavorText(): string {
@@ -607,9 +784,9 @@ export default class CardDetail extends React.Component<CardDetailProps, CardDet
 	}
 
 	getParams(): any {
-		const params =  {
+		const params = {
 			GameType: this.props.gameType,
-			card_id: this.props.dbfId,
+			card_id: this.props.dbfId
 		};
 		if (!this.isArena()) {
 			params["RankRange"] = this.props.rankRange;

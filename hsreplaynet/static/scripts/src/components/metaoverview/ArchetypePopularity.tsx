@@ -4,14 +4,15 @@ import {
 	ApiArchetypeRankPopularity,
 	ArchetypeRankData,
 	ArchetypeRankPopularity,
-	SortDirection,
+	SortDirection
 } from "../../interfaces";
 import CardData from "../../CardData";
 import { withLoading } from "../loading/Loading";
 import PopularityMatrix from "./popularity/PopularityMatrix";
-import {getOtherArchetype} from "../../helpers";
+import { getOtherArchetype } from "../../helpers";
 
-interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopularity> {
+interface ArchetypePopularityProps
+	extends React.ClassAttributes<ArchetypePopularity> {
 	archetypeData?: any;
 	cardData: CardData;
 	gameType: string;
@@ -22,7 +23,10 @@ interface ArchetypePopularityProps extends React.ClassAttributes<ArchetypePopula
 	setSortBy?: (prop: string) => void;
 }
 
-class ArchetypePopularity extends React.Component<ArchetypePopularityProps, {}> {
+class ArchetypePopularity extends React.Component<
+	ArchetypePopularityProps,
+	{}
+> {
 	render() {
 		const archetypeData: ArchetypeRankPopularity[] = [];
 		const archetypes = this.getAllArchetypes();
@@ -34,7 +38,7 @@ class ArchetypePopularity extends React.Component<ArchetypePopularityProps, {}> 
 		let maxGames = 0;
 		let numRanks = 0;
 		const ranks = Object.keys(metaData);
-		ranks.forEach((rank) => {
+		ranks.forEach(rank => {
 			if (+rank > 20) {
 				return;
 			}
@@ -56,7 +60,7 @@ class ArchetypePopularity extends React.Component<ArchetypePopularityProps, {}> 
 				if (+rank > 20) {
 					return;
 				}
-				const data = popularityData[rank].find((pData) => {
+				const data = popularityData[rank].find(pData => {
 					return pData.archetype_id === archetype.id;
 				});
 				if (data) {
@@ -70,21 +74,22 @@ class ArchetypePopularity extends React.Component<ArchetypePopularityProps, {}> 
 					archetypeId: archetype.id,
 					archetypeName: archetype.name,
 					playerClass: archetype.player_class_name,
-					popularityAtRank: data && data.pct_of_rank || 0,
+					popularityAtRank: (data && data.pct_of_rank) || 0,
 					rank: +rank,
-					totalGames: data && data.total_games || 0,
-					winrate: data && data.win_rate || 0,
+					totalGames: (data && data.total_games) || 0,
+					winrate: (data && data.win_rate) || 0
 				});
 			});
 
-			totalPopularity = Math.round(totalPopularity / (totalGames / 100)) / 100;
+			totalPopularity =
+				Math.round(totalPopularity / (totalGames / 100)) / 100;
 
 			archetypeData.push({
 				id: archetype.id,
 				rankData,
 				name: archetype.name,
 				playerClass: archetype.player_class_name,
-				totalPopularity,
+				totalPopularity
 			});
 		});
 
@@ -100,7 +105,10 @@ class ArchetypePopularity extends React.Component<ArchetypePopularityProps, {}> 
 				maxPopuarity={maxPopularity}
 				sortBy={this.props.sortBy}
 				sortDirection={this.props.sortDirection}
-				onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
+				onSortChanged={(
+					sortBy: string,
+					sortDirection: SortDirection
+				) => {
 					this.props.setSortDirection(sortDirection);
 					this.props.setSortBy(sortBy);
 				}}
@@ -111,42 +119,55 @@ class ArchetypePopularity extends React.Component<ArchetypePopularityProps, {}> 
 
 	sortArchetypes(archetypes: ArchetypeRankPopularity[]) {
 		const direction = this.props.sortDirection === "ascending" ? 1 : -1;
-		const rank = this.props.sortBy.startsWith("rank") ? +this.props.sortBy.substr(4) : null;
+		const rank = this.props.sortBy.startsWith("rank")
+			? +this.props.sortBy.substr(4)
+			: null;
 		const total = this.props.sortBy === "total";
 
-		archetypes.sort((a: ArchetypeRankPopularity, b: ArchetypeRankPopularity) => {
-			let value = 0;
-			if (total) {
-				value = a.totalPopularity - b.totalPopularity;
-			}
-			else if (rank !== null) {
-				value = a.rankData[rank].popularityAtRank - b.rankData[rank].popularityAtRank;
-			}
-			else {
-				if (a.playerClass !== b.playerClass) {
-					value = a.playerClass > b.playerClass ? 1 : -1;
+		archetypes.sort(
+			(a: ArchetypeRankPopularity, b: ArchetypeRankPopularity) => {
+				let value = 0;
+				if (total) {
+					value = a.totalPopularity - b.totalPopularity;
+				} else if (rank !== null) {
+					value =
+						a.rankData[rank].popularityAtRank -
+						b.rankData[rank].popularityAtRank;
+				} else {
+					if (a.playerClass !== b.playerClass) {
+						value = a.playerClass > b.playerClass ? 1 : -1;
+					}
 				}
+				return value * direction || (a.name > b.name ? 1 : -1);
 			}
-			return (value * direction) || (a.name > b.name ? 1 : -1);
-		});
+		);
 	}
 
 	getAllArchetypes(): ApiArchetype[] {
 		const popularityData = this.props.popularityData.series.data;
 		const archetypeIds = [];
 		Object.keys(popularityData).forEach((rank: string) => {
-			popularityData[rank].forEach((matchup: ApiArchetypeRankPopularity) => {
-				if (archetypeIds.indexOf(matchup.archetype_id) === -1) {
-					archetypeIds.push(matchup.archetype_id);
+			popularityData[rank].forEach(
+				(matchup: ApiArchetypeRankPopularity) => {
+					if (archetypeIds.indexOf(matchup.archetype_id) === -1) {
+						archetypeIds.push(matchup.archetype_id);
+					}
 				}
-			});
+			);
 		});
-		return archetypeIds.map((id) => this.getApiArchetype(id)).filter((x) => x !== undefined);
+		return archetypeIds
+			.map(id => this.getApiArchetype(id))
+			.filter(x => x !== undefined);
 	}
 
 	getApiArchetype(id: number): ApiArchetype {
-		return this.props.archetypeData.find((a) => a.id === id) || getOtherArchetype(id);
+		return (
+			this.props.archetypeData.find(a => a.id === id) ||
+			getOtherArchetype(id)
+		);
 	}
 }
 
-export default withLoading(["archetypeData", "popularityData"])(ArchetypePopularity);
+export default withLoading(["archetypeData", "popularityData"])(
+	ArchetypePopularity
+);

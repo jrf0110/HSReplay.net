@@ -1,8 +1,10 @@
 import React from "react";
 import * as _ from "lodash";
-import {SelectableProps} from "../interfaces";
+import { SelectableProps } from "../interfaces";
 
-interface DistributionProps extends SelectableProps, React.ClassAttributes<Distribution> {
+interface DistributionProps
+	extends SelectableProps,
+		React.ClassAttributes<Distribution> {
 	distributions: NumberDistribution;
 	title?: string;
 	value?: string;
@@ -12,17 +14,21 @@ interface NumberDistribution {
 	[key: string]: number;
 }
 
-interface DistributionState {
-}
+interface DistributionState {}
 
-export default class Distribution extends React.Component<DistributionProps, DistributionState> {
-
+export default class Distribution extends React.Component<
+	DistributionProps,
+	DistributionState
+> {
 	public render(): JSX.Element {
 		let count = 0;
 
-		const elements = _.map(this.props.distributions, (value: number, key: string) => {
-			return [key, value];
-		});
+		const elements = _.map(
+			this.props.distributions,
+			(value: number, key: string) => {
+				return [key, value];
+			}
+		);
 
 		const distributions = _.sortBy(elements, (tuple: any[]) => {
 			const value = tuple[1];
@@ -34,10 +40,10 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 			const value = tuple[1];
 
 			const classNames = [];
-			if(this.props.onSelect) {
+			if (this.props.onSelect) {
 				classNames.push("selectable");
 			}
-			if(key === this.props.select) {
+			if (key === this.props.select) {
 				classNames.push("active");
 			}
 
@@ -46,7 +52,7 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 					key={count}
 					className={classNames.join(" ")}
 					onClick={() => {
-						if(!this.props.onSelect) {
+						if (!this.props.onSelect) {
 							return;
 						}
 						this.props.onSelect(key);
@@ -62,15 +68,13 @@ export default class Distribution extends React.Component<DistributionProps, Dis
 		return (
 			<table className="table table-condensed component-distribution">
 				<thead>
-				<tr>
-					<th>#</th>
-					<th>{this.props.title || "Title"}</th>
-					<th>{this.props.value || "Value"}</th>
-				</tr>
+					<tr>
+						<th>#</th>
+						<th>{this.props.title || "Title"}</th>
+						<th>{this.props.value || "Value"}</th>
+					</tr>
 				</thead>
-				<tbody>
-				{rows}
-				</tbody>
+				<tbody>{rows}</tbody>
 			</table>
 		);
 	}

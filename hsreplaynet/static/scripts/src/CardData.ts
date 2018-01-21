@@ -1,4 +1,4 @@
-import {cookie} from "cookie_js";
+import { cookie } from "cookie_js";
 import HearthstoneJSON from "hearthstonejson";
 import UserData from "./UserData";
 
@@ -7,15 +7,14 @@ export default class CardData {
 	private readonly byCardId = {};
 	private readonly cards = [];
 
-	constructor(private modify?: (card: any) => void) {
-	}
+	constructor(private modify?: (card: any) => void) {}
 
 	public load(cb: (cardData: CardData) => void) {
 		UserData.create();
 		const locale = cookie.get("joust_locale", UserData.getLocale());
 		const hsjson = new HearthstoneJSON();
 		hsjson.getLatest(locale).then((data: any[]) => {
-			data.forEach((card) => {
+			data.forEach(card => {
 				this.modify && this.modify(card);
 				this.byDbfId[card.dbfId] = card;
 				this.byCardId[card.id] = card;
@@ -25,7 +24,7 @@ export default class CardData {
 		});
 	}
 
-	public fromDbf(dbfId: number|string) {
+	public fromDbf(dbfId: number | string) {
 		return this.byDbfId[+dbfId];
 	}
 

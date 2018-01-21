@@ -1,5 +1,5 @@
-import {FormatType, PlayState} from "./hearthstone";
-import {TooltipContent} from "./components/Tooltip";
+import { FormatType, PlayState } from "./hearthstone";
+import { TooltipContent } from "./components/Tooltip";
 
 export interface User {
 	id: number;
@@ -13,7 +13,7 @@ export interface GameReplay {
 	friendly_player?: GlobalGamePlayer;
 	friendly_deck?: Deck;
 	opposing_player?: GlobalGamePlayer;
-	opposing_deck?: Deck|null;
+	opposing_deck?: Deck | null;
 	spectator_mode: boolean;
 	friendly_player_id: number;
 	replay_xml: string;
@@ -36,7 +36,7 @@ export interface GlobalGame {
 }
 
 export interface GlobalGamePlayer {
-	name:string;
+	name: string;
 	player_id: number;
 	account_hi: number;
 	account_lo: number;
@@ -58,13 +58,13 @@ export interface Deck {
 	digest: string;
 	size: any;
 	cards: string[];
-	predicted_cards: string[]|null;
+	predicted_cards: string[] | null;
 }
 
 export const enum Visibility {
 	Public = 1,
 	Unlisted = 2,
-	Private = 3,
+	Private = 3
 }
 
 export interface ImageProps {
@@ -80,7 +80,16 @@ export interface SelectableProps {
 	onSelect?: (key: string) => void;
 }
 
-type RenderTypes = "chart" | "table" | "line_chart" | "bar_chart" | "list" | "class_pie_chart" | "single_value" | "gauge" | "list_table";
+type RenderTypes =
+	| "chart"
+	| "table"
+	| "line_chart"
+	| "bar_chart"
+	| "list"
+	| "class_pie_chart"
+	| "single_value"
+	| "gauge"
+	| "list_table";
 
 export interface FilterData {
 	filters: Filter[];
@@ -160,10 +169,15 @@ export interface ChartSeriesMetaData {
 }
 
 export interface DataPoint {
-	[key: string] : string | number;
+	[key: string]: string | number;
 }
 
-export type ChartSchemeType = "rarity" | "cardtype" | "cardset" | "cost" | "class";
+export type ChartSchemeType =
+	| "rarity"
+	| "cardtype"
+	| "cardset"
+	| "cost"
+	| "class";
 
 export interface ChartScheme {
 	[key: string]: ChartSchemeData;
@@ -212,7 +226,7 @@ export interface ArchetypeData {
 	matchups: MatchupData[];
 	id: number;
 	name: string;
-	playerClass: string
+	playerClass: string;
 	popularityTotal: number;
 	popularityClass: number;
 	winrate: number;
@@ -286,24 +300,43 @@ export interface ArchetypeRankPopularity {
 }
 
 export interface ApiArchetypeRankPopularity {
-	archetype_id: number,
-	pct_of_rank: number,
-	rank: number,
-	total_games: number,
-	win_rate: number,
+	archetype_id: number;
+	pct_of_rank: number;
+	rank: number;
+	total_games: number;
+	win_rate: number;
 }
 
 export type GameMode = "RANKED_STANDARD" | "RANKED_WILD" | "TAVERNBRAWL";
-export type RankRange = "ALL" | "LEGEND_ONLY" | "ONE_THROUGH_FIVE" | "SIX_THROUGH_TEN" | "ELEVEN_THROUGH_FIFTEEN" | "SIXTEEN_THROUGH_TWENTY" | "TWENTYONE_THROUGH_TWENTYFIVE" | "LEGEND_THROUGH_TEN" | "ELEVEN_THROUGH_TWENTYFIVE";
-export type Region = "ALL" | "REGION_US" | "REGION_EU" | "REGION_KR" | "REGION_CN";
-export type TimeFrame = "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS" | "CURRENT_SEASON" | "PREVIOUS_SEASON";
+export type RankRange =
+	| "ALL"
+	| "LEGEND_ONLY"
+	| "ONE_THROUGH_FIVE"
+	| "SIX_THROUGH_TEN"
+	| "ELEVEN_THROUGH_FIFTEEN"
+	| "SIXTEEN_THROUGH_TWENTY"
+	| "TWENTYONE_THROUGH_TWENTYFIVE"
+	| "LEGEND_THROUGH_TEN"
+	| "ELEVEN_THROUGH_TWENTYFIVE";
+export type Region =
+	| "ALL"
+	| "REGION_US"
+	| "REGION_EU"
+	| "REGION_KR"
+	| "REGION_CN";
+export type TimeFrame =
+	| "LAST_7_DAYS"
+	| "LAST_14_DAYS"
+	| "LAST_30_DAYS"
+	| "CURRENT_SEASON"
+	| "PREVIOUS_SEASON";
 
 export const enum LoadingStatus {
 	SUCCESS,
 	LOADING,
 	PROCESSING,
 	NO_DATA,
-	ERROR,
+	ERROR
 }
 
 export interface FragmentChildProps {

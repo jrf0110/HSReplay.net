@@ -16,7 +16,13 @@ interface DeckInfoProps extends React.ClassAttributes<DeckInfo> {
 
 export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 	render(): JSX.Element {
-		const {cardData, clusterColor, deck, height, playerClass} = this.props;
+		const {
+			cardData,
+			clusterColor,
+			deck,
+			height,
+			playerClass
+		} = this.props;
 		const infoboxClassNames = ["infobox"];
 
 		let content = null;
@@ -25,13 +31,12 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 			content = (
 				<div className="no-deck-message">
 					<p>
-						<strong>Hover</strong> any deck for more details.<br/>
+						<strong>Hover</strong> any deck for more details.<br />
 						<strong>Click</strong> any deck to focus/defocus it.
 					</p>
 				</div>
 			);
-		}
-		else {
+		} else {
 			const cardList = [];
 			// hotfix for unload issue 2017-09-24
 			const fixedDeckList = (deck.deck_list || "").replace(/\\,/g, ",");
@@ -42,7 +47,10 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 			});
 			content = [
 				<h1 key="title">
-					<span className="signature-label" style={{backgroundColor: clusterColor}} />
+					<span
+						className="signature-label"
+						style={{ backgroundColor: clusterColor }}
+					/>
 					{deck.cluster_name}
 				</h1>,
 				<CardList
@@ -65,7 +73,7 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 						Games
 						<span className="infobox-value">{deck.games}</span>
 					</li>
-				</ul>,
+				</ul>
 			];
 		}
 
@@ -73,7 +81,7 @@ export default class DeckInfo extends React.Component<DeckInfoProps, {}> {
 			<div
 				id="infobox-deck"
 				className={infoboxClassNames.join(" ")}
-				style={{height}}
+				style={{ height }}
 			>
 				{content}
 			</div>

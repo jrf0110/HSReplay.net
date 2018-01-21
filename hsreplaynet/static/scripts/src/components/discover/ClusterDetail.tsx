@@ -1,8 +1,8 @@
 import React from "react";
 import ArchetypeSignature from "../archetypedetail/ArchetypeSignature";
 import CardData from "../../CardData";
-import {ApiArchetypeSignature} from "../../interfaces";
-import {ClusterData, ClusterMetaData, DeckData} from "./ClassAnalysis";
+import { ApiArchetypeSignature } from "../../interfaces";
+import { ClusterData, ClusterMetaData, DeckData } from "./ClassAnalysis";
 import * as _ from "lodash";
 import CardList from "../CardList";
 import ClusterSignature from "./ClusterSignature";
@@ -15,20 +15,28 @@ interface ClusterDetailProps extends React.ClassAttributes<ClusterDetail> {
 	data?: ClusterData;
 }
 
-export default class ClusterDetail extends React.Component<ClusterDetailProps, {}> {
+export default class ClusterDetail extends React.Component<
+	ClusterDetailProps,
+	{}
+> {
 	render(): JSX.Element {
-		const {cardData, clusterId, data} = this.props;
+		const { cardData, clusterId, data } = this.props;
 		const signature: ApiArchetypeSignature = {
 			as_of: null,
 			components: data.signatures[clusterId],
-			format: null,
+			format: null
 		};
 		let adminData = null;
 		if (UserData.hasFeature("archetype-training")) {
 			const content = [];
-			const decks = data.data.filter((d) => "" + d.metadata.cluster_id === clusterId);
-			const totalGames = decks.map((d) => d.metadata.games).reduce((a, b) => a + b);
-			const eligibleDecks = decks.filter((d) => d.metadata.games > 1000).length;
+			const decks = data.data.filter(
+				d => "" + d.metadata.cluster_id === clusterId
+			);
+			const totalGames = decks
+				.map(d => d.metadata.games)
+				.reduce((a, b) => a + b);
+			const eligibleDecks = decks.filter(d => d.metadata.games > 1000)
+				.length;
 			content.push(
 				<h2>Cluster Info</h2>,
 				<table className="table">
@@ -46,30 +54,38 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 							<td>{eligibleDecks}</td>
 						</tr>
 					</tbody>
-				</table>,
+				</table>
 			);
-			if (!_.isEmpty(data.ccp_signatures) && !_.isEmpty(data.ccp_signatures[clusterId])) {
+			if (
+				!_.isEmpty(data.ccp_signatures) &&
+				!_.isEmpty(data.ccp_signatures[clusterId])
+			) {
 				const cppSignature: ApiArchetypeSignature = {
 					as_of: null,
 					components: data.ccp_signatures[clusterId],
-					format: null,
+					format: null
 				};
 				content.push(
 					<h2>Weighted Signature</h2>,
 					<ClusterSignature
 						cardData={cardData}
 						signature={cppSignature}
-					/>,
+					/>
 				);
 			}
 			adminData = (
-				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 400}}>
+				<div
+					className="col-xs-12 col-sm-6 col-md-4"
+					style={{ maxWidth: 400 }}
+				>
 					{content}
 				</div>
 			);
 		}
 
-		const clusterDecks = data.data.filter((d) => "" + d.metadata.cluster_id === clusterId);
+		const clusterDecks = data.data.filter(
+			d => "" + d.metadata.cluster_id === clusterId
+		);
 		const deck = _.maxBy(clusterDecks, (x: DeckData) => x.metadata.games);
 		const cardList = [];
 		if (deck) {
@@ -82,7 +98,10 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 
 		return (
 			<div>
-				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 400}}>
+				<div
+					className="col-xs-12 col-sm-6 col-md-4"
+					style={{ maxWidth: 400 }}
+				>
 					<h2>Signature</h2>
 					<ClusterSignature
 						cardData={cardData}
@@ -90,7 +109,10 @@ export default class ClusterDetail extends React.Component<ClusterDetailProps, {
 					/>
 				</div>
 				{adminData}
-				<div className="col-xs-12 col-sm-6 col-md-4" style={{maxWidth: 300}}>
+				<div
+					className="col-xs-12 col-sm-6 col-md-4"
+					style={{ maxWidth: 300 }}
+				>
 					<h2>Most Popular Deck</h2>
 					<p className="text-center">{deck.metadata.games} games</p>
 					<CardList

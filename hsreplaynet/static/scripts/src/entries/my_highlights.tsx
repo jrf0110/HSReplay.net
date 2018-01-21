@@ -8,10 +8,8 @@ UserData.create();
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
-		<MyHighlights
-			cardData={cardData}
-		/>,
-		document.getElementById("my-highlights-container"),
+		<MyHighlights cardData={cardData} />,
+		document.getElementById("my-highlights-container")
 	);
 };
 

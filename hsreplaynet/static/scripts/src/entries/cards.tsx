@@ -19,7 +19,7 @@ if (personal && !defaultAccount) {
 			eventCategory: "Pegasus Account",
 			eventAction: "missing",
 			eventLabel: "My Cards",
-			nonInteraction: true,
+			nonInteraction: true
 		});
 	}
 }
@@ -34,7 +34,11 @@ const render = (cardData: CardData) => {
 				gameType: "RANKED_STANDARD",
 				playerClass: "ALL",
 				rankRange: "ALL",
-				timeRange: personal ? "LAST_30_DAYS" : (UserData.hasFeature("current-expansion-filter") ? "CURRENT_EXPANSION" : "LAST_14_DAYS"),
+				timeRange: personal
+					? "LAST_30_DAYS"
+					: UserData.hasFeature("current-expansion-filter")
+						? "CURRENT_EXPANSION"
+						: "LAST_14_DAYS",
 				exclude: "",
 				cost: [],
 				rarity: [],
@@ -45,7 +49,7 @@ const render = (cardData: CardData) => {
 				sortBy: "timesPlayed",
 				sortDirection: "descending",
 				display: "statistics",
-				uncollectible: "",
+				uncollectible: ""
 			}}
 			debounce="text"
 			immutable={UserData.isPremium() ? null : ["rankRange"]}
@@ -56,7 +60,7 @@ const render = (cardData: CardData) => {
 				accounts={availableAccounts}
 			/>
 		</Fragments>,
-		container,
+		container
 	);
 };
 
@@ -72,7 +76,7 @@ const addMechanics = (card: any) => {
 		}
 	};
 	if (card.referencedTags) {
-		card.referencedTags.forEach((tag) => add(card, tag));
+		card.referencedTags.forEach(tag => add(card, tag));
 	}
 };
 

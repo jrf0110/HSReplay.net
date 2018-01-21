@@ -15,7 +15,7 @@ import ArchetypeList from "../components/metaoverview/ArchetypeList";
 import ArchetypeTierList from "../components/metaoverview/ArchetypeTierList";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import InfoboxItem from "../components/InfoboxItem";
-import {commaSeparate} from "../helpers";
+import { commaSeparate } from "../helpers";
 import RankPicker from "../components/rankpicker/RankPicker";
 import InfoIcon from "../components/InfoIcon";
 import PremiumPromo from "../components/PremiumPromo";
@@ -51,15 +51,17 @@ interface MetaOverviewProps {
 
 const mobileWidth = 530;
 
-export default class MetaOverview extends React.Component<MetaOverviewProps, MetaOverviewState> {
-
+export default class MetaOverview extends React.Component<
+	MetaOverviewProps,
+	MetaOverviewState
+> {
 	constructor(props: MetaOverviewProps, context: any) {
 		super(props, context);
 		this.state = {
 			archetypeListSortBy: "archetype",
 			archetypeListSortDirection: "ascending",
 			mobileView: window.innerWidth <= mobileWidth,
-			showFilters: false,
+			showFilters: false
 		};
 	}
 
@@ -75,7 +77,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			GameType: this.getGameType(),
 			RankRange: this.props.rankRange,
 			Region: this.props.region,
-			TimeRange: this.props.timeFrame,
+			TimeRange: this.props.timeFrame
 		};
 	}
 
@@ -83,7 +85,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		return {
 			GameType: this.getGameType(),
 			Region: this.props.region,
-			TimeRange: this.props.timeFrame,
+			TimeRange: this.props.timeFrame
 		};
 	}
 
@@ -94,24 +96,31 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		const regionFilters = [
 			<InfoboxFilter value="REGION_US">America</InfoboxFilter>,
 			<InfoboxFilter value="REGION_EU">Europe</InfoboxFilter>,
-			<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>,
+			<InfoboxFilter value="REGION_KR">Asia</InfoboxFilter>
 		];
 		if (UserData.hasFeature("region-filter-china")) {
-			regionFilters.push(<InfoboxFilter value="REGION_CN">China</InfoboxFilter>);
+			regionFilters.push(
+				<InfoboxFilter value="REGION_CN">China</InfoboxFilter>
+			);
 		}
-		regionFilters.push(<InfoboxFilter value="ALL">All Regions</InfoboxFilter>);
+		regionFilters.push(
+			<InfoboxFilter value="ALL">All Regions</InfoboxFilter>
+		);
 
 		let rankRangeFilter = null;
-		if (["tierlist", "archetypes", "matchups"].indexOf(this.props.tab) !== -1 ) {
+		if (
+			["tierlist", "archetypes", "matchups"].indexOf(this.props.tab) !==
+			-1
+		) {
 			rankRangeFilter = (
 				<section id="rank-range-filter">
-					<PremiumWrapper
-						name="Meta Overview Rank Range"
-					>
+					<PremiumWrapper name="Meta Overview Rank Range">
 						<h2>Rank Range</h2>
 						<RankPicker
 							selected={this.props.rankRange}
-							onSelectionChanged={(rankRange) => this.props.setRankRange(rankRange)}
+							onSelectionChanged={rankRange =>
+								this.props.setRankRange(rankRange)
+							}
 						/>
 					</PremiumWrapper>
 				</section>
@@ -122,8 +131,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		const contentClassNames = [];
 		if (!this.state.showFilters) {
 			infoboxClassNames.push("hidden-xs hidden-sm");
-		}
-		else {
+		} else {
 			contentClassNames.push("hidden-xs hidden-sm");
 		}
 
@@ -131,7 +139,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 			<button
 				className="btn btn-primary btn-full visible-sm visible-xs"
 				type="button"
-				onClick={() => this.setState({showFilters: false})}
+				onClick={() => this.setState({ showFilters: false })}
 			>
 				Back
 			</button>
@@ -146,16 +154,22 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						<InfoboxFilterGroup
 							header="Time Frame"
 							selectedValue={this.props.timeFrame}
-							onClick={(value) => this.props.setTimeFrame(value)}
+							onClick={value => this.props.setTimeFrame(value)}
 						>
 							<PremiumWrapper
 								name="Meta Overview Time Frame"
-								iconStyle={{display: "none"}}
+								iconStyle={{ display: "none" }}
 							>
-								<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
-								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
+								<InfoboxFilter value="LAST_1_DAY">
+									Last 1 day
+								</InfoboxFilter>
+								<InfoboxFilter value="LAST_3_DAYS">
+									Last 3 days
+								</InfoboxFilter>
 							</PremiumWrapper>
-							<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+							<InfoboxFilter value="LAST_7_DAYS">
+								Last 7 days
+							</InfoboxFilter>
 						</InfoboxFilterGroup>
 					</section>
 					{rankRangeFilter}
@@ -164,10 +178,16 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 							<InfoboxFilterGroup
 								header="Game Mode"
 								selectedValue={this.props.gameType}
-								onClick={(gameType) => this.props.setGameType(gameType)}
+								onClick={gameType =>
+									this.props.setGameType(gameType)
+								}
 							>
-								<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-								<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
+								<InfoboxFilter value="RANKED_STANDARD">
+									Ranked Standard
+								</InfoboxFilter>
+								<InfoboxFilter value="RANKED_WILD">
+									Ranked Wild
+								</InfoboxFilter>
 							</InfoboxFilterGroup>
 						</section>
 					</Feature>
@@ -182,7 +202,9 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 								/>
 								<InfoboxFilterGroup
 									selectedValue={this.props.region}
-									onClick={(region) => this.props.setRegion(region)}
+									onClick={region =>
+										this.props.setRegion(region)
+									}
 								>
 									{regionFilters}
 								</InfoboxFilterGroup>
@@ -194,20 +216,42 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						<ul>
 							<li>
 								Game Mode
-								<span className="infobox-value">Ranked Standard</span>
+								<span className="infobox-value">
+									Ranked Standard
+								</span>
 							</li>
 							<InfoboxLastUpdated {...this.getLastUpdated()} />
 							<DataInjector
-								query={{params, url: "head_to_head_archetype_matchups"}}
-								extract={{data: (data) => ({value: commaSeparate(data.series.metadata.totals.contributors)})}}
+								query={{
+									params,
+									url: "head_to_head_archetype_matchups"
+								}}
+								extract={{
+									data: data => ({
+										value: commaSeparate(
+											data.series.metadata.totals
+												.contributors
+										)
+									})
+								}}
 							>
-								<InfoboxItem header="Contributors"/>
+								<InfoboxItem header="Contributors" />
 							</DataInjector>
 							<DataInjector
-								query={{params, url: "head_to_head_archetype_matchups"}}
-								extract={{data: (data) => ({value: commaSeparate(data.series.metadata.totals.total_games)})}}
+								query={{
+									params,
+									url: "head_to_head_archetype_matchups"
+								}}
+								extract={{
+									data: data => ({
+										value: commaSeparate(
+											data.series.metadata.totals
+												.total_games
+										)
+									})
+								}}
 							>
-								<InfoboxItem header="Games"/>
+								<InfoboxItem header="Games" />
 							</DataInjector>
 						</ul>
 					</section>
@@ -217,21 +261,41 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 					<button
 						className="btn btn-default btn-filters visible-xs visible-sm"
 						type="button"
-						onClick={() => this.setState({showFilters: true})}
+						onClick={() => this.setState({ showFilters: true })}
 					>
 						<span className="glyphicon glyphicon-filter" />
 						Filters
 					</button>
-					<TabList tab={this.props.tab} setTab={(tab) => this.props.setTab(tab)}>
+					<TabList
+						tab={this.props.tab}
+						setTab={tab => this.props.setTab(tab)}
+					>
 						<Tab id="tierlist" label="Tier List">
 							<DataInjector
 								query={[
-									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-									{key: "deckData", params: {GameType: this.getGameType()}, url: "list_decks_by_win_rate"},
-									{params, url: "archetype_popularity_distribution_stats"},
+									{
+										key: "archetypeData",
+										params: {},
+										url: "/api/v1/archetypes/"
+									},
+									{
+										key: "deckData",
+										params: {
+											GameType: this.getGameType()
+										},
+										url: "list_decks_by_win_rate"
+									},
+									{
+										params,
+										url:
+											"archetype_popularity_distribution_stats"
+									}
 								]}
 								extract={{
-									data: (data) => ({data: data.series.data, timestamp: data.as_of}),
+									data: data => ({
+										data: data.series.data,
+										timestamp: data.as_of
+									})
 								}}
 							>
 								<ArchetypeTierList
@@ -243,18 +307,37 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						<Tab id="archetypes" label="By Class">
 							<DataInjector
 								query={[
-									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-									{params, url: "archetype_popularity_distribution_stats"},
+									{
+										key: "archetypeData",
+										params: {},
+										url: "/api/v1/archetypes/"
+									},
+									{
+										params,
+										url:
+											"archetype_popularity_distribution_stats"
+									}
 								]}
 								extract={{
-									data: (data) => ({data: data.series.data, timestamp: data.as_of}),
+									data: data => ({
+										data: data.series.data,
+										timestamp: data.as_of
+									})
 								}}
 							>
 								<ArchetypeList
 									sortBy={this.state.archetypeListSortBy}
-									sortDirection={this.state.archetypeListSortDirection}
-									onSortChanged={(archetypeListSortBy, archetypeListSortDirection) => {
-										this.setState({archetypeListSortBy, archetypeListSortDirection});
+									sortDirection={
+										this.state.archetypeListSortDirection
+									}
+									onSortChanged={(
+										archetypeListSortBy,
+										archetypeListSortDirection
+									) => {
+										this.setState({
+											archetypeListSortBy,
+											archetypeListSortDirection
+										});
 									}}
 									gameType={this.getGameType()}
 									cardData={this.props.cardData}
@@ -268,9 +351,22 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 						>
 							<DataInjector
 								query={[
-									{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-									{key: "matchupData", params, url: "head_to_head_archetype_matchups"},
-									{key: "popularityData", params, url: "archetype_popularity_distribution_stats"},
+									{
+										key: "archetypeData",
+										params: {},
+										url: "/api/v1/archetypes/"
+									},
+									{
+										key: "matchupData",
+										params,
+										url: "head_to_head_archetype_matchups"
+									},
+									{
+										key: "popularityData",
+										params,
+										url:
+											"archetype_popularity_distribution_stats"
+									}
 								]}
 							>
 								<ArchetypeMatchups
@@ -278,7 +374,9 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 									gameType={this.getGameType()}
 									mobileView={this.state.mobileView}
 									setSortBy={this.props.setSortBy}
-									setSortDirection={this.props.setSortDirection}
+									setSortDirection={
+										this.props.setSortDirection
+									}
 									sortBy={this.props.sortBy}
 									sortDirection={this.props.sortDirection}
 								/>
@@ -317,8 +415,16 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 		return (
 			<DataInjector
 				query={[
-					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
-					{key: "popularityData", params: popularityParams, url: "archetype_popularity_by_rank"},
+					{
+						key: "archetypeData",
+						params: {},
+						url: "/api/v1/archetypes/"
+					},
+					{
+						key: "popularityData",
+						params: popularityParams,
+						url: "archetype_popularity_by_rank"
+					}
 				]}
 			>
 				<ArchetypePopularity
@@ -334,7 +440,7 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 	}
 
 	getLastUpdated(): any {
-		const obj = {params: null, url: null};
+		const obj = { params: null, url: null };
 		switch (this.props.tab) {
 			case "popularity":
 				obj.url = "archetype_popularity_by_rank";
@@ -362,10 +468,9 @@ export default class MetaOverview extends React.Component<MetaOverviewProps, Met
 	onResize = () => {
 		const width = window.innerWidth;
 		if (this.state.mobileView && width > mobileWidth) {
-			this.setState({mobileView: false});
+			this.setState({ mobileView: false });
+		} else if (!this.state.mobileView && width <= mobileWidth) {
+			this.setState({ mobileView: true });
 		}
-		else if (!this.state.mobileView && width <= mobileWidth) {
-			this.setState({mobileView: true});
-		}
-	}
+	};
 }

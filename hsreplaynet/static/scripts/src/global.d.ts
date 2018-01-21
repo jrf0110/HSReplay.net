@@ -30,11 +30,13 @@ declare module "joust" {
 
 		height(height: number): Launcher;
 
-		assets(assets: string|((asset: string) => string)): Launcher;
+		assets(assets: string | ((asset: string) => string)): Launcher;
 
-		cardArt(url: string|((cardId: string) => string)): Launcher;
+		cardArt(url: string | ((cardId: string) => string)): Launcher;
 
-		metadataSource(metadateSource: (build: number|"latest", locale: string) => string): Launcher;
+		metadataSource(
+			metadateSource: (build: number | "latest", locale: string) => string
+		): Launcher;
 
 		setOptions(opts: any): Launcher;
 
@@ -58,15 +60,17 @@ declare module "joust" {
 
 		logger(logger: (message: string | Error) => void): Launcher;
 
-		events(cb: (event: string, values: Object, tags?: Object) => void): Launcher;
+		events(
+			cb: (event: string, values: Object, tags?: Object) => void
+		): Launcher;
 
 		debug(enable?: boolean): Launcher;
 
 		locale(locale?: string): Launcher;
 
-		readonly build: number|null;
+		readonly build: number | null;
 
-		readonly selectedLocale: string|null;
+		readonly selectedLocale: string | null;
 
 		play(): void;
 
@@ -167,8 +171,8 @@ declare module "tether-shepherd" {
 		title?: string;
 		attachTo?: any;
 		beforeShowPromise?: any;
-		classes?: string
-		buttons?: ButtonOptions|ButtonOptions[];
+		classes?: string;
+		buttons?: ButtonOptions | ButtonOptions[];
 		[other: string]: any;
 	}
 
@@ -194,7 +198,7 @@ declare module "tether-shepherd" {
 
 		hide(): void;
 
-		show(id?: string|number): void;
+		show(id?: string | number): void;
 
 		start(): void;
 
@@ -205,7 +209,10 @@ declare module "tether-shepherd" {
 interface Window {
 	hsreplaynet_load_premium_modal: (label?: string) => void;
 	hsreplaynet_load_stripe: (targetElement: any) => void;
-	hsreplaynet_load_hscheckout: (targetElement: any, plansElements: any) => void;
+	hsreplaynet_load_hscheckout: (
+		targetElement: any,
+		plansElements: any
+	) => void;
 }
 
 declare module "sunwell" {
@@ -216,7 +223,7 @@ declare module "sunwell" {
 
 /* Cookie.js */
 
-declare module 'cookie_js' {
+declare module "cookie_js" {
 	export = cookie;
 }
 
@@ -225,16 +232,16 @@ declare namespace cookie {
 }
 
 declare namespace Cookie {
-	export function set(key : string, value : string, options? : any) : void;
-	export function set(obj : any, options? : any) : void;
-	export function remove(key : string) : void;
-	export function remove(keys : string[]) : void;
-	export function remove(...args : string[]) : void;
-	export function removeSpecific(key : string, options?: any) : void;
-	export function removeSpecific(keys : string[], options?: any): void;
-	export function empty() : void;
-	export function get(key : string, fallback?: string) : string;
-	export function get(keys : string[], fallback?: string) : any;
-	export function all() : any;
-	export function enabled() : boolean;
+	export function set(key: string, value: string, options?: any): void;
+	export function set(obj: any, options?: any): void;
+	export function remove(key: string): void;
+	export function remove(keys: string[]): void;
+	export function remove(...args: string[]): void;
+	export function removeSpecific(key: string, options?: any): void;
+	export function removeSpecific(keys: string[], options?: any): void;
+	export function empty(): void;
+	export function get(key: string, fallback?: string): string;
+	export function get(keys: string[], fallback?: string): any;
+	export function all(): any;
+	export function enabled(): boolean;
 }

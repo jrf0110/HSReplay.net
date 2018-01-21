@@ -20,12 +20,12 @@ const renderDeck = (target, deck, cardData: CardData) => {
 			heroes={[hero]}
 			deckClass={deckClass}
 		/>,
-		target,
+		target
 	);
 };
 
 const render = (cardData: CardData) => {
-	Array.from(targets).forEach((target) => {
+	Array.from(targets).forEach(target => {
 		renderDeck(target, null, cardData);
 	});
 };

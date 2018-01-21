@@ -21,20 +21,19 @@ export default class SemanticAge extends React.Component<SemanticAgeProps, {}> {
 	}
 
 	render(): JSX.Element {
-		const {
-			date,
-			noSuffix,
-		} = this.props;
+		const { date, noSuffix } = this.props;
 
 		if (!date || !(date instanceof Date)) {
 			return null;
 		}
 
 		// for now, set this globally on every render
-		moment.relativeTimeThreshold('m', 60);
+		moment.relativeTimeThreshold("m", 60);
 
 		const machineReadable = date.toISOString();
-		const phrasing = moment(date).utc().fromNow(!!noSuffix);
+		const phrasing = moment(date)
+			.utc()
+			.fromNow(!!noSuffix);
 
 		return <time dateTime={machineReadable}>{phrasing}</time>;
 	}

@@ -15,16 +15,21 @@ interface DeckStatsProps {
 	playerClass: string;
 }
 
-export default class DeckStats extends React.Component<DeckStatsProps, DeckStatsState> {
+export default class DeckStats extends React.Component<
+	DeckStatsProps,
+	DeckStatsState
+> {
 	constructor(props: DeckStatsProps, state: DeckStatsState) {
 		super(props, state);
 		this.state = {
-			expandWinrate: false,
+			expandWinrate: false
 		};
 	}
 
 	render(): JSX.Element {
-		const deck = this.props.data.series.data[this.props.playerClass].find((x) => x.deck_id === this.props.deckId);
+		const deck = this.props.data.series.data[this.props.playerClass].find(
+			x => x.deck_id === this.props.deckId
+		);
 		if (!deck) {
 			return null;
 		}
@@ -34,7 +39,9 @@ export default class DeckStats extends React.Component<DeckStatsProps, DeckStats
 				<ul>
 					<li>
 						Sample size
-						<span className="infobox-value">{toPrettyNumber(+deck["total_games"]) + " games"}</span>
+						<span className="infobox-value">
+							{toPrettyNumber(+deck["total_games"]) + " games"}
+						</span>
 					</li>
 					<li>
 						Time frame

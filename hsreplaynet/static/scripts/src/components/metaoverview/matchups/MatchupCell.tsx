@@ -1,8 +1,12 @@
 import React from "react";
 import * as _ from "lodash";
-import {MatchupData} from "../../../interfaces";
-import {commaSeparate, getColorString, toDynamicFixed} from "../../../helpers";
-import {Colors} from "../../../Colors";
+import { MatchupData } from "../../../interfaces";
+import {
+	commaSeparate,
+	getColorString,
+	toDynamicFixed
+} from "../../../helpers";
+import { Colors } from "../../../Colors";
 import Tooltip from "../../Tooltip";
 
 interface MatchupCellProps extends React.ClassAttributes<MatchupCell> {
@@ -17,17 +21,17 @@ interface MatchupCellProps extends React.ClassAttributes<MatchupCell> {
 export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 	shouldComponentUpdate(nextProps: MatchupCellProps): boolean {
 		return (
-			this.props.highlightColumn !== nextProps.highlightColumn
-			|| this.props.highlightRow !== nextProps.highlightRow
-			|| this.props.isIgnored !== nextProps.isIgnored
-			|| !_.isEqual(this.props.style, nextProps.style)
-			|| !_.isEqual(this.props.matchupData, nextProps.matchupData)
+			this.props.highlightColumn !== nextProps.highlightColumn ||
+			this.props.highlightRow !== nextProps.highlightRow ||
+			this.props.isIgnored !== nextProps.isIgnored ||
+			!_.isEqual(this.props.style, nextProps.style) ||
+			!_.isEqual(this.props.matchupData, nextProps.matchupData)
 		);
 	}
 
 	render() {
-		const {matchupData} = this.props;
-		let label: string|JSX.Element = "";
+		const { matchupData } = this.props;
+		let label: string | JSX.Element = "";
 		const color = "black";
 		let backgroundColor = "white";
 		const winrate = matchupData.winrate || 0;
@@ -37,7 +41,10 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 			// mirror match
 			label = (
 				<Tooltip content="Mirror&nbsp;matchup" simple>
-					<svg viewBox={"0 0 10 10"} style={{height: "1em", verticalAlign: "middle"}}>
+					<svg
+						viewBox={"0 0 10 10"}
+						style={{ height: "1em", verticalAlign: "middle" }}
+					>
 						<path
 							id="foo"
 							d="M1 9 L 9 1"
@@ -45,24 +52,32 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 								stroke: "black",
 								strokeWidth: "0.6pt",
 								strokeOpacity: 1,
-								strokeLinejoin: "round",
-							}} />
+								strokeLinejoin: "round"
+							}}
+						/>
 					</svg>
 				</Tooltip>
 			);
 			backgroundColor = "rgb(200,200,200)";
-		}
-		else if (matchupData.totalGames >= 30) {
+		} else if (matchupData.totalGames >= 30) {
 			// actual matchup
-			backgroundColor = getColorString(Colors.REDORANGEGREEN, 70, winrate / 100, false);
+			backgroundColor = getColorString(
+				Colors.REDORANGEGREEN,
+				70,
+				winrate / 100,
+				false
+			);
 			label = (
 				<Tooltip
 					simple
 					id="tooltip-matchup-cell"
-					content={(
+					content={
 						<div>
 							<span
-								className={"tooltip-header player-class " + matchupData.friendlyPlayerClass.toLowerCase()}
+								className={
+									"tooltip-header player-class " +
+									matchupData.friendlyPlayerClass.toLowerCase()
+								}
 							>
 								{matchupData.friendlyName}
 							</span>
@@ -71,7 +86,10 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 									<th>Versus:</th>
 									<td>
 										<span
-											className={"player-class " + matchupData.opponentPlayerClass.toLowerCase()}
+											className={
+												"player-class " +
+												matchupData.opponentPlayerClass.toLowerCase()
+											}
 										>
 											{matchupData.opponentName}
 										</span>
@@ -83,19 +101,26 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 								</tr>
 								<tr>
 									<th>Games:</th>
-									<td>{commaSeparate(matchupData.totalGames || 0)}</td>
+									<td>
+										{commaSeparate(
+											matchupData.totalGames || 0
+										)}
+									</td>
 								</tr>
 							</table>
 						</div>
-					)}
+					}
 				>
 					{`${winrate.toFixed(2)}%`}
 				</Tooltip>
 			);
-		}
-		else {
+		} else {
 			// not enough data
-			label = <Tooltip content="Not enough games" simple>⁓</Tooltip>;
+			label = (
+				<Tooltip content="Not enough games" simple>
+					⁓
+				</Tooltip>
+			);
 			backgroundColor = "rgb(200,200,200)";
 		}
 
@@ -114,7 +139,7 @@ export default class MatchupCell extends React.Component<MatchupCellProps, {}> {
 		return (
 			<div
 				className={classNames.join(" ")}
-				style={{color, backgroundColor, ...this.props.style}}
+				style={{ color, backgroundColor, ...this.props.style }}
 				onMouseEnter={() => this.props.onHover(true)}
 				onMouseLeave={() => this.props.onHover(false)}
 			>

@@ -39,13 +39,16 @@ const STATUS_SUCCESS = 200;
 const STATUS_PROCESSING = 202;
 const STATUS_NO_DATA = 204;
 
-export default class DataInjector extends React.Component<DataInjectorProps, DataInjectorState> {
+export default class DataInjector extends React.Component<
+	DataInjectorProps,
+	DataInjectorState
+> {
 	constructor(props: DataInjectorProps, state: DataInjectorState) {
 		super(props, state);
 		this.state = {
 			data: [],
-			retryCount: this.getQueryArray(props).map((query) => 0),
-			status: this.getQueryArray(props).map((query) => STATUS_LOADING),
+			retryCount: this.getQueryArray(props).map(query => 0),
+			status: this.getQueryArray(props).map(query => STATUS_LOADING)
 		};
 	}
 
@@ -68,12 +71,19 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 		if (nextKeys.length !== currentKeys.length) {
 			return true;
 		}
-		return nextKeys.some((key) => currentKeys.indexOf(key) === -1
-			|| next.params[key] !== current.params[key]);
+		return nextKeys.some(
+			key =>
+				currentKeys.indexOf(key) === -1 ||
+				next.params[key] !== current.params[key]
+		);
 	}
 
 	queryEquals(q1: Query, q2: Query): boolean {
-		return q1.url === q2.url && q1.key === q2.key && !this.paramsChanged(q1, q2);
+		return (
+			q1.url === q2.url &&
+			q1.key === q2.key &&
+			!this.paramsChanged(q1, q2)
+		);
 	}
 
 	componentWillReceiveProps(nextProps: DataInjectorProps) {
@@ -82,13 +92,16 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 		const allCurrent = this.getQueryArray(this.props);
 		this.getQueryArray(nextProps).forEach((query, index) => {
 			const current = allCurrent[index];
-			if (!this.queryEquals(query, current) || nextProps.fetchCondition !== this.props.fetchCondition) {
+			if (
+				!this.queryEquals(query, current) ||
+				nextProps.fetchCondition !== this.props.fetchCondition
+			) {
 				newStatus[index] = STATUS_LOADING;
 				queue.push(index);
 			}
 		});
-		this.setState({status: newStatus});
-		queue.forEach((index) => this.fetch(nextProps, index));
+		this.setState({ status: newStatus });
+		queue.forEach(index => this.fetch(nextProps, index));
 	}
 
 	fetch(props: DataInjectorProps, index: number) {
@@ -96,72 +109,96 @@ export default class DataInjector extends React.Component<DataInjectorProps, Dat
 			return;
 		}
 		const query = this.getQueryArray(props)[index];
-		DataManager.get(query.url, query.params || {})
-			.then((json) => {
+		DataManager.get(query.url, query.params || {}).then(
+			json => {
 				const queries = this.getQueryArray(this.props);
-				if (queries.some((q) => this.queryEquals(q, query))) {
+				if (queries.some(q => this.queryEquals(q, query))) {
 					const newData = Object.assign([], this.state.data);
 					const newStatus = Object.assign([], this.state.status);
-					newData[query.key || DEFAULT_DATA_KEY] = props.modify ? props.modify(json) : json;
+					newData[query.key || DEFAULT_DATA_KEY] = props.modify
+						? props.modify(json)
+						: json;
 					newStatus[index] = STATUS_SUCCESS;
-					this.setState({data: newData, status: newStatus});
+					this.setState({ data: newData, status: newStatus });
 				}
-			}, (status) => {
+			},
+			status => {
 				const queries = this.getQueryArray(this.props);
-				if (queries.every((q) => !this.queryEquals(q, query))) {
+				if (queries.every(q => !this.queryEquals(q, query))) {
 					return;
 				}
 				if (status === STATUS_PROCESSING) {
 					if (this.state.retryCount[index] < MAX_RETRY_COUNT) {
-						window.setTimeout(() => this.fetch(props, index), RETRY_DELAY);
+						window.setTimeout(
+							() => this.fetch(props, index),
+							RETRY_DELAY
+						);
 						const newStatus = Object.assign([], this.state.status);
-						const newRetryCount = Object.assign([], this.state.retryCount);
+						const newRetryCount = Object.assign(
+							[],
+							this.state.retryCount
+						);
 						newStatus[index] = STATUS_PROCESSING;
 						newRetryCount[index] = newRetryCount[index] + 1;
-						this.setState({status: newStatus, retryCount: newRetryCount});
-					}
-					else {
+						this.setState({
+							status: newStatus,
+							retryCount: newRetryCount
+						});
+					} else {
 						const newStatus = Object.assign([], this.state.status);
 						newStatus[index] = STATUS_TIMEOUT;
-						this.setState({status: newStatus});
+						this.setState({ status: newStatus });
 					}
-				}
-				else {
+				} else {
 					const newStatus = Object.assign([], this.state.status);
 					newStatus[index] = status;
-					this.setState({status: newStatus});
+					this.setState({ status: newStatus });
 				}
-			});
+			}
+		);
 	}
 
 	render(): JSX.Element {
 		const getStatus = (status: number[]): LoadingStatus => {
-			if (status.every((s) => s === STATUS_SUCCESS)) {
+			if (status.every(s => s === STATUS_SUCCESS)) {
 				return LoadingStatus.SUCCESS;
 			}
-			if (status.some((s) => [STATUS_SUCCESS, STATUS_LOADING, STATUS_PROCESSING, STATUS_NO_DATA].indexOf(s) === -1)) {
+			if (
+				status.some(
+					s =>
+						[
+							STATUS_SUCCESS,
+							STATUS_LOADING,
+							STATUS_PROCESSING,
+							STATUS_NO_DATA
+						].indexOf(s) === -1
+				)
+			) {
 				return LoadingStatus.ERROR;
 			}
-			if (status.some((s) => s === STATUS_NO_DATA)) {
+			if (status.some(s => s === STATUS_NO_DATA)) {
 				return LoadingStatus.NO_DATA;
 			}
-			if (status.some((s) => s === STATUS_PROCESSING)) {
+			if (status.some(s => s === STATUS_PROCESSING)) {
 				return LoadingStatus.PROCESSING;
 			}
 			return LoadingStatus.LOADING;
 		};
 
 		const status = getStatus(this.state.status);
-		const childProps = {status};
+		const childProps = { status };
 		if (status === LoadingStatus.SUCCESS) {
-			this.getQueryArray(this.props).forEach((query) => {
+			this.getQueryArray(this.props).forEach(query => {
 				const key = query.key || DEFAULT_DATA_KEY;
 				childProps[key] = this.state.data[key];
 			});
 			if (this.props.extract) {
-				Object.keys(this.props.extract).forEach((prop) => {
+				Object.keys(this.props.extract).forEach(prop => {
 					if (childProps[prop]) {
-						const newProps = this.props.extract[prop](childProps[prop], childProps);
+						const newProps = this.props.extract[prop](
+							childProps[prop],
+							childProps
+						);
 						delete childProps[prop];
 						Object.assign(childProps, newProps);
 					}

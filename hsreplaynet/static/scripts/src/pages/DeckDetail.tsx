@@ -1,7 +1,7 @@
 import DataManager from "../DataManager";
 import PremiumWrapper from "../components/PremiumWrapper";
 import WinrateLineChart from "../components/charts/WinrateLineChart";
-import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import ClassFilter, { FilterOption } from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
 import DeckStats from "../components/deckdetail/DeckStats";
 import SimilarDecksList from "../components/deckdetail/SimilarDecksList";
@@ -14,10 +14,20 @@ import React from "react";
 import TableLoading from "../components/loading/TableLoading";
 import PopularityLineChart from "../components/charts/PopularityLineChart";
 import {
-	compareDecks, getArchetypeUrl, getDustCost, getHeroCardId, isWildSet,
-	toTitleCase,
+	compareDecks,
+	getArchetypeUrl,
+	getDustCost,
+	getHeroCardId,
+	isWildSet,
+	toTitleCase
 } from "../helpers";
-import {ApiArchetype, CardObj, RenderData, SortDirection, TableData} from "../interfaces";
+import {
+	ApiArchetype,
+	CardObj,
+	RenderData,
+	SortDirection,
+	TableData
+} from "../interfaces";
 import UserData from "../UserData";
 import InfoIcon from "../components/InfoIcon";
 import ManaCurve from "../components/ManaCurve";
@@ -83,7 +93,10 @@ interface DeckDetailProps {
 	setRegion?: (region: string) => void;
 }
 
-export default class DeckDetail extends React.Component<DeckDetailProps, DeckDetailState> {
+export default class DeckDetail extends React.Component<
+	DeckDetailProps,
+	DeckDetailState
+> {
 	constructor(props: DeckDetailProps, state: DeckDetailState) {
 		super(props, state);
 		this.state = {
@@ -95,30 +108,41 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			personalSortDirection: "ascending",
 			showInfo: false,
 			sortBy: "card",
-			sortDirection: "ascending",
+			sortDirection: "ascending"
 		};
 		this.fetchInventory();
 	}
 
 	fetchInventory() {
-		DataManager.get("single_deck_filter_inventory", {deck_id: this.props.deckId}).then((data) => {
-			if (!data) {
-				return Promise.reject("No data");
-			}
-			const inventory = data.series;
-			const gameTypes = Object.keys(inventory);
-			if (gameTypes && gameTypes.indexOf(this.props.gameType) === -1 && !UserData.isPremium()) {
-				const gameType = gameTypes.indexOf("RANKED_STANDARD") !== -1 ? "RANKED_STANDARD" : "RANKED_WILD";
-				this.props.setGameType(gameType);
-			}
-			this.setState({inventory, hasData: gameTypes.length > 0});
-		}).catch((reason) => {
-			this.setState({hasData: false});
-			if (reason === 202) {
-				// retry after 30 seconds
-				setTimeout(() => this.fetchInventory(), 30000);
-			}
-		});
+		DataManager.get("single_deck_filter_inventory", {
+			deck_id: this.props.deckId
+		})
+			.then(data => {
+				if (!data) {
+					return Promise.reject("No data");
+				}
+				const inventory = data.series;
+				const gameTypes = Object.keys(inventory);
+				if (
+					gameTypes &&
+					gameTypes.indexOf(this.props.gameType) === -1 &&
+					!UserData.isPremium()
+				) {
+					const gameType =
+						gameTypes.indexOf("RANKED_STANDARD") !== -1
+							? "RANKED_STANDARD"
+							: "RANKED_WILD";
+					this.props.setGameType(gameType);
+				}
+				this.setState({ inventory, hasData: gameTypes.length > 0 });
+			})
+			.catch(reason => {
+				this.setState({ hasData: false });
+				if (reason === 202) {
+					// retry after 30 seconds
+					setTimeout(() => this.fetchInventory(), 30000);
+				}
+			});
 	}
 
 	render(): JSX.Element {
@@ -132,16 +156,22 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		let deckCharts = null;
 		if (this.props.cardData) {
 			dustCost = 0;
-			dbfIds.forEach((id) => {
+			dbfIds.forEach(id => {
 				const card = this.props.cardData.fromDbf(id);
-				const cardObj = cards.find((obj) => obj.card.id === card.id) || cards[cards.push({card, count: 0}) - 1];
+				const cardObj =
+					cards.find(obj => obj.card.id === card.id) ||
+					cards[cards.push({ card, count: 0 }) - 1];
 				cardObj.count++;
 				dustCost += getDustCost(card);
 			});
 
-			deckCharts = this.getChartData(cards).map((data) => (
+			deckCharts = this.getChartData(cards).map(data => (
 				<div className="chart-wrapper">
-					<CardDetailPieChart data={data} customViewbox="0 30 400 310" removeEmpty/>
+					<CardDetailPieChart
+						data={data}
+						customViewbox="0 30 400 310"
+						removeEmpty
+					/>
 				</div>
 			));
 		}
@@ -151,7 +181,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			archetypeInfo = (
 				<li>
 					Archetype
-					<a className="infobox-value" href={getArchetypeUrl(this.props.archetypeId, this.props.archetypeName)}>
+					<a
+						className="infobox-value"
+						href={getArchetypeUrl(
+							this.props.archetypeId,
+							this.props.archetypeName
+						)}
+					>
 						{this.props.archetypeName}
 					</a>
 				</li>
@@ -164,11 +200,11 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		let accountFilter = null;
 		if (isPremium && UserData.getAccounts().length > 0) {
 			const accounts = [];
-			UserData.getAccounts().forEach((acc) => {
+			UserData.getAccounts().forEach(acc => {
 				accounts.push(
 					<InfoboxFilter value={acc.region + "-" + acc.lo}>
 						{acc.display}
-					</InfoboxFilter>,
+					</InfoboxFilter>
 				);
 			});
 			if (accounts.length) {
@@ -176,9 +212,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<InfoboxFilterGroup
 						header="Accounts"
 						selectedValue={this.state.account}
-						onClick={(account) => {
+						onClick={account => {
 							UserData.setDefaultAccount(account);
-							this.setState({account});
+							this.setState({ account });
 						}}
 					>
 						{accounts}
@@ -187,9 +223,16 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			}
 		}
 
-		const infoBoxFilter = (filter: "rankRange"|"region", key: string, text: string) => {
+		const infoBoxFilter = (
+			filter: "rankRange" | "region",
+			key: string,
+			text: string
+		) => {
 			let content: any = text;
-			const hasFilter = filter === "rankRange" ? this.hasRankRange(key) : this.hasRegion(key);
+			const hasFilter =
+				filter === "rankRange"
+					? this.hasRankRange(key)
+					: this.hasRegion(key);
 			if (this.state.hasData && !hasFilter) {
 				content = (
 					<Tooltip
@@ -214,7 +257,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<CardList
 					cardData={this.props.cardData}
 					cardList={dbfIds}
-					name={this.props.deckName || toTitleCase(this.props.deckClass) + " Deck"}
+					name={
+						this.props.deckName ||
+						toTitleCase(this.props.deckClass) + " Deck"
+					}
 					heroes={[this.props.heroDbfId]}
 				/>
 			</div>
@@ -236,48 +282,74 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					minimal
 					tabIndex={premiumTabIndex}
 					selectedClasses={this.props.selectedClasses}
-					selectionChanged={(selectedClasses) => this.props.setSelectedClasses(selectedClasses)}
-					disabled={this.props.tab !== "mulligan-guide" && this.props.tab !== "my-statistics"}
+					selectionChanged={selectedClasses =>
+						this.props.setSelectedClasses(selectedClasses)
+					}
+					disabled={
+						this.props.tab !== "mulligan-guide" &&
+						this.props.tab !== "my-statistics"
+					}
 				/>
-			</PremiumWrapper>,
+			</PremiumWrapper>
 		];
 		let header = null;
 		if (this.state.hasData === false) {
 			header = (
-				<h4 className="message-wrapper" id="message-no-data">This deck does not have enough data for global statistics.</h4>
+				<h4 className="message-wrapper" id="message-no-data">
+					This deck does not have enough data for global statistics.
+				</h4>
 			);
 
 			overviewContent.push(
 				<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 					{cardList}
-					<ManaCurve cards={cards}/>
+					<ManaCurve cards={cards} />
 				</div>,
 				<div className="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 					{deckCharts && deckCharts[0]}
 					{deckCharts && deckCharts[1]}
-				</div>,
+				</div>
 			);
-		}
-		else {
+		} else {
 			filters.push(
 				<div>
 					<InfoboxFilterGroup
 						header="Rank Range"
 						infoHeader="Rank Range"
 						infoContent={[
-							<p>Check out how this deck performs at higher ranks!</p>,
-							<p>Greyed out filters indicate an insufficient amount of data for that rank range.</p>,
+							<p>
+								Check out how this deck performs at higher
+								ranks!
+							</p>,
+							<p>
+								Greyed out filters indicate an insufficient
+								amount of data for that rank range.
+							</p>
 						]}
 						selectedValue={this.getRankRange()}
-						onClick={(rankRange) => this.props.setRankRange(rankRange)}
+						onClick={rankRange =>
+							this.props.setRankRange(rankRange)
+						}
 					>
 						<PremiumWrapper
 							name="Single Deck Rank Range"
-							iconStyle={{display: "none"}}
+							iconStyle={{ display: "none" }}
 						>
-							{infoBoxFilter("rankRange", "LEGEND_ONLY", "Legend only")}
-							{infoBoxFilter("rankRange", "LEGEND_THROUGH_FIVE", "Legend–5")}
-							{infoBoxFilter("rankRange", "LEGEND_THROUGH_TEN", "Legend–10")}
+							{infoBoxFilter(
+								"rankRange",
+								"LEGEND_ONLY",
+								"Legend only"
+							)}
+							{infoBoxFilter(
+								"rankRange",
+								"LEGEND_THROUGH_FIVE",
+								"Legend–5"
+							)}
+							{infoBoxFilter(
+								"rankRange",
+								"LEGEND_THROUGH_TEN",
+								"Legend–10"
+							)}
 						</PremiumWrapper>
 						{infoBoxFilter("rankRange", "ALL", "Legend–25")}
 					</InfoboxFilterGroup>
@@ -287,15 +359,21 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						name="Single Deck Region"
 						infoHeader="Deck breakdown region"
 						infoContent={[
-							<p>Take a look at how this deck performs in your region!</p>,
-							<br/>,
-							<p>Greyed out filters indicate an insufficient amount of data for that region.</p>,
+							<p>
+								Take a look at how this deck performs in your
+								region!
+							</p>,
+							<br />,
+							<p>
+								Greyed out filters indicate an insufficient
+								amount of data for that region.
+							</p>
 						]}
 					>
 						<InfoboxFilterGroup
 							header="Region"
 							selectedValue={this.getRegion()}
-							onClick={(region) => this.props.setRegion(region)}
+							onClick={region => this.props.setRegion(region)}
 						>
 							{infoBoxFilter("region", "REGION_US", "America")}
 							{infoBoxFilter("region", "REGION_EU", "Europe")}
@@ -303,15 +381,21 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							{infoBoxFilter("region", "ALL", "All Regions")}
 						</InfoboxFilterGroup>
 					</PremiumWrapper>
-				</Feature>,
+				</Feature>
 			);
 
 			header = [
 				<div className="col-lg-6 col-md-6">
 					<div className="chart-wrapper wide">
 						<DataInjector
-							fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-							query={{url: "single_deck_stats_over_time", params: deckParams}}
+							fetchCondition={
+								!!this.state.hasData &&
+								this.isWildDeck() !== undefined
+							}
+							query={{
+								url: "single_deck_stats_over_time",
+								params: deckParams
+							}}
 						>
 							<ChartLoading>
 								<PopularityLineChart
@@ -329,8 +413,14 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<div className="col-lg-6 col-md-6">
 					<div className="chart-wrapper wide">
 						<DataInjector
-							fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-							query={{url: "single_deck_stats_over_time", params: deckParams}}
+							fetchCondition={
+								!!this.state.hasData &&
+								this.isWildDeck() !== undefined
+							}
+							query={{
+								url: "single_deck_stats_over_time",
+								params: deckParams
+							}}
 						>
 							<ChartLoading>
 								<WinrateLineChart widthRatio={2} />
@@ -341,7 +431,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 							content="Percentage of games won with this deck."
 						/>
 					</div>
-				</div>,
+				</div>
 			];
 
 			overviewContent.push(
@@ -349,20 +439,24 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					{cardList}
 				</div>,
 				<div className="col-lg-5 col-md-6 col-sm-12 col-xs-12">
-					<ManaCurve cards={cards}/>
+					<ManaCurve cards={cards} />
 					<DataInjector
-						fetchCondition={!!this.state.hasData && this.isWildDeck !== undefined}
+						fetchCondition={
+							!!this.state.hasData &&
+							this.isWildDeck !== undefined
+						}
 						query={[
 							{
 								key: "opponentWinrateData",
 								params: deckParams,
-								url: "single_deck_base_winrate_by_opponent_class",
+								url:
+									"single_deck_base_winrate_by_opponent_class"
 							},
 							{
 								key: "deckListData",
 								params: globalParams,
-								url: "list_decks_by_win_rate",
-							},
+								url: "list_decks_by_win_rate"
+							}
 						]}
 					>
 						<TableLoading
@@ -378,205 +472,252 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 				<div className="col-lg-4 col-md-12 col-sm-12 col-xs-12">
 					{deckCharts && deckCharts[0]}
 					{deckCharts && deckCharts[1]}
-				</div>,
+				</div>
 			);
 		}
 
-		const {deckName, deckClass} = this.props;
-		const copyDeckName = deckName ? deckName.replace(/ Deck$/, "") : toTitleCase(this.props.deckClass);
+		const { deckName, deckClass } = this.props;
+		const copyDeckName = deckName
+			? deckName.replace(/ Deck$/, "")
+			: toTitleCase(this.props.deckClass);
 
-		return <div className="deck-detail-container">
-			<aside className="infobox">
-				<img
-					className="hero-image"
-					src={"https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(this.props.deckClass, true) + ".jpg"}
-				/>
-				<div className="text-center copy-deck-wrapper">
-					<CopyDeckButton
-						cardData={this.props.cardData}
-						cards={dbfIds}
-						heroes={[this.props.heroDbfId]}
-						format={this.getGameType() === "RANKED_STANDARD" ? 2 : 1}
-						deckClass={this.props.deckClass}
-						name={copyDeckName}
-						sourceUrl={window.location.toString()}
+		return (
+			<div className="deck-detail-container">
+				<aside className="infobox">
+					<img
+						className="hero-image"
+						src={
+							"https://art.hearthstonejson.com/v1/256x/" +
+							getHeroCardId(this.props.deckClass, true) +
+							".jpg"
+						}
 					/>
-				</div>
-				<h2>Deck</h2>
-				<ul>
-					<li>
-						Class
-						<a
-							className="infobox-value"
-							href={"/decks/#playerClasses=" + this.props.deckClass}
-						>
-							{toTitleCase(this.props.deckClass)}
-						</a>
-					</li>
-					{archetypeInfo}
-					<li>
-						Cost
-						<span className="infobox-value">{dustCost ? dustCost + " Dust" : "Counting…"}</span>
-					</li>
-				</ul>
-				{filters}
-				{accountFilter}
-				<DataInjector
-					fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
-					query={{url: "list_decks_by_win_rate", params: globalParams}}
-				>
-					<HideLoading>
-						<DeckStats
-							playerClass={this.props.deckClass}
-							deckId={this.props.deckId}
-							lastUpdatedUrl="single_deck_stats_over_time"
-							lastUpdatedParams={deckParams}
+					<div className="text-center copy-deck-wrapper">
+						<CopyDeckButton
+							cardData={this.props.cardData}
+							cards={dbfIds}
+							heroes={[this.props.heroDbfId]}
+							format={
+								this.getGameType() === "RANKED_STANDARD" ? 2 : 1
+							}
+							deckClass={this.props.deckClass}
+							name={copyDeckName}
+							sourceUrl={window.location.toString()}
 						/>
-					</HideLoading>
-				</DataInjector>
-				{this.renderAdminSettings()}
-			</aside>
-			<main>
-				<section id="content-header">
-					{header}
-				</section>
-				<section id="page-content">
-					<TabList tab={this.props.tab} setTab={this.props.setTab}>
-						<Tab label="Overview" id="overview">
-							{overviewContent}
-						</Tab>
-						<Tab label="Mulligan Guide" id="mulligan-guide" hidden={this.state.hasData === false}>
-							{this.renderMulliganGuideTable(deckParams, globalParams)}
-						</Tab>
-						<Tab
-							label={(
-								<span className="text-premium">
-									My Statistics&nbsp;
-									<InfoIcon
-										header="Personal statistics"
-										content="See detailed statistics about your own performance of each card in this deck."
-									/>
-								</span>
-							)}
-							id="my-statistics"
-						>
-							{this.getMyStats()}
-						</Tab>
-						<Tab
-							label={(
-								<span className="text-premium">
-									Matchups&nbsp;
-									<InfoIcon
-										header="Archetype Matchups"
-										content="See how this deck performs against specific archetypes."
-									/>
-								</span>
-							)}
-							id="matchups"
-							hidden={this.state.hasData === false}
-						>
-							{this.renderMatchups(deckParams)}
-						</Tab>
-						<Tab label="Similar Decks" id="similar">
-							<DataInjector
-								fetchCondition={this.isWildDeck() !== undefined}
-								query={{url: "list_decks_by_win_rate", params: globalParams}}
+					</div>
+					<h2>Deck</h2>
+					<ul>
+						<li>
+							Class
+							<a
+								className="infobox-value"
+								href={
+									"/decks/#playerClasses=" +
+									this.props.deckClass
+								}
 							>
-								<TableLoading cardData={this.props.cardData}>
-									<SimilarDecksList
-										playerClass={this.props.deckClass}
-										rawCardList={this.props.deckCards}
-										wildDeck={this.isWildDeck()}
-									/>
-								</TableLoading>
-							</DataInjector>
-						</Tab>
-						<Tab
-							label={(
-								<span className="text-premium">
-									Deck Counters&nbsp;
-									<InfoIcon
-										header="Deck Counters"
-										content="A list of archetypes and decks that this deck has trouble against."
-									/>
-								</span>
-							)}
-							id="deck-counters"
-							hidden={!UserData.hasFeature("deck-counters")}
+								{toTitleCase(this.props.deckClass)}
+							</a>
+						</li>
+						{archetypeInfo}
+						<li>
+							Cost
+							<span className="infobox-value">
+								{dustCost ? dustCost + " Dust" : "Counting…"}
+							</span>
+						</li>
+					</ul>
+					{filters}
+					{accountFilter}
+					<DataInjector
+						fetchCondition={
+							!!this.state.hasData &&
+							this.isWildDeck() !== undefined
+						}
+						query={{
+							url: "list_decks_by_win_rate",
+							params: globalParams
+						}}
+					>
+						<HideLoading>
+							<DeckStats
+								playerClass={this.props.deckClass}
+								deckId={this.props.deckId}
+								lastUpdatedUrl="single_deck_stats_over_time"
+								lastUpdatedParams={deckParams}
+							/>
+						</HideLoading>
+					</DataInjector>
+					{this.renderAdminSettings()}
+				</aside>
+				<main>
+					<section id="content-header">{header}</section>
+					<section id="page-content">
+						<TabList
+							tab={this.props.tab}
+							setTab={this.props.setTab}
 						>
-							<DataInjector
-								fetchCondition={this.isWildDeck() !== undefined}
-								query={[
-									{
-										key: "deckData",
-										params: globalParams,
+							<Tab label="Overview" id="overview">
+								{overviewContent}
+							</Tab>
+							<Tab
+								label="Mulligan Guide"
+								id="mulligan-guide"
+								hidden={this.state.hasData === false}
+							>
+								{this.renderMulliganGuideTable(
+									deckParams,
+									globalParams
+								)}
+							</Tab>
+							<Tab
+								label={
+									<span className="text-premium">
+										My Statistics&nbsp;
+										<InfoIcon
+											header="Personal statistics"
+											content="See detailed statistics about your own performance of each card in this deck."
+										/>
+									</span>
+								}
+								id="my-statistics"
+							>
+								{this.getMyStats()}
+							</Tab>
+							<Tab
+								label={
+									<span className="text-premium">
+										Matchups&nbsp;
+										<InfoIcon
+											header="Archetype Matchups"
+											content="See how this deck performs against specific archetypes."
+										/>
+									</span>
+								}
+								id="matchups"
+								hidden={this.state.hasData === false}
+							>
+								{this.renderMatchups(deckParams)}
+							</Tab>
+							<Tab label="Similar Decks" id="similar">
+								<DataInjector
+									fetchCondition={
+										this.isWildDeck() !== undefined
+									}
+									query={{
 										url: "list_decks_by_win_rate",
-									},
-									{
-										key: "countersData",
-										params: deckParams,
-										url: "single_deck_recommended_counters",
-									},
-								]}
-							>
-								<TableLoading
-									cardData={this.props.cardData}
-									dataKeys={["deckData", "countersData"]}
+										params: globalParams
+									}}
 								>
-									<DeckCountersList/>
-								</TableLoading>
-							</DataInjector>
-						</Tab>
-						<Tab
-							label="Streams"
-							hidden={!UserData.hasFeature("twitch-stream-promotion") && this.props.tab !== "streams"}
-							id="streams"
-						>
-							<h3 className="text-center">Live on Twitch</h3>
-							{this.renderStreams()}
-						</Tab>
-					</TabList>
-				</section>
-			</main>
-		</div>;
+									<TableLoading
+										cardData={this.props.cardData}
+									>
+										<SimilarDecksList
+											playerClass={this.props.deckClass}
+											rawCardList={this.props.deckCards}
+											wildDeck={this.isWildDeck()}
+										/>
+									</TableLoading>
+								</DataInjector>
+							</Tab>
+							<Tab
+								label={
+									<span className="text-premium">
+										Deck Counters&nbsp;
+										<InfoIcon
+											header="Deck Counters"
+											content="A list of archetypes and decks that this deck has trouble against."
+										/>
+									</span>
+								}
+								id="deck-counters"
+								hidden={!UserData.hasFeature("deck-counters")}
+							>
+								<DataInjector
+									fetchCondition={
+										this.isWildDeck() !== undefined
+									}
+									query={[
+										{
+											key: "deckData",
+											params: globalParams,
+											url: "list_decks_by_win_rate"
+										},
+										{
+											key: "countersData",
+											params: deckParams,
+											url:
+												"single_deck_recommended_counters"
+										}
+									]}
+								>
+									<TableLoading
+										cardData={this.props.cardData}
+										dataKeys={["deckData", "countersData"]}
+									>
+										<DeckCountersList />
+									</TableLoading>
+								</DataInjector>
+							</Tab>
+							<Tab
+								label="Streams"
+								hidden={
+									!UserData.hasFeature(
+										"twitch-stream-promotion"
+									) && this.props.tab !== "streams"
+								}
+								id="streams"
+							>
+								<h3 className="text-center">Live on Twitch</h3>
+								{this.renderStreams()}
+							</Tab>
+						</TabList>
+					</section>
+				</main>
+			</div>
+		);
 	}
 
 	renderMulliganGuideTable(deckParams: any, globalParams: any): JSX.Element {
-		const premiumMulligan = (
+		const premiumMulligan =
 			UserData.isPremium() &&
 			this.props.selectedClasses.length &&
-			this.props.selectedClasses[0] !== "ALL"
-		);
+			this.props.selectedClasses[0] !== "ALL";
 
-		const dataKey = this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL";
+		const dataKey = this.props.selectedClasses.length
+			? this.props.selectedClasses[0]
+			: "ALL";
 
 		return (
 			<DataInjector
-				fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
+				fetchCondition={
+					!!this.state.hasData && this.isWildDeck() !== undefined
+				}
 				query={[
 					{
 						key: "mulliganData",
 						params: deckParams,
-						url: premiumMulligan ? "single_deck_mulligan_guide_by_class" : "single_deck_mulligan_guide",
+						url: premiumMulligan
+							? "single_deck_mulligan_guide_by_class"
+							: "single_deck_mulligan_guide"
 					},
 					{
 						key: "winrateData",
 						params: deckParams,
-						url: "single_deck_base_winrate_by_opponent_class",
-					},
+						url: "single_deck_base_winrate_by_opponent_class"
+					}
 				]}
 				extract={{
-					mulliganData: (data) => ({data: data.series.data[dataKey]}),
-					winrateData: (data) => {
+					mulliganData: data => ({ data: data.series.data[dataKey] }),
+					winrateData: data => {
 						let baseWinrate = 50;
 						if (premiumMulligan) {
 							baseWinrate = +data.series.data[dataKey][0].winrate;
-						}
-						else {
+						} else {
 							baseWinrate = +data.series.metadata.total_winrate;
 						}
-						return {baseWinrate};
-					},
+						return { baseWinrate };
+					}
 				}}
 			>
 				<CardTable
@@ -587,10 +728,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						"drawnWinrate",
 						"playedWinrate",
 						"turnsInHand",
-						"turnPlayed",
+						"turnPlayed"
 					]}
-					onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
-						this.setState({sortBy, sortDirection});
+					onSortChanged={(
+						sortBy: string,
+						sortDirection: SortDirection
+					) => {
+						this.setState({ sortBy, sortDirection });
 					}}
 					sortBy={this.state.sortBy}
 					sortDirection={this.state.sortDirection as SortDirection}
@@ -609,15 +753,25 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 			);
 		}
 
-		const params = {deck_id: this.props.deckId, ...this.getPersonalParams()};
-		const selectedClass = this.props.selectedClasses.length ? this.props.selectedClasses[0] : "ALL";
+		const params = {
+			deck_id: this.props.deckId,
+			...this.getPersonalParams()
+		};
+		const selectedClass = this.props.selectedClasses.length
+			? this.props.selectedClasses[0]
+			: "ALL";
 		const hasSelectedClass = selectedClass !== "ALL";
 		return (
 			<DataInjector
-				fetchCondition={this.isWildDeck() !== undefined && UserData.isPremium()}
-				query={{params, url: "single_account_lo_individual_card_stats_for_deck"}}
+				fetchCondition={
+					this.isWildDeck() !== undefined && UserData.isPremium()
+				}
+				query={{
+					params,
+					url: "single_account_lo_individual_card_stats_for_deck"
+				}}
 				extract={{
-					data: (data) => ({data: data.series.data[selectedClass]}),
+					data: data => ({ data: data.series.data[selectedClass] })
 				}}
 			>
 				<CardTable
@@ -633,13 +787,21 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 						"damageDone",
 						"healingDone",
 						"heroesKilled",
-						"minionsKilled",
+						"minionsKilled"
 					]}
-					onSortChanged={(sortBy: string, sortDirection: SortDirection) => {
-						this.setState({personalSortBy: sortBy, personalSortDirection: sortDirection});
+					onSortChanged={(
+						sortBy: string,
+						sortDirection: SortDirection
+					) => {
+						this.setState({
+							personalSortBy: sortBy,
+							personalSortDirection: sortDirection
+						});
 					}}
 					sortBy={this.state.personalSortBy}
-					sortDirection={this.state.personalSortDirection as SortDirection}
+					sortDirection={
+						this.state.personalSortDirection as SortDirection
+					}
 					customNoDataMessage={
 						hasSelectedClass
 							? "You need to play at least five games against this class."
@@ -654,25 +816,22 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return (
 			<DataInjector
 				query={[
-					{ key: "streams", params: {}, url: "/live/streaming-now/" },
+					{ key: "streams", params: {}, url: "/live/streaming-now/" }
 				]}
 				extract={{
-					streams: (data) =>
-					{
-						const thisDeck = this.props.deckCards.split(",").map(Number);
-						return (
-							{
-								streams: data.filter(
-									(stream) => compareDecks(stream.deck.map(Number), thisDeck),
-								),
-							}
-						);
-					},
+					streams: data => {
+						const thisDeck = this.props.deckCards
+							.split(",")
+							.map(Number);
+						return {
+							streams: data.filter(stream =>
+								compareDecks(stream.deck.map(Number), thisDeck)
+							)
+						};
+					}
 				}}
 			>
-				<StreamList
-					customNoDataMessage={"No streams available"}
-				/>
+				<StreamList customNoDataMessage={"No streams available"} />
 			</DataInjector>
 		);
 	}
@@ -689,13 +848,25 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return (
 			<DataInjector
 				query={[
-					{key: "archetypeMatchupData", params: deckParams, url: "single_deck_archetype_matchups"},
-					{key: "archetypeData", params: {}, url: "/api/v1/archetypes/"},
+					{
+						key: "archetypeMatchupData",
+						params: deckParams,
+						url: "single_deck_archetype_matchups"
+					},
+					{
+						key: "archetypeData",
+						params: {},
+						url: "/api/v1/archetypes/"
+					}
 				]}
 				extract={{
-					archetypeMatchupData: (data) => ({archetypeMatchupData: data.series.data}),
+					archetypeMatchupData: data => ({
+						archetypeMatchupData: data.series.data
+					})
 				}}
-				fetchCondition={!!this.state.hasData && this.isWildDeck() !== undefined}
+				fetchCondition={
+					!!this.state.hasData && this.isWildDeck() !== undefined
+				}
 			>
 				<ArchetypeMatchups
 					archetypeId={+this.props.archetypeId}
@@ -710,13 +881,13 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		const cards: CardObj[] = [];
 		if (this.props.cardData) {
 			const dbfIds = {};
-			this.props.deckCards.split(",").map((id) => {
+			this.props.deckCards.split(",").map(id => {
 				dbfIds[id] = (dbfIds[id] || 0) + 1;
 			});
-			Object.keys(dbfIds).forEach((dbfId) => {
+			Object.keys(dbfIds).forEach(dbfId => {
 				cards.push({
 					card: this.props.cardData.fromDbf(dbfId),
-					count: dbfIds[dbfId],
+					count: dbfIds[dbfId]
 				});
 			});
 		}
@@ -727,8 +898,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		if (!this.props.deckCards || !this.props.cardData) {
 			return undefined;
 		}
-		return this.props.deckCards.split(",").map((dbfId) => this.props.cardData.fromDbf(dbfId))
-			.some((card) => isWildSet(card.set));
+		return this.props.deckCards
+			.split(",")
+			.map(dbfId => this.props.cardData.fromDbf(dbfId))
+			.some(card => isWildSet(card.set));
 	}
 
 	hasGameType(gameType: string): boolean {
@@ -740,7 +913,9 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	getGameType(forPersonal?: boolean): string {
-		return forPersonal || this.hasGameType(this.props.gameType) ? this.props.gameType : "RANKED_STANDARD";
+		return forPersonal || this.hasGameType(this.props.gameType)
+			? this.props.gameType
+			: "RANKED_STANDARD";
 	}
 
 	hasRankRange(rankRange: string): boolean {
@@ -761,7 +936,10 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	getRegion() {
-		return UserData.hasFeature("deck-region-filter") && this.hasRegion(this.props.region) ? this.props.region : "ALL";
+		return UserData.hasFeature("deck-region-filter") &&
+			this.hasRegion(this.props.region)
+			? this.props.region
+			: "ALL";
 	}
 
 	hasRegion(region: string): boolean {
@@ -781,15 +959,22 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 	}
 
 	getRankRange(): string {
-		return this.hasRankRange(this.props.rankRange) ? this.props.rankRange : "ALL";
+		return this.hasRankRange(this.props.rankRange)
+			? this.props.rankRange
+			: "ALL";
 	}
 
-	getParams(): {GameType: string, RankRange: string, Region: string, deck_id: string} {
+	getParams(): {
+		GameType: string;
+		RankRange: string;
+		Region: string;
+		deck_id: string;
+	} {
 		return {
 			GameType: this.getGameType(),
 			RankRange: this.getRankRange(),
 			Region: this.getRegion(),
-			deck_id: this.props.deckId,
+			deck_id: this.props.deckId
 		};
 	}
 
@@ -797,30 +982,54 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		state = state || this.state;
 		const getRegion = (account: string) => account && account.split("-")[0];
 		const getLo = (account: string) => account && account.split("-")[1];
-		return Object.assign({}, {
-			GameType: this.getGameType(true),
-		}, this.state.account ? {
-			Region: getRegion(state.account),
-			account_lo: getLo(state.account),
-		} : {});
+		return Object.assign(
+			{},
+			{
+				GameType: this.getGameType(true)
+			},
+			this.state.account
+				? {
+						Region: getRegion(state.account),
+						account_lo: getLo(state.account)
+					}
+				: {}
+		);
 	}
 
 	getChartData(cards: CardObj[]): RenderData[] {
 		const dataSets = [{}, {}];
 
-		cards.forEach((cardObj) => {
-			dataSets[0][cardObj.card.rarity] = (dataSets[0][cardObj.card.rarity] || 0) + cardObj.count;
-			dataSets[1][cardObj.card.type] = (dataSets[1][cardObj.card.type] || 0) + cardObj.count;
+		cards.forEach(cardObj => {
+			dataSets[0][cardObj.card.rarity] =
+				(dataSets[0][cardObj.card.rarity] || 0) + cardObj.count;
+			dataSets[1][cardObj.card.type] =
+				(dataSets[1][cardObj.card.type] || 0) + cardObj.count;
 		});
 
 		const renderData = [
-			{ series: [ { name: "rarity", data: [], metadata: {chart_scheme: "rarity"} } ]},
-			{ series: [ { name: "type", data: [], metadata: {chart_scheme: "cardtype"} } ] },
+			{
+				series: [
+					{
+						name: "rarity",
+						data: [],
+						metadata: { chart_scheme: "rarity" }
+					}
+				]
+			},
+			{
+				series: [
+					{
+						name: "type",
+						data: [],
+						metadata: { chart_scheme: "cardtype" }
+					}
+				]
+			}
 		];
 
 		dataSets.forEach((set, index) => {
-			Object.keys(set).forEach((key) => {
-				renderData[index].series[0].data.push({x: key, y: set[key]});
+			Object.keys(set).forEach(key => {
+				renderData[index].series[0].data.push({ x: key, y: set[key] });
 			});
 		});
 
@@ -836,7 +1045,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 					<span className="infobox-value">
 						<a href={this.props.adminUrl}>Admin link</a>
 					</span>
-				</li>,
+				</li>
 			);
 		}
 
@@ -847,9 +1056,7 @@ export default class DeckDetail extends React.Component<DeckDetailProps, DeckDet
 		return (
 			<div>
 				<h2>Admin</h2>
-				<ul>
-					{items}
-				</ul>
+				<ul>{items}</ul>
 			</div>
 		);
 	}

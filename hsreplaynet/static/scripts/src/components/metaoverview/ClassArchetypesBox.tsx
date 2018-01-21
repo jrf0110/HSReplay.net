@@ -1,10 +1,16 @@
 import React from "react";
-import {ApiArchetype, ApiArchetypePopularity, SortableProps} from "../../interfaces";
+import {
+	ApiArchetype,
+	ApiArchetypePopularity,
+	SortableProps
+} from "../../interfaces";
 import CardData from "../../CardData";
-import {toTitleCase} from "../../helpers";
+import { toTitleCase } from "../../helpers";
 import ArchetypeClassTable from "./ArchetypeClassTable";
 
-interface Props extends SortableProps, React.ClassAttributes<ClassArchetypesBox> {
+interface Props
+	extends SortableProps,
+		React.ClassAttributes<ClassArchetypesBox> {
 	data: ApiArchetypePopularity[];
 	archetypeData: ApiArchetype[];
 	playerClass: string;
@@ -15,11 +21,13 @@ interface Props extends SortableProps, React.ClassAttributes<ClassArchetypesBox>
 
 export default class ClassArchetypesBox extends React.Component<Props> {
 	render(): JSX.Element {
-		const {playerClass} = this.props;
+		const { playerClass } = this.props;
 		return (
 			<div className="box class-box">
 				<div className="box-title">
-					<span className={`player-class ${playerClass.toLowerCase()}`}>
+					<span
+						className={`player-class ${playerClass.toLowerCase()}`}
+					>
 						{toTitleCase(playerClass)}
 					</span>
 				</div>

@@ -18,13 +18,13 @@ export default class TabList extends React.Component<Props> {
 		const canSwitch = typeof this.props.setTab === "function";
 
 		const tabs = children.map((child: any) => {
-			const {id, disabled, highlight} = child.props;
+			const { id, disabled, highlight } = child.props;
 			const isActive = id === this.props.tab;
 
 			const label = (
 				<a
 					href={`#${this.props.tabFragment || "tab"}=${id}`}
-					onClick={(event) => {
+					onClick={event => {
 						event.preventDefault();
 						if (isActive || !canSwitch || disabled) {
 							return;
@@ -64,7 +64,12 @@ export default class TabList extends React.Component<Props> {
 				classNames.push("active");
 			}
 			return (
-				<div id={id} key={id} role="tabpanel" className={classNames.join(" ")}>
+				<div
+					id={id}
+					key={id}
+					role="tabpanel"
+					className={classNames.join(" ")}
+				>
 					{child}
 				</div>
 			);
@@ -72,12 +77,8 @@ export default class TabList extends React.Component<Props> {
 
 		return (
 			<div>
-				<ul className="nav nav-tabs content-tabs">
-					{tabs}
-				</ul>
-				<div className="tab-content">
-					{body}
-				</div>
+				<ul className="nav nav-tabs content-tabs">{tabs}</ul>
+				<div className="tab-content">{body}</div>
 			</div>
 		);
 	}
@@ -90,11 +91,17 @@ export default class TabList extends React.Component<Props> {
 		this.ensureVisibleTab(nextProps);
 	}
 
-	private getValidChildren(children, excludeDisabled?: boolean, warn?: boolean): React.ReactChild[] {
+	private getValidChildren(
+		children,
+		excludeDisabled?: boolean,
+		warn?: boolean
+	): React.ReactChild[] {
 		return React.Children.toArray(children).filter((child: any) => {
 			if (child.type !== Tab) {
 				if (warn) {
-					console.warn("TabList requires <Tab> components as children");
+					console.warn(
+						"TabList requires <Tab> components as children"
+					);
 				}
 				return false;
 			}
@@ -117,13 +124,17 @@ export default class TabList extends React.Component<Props> {
 			return;
 		}
 
-		const validChildren = this.getValidChildren(props.children, true, true) as any[];
+		const validChildren = this.getValidChildren(
+			props.children,
+			true,
+			true
+		) as any[];
 		if (!validChildren.length) {
 			// no valid tabs, nothing we can do
 			return;
 		}
 
-		if (!validChildren.find((child) => child.props.id === props.tab)) {
+		if (!validChildren.find(child => child.props.id === props.tab)) {
 			// no selected child, manually select closest
 			this.props.setTab(validChildren[0].props.id);
 		}

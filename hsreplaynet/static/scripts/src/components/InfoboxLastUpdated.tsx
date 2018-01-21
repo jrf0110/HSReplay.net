@@ -12,9 +12,12 @@ interface InfoboxLastUpdatedProps {
 	modify?: (data: any) => any;
 }
 
-export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdatedProps, {}> {
+export default class InfoboxLastUpdated extends React.Component<
+	InfoboxLastUpdatedProps,
+	{}
+> {
 	render(): JSX.Element {
-		const {fetchCondition, modify, params, url} = this.props;
+		const { fetchCondition, modify, params, url } = this.props;
 		return (
 			<li>
 				Last updated
@@ -25,11 +28,17 @@ export default class InfoboxLastUpdated extends React.Component<InfoboxLastUpdat
 					>
 						<DataInjector
 							fetchCondition={fetchCondition}
-							query={{url, params}}
-							modify={(data) => modify ? modify(data) : (data && data.as_of ? new Date(data.as_of) : null)}
+							query={{ url, params }}
+							modify={data =>
+								modify
+									? modify(data)
+									: data && data.as_of
+										? new Date(data.as_of)
+										: null
+							}
 						>
 							<HideLoading>
-								<PropRemapper map={{data: "date"}}>
+								<PropRemapper map={{ data: "date" }}>
 									<SemanticAge />
 								</PropRemapper>
 							</HideLoading>

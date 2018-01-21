@@ -5,7 +5,9 @@ import CardDetail from "../pages/CardDetail";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 
-const cardId = document.getElementById("card-info").getAttribute("data-card-id");
+const cardId = document
+	.getElementById("card-info")
+	.getAttribute("data-card-id");
 const dbfId = +document.getElementById("card-info").getAttribute("data-dbf-id");
 UserData.create();
 
@@ -16,9 +18,11 @@ const render = (cardData: CardData) => {
 			defaults={{
 				gameType: "RANKED_STANDARD",
 				opponentClass: "ALL",
-				rankRange: "ALL",
+				rankRange: "ALL"
 			}}
-			immutable={!UserData.isPremium() ? ["opponentClass", "rankRange"] : null}
+			immutable={
+				!UserData.isPremium() ? ["opponentClass", "rankRange"] : null
+			}
 		>
 			<CardDetail
 				card={card}
@@ -27,7 +31,7 @@ const render = (cardData: CardData) => {
 				dbfId={dbfId}
 			/>
 		</Fragments>,
-		document.getElementById("card-container"),
+		document.getElementById("card-container")
 	);
 };
 

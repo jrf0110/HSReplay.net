@@ -17,7 +17,9 @@ export default class CheckoutProcess {
 		}
 		let resolved = false;
 		this.promise = new Promise((resolve, reject) => {
-			const dollars = options.amount ? Math.ceil(options.amount / 100) : null;
+			const dollars = options.amount
+				? Math.ceil(options.amount / 100)
+				: null;
 			options = Object.assign({}, options, {
 				token: (token: stripe.StripeTokenResponse): void => {
 					resolved = true;
@@ -38,7 +40,7 @@ export default class CheckoutProcess {
 					this.trackInteraction("close", dollars).then(() => {
 						reject();
 					});
-				},
+				}
 			});
 			this.handler.open(options);
 		});
@@ -58,7 +60,7 @@ export default class CheckoutProcess {
 				eventLabel: this.label,
 				eventValue: value,
 				hitCallback: () => resolve(),
-				nonInteraction: false,
+				nonInteraction: false
 			});
 			setTimeout(() => resolve(), 2000);
 		});

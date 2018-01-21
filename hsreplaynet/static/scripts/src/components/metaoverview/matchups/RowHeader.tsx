@@ -24,10 +24,10 @@ interface RowHeaderProps extends React.ClassAttributes<RowHeader> {
 export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 	shouldComponentUpdate(nextProps: RowHeaderProps): boolean {
 		return (
-			this.props.highlight !== nextProps.highlight
-			|| this.props.isFavorite !== nextProps.isFavorite
-			|| this.props.archetypeData.id !== nextProps.archetypeData.id
-			|| !_.isEqual(this.props.style, nextProps.style)
+			this.props.highlight !== nextProps.highlight ||
+			this.props.isFavorite !== nextProps.isFavorite ||
+			this.props.archetypeData.id !== nextProps.archetypeData.id ||
+			!_.isEqual(this.props.style, nextProps.style)
 		);
 	}
 
@@ -36,7 +36,9 @@ export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 		const favIconClasses = ["glyphicon glyphicon-star favorite-toggle"];
 		if (this.props.isFavorite) {
 			favIconClasses.push("favorite");
-			activeFavIcon = <span className="glyphicon glyphicon-star active-favorite"/>;
+			activeFavIcon = (
+				<span className="glyphicon glyphicon-star active-favorite" />
+			);
 		}
 		const classNames = ["matchup-row-header"];
 		if (this.props.highlight) {
@@ -51,15 +53,20 @@ export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 				onMouseLeave={() => this.props.onHover(false)}
 			>
 				<div className="archetype matchup-archetype">
-					<div className="class-icon-wrapper" onClick={(e) => {
-						e.preventDefault();
-						this.props.onFavoriteChanged(!this.props.isFavorite)
-					}}>
+					<div
+						className="class-icon-wrapper"
+						onClick={e => {
+							e.preventDefault();
+							this.props.onFavoriteChanged(
+								!this.props.isFavorite
+							);
+						}}
+					>
 						<img
 							className="class-icon"
 							src={`${STATIC_URL}images/64x/class-icons/${this.props.archetypeData.playerClass.toLowerCase()}.png`}
 						/>
-						<span className={favIconClasses.join(" ")}/>
+						<span className={favIconClasses.join(" ")} />
 						{activeFavIcon}
 					</div>
 					{this.renderName()}
@@ -69,7 +76,7 @@ export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 	}
 
 	renderName(): JSX.Element | string {
-		const {archetypeData} = this.props;
+		const { archetypeData } = this.props;
 		if (archetypeData.id < 0) {
 			return (
 				<OtherArchetype

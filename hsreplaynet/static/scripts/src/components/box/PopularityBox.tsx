@@ -1,6 +1,6 @@
 import React from "react";
-import {AutoSizer} from "react-virtualized";
-import {toDynamicFixed, toTitleCase} from "../../helpers";
+import { AutoSizer } from "react-virtualized";
+import { toDynamicFixed, toTitleCase } from "../../helpers";
 import PopularityLineChart from "./PopularityLineChart";
 import { LoadingStatus } from "../../interfaces";
 
@@ -14,13 +14,12 @@ interface Props extends React.ClassAttributes<PopularityBox> {
 }
 
 export default class PopularityBox extends React.Component<Props> {
-
 	render(): JSX.Element {
 		let chart = null;
 		if (this.props.chartData) {
 			chart = (
 				<AutoSizer disableHeight>
-					{({width}) => (
+					{({ width }) => (
 						<PopularityLineChart
 							data={this.props.chartData}
 							height={50}
@@ -35,10 +34,12 @@ export default class PopularityBox extends React.Component<Props> {
 		if (this.props.popularity !== undefined) {
 			content = [
 				<h1>{toDynamicFixed(this.props.popularity, 2)}%</h1>,
-				<h3>of {toTitleCase(this.props.playerClass)} decks</h3>,
+				<h3>of {toTitleCase(this.props.playerClass)} decks</h3>
 			];
-		}
-		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
+		} else if (
+			this.props.status === LoadingStatus.NO_DATA ||
+			this.props.status === LoadingStatus.PROCESSING
+		) {
 			content = "Please check back later";
 		}
 
@@ -47,22 +48,16 @@ export default class PopularityBox extends React.Component<Props> {
 				<a
 					className="box popularity-box"
 					href={this.props.href}
-					onClick={(event) => {
+					onClick={event => {
 						if (this.props.onClick) {
 							event.preventDefault();
 							this.props.onClick();
 						}
 					}}
 				>
-					<div className="box-title">
-						Popularity
-					</div>
-					<div className="box-content">
-						{content}
-					</div>
-					<div className="box-chart">
-						{chart}
-					</div>
+					<div className="box-title">Popularity</div>
+					<div className="box-content">{content}</div>
+					<div className="box-chart">{chart}</div>
 				</a>
 			</div>
 		);

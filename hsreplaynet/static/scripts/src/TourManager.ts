@@ -1,4 +1,4 @@
-import {cookie} from "cookie_js";
+import { cookie } from "cookie_js";
 import * as Shepherd from "tether-shepherd";
 
 export interface StepDefinition {
@@ -7,10 +7,14 @@ export interface StepDefinition {
 }
 
 export default class TourManager {
-
 	private tours = {};
 
-	public createTour(name: string, steps: StepDefinition[], customDefaults?: object, force?: boolean): Shepherd.Tour {
+	public createTour(
+		name: string,
+		steps: StepDefinition[],
+		customDefaults?: object,
+		force?: boolean
+	): Shepherd.Tour {
 		if (!force && this.hasSeen(name)) {
 			// no need to show tours we've already seen
 			return;
@@ -22,12 +26,16 @@ export default class TourManager {
 
 		const defaultDefaults = {
 			scrollTo: false,
-			showCancelLink: true,
+			showCancelLink: true
 		};
-		const tourDefaults = Object.assign({}, defaultDefaults, customDefaults || {});
+		const tourDefaults = Object.assign(
+			{},
+			defaultDefaults,
+			customDefaults || {}
+		);
 
 		const tour = new Shepherd.Tour({
-			defaults: tourDefaults,
+			defaults: tourDefaults
 		});
 
 		this.tours[name] = tour;
@@ -44,20 +52,20 @@ export default class TourManager {
 				buttons.push({
 					text: "Back",
 					classes: "btn btn-default",
-					action: () => tour.back(),
+					action: () => tour.back()
 				});
 			}
 			if (last) {
 				buttons.push({
 					text: "Done",
 					classes: "btn btn-success",
-					action: () => tour.complete(),
+					action: () => tour.complete()
 				});
 			} else {
 				buttons.push({
 					text: "Next",
 					classes: "btn btn-primary",
-					action: () => tour.next(),
+					action: () => tour.next()
 				});
 			}
 
@@ -78,14 +86,15 @@ export default class TourManager {
 			step.classes += classes.join(" ");
 
 			// add default buttons
-			step = Object.assign({}, {buttons}, step);
+			step = Object.assign({}, { buttons }, step);
 
 			// callback for attachTo
 			let attachCallback = null;
 			if (typeof step.attachTo === "function") {
-				callbacks.push((instance) => {
+				callbacks.push(instance => {
 					const result = step.attachTo();
-					instance.options.attachTo = result && result.element ? result : null;
+					instance.options.attachTo =
+						result && result.element ? result : null;
 				});
 			}
 
@@ -94,7 +103,7 @@ export default class TourManager {
 			if (callbacks.length) {
 				const stepInstance = tour.getById(id);
 				stepInstance.on("before-show", () => {
-					callbacks.forEach((callback) => {
+					callbacks.forEach(callback => {
 						callback(stepInstance);
 					});
 				});
@@ -120,7 +129,7 @@ export default class TourManager {
 
 	public markSeen(tour: string): void {
 		const id = this.buildTourIdentifier(tour);
-		cookie.set(id, "1", {expires: 10 * 365});
+		cookie.set(id, "1", { expires: 10 * 365 });
 	}
 
 	protected buildTourIdentifier(tour: string): string {

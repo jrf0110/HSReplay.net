@@ -2,8 +2,10 @@ import React from "react";
 import * as _ from "lodash";
 import AdminDeckInfo from "../components/discover/AdminDeckInfo";
 import CardData from "../CardData";
-import ClassFilter, {FilterOption} from "../components/ClassFilter";
-import ClassAnalysis, {ClusterMetaData} from "../components/discover/ClassAnalysis";
+import ClassFilter, { FilterOption } from "../components/ClassFilter";
+import ClassAnalysis, {
+	ClusterMetaData
+} from "../components/discover/ClassAnalysis";
 import DataInjector from "../components/DataInjector";
 import DataManager from "../DataManager";
 import InfoboxFilter from "../components/InfoboxFilter";
@@ -14,8 +16,8 @@ import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
 import HideLoading from "../components/loading/HideLoading";
 import ClusterChart from "../components/d3/ClusterChart";
 import CardSearch from "../components/CardSearch";
-import {Limit} from "../components/ObjectSearch";
-import {cardSorting, isCollectibleCard, isWildSet} from "../helpers";
+import { Limit } from "../components/ObjectSearch";
+import { cardSorting, isCollectibleCard, isWildSet } from "../helpers";
 
 interface DiscoverProps extends React.ClassAttributes<Discover> {
 	cardData: CardData;
@@ -38,30 +40,42 @@ interface DiscoverState {
 	deck: ClusterMetaData;
 }
 
-export default class Discover extends React.Component<DiscoverProps, DiscoverState> {
+export default class Discover extends React.Component<
+	DiscoverProps,
+	DiscoverState
+> {
 	constructor(props: DiscoverProps, state: DiscoverState) {
 		super(props, state);
 		this.state = {
 			cards: null,
-			deck: null,
+			deck: null
 		};
 	}
 
 	componentWillReceiveProps(nextProps: DiscoverProps) {
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
-			nextProps.cardData.all().forEach((card) => {
+			nextProps.cardData.all().forEach(card => {
 				if (card.name && isCollectibleCard(card)) {
 					cards.push(card);
 				}
 			});
 			cards.sort(cardSorting);
-			this.setState({cards});
+			this.setState({ cards });
 		}
 	}
 
 	render(): JSX.Element {
-		const {cardData, tab, dataset, format, excludedCards, includedCards, playerClass, setTab} = this.props;
+		const {
+			cardData,
+			tab,
+			dataset,
+			format,
+			excludedCards,
+			includedCards,
+			playerClass,
+			setTab
+		} = this.props;
 		const adminControls = [];
 		if (UserData.hasFeature("archetypes-gamemode-filter")) {
 			adminControls.push(
@@ -69,13 +83,13 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 					key="format-filter"
 					header="Format"
 					selectedValue={format}
-					onClick={(value) => this.props.setFormat(value)}
+					onClick={value => this.props.setFormat(value)}
 					collapsible={true}
 					collapsed={true}
 				>
 					<InfoboxFilter value="FT_STANDARD">Standard</InfoboxFilter>
 					<InfoboxFilter value="FT_WILD">Wild</InfoboxFilter>
-				</InfoboxFilterGroup>,
+				</InfoboxFilterGroup>
 			);
 		}
 		if (UserData.hasFeature("archetype-training")) {
@@ -84,26 +98,30 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 					key="cluster-data-filter"
 					header="Dataset"
 					selectedValue={dataset}
-					onClick={(value) => this.props.setDataset(value)}
+					onClick={value => this.props.setDataset(value)}
 				>
 					<InfoboxFilter value="live">Live</InfoboxFilter>
 					<InfoboxFilter value="latest">Latest</InfoboxFilter>
-				</InfoboxFilterGroup>,
+				</InfoboxFilterGroup>
 			);
 		}
 
 		const dataUrl = `/analytics/clustering/data/${dataset}/${format}/`;
 
-		let filteredCards = Array.isArray(this.state.cards) ? this.state.cards : [];
+		let filteredCards = Array.isArray(this.state.cards)
+			? this.state.cards
+			: [];
 		if (format.endsWith("_STANDARD")) {
-			filteredCards = filteredCards.filter((card) => !isWildSet(card.set));
+			filteredCards = filteredCards.filter(card => !isWildSet(card.set));
 		}
-		filteredCards = filteredCards.filter((card) => {
+		filteredCards = filteredCards.filter(card => {
 			const cardClass = card.cardClass;
 			return cardClass === "NEUTRAL" || playerClass === cardClass;
 		});
 
-		const getCards = (cards) => cardData && cards.map((dbfId) => cardData.fromDbf(dbfId)).filter((c) => !!c);
+		const getCards = cards =>
+			cardData &&
+			cards.map(dbfId => cardData.fromDbf(dbfId)).filter(c => !!c);
 
 		return (
 			<div className="discover-container">
@@ -114,7 +132,7 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 						minimal={true}
 						filters="ClassesOnly"
 						selectedClasses={[playerClass as FilterOption]}
-						selectionChanged={(playerClasses) => {
+						selectionChanged={playerClasses => {
 							this.props.setPlayerClass(playerClasses[0]);
 							this.props.setExcludedCards([]);
 							this.props.setIncludedCards([]);
@@ -126,8 +144,14 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							id="card-search-include"
 							label="card-search-include-label"
 							availableCards={filteredCards}
-							onCardsChanged={(cards) => this.props.setIncludedCards(cards.map((card) => card.dbfId))}
-							selectedCards={includedCards && getCards(includedCards)}
+							onCardsChanged={cards =>
+								this.props.setIncludedCards(
+									cards.map(card => card.dbfId)
+								)
+							}
+							selectedCards={
+								includedCards && getCards(includedCards)
+							}
 							cardLimit={Limit.SINGLE}
 						/>
 					</section>
@@ -137,8 +161,14 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							id="card-search-exclude"
 							label="card-search-exclude-label"
 							availableCards={filteredCards}
-							onCardsChanged={(cards) => this.props.setExcludedCards(cards.map((card) => card.dbfId))}
-							selectedCards={excludedCards && getCards(excludedCards)}
+							onCardsChanged={cards =>
+								this.props.setExcludedCards(
+									cards.map(card => card.dbfId)
+								)
+							}
+							selectedCards={
+								excludedCards && getCards(excludedCards)
+							}
 							cardLimit={Limit.SINGLE}
 						/>
 					</section>
@@ -148,31 +178,39 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 						<InfoboxLastUpdated
 							url={dataUrl}
 							params={{}}
-							modify={(data) => data.length && data[0].as_of && new Date(data[0].as_of)}
+							modify={data =>
+								data.length &&
+								data[0].as_of &&
+								new Date(data[0].as_of)
+							}
 						/>
 					</ul>
 				</aside>
 				<main>
 					<DataInjector
-						query={{url: dataUrl, params: {}}}
+						query={{ url: dataUrl, params: {} }}
 						extract={{
-							data: (clusterData) => {
+							data: clusterData => {
 								let maxGames = 0;
 								let data = null;
 
-								clusterData.forEach((classData) => {
-									if (classData.player_class === playerClass) {
+								clusterData.forEach(classData => {
+									if (
+										classData.player_class === playerClass
+									) {
 										data = classData;
 									}
-									classData.data.forEach((deckData) => {
-										if (deckData.metadata.games > maxGames) {
+									classData.data.forEach(deckData => {
+										if (
+											deckData.metadata.games > maxGames
+										) {
 											maxGames = deckData.metadata.games;
 										}
 									});
 								});
 
-								return {data, maxGames};
-							},
+								return { data, maxGames };
+							}
 						}}
 					>
 						<ClassAnalysis
@@ -182,7 +220,9 @@ export default class Discover extends React.Component<DiscoverProps, DiscoverSta
 							format={format}
 							includedCards={includedCards.map(Number)}
 							excludedCards={excludedCards.map(Number)}
-							onSelectedDeckChanged={(deck) => this.setState({deck})}
+							onSelectedDeckChanged={deck =>
+								this.setState({ deck })
+							}
 							playerClass={playerClass}
 							canModifyArchetype={dataset === "latest"}
 						/>

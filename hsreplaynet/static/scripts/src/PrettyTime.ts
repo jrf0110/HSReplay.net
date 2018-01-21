@@ -8,5 +8,7 @@ export function getDuration(from: Date, to: Date): string {
  * @deprecated Use SemanticAge component instead
  */
 export function getAge(since: Date, noSuffix?: boolean): string {
-	return moment(since).utc().from(new Date(), noSuffix);
+	return moment(since)
+		.utc()
+		.from(new Date(), noSuffix);
 }

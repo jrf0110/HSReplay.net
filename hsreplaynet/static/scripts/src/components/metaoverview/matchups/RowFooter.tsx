@@ -1,8 +1,8 @@
 import React from "react";
 import * as _ from "lodash";
-import {ArchetypeData} from "../../../interfaces";
-import {getColorString} from "../../../helpers";
-import {Colors} from "../../../Colors";
+import { ArchetypeData } from "../../../interfaces";
+import { getColorString } from "../../../helpers";
+import { Colors } from "../../../Colors";
 
 interface RowFooterProps extends React.ClassAttributes<RowFooter> {
 	archetypeData?: ArchetypeData;
@@ -14,21 +14,27 @@ interface RowFooterProps extends React.ClassAttributes<RowFooter> {
 export default class RowFooter extends React.Component<RowFooterProps, {}> {
 	shouldComponentUpdate(nextProps: RowFooterProps): boolean {
 		return (
-			this.props.highlight !== nextProps.highlight
-			|| this.props.archetypeData.id !== nextProps.archetypeData.id
-			|| this.props.archetypeData.effectiveWinrate !== nextProps.archetypeData.effectiveWinrate
-			|| !_.isEqual(this.props.style, nextProps.style)
+			this.props.highlight !== nextProps.highlight ||
+			this.props.archetypeData.id !== nextProps.archetypeData.id ||
+			this.props.archetypeData.effectiveWinrate !==
+				nextProps.archetypeData.effectiveWinrate ||
+			!_.isEqual(this.props.style, nextProps.style)
 		);
 	}
 
 	render() {
 		const style = {
 			backgroundColor: "transparent",
-			...this.props.style,
+			...this.props.style
 		};
 
 		const winrate = this.props.archetypeData.effectiveWinrate;
-		const color = getColorString(Colors.REDORANGEGREEN, 80, winrate / 100, false);
+		const color = getColorString(
+			Colors.REDORANGEGREEN,
+			80,
+			winrate / 100,
+			false
+		);
 
 		const label = isNaN(winrate) ? "-" : winrate + "%";
 

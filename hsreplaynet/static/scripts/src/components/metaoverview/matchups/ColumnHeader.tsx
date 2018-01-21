@@ -2,7 +2,7 @@ import React from "react";
 import * as _ from "lodash";
 import { ArchetypeData } from "../../../interfaces";
 import Tooltip from "../../Tooltip";
-import {toTitleCase} from "../../../helpers";
+import { toTitleCase } from "../../../helpers";
 
 interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	archetypeData: ArchetypeData;
@@ -13,29 +13,35 @@ interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	onHover?: (hovering: boolean) => void;
 }
 
-interface ColumnHeaderState {
-}
+interface ColumnHeaderState {}
 
-export default class ColumnHeader extends React.Component<ColumnHeaderProps, ColumnHeaderState> {
+export default class ColumnHeader extends React.Component<
+	ColumnHeaderProps,
+	ColumnHeaderState
+> {
 	shouldComponentUpdate(nextProps: ColumnHeaderProps): boolean {
 		return (
-			this.props.highlight !== nextProps.highlight
-			|| this.props.isIgnored !== nextProps.isIgnored
-			|| this.props.archetypeData.id !== nextProps.archetypeData.id
-			|| !_.isEqual(this.props.style, nextProps.style)
+			this.props.highlight !== nextProps.highlight ||
+			this.props.isIgnored !== nextProps.isIgnored ||
+			this.props.archetypeData.id !== nextProps.archetypeData.id ||
+			!_.isEqual(this.props.style, nextProps.style)
 		);
 	}
 
 	render() {
-		const {archetypeData, isIgnored} = this.props;
-		const classNames = ["matchup-column-header matchup-column-header-archetype"];
+		const { archetypeData, isIgnored } = this.props;
+		const classNames = [
+			"matchup-column-header matchup-column-header-archetype"
+		];
 		if (isIgnored) {
 			classNames.push("ignored");
 		}
 		if (this.props.highlight) {
 			classNames.push("highlight");
 		}
-		const tooltip = (isIgnored ? "Include " : "Ignore ") + toTitleCase(archetypeData.playerClass);
+		const tooltip =
+			(isIgnored ? "Include " : "Ignore ") +
+			toTitleCase(archetypeData.playerClass);
 		return (
 			<div
 				className={classNames.join(" ")}
@@ -53,8 +59,11 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 					<img
 						className="class-icon"
 						src={`${STATIC_URL}images/64x/class-icons/${archetypeData.playerClass.toLowerCase()}.png`}
-						onClick={(e) => {
-							this.props.onIgnoredChanged(!this.props.isIgnored, true);
+						onClick={e => {
+							this.props.onIgnoredChanged(
+								!this.props.isIgnored,
+								true
+							);
 							e.stopPropagation();
 						}}
 					/>

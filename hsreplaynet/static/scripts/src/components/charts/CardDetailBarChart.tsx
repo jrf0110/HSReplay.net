@@ -1,10 +1,15 @@
 import React from "react";
 import {
-	VictoryAxis, VictoryBar, VictoryChart, VictoryContainer, VictoryLabel,
-	VictoryStack, VictoryVoronoiTooltip
+	VictoryAxis,
+	VictoryBar,
+	VictoryChart,
+	VictoryContainer,
+	VictoryLabel,
+	VictoryStack,
+	VictoryVoronoiTooltip
 } from "victory";
-import {RenderData} from "../../interfaces";
-import {getChartScheme} from "../../helpers";
+import { RenderData } from "../../interfaces";
+import { getChartScheme } from "../../helpers";
 
 interface CardDetailBarChartProps {
 	data?: RenderData;
@@ -15,7 +20,10 @@ interface CardDetailBarChartProps {
 	showYAxis?: boolean;
 }
 
-export default class CardDetailBarChart extends React.Component<CardDetailBarChartProps, any> {
+export default class CardDetailBarChart extends React.Component<
+	CardDetailBarChartProps,
+	any
+> {
 	render(): JSX.Element {
 		const width = 150 * (this.props.widthRatio || 3);
 		const series = this.props.data.series[0];
@@ -30,18 +38,17 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 			if (schemeName) {
 				scheme = getChartScheme(schemeName);
 				if (scheme) {
-					fill = (prop) => scheme[prop.xName.toLowerCase()].fill;
-					stroke = (prop) => scheme[prop.xName.toLowerCase()].stroke;
+					fill = prop => scheme[prop.xName.toLowerCase()].fill;
+					stroke = prop => scheme[prop.xName.toLowerCase()].stroke;
 					if (schemeName === "cost") {
-						tickFormat = (tick) => {
-							const val = series.data[+tick-1].x
+						tickFormat = tick => {
+							const val = series.data[+tick - 1].x;
 							return scheme[val].name || val;
-						}
+						};
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			fill = "rgba(0, 0, 255, 0.3)";
 			stroke = "blue";
 		}
@@ -53,32 +60,44 @@ export default class CardDetailBarChart extends React.Component<CardDetailBarCha
 					dependentAxis
 					axisLabelComponent={<VictoryLabel dx={10} />}
 					label={this.props.labelY}
-					style={{axisLabel: {fontSize: 12} ,tickLabels: {fontSize: 12}}}
+					style={{
+						axisLabel: { fontSize: 12 },
+						tickLabels: { fontSize: 12 }
+					}}
 				/>
 			);
 		}
 
 		return (
 			<VictoryChart
-					containerComponent={<VictoryContainer title={this.props.title}/>}
-					domainPadding={{x: Math.max(20, 180/series.data.length), y: 0}}
-					height={150}
-					width={width}
-					padding={{left: 10, top: 30, right: 10, bottom: 40}}
-				>
+				containerComponent={
+					<VictoryContainer title={this.props.title} />
+				}
+				domainPadding={{
+					x: Math.max(20, 180 / series.data.length),
+					y: 0
+				}}
+				height={150}
+				width={width}
+				padding={{ left: 10, top: 30, right: 10, bottom: 40 }}
+			>
 				<VictoryAxis
 					label={this.props.labelX}
 					offsetY={38}
-					tickLabelComponent={<VictoryLabel dy={-0.4}/>}
+					tickLabelComponent={<VictoryLabel dy={-0.4} />}
 					tickFormat={tickFormat}
-					style={{axisLabel: {fontSize: 12}, tickLabels: {fontSize: 12}, grid: {strokeWidth: 0}}}
+					style={{
+						axisLabel: { fontSize: 12 },
+						tickLabels: { fontSize: 12 },
+						grid: { strokeWidth: 0 }
+					}}
 				/>
 				{yAxis}
 				<VictoryBar
 					data={series.data}
 					style={{
 						data: {
-							width: ''+(0.7 * width / series.data.length),
+							width: "" + 0.7 * width / series.data.length,
 							fill: fill,
 							stroke: stroke,
 							strokeWidth: 0.5

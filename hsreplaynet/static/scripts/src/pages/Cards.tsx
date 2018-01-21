@@ -2,7 +2,7 @@ import InfoboxFilterGroup from "../components/InfoboxFilterGroup";
 import React from "react";
 import CardData from "../CardData";
 import CardImage from "../components/CardImage";
-import ClassFilter, {FilterOption} from "../components/ClassFilter";
+import ClassFilter, { FilterOption } from "../components/ClassFilter";
 import DataInjector from "../components/DataInjector";
 import InfoboxFilter from "../components/InfoboxFilter";
 import * as _ from "lodash";
@@ -10,10 +10,24 @@ import TableLoading from "../components/loading/TableLoading";
 import PremiumWrapper from "../components/PremiumWrapper";
 import ResetHeader from "../components/ResetHeader";
 import DataManager from "../DataManager";
-import {cardSorting, cleanText, isCollectibleCard, isPlayableCard, isWildSet, setNames, slangToCardId, toTitleCase} from "../helpers";
+import {
+	cardSorting,
+	cleanText,
+	isCollectibleCard,
+	isPlayableCard,
+	isWildSet,
+	setNames,
+	slangToCardId,
+	toTitleCase
+} from "../helpers";
 import InfoboxLastUpdated from "../components/InfoboxLastUpdated";
-import UserData, {Account} from "../UserData";
-import {CardObj, FragmentChildProps, LoadingStatus, SortDirection} from "../interfaces";
+import UserData, { Account } from "../UserData";
+import {
+	CardObj,
+	FragmentChildProps,
+	LoadingStatus,
+	SortDirection
+} from "../interfaces";
 import CardTable from "../components/tables/CardTable";
 import InfoIcon from "../components/InfoIcon";
 import Feature from "../components/Feature";
@@ -102,34 +116,88 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		cost: [0, 1, 2, 3, 4, 5, 6, 7],
 		format: ["standard"],
 		mechanics: [
-			"ENRAGED", "DEATHRATTLE", "TAUNT", "BATTLECRY", "CHARGE", "DIVINE_SHIELD", "WINDFURY",
-			"CHOOSE_ONE", "INSPIRE", "JADE_GOLEM", "COMBO", "FREEZE", "STEALTH", "OVERLOAD",
-			"POISONOUS", "DISCOVER", "SILENCE", "RITUAL", "ADAPT", "QUEST", "LIFESTEAL", "SECRET",
+			"ENRAGED",
+			"DEATHRATTLE",
+			"TAUNT",
+			"BATTLECRY",
+			"CHARGE",
+			"DIVINE_SHIELD",
+			"WINDFURY",
+			"CHOOSE_ONE",
+			"INSPIRE",
+			"JADE_GOLEM",
+			"COMBO",
+			"FREEZE",
+			"STEALTH",
+			"OVERLOAD",
+			"POISONOUS",
+			"DISCOVER",
+			"SILENCE",
+			"RITUAL",
+			"ADAPT",
+			"QUEST",
+			"LIFESTEAL",
+			"SECRET"
 		],
-		playerClass: ["DRUID", "HUNTER", "MAGE", "PALADIN", "PRIEST", "ROGUE", "SHAMAN", "WARLOCK", "WARRIOR", "NEUTRAL"],
-		race: ["BEAST", "DEMON", "DRAGON", "ELEMENTAL", "MECHANICAL", "MURLOC", "PIRATE", "TOTEM"],
+		playerClass: [
+			"DRUID",
+			"HUNTER",
+			"MAGE",
+			"PALADIN",
+			"PRIEST",
+			"ROGUE",
+			"SHAMAN",
+			"WARLOCK",
+			"WARRIOR",
+			"NEUTRAL"
+		],
+		race: [
+			"BEAST",
+			"DEMON",
+			"DRAGON",
+			"ELEMENTAL",
+			"MECHANICAL",
+			"MURLOC",
+			"PIRATE",
+			"TOTEM"
+		],
 		rarity: ["FREE", "COMMON", "RARE", "EPIC", "LEGENDARY"],
-		set: ["CORE", "EXPERT1", "LOOTAPALOOZA", "ICECROWN", "UNGORO", "GANGS", "KARA", "OG", "LOE", "TGT", "BRM", "GVG", "NAXX", "HOF"],
-		type: ["HERO", "MINION", "SPELL", "WEAPON"],
+		set: [
+			"CORE",
+			"EXPERT1",
+			"LOOTAPALOOZA",
+			"ICECROWN",
+			"UNGORO",
+			"GANGS",
+			"KARA",
+			"OG",
+			"LOE",
+			"TGT",
+			"BRM",
+			"GVG",
+			"NAXX",
+			"HOF"
+		],
+		type: ["HERO", "MINION", "SPELL", "WEAPON"]
 	};
 	readonly multiClassGroups = {
 		GRIMY_GOONS: ["HUNTER", "PALADIN", "WARRIOR"],
 		JADE_LOTUS: ["DRUID", "ROGUE", "SHAMAN"],
-		KABAL: ["MAGE", "PRIEST", "WARLOCK"],
+		KABAL: ["MAGE", "PRIEST", "WARLOCK"]
 	};
 
 	private readonly allowedValues = {
 		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
 		rankRange: [],
 		region: [],
-		timeRange: ["LAST_14_DAYS"],
+		timeRange: ["LAST_14_DAYS"]
 	};
 
 	private readonly allowedValuesPremium = {
 		gameType: ["RANKED_STANDARD", "RANKED_WILD", "ARENA"],
 		rankRange: ["LEGEND_THROUGH_TEN"],
 		region: [],
-		timeRange: ["LAST_1_DAY", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS"],
+		timeRange: ["LAST_1_DAY", "LAST_3_DAYS", "LAST_7_DAYS", "LAST_14_DAYS"]
 	};
 
 	showMoreButton: HTMLDivElement;
@@ -144,18 +212,26 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			hasPersonalData: false,
 			hasStatisticsData: false,
 			numCards: 24,
-			showFilters: false,
+			showFilters: false
 		};
 		this.filters.mechanics.sort();
 
 		if (this.props.personal && this.state.account) {
-			DataManager.get("single_account_lo_individual_card_stats", this.getPersonalParams())
-				.then((data) => this.setState({hasPersonalData: data && data.series.data.ALL.length > 0}));
+			DataManager.get(
+				"single_account_lo_individual_card_stats",
+				this.getPersonalParams()
+			).then(data =>
+				this.setState({
+					hasPersonalData: data && data.series.data.ALL.length > 0
+				})
+			);
 		}
 	}
 
 	getAllowedValues(): any {
-		return UserData.isPremium() ? this.allowedValuesPremium : this.allowedValues;
+		return UserData.isPremium()
+			? this.allowedValuesPremium
+			: this.allowedValues;
 	}
 
 	onSearchScroll(): void {
@@ -167,7 +243,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		}
 		const rect = this.showMoreButton.getBoundingClientRect();
 		if (rect.top < window.innerHeight) {
-			this.setState({numCards: this.state.numCards + 12});
+			this.setState({ numCards: this.state.numCards + 12 });
 		}
 	}
 
@@ -184,11 +260,18 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 	componentDidUpdate(prevProps: CardsProps, prevState: CardsState) {
 		// omit functions (not supported) and unused custom* props to prevent multiple update calls
-		const ignore = Object.keys(this.props).filter((key) => {
-			return key.startsWith("set") && key !== "set" || key.startsWith("toggle") || key.startsWith("custom");
-		}).concat(["reset"]);
+		const ignore = Object.keys(this.props)
+			.filter(key => {
+				return (
+					(key.startsWith("set") && key !== "set") ||
+					key.startsWith("toggle") ||
+					key.startsWith("custom")
+				);
+			})
+			.concat(["reset"]);
 
-		if (!_.isEqual(_.omit(this.props, ignore), _.omit(prevProps, ignore)) ||
+		if (
+			!_.isEqual(_.omit(this.props, ignore), _.omit(prevProps, ignore)) ||
 			!this.state.filteredCards ||
 			!_.eq(prevState.cards, this.state.cards) ||
 			this.state.account !== prevState.account
@@ -204,38 +287,49 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 		const filteredByProp = {};
 		const filterKeys = Object.keys(this.filters);
-		filterKeys.forEach((key) => filteredByProp[key] = []);
+		filterKeys.forEach(key => (filteredByProp[key] = []));
 		const filteredCards = [];
 
-		const {display, uncollectible} = this.props;
-		const showUncollectible = display === "gallery" && uncollectible === "show"
-			&& !this.props.personal && UserData.hasFeature("cards-uncollectible");
+		const { display, uncollectible } = this.props;
+		const showUncollectible =
+			display === "gallery" &&
+			uncollectible === "show" &&
+			!this.props.personal &&
+			UserData.hasFeature("cards-uncollectible");
 
-		const viableUncollectibleCard = (card) =>  !card.collectible
-			&& this.filters.set.indexOf(card.set) !== -1 && card.type !== "HERO" && isPlayableCard(card);
+		const viableUncollectibleCard = card =>
+			!card.collectible &&
+			this.filters.set.indexOf(card.set) !== -1 &&
+			card.type !== "HERO" &&
+			isPlayableCard(card);
 
-		(!this.props.showSparse ? this.getSparseFilterDicts() : Promise.resolve([]))
-			.then((sparseDict) => {
-				this.state.cards.forEach((card) => {
-					if ((showUncollectible && !viableUncollectibleCard(card)) || (!showUncollectible && !isCollectibleCard(card))) {
-						return;
-					}
-					filterKeys.forEach((x) => {
-						if (!this.filter(card, x, sparseDict)) {
-							filteredByProp[x].push(card);
-						}
-					});
-					if (!this.filter(card, undefined, sparseDict)) {
-						filteredCards.push(card);
+		(!this.props.showSparse
+			? this.getSparseFilterDicts()
+			: Promise.resolve([])
+		).then(sparseDict => {
+			this.state.cards.forEach(card => {
+				if (
+					(showUncollectible && !viableUncollectibleCard(card)) ||
+					(!showUncollectible && !isCollectibleCard(card))
+				) {
+					return;
+				}
+				filterKeys.forEach(x => {
+					if (!this.filter(card, x, sparseDict)) {
+						filteredByProp[x].push(card);
 					}
 				});
-
-				this.setState({
-					filteredCards,
-					filterCounts: this.filterCounts(filteredByProp as CardFilters),
-					hasStatisticsData: true,
-				});
+				if (!this.filter(card, undefined, sparseDict)) {
+					filteredCards.push(card);
+				}
 			});
+
+			this.setState({
+				filteredCards,
+				filterCounts: this.filterCounts(filteredByProp as CardFilters),
+				hasStatisticsData: true
+			});
+		});
 	}
 
 	getSparseFilterDicts(): Promise<any> {
@@ -244,40 +338,47 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			const params = this.getParams();
 			const promises = [
 				DataManager.get("card_played_popularity_report", params),
-				DataManager.get("card_included_popularity_report", params),
+				DataManager.get("card_included_popularity_report", params)
 			];
-			return Promise.all(promises)
-				.then((data: any[]) => {
+			return Promise.all(promises).then(
+				(data: any[]) => {
 					const sparseDict = [];
 					sparseDict[0] = {};
-					const playedData = data[0].series.data[this.props.playerClass];
-					playedData.forEach((card) => {
+					const playedData =
+						data[0].series.data[this.props.playerClass];
+					playedData.forEach(card => {
 						sparseDict[0][card.dbf_id] = card.popularity;
 					});
 					sparseDict[1] = {};
-					const includedData = data[1].series.data[this.props.playerClass];
-					includedData.forEach((card) => {
+					const includedData =
+						data[1].series.data[this.props.playerClass];
+					includedData.forEach(card => {
 						sparseDict[1][card.dbf_id] = card.popularity;
 					});
 					return sparseDict;
-				}, (status) => {
+				},
+				status => {
 					return [];
-				});
-		}
-		else if (this.props.personal && this.state.account) {
-			return DataManager
-				.get("single_account_lo_individual_card_stats", this.getPersonalParams())
-				.then((data) => {
+				}
+			);
+		} else if (this.props.personal && this.state.account) {
+			return DataManager.get(
+				"single_account_lo_individual_card_stats",
+				this.getPersonalParams()
+			).then(
+				data => {
 					const sparseDict = {};
-					data.series.data.ALL.forEach((card) => {
-						sparseDict[card.dbf_id] = card.total_games || card.times_played;
+					data.series.data.ALL.forEach(card => {
+						sparseDict[card.dbf_id] =
+							card.total_games || card.times_played;
 					});
 					return [sparseDict];
-				}, (status) => {
+				},
+				status => {
 					return [];
-				});
-		}
-		else {
+				}
+			);
+		} else {
 			return Promise.resolve([]);
 		}
 	}
@@ -285,14 +386,18 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 	componentWillReceiveProps(nextProps: CardsProps) {
 		if (!this.state.cards && nextProps.cardData) {
 			const cards = [];
-			const {set, type} = this.filters;
-			nextProps.cardData.all().forEach((card) => {
-				if (card.name && set.indexOf(card.set) !== -1 && type.indexOf(card.type) !== -1) {
+			const { set, type } = this.filters;
+			nextProps.cardData.all().forEach(card => {
+				if (
+					card.name &&
+					set.indexOf(card.set) !== -1 &&
+					type.indexOf(card.type) !== -1
+				) {
 					cards.push(card);
 				}
 			});
 			cards.sort(cardSorting);
-			this.setState({cards});
+			this.setState({ cards });
 		}
 	}
 
@@ -319,11 +424,18 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 		if (this.state.filteredCards.length > this.state.numCards) {
 			showMoreButton = (
-				<div id="more-button-wrapper" ref={(ref) => this.showMoreButton = ref}>
+				<div
+					id="more-button-wrapper"
+					ref={ref => (this.showMoreButton = ref)}
+				>
 					<button
 						type="button"
 						className="btn btn-default"
-						onClick={() => this.setState({numCards: this.state.numCards + 20})}
+						onClick={() =>
+							this.setState({
+								numCards: this.state.numCards + 20
+							})
+						}
 					>
 						Show more…
 					</button>
@@ -337,7 +449,10 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				if (this.props.accounts && this.props.accounts.length) {
 					let accounts = this.props.accounts;
 					for (let i = 0; i < accounts.length; i++) {
-						if(`${accounts[i].region}-${accounts[i].lo}` === this.state.account) {
+						if (
+							`${accounts[i].region}-${accounts[i].lo}` ===
+							this.state.account
+						) {
 							accountDisplayName = accounts[i].battletag;
 							break;
 						}
@@ -347,13 +462,18 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				content.push(
 					<div className="table-wrapper">
 						<DataInjector
-							query={{params: this.getPersonalParams(), url: "single_account_lo_individual_card_stats"}}
+							query={{
+								params: this.getPersonalParams(),
+								url: "single_account_lo_individual_card_stats"
+							}}
 							extract={{
-								data: (data) => ({data: data.series.data.ALL}),
+								data: data => ({ data: data.series.data.ALL })
 							}}
 						>
 							<CardTable
-								cards={(this.state.filteredCards || []).map((card) => ({card, count: 1}))}
+								cards={(this.state.filteredCards || []).map(
+									card => ({ card, count: 1 })
+								)}
 								columns={[
 									"totalGames",
 									"winrate",
@@ -362,54 +482,83 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 									"damageDone",
 									"healingDone",
 									"heroesKilled",
-									"minionsKilled",
+									"minionsKilled"
 								]}
 								sortBy={this.props.sortBy}
 								sortDirection={this.props.sortDirection}
-								onSortChanged={(a, b) => this.onSortChanged(a, b)}
+								onSortChanged={(a, b) =>
+									this.onSortChanged(a, b)
+								}
 								numCards={this.state.numCards}
 								customNoDataMessage={[
 									<h2>All set!</h2>,
-									<p>We've successfully linked your Hearthstone account <strong>{accountDisplayName}</strong> and will analyze incoming replays.</p>,
-									<p>After you've played some games you'll find statistics for all the cards you play right here.</p>,
-									<p className="text-muted">Note: It may take a few hours for new data to appear on this page.</p>,
+									<p>
+										We've successfully linked your
+										Hearthstone account{" "}
+										<strong>{accountDisplayName}</strong>{" "}
+										and will analyze incoming replays.
+									</p>,
+									<p>
+										After you've played some games you'll
+										find statistics for all the cards you
+										play right here.
+									</p>,
+									<p className="text-muted">
+										Note: It may take a few hours for new
+										data to appear on this page.
+									</p>
 								]}
 							/>
 						</DataInjector>
-					</div>,
+					</div>
 				);
 				if (showMoreButton && this.state.hasPersonalData) {
 					content.push(showMoreButton);
 				}
-			}
-			else {
+			} else {
 				content.push(
 					<div className="message-wrapper">
 						<h2>Link your Hearthstone account</h2>
 						<p>
-							Play a game and <a href="/games/mine/">upload the replay</a> for your personal card statistics to start appearing here.
+							Play a game and{" "}
+							<a href="/games/mine/">upload the replay</a> for
+							your personal card statistics to start appearing
+							here.
 						</p>
 						<p className="text-muted">
-							Note: It may take a few hours for new data to appear on this page.<br />
-							<a href="/contact/">Contact us if you keep seeing this message.</a>
+							Note: It may take a few hours for new data to appear
+							on this page.<br />
+							<a href="/contact/">
+								Contact us if you keep seeing this message.
+							</a>
 						</p>
-					</div>,
+					</div>
 				);
 			}
-		}
-		else if (isStatsView) {
-			const dataKey = this.props.playerClass === "NEUTRAL" ? "ALL" : this.props.playerClass;
+		} else if (isStatsView) {
+			const dataKey =
+				this.props.playerClass === "NEUTRAL"
+					? "ALL"
+					: this.props.playerClass;
 			let topInfoMessage = null;
 			let bottomInfomessage = null;
-			const warnFields = ["includedPopularity", "timesPlayed", "includedWinrate", "playedWinrate"];
+			const warnFields = [
+				"includedPopularity",
+				"timesPlayed",
+				"includedWinrate",
+				"playedWinrate"
+			];
 			if (!this.props.showSparse) {
 				const warning = (
 					<div className="info-row text-center text-help">
-						<span className="hidden-xs hidden-sm">Some cards were hidden due to a low amount of data.&nbsp;</span>
+						<span className="hidden-xs hidden-sm">
+							Some cards were hidden due to a low amount of
+							data.&nbsp;
+						</span>
 						<a
 							href="#"
 							className="btn btn-default"
-							onClick={(event) => {
+							onClick={event => {
 								event.preventDefault();
 								this.props.setShowSparse(true);
 							}}
@@ -418,10 +567,12 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 						</a>
 					</div>
 				);
-				if (this.props.sortDirection === "ascending" && warnFields.indexOf(this.props.sortBy) !== -1) {
+				if (
+					this.props.sortDirection === "ascending" &&
+					warnFields.indexOf(this.props.sortBy) !== -1
+				) {
 					topInfoMessage = warning;
-				}
-				else {
+				} else {
 					bottomInfomessage = warning;
 				}
 			}
@@ -429,8 +580,16 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				<div className="table-wrapper">
 					<DataInjector
 						query={[
-							{key: "played", url: "card_played_popularity_report", params: this.getParams()},
-							{key: "included", url: "card_included_popularity_report", params: this.getParams()},
+							{
+								key: "played",
+								url: "card_played_popularity_report",
+								params: this.getParams()
+							},
+							{
+								key: "included",
+								url: "card_included_popularity_report",
+								params: this.getParams()
+							}
 						]}
 						extract={{
 							played: (played, props) => {
@@ -438,38 +597,79 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 									return null;
 								}
 								const data = {};
-								const set = (dbfId: number, key: string, value: number) => {
+								const set = (
+									dbfId: number,
+									key: string,
+									value: number
+								) => {
 									if (!data[dbfId]) {
-										data[dbfId] = {dbf_id: dbfId};
+										data[dbfId] = { dbf_id: dbfId };
 									}
 									data[dbfId][key] = value;
 								};
-								played.series.data[dataKey].forEach((playedData) => {
-									const {dbf_id, popularity, winrate, total} = playedData;
-									set(dbf_id, "played_popularity", +popularity);
-									set(dbf_id, "winrate_when_played", winrate);
-									set(dbf_id, "times_played", total);
-								});
-								props.included.series.data[dataKey].forEach((includedData) => {
-									const {count, dbf_id, decks, popularity, winrate} = includedData;
-									set(dbf_id, "included_count", count);
-									set(dbf_id, "included_decks", decks);
-									set(dbf_id, "included_popularity", popularity);
-									set(dbf_id, "included_winrate", winrate);
-								});
-								return {data: Object.keys(data).map((key) => data[key])};
-							},
+								played.series.data[dataKey].forEach(
+									playedData => {
+										const {
+											dbf_id,
+											popularity,
+											winrate,
+											total
+										} = playedData;
+										set(
+											dbf_id,
+											"played_popularity",
+											+popularity
+										);
+										set(
+											dbf_id,
+											"winrate_when_played",
+											winrate
+										);
+										set(dbf_id, "times_played", total);
+									}
+								);
+								props.included.series.data[dataKey].forEach(
+									includedData => {
+										const {
+											count,
+											dbf_id,
+											decks,
+											popularity,
+											winrate
+										} = includedData;
+										set(dbf_id, "included_count", count);
+										set(dbf_id, "included_decks", decks);
+										set(
+											dbf_id,
+											"included_popularity",
+											popularity
+										);
+										set(
+											dbf_id,
+											"included_winrate",
+											winrate
+										);
+									}
+								);
+								return {
+									data: Object.keys(data).map(
+										key => data[key]
+									)
+								};
+							}
 						}}
 					>
 						<CardTable
-							cards={(this.state.filteredCards || []).map((card) => ({card, count: 1}))}
+							cards={(this.state.filteredCards || []).map(
+								card => ({ card, count: 1 })
+							)}
 							columns={[
 								"includedPopularity",
 								"includedCount",
 								"includedWinrate",
 								"timesPlayedTotal",
 								"playedPopularity",
-								"playedWinrate",
+								"playedWinrate"
 							]}
 							sortBy={this.props.sortBy}
 							sortDirection={this.props.sortDirection}
@@ -479,37 +679,36 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 							bottomInfoRow={bottomInfomessage}
 						/>
 					</DataInjector>
-				</div>,
+				</div>
 			);
 			if (showMoreButton && this.state.hasStatisticsData) {
 				content.push(showMoreButton);
 			}
-		}
-		else {
+		} else {
 			const tiles = [];
 			if (this.state.cards && this.state.cards.length) {
-				this.state.filteredCards.forEach((card) => {
+				this.state.filteredCards.forEach(card => {
 					if (tiles.length < this.state.numCards) {
 						tiles.push(
 							<CardImage
 								card={card}
 								placeholder={this.getCardPlaceholder(card)}
 								key={card.id}
-							/>,
+							/>
 						);
 					}
 				});
-				content.push(
-					<div id="card-list">
-						{tiles}
-					</div>,
-				);
+				content.push(<div id="card-list">{tiles}</div>);
 				if (showMoreButton) {
 					content.push(showMoreButton);
 				}
-			}
-			else {
-				content.push(<TableLoading cardData={this.props.cardData} status={LoadingStatus.LOADING} />);
+			} else {
+				content.push(
+					<TableLoading
+						cardData={this.props.cardData}
+						status={LoadingStatus.LOADING}
+					/>
+				);
 			}
 		}
 
@@ -522,7 +721,10 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			let clear = null;
 			if (this.props.text) {
 				clear = (
-					<span className="glyphicon glyphicon-remove form-control-feedback" onClick={() => this.props.setText("", false)} />
+					<span
+						className="glyphicon glyphicon-remove form-control-feedback"
+						onClick={() => this.props.setText("", false)}
+					/>
 				);
 			}
 			search = (
@@ -534,15 +736,16 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 							type="search"
 							className="form-control"
 							value={this.props.text}
-							onChange={(x) => this.props.setText(x.target["value"])}
+							onChange={x =>
+								this.props.setText(x.target["value"])
+							}
 						/>
-						<span className="glyphicon glyphicon-search form-control-feedback"/>
+						<span className="glyphicon glyphicon-search form-control-feedback" />
 						{clear}
 					</div>
 				</div>
 			);
-		}
-		else {
+		} else {
 			contentClassNames.push("hidden-xs");
 		}
 
@@ -550,7 +753,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			<button
 				className="btn btn-primary btn-full visible-xs"
 				type="button"
-				onClick={() => this.setState({showFilters: false})}
+				onClick={() => this.setState({ showFilters: false })}
 			>
 				Back to card list
 			</button>
@@ -558,7 +761,10 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 		return (
 			<div className="cards">
-				<aside className={filterClassNames.join(" ")} id="cards-infobox">
+				<aside
+					className={filterClassNames.join(" ")}
+					id="cards-infobox"
+				>
 					{backButton}
 					{this.buildFilters()}
 					{backButton}
@@ -568,9 +774,13 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 						className="btn btn-default visible-xs"
 						id="filter-button"
 						type="button"
-						onClick={() => this.setState({showFilters: !this.state.showFilters})}
+						onClick={() =>
+							this.setState({
+								showFilters: !this.state.showFilters
+							})
+						}
 					>
-						<span className="glyphicon glyphicon-filter"/>
+						<span className="glyphicon glyphicon-filter" />
 						Filters
 					</button>
 					{search}
@@ -602,31 +812,32 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			race: {},
 			rarity: {},
 			set: {},
-			type: {},
+			type: {}
 		};
 
-		Object.keys(filters).forEach((key) => {
-			cardFilters[key].forEach((card) => {
+		Object.keys(filters).forEach(key => {
+			cardFilters[key].forEach(card => {
 				if (key === "mechanics") {
-					card.mechanics && card.mechanics.forEach((m) => {
-						filters.mechanics[m] = (filters.mechanics[m] || 0) + 1;
-					});
-				}
-				else if (key === "format") {
-					if (!isWildSet(card.set)){
-						filters.format["standard"] = (filters.format["standard"] || 0) + 1;
+					card.mechanics &&
+						card.mechanics.forEach(m => {
+							filters.mechanics[m] =
+								(filters.mechanics[m] || 0) + 1;
+						});
+				} else if (key === "format") {
+					if (!isWildSet(card.set)) {
+						filters.format["standard"] =
+							(filters.format["standard"] || 0) + 1;
 					}
-				}
-				else if (key === "cost") {
+				} else if (key === "cost") {
 					if (card.cost !== undefined) {
 						const cost = "" + Math.min(card.cost, 7);
 						filters.cost[cost] = (filters.cost[cost] || 0) + 1;
 					}
-				}
-				else {
+				} else {
 					const prop = card[key];
 					if (prop !== undefined) {
-						filters[key]["" + prop] = (filters[key]["" + prop] || 0) + 1;
+						filters[key]["" + prop] =
+							(filters[key]["" + prop] || 0) + 1;
 					}
 				}
 			});
@@ -644,25 +855,38 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		const isStatsView = this.isStatsView();
 
 		const filters = [
-			<ResetHeader key="reset" onReset={() => this.resetFilters()} showReset={showReset}>
-				{this.props.personal ? "My Cards" : (isStatsView ? "Cards" : "Gallery")}
-			</ResetHeader>,
+			<ResetHeader
+				key="reset"
+				onReset={() => this.resetFilters()}
+				showReset={showReset}
+			>
+				{this.props.personal
+					? "My Cards"
+					: isStatsView ? "Cards" : "Gallery"}
+			</ResetHeader>
 		];
 
 		const modeFilter = (
-				<section id="mode-filter" key="mode-filter">
-					<InfoboxFilterGroup
-						header="Game Mode"
-						selectedValue={this.props.gameType}
-						onClick={(value) => this.props.setGameType(value)}
+			<section id="mode-filter" key="mode-filter">
+				<InfoboxFilterGroup
+					header="Game Mode"
+					selectedValue={this.props.gameType}
+					onClick={value => this.props.setGameType(value)}
+				>
+					<InfoboxFilter value="RANKED_STANDARD">
+						Ranked Standard
+					</InfoboxFilter>
+					<InfoboxFilter value="RANKED_WILD">
+						Ranked Wild
+					</InfoboxFilter>
+					<InfoboxFilter
+						disabled={this.props.rankRange === "LEGEND_THROUGH_TEN"}
+						value="ARENA"
 					>
-						<InfoboxFilter value="RANKED_STANDARD">Ranked Standard</InfoboxFilter>
-						<InfoboxFilter value="RANKED_WILD">Ranked Wild</InfoboxFilter>
-						<InfoboxFilter disabled={this.props.rankRange === "LEGEND_THROUGH_TEN"} value="ARENA">
-							Arena
-						</InfoboxFilter>
-					</InfoboxFilterGroup>
-				</section>
+						Arena
+					</InfoboxFilter>
+				</InfoboxFilterGroup>
+			</section>
 		);
 
 		if (!this.props.personal) {
@@ -670,12 +894,14 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				<InfoboxFilterGroup
 					header="Display"
 					selectedValue={this.props.display}
-					onClick={(value) => this.props.setDisplay(value)}
+					onClick={value => this.props.setDisplay(value)}
 					key="display"
 				>
-					<InfoboxFilter value="statistics">Statistics view</InfoboxFilter>
+					<InfoboxFilter value="statistics">
+						Statistics view
+					</InfoboxFilter>
 					<InfoboxFilter value="gallery">Gallery view</InfoboxFilter>
-				</InfoboxFilterGroup>,
+				</InfoboxFilterGroup>
 			);
 		}
 
@@ -687,13 +913,16 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 						filters="AllNeutral"
 						hideAll
 						minimal
-						selectedClasses={[this.props.playerClass as FilterOption]}
-						selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
+						selectedClasses={[
+							this.props.playerClass as FilterOption
+						]}
+						selectionChanged={selected =>
+							this.props.setPlayerClass(selected[0])
+						}
 					/>
 				</Fragment>
 			);
-		}
-		else {
+		} else {
 			filters.push(
 				<Fragment key="class">
 					<h2>Deck Class</h2>
@@ -701,16 +930,24 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 						filters="All"
 						hideAll
 						minimal
-						selectedClasses={[this.props.playerClass as FilterOption]}
-						selectionChanged={(selected) => this.props.setPlayerClass(selected[0])}
+						selectedClasses={[
+							this.props.playerClass as FilterOption
+						]}
+						selectionChanged={selected =>
+							this.props.setPlayerClass(selected[0])
+						}
 					/>
 					<InfoboxFilterGroup
 						deselectable
 						selectedValue={this.props.exclude}
-						onClick={(value) => this.props.setExclude(value)}
+						onClick={value => this.props.setExclude(value)}
 					>
-						<InfoboxFilter value="neutral">Class cards only</InfoboxFilter>
-						<InfoboxFilter value="class">Neutral cards only</InfoboxFilter>
+						<InfoboxFilter value="neutral">
+							Class cards only
+						</InfoboxFilter>
+						<InfoboxFilter value="class">
+							Neutral cards only
+						</InfoboxFilter>
 					</InfoboxFilterGroup>
 					{modeFilter}
 					<section>
@@ -719,17 +956,25 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 							infoHeader="Time Framge"
 							infoContent="Get the most recent data on which cards are hot right now!"
 							selectedValue={this.props.timeRange}
-							onClick={(value) => this.props.setTimeRange(value)}
+							onClick={value => this.props.setTimeRange(value)}
 						>
 							<PremiumWrapper
 								name="Card List Time Frame"
-								iconStyle={{display: "none"}}
+								iconStyle={{ display: "none" }}
 							>
-								<InfoboxFilter value="LAST_1_DAY">Last 1 day</InfoboxFilter>
-								<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
-								<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
+								<InfoboxFilter value="LAST_1_DAY">
+									Last 1 day
+								</InfoboxFilter>
+								<InfoboxFilter value="LAST_3_DAYS">
+									Last 3 days
+								</InfoboxFilter>
+								<InfoboxFilter value="LAST_7_DAYS">
+									Last 7 days
+								</InfoboxFilter>
 							</PremiumWrapper>
-							<InfoboxFilter value="LAST_14_DAYS">Last 14 days</InfoboxFilter>
+							<InfoboxFilter value="LAST_14_DAYS">
+								Last 14 days
+							</InfoboxFilter>
 							<Feature feature={"current-expansion-filter"}>
 								<InfoboxFilter value="CURRENT_EXPANSION">
 									Kobolds and Catacombs
@@ -742,17 +987,26 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 						header="Rank Range"
 						infoHeader="Rank Range"
 						infoContent="Check out which cards are played at certain rank ranges on the ranked ladder!"
-						onClick={(value) => this.props.setRankRange(value)}
-						selectedValue={this.props.gameType !== "ARENA" && this.props.rankRange}
+						onClick={value => this.props.setRankRange(value)}
+						selectedValue={
+							this.props.gameType !== "ARENA" &&
+							this.props.rankRange
+						}
 						disabled={this.props.gameType === "ARENA"}
 					>
 						<PremiumWrapper
 							name="Card List Rank Range"
-							iconStyle={{display: "none"}}
+							iconStyle={{ display: "none" }}
 						>
-							<InfoboxFilter value="LEGEND_ONLY">Legend only</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_FIVE">Legend–5</InfoboxFilter>
-							<InfoboxFilter value="LEGEND_THROUGH_TEN">Legend–10</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_ONLY">
+								Legend only
+							</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_FIVE">
+								Legend–5
+							</InfoboxFilter>
+							<InfoboxFilter value="LEGEND_THROUGH_TEN">
+								Legend–10
+							</InfoboxFilter>
 						</PremiumWrapper>
 						<InfoboxFilter value="ALL">Legend–25</InfoboxFilter>
 					</InfoboxFilterGroup>
@@ -766,25 +1020,33 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				<InfoboxFilterGroup
 					header="Time Frame"
 					selectedValue={this.props.timeRange}
-					onClick={(value) => this.props.setTimeRange(value)}
+					onClick={value => this.props.setTimeRange(value)}
 					key="timeframe"
 				>
-					<InfoboxFilter value="LAST_3_DAYS">Last 3 days</InfoboxFilter>
-					<InfoboxFilter value="LAST_7_DAYS">Last 7 days</InfoboxFilter>
-					<InfoboxFilter value="LAST_30_DAYS">Last 30 days</InfoboxFilter>
-					<InfoboxFilter value="CURRENT_SEASON">Current Season</InfoboxFilter>
+					<InfoboxFilter value="LAST_3_DAYS">
+						Last 3 days
+					</InfoboxFilter>
+					<InfoboxFilter value="LAST_7_DAYS">
+						Last 7 days
+					</InfoboxFilter>
+					<InfoboxFilter value="LAST_30_DAYS">
+						Last 30 days
+					</InfoboxFilter>
+					<InfoboxFilter value="CURRENT_SEASON">
+						Current Season
+					</InfoboxFilter>
 					<Feature feature={"current-expansion-filter"}>
 						<InfoboxFilter value="CURRENT_EXPANSION">
 							Kobolds and Catacombs
 							<span className="infobox-value">New!</span>
 						</InfoboxFilter>
 					</Feature>
-				</InfoboxFilterGroup>,
+				</InfoboxFilterGroup>
 			);
 		}
 
 		if (this.props.personal && this.props.accounts.length > 0) {
-			const accounts = this.props.accounts.map((acc) => {
+			const accounts = this.props.accounts.map(acc => {
 				const value = `${acc.region}-${acc.lo}`;
 				return (
 					<InfoboxFilter value={value} key={value}>
@@ -797,14 +1059,14 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 					<InfoboxFilterGroup
 						header="Accounts"
 						selectedValue={this.state.account}
-						onClick={(account) => {
+						onClick={account => {
 							UserData.setDefaultAccount(account);
-							this.setState({account});
+							this.setState({ account });
 						}}
 						key="accounts"
 					>
 						{accounts}
-					</InfoboxFilterGroup>,
+					</InfoboxFilterGroup>
 				);
 			}
 		}
@@ -813,7 +1075,9 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			const lastUpdatedUrl = isStatsView
 				? "card_played_popularity_report"
 				: "single_account_lo_individual_card_stats";
-			const lastUpdatedParams = isStatsView ? this.getParams() : this.getPersonalParams();
+			const lastUpdatedParams = isStatsView
+				? this.getParams()
+				: this.getPersonalParams();
 			filters.push(
 				<Fragment key="data">
 					<h2>Data</h2>
@@ -826,9 +1090,15 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 					<InfoboxFilterGroup
 						deselectable
 						selectedValue={this.props.showSparse ? "show" : null}
-						onClick={(value) => this.props.setShowSparse(value === "show" ? true : false)}
+						onClick={value =>
+							this.props.setShowSparse(
+								value === "show" ? true : false
+							)
+						}
 					>
-						<InfoboxFilter value="show">Show sparse data</InfoboxFilter>
+						<InfoboxFilter value="show">
+							Show sparse data
+						</InfoboxFilter>
 					</InfoboxFilterGroup>
 				</Fragment>
 			);
@@ -843,7 +1113,9 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				selectedValue={this.props.cost}
 				onClick={(newValue, cost) => this.props.toggleCost(cost)}
 			>
-				{this.buildCostFilters(this.state.filterCounts && this.state.filterCounts.cost)}
+				{this.buildCostFilters(
+					this.state.filterCounts && this.state.filterCounts.cost
+				)}
 			</InfoboxFilterGroup>,
 			<InfoboxFilterGroup
 				key="rarities"
@@ -852,7 +1124,10 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				selectedValue={this.props.rarity}
 				onClick={(newValue, rarity) => this.props.toggleRarity(rarity)}
 			>
-				{this.buildFilterItems("rarity", this.state.filterCounts && this.state.filterCounts.rarity)}
+				{this.buildFilterItems(
+					"rarity",
+					this.state.filterCounts && this.state.filterCounts.rarity
+				)}
 			</InfoboxFilterGroup>,
 			<InfoboxFilterGroup
 				key="sets"
@@ -862,8 +1137,14 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				selectedValue={this.props.set}
 				onClick={(newValue, set) => this.props.toggleSet(set)}
 			>
-				{this.buildFilterItems("set", this.state.filterCounts && this.state.filterCounts.set)}
-				{this.buildFormatFilter(this.state.filterCounts && this.state.filterCounts.format["standard"])}
+				{this.buildFilterItems(
+					"set",
+					this.state.filterCounts && this.state.filterCounts.set
+				)}
+				{this.buildFormatFilter(
+					this.state.filterCounts &&
+						this.state.filterCounts.format["standard"]
+				)}
 			</InfoboxFilterGroup>,
 			<InfoboxFilterGroup
 				key="types"
@@ -873,7 +1154,10 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				selectedValue={this.props.type}
 				onClick={(newValue, type) => this.props.toggleType(type)}
 			>
-				{this.buildFilterItems("type", this.state.filterCounts && this.state.filterCounts.type)}
+				{this.buildFilterItems(
+					"type",
+					this.state.filterCounts && this.state.filterCounts.type
+				)}
 			</InfoboxFilterGroup>,
 			<InfoboxFilterGroup
 				key="races"
@@ -883,7 +1167,10 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				selectedValue={this.props.race}
 				onClick={(newValue, race) => this.props.toggleRace(race)}
 			>
-				{this.buildFilterItems("race", this.state.filterCounts && this.state.filterCounts.race)}
+				{this.buildFilterItems(
+					"race",
+					this.state.filterCounts && this.state.filterCounts.race
+				)}
 			</InfoboxFilterGroup>,
 			<InfoboxFilterGroup
 				key="mechanics"
@@ -891,23 +1178,34 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				collapsed
 				deselectable
 				selectedValue={this.props.mechanics}
-				onClick={(newValue, mechanic) => this.props.toggleMechanics(mechanic)}
+				onClick={(newValue, mechanic) =>
+					this.props.toggleMechanics(mechanic)
+				}
 			>
-				{this.buildFilterItems("mechanics", this.state.filterCounts && this.state.filterCounts.mechanics)}
-			</InfoboxFilterGroup>,
+				{this.buildFilterItems(
+					"mechanics",
+					this.state.filterCounts && this.state.filterCounts.mechanics
+				)}
+			</InfoboxFilterGroup>
 		);
 
-		if (UserData.hasFeature("cards-uncollectible") && this.props.display === "gallery" && !this.props.personal) {
+		if (
+			UserData.hasFeature("cards-uncollectible") &&
+			this.props.display === "gallery" &&
+			!this.props.personal
+		) {
 			filters.push(
 				<InfoboxFilterGroup
 					key="uncollectible"
 					header="Uncollectible"
 					deselectable
 					selectedValue={this.props.uncollectible}
-					onClick={(value) => this.props.setUncollectible(value)}
+					onClick={value => this.props.setUncollectible(value)}
 				>
-					<InfoboxFilter value="show">Show uncollectible cards</InfoboxFilter>
-				</InfoboxFilterGroup>,
+					<InfoboxFilter value="show">
+						Show uncollectible cards
+					</InfoboxFilter>
+				</InfoboxFilterGroup>
 			);
 		}
 
@@ -921,16 +1219,19 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		const getText = (item: string) => {
 			if (key === "set") {
 				return setNames[item.toLowerCase()];
-			}
-			else if (key === "mechanics") {
-				return item === "ENRAGED" ? "Enrage" : item.split("_").map((x) => toTitleCase(x)).join(" ");
-			}
-			else {
+			} else if (key === "mechanics") {
+				return item === "ENRAGED"
+					? "Enrage"
+					: item
+							.split("_")
+							.map(x => toTitleCase(x))
+							.join(" ");
+			} else {
 				return toTitleCase(item);
 			}
 		};
 
-		return this.filters[key].map((item) => (
+		return this.filters[key].map(item => (
 			<InfoboxFilter value={item} disabled={!counts[item]}>
 				{getText("" + item)}
 				<span className="infobox-value">{counts[item] || 0}</span>
@@ -939,15 +1240,26 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 	}
 
 	buildCostFilters(counts: any): JSX.Element[] {
-		return counts && this.filters["cost"].map((item) => (
-			<InfoboxFilter value={"" + item} disabled={!counts["" + item]} classNames={["mana-crystal"]}>
-				<img src={STATIC_URL + "images/mana_crystal.png"} height={28} aria-hidden="true" />
-				<div>
-					{+item < 7 ? item : "7+"}
-					<span className="sr-only">Mana</span>
-				</div>
-			</InfoboxFilter>
-		));
+		return (
+			counts &&
+			this.filters["cost"].map(item => (
+				<InfoboxFilter
+					value={"" + item}
+					disabled={!counts["" + item]}
+					classNames={["mana-crystal"]}
+				>
+					<img
+						src={STATIC_URL + "images/mana_crystal.png"}
+						height={28}
+						aria-hidden="true"
+					/>
+					<div>
+						{+item < 7 ? item : "7+"}
+						<span className="sr-only">Mana</span>
+					</div>
+				</InfoboxFilter>
+			))
+		);
 	}
 
 	buildFormatFilter(count: number) {
@@ -960,10 +1272,12 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			classNames.push("selected");
 		}
 
-		return(
+		return (
 			<li
 				className={classNames.join(" ")}
-				onClick={() => count && this.props.setFormat(selected ? null : "standard")}
+				onClick={() =>
+					count && this.props.setFormat(selected ? null : "standard")
+				}
 			>
 				Standard only
 				<span className="infobox-value">{count || 0}</span>
@@ -973,13 +1287,28 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 	filter(card: any, excludeFilter?: string, sparseDicts?: any[]): boolean {
 		if (this.props.text) {
-			const cleanParts = this.props.text.split(",").map((x) => cleanText(x).trim()).filter((x) => x.length > 0);
-			const slangs = cleanParts.map((x) => slangToCardId(x)).filter((x) => x !== null);
-			if (slangs.length === 0 || slangs.every((slang) => card.id !== slang)) {
+			const cleanParts = this.props.text
+				.split(",")
+				.map(x => cleanText(x).trim())
+				.filter(x => x.length > 0);
+			const slangs = cleanParts
+				.map(x => slangToCardId(x))
+				.filter(x => x !== null);
+			if (
+				slangs.length === 0 ||
+				slangs.every(slang => card.id !== slang)
+			) {
 				const cleanCardName = cleanText(card.name);
-				if (cleanParts.every((part) => cleanCardName.indexOf(part) === -1)) {
+				if (
+					cleanParts.every(part => cleanCardName.indexOf(part) === -1)
+				) {
 					const cleanCardtext = card.text && cleanText(card.text);
-					if (!card.text || cleanParts.every((part) => cleanCardtext.indexOf(part) === -1)) {
+					if (
+						!card.text ||
+						cleanParts.every(
+							part => cleanCardtext.indexOf(part) === -1
+						)
+					) {
 						return true;
 					}
 				}
@@ -992,21 +1321,30 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			const exclude = this.props.exclude;
 			if (exclude === "neutral" && card.playerClass === "NEUTRAL") {
 				return true;
-			}
-			else if (exclude === "class" && card.playerClass !== "NEUTRAL") {
+			} else if (exclude === "class" && card.playerClass !== "NEUTRAL") {
 				return true;
 			}
 			const playerClass = this.props.playerClass;
 			if (
-				playerClass !== "ALL" && card.multiClassGroup
-				&& this.multiClassGroups[card.multiClassGroup].indexOf(playerClass) === -1
+				playerClass !== "ALL" &&
+				card.multiClassGroup &&
+				this.multiClassGroups[card.multiClassGroup].indexOf(
+					playerClass
+				) === -1
 			) {
 				return true;
 			}
-			if (this.props.gameType === "RANKED_STANDARD" && isWildSet(card.set)) {
+			if (
+				this.props.gameType === "RANKED_STANDARD" &&
+				isWildSet(card.set)
+			) {
 				return true;
 			}
-			if (playerClass !== "ALL" && playerClass !== card.playerClass && card.playerClass !== "NEUTRAL") {
+			if (
+				playerClass !== "ALL" &&
+				playerClass !== card.playerClass &&
+				card.playerClass !== "NEUTRAL"
+			) {
 				return true;
 			}
 		}
@@ -1028,7 +1366,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 		let filter = false;
 
-		Object.keys(this.filters).forEach((key) => {
+		Object.keys(this.filters).forEach(key => {
 			if (isStatsView && key === "playerClass") {
 				return;
 			}
@@ -1040,24 +1378,24 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 				return;
 			}
 
-			const available = this.filters[key].filter((x) => values.indexOf("" + x) !== -1);
+			const available = this.filters[key].filter(
+				x => values.indexOf("" + x) !== -1
+			);
 			if (!filter && available.length) {
 				const cardValue = card[key];
 				if (key === "format") {
 					if (values.indexOf("standard") !== -1) {
 						filter = isWildSet(card.set);
 					}
-				}
-				else if (cardValue === undefined) {
+				} else if (cardValue === undefined) {
 					filter = true;
-				}
-				else if (key === "mechanics") {
-					filter = available.every((val) => cardValue.indexOf(val) === -1);
-				}
-				else if (key === "cost") {
+				} else if (key === "mechanics") {
+					filter = available.every(
+						val => cardValue.indexOf(val) === -1
+					);
+				} else if (key === "cost") {
 					filter = available.indexOf(Math.min(cardValue, 7)) === -1;
-				}
-				else {
+				} else {
 					filter = available.indexOf(cardValue) === -1;
 				}
 			}
@@ -1069,7 +1407,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 		return {
 			GameType: this.props.gameType,
 			RankRange: this.props.rankRange,
-			TimeRange: this.props.timeRange,
+			TimeRange: this.props.timeRange
 			// Region: this.props.region,
 		};
 	}
@@ -1081,7 +1419,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			GameType: this.props.gameType,
 			Region: getRegion(this.state.account),
 			account_lo: getLo(this.state.account),
-			TimeRange: this.props.timeRange,
+			TimeRange: this.props.timeRange
 		};
 	}
 

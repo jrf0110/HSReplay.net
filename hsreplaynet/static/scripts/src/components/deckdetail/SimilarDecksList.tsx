@@ -1,6 +1,6 @@
 import React from "react";
 import CardData from "../../CardData";
-import {CardObj, DeckObj, TableData} from "../../interfaces";
+import { CardObj, DeckObj, TableData } from "../../interfaces";
 import DeckList from "../DeckList";
 import Fragments from "../Fragments";
 
@@ -12,12 +12,15 @@ interface SimilarDecksListProps {
 	wildDeck: boolean;
 }
 
-export default class SimilarDecksList extends React.Component<SimilarDecksListProps, {}> {
+export default class SimilarDecksList extends React.Component<
+	SimilarDecksListProps,
+	{}
+> {
 	render(): JSX.Element {
 		const dbfIds = this.props.rawCardList.split(",");
 
 		const deckList = {};
-		dbfIds.forEach((dbfId) => deckList[dbfId] = (deckList[dbfId] || 0) + 1);
+		dbfIds.forEach(dbfId => (deckList[dbfId] = (deckList[dbfId] || 0) + 1));
 
 		let byDistance = [];
 
@@ -25,17 +28,24 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 
 		// The distance here is the count of removed AND added cards.
 		// So a distance of 12 corresponds to 6 changed cards.
-		classDecks.forEach((deck) => {
+		classDecks.forEach(deck => {
 			let distance = 0;
 			const cards = JSON.parse(deck["deck_list"]);
 			const removed = Object.assign({}, deckList);
-			cards.forEach((dbfIdCountPair) => {
-				distance += Math.abs(dbfIdCountPair[1] - (deckList[dbfIdCountPair[0]] || 0));
+			cards.forEach(dbfIdCountPair => {
+				distance += Math.abs(
+					dbfIdCountPair[1] - (deckList[dbfIdCountPair[0]] || 0)
+				);
 				delete removed[dbfIdCountPair[0]];
 			});
-			Object.keys(removed).forEach((dbfId) => distance += removed[dbfId]);
+			Object.keys(removed).forEach(dbfId => (distance += removed[dbfId]));
 			if (distance > 1 && distance <= 12) {
-				byDistance.push({cards, deck, distance, numGames: +deck["total_games"]});
+				byDistance.push({
+					cards,
+					deck,
+					distance,
+					numGames: +deck["total_games"]
+				});
 			}
 		});
 
@@ -44,11 +54,15 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 		}
 
 		byDistance.sort((a, b) => a.distance - b.distance);
-		byDistance = byDistance.slice(0, 20).sort((a, b) => b.numGames - a.numGames);
+		byDistance = byDistance
+			.slice(0, 20)
+			.sort((a, b) => b.numGames - a.numGames);
 
 		const decks: DeckObj[] = [];
-		byDistance.forEach((deck) => {
-			const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]}; });
+		byDistance.forEach(deck => {
+			const cardData = deck.cards.map(c => {
+				return { card: this.props.cardData.fromDbf(c[0]), count: c[1] };
+			});
 			decks.push({
 				archetypeId: deck.deck.archetype_id,
 				cards: cardData,
@@ -56,19 +70,18 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 				duration: +deck.deck["avg_game_length_seconds"],
 				numGames: +deck.deck["total_games"],
 				playerClass: this.props.playerClass,
-				winrate: +deck.deck["win_rate"],
+				winrate: +deck.deck["win_rate"]
 			});
 		});
 
 		const cards: CardObj[] = [];
-		dbfIds.forEach((dbfId) => {
+		dbfIds.forEach(dbfId => {
 			const card = this.props.cardData.fromDbf(dbfId);
-			const existing = cards.find((c) => c.card.dbfId === +dbfId);
+			const existing = cards.find(c => c.card.dbfId === +dbfId);
 			if (existing) {
 				existing.count += 1;
-			}
-			else {
-				cards.push({card, count: 1});
+			} else {
+				cards.push({ card, count: 1 });
 			}
 		});
 
@@ -76,7 +89,7 @@ export default class SimilarDecksList extends React.Component<SimilarDecksListPr
 			<Fragments
 				defaults={{
 					sortBy: "popularity",
-					sortDirection: "descending",
+					sortDirection: "descending"
 				}}
 			>
 				<DeckList

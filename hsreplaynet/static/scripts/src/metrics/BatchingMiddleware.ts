@@ -1,4 +1,4 @@
-import {MetricsBackend, Point} from "./MetricsBackend";
+import { MetricsBackend, Point } from "./MetricsBackend";
 
 export default class BatchingMiddleware implements MetricsBackend {
 	private backend: MetricsBackend;
@@ -7,7 +7,11 @@ export default class BatchingMiddleware implements MetricsBackend {
 	private finalCallback: () => void;
 	private timeout: number = 15 * 1000;
 
-	constructor(backend: MetricsBackend, finalCallback?: () => void, interval?: number) {
+	constructor(
+		backend: MetricsBackend,
+		finalCallback?: () => void,
+		interval?: number
+	) {
 		this.backend = backend;
 		this.finalCallback = finalCallback;
 		if (interval) {
@@ -37,7 +41,7 @@ export default class BatchingMiddleware implements MetricsBackend {
 	public writePoint(series: string, values: Object, tags?: Object) {
 		let point: Point = {
 			series: series,
-			values: values,
+			values: values
 		};
 		if (tags) {
 			point.tags = tags;

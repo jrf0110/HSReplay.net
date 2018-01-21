@@ -5,11 +5,12 @@ interface GameHistorySearchProps {
 	setQuery: (query: string) => void;
 }
 
-interface GameHistorySearchState {
-}
+interface GameHistorySearchState {}
 
-export default class GameHistorySearch extends React.Component<GameHistorySearchProps, GameHistorySearchState> {
-
+export default class GameHistorySearch extends React.Component<
+	GameHistorySearchProps,
+	GameHistorySearchState
+> {
 	render(): JSX.Element {
 		return (
 			<div className="search-wrapper">

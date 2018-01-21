@@ -1,5 +1,9 @@
 import React from "react";
-import { ApiArchetype, ApiArchetypePopularity, SortableProps } from "../../interfaces";
+import {
+	ApiArchetype,
+	ApiArchetypePopularity,
+	SortableProps
+} from "../../interfaces";
 import Table, { TableColumn } from "../tables/Table";
 import Tooltip from "../Tooltip";
 import ArchetypeSignature from "../archetypedetail/ArchetypeSignature";
@@ -8,7 +12,9 @@ import CardData from "../../CardData";
 import ArchetypeSignatureTooltip from "./ArchetypeSignatureTooltip";
 import OtherArchetype from "./OtherArchetype";
 
-interface ArchetypeClassTableProps extends SortableProps, React.ClassAttributes<ArchetypeClassTable> {
+interface ArchetypeClassTableProps
+	extends SortableProps,
+		React.ClassAttributes<ArchetypeClassTable> {
 	data: ApiArchetypePopularity[];
 	archetypeData: ApiArchetype[];
 	gameType: string;
@@ -22,29 +28,37 @@ const MIN_COLUMN_WIDTH = 100;
 const MAX_HEADER_WIDTH = 217;
 const MIN_HEADER_WIDTH = 150;
 
-export default class ArchetypeClassTable extends React.Component<ArchetypeClassTableProps, {}> {
+export default class ArchetypeClassTable extends React.Component<
+	ArchetypeClassTableProps,
+	{}
+> {
 	render(): JSX.Element {
-		const {data, playerClass, sortBy, sortDirection} = this.props;
+		const { data, playerClass, sortBy, sortDirection } = this.props;
 		const columns = this.getColumns();
-		const rows  = [];
-		data.forEach((datum) => {
-			const archetype = this.props.archetypeData.find((a) => a.id === datum.archetype_id);
+		const rows = [];
+		data.forEach(datum => {
+			const archetype = this.props.archetypeData.find(
+				a => a.id === datum.archetype_id
+			);
 			if (archetype) {
-				rows.push({archetype_name: archetype.name, archetype, ...datum});
-			}
-			else {
+				rows.push({
+					archetype_name: archetype.name,
+					archetype,
+					...datum
+				});
+			} else {
 				rows.push({
 					archetype: {
 						id: datum.archetype_id,
 						name: "Other",
-						player_class_name: playerClass,
+						player_class_name: playerClass
 					},
 					archetype_name: "Other",
-					...datum,
+					...datum
 				});
 			}
 		});
-		const {dataKey} = columns.find((c) => c.sortKey === sortBy);
+		const { dataKey } = columns.find(c => c.sortKey === sortBy);
 		const direction = sortDirection === "ascending" ? 1 : -1;
 		rows.sort((a, b) => {
 			if (dataKey === "archetype_name") {
@@ -58,13 +72,13 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 			return a[dataKey] > b[dataKey] ? direction : -direction;
 		});
 
-		const rowData = rows.map((row) => {
+		const rowData = rows.map(row => {
 			return {
 				data: [
 					this.renderHeader(row.archetype),
-					...columns.slice(1).map((c) => row[c.dataKey]),
+					...columns.slice(1).map(c => row[c.dataKey])
 				],
-				href: row.archetype.url,
+				href: row.archetype.url
 			};
 		});
 
@@ -84,7 +98,8 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 	}
 
 	renderHeader(archetype: ApiArchetype) {
-		const className = "player-class " + archetype.player_class_name.toLowerCase();
+		const className =
+			"player-class " + archetype.player_class_name.toLowerCase();
 		if (archetype.id < 0) {
 			return (
 				<span className={className}>
@@ -104,10 +119,7 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 				archetypeName={archetype.name}
 				gameType={this.props.gameType}
 			>
-				<a
-					className={className}
-					href={archetype.url}
-				>
+				<a className={className} href={archetype.url}>
 					{archetype.name}
 				</a>
 			</ArchetypeSignatureTooltip>
@@ -115,31 +127,33 @@ export default class ArchetypeClassTable extends React.Component<ArchetypeClassT
 	}
 
 	getColumns(): TableColumn[] {
-		const popularityKey = this.props.totalPopularity ? "pct_of_total" : "pct_of_class";
+		const popularityKey = this.props.totalPopularity
+			? "pct_of_total"
+			: "pct_of_class";
 		return [
 			{
 				dataKey: "archetype_name",
 				sortKey: "archetype",
-				text: "Archetype",
+				text: "Archetype"
 			},
 			{
 				dataKey: "win_rate",
 				sortKey: "winrate",
 				text: "Winrate",
-				winrateData: true,
+				winrateData: true
 			},
 			{
 				dataKey: popularityKey,
 				percent: true,
 				sortKey: "games",
-				text: "Popularity",
+				text: "Popularity"
 			},
 			{
 				dataKey: "total_games",
 				prettify: true,
 				sortKey: "games",
-				text: "Games",
-			},
+				text: "Games"
+			}
 		];
 	}
 }

@@ -1,7 +1,7 @@
 import React from "react";
-import {AutoSizer} from "react-virtualized";
+import { AutoSizer } from "react-virtualized";
 import WinrateLineChart from "./WinrateLineChart";
-import {commaSeparate, toDynamicFixed, winrateData} from "../../helpers";
+import { commaSeparate, toDynamicFixed, winrateData } from "../../helpers";
 import { LoadingStatus } from "../../interfaces";
 
 interface Props extends React.ClassAttributes<WinrateBox> {
@@ -19,7 +19,7 @@ export default class WinrateBox extends React.Component<Props> {
 		if (this.props.chartData) {
 			chart = (
 				<AutoSizer disableHeight>
-					{({width}) => (
+					{({ width }) => (
 						<WinrateLineChart
 							data={this.props.chartData}
 							height={50}
@@ -31,16 +31,21 @@ export default class WinrateBox extends React.Component<Props> {
 		}
 
 		let content = null;
-		if (this.props.winrate !== undefined && this.props.games !== undefined) {
+		if (
+			this.props.winrate !== undefined &&
+			this.props.games !== undefined
+		) {
 			const wrData = winrateData(50, this.props.winrate, 3);
 			content = [
-				<h1 style={{color: wrData.color}}>
+				<h1 style={{ color: wrData.color }}>
 					{toDynamicFixed(this.props.winrate, 2)}%
 				</h1>,
-				<h3>over {commaSeparate(this.props.games)} games</h3>,
+				<h3>over {commaSeparate(this.props.games)} games</h3>
 			];
-		}
-		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
+		} else if (
+			this.props.status === LoadingStatus.NO_DATA ||
+			this.props.status === LoadingStatus.PROCESSING
+		) {
 			content = "Please check back later";
 		}
 
@@ -49,22 +54,16 @@ export default class WinrateBox extends React.Component<Props> {
 				<a
 					className="box winrate-box"
 					href={this.props.href}
-					onClick={(event) => {
+					onClick={event => {
 						if (this.props.onClick) {
 							event.preventDefault();
 							this.props.onClick();
 						}
 					}}
 				>
-					<div className="box-title">
-						Winrate
-					</div>
-					<div className="box-content">
-						{content}
-					</div>
-					<div className="box-chart">
-						{chart}
-					</div>
+					<div className="box-title">Winrate</div>
+					<div className="box-content">{content}</div>
+					<div className="box-chart">{chart}</div>
 				</a>
 			</div>
 		);

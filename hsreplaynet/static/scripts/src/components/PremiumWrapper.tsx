@@ -1,8 +1,8 @@
 import React from "react";
 import * as PropTypes from "prop-types";
 import InfoIcon, { InfoIconProps } from "./InfoIcon";
-import {showModal} from "../Premium";
-import {ClickTouch, TooltipContent} from "./Tooltip";
+import { showModal } from "../Premium";
+import { ClickTouch, TooltipContent } from "./Tooltip";
 import UserData from "../UserData";
 
 interface PremiumWrapperProps {
@@ -20,19 +20,21 @@ interface PremiumWrapperState {
 
 const key = "hsreplaynet_premium_wrappers";
 
-export default class PremiumWrapper extends React.Component<PremiumWrapperProps, PremiumWrapperState> {
-
+export default class PremiumWrapper extends React.Component<
+	PremiumWrapperProps,
+	PremiumWrapperState
+> {
 	constructor(props: PremiumWrapperProps, context: any) {
 		super(props, context);
 		this.state = {
 			hovering: false,
 			touchCount: 0,
-			triggered: [],
+			triggered: []
 		};
 	}
 
 	static childContextTypes = {
-		requiresPremium: PropTypes.bool,
+		requiresPremium: PropTypes.bool
 	};
 
 	getChildContext() {
@@ -45,7 +47,7 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		}
 		this.setState((state, props) => ({
 			touchCount: 0,
-			triggered: state.triggered.concat([wrapper]),
+			triggered: state.triggered.concat([wrapper])
 		}));
 	}
 
@@ -55,8 +57,8 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		}
 		this.setState((state, props) => ({
 			triggered: state.triggered.filter(
-				(toRemove: PremiumWrapper) => toRemove !== wrapper,
-			),
+				(toRemove: PremiumWrapper) => toRemove !== wrapper
+			)
 		}));
 	}
 
@@ -72,10 +74,15 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		window[key].forEach((wrapper: PremiumWrapper) => {
 			wrapper.release(this);
 		});
-		window[key] = window[key].filter((component: PremiumWrapper) => component !== this);
+		window[key] = window[key].filter(
+			(component: PremiumWrapper) => component !== this
+		);
 	}
 
-	componentWillUpdate(nextProps: PremiumWrapperProps, nextState: PremiumWrapperState) {
+	componentWillUpdate(
+		nextProps: PremiumWrapperProps,
+		nextState: PremiumWrapperState
+	) {
 		if (nextState.hovering === this.state.hovering) {
 			return;
 		}
@@ -83,22 +90,25 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		window[key].forEach((wrapper: PremiumWrapper) => {
 			if (nextState.hovering) {
 				wrapper.trigger(this);
-			}
-			else {
+			} else {
 				wrapper.release(this);
 			}
 		});
 	}
 
 	render(): JSX.Element {
-		const {name, iconStyle, infoHeader, infoContent, children, ...childProps} = this.props;
+		const {
+			name,
+			iconStyle,
+			infoHeader,
+			infoContent,
+			children,
+			...childProps
+		} = this.props;
 
 		let infoIcon = null;
 		if (this.props.infoHeader) {
-			infoIcon = <InfoIcon
-				header={infoHeader}
-				content={infoContent}
-			/>;
+			infoIcon = <InfoIcon header={infoHeader} content={infoContent} />;
 		}
 
 		const classNames = ["premium-wrapper"];
@@ -112,9 +122,14 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 		return (
 			<div
 				className={classNames.join(" ")}
-				onTouchStart={() => this.setState({hovering: true, touchCount: this.state.touchCount + 1})}
-				onTouchCancel={() => this.setState({hovering: false})}
-				onClick={(event) => {
+				onTouchStart={() =>
+					this.setState({
+						hovering: true,
+						touchCount: this.state.touchCount + 1
+					})
+				}
+				onTouchCancel={() => this.setState({ hovering: false })}
+				onClick={event => {
 					if (event && event.currentTarget) {
 						event.currentTarget.blur();
 					}
@@ -126,11 +141,13 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 					}
 					showModal(this.props.name);
 				}}
-				onMouseEnter={() => this.setState({hovering: true})}
-				onMouseLeave={() => this.setState({hovering: false, touchCount: 0})}
-				onFocus={() => this.setState({hovering: true})}
-				onBlur={() => this.setState({hovering: false})}
-				onKeyPress={(event) => {
+				onMouseEnter={() => this.setState({ hovering: true })}
+				onMouseLeave={() =>
+					this.setState({ hovering: false, touchCount: 0 })
+				}
+				onFocus={() => this.setState({ hovering: true })}
+				onBlur={() => this.setState({ hovering: false })}
+				onKeyPress={event => {
 					if (event.which !== 13) {
 						return;
 					}
@@ -149,10 +166,21 @@ export default class PremiumWrapper extends React.Component<PremiumWrapperProps,
 				/>
 				{infoIcon}
 				<div className="premium-info">
-					<h4><span className="text-premium">Premium</span> only</h4>
-					{this.state.touchCount > 0 ? <span>Tap for more details…</span> : null}
+					<h4>
+						<span className="text-premium">Premium</span> only
+					</h4>
+					{this.state.touchCount > 0 ? (
+						<span>Tap for more details…</span>
+					) : null}
 				</div>
-				{React.Children.map(children, (child: React.ReactElement<any>) => React.cloneElement(child, Object.assign({}, childProps, child.props)))}
+				{React.Children.map(
+					children,
+					(child: React.ReactElement<any>) =>
+						React.cloneElement(
+							child,
+							Object.assign({}, childProps, child.props)
+						)
+				)}
 			</div>
 		);
 	}

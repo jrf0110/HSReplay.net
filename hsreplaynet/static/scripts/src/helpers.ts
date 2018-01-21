@@ -1,9 +1,17 @@
 import React from "react";
-import {Colors} from "./Colors";
-import {ApiArchetype, ChartMetaData, ChartScheme, ChartSchemeType, ChartSeries, DataPoint, GlobalGamePlayer} from "./interfaces";
-import {CardData as CardMeta} from "hearthstonejson";
-import {adventureSets} from "./contants";
-import {wildSets} from "./contants";
+import { Colors } from "./Colors";
+import {
+	ApiArchetype,
+	ChartMetaData,
+	ChartScheme,
+	ChartSchemeType,
+	ChartSeries,
+	DataPoint,
+	GlobalGamePlayer
+} from "./interfaces";
+import { CardData as CardMeta } from "hearthstonejson";
+import { adventureSets } from "./contants";
+import { wildSets } from "./contants";
 import Fragments from "./components/Fragments";
 import CardData from "./CardData";
 
@@ -28,11 +36,17 @@ export function cardArt(cardArt: string) {
 }
 
 export function capitalize(str: string) {
-	return str && str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1);
+	return (
+		str && str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1)
+	);
 }
 
 export function toTitleCase(str: string) {
-	return str && str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1).toLowerCase();
+	return (
+		str &&
+		str.substr(0, 1).toUpperCase() +
+			str.substr(1, str.length - 1).toLowerCase()
+	);
 }
 
 export function getHeroColor(hero: string): string {
@@ -81,173 +95,179 @@ export function getChartScheme(theme: ChartSchemeType): ChartScheme {
 			scheme = classColorScheme;
 			break;
 	}
-	return Object.assign({}, {other: {
-		fill: "rgb(140, 140, 140)",
-		stroke: "rgb(140, 140, 140)",
-	}}, scheme);
+	return Object.assign(
+		{},
+		{
+			other: {
+				fill: "rgb(140, 140, 140)",
+				stroke: "rgb(140, 140, 140)"
+			}
+		},
+		scheme
+	);
 }
 
 const costScheme: ChartScheme = {
 	0: {
 		fill: "rgba(204, 204, 255, 0.5)",
-		stroke: "rgba(204, 204, 255, 0.9)",
+		stroke: "rgba(204, 204, 255, 0.9)"
 	},
 	1: {
 		fill: "rgba(153, 153, 255, 0.5)",
-		stroke: "rgba(153, 153, 255, 0.9)",
+		stroke: "rgba(153, 153, 255, 0.9)"
 	},
 	2: {
 		fill: "rgba(102, 102, 255, 0.5)",
-		stroke: "rgba(102, 102, 255, 0.9)",
+		stroke: "rgba(102, 102, 255, 0.9)"
 	},
 	3: {
 		fill: "rgba(51, 51, 255, 0.5)",
-		stroke: "rgba(51, 51, 255, 0.9)",
+		stroke: "rgba(51, 51, 255, 0.9)"
 	},
 	4: {
 		fill: "rgba(0, 0, 255, 0.5)",
-		stroke: "rgba(0, 0, 255, 0.9)",
+		stroke: "rgba(0, 0, 255, 0.9)"
 	},
 	5: {
 		fill: "rgba(0, 0, 204, 0.5)",
-		stroke: "rgba(0, 0, 204, 0.9)",
+		stroke: "rgba(0, 0, 204, 0.9)"
 	},
 	6: {
 		fill: "rgba(0, 0, 153, 0.5)",
-		stroke: "rgba(0, 0, 153, 0.9)",
+		stroke: "rgba(0, 0, 153, 0.9)"
 	},
 	7: {
 		fill: "rgba(0, 0, 102, 0.5)",
 		stroke: "rgba(0, 0, 102, 0.9)",
-		name: "7+",
-	},
+		name: "7+"
+	}
 };
 
 const rarityScheme: ChartScheme = {
 	free: {
 		fill: "rgba(211, 211, 211, 0.5)",
 		stroke: "rgba(211, 211, 211, 0.9)",
-		name: "Free",
+		name: "Free"
 	},
 	common: {
 		fill: "rgba(169, 169, 169, 0.5)",
 		stroke: "rgba(169, 169, 169, 0.9)",
-		name: "Common",
+		name: "Common"
 	},
 	rare: {
 		fill: "rgba(0, 112, 221, 0.5)",
 		stroke: "rgba(0, 112, 221, 0.9)",
-		name: "Rare",
+		name: "Rare"
 	},
 	epic: {
 		fill: "rgba(163, 53, 238, 0.5)",
 		stroke: "rgba(163, 53, 238, 0.9)",
-		name: "Epic",
+		name: "Epic"
 	},
 	legendary: {
 		fill: "rgba(255, 128, 0, 0.5)",
 		stroke: "rgba(255, 128, 0, 0.9)",
-		name: "Legendary",
-	},
+		name: "Legendary"
+	}
 };
 
 const cardtypeScheme: ChartScheme = {
 	minion: {
 		fill: "rgba(171, 212, 115, 0.5)",
 		stroke: "rgba(171, 212, 115, 0.9)",
-		name: "Minion",
+		name: "Minion"
 	},
 	spell: {
 		fill: "rgba(0, 112, 222, 0.5)",
 		stroke: "rgba(0, 112, 222, 0.9)",
-		name: "Spell",
+		name: "Spell"
 	},
 	weapon: {
 		fill: "rgba(196, 30, 59, 0.5)",
 		stroke: "rgba(196, 30, 59, 0.9)",
-		name: "Weapon",
-	},
+		name: "Weapon"
+	}
 };
 
 const classColorScheme: ChartScheme = {
 	all: {
 		stroke: "rgba(169, 169, 169, 1)",
 		fill: "rgba(169, 169, 169, 0.7)",
-		name: "All",
+		name: "All"
 	},
 	neutral: {
 		stroke: "rgba(169, 169, 169, 1)",
 		fill: "rgba(169, 169, 169, 0.7)",
-		name: "Neutral",
+		name: "Neutral"
 	},
 	druid: {
 		stroke: "rgba(255, 125, 10, 1)",
 		fill: "rgba(255, 125, 10, 0.7)",
-		name: "Druid",
+		name: "Druid"
 	},
 	hunter: {
 		stroke: "rgba(171, 212, 114, 1)",
 		fill: "rgba(171, 212, 114, 0.7)",
-		name: "Hunter",
+		name: "Hunter"
 	},
 	mage: {
 		stroke: "rgba(105, 204, 240, 1)",
 		fill: "rgba(105, 204, 240, 0.7)",
-		name: "Mage",
+		name: "Mage"
 	},
 	paladin: {
 		stroke: "rgba(245, 140, 186, 1)",
 		fill: "rgba(245, 140, 186, 0.7)",
-		name: "Paladin",
+		name: "Paladin"
 	},
 	priest: {
 		stroke: "rgba(210, 210, 210, 1)",
 		fill: "rgba(210, 210, 210, 0.7)",
-		name: "Priest",
+		name: "Priest"
 	},
 	rogue: {
 		stroke: "rgba(255, 217, 26, 1)",
 		fill: "rgba(255, 240, 26, 0.7)",
-		name: "Rogue",
+		name: "Rogue"
 	},
 	shaman: {
 		stroke: "rgba(0, 122, 222, 1)",
 		fill: "rgba(0, 122, 222, 0.7)",
-		name: "Shaman",
+		name: "Shaman"
 	},
 	warlock: {
 		stroke: "rgba(148, 130, 201, 1)",
 		fill: "rgba(148, 130, 201, 0.7)",
-		name: "Warlock",
+		name: "Warlock"
 	},
 	warrior: {
 		stroke: "rgba(199, 156, 110, 1)",
 		fill: "rgba(199, 156, 110, 0.7)",
-		name: "Warrior",
+		name: "Warrior"
 	},
 	other: {
 		stroke: "rgba(122, 122, 122, 1)",
 		fill: "rgba(122, 122, 122, 0.7)",
-		name: "Other",
+		name: "Other"
 	}
 };
 
 export const setNames = {
-	"core": "Basic",
-	"expert1": "Classic",
-	"hof": "Hall of Fame",
-	"naxx": "Curse of Naxxramas",
-	"gvg": "Goblins vs Gnomes",
-	"brm": "Blackrock Mountain",
-	"tgt": "The Grand Tournament",
-	"tb": "Tavern Brawl",
-	"loe": "League of Explorers",
-	"og": "Whispers of the Old Gods",
-	"kara": "One Night in Karazhan",
-	"gangs": "Mean Streets of Gadgetzan",
-	"ungoro": "Journey to Un'Goro",
-	"icecrown": "Knights of the Frozen Throne",
-	"lootapalooza": "Kobolds and Catacombs",
+	core: "Basic",
+	expert1: "Classic",
+	hof: "Hall of Fame",
+	naxx: "Curse of Naxxramas",
+	gvg: "Goblins vs Gnomes",
+	brm: "Blackrock Mountain",
+	tgt: "The Grand Tournament",
+	tb: "Tavern Brawl",
+	loe: "League of Explorers",
+	og: "Whispers of the Old Gods",
+	kara: "One Night in Karazhan",
+	gangs: "Mean Streets of Gadgetzan",
+	ungoro: "Journey to Un'Goro",
+	icecrown: "Knights of the Frozen Throne",
+	lootapalooza: "Kobolds and Catacombs"
 };
 
 export function isCollectibleCard(card: any) {
@@ -266,7 +286,7 @@ export function getChartMetaData(
 	data: DataPoint[],
 	midLine?: number,
 	seasonTicks?: boolean,
-	baseRoundingFactor?: number,
+	baseRoundingFactor?: number
 ): ChartMetaData {
 	const ticks = [];
 	const xMin = data[0];
@@ -291,7 +311,7 @@ export function getChartMetaData(
 
 	let yMin = data[0];
 	let yMax = data[0];
-	data.forEach((d) => {
+	data.forEach(d => {
 		if (+d.y < +yMin.y) {
 			yMin = d;
 		} else if (+d.y > +yMax.y) {
@@ -305,16 +325,26 @@ export function getChartMetaData(
 
 	const minDelta = Math.abs(midLine - +yMin.y);
 	const maxDelta = Math.abs(midLine - +yMax.y);
-	const midLinePosition = (maxDelta / (minDelta + maxDelta));
+	const midLinePosition = maxDelta / (minDelta + maxDelta);
 
 	const top = Math.max(+yMax.y, midLine);
 	const bottom = Math.min(+yMin.y, midLine);
-	const delta = (+yMax.y - +yMin.y);
+	const delta = +yMax.y - +yMin.y;
 	const deltaMag = delta ? Math.min(Math.floor(Math.log10(delta)), 0) : 0;
 	const factor = 10 ** (deltaMag - 1);
 	const roundingFactor = 5 * (baseRoundingFactor || 0.1) * factor * 10;
-	const domainMax = Math.min(100, (Math.ceil(Math.ceil(top / factor) / roundingFactor) * roundingFactor) * factor);
-	const domainMin = Math.max(0, (Math.floor(Math.floor(bottom / factor) / roundingFactor) * roundingFactor) * factor);
+	const domainMax = Math.min(
+		100,
+		Math.ceil(Math.ceil(top / factor) / roundingFactor) *
+			roundingFactor *
+			factor
+	);
+	const domainMin = Math.max(
+		0,
+		Math.floor(Math.floor(bottom / factor) / roundingFactor) *
+			roundingFactor *
+			factor
+	);
 
 	return {
 		xDomain: [+xMin.x, +xMax.x],
@@ -325,12 +355,12 @@ export function getChartMetaData(
 		yCenter: midLine,
 		seasonTicks: ticks,
 		midLinePosition,
-		toFixed: (x) => {
+		toFixed: x => {
 			const fixed = x.toFixed(Math.max(-deltaMag, 0) + 1);
 			const split = fixed.split(".");
 			const precision = sliceZeros(split[1]);
 			return split[0] + (precision.length ? "." + precision : "");
-		},
+		}
 	};
 }
 
@@ -345,7 +375,12 @@ export function sliceZeros(input: string): string {
 			index = i;
 		}
 	});
-	return index === -1 ? "" : chars.slice(index).reverse().join("");
+	return index === -1
+		? ""
+		: chars
+				.slice(index)
+				.reverse()
+				.join("");
 }
 
 export function toPrettyNumber(n: number): string {
@@ -354,18 +389,18 @@ export function toPrettyNumber(n: number): string {
 	return commaSeparate(n);
 }
 
-export function commaSeparate(n: number|string): string {
+export function commaSeparate(n: number | string): string {
 	const str = typeof n === "string" ? n : n.toString();
 	return str.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 export function toTimeSeries(series: ChartSeries): ChartSeries {
 	const timeSeries = {
-		data: series.data.map((d) => {
-			return {x: new Date("" + d.x).getTime(), y: d.y};
+		data: series.data.map(d => {
+			return { x: new Date("" + d.x).getTime(), y: d.y };
 		}),
 		name: series.name,
-		metadata: series.metadata,
+		metadata: series.metadata
 	};
 	timeSeries.data.sort((a, b) => +a.x - +b.x);
 	return timeSeries;
@@ -376,7 +411,7 @@ export function getColorString(
 	intensity: number,
 	winrate: number,
 	mirror?: boolean,
-	disable?: boolean,
+	disable?: boolean
 ): string {
 	if (mirror) {
 		return "black";
@@ -442,16 +477,22 @@ export function getColorString(
 		return from + (to - from) * x;
 	};
 
-	const scaleTriple = (x: number, from: Array<number|null>, to: Array<number|null>): number[] => {
+	const scaleTriple = (
+		x: number,
+		from: Array<number | null>,
+		to: Array<number | null>
+	): number[] => {
 		return [
 			scale(x, from[0], to[0]),
 			scale(x, from[1], to[1]),
-			scale(x, from[2], to[2]),
+			scale(x, from[2], to[2])
 		];
 	};
 
-	const hsl = (values: Array<number|null>): string => {
-		return "hsl(" + (+values[0]) + ", " + (+values[1]) + "%, " + (+values[2]) + "%)";
+	const hsl = (values: Array<number | null>): string => {
+		return (
+			"hsl(" + +values[0] + ", " + +values[1] + "%, " + +values[2] + "%)"
+		);
 	};
 
 	const severity = Math.abs(0.5 - winrate) * 2;
@@ -499,7 +540,12 @@ export function cardSorting(a: any, b: any, direction = 1): number {
 	return 0;
 }
 
-export function cardObjSorting(a: any, b: any, prop: string, direction: number): number {
+export function cardObjSorting(
+	a: any,
+	b: any,
+	prop: string,
+	direction: number
+): number {
 	const aVal = a[prop] || 0;
 	const bVal = b[prop] || 0;
 	if (aVal === bVal) {
@@ -511,15 +557,26 @@ export function cardObjSorting(a: any, b: any, prop: string, direction: number):
 export function getHeroCardId(playerClass: string, skin: boolean) {
 	// Heroes sorted by X in their cardId (HERO_0X)
 	const sorted = [
-		"WARRIOR", "SHAMAN", "ROGUE",
-		"PALADIN", "HUNTER", "DRUID",
-		"WARLOCK", "MAGE", "PRIEST",
+		"WARRIOR",
+		"SHAMAN",
+		"ROGUE",
+		"PALADIN",
+		"HUNTER",
+		"DRUID",
+		"WARLOCK",
+		"MAGE",
+		"PRIEST"
 	];
 
 	const hasSkin = [
-		"WARRIOR", "SHAMAN", "ROGUE",
-		"PALADIN", "HUNTER", "MAGE",
-		"PRIEST", "WARLOCK",
+		"WARRIOR",
+		"SHAMAN",
+		"ROGUE",
+		"PALADIN",
+		"HUNTER",
+		"MAGE",
+		"PRIEST",
+		"WARLOCK"
 	];
 
 	const index = sorted.indexOf(playerClass.toUpperCase());
@@ -558,7 +615,7 @@ export function isCraftableSet(set: string) {
 	return true;
 }
 
-export function getDustCost(card: any|any[]): number {
+export function getDustCost(card: any | any[]): number {
 	if (!card) {
 		return 0;
 	}
@@ -591,7 +648,7 @@ export function getDustCost(card: any|any[]): number {
 	return 0;
 }
 
-export function getManaCost(card: any|any[]) : number {
+export function getManaCost(card: any | any[]): number {
 	if (!card) {
 		return 0;
 	}
@@ -608,19 +665,25 @@ export function getManaCost(card: any|any[]) : number {
 	return +card.cost;
 }
 
-export function winrateData(baseWinrate: number, winrate: number, deltaFactor: number) {
+export function winrateData(
+	baseWinrate: number,
+	winrate: number,
+	deltaFactor: number
+) {
 	const winrateDelta = winrate - baseWinrate;
-	const colorWinrate = 50 + Math.max(-50, Math.min(50, (deltaFactor * winrateDelta)));
-	const tendencyStr = winrateDelta === 0 ? "    " : (winrateDelta > 0 ? "▲" : "▼");
+	const colorWinrate =
+		50 + Math.max(-50, Math.min(50, deltaFactor * winrateDelta));
+	const tendencyStr =
+		winrateDelta === 0 ? "    " : winrateDelta > 0 ? "▲" : "▼";
 	const color = getColorString(Colors.REDGREEN3, 75, colorWinrate / 100);
-	return {delta: winrateDelta.toFixed(1), color, tendencyStr};
+	return { delta: winrateDelta.toFixed(1), color, tendencyStr };
 }
 
 export function cleanText(text: string): string {
 	return text.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 }
 
-export function slangToCardId(slang: string): string|null {
+export function slangToCardId(slang: string): string | null {
 	switch (slang.toLowerCase()) {
 		case "bgh": // Big Game Hunter
 			return "EX1_005";
@@ -675,17 +738,24 @@ export function slangToCardId(slang: string): string|null {
 	return null;
 }
 
-export function toDynamicFixed(value: number, fractionDigits: number = 1): string {
+export function toDynamicFixed(
+	value: number,
+	fractionDigits: number = 1
+): string {
 	if (value === 0) {
 		return "0";
 	}
-	const digits = Math.min(Math.max(0, Math.floor(Math.log10(1 / value))), (7 - fractionDigits)) + fractionDigits;
+	const digits =
+		Math.min(
+			Math.max(0, Math.floor(Math.log10(1 / value))),
+			7 - fractionDigits
+		) + fractionDigits;
 	return value.toFixed(digits);
 }
 
 export function cloneComponent(component, props) {
-	const componentProps = {...component.props};
-	Object.keys(props).forEach((key) => {
+	const componentProps = { ...component.props };
+	Object.keys(props).forEach(key => {
 		componentProps[key] = props[key];
 	});
 	return React.cloneElement(component, componentProps);
@@ -695,13 +765,15 @@ export function getCardUrl(card: any) {
 	return `/cards/${card.dbfId}/${slugify(card.name)}/`;
 }
 
-export function getArchetypeUrl(id: string|number, name: string): string {
+export function getArchetypeUrl(id: string | number, name: string): string {
 	return `/archetypes/${id}/${slugify(name)}/`;
 }
 
 function slugify(str: string): string {
-	return str.replace(/[^\w\s-]/g, "")
-		.trim().toLowerCase()
+	return str
+		.replace(/[^\w\s-]/g, "")
+		.trim()
+		.toLowerCase()
 		.replace(/[-\s]+/g, "-");
 }
 
@@ -712,8 +784,10 @@ export function getCookie(name: string): string {
 		for (let i = 0; i < cookies.length; i++) {
 			const cookie = cookies[i].trim();
 			// Does this cookie string begin with the name we want?
-			if (cookie.substring(0, name.length + 1) === (name + "=")) {
-				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			if (cookie.substring(0, name.length + 1) === name + "=") {
+				cookieValue = decodeURIComponent(
+					cookie.substring(name.length + 1)
+				);
 				break;
 			}
 		}
@@ -736,15 +810,18 @@ export function fetchCSRF(url: string, options?) {
 	return fetch(url, options);
 }
 
-export function getFragments(keys: string[], overwrite?: {[key: string]: string}) {
+export function getFragments(
+	keys: string[],
+	overwrite?: { [key: string]: string }
+) {
 	const fragments = Fragments.parseFragmentString(document.location.hash);
-	Object.keys(fragments).forEach((key) => {
+	Object.keys(fragments).forEach(key => {
 		if (keys.indexOf(key) === -1) {
 			delete fragments[key];
 		}
 	});
 	if (overwrite) {
-		Object.keys(overwrite).forEach((key) => {
+		Object.keys(overwrite).forEach(key => {
 			fragments[key] = overwrite[key];
 		});
 	}
@@ -776,10 +853,10 @@ export function hexToHsl(hex: string): number[] {
 	const lightness = (vMax + vMin) / 2;
 	if (vMax === vMin) {
 		return [0, 0, lightness * 100];
-	}
-	else {
+	} else {
 		const delta = vMax - vMin;
-		const saturation = lightness > 0.5 ? delta / (2 - vMax - vMin) : delta / (vMax + vMin);
+		const saturation =
+			lightness > 0.5 ? delta / (2 - vMax - vMin) : delta / (vMax + vMin);
 		let hue = 0;
 		switch (vMax) {
 			case red:
@@ -800,8 +877,11 @@ export function stringifyHsl(h: number, s: number, l: number): string {
 	return `hsl(${Math.floor(h)},${Math.floor(s)}%,${Math.floor(l)}%)`;
 }
 
-export function pieScaleTransform(props: {origin: {x: number, y: number}}, scale: number): string {
-	const origin = Object.assign({x: 0, y: 0}, props.origin);
+export function pieScaleTransform(
+	props: { origin: { x: number; y: number } },
+	scale: number
+): string {
+	const origin = Object.assign({ x: 0, y: 0 }, props.origin);
 	return `translate(${origin.x}px, ${origin.y}px) scale(1.1)`;
 }
 
@@ -813,7 +893,10 @@ export function getHeroCard(cardData: CardData, player: GlobalGamePlayer): any {
 	return cardData.fromCardId(cardId);
 }
 
-export function getHeroDbfId(cardData: CardData, player: GlobalGamePlayer): number|null {
+export function getHeroDbfId(
+	cardData: CardData,
+	player: GlobalGamePlayer
+): number | null {
 	if (player.hero_id.startsWith("HERO_")) {
 		return player.hero_dbf_id;
 	}
@@ -836,7 +919,7 @@ export function getOtherArchetype(archetypeId: number): ApiArchetype {
 		name: "Other " + toTitleCase(cardClass[classId]),
 		player_class: -archetypeId,
 		player_class_name: cardClass[classId],
-		url: "",
+		url: ""
 	};
 }
 
@@ -848,10 +931,10 @@ export function compareDecks(dbfIdsA: number[], dbfIdsB: number[]): boolean {
 	dbfIdsA = dbfIdsA.slice();
 	dbfIdsB = dbfIdsB.slice();
 	let a = undefined;
-	while((a = dbfIdsA.pop()) !== undefined) {
+	while ((a = dbfIdsA.pop()) !== undefined) {
 		let found = false;
-		for(let i = 0; i < lengthB; i++) {
-			if(dbfIdsB[i] === a) {
+		for (let i = 0; i < lengthB; i++) {
+			if (dbfIdsB[i] === a) {
 				dbfIdsB[i] = undefined;
 				found = true;
 				break;
@@ -861,13 +944,21 @@ export function compareDecks(dbfIdsA: number[], dbfIdsB: number[]): boolean {
 			return false;
 		}
 	}
-	return dbfIdsB.every((x) => x === undefined);
+	return dbfIdsB.every(x => x === undefined);
 }
 
 export const cardClass = [
-	"INVALID", "DEATHKNIGHT",
-	"DRUID", "HUNTER", "MAGE",
-	"PALADIN", "PRIEST", "ROGUE",
-	"SHAMAN", "WARLOCK", "WARRIOR",
-	"DREAM", "NEUTRAL",
+	"INVALID",
+	"DEATHKNIGHT",
+	"DRUID",
+	"HUNTER",
+	"MAGE",
+	"PALADIN",
+	"PRIEST",
+	"ROGUE",
+	"SHAMAN",
+	"WARLOCK",
+	"WARRIOR",
+	"DREAM",
+	"NEUTRAL"
 ];

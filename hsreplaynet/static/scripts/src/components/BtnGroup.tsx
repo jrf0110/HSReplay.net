@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface Btn {
-	label: string|JSX.Element;
+	label: string | JSX.Element;
 	value: string;
 	id?: string;
 	className?: string;
@@ -13,7 +13,7 @@ interface BtnGroupProps extends React.ClassAttributes<any> {
 	name: string;
 	id?: string;
 	buttons: Btn[];
-	value: string|null;
+	value: string | null;
 	disabled?: boolean;
 	className?: string;
 	onChange?: (button: any) => void;
@@ -29,20 +29,23 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 	}
 
 	componentDidUpdate(prevProps: BtnGroupProps, prevState: any) {
-		if(prevProps.value !== this.props.value) {
+		if (prevProps.value !== this.props.value) {
 			const prevBtn = this.btnRefs[prevProps.value];
 			const currentBtn = this.btnRefs[this.props.value];
-			if(prevBtn === document.activeElement) {
+			if (prevBtn === document.activeElement) {
 				currentBtn && currentBtn.focus();
 			}
 		}
 	}
 
 	renderButtons() {
-		const onClick = (btn: Btn) => this.props.disabled || btn.disabled ? null : (event) => {
-			event.preventDefault();
-			this.props.onChange && this.props.onChange(btn.value)
-		};
+		const onClick = (btn: Btn) =>
+			this.props.disabled || btn.disabled
+				? null
+				: event => {
+						event.preventDefault();
+						this.props.onChange && this.props.onChange(btn.value);
+					};
 
 		const availableValues = this.props.buttons.map((btn: Btn) => btn.value);
 		const noneChecked = this.props.value === null;
@@ -62,26 +65,39 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 					id={btn.id}
 					className={btn.className + classNames.join(" ")}
 					onClick={onClick(btn)}
-					onKeyDown={disabled ? null : (e) => {
-						const {keyCode} = e;
-						if (keyCode === 38 || keyCode === 37) {
-							e.preventDefault();
-							this.props.onChange(availableValues[Math.max(i - 1, 0)]);
-							return;
-						}
-						if (keyCode === 40 || keyCode === 39) {
-							e.preventDefault();
-							this.props.onChange(availableValues[Math.min(i + 1, availableValues.length - 1)]);
-							return;
-						}
-						if (keyCode === 32) {
-							e.preventDefault();
-							this.props.onChange(availableValues[i]);
-							return;
-						}
-					}}
-					tabIndex={(!disabled && (selected || noneChecked)) ? 0 : -1}
-					ref={(ref) => this.btnRefs[btn.value] = ref}
+					onKeyDown={
+						disabled
+							? null
+							: e => {
+									const { keyCode } = e;
+									if (keyCode === 38 || keyCode === 37) {
+										e.preventDefault();
+										this.props.onChange(
+											availableValues[Math.max(i - 1, 0)]
+										);
+										return;
+									}
+									if (keyCode === 40 || keyCode === 39) {
+										e.preventDefault();
+										this.props.onChange(
+											availableValues[
+												Math.min(
+													i + 1,
+													availableValues.length - 1
+												)
+											]
+										);
+										return;
+									}
+									if (keyCode === 32) {
+										e.preventDefault();
+										this.props.onChange(availableValues[i]);
+										return;
+									}
+								}
+					}
+					tabIndex={!disabled && (selected || noneChecked) ? 0 : -1}
+					ref={ref => (this.btnRefs[btn.value] = ref)}
 					role="radio"
 					aria-checked={selected}
 					aria-disabled={disabled}
@@ -99,7 +115,7 @@ export default class BtnGroup extends React.Component<BtnGroupProps, {}> {
 							position: "absolute",
 							clip: "rect(0,0,0,0)",
 							height: "0px",
-							pointerEvents: "none",
+							pointerEvents: "none"
 						}}
 					/>
 				</label>

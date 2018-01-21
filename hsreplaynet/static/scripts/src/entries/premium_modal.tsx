@@ -1,24 +1,30 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import CheckoutForm, {PaymentMethods} from "../components/payments/CheckoutForm";
+import CheckoutForm, {
+	PaymentMethods
+} from "../components/payments/CheckoutForm";
 import UserData from "../UserData";
 
 let modal;
 
 window.onload = () => {
 	modal = document.getElementById("premium-modal");
-	if(!modal) {
+	if (!modal) {
 		return;
 	}
 	setupModal(modal);
-	if(modal.getAttribute("data-load-checkout")) {
+	if (modal.getAttribute("data-load-checkout")) {
 		loadCheckout();
 	}
 };
 
 UserData.create();
 
-const trackModalInteraction = (action: string, nonInteraction: boolean = false, label?: string) => {
+const trackModalInteraction = (
+	action: string,
+	nonInteraction: boolean = false,
+	label?: string
+) => {
 	if (typeof ga !== "function") {
 		return;
 	}
@@ -27,7 +33,7 @@ const trackModalInteraction = (action: string, nonInteraction: boolean = false, 
 		eventCategory: "Premium Modal",
 		eventAction: action,
 		eventLabel: label,
-		nonInteraction: nonInteraction,
+		nonInteraction: nonInteraction
 	});
 };
 
@@ -45,7 +51,7 @@ const loadCheckout = () => {
 	}
 	window.hsreplaynet_load_hscheckout(
 		document.getElementById("modal-checkout"),
-		document.getElementById("premium-plan-data"),
+		document.getElementById("premium-plan-data")
 	);
 	loadedCheckout = true;
 };
@@ -70,13 +76,13 @@ const openModal = (modalToOpen, label?: string) => {
 	trackModalInteraction("open", false, label);
 };
 
-const closeModal = (modalToClose) => {
+const closeModal = modalToClose => {
 	if (modalIsOpen === false) {
 		return;
 	}
 
 	// reset focus
-	if(lastFocus) {
+	if (lastFocus) {
 		lastFocus.focus();
 		lastFocus = null;
 	}
@@ -93,19 +99,19 @@ const closeModal = (modalToClose) => {
 };
 
 // setup modal
-const setupModal = (modal) => {
-	if(!modal) {
+const setupModal = modal => {
+	if (!modal) {
 		return;
 	}
 	const closeButton = document.getElementById("premium-modal-close");
 	closeButton.style.display = "block";
-	closeButton.onclick = (e) => {
+	closeButton.onclick = e => {
 		e.preventDefault();
 		closeModal(modal);
 	};
 
 	// setup click on background
-	modal.onclick = (e) => {
+	modal.onclick = e => {
 		if (e.target && e.target !== modal) {
 			return;
 		}
@@ -114,7 +120,7 @@ const setupModal = (modal) => {
 	};
 
 	// setup escape button
-	modal.children[0].onkeydown = (event) => {
+	modal.children[0].onkeydown = event => {
 		if (event.keyCode === 27) {
 			closeModal(modal);
 		}
@@ -135,7 +141,9 @@ const getDataAttributes = (element: Element) => {
 		const optionName = name.substr(5);
 		if (optionName) {
 			// camel case
-			const camelName = optionName.replace(/-(.)/g, (match, letter) => letter.toUpperCase());
+			const camelName = optionName.replace(/-(.)/g, (match, letter) =>
+				letter.toUpperCase()
+			);
 			// typecast to boolean if possible
 			let value: any = attribute.value;
 			if (value.toLowerCase() === "true") {
@@ -156,24 +164,38 @@ const getDataAttributes = (element: Element) => {
 	return dataAttributes;
 };
 
-window.hsreplaynet_load_hscheckout = (targetElement: HTMLDivElement, plansElements: HTMLScriptElement) => {
+window.hsreplaynet_load_hscheckout = (
+	targetElement: HTMLDivElement,
+	plansElements: HTMLScriptElement
+) => {
 	const apiKey = targetElement.getAttribute("data-api-key");
-	const stripeCheckoutImage = targetElement.getAttribute("data-stripe-checkout-image");
+	const stripeCheckoutImage = targetElement.getAttribute(
+		"data-stripe-checkout-image"
+	);
 	const stripeCoupon = targetElement.getAttribute("data-stripe-coupon");
-	const stripeCheckoutSubmitUrl = targetElement.getAttribute("data-stripe-checkout-submit-url");
-	const stripeElementsSubmitUrl = targetElement.getAttribute("data-stripe-elements-submit-url");
-	const paypalSubmitUrl = targetElement.getAttribute("data-paypal-submit-url");
+	const stripeCheckoutSubmitUrl = targetElement.getAttribute(
+		"data-stripe-checkout-submit-url"
+	);
+	const stripeElementsSubmitUrl = targetElement.getAttribute(
+		"data-stripe-elements-submit-url"
+	);
+	const paypalSubmitUrl = targetElement.getAttribute(
+		"data-paypal-submit-url"
+	);
 	const csrfToken = targetElement.getAttribute("data-csrf-token");
-	const defaultSource = targetElement.getAttribute("data-stripe-default-source");
+	const defaultSource = targetElement.getAttribute(
+		"data-stripe-default-source"
+	);
 	const planData = JSON.parse(plansElements.textContent);
-	const supportStripeElements = targetElement.getAttribute("data-support-stripe-elements") === "1";
+	const supportStripeElements =
+		targetElement.getAttribute("data-support-stripe-elements") === "1";
 
 	const stripe = document.createElement("script");
 	stripe.src = "https://js.stripe.com/v3/";
 	stripe.onload = () => {
 		ReactDOM.render(
 			<CheckoutForm
-				csrfElement={{__html: csrfToken}}
+				csrfElement={{ __html: csrfToken }}
 				stripeDefaultSource={defaultSource}
 				stripeApiKey={apiKey}
 				stripeCoupon={stripeCoupon}
@@ -187,7 +209,7 @@ window.hsreplaynet_load_hscheckout = (targetElement: HTMLDivElement, plansElemen
 			/>,
 			targetElement
 		);
-	}
+	};
 	document.head.appendChild(stripe);
 };
 
@@ -198,7 +220,7 @@ window.hsreplaynet_load_premium_modal = (label?: string) => {
 	// show modal
 	openModal(modal, label);
 	const learnMore = document.getElementById("premium-modal-learn-more");
-	if(learnMore) {
+	if (learnMore) {
 		learnMore.onclick = () => trackModalInteraction("details");
 	}
 };

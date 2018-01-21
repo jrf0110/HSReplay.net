@@ -1,18 +1,18 @@
-import {MetricsBackend} from "./MetricsBackend";
-
+import { MetricsBackend } from "./MetricsBackend";
 
 export default class MetricsReporter {
 	protected prefixer: (series: string) => string;
 
-	constructor(public backend: MetricsBackend, prefix?: string|((series: string) => string)) {
+	constructor(
+		public backend: MetricsBackend,
+		prefix?: string | ((series: string) => string)
+	) {
 		let prefixer = null;
 		if (!prefix) {
 			prefixer = (series: string) => series;
-		}
-		else if (typeof prefix === "string") {
+		} else if (typeof prefix === "string") {
 			prefixer = (series: string) => prefix + series;
-		}
-		else {
+		} else {
 			prefixer = prefix;
 		}
 		this.prefixer = prefixer;

@@ -14,9 +14,11 @@ interface PagerProps {
 }
 
 export default class Pager extends React.Component<PagerProps, {}> {
-
 	render(): JSX.Element {
-		if (typeof this.props.pageCount === "number" && this.props.pageCount <= 1) {
+		if (
+			typeof this.props.pageCount === "number" &&
+			this.props.pageCount <= 1
+		) {
 			return null;
 		}
 
@@ -26,25 +28,28 @@ export default class Pager extends React.Component<PagerProps, {}> {
 		let lastPage: number | null = null;
 		for (let page of this.getPagesToShow()) {
 			if (lastPage !== null && lastPage + 1 !== page) {
-				pages.push({skip: true});
+				pages.push({ skip: true });
 			}
 
 			pages.push({
 				number: page,
-				active: page === +safeCurrentPage,
+				active: page === +safeCurrentPage
 			});
 
 			lastPage = page;
 		}
 
-		const makeOnClick = (pageNumber: number, keyboard?: boolean) => (event) => {
+		const makeOnClick = (
+			pageNumber: number,
+			keyboard?: boolean
+		) => event => {
 			if (keyboard && event.which !== 13) {
 				return;
 			}
 
 			event.preventDefault();
 			const target = event.currentTarget;
-			if(target && !keyboard) {
+			if (target && !keyboard) {
 				target.blur();
 			}
 
@@ -54,15 +59,22 @@ export default class Pager extends React.Component<PagerProps, {}> {
 		const previous = safeCurrentPage - 1;
 		const next = safeCurrentPage + 1;
 
-		const action = (targetPage: number, children: any, additionalProps?: any) => {
+		const action = (
+			targetPage: number,
+			children: any,
+			additionalProps?: any
+		) => {
 			const min = 1;
 			const max = this.props.pageCount || null;
 
 			let type = "span";
 
-			const props = Object.assign({
-				className: "weight-normal",
-			}, additionalProps);
+			const props = Object.assign(
+				{
+					className: "weight-normal"
+				},
+				additionalProps
+			);
 
 			let disabled = true;
 			if (targetPage >= min && (max === null || targetPage <= max)) {
@@ -76,71 +88,112 @@ export default class Pager extends React.Component<PagerProps, {}> {
 				props["onKeyDown"] = makeOnClick(targetPage, true);
 			}
 
-			return <li className={disabled ? "disabled" : null}>{React.createElement(type, props, children)}</li>
+			return (
+				<li className={disabled ? "disabled" : null}>
+					{React.createElement(type, props, children)}
+				</li>
+			);
 		};
 
-		return <nav className="btn-group">
-			<ul className="pagination">
-				{
-					action(previous, <>
-						<span className="glyphicon glyphicon-arrow-left"></span>
-						<span className={"space-left" + (!this.props.minimal ? " hidden-lg" : "")}>Previous</span>
-					</>, {title: "Previous page"})
-				}
-				{!this.props.minimal ? pages.map((page: Page, index: number) => {
-					let content = null;
-					const classNames = ["visible-lg-inline"];
-
-					const pageNumber = page.number;
-
-					if (page.skip) {
-						content = <span className="transparent-background fixed-width">…</span>;
-					}
-					else {
-						content = (
-							<a
-								href={"#page=" + pageNumber}
-								onClick={makeOnClick(pageNumber)}
-								onKeyDown={makeOnClick(pageNumber, true)}
-								className="fixed-width"
-								aria-label={"Page " + pageNumber}
+		return (
+			<nav className="btn-group">
+				<ul className="pagination">
+					{action(
+						previous,
+						<>
+							<span className="glyphicon glyphicon-arrow-left" />
+							<span
+								className={
+									"space-left" +
+									(!this.props.minimal ? " hidden-lg" : "")
+								}
 							>
-								{pageNumber} {page.active ? <span className="sr-only">(current)</span> : null}
-							</a>
-						);
-					}
+								Previous
+							</span>
+						</>,
+						{ title: "Previous page" }
+					)}
+					{!this.props.minimal
+						? pages.map((page: Page, index: number) => {
+								let content = null;
+								const classNames = ["visible-lg-inline"];
 
-					if (!content) {
-						return null;
-					}
+								const pageNumber = page.number;
 
-					if (page.active) {
-						classNames.push("active");
-					}
+								if (page.skip) {
+									content = (
+										<span className="transparent-background fixed-width">
+											…
+										</span>
+									);
+								} else {
+									content = (
+										<a
+											href={"#page=" + pageNumber}
+											onClick={makeOnClick(pageNumber)}
+											onKeyDown={makeOnClick(
+												pageNumber,
+												true
+											)}
+											className="fixed-width"
+											aria-label={"Page " + pageNumber}
+										>
+											{pageNumber}{" "}
+											{page.active ? (
+												<span className="sr-only">
+													(current)
+												</span>
+											) : null}
+										</a>
+									);
+								}
 
-					return (
-						<li className={classNames.join(" ")} key={pageNumber || `spacing-${index}`}>
-							{content}
+								if (!content) {
+									return null;
+								}
+
+								if (page.active) {
+									classNames.push("active");
+								}
+
+								return (
+									<li
+										className={classNames.join(" ")}
+										key={pageNumber || `spacing-${index}`}
+									>
+										{content}
+									</li>
+								);
+							})
+						: null}
+					{typeof this.props.pageCount === "number" &&
+					this.props.pageCount ? (
+						<li
+							className={!this.props.minimal ? "hidden-lg" : null}
+						>
+							<span className="transparent-background">
+								{safeCurrentPage + " / " + this.props.pageCount}
+							</span>
 						</li>
-					);
-				}) : null}
-				{typeof this.props.pageCount === "number" && this.props.pageCount ? (
-					<li
-						className={!this.props.minimal ? "hidden-lg" : null}
-					>
-						<span className="transparent-background">
-							{safeCurrentPage + " / " + this.props.pageCount}
-						</span>
-					</li>
-				) : null}
-				{
-					action(next, <>
-						<span className={"space-right" + (!this.props.minimal ? " hidden-lg" : "")}>Next</span>
-						<span className="glyphicon glyphicon-arrow-right"></span>
-					</>, {title: "Next page"})
-				}
-			</ul>
-		</nav>;
+					) : null}
+					{action(
+						next,
+						<>
+							<span
+								className={
+									"space-right" +
+									(!this.props.minimal ? " hidden-lg" : "")
+								}
+							>
+								Next
+							</span>
+							<span className="glyphicon glyphicon-arrow-right" />
+						</>,
+						{ title: "Next page" }
+					)}
+				</ul>
+			</nav>
+		);
 	}
 
 	protected getCurrentPage(): number {
@@ -166,7 +219,7 @@ export default class Pager extends React.Component<PagerProps, {}> {
 
 		let pivot = Math.min(
 			Math.max(this.getCurrentPage(), min + 2 * range + 1),
-			max - 2 * range - 1,
+			max - 2 * range - 1
 		);
 
 		// always show these pages
@@ -205,7 +258,10 @@ export default class Pager extends React.Component<PagerProps, {}> {
 		// fill any holes with a width of one page
 		for (let i = 0; i < pages.length; i++) {
 			const page = pages[i];
-			if (pages.indexOf(page - 2) !== -1 && pages.indexOf(page - 1) === -1) {
+			if (
+				pages.indexOf(page - 2) !== -1 &&
+				pages.indexOf(page - 1) === -1
+			) {
 				pages.splice(i, 0, page - 1);
 			}
 		}

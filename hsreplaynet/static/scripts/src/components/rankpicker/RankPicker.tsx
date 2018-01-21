@@ -37,14 +37,17 @@ const rankMap = {
 	22: "TWENTYTWO",
 	23: "TWENTYTHREE",
 	24: "TWENTYFOUR",
-	25: "TWENTYFIVE",
+	25: "TWENTYFIVE"
 };
 
-export default class RankPicker extends React.Component<RankPickerProps, RankPickerState> {
+export default class RankPicker extends React.Component<
+	RankPickerProps,
+	RankPickerState
+> {
 	constructor(props: RankPickerProps, context?: any) {
 		super(props, context);
 		this.state = {
-			forceSet: false,
+			forceSet: false
 		};
 	}
 
@@ -58,27 +61,29 @@ export default class RankPicker extends React.Component<RankPickerProps, RankPic
 		document.removeEventListener("keyup", this.handleKeyUp);
 	}
 
-	handleKeyDown = (event) => {
+	handleKeyDown = event => {
 		if (event.key === "Control" && !this.state.forceSet) {
-			this.setState({forceSet: true});
+			this.setState({ forceSet: true });
 		}
-	}
+	};
 
-	handleKeyUp = (event) => {
+	handleKeyUp = event => {
 		if (event.key === "Control" && this.state.forceSet) {
-			this.setState({forceSet: false});
+			this.setState({ forceSet: false });
 		}
-	}
+	};
 
 	render(): JSX.Element {
 		const selectedRanks = this.getSelectedRanks();
-		const {forceSet} = this.state;
+		const { forceSet } = this.state;
 
 		const items = [];
 		const selectedRows = this.getSelectedRows();
 
-		const ranks = Array(21).fill(null).map((x, index) => index);
-		ranks.forEach((rank) => {
+		const ranks = Array(21)
+			.fill(null)
+			.map((x, index) => index);
+		ranks.forEach(rank => {
 			const rankClasses = [];
 			const rowClasses = [];
 			if (rank === 0) {
@@ -88,7 +93,9 @@ export default class RankPicker extends React.Component<RankPickerProps, RankPic
 				rankClasses.push("selected");
 			}
 			const lowerBoundSelected = selectedRanks[0] <= rank;
-			const upperBoundSelected = selectedRanks[1] >= rank + 4 || rank === 0 && selectedRanks[0] === 0;
+			const upperBoundSelected =
+				selectedRanks[1] >= rank + 4 ||
+				(rank === 0 && selectedRanks[0] === 0);
 			const rowSelected = lowerBoundSelected && upperBoundSelected;
 			if (rowSelected) {
 				rowClasses.push("selected");
@@ -98,29 +105,35 @@ export default class RankPicker extends React.Component<RankPickerProps, RankPic
 			}
 			if (rank === 0 || (rank - 1) % 5 === 0) {
 				const row = Math.floor((rank - 1) / 5);
-				const adjacentSelected =  [row - 1, row, row + 1].some((r) => selectedRows.indexOf(r) !== -1);
+				const adjacentSelected = [row - 1, row, row + 1].some(
+					r => selectedRows.indexOf(r) !== -1
+				);
 				items.push(
 					<RowSelector
 						classNames={rowClasses}
-						onClick={(mode) => this.onRanksChanged(rank, mode)}
-						mode={!forceSet && adjacentSelected && !rowSelected ? "add" : "set"}
-					/>,
+						onClick={mode => this.onRanksChanged(rank, mode)}
+						mode={
+							!forceSet && adjacentSelected && !rowSelected
+								? "add"
+								: "set"
+						}
+					/>
 				);
 			}
 			items.push(
 				<RankSelector
 					classNames={rankClasses}
-					onClick={() => this.props.onSelectionChanged(this.encodeRankRange(rank, rank))}
+					onClick={() =>
+						this.props.onSelectionChanged(
+							this.encodeRankRange(rank, rank)
+						)
+					}
 					rank={rank}
-				/>,
+				/>
 			);
 		});
 
-		return (
-			<div className="rank-picker">
-				{items}
-			</div>
-		);
+		return <div className="rank-picker">{items}</div>;
 	}
 
 	getSelectedRanks(): [number, number] {
@@ -167,16 +180,20 @@ export default class RankPicker extends React.Component<RankPickerProps, RankPic
 		const range = selectedRanks[1] - selectedRanks[0];
 		const numRows = Math.floor((range + 1) / 5) + +(selectedRanks[0] === 0);
 		const offset = Math.floor((selectedRanks[0] - 1) / 5);
-		return Array(numRows).fill(null).map((x, index) => index + offset);
+		return Array(numRows)
+			.fill(null)
+			.map((x, index) => index + offset);
 	}
 
 	onRanksChanged(rank: number, mode: Mode) {
 		const current = this.decodeRankRange(this.props.selected);
-		const {forceSet} = this.state;
+		const { forceSet } = this.state;
 		const range = rank === 0 ? 0 : 4;
 		const addMode = !forceSet && mode === "add";
 		const minRank = addMode ? Math.min(rank, current[0]) : rank;
-		const maxRank = addMode ? Math.max(rank + range, current[1]) : rank + range;
+		const maxRank = addMode
+			? Math.max(rank + range, current[1])
+			: rank + range;
 		this.props.onSelectionChanged(this.encodeRankRange(minRank, maxRank));
 	}
 }

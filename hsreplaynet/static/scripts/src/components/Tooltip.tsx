@@ -29,7 +29,10 @@ interface TooltipProps {
 	onHovering?: () => void;
 }
 
-export default class Tooltip extends React.Component<TooltipProps, TooltipState> {
+export default class Tooltip extends React.Component<
+	TooltipProps,
+	TooltipState
+> {
 	tooltip: HTMLDivElement;
 	tooltipContainer: Element;
 
@@ -39,7 +42,7 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			clientX: 0,
 			clientY: 0,
 			hovering: false,
-			isTouchDevice: false,
+			isTouchDevice: false
 		};
 	}
 
@@ -51,8 +54,7 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 				document.body.appendChild(this.tooltipContainer);
 			}
 			this.renderTooltip();
-		}
-		else {
+		} else {
 			this.removeTooltipContainer();
 		}
 	}
@@ -87,20 +89,26 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 				top -= height;
 			}
 			top += this.props.yOffset || 0;
-			style["top"] = Math.min(window.innerHeight - height, Math.max(0, top));
-		}
-		else {
+			style["top"] = Math.min(
+				window.innerHeight - height,
+				Math.max(0, top)
+			);
+		} else {
 			style["visibility"] = "hidden";
 		}
 		if (this.tooltip && this.props.centered) {
 			const width = this.tooltip.getBoundingClientRect().width;
-			style["left"] = Math.min(window.innerWidth - width, Math.max(0, this.state.clientX - width / 2));
-		}
-		else if (this.state.clientX < window.innerWidth / 2) {
+			style["left"] = Math.min(
+				window.innerWidth - width,
+				Math.max(0, this.state.clientX - width / 2)
+			);
+		} else if (this.state.clientX < window.innerWidth / 2) {
 			style["left"] = this.state.clientX + 20 + (this.props.xOffset || 0);
-		}
-		else {
-			style["right"] = window.innerWidth - this.state.clientX + (this.props.xOffset || 0);
+		} else {
+			style["right"] =
+				window.innerWidth -
+				this.state.clientX +
+				(this.props.xOffset || 0);
 		}
 
 		const content = [];
@@ -109,27 +117,31 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			const selectedContent = this.getSelectedContent();
 			if (typeof selectedContent === "string") {
 				content.push(<p>{selectedContent}</p>);
-			}
-			else {
+			} else {
 				content.push(selectedContent);
 			}
 		}
 
-		ReactDOM.render((
+		ReactDOM.render(
 			<div
 				id={this.props.id}
 				className={classNames.join(" ")}
 				style={style}
-				ref={(ref) => this.tooltip = ref}
+				ref={ref => (this.tooltip = ref)}
 			>
 				{content}
-			</div>
-		), this.tooltipContainer, () => {
-			if (this.tooltip && this.tooltip.getBoundingClientRect().height !== height) {
-				// re-render if this render caused a height change, to update position
-				this.renderTooltip();
+			</div>,
+			this.tooltipContainer,
+			() => {
+				if (
+					this.tooltip &&
+					this.tooltip.getBoundingClientRect().height !== height
+				) {
+					// re-render if this render caused a height change, to update position
+					this.renderTooltip();
+				}
 			}
-		});
+		);
 	}
 
 	render(): JSX.Element {
@@ -140,14 +152,18 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 
 		const cancel = () => {
 			this.tooltip = undefined;
-			this.setState({hovering: false});
+			this.setState({ hovering: false });
 		};
 
-		const hover = (e) => {
+		const hover = e => {
 			if (!this.state.hovering && this.props.onHovering) {
 				this.props.onHovering();
 			}
-			this.setState({hovering: true, clientX: e.clientX, clientY: e.clientY});
+			this.setState({
+				hovering: true,
+				clientX: e.clientX,
+				clientY: e.clientY
+			});
 		};
 
 		return (
@@ -155,7 +171,7 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 				className={classNames.join(" ")}
 				onMouseMove={hover}
 				onMouseLeave={cancel}
-				onTouchStart={() => this.setState({isTouchDevice: true})}
+				onTouchStart={() => this.setState({ isTouchDevice: true })}
 				aria-describedby={this.state.hovering ? this.props.id : null}
 			>
 				{this.props.children}
@@ -168,7 +184,10 @@ export default class Tooltip extends React.Component<TooltipProps, TooltipState>
 			return this.props.content;
 		}
 
-		if (!this.props.content.hasOwnProperty("click") && !this.props.content.hasOwnProperty("touch")) {
+		if (
+			!this.props.content.hasOwnProperty("click") &&
+			!this.props.content.hasOwnProperty("touch")
+		) {
 			return this.props.content as TooltipContent;
 		}
 

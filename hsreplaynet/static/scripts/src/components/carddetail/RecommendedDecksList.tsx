@@ -1,6 +1,6 @@
 import React from "react";
 import CardData from "../../CardData";
-import {DeckObj, TableData} from "../../interfaces";
+import { DeckObj, TableData } from "../../interfaces";
 import DeckList from "../DeckList";
 import Fragments from "../Fragments";
 
@@ -10,21 +10,33 @@ interface RecommendedDecksListProps {
 	data?: TableData;
 }
 
-export default class RecommendedDecksList extends React.Component<RecommendedDecksListProps, {}> {
+export default class RecommendedDecksList extends React.Component<
+	RecommendedDecksListProps,
+	{}
+> {
 	render(): JSX.Element {
 		const decks: DeckObj[] = [];
 		const data = this.props.data.series.data;
 
-		Object.keys(data).forEach((playerClass) => {
+		Object.keys(data).forEach(playerClass => {
 			const classDecks = [];
-			data[playerClass].forEach((deck) => {
+			data[playerClass].forEach(deck => {
 				const cards = JSON.parse(deck["deck_list"]);
-				if (cards.some((pair) => pair[0] === this.props.card.dbfId)) {
-					classDecks.push({cards, deck, numGames: +deck["total_games"]});
+				if (cards.some(pair => pair[0] === this.props.card.dbfId)) {
+					classDecks.push({
+						cards,
+						deck,
+						numGames: +deck["total_games"]
+					});
 				}
 			});
-			classDecks.slice(0, 10).forEach((deck) => {
-				const cardData = deck.cards.map((c) => {return {card: this.props.cardData.fromDbf(c[0]), count: c[1]};});
+			classDecks.slice(0, 10).forEach(deck => {
+				const cardData = deck.cards.map(c => {
+					return {
+						card: this.props.cardData.fromDbf(c[0]),
+						count: c[1]
+					};
+				});
 				decks.push({
 					archetypeId: deck.deck.archetype_id,
 					cards: cardData,
@@ -32,7 +44,7 @@ export default class RecommendedDecksList extends React.Component<RecommendedDec
 					duration: +deck.deck["avg_game_length_seconds"],
 					numGames: +deck.deck["total_games"],
 					playerClass,
-					winrate: +deck.deck["win_rate"],
+					winrate: +deck.deck["win_rate"]
 				});
 			});
 		});
@@ -46,14 +58,10 @@ export default class RecommendedDecksList extends React.Component<RecommendedDec
 				defaults={{
 					sortBy: "popularity",
 					sortDirection: "descending",
-					page: 1,
+					page: 1
 				}}
 			>
-				<DeckList
-					decks={decks}
-					pageSize={10}
-					hideTopPager
-				/>
+				<DeckList decks={decks} pageSize={10} hideTopPager />
 			</Fragments>
 		);
 	}

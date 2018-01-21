@@ -1,4 +1,4 @@
-import {cookie} from "cookie_js";
+import { cookie } from "cookie_js";
 import Settings from "./Settings";
 
 interface UserDataProps {
@@ -62,15 +62,15 @@ export default class UserData {
 		return !!(this._instance && UserData._instance.staff);
 	}
 
-	static getUsername(): string|null {
+	static getUsername(): string | null {
 		return this._instance ? UserData._instance.username : null;
 	}
 
-	static getEmail(): string|null {
-		return this._instance ? UserData._instance.email: null;
+	static getEmail(): string | null {
+		return this._instance ? UserData._instance.email : null;
 	}
 
-	static getLocale(): string|null {
+	static getLocale(): string | null {
 		return this._instance ? UserData._instance.locale : null;
 	}
 
@@ -91,7 +91,7 @@ export default class UserData {
 	}
 
 	static setDefaultAccount(key: string): void {
-		cookie.set("default-account", key, {path: "/", expires: 365});
+		cookie.set("default-account", key, { path: "/", expires: 365 });
 	}
 
 	static getSetting(key: string): any {
@@ -102,7 +102,7 @@ export default class UserData {
 		return this._settings.set(key, value);
 	}
 
-	static getIpCountry(): string|null {
+	static getIpCountry(): string | null {
 		return this._instance ? UserData._instance.ipcountry : null;
 	}
 }

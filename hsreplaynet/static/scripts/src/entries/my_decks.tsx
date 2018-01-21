@@ -17,14 +17,12 @@ const render = (cardData: CardData) => {
 				includedCards: [],
 				includedSet: "ALL",
 				timeRange: "LAST_30_DAYS",
-				playerClasses: [],
+				playerClasses: []
 			}}
 		>
-			<MyDecks
-				cardData={cardData}
-			/>
+			<MyDecks cardData={cardData} />
 		</Fragments>,
-		container,
+		container
 	);
 };
 

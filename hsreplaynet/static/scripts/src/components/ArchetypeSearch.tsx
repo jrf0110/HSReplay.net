@@ -1,10 +1,9 @@
 import React from "react";
-import {cardSorting, cleanText} from "../helpers";
+import { cardSorting, cleanText } from "../helpers";
 import ObjectSearch, { Limit } from "./ObjectSearch";
 import { ApiArchetype } from "../interfaces";
 
-interface ArchetypeSearchState {
-}
+interface ArchetypeSearchState {}
 
 interface ArchetypeSearchProps {
 	availableArchetypes: ApiArchetype[];
@@ -15,13 +14,18 @@ interface ArchetypeSearchProps {
 	label?: string;
 }
 
-export default class ArchetypeSearch extends React.Component<ArchetypeSearchProps, ArchetypeSearchState> {
+export default class ArchetypeSearch extends React.Component<
+	ArchetypeSearchProps,
+	ArchetypeSearchState
+> {
 	render(): JSX.Element {
 		return (
 			<ArchetypeObjectSearch
-				getFilteredObjects={(query) => this.getFilteredArchetypes(query)}
-				getObjectElement={(archetype) => this.getArchetypeElement(archetype)}
-				getObjectKey={(archetype) => "" + archetype.id}
+				getFilteredObjects={query => this.getFilteredArchetypes(query)}
+				getObjectElement={archetype =>
+					this.getArchetypeElement(archetype)
+				}
+				getObjectKey={archetype => "" + archetype.id}
 				id={this.props.id}
 				label={this.props.label}
 				noDataText="No archetype found"
@@ -47,7 +51,7 @@ export default class ArchetypeSearch extends React.Component<ArchetypeSearchProp
 		if (!cleanQuery) {
 			return [];
 		}
-		return this.props.availableArchetypes.filter((archetype) => {
+		return this.props.availableArchetypes.filter(archetype => {
 			return cleanText(archetype.name).indexOf(cleanQuery) !== -1;
 		});
 	}
@@ -64,5 +68,4 @@ export default class ArchetypeSearch extends React.Component<ArchetypeSearchProp
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class ArchetypeObjectSearch extends ObjectSearch<ApiArchetype> {
-}
+class ArchetypeObjectSearch extends ObjectSearch<ApiArchetype> {}

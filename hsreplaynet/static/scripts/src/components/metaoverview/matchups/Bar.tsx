@@ -2,7 +2,7 @@ import React from "react";
 
 export const enum BarDirection {
 	VERTICAL,
-	HORIZONTAL,
+	HORIZONTAL
 }
 
 interface BarProps extends React.ClassAttributes<Bar> {
@@ -19,14 +19,24 @@ export default class Bar extends React.Component<BarProps, {}> {
 		const style = {};
 
 		const size = `${100 / this.props.total * this.props.value}%`;
-		style[direction === BarDirection.HORIZONTAL ? "width" : "height"] = size;
+		style[
+			direction === BarDirection.HORIZONTAL ? "width" : "height"
+		] = size;
 
-		const valueElement = this.props.valueElement || <div className="bar-label">{this.props.label}</div>;
+		const valueElement = this.props.valueElement || (
+			<div className="bar-label">{this.props.label}</div>
+		);
 
 		return (
-			<div className={`bar bar-${direction === BarDirection.HORIZONTAL ? "horizontal" : "vertical"}`}>
+			<div
+				className={`bar bar-${
+					direction === BarDirection.HORIZONTAL
+						? "horizontal"
+						: "vertical"
+				}`}
+			>
 				<div className="bar-body">
-					<div style={style}/>
+					<div style={style} />
 				</div>
 				{valueElement}
 			</div>

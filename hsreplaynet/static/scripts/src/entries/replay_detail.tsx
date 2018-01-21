@@ -6,14 +6,16 @@ import MetricsReporter from "../metrics/MetricsReporter";
 import BatchingMiddleware from "../metrics/BatchingMiddleware";
 import InfluxMetricsBackend from "../metrics/InfluxMetricsBackend";
 import VisibilityDropdown from "../components/VisibilityDropdown";
-import {Visibility} from "../interfaces";
+import { Visibility } from "../interfaces";
 import DeleteReplayButton from "../components/DeleteReplayButton";
 import PlayerInfo from "../components/PlayerInfo";
 import UserData from "../UserData";
 import CardData from "../CardData";
 
 // shortid
-let shortid = document.getElementById("replay-infobox").getAttribute("data-shortid");
+let shortid = document
+	.getElementById("replay-infobox")
+	.getAttribute("data-shortid");
 
 // Joust
 let embedder = new JoustEmbedder();
@@ -25,15 +27,15 @@ const startPaused = container.getAttribute("data-autoplay") === "false";
 if (location.hash) {
 	let ret = location.hash.match(/turn=(\d+)(a|b)/);
 	if (ret) {
-		embedder.turn = ((+ret[1]) * 2) + (+(ret[2] === "b")) - 1;
+		embedder.turn = +ret[1] * 2 + +(ret[2] === "b") - 1;
 	}
 	ret = location.hash.match(/reveal=(0|1)/);
 	if (ret) {
-		embedder.reveal = (+ret[1] === 1);
+		embedder.reveal = +ret[1] === 1;
 	}
 	ret = location.hash.match(/swap=(0|1)/);
 	if (ret) {
-		embedder.swap = (+ret[1] === 1);
+		embedder.swap = +ret[1] === 1;
 	}
 }
 
@@ -43,7 +45,7 @@ let endpoint = INFLUX_DATABASE_JOUST;
 if (endpoint) {
 	metrics = new MetricsReporter(
 		new BatchingMiddleware(new InfluxMetricsBackend(endpoint)),
-		(series: string): string => "hsreplaynet_" + series,
+		(series: string): string => "hsreplaynet_" + series
 	);
 }
 let shared = {};
@@ -51,7 +53,9 @@ let shared = {};
 function renderShareDialog() {
 	ReactDOM.render(
 		<ShareGameDialog
-			url={document.getElementById("share-game-dialog").getAttribute("data-url")}
+			url={document
+				.getElementById("share-game-dialog")
+				.getAttribute("data-url")}
 			showLinkToTurn={true}
 			showPreservePerspective={false}
 			turn={embedder.turn}
@@ -65,11 +69,15 @@ function renderShareDialog() {
 					// deduplicate
 					return;
 				}
-				metrics.writePoint("shares", {count: 1, link_to_turn: linkToTurn}, {network});
+				metrics.writePoint(
+					"shares",
+					{ count: 1, link_to_turn: linkToTurn },
+					{ network }
+				);
 				shared[network] = true;
 			}}
 		/>,
-		document.getElementById("share-game-dialog"),
+		document.getElementById("share-game-dialog")
 	);
 }
 
@@ -84,11 +92,8 @@ let visibilityTarget = document.getElementById("replay-visibility");
 if (visibilityTarget) {
 	let status = +visibilityTarget.getAttribute("data-selected") as Visibility;
 	ReactDOM.render(
-		<VisibilityDropdown
-			initial={status}
-			shortid={shortid}
-		/>,
-		visibilityTarget,
+		<VisibilityDropdown initial={status} shortid={shortid} />,
+		visibilityTarget
 	);
 }
 
@@ -99,13 +104,17 @@ if (deleteTarget) {
 	ReactDOM.render(
 		<DeleteReplayButton
 			shortid={shortid}
-			done={() => window.location.href = redirect} />,
-		deleteTarget,
+			done={() => (window.location.href = redirect)}
+		/>,
+		deleteTarget
 	);
 }
 
 // Player info
-const renderPlayerInfo = (playerInfo: HTMLElement, playerExpandDirection: "up"|"down") => {
+const renderPlayerInfo = (
+	playerInfo: HTMLElement,
+	playerExpandDirection: "up" | "down"
+) => {
 	if (!playerInfo) {
 		return;
 	}
@@ -123,20 +132,22 @@ const renderPlayerInfo = (playerInfo: HTMLElement, playerExpandDirection: "up"|"
 				cardData={cards}
 				playerExpandDirection={playerExpandDirection}
 			/>,
-			playerInfo,
+			playerInfo
 		);
 	};
 	renderPlayerInfoComponent();
 	const cardData = new CardData();
-	cardData.load((instance) => {
+	cardData.load(instance => {
 		renderPlayerInfoComponent(instance);
 	});
-
 };
 
 UserData.create();
 renderPlayerInfo(document.getElementById("infobox-players-container"), "up");
-renderPlayerInfo(document.getElementById("infobox-players-container-small"), "down");
+renderPlayerInfo(
+	document.getElementById("infobox-players-container-small"),
+	"down"
+);
 
 // fullscreen button for mobile
 let wasPlaying = !startPaused;
@@ -144,27 +155,42 @@ let first = true;
 const toggleButton = document.getElementById("replay-toggle-container");
 
 ReactDOM.render(
-	embedder.launcher ?
-		<button className="btn btn-primary btn-full visible-xs" type="button" onClick={() => {
-			first = false;
-			container.classList.remove("hidden-xs");
-			embedder.launcher.fullscreen(true);
-		}}>
+	embedder.launcher ? (
+		<button
+			className="btn btn-primary btn-full visible-xs"
+			type="button"
+			onClick={() => {
+				first = false;
+				container.classList.remove("hidden-xs");
+				embedder.launcher.fullscreen(true);
+			}}
+		>
 			Enter Replay
-		</button> :
-		<button className="btn btn-danger btn-full visible-xs" type="button" onClick={() => {
-			alert([
-				"Something went wrong when trying to initialize our Replay applet (Joust).",
-				"Please ensure you have no plugins blocking it, such as Adblockers or NoScript.",
-				"Otherwise try opening this replay on another device.",
-			].join(" "));
-		}}>
+		</button>
+	) : (
+		<button
+			className="btn btn-danger btn-full visible-xs"
+			type="button"
+			onClick={() => {
+				alert(
+					[
+						"Something went wrong when trying to initialize our Replay applet (Joust).",
+						"Please ensure you have no plugins blocking it, such as Adblockers or NoScript.",
+						"Otherwise try opening this replay on another device."
+					].join(" ")
+				);
+			}}
+		>
 			Something went wrong…
-		</button>,
-	toggleButton,
+		</button>
+	),
+	toggleButton
 );
 
-const style = typeof window.getComputedStyle === "function" ? window.getComputedStyle(container) : {};
+const style =
+	typeof window.getComputedStyle === "function"
+		? window.getComputedStyle(container)
+		: {};
 if (style["display"] === "none") {
 	embedder.launcher.startPaused(true);
 }
@@ -174,8 +200,7 @@ embedder.launcher.onFullscreen((fullscreen: boolean): void => {
 		if (wasPlaying) {
 			embedder.launcher.play();
 		}
-	}
-	else {
+	} else {
 		// leave fullscreen
 		wasPlaying = embedder.launcher.playing;
 		embedder.launcher.pause();
@@ -197,7 +222,7 @@ if (banner) {
 			hitType: "event",
 			eventCategory: "Banner",
 			eventAction: "click",
-			eventLabel: "Replay Sidebar Banner",
+			eventLabel: "Replay Sidebar Banner"
 		});
 	});
 }

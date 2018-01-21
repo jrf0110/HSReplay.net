@@ -22,7 +22,10 @@ interface AdaptDetailProps {
 	setOpponentClass: (opponentClass: string) => void;
 }
 
-export default class AdaptDetail extends React.Component<AdaptDetailProps, AdaptDetailState> {
+export default class AdaptDetail extends React.Component<
+	AdaptDetailProps,
+	AdaptDetailState
+> {
 	private readonly numRows = 10;
 
 	constructor(props: AdaptDetailProps, state: AdaptDetailState) {
@@ -30,7 +33,7 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 		this.state = {
 			page: 1,
 			sortBy: "popularity",
-			sortDirection: "descending",
+			sortDirection: "descending"
 		};
 	}
 
@@ -40,51 +43,84 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 		const rows = [];
 		const offset = (this.state.page - 1) * this.numRows;
 		if (this.props.data && this.props.cardData) {
-			const choices = this.props.data.series.data[this.props.opponentClass];
+			const choices = this.props.data.series.data[
+				this.props.opponentClass
+			];
 			if (choices) {
 				totalRows = choices.length;
-				const sortDir = this.state.sortDirection === "descending" ? 1 : -1;
-				choices.sort((a, b) => (+b[this.state.sortBy] - +a[this.state.sortBy]) * sortDir);
-				const visibleChoices = choices.slice(offset, offset + this.numRows);
-				adaptations = Math.max.apply(Math, visibleChoices.map((choice) => choice.adaptations.length));
+				const sortDir =
+					this.state.sortDirection === "descending" ? 1 : -1;
+				choices.sort(
+					(a, b) =>
+						(+b[this.state.sortBy] - +a[this.state.sortBy]) *
+						sortDir
+				);
+				const visibleChoices = choices.slice(
+					offset,
+					offset + this.numRows
+				);
+				adaptations = Math.max.apply(
+					Math,
+					visibleChoices.map(choice => choice.adaptations.length)
+				);
 				visibleChoices.forEach((choice, index) => {
 					const cards = [];
-					choice.adaptations.forEach((dbfId) => {
+					choice.adaptations.forEach(dbfId => {
 						const card = this.props.cardData.fromDbf(dbfId);
 						cards.push(
 							<td className="card-cell">
-								<CardTile card={card} count={1} height={34} noLink customText={this.shortAdaptText(card)} />
-							</td>,
+								<CardTile
+									card={card}
+									count={1}
+									height={34}
+									noLink
+									customText={this.shortAdaptText(card)}
+								/>
+							</td>
 						);
 					});
 					for (let i = cards.length; i < adaptations; i++) {
-						cards.push(<td/>);
+						cards.push(<td />);
 					}
 					const wrData = winrateData(50, choice.win_rate, 2);
 					const winrateCell = (
-						<td style={{color: wrData.color}}>{choice.win_rate + "%"}</td>
+						<td style={{ color: wrData.color }}>
+							{choice.win_rate + "%"}
+						</td>
 					);
 					rows.push(
 						<tr className="card-table-row">
-							<td className="hidden-xs">{"#" + (offset + index + 1)}</td>
+							<td className="hidden-xs">
+								{"#" + (offset + index + 1)}
+							</td>
 							{cards}
 							{winrateCell}
 							<td>{choice.popularity + "%"}</td>
-						</tr>,
+						</tr>
 					);
 				});
 			}
 		}
 
 		const headers: TableHeaderProps[] = [
-			{sortKey: "rank", text: "Rank", sortable: false, classNames: ["hidden-xs"]},
-			{sortKey: "adaptations", text: "Adaptations", sortable: false},
+			{
+				sortKey: "rank",
+				text: "Rank",
+				sortable: false,
+				classNames: ["hidden-xs"]
+			},
+			{ sortKey: "adaptations", text: "Adaptations", sortable: false }
 		];
-		Array.from({length: adaptations - 1},
-			(x, index) => headers.push({sortKey: "adaptations-" + index, text: "", sortable: false}));
+		Array.from({ length: adaptations - 1 }, (x, index) =>
+			headers.push({
+				sortKey: "adaptations-" + index,
+				text: "",
+				sortable: false
+			})
+		);
 		headers.push(
-			{sortKey: "win_rate", text: "Winrate"},
-			{sortKey: "popularity", text: "Popularity"},
+			{ sortKey: "win_rate", text: "Winrate" },
+			{ sortKey: "popularity", text: "Popularity" }
 		);
 
 		const table = (
@@ -92,8 +128,9 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 				headers={headers}
 				sortBy={this.state.sortBy}
 				sortDirection={this.state.sortDirection}
-				onSortChanged={
-					(sortBy, sortDirection) => this.setState({sortBy, sortDirection})}
+				onSortChanged={(sortBy, sortDirection) =>
+					this.setState({ sortBy, sortDirection })
+				}
 			>
 				{rows}
 			</SortableTable>
@@ -109,8 +146,13 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 								filters="All"
 								hideAll
 								minimal
-								selectedClasses={[this.props.opponentClass as FilterOption]}
-								selectionChanged={(selected) => UserData.isPremium() && this.props.setOpponentClass(selected[0])}
+								selectedClasses={[
+									this.props.opponentClass as FilterOption
+								]}
+								selectionChanged={selected =>
+									UserData.isPremium() &&
+									this.props.setOpponentClass(selected[0])
+								}
 							/>
 						</PremiumWrapper>
 					</div>
@@ -121,7 +163,9 @@ export default class AdaptDetail extends React.Component<AdaptDetailProps, Adapt
 						<div className="text-center">
 							<Pager
 								currentPage={this.state.page}
-								setCurrentPage={(page: number) => this.setState({page})}
+								setCurrentPage={(page: number) =>
+									this.setState({ page })
+								}
 								pageCount={Math.ceil(totalRows / this.numRows)}
 								minimal
 							/>

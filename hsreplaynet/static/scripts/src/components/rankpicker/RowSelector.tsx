@@ -10,7 +10,7 @@ interface RowSelectorProps extends React.ClassAttributes<RowSelector> {
 
 export default class RowSelector extends React.Component<RowSelectorProps, {}> {
 	render(): JSX.Element {
-		const {mode} = this.props;
+		const { mode } = this.props;
 		const classNames = ["row-selector"].concat(this.props.classNames);
 		const glyphicon = mode === "add" ? "plus" : "arrow-right";
 		return (
@@ -18,7 +18,7 @@ export default class RowSelector extends React.Component<RowSelectorProps, {}> {
 				className={classNames.join(" ")}
 				onClick={() => this.props.onClick(mode)}
 			>
-				<span className={`glyphicon glyphicon-${glyphicon}`}/>
+				<span className={`glyphicon glyphicon-${glyphicon}`} />
 			</div>
 		);
 	}

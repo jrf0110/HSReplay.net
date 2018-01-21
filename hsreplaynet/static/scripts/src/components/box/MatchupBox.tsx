@@ -1,5 +1,5 @@
 import React from "react";
-import {getArchetypeUrl, winrateData} from "../../helpers";
+import { getArchetypeUrl, winrateData } from "../../helpers";
 import { LoadingStatus } from "../../interfaces";
 
 interface Props extends React.ClassAttributes<MatchupBox> {
@@ -15,11 +15,17 @@ interface Props extends React.ClassAttributes<MatchupBox> {
 export default class MatchupBox extends React.Component<Props> {
 	render(): JSX.Element {
 		let content = null;
-		if (this.props.playerClass && this.props.games !== undefined && this.props.winrate !== undefined) {
+		if (
+			this.props.playerClass &&
+			this.props.games !== undefined &&
+			this.props.winrate !== undefined
+		) {
 			const wrData = winrateData(50, this.props.winrate, 3);
 			content = [
 				<div>
-					<span className={`player-class ${this.props.playerClass.toLowerCase()}`}>
+					<span
+						className={`player-class ${this.props.playerClass.toLowerCase()}`}
+					>
 						{this.props.archetypeName}
 					</span>
 				</div>,
@@ -27,34 +33,37 @@ export default class MatchupBox extends React.Component<Props> {
 					<table>
 						<tr>
 							<th>Winrate:</th>
-							<td style={{color: wrData.color}}>{this.props.winrate}%</td>
+							<td style={{ color: wrData.color }}>
+								{this.props.winrate}%
+							</td>
 						</tr>
 						<tr>
 							<th>Games:</th>
 							<td>{this.props.games}</td>
 						</tr>
 					</table>
-				</div>,
+				</div>
 			];
-		}
-		else if (this.props.status === LoadingStatus.NO_DATA || this.props.status === LoadingStatus.PROCESSING) {
+		} else if (
+			this.props.status === LoadingStatus.NO_DATA ||
+			this.props.status === LoadingStatus.PROCESSING
+		) {
 			content = "Please check back later";
 		}
 
 		let href = null;
 		if (this.props.archetypeId && this.props.archetypeName) {
-			href = getArchetypeUrl(this.props.archetypeId, this.props.archetypeName);
+			href = getArchetypeUrl(
+				this.props.archetypeId,
+				this.props.archetypeName
+			);
 		}
 
 		return (
 			<div className="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 				<a className="box matchup-box" href={href}>
-					<div className="box-title">
-						{this.props.title}
-					</div>
-					<div className="box-content">
-						{content}
-					</div>
+					<div className="box-title">{this.props.title}</div>
+					<div className="box-content">{content}</div>
 				</a>
 			</div>
 		);

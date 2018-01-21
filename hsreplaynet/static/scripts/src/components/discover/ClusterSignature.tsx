@@ -9,40 +9,47 @@ interface ClusterSignatureState {
 	sortDirection: SortDirection;
 }
 
-interface ClusterSignatureProps extends React.ClassAttributes<ClusterSignature> {
+interface ClusterSignatureProps
+	extends React.ClassAttributes<ClusterSignature> {
 	cardData: CardData;
 	signature?: ApiArchetypeSignature;
 }
 
-export default class ClusterSignature extends React.Component<ClusterSignatureProps, ClusterSignatureState> {
+export default class ClusterSignature extends React.Component<
+	ClusterSignatureProps,
+	ClusterSignatureState
+> {
 	constructor(props: ClusterSignatureProps, state: ClusterSignatureState) {
 		super(props, state);
 		this.state = {
 			sortBy: "prevalence",
-			sortDirection: "descending",
+			sortDirection: "descending"
 		};
 	}
 
 	render(): JSX.Element {
-		const {cardData, signature} = this.props;
+		const { cardData, signature } = this.props;
 
 		const cards = [];
 		const prevalences = [];
 
 		signature.components.forEach(([dbfId, prevalence]) => {
-			cards.push({card: cardData.fromDbf(dbfId), count: 1});
-			prevalences.push({dbf_id: dbfId, prevalence: toDynamicFixed(prevalence, 3)});
+			cards.push({ card: cardData.fromDbf(dbfId), count: 1 });
+			prevalences.push({
+				dbf_id: dbfId,
+				prevalence: toDynamicFixed(prevalence, 3)
+			});
 		});
 		return (
 			<CardTable
 				cards={cards}
 				data={prevalences}
-				columns={[
-					"prevalence",
-				]}
+				columns={["prevalence"]}
 				sortBy={this.state.sortBy}
 				sortDirection={this.state.sortDirection}
-				onSortChanged={(sortBy, sortDirection) => this.setState({sortBy, sortDirection})}
+				onSortChanged={(sortBy, sortDirection) =>
+					this.setState({ sortBy, sortDirection })
+				}
 				numCards={signature.components.length}
 				minColumnWidth={100}
 				headerWidth={[150, 300]}

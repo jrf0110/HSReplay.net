@@ -1,15 +1,17 @@
 import React from "react";
-import {GlobalGamePlayer, ImageProps, CardArtProps} from "../../interfaces";
+import { GlobalGamePlayer, ImageProps, CardArtProps } from "../../interfaces";
 import ClassIcon from "../ClassIcon";
 import GameHistoryPlayer from "./GameHistoryPlayer";
 import GameModeIcon from "../GameModeIcon";
 import GameModeText from "../GameModeText";
-import {PlayState, BnetGameType} from "../../hearthstone";
-import {getDuration} from "../../PrettyTime";
+import { PlayState, BnetGameType } from "../../hearthstone";
+import { getDuration } from "../../PrettyTime";
 import SemanticAge from "../SemanticAge";
 
-
-interface GameHistoryTableRowProps extends ImageProps, CardArtProps, React.ClassAttributes<GameHistoryTableRow> {
+interface GameHistoryTableRowProps
+	extends ImageProps,
+		CardArtProps,
+		React.ClassAttributes<GameHistoryTableRow> {
 	shortid: string;
 	startTime: Date;
 	endTime: Date;
@@ -17,35 +19,55 @@ interface GameHistoryTableRowProps extends ImageProps, CardArtProps, React.Class
 	disconnected: boolean;
 	scenarioId: number;
 	turns: number;
-	won: boolean|null;
+	won: boolean | null;
 	friendlyPlayer: GlobalGamePlayer;
 	opposingPlayer: GlobalGamePlayer;
 }
 
-export default class GameHistoryTableRow extends React.Component<GameHistoryTableRowProps, any> {
+export default class GameHistoryTableRow extends React.Component<
+	GameHistoryTableRowProps,
+	any
+> {
 	render(): JSX.Element {
 		let url = "/replay/" + this.props.shortid;
-		let result = this.props.won !== null ? (this.props.won ? "result-won" : "result-lost") : null;
+		let result =
+			this.props.won !== null
+				? this.props.won ? "result-won" : "result-lost"
+				: null;
 		return (
 			<a href={url} className={"match-table-row " + result}>
 				<div className="match-table-cell auto-size player-icon">
-					<ClassIcon heroClassName={this.props.friendlyPlayer.hero_class_name} small={true}/>
+					<ClassIcon
+						heroClassName={
+							this.props.friendlyPlayer.hero_class_name
+						}
+						small={true}
+					/>
 				</div>
 				<div className="match-table-cell auto-size hide-below-768 player-name">
 					{this.getHeroName(this.props.friendlyPlayer)}
 				</div>
-				<div className="match-table-cell auto-size">
-					vs.
-				</div>
+				<div className="match-table-cell auto-size">vs.</div>
 				<div className="match-table-cell auto-size opponent-icon">
-					<ClassIcon heroClassName={this.props.opposingPlayer.hero_class_name} small={true}/>
+					<ClassIcon
+						heroClassName={
+							this.props.opposingPlayer.hero_class_name
+						}
+						small={true}
+					/>
 				</div>
 				<div className="match-table-cell auto-size hide-below-768 opponent-name">
 					{this.getHeroName(this.props.opposingPlayer)}
 				</div>
-				<div className="match-table-cell"></div>
-				<div className="match-table-cell hide-below-1100">{this.props.opposingPlayer.name}</div>
-				<div className={"match-table-cell " + result}>{this.props.won !== null ? (this.props.won ? "Won" : "Lost") : "Unknown"}</div>
+				<div className="match-table-cell" />
+				<div className="match-table-cell hide-below-1100">
+					{this.props.opposingPlayer.name}
+				</div>
+				<div className={"match-table-cell " + result}>
+					{this.props.won !== null
+						? this.props.won ? "Won" : "Lost"
+						: "Unknown"}
+				</div>
 				<div className="match-table-cell">
 					<div className="match-table-game-type">
 						<GameModeIcon
@@ -61,12 +83,18 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 							player={this.props.friendlyPlayer}
 							gameType={this.props.gameType}
 							scenarioId={this.props.scenarioId}
-							/>
+						/>
 					</div>
 				</div>
-				<div className="match-table-cell hide-below-1600">{getDuration(this.props.startTime, this.props.endTime)}</div>
-				<div className="match-table-cell hide-below-768">{Math.ceil(this.props.turns / 2)}</div>
-				<div className="match-table-cell hide-below-500"><SemanticAge date={this.props.endTime} /></div>
+				<div className="match-table-cell hide-below-1600">
+					{getDuration(this.props.startTime, this.props.endTime)}
+				</div>
+				<div className="match-table-cell hide-below-768">
+					{Math.ceil(this.props.turns / 2)}
+				</div>
+				<div className="match-table-cell hide-below-500">
+					<SemanticAge date={this.props.endTime} />
+				</div>
 			</a>
 		);
 	}
@@ -102,6 +130,9 @@ export default class GameHistoryTableRow extends React.Component<GameHistoryTabl
 	}
 
 	private toTitleCase(str: string) {
-		return str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1).toLowerCase();
+		return (
+			str.substr(0, 1).toUpperCase() +
+			str.substr(1, str.length - 1).toLowerCase()
+		);
 	}
 }

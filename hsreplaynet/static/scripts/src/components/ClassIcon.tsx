@@ -1,6 +1,6 @@
 import React from "react";
 import Tooltip from "./Tooltip";
-import {toTitleCase} from "../helpers";
+import { toTitleCase } from "../helpers";
 
 export interface ClassIconProps {
 	heroClassName: string;
@@ -18,11 +18,12 @@ export default class ClassIcon extends React.Component<ClassIconProps, any> {
 		"rogue",
 		"shaman",
 		"warlock",
-		"warrior",
+		"warrior"
 	];
 
 	render(): JSX.Element {
-		const basePath = STATIC_URL + "images/" + (this.props.small ? "64x/" : "");
+		const basePath =
+			STATIC_URL + "images/" + (this.props.small ? "64x/" : "");
 		const heroClassName = toTitleCase(this.props.heroClassName);
 		const fileName = this.props.heroClassName.toLowerCase();
 		let image = null;
@@ -34,8 +35,7 @@ export default class ClassIcon extends React.Component<ClassIconProps, any> {
 					alt={heroClassName}
 				/>
 			);
-		}
-		else {
+		} else {
 			image = (
 				<img
 					src={basePath + "class-icons/" + fileName + ".png"}
@@ -46,10 +46,7 @@ export default class ClassIcon extends React.Component<ClassIconProps, any> {
 		}
 		if (this.props.tooltip) {
 			image = (
-				<Tooltip
-					content={toTitleCase(this.props.heroClassName)}
-					simple
-				>
+				<Tooltip content={toTitleCase(this.props.heroClassName)} simple>
 					{image}
 				</Tooltip>
 			);

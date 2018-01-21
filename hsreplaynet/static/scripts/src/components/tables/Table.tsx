@@ -1,10 +1,10 @@
 import React from "react";
-import {AutoSizer, Grid, ScrollSync} from "react-virtualized";
+import { AutoSizer, Grid, ScrollSync } from "react-virtualized";
 import { CardObj, SortableProps, SortDirection } from "../../interfaces";
 import scrollbarSize from "dom-helpers/util/scrollbarSize";
 import SortHeader from "../SortHeader";
 import CardTile from "../CardTile";
-import {toDynamicFixed, toPrettyNumber, winrateData} from "../../helpers";
+import { toDynamicFixed, toPrettyNumber, winrateData } from "../../helpers";
 
 export interface TableColumn {
 	dataKey: string;
@@ -19,7 +19,7 @@ export interface TableColumn {
 }
 
 interface RowData {
-	data: Array<number|string|JSX.Element>;
+	data: Array<number | string | JSX.Element>;
 	href?: string;
 }
 
@@ -50,59 +50,97 @@ export default class Table extends React.Component<TableProps, TableState> {
 	constructor(props: TableProps, context?: any) {
 		super(props, context);
 		this.state = {
-			hoveringRow: -1,
+			hoveringRow: -1
 		};
 	}
 
 	render(): JSX.Element {
-		const {cellHeight, columns, minColumnWidth, topInfoRow, bottomInfoRow} = this.props;
+		const {
+			cellHeight,
+			columns,
+			minColumnWidth,
+			topInfoRow,
+			bottomInfoRow
+		} = this.props;
 		const [minHeaderWidth, maxHeaderWidth] = this.props.headerWidth;
 		const numColumns = this.props.columns.length - 1;
 		const numRows = this.props.rowData.length;
-		const topOffset =  topInfoRow ? INFO_ROW_HEIGHT : 0;
+		const topOffset = topInfoRow ? INFO_ROW_HEIGHT : 0;
 		const bottomOffset = bottomInfoRow ? INFO_ROW_HEIGHT : 0;
-		const totalHeight = cellHeight * (numRows + 1) + scrollbarSize() + topOffset + bottomOffset;
+		const totalHeight =
+			cellHeight * (numRows + 1) +
+			scrollbarSize() +
+			topOffset +
+			bottomOffset;
 		return (
-			<div className="table-container" style={{height: totalHeight}}>
+			<div className="table-container" style={{ height: totalHeight }}>
 				<AutoSizer>
-					{({width}) => {
-						const headerWidthRatio = this.props.headerWidthRatio || HEADER_WIDTH_RATIO;
-						const headerWidth = Math.max(minHeaderWidth, Math.min(maxHeaderWidth, width  * headerWidthRatio));
-						const requiredWith = headerWidth + minColumnWidth * numColumns;
+					{({ width }) => {
+						const headerWidthRatio =
+							this.props.headerWidthRatio || HEADER_WIDTH_RATIO;
+						const headerWidth = Math.max(
+							minHeaderWidth,
+							Math.min(maxHeaderWidth, width * headerWidthRatio)
+						);
+						const requiredWith =
+							headerWidth + minColumnWidth * numColumns;
 						let columnWidth = minColumnWidth;
 						if (requiredWith < width) {
-							columnWidth = Math.max(minColumnWidth, (width - headerWidth) / numColumns);
+							columnWidth = Math.max(
+								minColumnWidth,
+								(width - headerWidth) / numColumns
+							);
 						}
 						return (
 							<ScrollSync>
-								{({onScroll, scrollLeft}) => (
+								{({ onScroll, scrollLeft }) => (
 									<div className="">
 										<div className="grid-container grid-container-top grid-container-left">
 											<div
 												className="table-column-header"
 												style={{
-													lineHeight: (cellHeight - 1) + "px",
+													lineHeight:
+														cellHeight - 1 + "px",
 													textAlign: "center",
-													width: headerWidth,
+													width: headerWidth
 												}}
 											>
-												{
-													this.getSortHeader(
-														columns[0].sortKey,
-														columns[0].text,
-														columns[0].defaultSortDirection || "descending",
-														columns[0].infoHeader,
-														columns[0].infoText,
-													)
-												}
+												{this.getSortHeader(
+													columns[0].sortKey,
+													columns[0].text,
+													columns[0]
+														.defaultSortDirection ||
+														"descending",
+													columns[0].infoHeader,
+													columns[0].infoText
+												)}
 											</div>
 										</div>
-										{this.renderRowHighlighter(width, cellHeight, topOffset)}
-										{this.renderInfoRow(topInfoRow, width, cellHeight)}
-										{this.renderInfoRow(bottomInfoRow, width, totalHeight - INFO_ROW_HEIGHT - scrollbarSize())}
-										<div className="grid-container grid-container-top" style={{left: headerWidth}}>
+										{this.renderRowHighlighter(
+											width,
+											cellHeight,
+											topOffset
+										)}
+										{this.renderInfoRow(
+											topInfoRow,
+											width,
+											cellHeight
+										)}
+										{this.renderInfoRow(
+											bottomInfoRow,
+											width,
+											totalHeight -
+												INFO_ROW_HEIGHT -
+												scrollbarSize()
+										)}
+										<div
+											className="grid-container grid-container-top"
+											style={{ left: headerWidth }}
+										>
 											<Grid
-												cellRenderer={this.columnHeaderRenderer}
+												cellRenderer={
+													this.columnHeaderRenderer
+												}
 												columnCount={numColumns}
 												columnWidth={columnWidth}
 												height={cellHeight}
@@ -114,9 +152,16 @@ export default class Table extends React.Component<TableProps, TableState> {
 												style={{}}
 											/>
 										</div>
-										<div className="grid-container grid-container-left" style={{top: cellHeight + topOffset}}>
+										<div
+											className="grid-container grid-container-left"
+											style={{
+												top: cellHeight + topOffset
+											}}
+										>
 											<Grid
-												cellRenderer={this.rowHeaderRenderer}
+												cellRenderer={
+													this.rowHeaderRenderer
+												}
 												width={headerWidth}
 												height={numRows * cellHeight}
 												columnCount={1}
@@ -127,12 +172,24 @@ export default class Table extends React.Component<TableProps, TableState> {
 												style={{}}
 											/>
 										</div>
-										<div className="grid-container" style={{top: cellHeight + topOffset, left: headerWidth}}>
+										<div
+											className="grid-container"
+											style={{
+												top: cellHeight + topOffset,
+												left: headerWidth
+											}}
+										>
 											<Grid
-												cellRenderer={this.columnCellRenderer}
+												cellRenderer={
+													this.columnCellRenderer
+												}
 												columnCount={numColumns}
 												columnWidth={columnWidth}
-												height={totalHeight - cellHeight - topOffset}
+												height={
+													totalHeight -
+													cellHeight -
+													topOffset
+												}
 												rowCount={numRows}
 												rowHeight={cellHeight}
 												width={width - headerWidth}
@@ -152,7 +209,11 @@ export default class Table extends React.Component<TableProps, TableState> {
 		);
 	}
 
-	renderRowHighlighter(width: number, cellHeight: number, topOffset: number): JSX.Element {
+	renderRowHighlighter(
+		width: number,
+		cellHeight: number,
+		topOffset: number
+	): JSX.Element {
 		if (this.state.hoveringRow === -1) {
 			return null;
 		}
@@ -162,24 +223,31 @@ export default class Table extends React.Component<TableProps, TableState> {
 				style={{
 					height: cellHeight,
 					top: (this.state.hoveringRow + 1) * cellHeight + topOffset,
-					width,
+					width
 				}}
 			/>
 		);
 	}
 
-	renderInfoRow(infoRow: JSX.Element, width: number, top: number): JSX.Element {
+	renderInfoRow(
+		infoRow: JSX.Element,
+		width: number,
+		top: number
+	): JSX.Element {
 		if (!infoRow) {
 			return null;
 		}
 		return (
-			<div className="grid-container grid-container-left" style={{top, width: width + "px", zIndex: 1}}>
+			<div
+				className="grid-container grid-container-left"
+				style={{ top, width: width + "px", zIndex: 1 }}
+			>
 				{infoRow}
 			</div>
 		);
 	}
 
-	rowHeaderRenderer = ({rowIndex, key, style}) => {
+	rowHeaderRenderer = ({ rowIndex, key, style }) => {
 		style = Object.assign({}, style);
 		if (rowIndex % 2 === 0) {
 			style["background"] = "white";
@@ -189,7 +257,7 @@ export default class Table extends React.Component<TableProps, TableState> {
 			className: "table-row-header",
 			key,
 			style,
-			...this.rowHighlighting(rowIndex),
+			...this.rowHighlighting(rowIndex)
 		};
 		if (row.href) {
 			return (
@@ -198,24 +266,20 @@ export default class Table extends React.Component<TableProps, TableState> {
 				</a>
 			);
 		}
-		return (
-			<div {...props}>
-				{row.data[0]}
-			</div>
-		);
+		return <div {...props}>{row.data[0]}</div>;
 	};
 
-	columnHeaderRenderer = ({columnIndex, key, style}) => {
+	columnHeaderRenderer = ({ columnIndex, key, style }) => {
 		const column = this.props.columns[columnIndex + 1];
 		const content = this.getSortHeader(
 			column.sortKey,
 			column.text,
 			column.defaultSortDirection || "descending",
 			column.infoHeader,
-			column.infoText,
+			column.infoText
 		);
-		style = Object.assign({}, style,{
-			lineHeight: `${this.props.cellHeight}px`,
+		style = Object.assign({}, style, {
+			lineHeight: `${this.props.cellHeight}px`
 		});
 		return (
 			<div className="table-column-header" style={style} key={key}>
@@ -224,26 +288,32 @@ export default class Table extends React.Component<TableProps, TableState> {
 		);
 	};
 
-	columnCellRenderer = ({columnIndex, rowIndex, key, style}) => {
+	columnCellRenderer = ({ columnIndex, rowIndex, key, style }) => {
 		const column = this.props.columns[columnIndex + 1];
 		const row = this.props.rowData[rowIndex];
 		let content = row.data[columnIndex + 1];
 		if (content === null || content === undefined) {
-			content = (column.winrateData ? "-" : 0);
+			content = column.winrateData ? "-" : 0;
 		}
 
 		let color = null;
 		if (content !== "-") {
 			if (column.winrateData) {
-				const wrdata = winrateData(this.props.baseWinrate || 50, +content, 5);
+				const wrdata = winrateData(
+					this.props.baseWinrate || 50,
+					+content,
+					5
+				);
 				color = wrdata.color;
-				const showTendency = this.props.baseWinrate || this.props.baseWinrate === 0;
-				content = (showTendency ? wrdata.tendencyStr : "") + toDynamicFixed(+content) + "%";
-			}
-			else if (column.percent) {
+				const showTendency =
+					this.props.baseWinrate || this.props.baseWinrate === 0;
+				content =
+					(showTendency ? wrdata.tendencyStr : "") +
+					toDynamicFixed(+content) +
+					"%";
+			} else if (column.percent) {
 				content = toDynamicFixed(+content) + "%";
-			}
-			else if (column.prettify) {
+			} else if (column.prettify) {
 				content = toPrettyNumber(+content);
 			}
 		}
@@ -253,17 +323,17 @@ export default class Table extends React.Component<TableProps, TableState> {
 			background = "white";
 		}
 
-		style = Object.assign({}, style,{
+		style = Object.assign({}, style, {
 			color,
 			lineHeight: `${this.props.cellHeight}px`,
-			background,
+			background
 		});
 
 		const props = {
 			className: "table-cell",
 			key,
 			style,
-			...this.rowHighlighting(rowIndex),
+			...this.rowHighlighting(rowIndex)
 		};
 
 		if (row.href) {
@@ -277,13 +347,13 @@ export default class Table extends React.Component<TableProps, TableState> {
 		return <div {...props}>{content}</div>;
 	};
 
-	rowHighlighting(rowIndex: number): {onMouseEnter, onMouseLeave} {
+	rowHighlighting(rowIndex: number): { onMouseEnter; onMouseLeave } {
 		if (!this.props.rowHighlighting) {
 			return null;
 		}
 		return {
-			onMouseEnter: () => this.setState({hoveringRow: rowIndex}),
-			onMouseLeave: () => this.setState({hoveringRow: -1}),
+			onMouseEnter: () => this.setState({ hoveringRow: rowIndex }),
+			onMouseLeave: () => this.setState({ hoveringRow: -1 })
 		};
 	}
 
@@ -292,7 +362,7 @@ export default class Table extends React.Component<TableProps, TableState> {
 		text: string,
 		direction?: SortDirection,
 		infoHeader?: string,
-		infoText?: string,
+		infoText?: string
 	): JSX.Element {
 		return (
 			<SortHeader

@@ -1,8 +1,8 @@
 import React from "react";
 import CardList from "./CardList";
-import {GameReplay, GlobalGamePlayer} from "../interfaces";
+import { GameReplay, GlobalGamePlayer } from "../interfaces";
 import CardData from "../CardData";
-import {getHeroCardId, getHeroDbfId} from "../helpers";
+import { getHeroCardId, getHeroDbfId } from "../helpers";
 import CopyDeckButton from "./CopyDeckButton";
 import Tooltip from "./Tooltip";
 import InfoIcon from "./InfoIcon";
@@ -23,13 +23,15 @@ interface PlayerInfoState {
 	game?: GameReplay;
 }
 
-export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerInfoState> {
-
+export default class PlayerInfo extends React.Component<
+	PlayerInfoProps,
+	PlayerInfoState
+> {
 	constructor(props: PlayerInfoProps, context: any) {
 		super(props, context);
 		this.state = {
 			display: props.playerExpandDirection === "up" ? "both" : "none",
-			game: null,
+			game: null
 		};
 		if (this.props.gameId) {
 			this.fetch();
@@ -37,12 +39,13 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	}
 
 	protected fetch() {
-		DataManager.get("/api/v1/games/" + this.props.gameId + "/", {},
-		).then((json: any) => {
-			this.setState({
-				game: json,
-			});
-		});
+		DataManager.get("/api/v1/games/" + this.props.gameId + "/", {}).then(
+			(json: any) => {
+				this.setState({
+					game: json
+				});
+			}
+		);
 	}
 
 	render(): JSX.Element {
@@ -57,12 +60,24 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 		const playerHeaderStyle = {};
 
 		if (this.state.game) {
-			const {friendly_deck, friendly_player, global_game, opposing_deck, opposing_player} = this.state.game;
+			const {
+				friendly_deck,
+				friendly_player,
+				global_game,
+				opposing_deck,
+				opposing_player
+			} = this.state.game;
 			playerName = friendly_player.name;
 			opponentName = opposing_player.name;
 
-			if (opposing_deck && Array.isArray(opposing_deck.cards) && opposing_deck.cards.length > 0) {
-				const deckClass = this.toTitleCase(opposing_player.hero_class_name);
+			if (
+				opposing_deck &&
+				Array.isArray(opposing_deck.cards) &&
+				opposing_deck.cards.length > 0
+			) {
+				const deckClass = this.toTitleCase(
+					opposing_player.hero_class_name
+				);
 				opponentCards = (
 					<CardList
 						cardData={this.props.cardData}
@@ -71,18 +86,27 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 					/>
 				);
 				if (
-					UserData.hasFeature("replay-predicted-cards")
-					&& opposing_deck.predicted_cards
-					&& opposing_deck.predicted_cards.length
+					UserData.hasFeature("replay-predicted-cards") &&
+					opposing_deck.predicted_cards &&
+					opposing_deck.predicted_cards.length
 				) {
 					opponentCopyButton = (
 						<CopyDeckButton
 							cardData={this.props.cardData}
 							cards={opposing_deck.predicted_cards}
 							deckClass={deckClass}
-							heroes={[getHeroDbfId(this.props.cardData, opposing_player)]}
+							heroes={[
+								getHeroDbfId(
+									this.props.cardData,
+									opposing_player
+								)
+							]}
 							format={global_game.format}
-							name={this.pluralize(opposing_player.name) + " " + deckClass}
+							name={
+								this.pluralize(opposing_player.name) +
+								" " +
+								deckClass
+							}
 							simple={true}
 							sourceUrl={window.location.toString()}
 						/>
@@ -94,12 +118,19 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 						/>
 					);
 				}
-				opponentHeaderStyle["backgroundImage"] = (
-					"url(https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(deckClass, true) + ".jpg)"
-				);
+				opponentHeaderStyle["backgroundImage"] =
+					"url(https://art.hearthstonejson.com/v1/256x/" +
+					getHeroCardId(deckClass, true) +
+					".jpg)";
 			}
-			if (friendly_deck && Array.isArray(friendly_deck.cards) && friendly_deck.cards.length > 0) {
-				const deckClass = this.toTitleCase(friendly_player.hero_class_name);
+			if (
+				friendly_deck &&
+				Array.isArray(friendly_deck.cards) &&
+				friendly_deck.cards.length > 0
+			) {
+				const deckClass = this.toTitleCase(
+					friendly_player.hero_class_name
+				);
 				playerCards = (
 					<CardList
 						cardData={this.props.cardData}
@@ -112,66 +143,101 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 							cardData={this.props.cardData}
 							cards={friendly_deck.cards}
 							deckClass={deckClass}
-							heroes={[getHeroDbfId(this.props.cardData, friendly_player)]}
+							heroes={[
+								getHeroDbfId(
+									this.props.cardData,
+									friendly_player
+								)
+							]}
 							format={global_game.format}
-							name={this.pluralize(friendly_player.name) + " " + deckClass}
+							name={
+								this.pluralize(friendly_player.name) +
+								" " +
+								deckClass
+							}
 							simple={true}
 							sourceUrl={window.location.toString()}
 						/>
 					);
 				}
-				playerHeaderStyle["backgroundImage"] = (
-					"url(https://art.hearthstonejson.com/v1/256x/" + getHeroCardId(deckClass, true) + ".jpg)"
-				);
+				playerHeaderStyle["backgroundImage"] =
+					"url(https://art.hearthstonejson.com/v1/256x/" +
+					getHeroCardId(deckClass, true) +
+					".jpg)";
 			}
 		}
 
-		const {display} = this.state;
-		const defaultDisplay = this.props.playerExpandDirection === "up" ? "both" : "none";
+		const { display } = this.state;
+		const defaultDisplay =
+			this.props.playerExpandDirection === "up" ? "both" : "none";
 
 		const opponentDeck = [];
 		const playerDeck = [];
-		const separator = defaultDisplay === "none" ? null : <div className="deck-separator"/>;
+		const separator =
+			defaultDisplay === "none" ? null : (
+				<div className="deck-separator" />
+			);
 		if (display === "opponent" || display === "both") {
 			opponentDeck.push(
-				<div className={"deck-container" + (display === "opponent" ? " full" : "")}>
+				<div
+					className={
+						"deck-container" +
+						(display === "opponent" ? " full" : "")
+					}
+				>
 					{opponentCards}
-				</div>,
+				</div>
 			);
 		}
 		if (display === "both") {
-			opponentDeck.push(<div className="gradient-container"/>);
+			opponentDeck.push(<div className="gradient-container" />);
 		}
 		if (display === "player" || display === "both") {
 			playerDeck.push(
-				<div className={"deck-container" + (display === "player" ? " full" : "")}>
+				<div
+					className={
+						"deck-container" + (display === "player" ? " full" : "")
+					}
+				>
 					{playerCards}
-				</div>,
+				</div>
 			);
 		}
 		if (display === "both") {
-			playerDeck.push(<div className="gradient-container"/>);
+			playerDeck.push(<div className="gradient-container" />);
 		}
 
 		const opponentExpandButton = (
-			<Tooltip simple={true} content={display === "opponent" ? "Collapse" : "Expand"}>
+			<Tooltip
+				simple={true}
+				content={display === "opponent" ? "Collapse" : "Expand"}
+			>
 				<span
-					className={"btn btn-primary glyphicon glyphicon-menu-" + (display === "opponent" ? "up" : "down")}
-					onClick={() => this.setState({
-						display: display === "opponent" ? defaultDisplay : "opponent",
-					})}
+					className={
+						"btn btn-primary glyphicon glyphicon-menu-" +
+						(display === "opponent" ? "up" : "down")
+					}
+					onClick={() =>
+						this.setState({
+							display:
+								display === "opponent"
+									? defaultDisplay
+									: "opponent"
+						})
+					}
 				/>
 			</Tooltip>
 		);
 
 		const opponentHeader = (
-			<div
-				className="deck-header"
-				style={opponentHeaderStyle}
-			>
-				<div className="deck-header-fade"/>
+			<div className="deck-header" style={opponentHeaderStyle}>
+				<div className="deck-header-fade" />
 				<div className="deck-name">
-					<span>{(opponentName ? this.pluralize(opponentName) : "Opponent") + " Deck"}</span>
+					<span>
+						{(opponentName
+							? this.pluralize(opponentName)
+							: "Opponent") + " Deck"}
+					</span>
 					{opponentInfoIcon}
 				</div>
 				{opponentCopyButton}
@@ -180,58 +246,52 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 		);
 
 		const defaultDirection = this.props.playerExpandDirection;
-		const toggledDriection = this.props.playerExpandDirection === "up" ? "down" : "up";
+		const toggledDriection =
+			this.props.playerExpandDirection === "up" ? "down" : "up";
 
 		const playerExpandButton = (
-			<Tooltip simple={true} content={display === "player" ? "Collapse" : "Expand"}>
+			<Tooltip
+				simple={true}
+				content={display === "player" ? "Collapse" : "Expand"}
+			>
 				<span
 					className={
-						"btn btn-primary glyphicon glyphicon-menu-"
-						+ (display === "player" ? toggledDriection : defaultDirection)
+						"btn btn-primary glyphicon glyphicon-menu-" +
+						(display === "player"
+							? toggledDriection
+							: defaultDirection)
 					}
-					onClick={() => this.setState({
-						display: display === "player" ? defaultDisplay : "player",
-					})}
+					onClick={() =>
+						this.setState({
+							display:
+								display === "player" ? defaultDisplay : "player"
+						})
+					}
 				/>
 			</Tooltip>
 		);
 
 		const playerHeader = (
-			<div
-				className="deck-header"
-				style={playerHeaderStyle}
-			>
-				<div className="deck-header-fade"/>
-				<div className="deck-name">{(playerName ? this.pluralize(playerName) : "Player") + " Deck"}</div>
+			<div className="deck-header" style={playerHeaderStyle}>
+				<div className="deck-header-fade" />
+				<div className="deck-name">
+					{(playerName ? this.pluralize(playerName) : "Player") +
+						" Deck"}
+				</div>
 				{playerCopyButton}
 				{this.state.game ? playerExpandButton : null}
 			</div>
 		);
 
-		const content = [
-			opponentHeader,
-			opponentDeck,
-			separator,
-		];
+		const content = [opponentHeader, opponentDeck, separator];
 
 		if (this.props.playerExpandDirection === "up") {
-			content.push(
-				playerDeck,
-				playerHeader,
-			);
-		}
-		else {
-			content.push(
-				playerHeader,
-				playerDeck,
-			);
+			content.push(playerDeck, playerHeader);
+		} else {
+			content.push(playerHeader, playerDeck);
 		}
 
-		return (
-			<div id="infobox-players">
-				{content}
-			</div>
-		);
+		return <div id="infobox-players">{content}</div>;
 	}
 
 	showCopyButton(player: GlobalGamePlayer): boolean {
@@ -254,7 +314,10 @@ export default class PlayerInfo extends React.Component<PlayerInfoProps, PlayerI
 	}
 
 	toTitleCase(str: string) {
-		return str.substr(0, 1).toUpperCase() + str.substr(1, str.length - 1).toLowerCase();
+		return (
+			str.substr(0, 1).toUpperCase() +
+			str.substr(1, str.length - 1).toLowerCase()
+		);
 	}
 
 	pluralize(str: string): string {

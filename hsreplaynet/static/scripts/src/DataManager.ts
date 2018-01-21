@@ -5,7 +5,7 @@ export default class DataManager {
 
 	private static genCacheKey(url: string, params: any): string {
 		const paramStrings = [];
-		Object.keys(params).forEach((key) => {
+		Object.keys(params).forEach(key => {
 			const value = params[key];
 			if (value !== undefined && value !== null) {
 				paramStrings.push(key + value);
@@ -18,7 +18,13 @@ export default class DataManager {
 		url = this.cleanUrl(url);
 		const keys = params ? Object.keys(params) : [];
 		const query = keys.reduce((prev, key, i) => {
-			return prev + (i > 0 ? "&" : "?") + encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+			return (
+				prev +
+				(i > 0 ? "&" : "?") +
+				encodeURIComponent(key) +
+				"=" +
+				encodeURIComponent(params[key])
+			);
 		}, "");
 
 		return url + query;
@@ -38,8 +44,7 @@ export default class DataManager {
 		if (noCache) {
 			headers.append("pragma", "no-cache");
 			headers.append("cache-control", "no-cache");
-		}
-		else {
+		} else {
 			if (this.responses[cacheKey] === 200) {
 				return Promise.resolve(this.cache[cacheKey]);
 			}
@@ -50,17 +55,19 @@ export default class DataManager {
 				return this.running[cacheKey];
 			}
 		}
-		const promise = fetch(this.fullUrl(url, params || {}), {credentials: "include", headers})
-			.then((response: Response) => {
-				if (response.status === 200) {
-					this.cache[cacheKey] = response.json();
-				}
-				if (response.status !== 202) {
-					this.responses[cacheKey] = response.status;
-				}
-				this.running[cacheKey] = undefined;
-				return this.cache[cacheKey] || Promise.reject(response.status);
-			});
+		const promise = fetch(this.fullUrl(url, params || {}), {
+			credentials: "include",
+			headers
+		}).then((response: Response) => {
+			if (response.status === 200) {
+				this.cache[cacheKey] = response.json();
+			}
+			if (response.status !== 202) {
+				this.responses[cacheKey] = response.status;
+			}
+			this.running[cacheKey] = undefined;
+			return this.cache[cacheKey] || Promise.reject(response.status);
+		});
 		this.running[cacheKey] = promise;
 		return promise;
 	}

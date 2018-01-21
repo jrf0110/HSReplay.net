@@ -1,9 +1,11 @@
 import React from "react";
 
-interface NoDecksMessageProps {
-}
+interface NoDecksMessageProps {}
 
-export default class NoDecksMessage extends React.Component<NoDecksMessageProps, {}> {
+export default class NoDecksMessage extends React.Component<
+	NoDecksMessageProps,
+	{}
+> {
 	render(): JSX.Element {
 		return (
 			<div className="message-wrapper">

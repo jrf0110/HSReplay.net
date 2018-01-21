@@ -1,6 +1,6 @@
 import React from "react";
-import {GlobalGamePlayer} from "../interfaces";
-import {BnetGameType} from "../hearthstone";
+import { GlobalGamePlayer } from "../interfaces";
+import { BnetGameType } from "../hearthstone";
 
 export interface GameModeTextProps {
 	player: GlobalGamePlayer;
@@ -9,8 +9,10 @@ export interface GameModeTextProps {
 	className?: string;
 }
 
-export default class GameModeText extends React.Component<GameModeTextProps, any> {
-
+export default class GameModeText extends React.Component<
+	GameModeTextProps,
+	any
+> {
 	isHeroicTavernBrawl(): boolean {
 		return this.props.scenarioId == 2109;
 	}
@@ -23,7 +25,7 @@ export default class GameModeText extends React.Component<GameModeTextProps, any
 			case BnetGameType.BGT_ARENA:
 				const wins = this.props.player.wins;
 				const losses = this.props.player.losses;
-				if(wins !== null || losses !== null) {
+				if (wins !== null || losses !== null) {
 					return +wins + " - " + +losses;
 				}
 				return "Arena";
@@ -60,7 +62,6 @@ export default class GameModeText extends React.Component<GameModeTextProps, any
 		if (!text) {
 			return null;
 		}
-		return <div className={this.props.className}>{text}</div>
-
+		return <div className={this.props.className}>{text}</div>;
 	}
 }

@@ -5,7 +5,7 @@ import DeckSpotlight from "../pages/DeckSpotlight";
 
 const render = (cardData: CardData) => {
 	ReactDOM.render(
-		<DeckSpotlight cardData={cardData}/>,
+		<DeckSpotlight cardData={cardData} />,
 		document.getElementById("trending-container")
 	);
 };

@@ -1,4 +1,4 @@
-import {cookie} from "cookie_js";
+import { cookie } from "cookie_js";
 
 const cookiePrefix = "setting-";
 
@@ -20,6 +20,6 @@ export default class Settings {
 
 	private toCookie(key: string, value: any) {
 		const json = JSON.stringify(value);
-		cookie.set(cookiePrefix + key, json, {path: "/", expires: 365});
+		cookie.set(cookiePrefix + key, json, { path: "/", expires: 365 });
 	}
 }

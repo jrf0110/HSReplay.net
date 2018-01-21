@@ -2,8 +2,12 @@ import MatchupCell from "./MatchupCell";
 import React from "react";
 import SortHeader from "../../SortHeader";
 import CardData from "../../../CardData";
-import {AutoSizer, Grid, ScrollSync} from "react-virtualized";
-import {ApiArchetype, ArchetypeData, SortDirection} from "../../../interfaces";
+import { AutoSizer, Grid, ScrollSync } from "react-virtualized";
+import {
+	ApiArchetype,
+	ArchetypeData,
+	SortDirection
+} from "../../../interfaces";
 import scrollbarSize from "dom-helpers/util/scrollbarSize";
 import ColumnHeader from "./ColumnHeader";
 import RowHeader from "./RowHeader";
@@ -25,7 +29,7 @@ interface ArchetypeMatrixProps extends React.ClassAttributes<ArchetypeMatrix> {
 	ignoredColumns: number[];
 	maxPopularity?: number;
 	onFavoriteChanged: (archetypeId: number, favorite: boolean) => void;
-	onIgnoreChanged: (archetypeId: number|number[], ignore: boolean) => void;
+	onIgnoreChanged: (archetypeId: number | number[], ignore: boolean) => void;
 	onSortChanged: (sortBy: string, sortDirection: SortDirection) => void;
 	sortBy: string;
 	sortDirection: SortDirection;
@@ -38,7 +42,10 @@ interface ArchetypeMatrixState {
 
 const offWhite = "#fbf7f6";
 
-export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProps, ArchetypeMatrixState> {
+export default class ArchetypeMatrix extends React.Component<
+	ArchetypeMatrixProps,
+	ArchetypeMatrixState
+> {
 	private rowHeaders: Grid = null;
 	private matchupCells: Grid = null;
 	private rowFooters: Grid = null;
@@ -47,7 +54,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		super(props, context);
 		this.state = {
 			highlightColumn: null,
-			highlightRow: null,
+			highlightRow: null
 		};
 	}
 
@@ -70,57 +77,145 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		return (
 			<div className="archetype-matrix-container">
 				<AutoSizer>
-					{({height, width}) => {
-						const scrollbarWidth = totalHeight > height ? scrollbarSize() : 0;
-						const scrollbarHeight = totalWidth > width ? scrollbarSize() : 0;
-						const right = Math.max(0, width - totalWidth - scrollbarWidth);
-						const bottom = Math.max(0, height - totalHeight - scrollbarHeight);
+					{({ height, width }) => {
+						const scrollbarWidth =
+							totalHeight > height ? scrollbarSize() : 0;
+						const scrollbarHeight =
+							totalWidth > width ? scrollbarSize() : 0;
+						const right = Math.max(
+							0,
+							width - totalWidth - scrollbarWidth
+						);
+						const bottom = Math.max(
+							0,
+							height - totalHeight - scrollbarHeight
+						);
 						return (
 							<ScrollSync>
-								{({ clientHeight, clientWidth, onScroll, scrollHeight, scrollLeft, scrollTop, scrollWidth }) => (
+								{({
+									clientHeight,
+									clientWidth,
+									onScroll,
+									scrollHeight,
+									scrollLeft,
+									scrollTop,
+									scrollWidth
+								}) => (
 									<div className="matchup-matrix">
 										<div
 											className="matchup-header-cell matchup-header-top-left matchup-header-archetype"
-											style={{height: headerCellHeight, width: headerCellWidth}}
+											style={{
+												height: headerCellHeight,
+												width: headerCellWidth
+											}}
 										>
-											{this.getSortHeader("class", "Archetype", "ascending")}
+											{this.getSortHeader(
+												"class",
+												"Archetype",
+												"ascending"
+											)}
 											<ArchetypeSearch
-												availableArchetypes={this.props.allArchetypes.slice().sort((a, b) => a.name > b.name ? 1 : -1)}
-												onArchetypeSelected={(archetype) => {
-													this.props.onFavoriteChanged(archetype.id, true);
+												availableArchetypes={this.props.allArchetypes
+													.slice()
+													.sort(
+														(a, b) =>
+															a.name > b.name
+																? 1
+																: -1
+													)}
+												onArchetypeSelected={archetype => {
+													this.props.onFavoriteChanged(
+														archetype.id,
+														true
+													);
 													this.recomputeGridSize();
 												}}
 											/>
 										</div>
-										<div className="grid-container grid-container-top" style={{left: headerCellWidth, background: "none"}}>
+										<div
+											className="grid-container grid-container-top"
+											style={{
+												left: headerCellWidth,
+												background: "none"
+											}}
+										>
 											<Grid
-												cellRenderer={({columnIndex, key, style}) => {
-													const archetype = archetypes[columnIndex];
-													const isIgnored = this.props.ignoredColumns.indexOf(archetype.id) !== -1;
+												cellRenderer={({
+													columnIndex,
+													key,
+													style
+												}) => {
+													const archetype =
+														archetypes[columnIndex];
+													const isIgnored =
+														this.props.ignoredColumns.indexOf(
+															archetype.id
+														) !== -1;
 
 													return (
 														<ColumnHeader
-															archetypeData={archetype}
-															highlight={this.state.highlightColumn === columnIndex}
-															isIgnored={isIgnored}
-															onIgnoredChanged={(ignore: boolean, ignoreClass?: boolean) => {
-																if (ignoreClass) {
-																	const archetypeIds = this.props.allArchetypes.filter((a) => {
-																		return a.player_class_name === archetype.playerClass;
-																	}).map((x) => x.id);
-																	this.props.onIgnoreChanged(archetypeIds, ignore);
-																}
-																else {
-																	this.props.onIgnoreChanged(archetype.id, ignore);
+															archetypeData={
+																archetype
+															}
+															highlight={
+																this.state
+																	.highlightColumn ===
+																columnIndex
+															}
+															isIgnored={
+																isIgnored
+															}
+															onIgnoredChanged={(
+																ignore: boolean,
+																ignoreClass?: boolean
+															) => {
+																if (
+																	ignoreClass
+																) {
+																	const archetypeIds = this.props.allArchetypes
+																		.filter(
+																			a => {
+																				return (
+																					a.player_class_name ===
+																					archetype.playerClass
+																				);
+																			}
+																		)
+																		.map(
+																			x =>
+																				x.id
+																		);
+																	this.props.onIgnoreChanged(
+																		archetypeIds,
+																		ignore
+																	);
+																} else {
+																	this.props.onIgnoreChanged(
+																		archetype.id,
+																		ignore
+																	);
 																}
 															}}
 															key={key}
 															style={style}
-															onHover={(hovering: boolean) => this.onHover(hovering, columnIndex, columnIndex)}
+															onHover={(
+																hovering: boolean
+															) =>
+																this.onHover(
+																	hovering,
+																	columnIndex,
+																	columnIndex
+																)
+															}
 														/>
 													);
 												}}
-												width={width - headerCellWidth - cellWidth - scrollbarWidth}
+												width={
+													width -
+													headerCellWidth -
+													cellWidth -
+													scrollbarWidth
+												}
 												height={headerCellHeight}
 												columnCount={archetypes.length}
 												columnWidth={cellWidth}
@@ -129,123 +224,342 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												scrollLeft={scrollLeft}
 												className={"matchup-header"}
 											/>
-											<div className={"gradient gradient-left gradient-fade" + (scrollLeft <= 0 ? " gradient-hidden" : "")}/>
-											<div className={"gradient gradient-right gradient-fade" + (scrollbarWidth + clientWidth + scrollLeft >= scrollWidth || right > 0 ? " gradient-hidden" : "")}/>
+											<div
+												className={
+													"gradient gradient-left gradient-fade" +
+													(scrollLeft <= 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
+											<div
+												className={
+													"gradient gradient-right gradient-fade" +
+													(scrollbarWidth +
+														clientWidth +
+														scrollLeft >=
+														scrollWidth || right > 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
 										</div>
 										<div
 											className="matchup-header-cell matchup-header-top-right"
-											style={{height: headerCellHeight, width: cellWidth, right}}
+											style={{
+												height: headerCellHeight,
+												width: cellWidth,
+												right
+											}}
 										>
 											{this.getSortHeader(
 												"winrate",
 												"EWR",
 												null,
 												"Effective Winrate",
-												"The expected winrate against all active archetypes, weighted by their popularity.",
+												"The expected winrate against all active archetypes, weighted by their popularity."
 											)}
 										</div>
-										<div className="grid-container grid-container-left" style={{top: headerCellHeight}}>
+										<div
+											className="grid-container grid-container-left"
+											style={{ top: headerCellHeight }}
+										>
 											<Grid
-												cellRenderer={({key, rowIndex, style}) => {
-													const archetype = archetypes[rowIndex];
-													const isFavorite = this.props.favorites.indexOf(archetype.id) !== -1;
+												cellRenderer={({
+													key,
+													rowIndex,
+													style
+												}) => {
+													const archetype =
+														archetypes[rowIndex];
+													const isFavorite =
+														this.props.favorites.indexOf(
+															archetype.id
+														) !== -1;
 
-													if (this.isLastFavorite(rowIndex)) {
-														style["border-bottom"] = spacerSize + "px solid " + offWhite;
+													if (
+														this.isLastFavorite(
+															rowIndex
+														)
+													) {
+														style["border-bottom"] =
+															spacerSize +
+															"px solid " +
+															offWhite;
 													}
 
 													return (
 														<RowHeader
-															archetypeData={archetype}
-															highlight={this.state.highlightRow === rowIndex}
-															isFavorite={isFavorite}
-															onFavoriteChanged={(favorite: boolean) => {
-																this.props.onFavoriteChanged(archetype.id, favorite);
+															archetypeData={
+																archetype
+															}
+															highlight={
+																this.state
+																	.highlightRow ===
+																rowIndex
+															}
+															isFavorite={
+																isFavorite
+															}
+															onFavoriteChanged={(
+																favorite: boolean
+															) => {
+																this.props.onFavoriteChanged(
+																	archetype.id,
+																	favorite
+																);
 																this.recomputeGridSize();
 															}}
-															cardData={this.props.cardData}
+															cardData={
+																this.props
+																	.cardData
+															}
 															key={key}
 															style={style}
-															onHover={(hovering: boolean) => this.onHover(hovering, rowIndex, rowIndex)}
-															gameType={this.props.gameType}
+															onHover={(
+																hovering: boolean
+															) =>
+																this.onHover(
+																	hovering,
+																	rowIndex,
+																	rowIndex
+																)
+															}
+															gameType={
+																this.props
+																	.gameType
+															}
 														/>
 													);
 												}}
 												width={headerCellWidth}
-												height={height - headerCellHeight - footerCellHeight - scrollbarHeight}
+												height={
+													height -
+													headerCellHeight -
+													footerCellHeight -
+													scrollbarHeight
+												}
 												columnCount={1}
 												columnWidth={headerCellWidth}
 												rowCount={archetypes.length}
-												rowHeight={({index}) => cellHeight + (this.isLastFavorite(index) ? spacerSize : 0)}
+												rowHeight={({ index }) =>
+													cellHeight +
+													(this.isLastFavorite(index)
+														? spacerSize
+														: 0)
+												}
 												scrollTop={scrollTop}
 												className={"matchup-header"}
-												ref={(ref) => this.rowHeaders = ref}
+												ref={ref =>
+													(this.rowHeaders = ref)
+												}
 											/>
-											<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}/>
-											<div className={"gradient gradient-bottom" + (scrollbarHeight + clientHeight + scrollTop >= scrollHeight || bottom > 0 ? " gradient-hidden" : "")}/>
+											<div
+												className={
+													"gradient gradient-top" +
+													(scrollTop <= 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
+											<div
+												className={
+													"gradient gradient-bottom" +
+													(scrollbarHeight +
+														clientHeight +
+														scrollTop >=
+														scrollHeight ||
+													bottom > 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
 										</div>
-										<div className="grid-container" style={{top: headerCellHeight, left: headerCellWidth}}>
+										<div
+											className="grid-container"
+											style={{
+												top: headerCellHeight,
+												left: headerCellWidth
+											}}
+										>
 											<Grid
-												cellRenderer={({columnIndex, key, rowIndex, style}) => {
-													const archetype = archetypes[rowIndex];
-													const matchup = archetype.matchups[columnIndex];
-													const isIgnored = this.props.ignoredColumns.indexOf(matchup.opponentId) !== -1;
-													const hasNoCustomData = this.props.useCustomWeights
-														&& !this.props.customWeights[matchup.opponentId];
+												cellRenderer={({
+													columnIndex,
+													key,
+													rowIndex,
+													style
+												}) => {
+													const archetype =
+														archetypes[rowIndex];
+													const matchup =
+														archetype.matchups[
+															columnIndex
+														];
+													const isIgnored =
+														this.props.ignoredColumns.indexOf(
+															matchup.opponentId
+														) !== -1;
+													const hasNoCustomData =
+														this.props
+															.useCustomWeights &&
+														!this.props
+															.customWeights[
+															matchup.opponentId
+														];
 
-													if (this.isLastFavorite(rowIndex)) {
-														style["border-bottom"] = spacerSize + "px solid " + offWhite;
+													if (
+														this.isLastFavorite(
+															rowIndex
+														)
+													) {
+														style["border-bottom"] =
+															spacerSize +
+															"px solid " +
+															offWhite;
 													}
 
 													return (
 														<MatchupCell
 															key={key}
 															style={style}
-															matchupData={matchup}
-															isIgnored={isIgnored || hasNoCustomData}
-															highlightColumn={this.state.highlightColumn === columnIndex}
-															highlightRow={this.state.highlightRow === rowIndex}
-															onHover={(hovering: boolean) => this.onHover(hovering, columnIndex, rowIndex)}
+															matchupData={
+																matchup
+															}
+															isIgnored={
+																isIgnored ||
+																hasNoCustomData
+															}
+															highlightColumn={
+																this.state
+																	.highlightColumn ===
+																columnIndex
+															}
+															highlightRow={
+																this.state
+																	.highlightRow ===
+																rowIndex
+															}
+															onHover={(
+																hovering: boolean
+															) =>
+																this.onHover(
+																	hovering,
+																	columnIndex,
+																	rowIndex
+																)
+															}
 														/>
 													);
 												}}
 												scrollToAlignment="start"
 												scrollToColumn={0}
 												scrollToRow={0}
-												width={Math.min(cellWidth * archetypes.length + scrollbarWidth, width - headerCellWidth - cellWidth)}
-												height={Math.min(cellHeight * archetypes.length + scrollbarHeight, height - headerCellHeight - footerCellHeight)}
+												width={Math.min(
+													cellWidth *
+														archetypes.length +
+														scrollbarWidth,
+													width -
+														headerCellWidth -
+														cellWidth
+												)}
+												height={Math.min(
+													cellHeight *
+														archetypes.length +
+														scrollbarHeight,
+													height -
+														headerCellHeight -
+														footerCellHeight
+												)}
 												columnCount={archetypes.length}
 												columnWidth={cellWidth}
 												rowCount={archetypes.length}
-												rowHeight={({index}) => cellHeight + (this.isLastFavorite(index) ? spacerSize : 0)}
+												rowHeight={({ index }) =>
+													cellHeight +
+													(this.isLastFavorite(index)
+														? spacerSize
+														: 0)
+												}
 												scrollTop={scrollTop}
 												onScroll={onScroll}
 												className={"matchup-matrix"}
-												ref={(ref) => this.matchupCells = ref}
+												ref={ref =>
+													(this.matchupCells = ref)
+												}
 											/>
-											<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}/>
-											<div className={"gradient gradient-bottom" + (scrollbarHeight + clientHeight + scrollTop >= scrollHeight || bottom > 0 ? " gradient-hidden" : "")} style={{bottom: scrollbarHeight}}/>
-											<div className={"gradient gradient-left" + (scrollLeft <= 0 ? " gradient-hidden" : "")}/>
-											<div className={"gradient gradient-right" + (scrollbarWidth + clientWidth + scrollLeft >= scrollWidth || right > 0 ? " gradient-hidden" : "")} style={{right: scrollbarWidth}}/>
+											<div
+												className={
+													"gradient gradient-top" +
+													(scrollTop <= 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
+											<div
+												className={
+													"gradient gradient-bottom" +
+													(scrollbarHeight +
+														clientHeight +
+														scrollTop >=
+														scrollHeight ||
+													bottom > 0
+														? " gradient-hidden"
+														: "")
+												}
+												style={{
+													bottom: scrollbarHeight
+												}}
+											/>
+											<div
+												className={
+													"gradient gradient-left" +
+													(scrollLeft <= 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
+											<div
+												className={
+													"gradient gradient-right" +
+													(scrollbarWidth +
+														clientWidth +
+														scrollLeft >=
+														scrollWidth || right > 0
+														? " gradient-hidden"
+														: "")
+												}
+												style={{
+													right: scrollbarWidth
+												}}
+											/>
 										</div>
 										<div
 											className="matchup-header-cell matchup-header-bottom-left matchup-header-popularity"
-											style={{height: footerCellHeight, width: headerCellWidth, bottom}}
+											style={{
+												height: footerCellHeight,
+												width: headerCellWidth,
+												bottom
+											}}
 										>
 											{this.getSortHeader(
 												"popularity",
 												"Popularity",
 												null,
 												"Popularity on Ladder",
-												"The percentage of decks played that belong to this archetype.",
+												"The percentage of decks played that belong to this archetype."
 											)}
 											<label className="custom-weight-checkbox">
 												<input
 													type="checkbox"
-													onChange={
-														() => this.props.onUseCustomWeightsChanged(!this.props.useCustomWeights)
+													onChange={() =>
+														this.props.onUseCustomWeightsChanged(
+															!this.props
+																.useCustomWeights
+														)
 													}
-													checked={this.props.useCustomWeights}
+													checked={
+														this.props
+															.useCustomWeights
+													}
 												/>
 												&nbsp;Custom&nbsp;weights&nbsp;
 												<InfoIcon
@@ -254,27 +568,81 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												/>
 											</label>
 										</div>
-										<div className="grid-container grid-container-bottom" style={{left: headerCellWidth, bottom}}>
+										<div
+											className="grid-container grid-container-bottom"
+											style={{
+												left: headerCellWidth,
+												bottom
+											}}
+										>
 											<Grid
-												cellRenderer={({columnIndex, key, style}) => {
-													const archetype = archetypes[columnIndex];
+												cellRenderer={({
+													columnIndex,
+													key,
+													style
+												}) => {
+													const archetype =
+														archetypes[columnIndex];
 													return (
 														<ColumnFooter
-															archetypeData={archetype}
-															highlight={this.state.highlightColumn === columnIndex}
-															max={this.props.maxPopularity}
+															archetypeData={
+																archetype
+															}
+															highlight={
+																this.state
+																	.highlightColumn ===
+																columnIndex
+															}
+															max={
+																this.props
+																	.maxPopularity
+															}
 															style={style}
-															customWeight={this.props.customWeights[archetype.id] || 0}
-															useCustomWeight={this.props.useCustomWeights}
-															onCustomWeightChanged={(popularity: number) => {
-																this.props.onCustomWeightsChanged(archetype.id, popularity);
+															customWeight={
+																this.props
+																	.customWeights[
+																	archetype.id
+																] || 0
+															}
+															useCustomWeight={
+																this.props
+																	.useCustomWeights
+															}
+															onCustomWeightChanged={(
+																popularity: number
+															) => {
+																this.props.onCustomWeightsChanged(
+																	archetype.id,
+																	popularity
+																);
 															}}
-															onHover={(hovering: boolean) => this.onHover(hovering, columnIndex, columnIndex)}
-															onInputFocus={(hovering: boolean) => this.onHover(hovering, columnIndex, columnIndex)}
+															onHover={(
+																hovering: boolean
+															) =>
+																this.onHover(
+																	hovering,
+																	columnIndex,
+																	columnIndex
+																)
+															}
+															onInputFocus={(
+																hovering: boolean
+															) =>
+																this.onHover(
+																	hovering,
+																	columnIndex,
+																	columnIndex
+																)
+															}
 														/>
 													);
 												}}
-												width={width - headerCellWidth - cellWidth - scrollbarWidth}
+												width={
+													width -
+													headerCellWidth -
+													cellWidth -
+													scrollbarWidth
+												}
 												height={footerCellHeight}
 												columnCount={archetypes.length}
 												columnWidth={cellWidth}
@@ -283,37 +651,117 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 												scrollLeft={scrollLeft}
 												className={"matchup-header"}
 											/>
-											<div className={"gradient gradient-left" + (scrollLeft <= 0 ? " gradient-hidden" : "")}/>
-											<div className={"gradient gradient-right" + (scrollbarWidth + clientWidth + scrollLeft >= scrollWidth || right > 0 ? " gradient-hidden" : "")}/>
+											<div
+												className={
+													"gradient gradient-left" +
+													(scrollLeft <= 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
+											<div
+												className={
+													"gradient gradient-right" +
+													(scrollbarWidth +
+														clientWidth +
+														scrollLeft >=
+														scrollWidth || right > 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
 										</div>
-										<div className="grid-container grid-container-right" style={{top: headerCellHeight, right}}>
+										<div
+											className="grid-container grid-container-right"
+											style={{
+												top: headerCellHeight,
+												right
+											}}
+										>
 											<Grid
-												cellRenderer={({key, rowIndex, style}) => {
-													if (this.isLastFavorite(rowIndex)) {
-														style["border-bottom"] = spacerSize + "px solid " + offWhite;
+												cellRenderer={({
+													key,
+													rowIndex,
+													style
+												}) => {
+													if (
+														this.isLastFavorite(
+															rowIndex
+														)
+													) {
+														style["border-bottom"] =
+															spacerSize +
+															"px solid " +
+															offWhite;
 													}
 													return (
 														<RowFooter
-															archetypeData={archetypes[rowIndex]}
-															highlight={this.state.highlightRow === rowIndex}
+															archetypeData={
+																archetypes[
+																	rowIndex
+																]
+															}
+															highlight={
+																this.state
+																	.highlightRow ===
+																rowIndex
+															}
 															key={key}
 															style={style}
-															onHover={(hovering: boolean) => this.onHover(hovering, rowIndex, rowIndex)}
+															onHover={(
+																hovering: boolean
+															) =>
+																this.onHover(
+																	hovering,
+																	rowIndex,
+																	rowIndex
+																)
+															}
 														/>
 													);
 												}}
 												width={cellWidth}
-												height={height - headerCellHeight - footerCellHeight - scrollbarHeight}
+												height={
+													height -
+													headerCellHeight -
+													footerCellHeight -
+													scrollbarHeight
+												}
 												columnCount={1}
 												columnWidth={cellWidth}
 												rowCount={archetypes.length}
-												rowHeight={({index}) => cellHeight + (this.isLastFavorite(index) ? spacerSize : 0)}
+												rowHeight={({ index }) =>
+													cellHeight +
+													(this.isLastFavorite(index)
+														? spacerSize
+														: 0)
+												}
 												scrollTop={scrollTop}
 												className={"matchup-header"}
-												ref={(ref) => this.rowFooters = ref}
+												ref={ref =>
+													(this.rowFooters = ref)
+												}
 											/>
-											<div className={"gradient gradient-top" + (scrollTop <= 0 ? " gradient-hidden" : "")}/>
-											<div className={"gradient gradient-bottom" + (scrollbarHeight + clientHeight + scrollTop >= scrollHeight || bottom > 0 ? " gradient-hidden" : "")}/>
+											<div
+												className={
+													"gradient gradient-top" +
+													(scrollTop <= 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
+											<div
+												className={
+													"gradient gradient-bottom" +
+													(scrollbarHeight +
+														clientHeight +
+														scrollTop >=
+														scrollHeight ||
+													bottom > 0
+														? " gradient-hidden"
+														: "")
+												}
+											/>
 										</div>
 									</div>
 								)}
@@ -364,7 +812,7 @@ export default class ArchetypeMatrix extends React.Component<ArchetypeMatrixProp
 		text: string,
 		direction?: SortDirection,
 		infoHeader?: string,
-		infoText?: string,
+		infoText?: string
 	): JSX.Element {
 		return (
 			<SortHeader

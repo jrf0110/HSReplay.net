@@ -34,7 +34,7 @@ export default class RowHeader extends React.Component<RowHeaderProps, {}> {
 	}
 
 	renderName(): JSX.Element | string {
-		const {archetypeData} = this.props;
+		const { archetypeData } = this.props;
 		if (archetypeData.id < 0) {
 			return (
 				<OtherArchetype

@@ -1,7 +1,7 @@
 import React from "react";
 import * as _ from "lodash";
-import Bar, {BarDirection} from "./Bar";
-import {ArchetypeData} from "../../../interfaces";
+import Bar, { BarDirection } from "./Bar";
+import { ArchetypeData } from "../../../interfaces";
 
 interface ColumnFooterProps extends React.ClassAttributes<ColumnFooter> {
 	archetypeData: ArchetypeData;
@@ -19,30 +19,37 @@ interface ColumnFooterState {
 	text?: string;
 }
 
-export default class ColumnFooter extends React.Component<ColumnFooterProps, ColumnFooterState> {
+export default class ColumnFooter extends React.Component<
+	ColumnFooterProps,
+	ColumnFooterState
+> {
 	constructor(props: ColumnFooterProps, context?: any) {
 		super(props, context);
 		this.state = {
-			text: "" + props.customWeight,
+			text: "" + props.customWeight
 		};
 	}
 
-	shouldComponentUpdate(nextProps: ColumnFooterProps, nextState: ColumnFooterState): boolean {
+	shouldComponentUpdate(
+		nextProps: ColumnFooterProps,
+		nextState: ColumnFooterState
+	): boolean {
 		return (
-			this.props.highlight !== nextProps.highlight
-			|| this.props.archetypeData.id !== nextProps.archetypeData.id
-			|| this.props.archetypeData.popularityTotal !== nextProps.archetypeData.popularityTotal
-			|| this.props.max !== nextProps.max
-			|| this.props.customWeight !== nextProps.customWeight
-			|| this.props.useCustomWeight !== nextProps.useCustomWeight
-			|| !_.isEqual(this.props.style, nextProps.style)
-			|| this.state.text !== nextState.text
+			this.props.highlight !== nextProps.highlight ||
+			this.props.archetypeData.id !== nextProps.archetypeData.id ||
+			this.props.archetypeData.popularityTotal !==
+				nextProps.archetypeData.popularityTotal ||
+			this.props.max !== nextProps.max ||
+			this.props.customWeight !== nextProps.customWeight ||
+			this.props.useCustomWeight !== nextProps.useCustomWeight ||
+			!_.isEqual(this.props.style, nextProps.style) ||
+			this.state.text !== nextState.text
 		);
 	}
 
 	componentWillReceiveProps(nextProps: ColumnFooterProps) {
 		if (nextProps.useCustomWeight) {
-			this.setState({text: "" + nextProps.customWeight});
+			this.setState({ text: "" + nextProps.customWeight });
 		}
 	}
 
@@ -55,16 +62,18 @@ export default class ColumnFooter extends React.Component<ColumnFooterProps, Col
 					key={this.props.archetypeData.id}
 					type="text"
 					value={this.state.text}
-					onChange={(event) => this.setState({text: event.target.value})}
+					onChange={event =>
+						this.setState({ text: event.target.value })
+					}
 					onFocus={(event: any) => {
 						event.target.select();
 						this.props.onInputFocus(true);
 					}}
-					onBlur={(event) => {
+					onBlur={event => {
 						this.onCustomPopularityChanged(event);
 						this.props.onInputFocus(false);
 					}}
-					onKeyPress={(event) => {
+					onKeyPress={event => {
 						if (event.which === 13) {
 							this.onCustomPopularityChanged(event);
 						}
@@ -78,7 +87,9 @@ export default class ColumnFooter extends React.Component<ColumnFooterProps, Col
 			classNames.push("highlight");
 		}
 
-		const value = this.props.useCustomWeight ? this.props.customWeight : this.props.archetypeData.popularityTotal;
+		const value = this.props.useCustomWeight
+			? this.props.customWeight
+			: this.props.archetypeData.popularityTotal;
 
 		return (
 			<div

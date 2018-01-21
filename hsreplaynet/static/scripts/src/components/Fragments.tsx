@@ -1,6 +1,6 @@
 import React from "react";
 import * as _ from "lodash";
-import {capitalize} from "../helpers";
+import { capitalize } from "../helpers";
 
 const TRUE_STRING = "yes";
 const FALSE_STRING = "no";
@@ -30,8 +30,10 @@ interface FragmentsState {
  * This component maps url fragments (such as index.html#a=1&b=2) to it's child's props.
  * A default key pageNumber:1 will result in the props pageNumber:1 and setPageNumber:(newPageNumber).
  */
-export default class Fragments extends React.Component<FragmentsProps, FragmentsState> {
-
+export default class Fragments extends React.Component<
+	FragmentsProps,
+	FragmentsState
+> {
 	private listener: any | null;
 	private timeout: any | null;
 
@@ -39,7 +41,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		super(props, context);
 		this.state = {
 			childProps: this.getParts(), // populate with initial url parts
-			intermediate: {},
+			intermediate: {}
 		};
 		this.listener = null;
 		this.timeout = null;
@@ -47,58 +49,80 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 
 	public reset(key: string): void {
 		let childProps = {};
-		if(key) {
+		if (key) {
 			childProps = Object.assign({}, this.state.childProps);
 			delete childProps[key];
 		}
-		this.setState({childProps});
+		this.setState({ childProps });
 	}
 
 	render(): any {
 		let props = {};
 
-		const values = Object.assign({}, this.props.defaults, this.state.childProps);
+		const values = Object.assign(
+			{},
+			this.props.defaults,
+			this.state.childProps
+		);
 		for (let key in values) {
 			const suffix = capitalize(key);
 			// prepare the callback
-			const callback = this.isDebounced(key) ?
-				(value: any, debounce?: boolean, callback?: () => void): void => {
-					this.onChange(key, value, debounce, callback);
-				} :
-				(value: any, callback?: () => void): void => {
-					this.onChange(key, value, undefined, callback);
-				};
+			const callback = this.isDebounced(key)
+				? (
+						value: any,
+						debounce?: boolean,
+						callback?: () => void
+					): void => {
+						this.onChange(key, value, debounce, callback);
+					}
+				: (value: any, callback?: () => void): void => {
+						this.onChange(key, value, undefined, callback);
+					};
 			const callbackKey = "set" + suffix;
 			// assign the props
 			props[key] = this.cast(
 				key,
 				typeof this.state.intermediate[key] !== "undefined"
 					? this.state.intermediate[key]
-					: values[key],
+					: values[key]
 			);
 			props[callbackKey] = callback;
 			if (this.isArray(key)) {
-				props["toggle" + suffix] = (value: any, callback?: () => void): void => {
+				props["toggle" + suffix] = (
+					value: any,
+					callback?: () => void
+				): void => {
 					this.onToggle(key, value, callback);
-				}
+				};
 			}
-			props["default" + suffix] = this.cast(key, this.props.defaults[key]);
-			props["custom" + suffix] = typeof this.state.childProps[key] !== "undefined"
-				? this.cast(key, this.state.childProps[key])
-				: null;
+			props["default" + suffix] = this.cast(
+				key,
+				this.props.defaults[key]
+			);
+			props["custom" + suffix] =
+				typeof this.state.childProps[key] !== "undefined"
+					? this.cast(key, this.state.childProps[key])
+					: null;
 		}
 
 		props = Object.assign({}, props, {
 			canBeReset: Object.keys(this.state.childProps).length > 0,
-			reset: (key?) => this.reset(key),
+			reset: (key?) => this.reset(key)
 		});
 
 		return React.cloneElement(this.props.children as any, props);
 	}
 
-	onChange(key: string, value: any, debounce?: boolean, callback?: () => void): void {
+	onChange(
+		key: string,
+		value: any,
+		debounce?: boolean,
+		callback?: () => void
+	): void {
 		if (!this.isValidKey(key)) {
-			console.error(`Attempted to change undefined fragment key "${key}"`);
+			console.error(
+				`Attempted to change undefined fragment key "${key}"`
+			);
 			return;
 		}
 
@@ -110,36 +134,46 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 			debounce = this.isDebounced(key);
 		}
 
-		if (!this.props.keepDefaults && _.isEqual(value, this.props.defaults[key])) {
+		if (
+			!this.props.keepDefaults &&
+			_.isEqual(value, this.props.defaults[key])
+		) {
 			value = null;
 		}
 
 		if (debounce) {
-			const intermediate = Object.assign({}, this.state.intermediate, {[key]: this.stringify(key, value)});
-			this.setState({intermediate});
+			const intermediate = Object.assign({}, this.state.intermediate, {
+				[key]: this.stringify(key, value)
+			});
+			this.setState({ intermediate });
 			if (this.timeout) {
 				clearTimeout(this.timeout);
 			}
 			this.timeout = setTimeout(() => {
 				this.timeout = null;
 				for (let key in this.state.intermediate) {
-					this.onChange(key, this.state.intermediate[key], false, callback);
+					this.onChange(
+						key,
+						this.state.intermediate[key],
+						false,
+						callback
+					);
 				}
 			}, this.props.delay || 100);
-		}
-		else {
+		} else {
 			this.setState((prevState: FragmentsState) => {
 				let newProps = {};
 				if (value === null) {
 					newProps = Object.assign(newProps, prevState.childProps);
 					delete newProps[key];
-				}
-				else {
-					newProps = Object.assign(newProps, prevState.childProps, {[key]: this.stringify(key, value)});
+				} else {
+					newProps = Object.assign(newProps, prevState.childProps, {
+						[key]: this.stringify(key, value)
+					});
 				}
 				return {
 					childProps: newProps,
-					intermediate: {},
+					intermediate: {}
 				};
 			}, callback);
 		}
@@ -152,9 +186,8 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		}
 		let targetArray = this.cast(key, this.state.childProps[key]);
 		if (targetArray.indexOf(value) !== -1) {
-			targetArray = targetArray.filter((x) => x !== value);
-		}
-		else {
+			targetArray = targetArray.filter(x => x !== value);
+		} else {
 			targetArray.push(value);
 		}
 		this.onChange(key, targetArray, undefined, callback);
@@ -227,7 +260,7 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 
 	componentDidMount() {
 		this.listener = window.addEventListener("hashchange", () => {
-			this.setState({childProps: this.getParts()})
+			this.setState({ childProps: this.getParts() });
 		});
 	}
 
@@ -236,27 +269,38 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 		this.listener = null;
 	}
 
-	shouldComponentUpdate(nextProps: FragmentsProps, nextState: FragmentsState) {
-		return !_.isEqual(nextProps, this.props) || !_.isEqual(nextState, this.state);
+	shouldComponentUpdate(
+		nextProps: FragmentsProps,
+		nextState: FragmentsState
+	) {
+		return (
+			!_.isEqual(nextProps, this.props) ||
+			!_.isEqual(nextState, this.state)
+		);
 	}
 
 	componentDidUpdate(prevProps: FragmentsProps, prevState: FragmentsState) {
-		const parts = Object.assign({}, Fragments.parseFragmentString(document.location.hash));
+		const parts = Object.assign(
+			{},
+			Fragments.parseFragmentString(document.location.hash)
+		);
 
 		// find ones that we're added or changed
 		for (let key of Object.keys(this.state.childProps)) {
 			const value = this.state.childProps[key];
 			if (value) {
 				parts[key] = value;
-			}
-			else {
+			} else {
 				delete parts[key];
 			}
 		}
 
 		// find ones that were removed
 		for (let key of Object.keys(prevState.childProps)) {
-			if (typeof this.state.childProps[key] === "undefined" && typeof parts[key] !== "undefined") {
+			if (
+				typeof this.state.childProps[key] === "undefined" &&
+				typeof parts[key] !== "undefined"
+			) {
 				delete parts[key];
 			}
 		}
@@ -276,7 +320,11 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 
 		if (!hasData && typeof history !== "undefined") {
 			// hide the hash in the url if supported
-			history.replaceState("", document.title, window.location.pathname + window.location.search);
+			history.replaceState(
+				"",
+				document.title,
+				window.location.pathname + window.location.search
+			);
 		}
 	}
 
@@ -328,7 +376,9 @@ export default class Fragments extends React.Component<FragmentsProps, Fragments
 
 		const parts = [];
 		for (let key in map) {
-			parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(map[key]));
+			parts.push(
+				encodeURIComponent(key) + "=" + encodeURIComponent(map[key])
+			);
 		}
 
 		if (parts.length) {

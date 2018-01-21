@@ -1,8 +1,8 @@
-import {Launcher} from "joust";
+import { Launcher } from "joust";
 import * as Joust from "joust";
 import Raven from "raven-js";
 import React from "react";
-import {cardArt, joustAsset} from "./helpers";
+import { cardArt, joustAsset } from "./helpers";
 import BatchingMiddleware from "./metrics/BatchingMiddleware";
 import InfluxMetricsBackend from "./metrics/InfluxMetricsBackend";
 import MetricsReporter from "./metrics/MetricsReporter";
@@ -33,10 +33,15 @@ export default class JoustEmbedder {
 
 		if (!Joust.launcher) {
 			console.error("Could not load Joust");
-			target.innerHTML = '<p class="alert alert-danger">' +
+			target.innerHTML =
+				'<p class="alert alert-danger">' +
 				"<strong>Loading failed:</strong> " +
 				"Replay applet (Joust) could not be loaded. Please ensure you can access " +
-				'<a href="' + JOUST_STATIC_URL + 'joust.js">' + JOUST_STATIC_URL + "joust.js</a>.</p>" +
+				'<a href="' +
+				JOUST_STATIC_URL +
+				'joust.js">' +
+				JOUST_STATIC_URL +
+				"joust.js</a>.</p>" +
 				"<p>Otherwise try clearing your cache and refreshing this page.</p>";
 			// could also offer document.location.reload(true)
 			return;
@@ -54,16 +59,16 @@ export default class JoustEmbedder {
 		if (dsn) {
 			let raven = Raven.config(dsn, {
 				release,
-				environment: JOUST_RAVEN_ENVIRONMENT || "development",
+				environment: JOUST_RAVEN_ENVIRONMENT || "development"
 			}).install();
 			const username = UserData.getUsername();
 			if (username) {
-				raven.setUserContext({username});
+				raven.setUserContext({ username });
 			}
 			(raven as any).setTagsContext({
-				react: React.version,
+				react: React.version
 			});
-			logger = (err: string|Error) => {
+			logger = (err: string | Error) => {
 				if (raven) {
 					if (typeof err === "string") {
 						raven.captureMessage(err);
@@ -82,7 +87,10 @@ export default class JoustEmbedder {
 		launcher.cardArt((cardId: string) => cardArt(cardId));
 
 		// setup metadata
-		if (typeof launcher.selectedLocale !== "undefined" && !launcher.selectedLocale) {
+		if (
+			typeof launcher.selectedLocale !== "undefined" &&
+			!launcher.selectedLocale
+		) {
 			if (!this.locale) {
 				this.locale = UserData.getLocale();
 			}
@@ -119,22 +127,25 @@ export default class JoustEmbedder {
 				metrics.writePoint(series, values, tags);
 			};
 			metrics = new MetricsReporter(
-				new BatchingMiddleware(new InfluxMetricsBackend(endpoint), (): void => {
-					let values = {
-						percentage: launcher.percentageWatched,
-						seconds: launcher.secondsWatched,
-						duration: launcher.replayDuration,
-						realtime: undefined,
-					};
-					if (measuring && startupTime) {
-						realtimeElapsed += Date.now() - startupTime;
-						values.realtime = realtimeElapsed / 1000;
+				new BatchingMiddleware(
+					new InfluxMetricsBackend(endpoint),
+					(): void => {
+						let values = {
+							percentage: launcher.percentageWatched,
+							seconds: launcher.secondsWatched,
+							duration: launcher.replayDuration,
+							realtime: undefined
+						};
+						if (measuring && startupTime) {
+							realtimeElapsed += Date.now() - startupTime;
+							values.realtime = realtimeElapsed / 1000;
+						}
+						metrics.writePoint("watched", values, {
+							realtime_fixed: 1
+						});
 					}
-					metrics.writePoint("watched", values, {
-						realtime_fixed: 1,
-					});
-				}),
-				(series: string): string => "joust_" + series,
+				),
+				(series: string): string => "joust_" + series
 			);
 			launcher.events(track);
 		}

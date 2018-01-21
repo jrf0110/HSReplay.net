@@ -5,7 +5,7 @@ export interface ArchetypeData {
 	id: string;
 	name: string;
 	winrate: number;
-};
+}
 
 interface ClassMatchupProps extends React.ClassAttributes<ClassMatchup> {
 	playerClass: string;
@@ -13,11 +13,19 @@ interface ClassMatchupProps extends React.ClassAttributes<ClassMatchup> {
 	archetypes: ArchetypeData[];
 }
 
-export default class ClassMatchup extends React.Component<ClassMatchupProps, {}> {
+export default class ClassMatchup extends React.Component<
+	ClassMatchupProps,
+	{}
+> {
 	render(): JSX.Element {
-		const data = this.props.archetypes.sort((a, b) => a.name > b.name ? 1 : -1);
-		const archetypes = data.map((archetype) => (
-			<a className="class-matchup-archetype" href={getArchetypeUrl(archetype.id, archetype.name)}>
+		const data = this.props.archetypes.sort(
+			(a, b) => (a.name > b.name ? 1 : -1)
+		);
+		const archetypes = data.map(archetype => (
+			<a
+				className="class-matchup-archetype"
+				href={getArchetypeUrl(archetype.id, archetype.name)}
+			>
 				<span>{archetype.name}</span>
 				{this.winrate(archetype.winrate)}
 			</a>
@@ -26,10 +34,18 @@ export default class ClassMatchup extends React.Component<ClassMatchupProps, {}>
 		return (
 			<div className="class-matchup col-xs-12 col-sm-12 col-md-6 col-lg-4">
 				<div className="class-matchup-header">
-					<span className={"player-class " + this.props.playerClass.toLowerCase()}>
+					<span
+						className={
+							"player-class " +
+							this.props.playerClass.toLowerCase()
+						}
+					>
 						{toTitleCase(this.props.playerClass)}
 					</span>
-					<span className="pull-right">{this.props.totalWinrate && `${this.props.totalWinrate.toFixed(2)}%`}</span>
+					<span className="pull-right">
+						{this.props.totalWinrate &&
+							`${this.props.totalWinrate.toFixed(2)}%`}
+					</span>
 				</div>
 				{archetypes}
 			</div>
@@ -37,9 +53,12 @@ export default class ClassMatchup extends React.Component<ClassMatchupProps, {}>
 	}
 
 	winrate(winrate: number) {
-		const wrData =  winrateData(this.props.totalWinrate || 50, winrate, 5);
+		const wrData = winrateData(this.props.totalWinrate || 50, winrate, 5);
 		return (
-			<span className="winrate-cell pull-right" style={{color: wrData.color}}>
+			<span
+				className="winrate-cell pull-right"
+				style={{ color: wrData.color }}
+			>
 				{wrData.tendencyStr}
 				{winrate.toFixed(2) + "%"}
 			</span>

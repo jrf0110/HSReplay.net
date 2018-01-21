@@ -16,7 +16,7 @@ export default class Lightbox extends React.Component<LightboxProps, {}> {
 
 	constructor(props) {
 		super(props);
-		this.onkeydown = (event) => this.onKeyDown(event);
+		this.onkeydown = event => this.onKeyDown(event);
 	}
 
 	componentDidMount() {
@@ -65,8 +65,8 @@ export default class Lightbox extends React.Component<LightboxProps, {}> {
 		return (
 			<div
 				className={"lightbox-background"}
-				ref={(ref) => this.ref = ref}
-				onClick={(event) => {
+				ref={ref => (this.ref = ref)}
+				onClick={event => {
 					if (this.ref && event.target !== this.ref) {
 						return;
 					}
@@ -80,17 +80,20 @@ export default class Lightbox extends React.Component<LightboxProps, {}> {
 					<div className="close-link">
 						<a
 							href="#"
-							onClick={(event) => {
+							onClick={event => {
 								event.preventDefault();
 								this.props.close();
 							}}
 						>
-							<span className="glyphicon glyphicon-remove"></span>
+							<span className="glyphicon glyphicon-remove" />
 						</a>
 					</div>
 					<div
-						className={"lightbox-body" + ((hasNext || hasPrevious) ? " clickable" : "")}
-						onClick={(event) => {
+						className={
+							"lightbox-body" +
+							(hasNext || hasPrevious ? " clickable" : "")
+						}
+						onClick={event => {
 							event.preventDefault();
 							let advance = true;
 							// go back if we're left of the middle
@@ -100,11 +103,14 @@ export default class Lightbox extends React.Component<LightboxProps, {}> {
 							}
 							if (advance) {
 								if (hasNext) {
-									this.props.setCurrentPage(this.props.currentPage + 1);
+									this.props.setCurrentPage(
+										this.props.currentPage + 1
+									);
 								}
-							}
-							else if (hasPrevious) {
-								this.props.setCurrentPage(this.props.currentPage - 1);
+							} else if (hasPrevious) {
+								this.props.setCurrentPage(
+									this.props.currentPage - 1
+								);
 							}
 						}}
 						dangerouslySetInnerHTML={this.props.body}

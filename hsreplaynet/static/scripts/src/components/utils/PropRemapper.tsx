@@ -8,7 +8,10 @@ interface PropRemapperProps extends React.ClassAttributes<PropRemapper> {
 	map?: PropMap;
 }
 
-export default class PropRemapper extends React.Component<PropRemapperProps, {}> {
+export default class PropRemapper extends React.Component<
+	PropRemapperProps,
+	{}
+> {
 	render(): JSX.Element {
 		const child = this.props.children;
 		if (!child) {
@@ -22,8 +25,7 @@ export default class PropRemapper extends React.Component<PropRemapperProps, {}>
 			const value = this.props[key];
 			if (typeof this.props.map[key] === "string") {
 				props[this.props.map[key]] = value;
-			}
-			else {
+			} else {
 				props[key] = value;
 			}
 		});

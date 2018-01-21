@@ -1,15 +1,17 @@
 import React from "react";
-import StripeElementsCheckoutForm, {StripePlan} from "./StripeElementsCheckoutForm";
-import PaypalCheckoutForm, {PaypalPlan} from "./PaypalCheckoutForm";
+import StripeElementsCheckoutForm, {
+	StripePlan
+} from "./StripeElementsCheckoutForm";
+import PaypalCheckoutForm, { PaypalPlan } from "./PaypalCheckoutForm";
 import BtnGroup from "../BtnGroup";
 import UserData from "../../UserData";
 import StripeLegacyCheckoutForm from "./StripeLegacyCheckoutForm";
-import {StripeProvider, Elements, CardElement} from "react-stripe-elements";
+import { StripeProvider, Elements, CardElement } from "react-stripe-elements";
 
 export const enum PaymentMethods {
 	STRIPECHECKOUT = "stripe-checkout",
 	CREDITCARD = "creditcard",
-	PAYPAL = "paypal",
+	PAYPAL = "paypal"
 }
 
 interface CheckoutFormProps extends React.ClassAttributes<CheckoutForm> {
@@ -38,36 +40,56 @@ interface CheckoutFormState {
 	paymentMethod?: PaymentMethods;
 }
 
-export default class CheckoutForm extends React.Component<CheckoutFormProps, CheckoutFormState> {
-
+export default class CheckoutForm extends React.Component<
+	CheckoutFormProps,
+	CheckoutFormState
+> {
 	constructor(props: CheckoutFormProps, context: any) {
 		super(props, context);
 
 		this.state = {
-			paymentMethod: props.defaultPaymentMethod ? props.defaultPaymentMethod : this.getValidPaymentMethods()[0].method,
-		}
+			paymentMethod: props.defaultPaymentMethod
+				? props.defaultPaymentMethod
+				: this.getValidPaymentMethods()[0].method
+		};
 	}
 
 	getValidPaymentMethods() {
 		const methods = [];
 
-		if (UserData.hasFeature("stripe-elements") && this.props.supportStripeElements) {
+		if (
+			UserData.hasFeature("stripe-elements") &&
+			this.props.supportStripeElements
+		) {
 			methods.push({
 				method: PaymentMethods.CREDITCARD,
-				label: <strong><span className="glyphicon glyphicon-credit-card"></span>&nbsp;Credit Card</strong>,
+				label: (
+					<strong>
+						<span className="glyphicon glyphicon-credit-card" />&nbsp;Credit
+						Card
+					</strong>
+				)
 			});
-		}
-		else {
+		} else {
 			methods.push({
 				method: PaymentMethods.STRIPECHECKOUT,
-				label: <strong><span className="glyphicon glyphicon-credit-card"></span>&nbsp;Credit Card</strong>,
+				label: (
+					<strong>
+						<span className="glyphicon glyphicon-credit-card" />&nbsp;Credit
+						Card
+					</strong>
+				)
 			});
 		}
 
 		if (UserData.hasFeature("paypal")) {
 			methods.push({
 				method: PaymentMethods.PAYPAL,
-				label: <strong><span className="glyphicon glyphicon-lock"></span>&nbsp;PayPal</strong>,
+				label: (
+					<strong>
+						<span className="glyphicon glyphicon-lock" />&nbsp;PayPal
+					</strong>
+				)
 			});
 		}
 
@@ -83,19 +105,19 @@ export default class CheckoutForm extends React.Component<CheckoutFormProps, Che
 		}
 
 		return (
-			<div style={{textAlign: "center"}}>
+			<div style={{ textAlign: "center" }}>
 				<label id="payment-method">Payment method</label>
 				<BtnGroup
 					name="method"
 					className="btn-group btn-group-flex"
-					buttons={methods.map((method) => ({
+					buttons={methods.map(method => ({
 						label: method.label,
 						value: method.method,
-						className: "btn btn-default",
+						className: "btn btn-default"
 					}))}
 					aria-describedby="payment-method"
 					value={this.state.paymentMethod}
-					onChange={(paymentMethod) => this.setState({paymentMethod})}
+					onChange={paymentMethod => this.setState({ paymentMethod })}
 					disabled={this.state.disabled}
 				/>
 			</div>
@@ -114,7 +136,9 @@ export default class CheckoutForm extends React.Component<CheckoutFormProps, Che
 						submitUrl={this.props.stripeCheckoutSubmitUrl}
 						image={this.props.stripeCheckoutImageUrl}
 						csrfElement={this.props.csrfElement}
-						onDisable={(disabled: boolean) => this.setState({disabled})}
+						onDisable={(disabled: boolean) =>
+							this.setState({ disabled })
+						}
 					/>
 				);
 			case PaymentMethods.CREDITCARD:
@@ -127,7 +151,9 @@ export default class CheckoutForm extends React.Component<CheckoutFormProps, Che
 								coupon={this.props.stripeCoupon}
 								submitUrl={this.props.stripeElementsSubmitUrl}
 								csrfElement={this.props.csrfElement}
-								onDisable={(disabled: boolean) => this.setState({disabled})}
+								onDisable={(disabled: boolean) =>
+									this.setState({ disabled })
+								}
 							/>
 						</Elements>
 					</StripeProvider>
@@ -139,7 +165,9 @@ export default class CheckoutForm extends React.Component<CheckoutFormProps, Che
 						submitUrl={this.props.paypalSubmitUrl}
 						showCouponWarning={!!this.props.stripeCoupon}
 						csrfElement={this.props.csrfElement}
-						onDisable={(disabled: boolean) => this.setState({disabled})}
+						onDisable={(disabled: boolean) =>
+							this.setState({ disabled })
+						}
 					/>
 				);
 		}
@@ -147,7 +175,7 @@ export default class CheckoutForm extends React.Component<CheckoutFormProps, Che
 
 	render() {
 		return (
-			<div style={{width: "100%", maxWidth: "500px", margin: "0 auto"}}>
+			<div style={{ width: "100%", maxWidth: "500px", margin: "0 auto" }}>
 				{this.renderPaymentMethods()}
 				{this.renderCheckout()}
 			</div>

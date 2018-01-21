@@ -1,8 +1,8 @@
 import React from "react";
-import {CardElement, injectStripe} from "react-stripe-elements";
+import { CardElement, injectStripe } from "react-stripe-elements";
 import BtnGroup from "../BtnGroup";
-import {CheckoutFormInstanceProps} from "./CheckoutForm";
-import {StripePlan} from "./StripeElementsCheckoutForm";
+import { CheckoutFormInstanceProps } from "./CheckoutForm";
+import { StripePlan } from "./StripeElementsCheckoutForm";
 import CheckoutProcess from "../../checkout/CheckoutProcess";
 import UserData from "../../UserData";
 
@@ -10,10 +10,12 @@ const enum CheckoutStep {
 	LOADING_STRIPE,
 	READY_TO_CHECKOUT,
 	CHECKOUT,
-	SUBMIT,
+	SUBMIT
 }
 
-interface StripeLegacyCheckoutFormProps extends CheckoutFormInstanceProps, React.ClassAttributes<StripeLegacyCheckoutForm> {
+interface StripeLegacyCheckoutFormProps
+	extends CheckoutFormInstanceProps,
+		React.ClassAttributes<StripeLegacyCheckoutForm> {
 	apiKey: string;
 	coupon?: string;
 	plans: StripePlan[];
@@ -28,7 +30,10 @@ interface StripeLegacyCheckoutFormState {
 	token?: stripe.StripeTokenResponse;
 }
 
-export default class StripeLegacyCheckoutForm extends React.Component<StripeLegacyCheckoutFormProps, StripeLegacyCheckoutFormState> {
+export default class StripeLegacyCheckoutForm extends React.Component<
+	StripeLegacyCheckoutFormProps,
+	StripeLegacyCheckoutFormState
+> {
 	private form: HTMLFormElement;
 	private handler: StripeCheckoutHandler;
 
@@ -37,7 +42,7 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 		this.state = {
 			selectedPlan: props.plans[0].stripeId,
 			step: CheckoutStep.LOADING_STRIPE,
-			useDefaultSource: !!this.props.defaultSource,
+			useDefaultSource: !!this.props.defaultSource
 		};
 	}
 
@@ -46,8 +51,7 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 
 		if (typeof StripeCheckout !== "undefined") {
 			promise = Promise.resolve();
-		}
-		else {
+		} else {
 			promise = new Promise<void>((resolve, reject) => {
 				const script = document.createElement("script");
 				script.type = "text/javascript";
@@ -65,9 +69,9 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 				locale: "auto",
 				panelLabel: "Subscribe for",
 				email: UserData.getEmail(),
-				allowRememberMe: false,
+				allowRememberMe: false
 			});
-			this.setState({step: CheckoutStep.READY_TO_CHECKOUT})
+			this.setState({ step: CheckoutStep.READY_TO_CHECKOUT });
 		});
 	}
 
@@ -75,19 +79,21 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 		return this.props.plans.map((plan: StripePlan) => ({
 			label: <h4>{plan.description}</h4>,
 			value: plan.stripeId,
-			className: "btn btn-default",
+			className: "btn btn-default"
 		}));
 	}
 
-	private static getButtonMessage(step: CheckoutStep, useDefaultSource?: boolean) {
+	private static getButtonMessage(
+		step: CheckoutStep,
+		useDefaultSource?: boolean
+	) {
 		switch (step) {
 			case CheckoutStep.LOADING_STRIPE:
 				return "Loading…";
 			case CheckoutStep.READY_TO_CHECKOUT:
 				if (useDefaultSource) {
 					return "Subscribe now";
-				}
-				else {
+				} else {
 					return "Sign me up!";
 				}
 			case CheckoutStep.CHECKOUT:
@@ -109,9 +115,11 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 			return;
 		}
 
-		this.setState({step: CheckoutStep.CHECKOUT, useDefaultSource: false});
+		this.setState({ step: CheckoutStep.CHECKOUT, useDefaultSource: false });
 
-		const plan: StripePlan = this.props.plans.find((plan: StripePlan) => plan.stripeId === this.state.selectedPlan);
+		const plan: StripePlan = this.props.plans.find(
+			(plan: StripePlan) => plan.stripeId === this.state.selectedPlan
+		);
 		if (!plan) {
 			// no valid plan selected
 			console.error("No valid plan selected");
@@ -125,22 +133,36 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 		}
 
 		const checkout = new CheckoutProcess(plan.stripeId, this.handler);
-		checkout.checkout({
+		checkout
+			.checkout({
 				amount: plan.amount,
 				currency: plan.currency,
-				description: plan.description,
+				description: plan.description
 			})
-			.then((token) => this.submit(token))
-			.catch(() => this.setState({step: CheckoutStep.READY_TO_CHECKOUT, useDefaultSource}));
+			.then(token => this.submit(token))
+			.catch(() =>
+				this.setState({
+					step: CheckoutStep.READY_TO_CHECKOUT,
+					useDefaultSource
+				})
+			);
 	}
 
 	submit(token?: stripe.StripeTokenResponse) {
-		this.setState({step: CheckoutStep.SUBMIT, token: token}, () => this.form.submit());
+		this.setState({ step: CheckoutStep.SUBMIT, token: token }, () =>
+			this.form.submit()
+		);
 	}
 
-	componentWillUpdate(nextProps: CheckoutFormInstanceProps, nextState: StripeLegacyCheckoutFormState) {
+	componentWillUpdate(
+		nextProps: CheckoutFormInstanceProps,
+		nextState: StripeLegacyCheckoutFormState
+	) {
 		if (nextState.step !== this.state.step) {
-			this.props.onDisable(nextState.step !== CheckoutStep.READY_TO_CHECKOUT && nextState.step !== CheckoutStep.LOADING_STRIPE);
+			this.props.onDisable(
+				nextState.step !== CheckoutStep.READY_TO_CHECKOUT &&
+					nextState.step !== CheckoutStep.LOADING_STRIPE
+			);
 		}
 	}
 
@@ -151,7 +173,8 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 
 		return (
 			<p className="alert alert-success">
-				You have an active coupon for <strong>{this.props.coupon}</strong>.<br/>
+				You have an active coupon for{" "}
+				<strong>{this.props.coupon}</strong>.<br />
 				This amount will be deducted from your purchase.
 			</p>
 		);
@@ -163,32 +186,37 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 		}
 
 		return (
-			<p className="text-center">Using <strong>{this.props.defaultSource}</strong></p>
+			<p className="text-center">
+				Using <strong>{this.props.defaultSource}</strong>
+			</p>
 		);
 	}
 
 	render() {
 		const disabled = this.state.step !== CheckoutStep.READY_TO_CHECKOUT;
-		const canSelectPlan = !disabled || this.state.step === CheckoutStep.LOADING_STRIPE;
+		const canSelectPlan =
+			!disabled || this.state.step === CheckoutStep.LOADING_STRIPE;
 
 		return (
 			<form
 				className="text-center"
 				method="post"
 				action={this.props.submitUrl}
-				ref={(ref) => this.form = ref}
-				onSubmit={(e) => {
+				ref={ref => (this.form = ref)}
+				onSubmit={e => {
 					e.preventDefault();
 					this.checkout(true);
 				}}
 			>
-				<div style={{margin: "25px 0"}}>
+				<div style={{ margin: "25px 0" }}>
 					<label id="choose-plan">Choose your plan</label>
 					<BtnGroup
 						className="btn-group btn-group-flex"
 						buttons={this.getPlanButtons()}
 						name="plan"
-						onChange={(selectedPlan) => this.setState({selectedPlan})}
+						onChange={selectedPlan =>
+							this.setState({ selectedPlan })
+						}
 						value={this.state.selectedPlan}
 						aria-labelledby="choose-plan"
 						disabled={!canSelectPlan}
@@ -201,16 +229,33 @@ export default class StripeLegacyCheckoutForm extends React.Component<StripeLega
 						className="promo-button text-premium checkout-button"
 						disabled={disabled}
 					>
-						{StripeLegacyCheckoutForm.getButtonMessage(this.state.step, this.state.useDefaultSource)}
+						{StripeLegacyCheckoutForm.getButtonMessage(
+							this.state.step,
+							this.state.useDefaultSource
+						)}
 					</button>
 				</p>
 				{this.renderDefaultSource()}
-				{this.state.token ? [
-					<input type="hidden" name="stripeToken" value={this.state.token.id}/>,
-					<input type="hidden" name="stripeEmail" value={(this.state.token as any).email}/>,
-					<input type="hidden" name="stripeTokenType" value={this.state.token.type}/>,
-				] : null}
-				<div dangerouslySetInnerHTML={this.props.csrfElement}></div>
+				{this.state.token
+					? [
+							<input
+								type="hidden"
+								name="stripeToken"
+								value={this.state.token.id}
+							/>,
+							<input
+								type="hidden"
+								name="stripeEmail"
+								value={(this.state.token as any).email}
+							/>,
+							<input
+								type="hidden"
+								name="stripeTokenType"
+								value={this.state.token.type}
+							/>
+						]
+					: null}
+				<div dangerouslySetInnerHTML={this.props.csrfElement} />
 			</form>
 		);
 	}

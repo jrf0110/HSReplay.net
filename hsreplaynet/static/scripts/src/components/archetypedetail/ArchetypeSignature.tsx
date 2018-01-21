@@ -1,6 +1,6 @@
 import React from "react";
 import * as _ from "lodash";
-import {ApiArchetypeSignature} from "../../interfaces";
+import { ApiArchetypeSignature } from "../../interfaces";
 import CardData from "../../CardData";
 import CardList from "../CardList";
 
@@ -10,7 +10,8 @@ interface Bucket {
 	title: string;
 }
 
-interface ArchetypeSignatureProps extends React.ClassAttributes<ArchetypeSignature> {
+interface ArchetypeSignatureProps
+	extends React.ClassAttributes<ArchetypeSignature> {
 	cardData: CardData;
 	signature?: ApiArchetypeSignature;
 	showOccasional?: boolean;
@@ -18,7 +19,10 @@ interface ArchetypeSignatureProps extends React.ClassAttributes<ArchetypeSignatu
 	maxCards?: number;
 }
 
-export default class ArchetypeSignature extends React.Component<ArchetypeSignatureProps, {}> {
+export default class ArchetypeSignature extends React.Component<
+	ArchetypeSignatureProps,
+	{}
+> {
 	shouldComponentUpdate(nextProps: ArchetypeSignatureProps) {
 		return (
 			!!this.props.cardData !== !!nextProps.cardData ||
@@ -27,28 +31,34 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 	}
 
 	render(): JSX.Element {
-		const {cardData, signature, showValues} = this.props;
+		const { cardData, signature, showValues } = this.props;
 		if (!signature || !signature.components || !cardData) {
 			return null;
 		}
 
 		const buckets: Bucket[] = [
-			{title: "Core Cards", threshold: 0.8, cards: []},
-			{title: "Popular Tech Cards", threshold: 0.5, cards: []},
+			{ title: "Core Cards", threshold: 0.8, cards: [] },
+			{ title: "Popular Tech Cards", threshold: 0.5, cards: [] }
 		];
 
 		if (this.props.showOccasional) {
-			buckets.push({title: "Occasional Tech Cards", threshold: 0.1, cards: []});
+			buckets.push({
+				title: "Occasional Tech Cards",
+				threshold: 0.1,
+				cards: []
+			});
 		}
 
-		let components = this.props.signature.components.slice().sort((a, b) => b[1] - a[1]);
+		let components = this.props.signature.components
+			.slice()
+			.sort((a, b) => b[1] - a[1]);
 		if (this.props.maxCards) {
 			components = components.slice(0, this.props.maxCards);
 		}
 
 		const customCounts = {};
 		components.forEach(([dbfId, prev]) => {
-			const bucket = buckets.find((b) => prev >= b.threshold);
+			const bucket = buckets.find(b => prev >= b.threshold);
 			if (bucket) {
 				bucket.cards.push(dbfId);
 			}
@@ -56,7 +66,7 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 		});
 
 		const cardLists = [];
-		buckets.forEach((bucket) => {
+		buckets.forEach(bucket => {
 			if (bucket.cards.length) {
 				cardLists.push(
 					<div className="card-list-wrapper">
@@ -70,15 +80,11 @@ export default class ArchetypeSignature extends React.Component<ArchetypeSignatu
 							customCounts={showValues && customCounts}
 							sortByCount={showValues}
 						/>
-					</div>,
+					</div>
 				);
 			}
 		});
 
-		return (
-			<div className="archetype-signature">
-				{cardLists}
-			</div>
-		);
+		return <div className="archetype-signature">{cardLists}</div>;
 	}
 }

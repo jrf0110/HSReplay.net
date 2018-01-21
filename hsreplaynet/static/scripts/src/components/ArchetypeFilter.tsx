@@ -11,9 +11,18 @@ interface ArchetypeFilterProps extends React.ClassAttributes<ArchetypeFilter> {
 	data?: any;
 }
 
-export default class ArchetypeFilter extends React.Component<ArchetypeFilterProps, {}> {
+export default class ArchetypeFilter extends React.Component<
+	ArchetypeFilterProps,
+	{}
+> {
 	render(): JSX.Element {
-		const {archetypes, archetypesChanged, data, playerClasses, selectedArchetypes} = this.props;
+		const {
+			archetypes,
+			archetypesChanged,
+			data,
+			playerClasses,
+			selectedArchetypes
+		} = this.props;
 		if (!data) {
 			return null;
 		}
@@ -22,27 +31,35 @@ export default class ArchetypeFilter extends React.Component<ArchetypeFilterProp
 		if (archetypes) {
 			const addFilter = (archetypeId, playerClass, name) => {
 				filters.push(
-					<InfoboxFilter value={"" + archetypeId} >
-						<span className={`player-class ${playerClass.toLowerCase()}`}>
+					<InfoboxFilter value={"" + archetypeId}>
+						<span
+							className={`player-class ${playerClass.toLowerCase()}`}
+						>
 							{name}
 						</span>
-					</InfoboxFilter>,
+					</InfoboxFilter>
 				);
 			};
-			const validPlayerClass = (archetype) => playerClasses.indexOf(archetype.playerClass) !== -1;
+			const validPlayerClass = archetype =>
+				playerClasses.indexOf(archetype.playerClass) !== -1;
 
 			const others = {};
-			archetypes.filter(validPlayerClass).map((archetype) => {
-				const archetypeData = data.find((a) => "" + a.id === archetype.id);
+			archetypes.filter(validPlayerClass).map(archetype => {
+				const archetypeData = data.find(
+					a => "" + a.id === archetype.id
+				);
 				if (archetypeData) {
-					addFilter(archetype.id, archetype.playerClass, archetypeData.name);
-				}
-				else {
+					addFilter(
+						archetype.id,
+						archetype.playerClass,
+						archetypeData.name
+					);
+				} else {
 					others[archetype.playerClass] = archetype.id;
 				}
 			});
 			if (UserData.hasFeature("archetype-training")) {
-				playerClasses.forEach((playerClass) => {
+				playerClasses.forEach(playerClass => {
 					if (others[playerClass]) {
 						addFilter(others[playerClass], playerClass, "Other");
 					}
@@ -60,11 +77,17 @@ export default class ArchetypeFilter extends React.Component<ArchetypeFilterProp
 					deselectable={true}
 					selectedValue={selectedArchetypes.map(String)}
 					onClick={(value, sender) => {
-						if (value !== null && selectedArchetypes.indexOf(value) === -1) {
-							archetypesChanged(selectedArchetypes.concat([value]));
-						}
-						else if (value === null) {
-							archetypesChanged(selectedArchetypes.filter((x) => x !== sender));
+						if (
+							value !== null &&
+							selectedArchetypes.indexOf(value) === -1
+						) {
+							archetypesChanged(
+								selectedArchetypes.concat([value])
+							);
+						} else if (value === null) {
+							archetypesChanged(
+								selectedArchetypes.filter(x => x !== sender)
+							);
 						}
 					}}
 				>

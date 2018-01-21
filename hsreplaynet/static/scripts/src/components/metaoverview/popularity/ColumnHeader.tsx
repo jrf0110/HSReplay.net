@@ -11,25 +11,34 @@ interface ColumnHeaderProps extends React.ClassAttributes<ColumnHeader> {
 	onClick?: (key: string, direction: SortDirection) => void;
 }
 
-interface ColumnHeaderState {
-}
+interface ColumnHeaderState {}
 
-export default class ColumnHeader extends React.Component<ColumnHeaderProps, ColumnHeaderState> {
+export default class ColumnHeader extends React.Component<
+	ColumnHeaderProps,
+	ColumnHeaderState
+> {
 	render() {
-		const imageName = "Medal_Ranked_" + (this.props.rankData.rank || "Legend");
+		const imageName =
+			"Medal_Ranked_" + (this.props.rankData.rank || "Legend");
 		return (
 			<div
 				className="matchup-column-header"
 				style={this.props.style}
-				onClick={(event) => {
+				onClick={event => {
 					if (event && event.currentTarget) {
 						event.currentTarget.blur();
 					}
-					this.props.onClick(this.props.sortKey, this.getNextDirection());
+					this.props.onClick(
+						this.props.sortKey,
+						this.getNextDirection()
+					);
 				}}
-				onKeyPress={(event) => {
+				onKeyPress={event => {
 					if (event.which === 13) {
-						this.props.onClick(this.props.sortKey, this.getNextDirection());
+						this.props.onClick(
+							this.props.sortKey,
+							this.getNextDirection()
+						);
 					}
 				}}
 			>
@@ -37,8 +46,12 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 					className="rank-icon"
 					src={`${STATIC_URL}images/64x/ranked-medals/${imageName}.png`}
 				/>
-				{this.props.rankData.rank ? "Rank " + this.props.rankData.rank : "Legend"}
-				<SortIndicator direction={this.props.active ? this.props.direction : null} />
+				{this.props.rankData.rank
+					? "Rank " + this.props.rankData.rank
+					: "Legend"}
+				<SortIndicator
+					direction={this.props.active ? this.props.direction : null}
+				/>
 			</div>
 		);
 	}
@@ -47,6 +60,8 @@ export default class ColumnHeader extends React.Component<ColumnHeaderProps, Col
 		if (!this.props.active) {
 			return "descending";
 		}
-		return this.props.direction === "ascending" ? "descending" : "ascending";
+		return this.props.direction === "ascending"
+			? "descending"
+			: "ascending";
 	}
 }

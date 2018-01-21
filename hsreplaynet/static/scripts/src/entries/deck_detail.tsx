@@ -5,15 +5,32 @@ import DeckDetail from "../pages/DeckDetail";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
 
-const adminUrl = document.getElementById("deck-info").getAttribute("data-admin-url");
-const deckId = document.getElementById("deck-info").getAttribute("data-deck-id");
-const deckName= document.getElementById("deck-info").getAttribute("data-deck-name");
-const isWild = +document.getElementById("deck-info").getAttribute("data-deck-wild") === 1;
-const cards = document.getElementById("deck-info").getAttribute("data-deck-cards");
-const deckClass = document.getElementById("deck-info").getAttribute("data-deck-class");
-const heroDbfId = +document.getElementById("deck-info").getAttribute("data-hero-id");
-const archetypeId = document.getElementById("deck-info").getAttribute("data-archetype-id");
-const archetypeName = document.getElementById("deck-info").getAttribute("data-archetype-name");
+const adminUrl = document
+	.getElementById("deck-info")
+	.getAttribute("data-admin-url");
+const deckId = document
+	.getElementById("deck-info")
+	.getAttribute("data-deck-id");
+const deckName = document
+	.getElementById("deck-info")
+	.getAttribute("data-deck-name");
+const isWild =
+	+document.getElementById("deck-info").getAttribute("data-deck-wild") === 1;
+const cards = document
+	.getElementById("deck-info")
+	.getAttribute("data-deck-cards");
+const deckClass = document
+	.getElementById("deck-info")
+	.getAttribute("data-deck-class");
+const heroDbfId = +document
+	.getElementById("deck-info")
+	.getAttribute("data-hero-id");
+const archetypeId = document
+	.getElementById("deck-info")
+	.getAttribute("data-archetype-id");
+const archetypeName = document
+	.getElementById("deck-info")
+	.getAttribute("data-archetype-name");
 UserData.create();
 
 const render = (cardData: CardData) => {
@@ -24,9 +41,13 @@ const render = (cardData: CardData) => {
 				rankRange: "ALL",
 				region: "ALL",
 				selectedClasses: [],
-				tab: "mulligan-guide",
+				tab: "mulligan-guide"
 			}}
-			immutable={!UserData.isPremium() ? ["selectedClasses", "rankRange", "region"] : null}
+			immutable={
+				!UserData.isPremium()
+					? ["selectedClasses", "rankRange", "region"]
+					: null
+			}
 		>
 			<DeckDetail
 				adminUrl={adminUrl}
@@ -40,7 +61,7 @@ const render = (cardData: CardData) => {
 				heroDbfId={heroDbfId}
 			/>
 		</Fragments>,
-		document.getElementById("deck-container"),
+		document.getElementById("deck-container")
 	);
 };
 
