@@ -173,7 +173,7 @@ class StreamingNowView(APIView):
 		for k in client.keys(":*:twitch_*"):
 			details = cache.get(k.decode()[3:])
 
-			if not details.get("deck") or not details.get("hero"):
+			if not details or not details.get("deck") or not details.get("hero"):
 				# Skip the obvious garbage
 				continue
 
