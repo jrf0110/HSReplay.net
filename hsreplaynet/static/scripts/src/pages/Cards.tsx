@@ -505,7 +505,9 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 									</p>,
 									<p className="text-muted">
 										Note: It may take a few hours for new
-										data to appear on this page.
+										data to appear on this page. If you are
+										missing data, make sure the filters in
+										the sidebar are correct!
 									</p>
 								]}
 							/>
