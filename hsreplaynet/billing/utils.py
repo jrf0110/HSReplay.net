@@ -43,8 +43,7 @@ def check_for_referrals(user):
 
 	with transaction.atomic():
 		ref.processed = True
-		# Waiting for https://github.com/stripe/stripe-python/pull/371
-		# ref.credit_request_id = customer_to_credit.last_request.request_id
+		ref.credit_request_id = customer_to_credit.last_response.request_id
 		ref.apply_referral_plan()
 
 	ref.save()
