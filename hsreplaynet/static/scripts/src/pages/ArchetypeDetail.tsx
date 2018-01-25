@@ -388,9 +388,6 @@ export default class ArchetypeDetail extends React.Component<
 								</span>
 							}
 							id="mulligan-guide"
-							hidden={
-								!UserData.hasFeature("archetype-mulligan-guide")
-							}
 						>
 							{this.renderMulliganGuide(params)}
 						</Tab>
