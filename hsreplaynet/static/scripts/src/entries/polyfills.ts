@@ -20,41 +20,41 @@ if (
 	UserData.create();
 	document.addEventListener("DOMContentLoaded", () => {
 		// locate the premium navbar item
-		const metaoverview = document.getElementById("navbar-link-meta");
-		if (!metaoverview) {
+		const premiumLink = document.getElementById("navbar-link-premium");
+		if (!premiumLink) {
 			return;
 		}
 
 		// do not show if feature is disabled
-		if (!UserData.hasFeature("archetypes-announcement-tooltip")) {
+		if (!UserData.hasFeature("reflinks")) {
 			return;
 		}
 
 		// do not show if hidden
-		if (cookie.get("knows-about-archetypes", "0") !== "0") {
+		if (cookie.get("refer-popup-closed", "0") !== "0") {
 			return;
 		}
 
-		($(metaoverview) as any).popover({
+		($(premiumLink) as any).popover({
 			animation: true,
 			trigger: "manual",
 			placement: "bottom",
 			html: true,
 			title:
-				'Archetypes & Meta <a href="#" id="archetypes-popover-close" class="popover-close" aria-hidden="true">&times;</a>',
+				'Refer a Friend! <a href="#" id="referral-popover-close" class="popover-close" aria-hidden="true">&times;</a>',
 			content:
-				"We now have detailed statistics about archetypes and the current meta!"
+				"Want $1 off your Premium subscription? Tell a friend about HSReplay.net!"
 		});
-		($(metaoverview) as any).on("shown.bs.popover", () => {
-			$("#archetypes-popover-close").click(evt => {
+		($(premiumLink) as any).on("shown.bs.popover", () => {
+			$("#referral-popover-close").click(evt => {
 				evt.preventDefault();
-				($(metaoverview) as any).popover("destroy");
-				cookie.set("knows-about-archetypes", "1", {
+				($(premiumLink) as any).popover("destroy");
+				cookie.set("refer-popup-closed", "1", {
 					path: "/",
-					expires: 365
+					expires: 90
 				});
 			});
 		});
-		setTimeout(() => ($(metaoverview) as any).popover("show"), 500);
+		setTimeout(() => ($(premiumLink) as any).popover("show"), 500);
 	});
 }
