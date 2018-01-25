@@ -882,7 +882,7 @@ export function pieScaleTransform(
 	scale: number
 ): string {
 	const origin = Object.assign({ x: 0, y: 0 }, props.origin);
-	return `translate(${origin.x}px, ${origin.y}px) scale(1.1)`;
+	return `translate(${origin.x}px, ${origin.y}px) scale(${+scale})`;
 }
 
 export function getHeroCard(cardData: CardData, player: GlobalGamePlayer): any {

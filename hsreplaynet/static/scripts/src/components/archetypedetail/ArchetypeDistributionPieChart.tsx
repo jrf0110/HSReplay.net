@@ -63,7 +63,6 @@ export default class ArchetypeDistributionPieChart extends React.Component<
 				const scale = selected
 					? 1.1
 					: this.state.hovering === id ? 1.05 : 1.0;
-				//const translate = getPieTranslate(this.pieSize, this.pieSize, this.piePadding);
 				return {
 					archetypeId: id,
 					isSelectedArchetype: id === this.props.selectedArchetypeId,

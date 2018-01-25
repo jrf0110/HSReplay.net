@@ -74,7 +74,6 @@ export default class ClassDistributionPieChart extends React.Component<
 						data: {
 							fill: d => d.color || getHeroColor(d.xName),
 							strokeWidth: 2,
-							//transform: translate,
 							transition: "transform .2s ease-in-out"
 						},
 						labels: { fill: "#FFFFFF", fontSize: 20 }
