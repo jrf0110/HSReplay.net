@@ -331,6 +331,7 @@ export default class MyReplays extends React.Component<
 						? null
 						: Object.keys(this.state.gamesPages).length
 				}
+				minimal
 			/>
 		);
 

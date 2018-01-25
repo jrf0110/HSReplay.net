@@ -1,6 +1,10 @@
 
 .my-replays-content {
 	display: flex;
+
+	.pagination {
+		margin: 0;
+	}
 }
 
 .replay-list {
