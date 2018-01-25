@@ -208,7 +208,7 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 	width: 100%;
 	line-height: 2em;
 	white-space: nowrap;
-	padding: 2px;
+	padding: 1px;
 	background: $blue;
 	margin-bottom: 20px;
 
@@ -218,10 +218,10 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 	}
 
 	.match-table-header {
-		background-color: $aqua;
-		color: $lighterblue;
+		background-color: $blue;
+		color: white;
 		text-transform: uppercase;
-		font-size: 1.1em;
+		font-weight: bold;
 		margin: 0;
 		padding: 0.5em 0.5em;
 		display: table-header-group;
@@ -263,6 +263,12 @@ a.hsreplay-thumbnail:link, a.hsreplay-thumbnail:hover {
 
 				&.result-lost {
 					background-color: rgb(245, 206, 203);
+				}
+			}
+
+			&:last-child {
+				.match-table-cell {
+					border-bottom: none;
 				}
 			}
 		}
