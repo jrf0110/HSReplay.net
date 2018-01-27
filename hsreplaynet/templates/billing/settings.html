@@ -35,7 +35,7 @@
 				</p>
 			{% else %}
 
-				{% if can_cancel or can_cancel_immediately and billing.read_only %}
+				{% if can_cancel or can_cancel_immediately %}
 					<p class="premium-plan-form">
 						<a href="{% url 'premium_cancel' %}" class="btn btn-danger">Cancel subscription</a>
 					</p>
