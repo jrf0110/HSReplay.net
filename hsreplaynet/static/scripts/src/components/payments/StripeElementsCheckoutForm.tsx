@@ -287,7 +287,10 @@ class StripeElementsCheckoutForm extends React.Component<
 					width: "100%"
 				}}
 			>
-				<div style={{ margin: "25px 0 10px 0" }}>
+				<div
+					style={{ margin: "25px 0 10px 0" }}
+					className="text-center"
+				>
 					<label id="choose-plan">Choose your plan</label>
 					<BtnGroup
 						className="btn-group btn-group-flex"
