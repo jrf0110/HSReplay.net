@@ -27,6 +27,7 @@ interface TooltipProps {
 	yOffset?: number;
 	xOffset?: number;
 	onHovering?: () => void;
+	noSrTooltip?: boolean;
 }
 
 export default class Tooltip extends React.Component<
@@ -166,14 +167,26 @@ export default class Tooltip extends React.Component<
 			});
 		};
 
+		let content = this.getSelectedContent();
+		if (typeof content === "string") {
+			content = <p>{content}</p>;
+		}
+
 		return (
 			<div
 				className={classNames.join(" ")}
 				onMouseMove={hover}
 				onMouseLeave={cancel}
 				onTouchStart={() => this.setState({ isTouchDevice: true })}
-				aria-describedby={this.state.hovering ? this.props.id : null}
 			>
+				{!this.props.noSrTooltip ? (
+					<section className="sr-only">
+						{this.props.header ? (
+							<h1>{this.props.header}</h1>
+						) : null}
+						{content}
+					</section>
+				) : null}
 				{this.props.children}
 			</div>
 		);

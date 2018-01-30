@@ -46,7 +46,11 @@ export default class ClassIcon extends React.Component<ClassIconProps, any> {
 		}
 		if (this.props.tooltip) {
 			image = (
-				<Tooltip content={toTitleCase(this.props.heroClassName)} simple>
+				<Tooltip
+					content={toTitleCase(this.props.heroClassName)}
+					simple
+					noSrTooltip
+				>
 					{image}
 				</Tooltip>
 			);
