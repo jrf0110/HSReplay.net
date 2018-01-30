@@ -247,6 +247,9 @@ export default class DeckList extends React.Component<
 			sort(name);
 		};
 
+		const sortDirection = (name: string) =>
+			this.props.sortBy === name ? this.props.sortDirection : "none";
+
 		const tabIndex = isSortable ? 0 : -1;
 
 		let firstHeader = null;
@@ -259,8 +262,12 @@ export default class DeckList extends React.Component<
 					onClick={e => onClick("lastPlayed", e)}
 					onKeyPress={e => onKeyPress("lastPlayed", e)}
 					tabIndex={tabIndex}
+					role="columnheader"
+					aria-sort={sortDirection("lastPlayed")}
 				>
-					<span>Deck / Last Played</span>
+					<span>
+						Deck / <span aria-hidden="true">Last Played</span>
+					</span>
 					{sortIndicator("lastPlayed")}
 					<InfoIcon
 						header="Last Played"
@@ -277,8 +284,12 @@ export default class DeckList extends React.Component<
 					onClick={e => onClick("dust", e)}
 					onKeyPress={e => onKeyPress("dust", e)}
 					tabIndex={tabIndex}
+					role="columnheader"
+					aria-sort={sortDirection("dust")}
 				>
-					<span>Deck / Cost</span>
+					<span>
+						Deck / <span aria-hidden="true">Cost</span>
+					</span>
 					{sortIndicator("dust")}
 					<InfoIcon
 						header="Crafting Cost"
@@ -308,8 +319,10 @@ export default class DeckList extends React.Component<
 						onClick={e => onClick("winrate", e)}
 						onKeyPress={e => onKeyPress("winrate", e)}
 						tabIndex={tabIndex}
+						role="columnheader"
+						aria-sort={sortDirection("winrate")}
 					>
-						<span>Winrate</span>
+						<span aria-hidden="true">Winrate</span>
 						{sortIndicator("winrate")}
 						<InfoIcon
 							header="Winrate"
@@ -324,8 +337,10 @@ export default class DeckList extends React.Component<
 						onClick={e => onClick("popularity", e)}
 						onKeyPress={e => onKeyPress("popularity", e)}
 						tabIndex={tabIndex}
+						role="columnheader"
+						aria-sort={sortDirection("popularity")}
 					>
-						<span>Games</span>
+						<span aria-hidden="true">Games</span>
 						{sortIndicator("popularity")}
 						<InfoIcon
 							header="Games Played"
@@ -340,8 +355,10 @@ export default class DeckList extends React.Component<
 						onClick={e => onClick("duration", e)}
 						onKeyPress={e => onKeyPress("duration", e)}
 						tabIndex={tabIndex}
+						role="columnheader"
+						aria-sort={sortDirection("duration")}
 					>
-						<span>Duration</span>
+						<span aria-hidden="true">Duration</span>
 						{sortIndicator("duration")}
 						<InfoIcon
 							header="Game Duration"
@@ -356,15 +373,20 @@ export default class DeckList extends React.Component<
 						onClick={e => onClick("mana", e)}
 						onKeyPress={e => onKeyPress("mana", e)}
 						tabIndex={tabIndex}
+						role="columnheader"
+						aria-sort={sortDirection("mana")}
 					>
-						<span>Mana</span>
+						<span aria-hidden="true">Mana</span>
 						{sortIndicator("mana")}
 						<InfoIcon
 							header="Mana Curve"
 							content="Distribution of card costs for the deck."
 						/>
 					</div>
-					<div className="col-lg-6 col-md-7 col-sm-8 hidden-xs">
+					<div
+						className="col-lg-6 col-md-7 col-sm-8 hidden-xs"
+						role="columnheader"
+					>
 						{this.props.compareWith ? "Changes" : "Cards"}
 					</div>
 				</div>

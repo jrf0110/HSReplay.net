@@ -21,7 +21,7 @@ export default class SortHeader extends React.Component<SortHeaderProps, {}> {
 			element = <th />;
 		}
 
-		if (this.props.infoText) {
+		if (this.props.infoHeader || this.props.infoText) {
 			info = (
 				<InfoIcon
 					header={this.props.infoHeader}
@@ -67,10 +67,14 @@ export default class SortHeader extends React.Component<SortHeaderProps, {}> {
 					);
 				}
 			},
-			tabIndex: sort !== null ? 0 : null
+			tabIndex: sort !== null ? 0 : null,
+			role: "columnheader",
+			"aria-sort": this.props.active ? this.props.direction : "none"
 		};
 
-		return React.cloneElement(element, props, text, sort, info);
+		const title = <span aria-hidden={!!this.props.infoHeader}>{text}</span>;
+
+		return React.cloneElement(element, props, title, sort, info);
 	}
 
 	getNextDirection(): SortDirection {

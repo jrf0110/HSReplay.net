@@ -1,4 +1,5 @@
 import React from "react";
+import _ from "lodash";
 import { AutoSizer, Grid, ScrollSync } from "react-virtualized";
 import { CardObj, SortableProps, SortDirection } from "../../interfaces";
 import scrollbarSize from "dom-helpers/util/scrollbarSize";
@@ -47,11 +48,14 @@ const HEADER_WIDTH_RATIO = 0.33;
 const INFO_ROW_HEIGHT = 50;
 
 export default class Table extends React.Component<TableProps, TableState> {
+	referenceId: string;
+
 	constructor(props: TableProps, context?: any) {
 		super(props, context);
 		this.state = {
 			hoveringRow: -1
 		};
+		this.referenceId = _.uniqueId("table");
 	}
 
 	render(): JSX.Element {
@@ -254,9 +258,11 @@ export default class Table extends React.Component<TableProps, TableState> {
 		}
 		const row = this.props.rowData[rowIndex];
 		const props = {
+			id: this.getRowId(rowIndex),
 			className: "table-row-header",
 			key,
 			style,
+			role: "rowheader",
 			...this.rowHighlighting(rowIndex)
 		};
 		if (row.href) {
@@ -282,7 +288,13 @@ export default class Table extends React.Component<TableProps, TableState> {
 			lineHeight: `${this.props.cellHeight}px`
 		});
 		return (
-			<div className="table-column-header" style={style} key={key}>
+			<div
+				id={this.getColumnId(columnIndex)}
+				className="table-column-header"
+				style={style}
+				key={key}
+				role="gridcell"
+			>
 				{content}
 			</div>
 		);
@@ -333,6 +345,10 @@ export default class Table extends React.Component<TableProps, TableState> {
 			className: "table-cell",
 			key,
 			style,
+			role: "gridcell",
+			"aria-describedby": `${this.getRowId(rowIndex)} ${this.getColumnId(
+				columnIndex
+			)}`,
 			...this.rowHighlighting(rowIndex)
 		};
 
@@ -355,6 +371,14 @@ export default class Table extends React.Component<TableProps, TableState> {
 			onMouseEnter: () => this.setState({ hoveringRow: rowIndex }),
 			onMouseLeave: () => this.setState({ hoveringRow: -1 })
 		};
+	}
+
+	getRowId(rowIndex: number | string): string {
+		return `${this.referenceId}-row${rowIndex}`;
+	}
+
+	getColumnId(rowIndex: number | string): string {
+		return `${this.referenceId}-column${rowIndex}`;
 	}
 
 	getSortHeader(

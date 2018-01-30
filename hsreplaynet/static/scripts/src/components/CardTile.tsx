@@ -115,7 +115,12 @@ export default class CardTile extends React.Component<CardTileProps, {}> {
 		}
 
 		let tile = (
-			<Tooltip id="card-tooltip" content={tooltip} noBackground>
+			<Tooltip
+				id="card-tooltip"
+				content={tooltip}
+				noBackground
+				noSrTooltip
+			>
 				<div
 					className={classNames.join(" ")}
 					style={tileStyle}
