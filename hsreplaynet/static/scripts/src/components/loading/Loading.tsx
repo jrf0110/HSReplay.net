@@ -19,9 +19,17 @@ export const withLoading = (dataKeys?: string[]) => <T extends {}>(
 			if (status !== undefined) {
 				const message = getLoadingMessage(status, customNoDataMessage);
 				if (typeof message === "string") {
-					return <h3 className="message-wrapper">{message}</h3>;
+					return (
+						<h3 className="message-wrapper" aria-busy="true">
+							{message}
+						</h3>
+					);
 				} else if (message !== null) {
-					return <div className="message-wrapper">{message}</div>;
+					return (
+						<div className="message-wrapper" aria-busy="true">
+							{message}
+						</div>
+					);
 				}
 			}
 			const noData = (dataKeys || ["data"]).some(key => {

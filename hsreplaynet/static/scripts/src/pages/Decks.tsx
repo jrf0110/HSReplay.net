@@ -352,7 +352,11 @@ export default class Decks extends React.Component<DecksProps, DecksState> {
 	render(): JSX.Element {
 		let content = null;
 		if (this.state.loading) {
-			content = <h3 className="message-wrapper">Loading…</h3>;
+			content = (
+				<h3 className="message-wrapper" aria-busy="true">
+					Loading…
+				</h3>
+			);
 		} else if (this.state.filteredDecks.length === 0) {
 			content = (
 				<div className="content-message">
