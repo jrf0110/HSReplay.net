@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.messages import get_messages
 from djpaypal.models import BillingPlan
 from djpaypal.settings import PAYPAL_CLIENT_ID, PAYPAL_LIVE_MODE
+from djstripe.enums import SubscriptionStatus
 from djstripe.models import Plan
 from djstripe.settings import STRIPE_LIVE_MODE, STRIPE_PUBLIC_KEY
 
@@ -78,6 +79,11 @@ def debug(request):
 
 def premium(request):
 	is_premium = request.user.is_authenticated and request.user.is_premium
+	has_subscription_past_due = False
+	if request.user.is_authenticated and request.user.stripe_customer:
+		customer = request.user.stripe_customer
+		has_subscription_past_due = customer.subscriptions.filter(
+			status=SubscriptionStatus.past_due).exists()
 	stripe_plans = Plan.objects.filter(livemode=STRIPE_LIVE_MODE)
 	paypal_plans = BillingPlan.objects.filter(livemode=PAYPAL_LIVE_MODE)
 	stripe_debug = not STRIPE_LIVE_MODE and settings.DEBUG
@@ -87,6 +93,7 @@ def premium(request):
 
 	return {
 		"premium": is_premium,
+		"has_subscription_past_due": has_subscription_past_due,
 		"show_premium_modal": not is_premium and "premium-modal" in request.GET,
 		"stripe_monthly_plan": stripe_plans.filter(stripe_id=settings.MONTHLY_PLAN_ID).first(),
 		"stripe_semiannual_plan": stripe_plans.filter(
