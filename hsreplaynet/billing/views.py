@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.utils.timezone import now
 from django.views.generic import TemplateView, View
+from djstripe.enums import SubscriptionStatus
 from djstripe.settings import STRIPE_LIVE_MODE
 from stripe.error import CardError, InvalidRequestError
 
@@ -41,7 +42,7 @@ class PaymentsMixin:
 		return customer.active_subscriptions.exists()
 
 	def has_subscription_past_due(self, customer):
-		return customer.subscriptions.filter(status="past_due").exists()
+		return customer.subscriptions.filter(status=SubscriptionStatus.past_due).exists()
 
 	def can_cancel_immediately(self, customer):
 		"""
