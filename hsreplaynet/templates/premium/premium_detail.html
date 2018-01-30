@@ -21,11 +21,17 @@
 				</p>
 			{% else %}
 				<p class="tagline">Advanced Statistics for Hearthstone.</p>
-				{% if not billing.read_only %}
+				{% if billing.read_only %}
+					<p><span class="btn promo-button-outline disabled">Not available</span></p>
+				{% elif has_subscription_past_due %}
+					<p><span class="btn promo-button-outline disabled">Subscription suspended</span></p>
+					<p>
+						Your subscription was suspended due to an open payment.<br />
+						<a href="{% url 'billing_methods' %}" style="color: white; text-decoration: underline">Please visit the billing settings</a>.
+					</p>
+				{% else %}
 					<p><a href="#go" class="promo-button-outline text-premium">Get Premium</a></p>
 					<p>Subscribe for {{ stripe_monthly_plan.human_readable_price }}.</p>
-				{% else %}
-					<p><span class="btn promo-button-outline disabled">Not available</span></p>
 				{% endif %}
 			{% endif %}
 		</div>
@@ -177,7 +183,7 @@
 		</div>
 	</section>
 
-	{% if not premium and billing.enabled and not billing.read_only %}
+	{% if not premium and billing.enabled and not billing.read_only and not has_subscription_past_due %}
 	<section id="go" class="promo">
 		<div class="container">
 			{% if user.is_authenticated %}

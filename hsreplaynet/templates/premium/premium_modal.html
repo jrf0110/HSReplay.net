@@ -36,12 +36,20 @@
 			</div>
 
 			{% if user.is_authenticated %}
-				{% if not billing.read_only %}
-					{% include "premium/checkout_form.html" with id="modal-checkout" %}
-				{% else %}
+				{% if billing.read_only %}
 					<p class="text-center">
 						<span class="btn promo-button-outline hero-button disabled">Not available</span>
 					</p>
+				{% elif has_subscription_past_due %}
+					<p class="text-center">
+						<span class="btn promo-button-outline hero-button disabled">Subscription suspended</span>
+					</p>
+					<p class="text-center">
+						Your subscription was suspended due to an open payment.<br />
+						<a href="{% url 'billing_methods' %}">Please visit the billing settings</a>.
+					</p>
+				{% else %}
+					{% include "premium/checkout_form.html" with id="modal-checkout" %}
 				{% endif %}
 			{% else %}
 				<h4 class="text-center">Log in to continue:</h4>
