@@ -179,6 +179,12 @@ export default class ClassFilter extends React.Component<ClassFilterProps, {}> {
 						? 0
 						: this.props.tabIndex
 				}
+				role={
+					this.props.multiSelect
+						? "menuitemcheckbox"
+						: "menuitemradio"
+				}
+				aria-checked={isSelected}
 			>
 				<ClassIcon heroClassName={className} small tooltip />
 				{label}
