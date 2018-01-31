@@ -34,7 +34,7 @@ export default class CopyDeckButton extends React.Component<
 	}
 
 	copy = (event: React.MouseEvent<HTMLSpanElement>) => {
-		clipboard.writeText(this.buildCopieableString()).then(() => {
+		clipboard.writeText(this.buildCopieableString(event.shiftKey)).then(() => {
 			this.setState({ copied: true });
 			window.clearTimeout(this.timeout);
 			this.timeout = window.setTimeout(() => {
@@ -96,7 +96,7 @@ export default class CopyDeckButton extends React.Component<
 		);
 	}
 
-	buildCopieableString(): string {
+	buildCopieableString(onlyDeckstring?: boolean): string {
 		const dbfs = {};
 		let cards = this.props.cards;
 		if (cards.length > 0 && typeof cards[0] === "string") {
@@ -121,6 +121,10 @@ export default class CopyDeckButton extends React.Component<
 			heroes: this.props.heroes,
 			format
 		});
+
+		if (onlyDeckstring) {
+			return deckstring;
+		}
 
 		const standard = format === 2;
 
