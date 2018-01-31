@@ -4,7 +4,7 @@ import { CardObj, DeckObj, TableData } from "../../interfaces";
 import DeckList from "../DeckList";
 import Fragments from "../Fragments";
 
-interface SimilarDecksListProps {
+interface Props extends React.ClassAttributes<SimilarDecksList> {
 	cardData?: CardData;
 	data?: TableData;
 	playerClass: string;
@@ -12,10 +12,7 @@ interface SimilarDecksListProps {
 	wildDeck: boolean;
 }
 
-export default class SimilarDecksList extends React.Component<
-	SimilarDecksListProps,
-	{}
-> {
+export default class SimilarDecksList extends React.Component<Props> {
 	render(): JSX.Element {
 		const dbfIds = this.props.rawCardList.split(",");
 

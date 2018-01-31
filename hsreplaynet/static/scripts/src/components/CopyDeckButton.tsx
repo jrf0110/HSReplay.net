@@ -29,19 +29,21 @@ export default class CopyDeckButton extends React.Component<
 	constructor(props: CopyDeckButtonProps, context: any) {
 		super(props, context);
 		this.state = {
-			copied: false,
+			copied: false
 		};
 	}
 
 	copy = (event: React.MouseEvent<HTMLSpanElement>) => {
-		clipboard.writeText(this.buildCopieableString(event.shiftKey)).then(() => {
-			this.setState({ copied: true });
-			window.clearTimeout(this.timeout);
-			this.timeout = window.setTimeout(() => {
-				this.setState({ copied: false });
-				this.timeout = null;
-			}, 3000);
-		});
+		clipboard
+			.writeText(this.buildCopieableString(event.shiftKey))
+			.then(() => {
+				this.setState({ copied: true });
+				window.clearTimeout(this.timeout);
+				this.timeout = window.setTimeout(() => {
+					this.setState({ copied: false });
+					this.timeout = null;
+				}, 3000);
+			});
 	};
 
 	render() {
@@ -79,10 +81,7 @@ export default class CopyDeckButton extends React.Component<
 				centered
 				yOffset={20}
 			>
-				<span
-					className={classNames.join(" ")}
-					onClick={this.copy}
-				>
+				<span className={classNames.join(" ")} onClick={this.copy}>
 					{!this.state.copied ? (
 						<span>
 							<span className="glyphicon glyphicon-copy" />&nbsp;
