@@ -502,7 +502,7 @@ export default class DeckDetail extends React.Component<
 							}
 							deckClass={this.props.deckClass}
 							name={copyDeckName}
-							sourceUrl={window.location.toString()}
+							sourceUrl={window.location.toString().split("#")[0]}
 						/>
 					</div>
 					<h2>Deck</h2>

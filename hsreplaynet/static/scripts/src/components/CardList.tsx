@@ -131,7 +131,7 @@ export default class CardList extends React.Component<CardListProps, any> {
 							format={this.props.format}
 							deckClass={this.props.deckClass}
 							name={this.props.name}
-							sourceUrl={window.location.toString()}
+							sourceUrl={window.location.toString().split("#")[0]}
 						/>
 					</div>
 				) : null}
