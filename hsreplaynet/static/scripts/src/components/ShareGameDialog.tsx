@@ -1,5 +1,5 @@
 import React from "react";
-import Clipboard from "clipboard";
+import clipboard from "clipboard-polyfill";
 
 interface ShareGameDialogProps {
 	url: string;
@@ -23,7 +23,6 @@ export default class ShareGameDialog extends React.Component<
 	ShareGameDialogProps,
 	ShareGameDialogState
 > {
-	private clipboard: Clipboard;
 	private input: HTMLInputElement;
 	private timeout: number = null;
 
@@ -36,25 +35,7 @@ export default class ShareGameDialog extends React.Component<
 		};
 	}
 
-	componentDidMount(): void {
-		this.clipboard = new Clipboard("#replay-share-copy-url", {
-			text: (elem): string => this.buildUrl()
-		});
-		this.clipboard.on("success", () => {
-			this.setState({ confirming: true });
-			window.clearTimeout(this.timeout);
-			this.timeout = window.setTimeout(() => {
-				this.setState({ confirming: false });
-				this.timeout = null;
-			}, 1000);
-			if (this.props.onShare) {
-				this.props.onShare("copy", this.state.linkToTurn);
-			}
-		});
-	}
-
 	componentWillUnmount(): void {
-		this.clipboard.destroy();
 		window.clearTimeout(this.timeout);
 	}
 
@@ -96,6 +77,21 @@ export default class ShareGameDialog extends React.Component<
 
 	protected onChangePreservePerspective(): void {
 		this.setState({ preservePerspective: !this.state.preservePerspective });
+	}
+
+	protected onCopy(e: React.MouseEvent<HTMLButtonElement>): void {
+		e.preventDefault();
+		clipboard.writeText(this.buildUrl()).then(() => {
+			this.setState({ confirming: true });
+			window.clearTimeout(this.timeout);
+			this.timeout = window.setTimeout(() => {
+				this.setState({ confirming: false });
+				this.timeout = null;
+			}, 1000);
+			if (this.props.onShare) {
+				this.props.onShare("copy", this.state.linkToTurn);
+			}
+		});
 	}
 
 	protected onExternalShare(e: React.MouseEvent<HTMLAnchorElement>): void {
@@ -140,6 +136,7 @@ export default class ShareGameDialog extends React.Component<
 									className="btn btn-default"
 									id="replay-share-copy-url"
 									type="button"
+									onClick={e => this.onCopy(e)}
 								>
 									{this.state.confirming ? "Copied!" : "Copy"}
 								</button>

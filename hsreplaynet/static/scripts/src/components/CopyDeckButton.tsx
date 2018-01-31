@@ -1,8 +1,7 @@
 import React from "react";
+import clipboard from "clipboard-polyfill";
 import { encode as encodeDeckstring } from "deckstrings";
 import Tooltip from "./Tooltip";
-import * as _ from "lodash";
-import Clipboard from "clipboard";
 import CardData from "../CardData";
 import { toTitleCase } from "../helpers";
 
@@ -19,23 +18,31 @@ interface CopyDeckButtonProps extends React.ClassAttributes<CopyDeckButton> {
 
 interface CopyDeckButtonState {
 	copied?: boolean;
-	elementId?: string;
 }
 
 export default class CopyDeckButton extends React.Component<
 	CopyDeckButtonProps,
 	CopyDeckButtonState
 > {
-	private clipboard: Clipboard;
 	private timeout: number;
 
 	constructor(props: CopyDeckButtonProps, context: any) {
 		super(props, context);
 		this.state = {
 			copied: false,
-			elementId: _.uniqueId("copy-deck-button-")
 		};
 	}
+
+	copy = (event: React.MouseEvent<HTMLSpanElement>) => {
+		clipboard.writeText(this.buildCopieableString()).then(() => {
+			this.setState({ copied: true });
+			window.clearTimeout(this.timeout);
+			this.timeout = window.setTimeout(() => {
+				this.setState({ copied: false });
+				this.timeout = null;
+			}, 3000);
+		});
+	};
 
 	render() {
 		const classNames = ["copy-deck-button btn"];
@@ -52,8 +59,8 @@ export default class CopyDeckButton extends React.Component<
 					simple={true}
 				>
 					<span
-						id={this.state.elementId}
 						className={classNames.join(" ")}
+						onClick={this.copy}
 					/>
 				</Tooltip>
 			);
@@ -73,8 +80,8 @@ export default class CopyDeckButton extends React.Component<
 				yOffset={20}
 			>
 				<span
-					id={this.state.elementId}
 					className={classNames.join(" ")}
+					onClick={this.copy}
 				>
 					{!this.state.copied ? (
 						<span>
@@ -87,20 +94,6 @@ export default class CopyDeckButton extends React.Component<
 				</span>
 			</Tooltip>
 		);
-	}
-
-	componentDidMount(): void {
-		this.clipboard = new Clipboard("#" + this.state.elementId, {
-			text: (elem): string => this.buildCopieableString()
-		});
-		this.clipboard.on("success", () => {
-			this.setState({ copied: true });
-			window.clearTimeout(this.timeout);
-			this.timeout = window.setTimeout(() => {
-				this.setState({ copied: false });
-				this.timeout = null;
-			}, 10000);
-		});
 	}
 
 	buildCopieableString(): string {

@@ -27,7 +27,7 @@
 		"babel-preset-env": "^1.6.1",
 		"babel-preset-react": "^6.24.1",
 		"blob": "0.0.4",
-		"clipboard": "^1.7.1",
+		"clipboard-polyfill": "^2.4.1",
 		"cookie_js": "^1.2.2",
 		"cross-env": "^5.1.1",
 		"css-loader": "^0.28.7",

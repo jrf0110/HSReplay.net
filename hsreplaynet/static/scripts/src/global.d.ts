@@ -14,16 +14,6 @@ declare module "blob" {
 	export default Blob;
 }
 
-declare module "clipboard" {
-	export default class Clipboard {
-		constructor(selector: any, options?: any);
-
-		destroy(): void;
-
-		on(event: string, func: any): any;
-	}
-}
-
 declare module "joust" {
 	export class Launcher {
 		width(width: number): Launcher;
