@@ -130,16 +130,25 @@ class DeckTile extends React.Component<DeckTileProps & StreamsProps> {
 		};
 
 		let deckName = null;
+		const playerClass = toTitleCase(this.props.playerClass);
 		if (this.props.archetypeName) {
 			deckName = (
-				<span className="deck-name" style={deckNameStyle}>
+				<span
+					className="deck-name"
+					style={deckNameStyle}
+					title={playerClass}
+				>
 					{this.props.archetypeName}
 				</span>
 			);
 		} else {
 			deckName = (
-				<span className="deck-name" style={deckNameStyle}>
-					{toTitleCase(this.props.playerClass)}
+				<span
+					className="deck-name"
+					style={deckNameStyle}
+					title={playerClass}
+				>
+					{playerClass}
 				</span>
 			);
 		}
