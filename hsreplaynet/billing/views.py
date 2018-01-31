@@ -10,10 +10,13 @@ from django.urls import reverse_lazy
 from django.utils.http import is_safe_url
 from django.utils.timezone import now
 from django.views.generic import TemplateView, View
+from django_reflinks.models import ReferralLink
 from djstripe.enums import SubscriptionStatus
 from djstripe.settings import STRIPE_LIVE_MODE
+from shortuuid import ShortUUID
 from stripe.error import CardError, InvalidRequestError
 
+from hsreplaynet.features.utils import feature_enabled_for_user
 from hsreplaynet.web.html import RequestMetaMixin
 
 from .models import CancellationRequest
@@ -429,6 +432,15 @@ class PremiumDetailView(RequestMetaMixin, TemplateView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context["random_quote"] = random.choice(self.quotes)
+
+		if feature_enabled_for_user("reflinks", self.request.user):
+			try:
+				context["reflink"] = ReferralLink.objects.get(user=self.request.user)
+			except ReferralLink.DoesNotExist:
+				context["reflink"] = ReferralLink.objects.create(
+					identifier=ShortUUID().uuid()[:6], user=self.request.user
+				)
+
 		return context
 
 
