@@ -66,6 +66,10 @@ body, html {
 	height: 17px;
 }
 
+.navbar {
+	z-index: 100;
+}
+
 .navbar-hsreplay {
 	background-color: $blue;
 	color: $offwhite;
@@ -488,4 +492,15 @@ body, html {
 
 .text-twitch {
 	color: $twitch-purple;
+}
+
+.collapse-animate-height {
+	max-height: 0;
+	transition: max-height 0.3s ease-out;
+	overflow: hidden;
+	box-sizing: padding-box;
+
+	&.show {
+		max-height: 500px;
+	}
 }
