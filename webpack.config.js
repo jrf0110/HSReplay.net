@@ -96,6 +96,7 @@ module.exports = env => {
 			meta_overview: makeEntry("meta_overview"),
 			trending: makeEntry("trending")
 		},
+		premium_detail: makeEntry("premium_detail"),
 		discover: makeEntry("discover"),
 		archetype_detail: makeEntry("archetype_detail"),
 		my_decks: makeEntry("my_decks"),

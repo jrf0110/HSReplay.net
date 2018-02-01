@@ -8,6 +8,14 @@
 {% feature "billing" as billing %}
 
 <article id="premium-upgrade-page">
+	{% if reflink %}
+		<aside
+			id="referrals"
+			data-reflink="https://hsreplay.net{{ reflink }}"
+			data-discount="$2.50 USD"
+		></aside>
+		{% render_bundle "premium_detail" %}
+	{% endif %}
 
 	<header id="opener">
 		<div class="container">
