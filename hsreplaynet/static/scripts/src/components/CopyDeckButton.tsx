@@ -4,6 +4,7 @@ import { encode as encodeDeckstring } from "deckstrings";
 import Tooltip from "./Tooltip";
 import CardData from "../CardData";
 import { toTitleCase } from "../helpers";
+import { FormatType } from "../hearthstone";
 
 interface CopyDeckButtonProps extends React.ClassAttributes<CopyDeckButton> {
 	cardData: CardData;
@@ -11,7 +12,7 @@ interface CopyDeckButtonProps extends React.ClassAttributes<CopyDeckButton> {
 	deckClass?: string;
 	cards: number[] | string[];
 	heroes: number[];
-	format: number;
+	format: FormatType;
 	sourceUrl?: string;
 	simple?: boolean;
 }
@@ -111,9 +112,8 @@ export default class CopyDeckButton extends React.Component<
 			}
 		}
 		const tuples = Object.keys(dbfs).map(dbfId => {
-			return [+dbfId, +dbfs[dbfId]];
+			return [+dbfId, +dbfs[dbfId]] as [number, number];
 		});
-		tuples.sort(([a, x], [b, y]) => (a === b ? 0 : a > b ? 1 : -1));
 		const format = this.props.format ? this.props.format : 1; // default to wild
 		const deckstring = encodeDeckstring({
 			cards: tuples,
