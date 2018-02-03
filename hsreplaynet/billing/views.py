@@ -432,13 +432,14 @@ class PremiumDetailView(RequestMetaMixin, TemplateView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context["random_quote"] = random.choice(self.quotes)
+		user = self.request.user
 
-		if feature_enabled_for_user("reflinks", self.request.user):
+		if user.is_authenticated and feature_enabled_for_user("reflinks", user):
 			try:
-				context["reflink"] = ReferralLink.objects.get(user=self.request.user)
+				context["reflink"] = ReferralLink.objects.get(user=user)
 			except ReferralLink.DoesNotExist:
 				context["reflink"] = ReferralLink.objects.create(
-					identifier=ShortUUID().uuid()[:6], user=self.request.user
+					identifier=ShortUUID().uuid()[:6], user=user
 				)
 
 		return context
