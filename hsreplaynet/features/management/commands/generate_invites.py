@@ -138,7 +138,7 @@ class Command(BaseCommand):
 			invite = FeatureInvite(
 				description=description,
 				subscribe_to=subscribe_to,
-				coupon=coupon.stripe_id if coupon else None,
+				coupon=coupon.stripe_id if coupon else "",
 				expires=expires,
 				max_uses=max_uses
 			)
