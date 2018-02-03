@@ -115,8 +115,8 @@ class Command(BaseCommand):
 
 		pretty_subscribe_to = "nothing"
 		if subscribe_to:
-			pretty_subscribe_to = subscribe_to
-		self.stdout.write("subscribe_to: %r" % pretty_subscribe_to)
+			pretty_subscribe_to = "%r" % subscribe_to
+		self.stdout.write("subscribe_to: %s" % pretty_subscribe_to)
 
 		pretty_coupon = coupon if coupon else "none"
 		self.stdout.write("coupon:       %s" % pretty_coupon)
