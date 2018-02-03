@@ -30,6 +30,11 @@ if (
 			return;
 		}
 
+		// do not show when logged out
+		if (!UserData.isAuthenticated()) {
+			return;
+		}
+
 		// do not show if hidden
 		if (cookie.get("refer-popup-closed", "0") !== "0") {
 			return;
