@@ -2,7 +2,7 @@
 
 -r base.txt
 
-django-allauth==0.34.0
+django-allauth==0.35.0
 django-contrib-comments==1.8.0
 django-loginas==0.3.3
 django-reflinks==0.4.0
