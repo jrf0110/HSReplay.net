@@ -45,7 +45,8 @@ def process_referral(referral) -> bool:
 	customer_to_credit.save(idempotency_key=ik)
 
 	referral.processed = True
-	referral.credit_request_id = customer_to_credit.last_response.request_id
+	if customer_to_credit.last_response:
+		referral.credit_request_id = customer_to_credit.last_response.request_id
 	referral.save()
 
 	return True
