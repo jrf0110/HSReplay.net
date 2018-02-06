@@ -9,7 +9,6 @@ import {
 	DataPoint,
 	GlobalGamePlayer
 } from "./interfaces";
-import { CardData as CardMeta } from "hearthstonejson";
 import { adventureSets } from "./contants";
 import { wildSets } from "./contants";
 import Fragments from "./components/Fragments";

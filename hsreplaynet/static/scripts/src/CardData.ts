@@ -1,5 +1,5 @@
 import { cookie } from "cookie_js";
-import HearthstoneJSON from "hearthstonejson";
+import HearthstoneJSON from "hearthstonejson-client";
 import UserData from "./UserData";
 
 export default class CardData {
