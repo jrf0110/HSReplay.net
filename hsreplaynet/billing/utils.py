@@ -34,7 +34,8 @@ def check_for_referrals(user):
 		return
 
 	ik = _get_idempotency_key(
-		"customer", f"referral:{user.pk}", settings.STRIPE_LIVE_MODE
+		"customer", f"referral:{ref.hit_user.pk}",
+		settings.STRIPE_LIVE_MODE
 	)
 
 	customer_to_credit = user.stripe_customer.api_retrieve()
