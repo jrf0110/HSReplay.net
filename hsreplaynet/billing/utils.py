@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.db import transaction
 from django.utils import timezone
 from django_reflinks.models import ReferralHit
 from djpaypal.models import WebhookEvent
@@ -11,42 +10,45 @@ from djstripe.settings import _get_idempotency_key
 from .models import Referral
 
 
-def check_for_referrals(user):
+def check_for_referrals(user) -> bool:
 	if user_subscription_events_count(user) != 1:
-		return
+		return False
 
 	referral_hit = user_referred_by(user)
 	if not referral_hit:
-		return
+		return False
 
-	user_to_credit = referral_hit.referral_link.user
-	cents_amount_to_credit = 250
-
-	ref, created = Referral.objects.get_or_create(
+	referral, created = Referral.objects.get_or_create(
 		hit_user=user, defaults={
 			"referral_hit": referral_hit,
-			"credited_amount": cents_amount_to_credit,
-			"credited_user": user_to_credit,
+			"credited_amount": 250,
+			"credited_user": referral_hit.referral_link.user,
 		}
 	)
 
-	if ref.processed:
-		return
+	return process_referral(referral)
+
+
+def process_referral(referral) -> bool:
+	user_to_credit = referral.credited_user
+
+	if referral.processed:
+		return False
 
 	ik = _get_idempotency_key(
-		"customer", f"referral:{ref.hit_user.pk}",
+		"customer", f"referral:{referral.hit_user.pk}",
 		settings.STRIPE_LIVE_MODE
 	)
 
-	customer_to_credit = user.stripe_customer.api_retrieve()
-	customer_to_credit.account_balance -= cents_amount_to_credit
+	customer_to_credit = user_to_credit.stripe_customer.api_retrieve()
+	customer_to_credit.account_balance -= referral.credited_amount
 	customer_to_credit.save(idempotency_key=ik)
 
-	with transaction.atomic():
-		ref.processed = True
-		ref.credit_request_id = customer_to_credit.last_response.request_id
+	referral.processed = True
+	referral.credit_request_id = customer_to_credit.last_response.request_id
+	referral.save()
 
-	ref.save()
+	return True
 
 
 def user_referred_by(user):
