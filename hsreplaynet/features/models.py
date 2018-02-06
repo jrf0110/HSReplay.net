@@ -86,7 +86,7 @@ class Feature(models.Model):
 	def __str__(self):
 		return self.name
 
-	def is_user_part_of_rollout(self, user):
+	def is_user_part_of_rollout(self, user) -> bool:
 		if user.is_authenticated:
 			base = user.pk
 		else:
@@ -95,11 +95,8 @@ class Feature(models.Model):
 		offset = int(self.created.microsecond / 10000)
 		return (base + offset) % 100 <= self.rollout_percent
 
-	def enabled_for_user(self, user):
+	def enabled_for_user(self, user) -> bool:
 		if self.status == FeatureStatus.OFF:
-			return False
-
-		if not self.is_user_part_of_rollout(user):
 			return False
 
 		if self.status == FeatureStatus.STAFF_ONLY:
@@ -108,27 +105,34 @@ class Feature(models.Model):
 		if self.status == FeatureStatus.AUTHORIZED_ONLY:
 			return user.groups.filter(name=self.authorized_group_name).exists()
 
+		if not self.is_user_part_of_rollout(user):
+			return user.groups.filter(name=self.authorized_group_name).exists()
+
 		if self.status == FeatureStatus.LOGGED_IN_USERS:
 			return user.is_authenticated
 
 		if self.status == FeatureStatus.PUBLIC:
 			return True
 
-	def add_user_to_authorized_group(self, user):
+		return False
+
+	def add_user_to_authorized_group(self, user) -> bool:
 		group = self.authorized_group
 		if group not in user.groups.all():
 			user.groups.add(self.authorized_group)
 			return True
+		return False
 
-	def remove_user(self, user):
+	def remove_user(self, user) -> bool:
 		group = self.authorized_group
 		if group in user.groups.all():
 			user.groups.remove(self.authorized_group)
 			return True
+		return False
 
 	@property
-	def authorized_group_name(self):
-		return "feature:%s:preview" % self.name
+	def authorized_group_name(self) -> str:
+		return f"feature:{self.name}:preview"
 
 	@property
 	def authorized_group(self):
