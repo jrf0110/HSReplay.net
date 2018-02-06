@@ -1,4 +1,3 @@
-from datetime import timedelta
 from uuid import uuid4
 
 from django.conf import settings
@@ -87,28 +86,6 @@ class Referral(models.Model):
 
 	def __str__(self):
 		return f"{self.hit_user} referred by {self.referral_hit}"
-
-	def apply_referral_plan(self):
-		try:
-			plan = ReferralLinkPlan.objects.get(referral_link=self.referral_hit.referral_link)
-		except ReferralLinkPlan.DoesNotExist:
-			# No plan associated with the link
-			return
-
-		if not plan.apply_coupon:
-			# No coupon to apply
-			return
-
-		if plan.coupon_expiry:
-			expires = timezone.now() + timedelta(days=plan.coupon_expiry)
-		else:
-			expires = None
-
-		LazyDiscount.objects.get_or_create(referral_source=self, defaults={
-			"user": self.hit_user,
-			"coupon": plan.apply_coupon,
-			"expires": expires,
-		})
 
 
 class ReferralLinkPlan(models.Model):

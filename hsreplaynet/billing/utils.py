@@ -44,7 +44,6 @@ def check_for_referrals(user):
 	with transaction.atomic():
 		ref.processed = True
 		ref.credit_request_id = customer_to_credit.last_response.request_id
-		ref.apply_referral_plan()
 
 	ref.save()
 
