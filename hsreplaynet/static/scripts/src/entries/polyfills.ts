@@ -48,7 +48,7 @@ if (
 			title:
 				'Refer a Friend! <a href="#" id="referral-popover-close" class="popover-close" aria-hidden="true">&times;</a>',
 			content:
-				"Want $1 off your Premium subscription? Tell a friend about HSReplay.net!"
+				"Tell a friend about HSReplay.net for a cheaper Premium subscription!"
 		});
 		($(premiumLink) as any).on("shown.bs.popover", () => {
 			$("#referral-popover-close").click(evt => {
