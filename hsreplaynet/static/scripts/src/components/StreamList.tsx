@@ -128,7 +128,7 @@ class StreamList extends React.Component<Props, State> {
 					);
 					const url = `https://www.twitch.tv/${stream.twitch.name}`;
 					return (
-						<li>
+						<li key={twitchStream.user_id}>
 							<StreamThumbnail
 								displayName={stream.twitch.display_name}
 								url={url}
