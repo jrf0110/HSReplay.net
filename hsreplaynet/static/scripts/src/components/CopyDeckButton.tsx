@@ -5,6 +5,7 @@ import Tooltip from "./Tooltip";
 import CardData from "../CardData";
 import { toTitleCase } from "../helpers";
 import { FormatType } from "../hearthstone";
+import { CardData as HearthstoneJSONCardData } from "hearthstonejson-client";
 
 interface CopyDeckButtonProps extends React.ClassAttributes<CopyDeckButton> {
 	cardData: CardData;
@@ -131,7 +132,7 @@ export default class CopyDeckButton extends React.Component<
 		if (this.props.cardData) {
 			const dataCountTuples = tuples.map(([dbfId, count]) => {
 				return [this.props.cardData.fromDbf(dbfId), count];
-			});
+			}) as [HearthstoneJSONCardData, number][];
 			dataCountTuples.sort(
 				([a, x], [b, y]) => (a["name"] > b["name"] ? 1 : -1)
 			);

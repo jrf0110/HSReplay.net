@@ -1,11 +1,15 @@
 import { cookie } from "cookie_js";
-import HearthstoneJSON from "hearthstonejson-client";
+import HearthstoneJSON, {
+	CardData as HearthstoneJSONCardData
+} from "hearthstonejson-client";
 import UserData from "./UserData";
 
 export default class CardData {
-	private readonly byDbfId = {};
-	private readonly byCardId = {};
-	private readonly cards = [];
+	private readonly byDbfId: { [dbfId: string]: HearthstoneJSONCardData } = {};
+	private readonly byCardId: {
+		[cardId: string]: HearthstoneJSONCardData;
+	} = {};
+	private readonly cards: HearthstoneJSONCardData[] = [];
 
 	constructor(private modify?: (card: any) => void) {}
 
@@ -24,15 +28,15 @@ export default class CardData {
 		});
 	}
 
-	public fromDbf(dbfId: number | string) {
+	public fromDbf(dbfId: number | string): HearthstoneJSONCardData {
 		return this.byDbfId[+dbfId];
 	}
 
-	public fromCardId(cardId: string) {
+	public fromCardId(cardId: string): HearthstoneJSONCardData {
 		return this.byCardId[cardId];
 	}
 
-	public all(): any[] {
+	public all(): HearthstoneJSONCardData[] {
 		return this.cards;
 	}
 }

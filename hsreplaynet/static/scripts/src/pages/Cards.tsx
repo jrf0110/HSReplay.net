@@ -1333,9 +1333,9 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 
 		if (isStatsView) {
 			const exclude = this.props.exclude;
-			if (exclude === "neutral" && card.playerClass === "NEUTRAL") {
+			if (exclude === "neutral" && card.cardClass === "NEUTRAL") {
 				return true;
-			} else if (exclude === "class" && card.playerClass !== "NEUTRAL") {
+			} else if (exclude === "class" && card.cardClass !== "NEUTRAL") {
 				return true;
 			}
 			const playerClass = this.props.playerClass;
@@ -1356,7 +1356,7 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 			}
 			if (
 				playerClass !== "ALL" &&
-				playerClass !== card.playerClass &&
+				playerClass !== card.cardClass &&
 				card.playerClass !== "NEUTRAL"
 			) {
 				return true;

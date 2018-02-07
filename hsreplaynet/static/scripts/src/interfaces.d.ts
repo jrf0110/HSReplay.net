@@ -1,5 +1,6 @@
 import { FormatType, PlayState } from "./hearthstone";
 import { TooltipContent } from "./components/Tooltip";
+import { CardData as HearthstoneJSONCardData } from "hearthstonejson-client";
 
 export interface User {
 	id: number;
@@ -214,7 +215,7 @@ export interface DeckObj {
 }
 
 export interface CardObj {
-	card: any;
+	card: HearthstoneJSONCardData;
 	count: number;
 }
 

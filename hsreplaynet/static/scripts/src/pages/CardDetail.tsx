@@ -113,7 +113,7 @@ export default class CardDetail extends React.Component<
 
 	cardIsNeutral(): boolean {
 		return (
-			(this.props.card && this.props.card.playerClass === "NEUTRAL") ||
+			(this.props.card && this.props.card.cardClass === "NEUTRAL") ||
 			false
 		);
 	}
@@ -713,7 +713,7 @@ export default class CardDetail extends React.Component<
 							Class
 							<span className="infobox-value">
 								{this.props.card &&
-									toTitleCase(this.props.card.playerClass)}
+									toTitleCase(this.props.card.cardClass)}
 							</span>
 						</li>
 						<li>
