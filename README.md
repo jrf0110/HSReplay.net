@@ -24,6 +24,15 @@ The full backend stack is written in Python 3.
 * PayPal: [dj-paypal](https://github.com/HearthSim/dj-paypal)
 
 
+### Frontend stack
+
+* Interactive UI: [React](https://reactjs.org/)
+* Styling: [Sass](https://sass-lang.com/)
+* Type checking: [Typescript](https://www.typescriptlang.org/)
+* Compatability: [Babel](https://babeljs.io/)
+* Bundling: [Webpack](https://webpack.js.org/)
+
+
 ### Production stack
 
 * Accounts: [Blizzard API](https://dev.battle.net/)
