@@ -92,14 +92,14 @@ module.exports = env => {
 			cards: makeEntry("cards"),
 			deck_detail: makeEntry("deck_detail"),
 			decks: makeEntry("decks"),
+			my_decks: makeEntry("my_decks"),
 			my_highlights: makeEntry("my_highlights"),
 			meta_overview: makeEntry("meta_overview"),
-			trending: makeEntry("trending")
+			trending: makeEntry("trending"),
+			archetype_detail: makeEntry("archetype_detail")
 		},
 		premium_detail: makeEntry("premium_detail"),
 		discover: makeEntry("discover"),
-		archetype_detail: makeEntry("archetype_detail"),
-		my_decks: makeEntry("my_decks"),
 		card_editor: makeEntry("card_editor"),
 		victory_widgets: makeEntry("victory_widgets"),
 		articles: makeEntry("articles"),
@@ -108,8 +108,8 @@ module.exports = env => {
 		vendor: [
 			"babel-polyfill",
 			"whatwg-fetch",
-			"hearthstonejson-client",
 			makeEntry("export-react"),
+			"hearthstonejson-client",
 			makeEntry("polyfills")
 		]
 	};
