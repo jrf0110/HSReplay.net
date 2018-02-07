@@ -983,6 +983,12 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 									<span className="infobox-value">New!</span>
 								</InfoboxFilter>
 							</Feature>
+							<Feature feature={"current-patch-filter"}>
+								<InfoboxFilter value="CURRENT_PATCH">
+									Patch 10.2
+									<span className="infobox-value">New!</span>
+								</InfoboxFilter>
+							</Feature>
 						</InfoboxFilterGroup>
 					</section>
 					<InfoboxFilterGroup
@@ -1040,6 +1046,12 @@ export default class Cards extends React.Component<CardsProps, CardsState> {
 					<Feature feature={"current-expansion-filter"}>
 						<InfoboxFilter value="CURRENT_EXPANSION">
 							Kobolds and Catacombs
+							<span className="infobox-value">New!</span>
+						</InfoboxFilter>
+					</Feature>
+					<Feature feature={"current-patch-filter"}>
+						<InfoboxFilter value="CURRENT_PATCH">
+							Patch 10.2
 							<span className="infobox-value">New!</span>
 						</InfoboxFilter>
 					</Feature>

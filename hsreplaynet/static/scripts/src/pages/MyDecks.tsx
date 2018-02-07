@@ -631,6 +631,12 @@ export default class MyDecks extends React.Component<
 									<span className="infobox-value">New!</span>
 								</InfoboxFilter>
 							</Feature>
+							<Feature feature={"current-patch-filter"}>
+								<InfoboxFilter value="CURRENT_PATCH">
+									Patch 10.2
+									<span className="infobox-value">New!</span>
+								</InfoboxFilter>
+							</Feature>
 						</InfoboxFilterGroup>
 					</section>
 					<section id="side-bar-data">

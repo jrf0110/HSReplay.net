@@ -36,9 +36,12 @@ const render = (cardData: CardData) => {
 				rankRange: "ALL",
 				timeRange: personal
 					? "LAST_30_DAYS"
-					: UserData.hasFeature("current-expansion-filter")
-						? "CURRENT_EXPANSION"
-						: "LAST_14_DAYS",
+					: UserData.hasFeature("current-patch-filter")
+						? "CURRENT_PATCH"
+						: UserData.hasFeature("current-expansion-filter")
+							? "CURRENT_EXPANSION"
+							: "LAST_14_DAYS",
+
 				exclude: "",
 				cost: [],
 				rarity: [],
