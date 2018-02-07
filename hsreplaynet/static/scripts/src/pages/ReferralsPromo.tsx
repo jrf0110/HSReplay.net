@@ -63,8 +63,8 @@ export default class ReferralsPromo extends React.Component<Props, State> {
 						<h1>Refer a Friend</h1>
 
 						<p>
-							Earn some credits for free Premium! Just refer your friends
-							using your referral link!<br />
+							Earn some credits for free Premium! Just refer your
+							friends using your referral link!<br />
 							For each of your friends that subscribes, you'll get{" "}
 							{this.props.discount} off your next month's bill.
 						</p>
