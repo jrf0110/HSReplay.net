@@ -203,5 +203,3 @@ class StreamingNowView(APIView):
 
 	def get(self, request):
 		return Response(data=self._get_data())
-		ret = []
-		return Response(data=ret)
