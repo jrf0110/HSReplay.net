@@ -14,6 +14,7 @@ from django.utils.cache import get_conditional_response, patch_vary_headers
 from django.utils.decorators import method_decorator
 from django.utils.http import http_date
 from django.views.decorators.cache import patch_cache_control
+from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 from hearthstone.enums import FormatType
 
@@ -172,34 +173,48 @@ def user_is_eligible_for_query(user, query, params):
 		return True
 
 
+@require_http_methods(["GET", "HEAD", "OPTIONS"])
 def fetch_query_results(request, name):
-	if name == "single_card_details" and "HTTP_X_TWITCH_EXTENSION_VERSION" not in request.META:
-		# 2017-01-18 emergency fix
-		return HttpResponse(status=204)
+	if request.method == "OPTIONS":
+		response = HttpResponse(status=204)
+	else:
+		if name == "single_card_details" and \
+			"HTTP_X_TWITCH_EXTENSION_VERSION" not in request.META:
+			# 2017-01-18 emergency fix
+			return HttpResponse(status=204)
 
-	parameterized_query = _get_query_and_params(request, name)
-	if issubclass(parameterized_query.__class__, HttpResponse):
-		return parameterized_query
+		parameterized_query = _get_query_and_params(request, name)
+		if issubclass(parameterized_query.__class__, HttpResponse):
+			return parameterized_query
 
-	last_modified = parameterized_query.result_as_of
-	if last_modified:
-		last_modified = timegm(last_modified.utctimetuple())
+		last_modified = parameterized_query.result_as_of
+		if last_modified:
+			last_modified = timegm(last_modified.utctimetuple())
 
-	response = None
+		response = None
 
-	is_cache_hit = parameterized_query.result_available
-	if is_cache_hit:
-		_trigger_if_stale(parameterized_query)
-		# Try to return a minimal response
-		response = get_conditional_response(request, last_modified=last_modified)
+		is_cache_hit = parameterized_query.result_available
+		if is_cache_hit:
+			_trigger_if_stale(parameterized_query)
+			# Try to return a minimal response
+			response = get_conditional_response(request, last_modified=last_modified)
 
-	if not response:
-		# Resort to a full response
-		response = _fetch_query_results(parameterized_query, user=request.user)
+		if not response:
+			if request.method == "HEAD":
+				response = HttpResponse(204)
+			else:
+				# Resort to a full response
+				response = _fetch_query_results(parameterized_query, user=request.user)
 
-	# Add Last-Modified header
-	if response.status_code in (200, 304):
-		response["Last-Modified"] = http_date(last_modified)
+		# Add Last-Modified header
+		if response.status_code in (200, 204, 304):
+			response["Last-Modified"] = http_date(last_modified)
+
+		# Add Cache-Control headers
+		if parameterized_query.is_personalized or parameterized_query.has_premium_values:
+			patch_cache_control(response, no_cache=True, private=True)
+		else:
+			patch_cache_control(response, no_cache=True, public=True)
 
 	# Add CORS header if permitted - can be replaced by middleware in future
 	origin = urlparse(request.META.get("HTTP_ORIGIN", ""))
@@ -209,12 +224,6 @@ def fetch_query_results(request, name):
 
 	# Always patch vary header so browsers do not cache CORS
 	patch_vary_headers(response, ["Origin"])
-
-	# Always send Cache-Control headers
-	if parameterized_query.is_personalized or parameterized_query.has_premium_values:
-		patch_cache_control(response, no_cache=True, private=True)
-	else:
-		patch_cache_control(response, no_cache=True, public=True)
 
 	return response
 
