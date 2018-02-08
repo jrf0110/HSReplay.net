@@ -1,6 +1,7 @@
 import React from "react";
 import UserData from "../UserData";
 import clipboard from "clipboard-polyfill";
+import GoogleAnalytics from "../metrics/GoogleAnalytics";
 
 interface Props extends React.ClassAttributes<ReferralsPromo> {
 	url: string;
@@ -75,11 +76,15 @@ export default class ReferralsPromo extends React.Component<Props, State> {
 								readOnly
 								className="form-control"
 								value={this.props.url}
-								onSelect={e =>
+								onSelect={e => {
 									this.urlBox.setSelectionRange(
 										0,
 										this.urlBox.value.length
-									)
+									);
+								}}
+								onCopy={e =>
+									typeof this.props.onCopy === "function" &&
+									this.props.onCopy()
 								}
 								ref={ref => (this.urlBox = ref)}
 							/>

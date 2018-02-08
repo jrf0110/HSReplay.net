@@ -4,6 +4,7 @@ import CardData from "../CardData";
 import Cards from "../pages/Cards";
 import UserData from "../UserData";
 import Fragments from "../components/Fragments";
+import GoogleAnalytics from "../metrics/GoogleAnalytics";
 
 const container = document.getElementById("card-container");
 const personal = container.getAttribute("data-view-type") === "personal";
@@ -13,15 +14,9 @@ const availableAccounts = UserData.getAccounts();
 const defaultAccount = UserData.getDefaultAccountKey();
 
 if (personal && !defaultAccount) {
-	if (typeof ga === "function") {
-		ga("send", {
-			hitType: "event",
-			eventCategory: "Pegasus Account",
-			eventAction: "missing",
-			eventLabel: "My Cards",
-			nonInteraction: true
-		});
-	}
+	GoogleAnalytics.event("Pegasus Account", "missing", "My Cards", {
+		nonInteraction: true
+	});
 }
 
 const render = (cardData: CardData) => {

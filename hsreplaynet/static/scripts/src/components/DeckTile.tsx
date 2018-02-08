@@ -17,6 +17,7 @@ import Tooltip from "./Tooltip";
 import DataInjector from "./DataInjector";
 import SemanticAge from "./SemanticAge";
 import { Stream } from "./StreamList";
+import { TwitchStreamPromotionEvents } from "../metrics/GoogleAnalytics";
 
 interface DeckTileProps extends DeckObj, React.ClassAttributes<DeckTile> {
 	dustCost?: number;
@@ -190,6 +191,14 @@ class DeckTile extends React.Component<DeckTileProps & StreamsProps> {
 						key="live-now"
 						className="live-now text-twitch"
 						href={this.getUrl("streams")}
+						onClick={() =>
+							TwitchStreamPromotionEvents.onClickLiveNow(
+								this.props.deckId,
+								{
+									transport: "beacon"
+								}
+							)
+						}
 					>
 						<img
 							src={`${STATIC_URL}/images/socialauth/twitch.png`}

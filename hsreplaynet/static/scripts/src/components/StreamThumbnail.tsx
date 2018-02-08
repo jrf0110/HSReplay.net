@@ -1,5 +1,6 @@
 import React from "react";
 import { commaSeparate } from "../helpers";
+import { TwitchStreamPromotionEvents } from "../metrics/GoogleAnalytics";
 
 interface Props extends React.ClassAttributes<StreamThumbnail> {
 	url?: string;
@@ -15,6 +16,12 @@ interface Props extends React.ClassAttributes<StreamThumbnail> {
 export default class StreamThumbnail extends React.Component<Props> {
 	static defaultProps = {
 		target: "_blank"
+	};
+
+	visitStream = (event: React.MouseEvent<HTMLAnchorElement>): void => {
+		TwitchStreamPromotionEvents.onVisitStream(this.props.displayName, {
+			transport: "beacon"
+		});
 	};
 
 	render() {
@@ -63,6 +70,7 @@ export default class StreamThumbnail extends React.Component<Props> {
 				className="stream-thumbnail"
 				href={this.props.url}
 				target={this.props.target}
+				onClick={this.visitStream}
 			>
 				<figure>
 					{thumbnail}
