@@ -475,7 +475,7 @@ FONTAWESOME_CSS_INTEGRITY = "sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=
 StaticFilesConfig.ignore_patterns += ["*.scss", "*.ts", "*.tsx"]
 
 # Whitelist analytics endpoint for analytics CORS
-ANALATYICS_CORS_ORIGIN_WHITELIST = [
+ANALYTICS_CORS_ORIGIN_WHITELIST = [
 	"apwln3g3ia45kk690tzabfp525h9e1.ext-twitch.tv"
 ]
 

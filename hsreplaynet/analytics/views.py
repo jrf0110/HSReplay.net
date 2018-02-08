@@ -218,7 +218,7 @@ def fetch_query_results(request, name):
 
 	# Add CORS header if permitted - can be replaced by middleware in future
 	origin = urlparse(request.META.get("HTTP_ORIGIN", ""))
-	if origin.netloc in settings.ANALATYICS_CORS_ORIGIN_WHITELIST:
+	if origin.netloc in settings.ANALYTICS_CORS_ORIGIN_WHITELIST:
 		response["Access-Control-Allow-Origin"] = origin.geturl()
 		response["Access-Control-Allow-Methods"] = "GET, HEAD"
 
