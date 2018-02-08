@@ -40,12 +40,12 @@ export default class ReferralsPromo extends React.Component<Props, State> {
 	copy = (e: React.MouseEvent<HTMLButtonElement>): void => {
 		e.preventDefault();
 		clipboard.writeText(this.props.url).then(() => {
-			clearTimeout(this.timeout);
+			window.clearTimeout(this.timeout);
 			if (typeof this.props.onCopy === "function") {
 				this.props.onCopy();
 			}
 			this.setState({ copied: true }, () => {
-				this.timeout = setTimeout(() => {
+				this.timeout = window.setTimeout(() => {
 					this.setState({ copied: false });
 				}, 3000);
 			});
