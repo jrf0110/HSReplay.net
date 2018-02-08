@@ -478,6 +478,9 @@ StaticFilesConfig.ignore_patterns += ["*.scss", "*.ts", "*.tsx"]
 ANALYTICS_CORS_ORIGIN_WHITELIST = [
 	"apwln3g3ia45kk690tzabfp525h9e1.ext-twitch.tv"
 ]
+ANALYTICS_CORS_HEADER_WHITELIST = [
+	"X-Twitch-Extension-Version"
+]
 
 try:
 	from hsreplaynet.local_settings import *

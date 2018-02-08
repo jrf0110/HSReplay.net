@@ -220,7 +220,10 @@ def fetch_query_results(request, name):
 	origin = urlparse(request.META.get("HTTP_ORIGIN", ""))
 	if origin.netloc in settings.ANALYTICS_CORS_ORIGIN_WHITELIST:
 		response["Access-Control-Allow-Origin"] = origin.geturl()
-		response["Access-Control-Allow-Methods"] = "GET, HEAD"
+		response["Access-Control-Allow-Methods"] = "GET, HEAD, OPTIONS"
+		response["Access-Control-Allow-Headers"] = ", ".join(
+			settings.ANALYTICS_CORS_HEADER_WHITELIST
+		)
 
 	# Always patch vary header so browsers do not cache CORS
 	patch_vary_headers(response, ["Origin"])
