@@ -24,6 +24,19 @@ export default class GoogleAnalytics {
 	}
 }
 
+export class SubscriptionEvents extends GoogleAnalytics {
+	public static onSubscribe(
+		usdValue: number,
+		location: string,
+		params?: UniversalAnalytics.FieldsObject
+	): Promise<void> {
+		return this.event("Checkout", "subscribe", location, {
+			...params,
+			eventValue: Math.ceil(+usdValue / 100)
+		});
+	}
+}
+
 export class TwitchStreamPromotionEvents extends GoogleAnalytics {
 	public static onClickLiveNow(
 		deck: string,

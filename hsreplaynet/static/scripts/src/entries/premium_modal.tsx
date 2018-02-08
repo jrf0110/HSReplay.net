@@ -4,6 +4,7 @@ import CheckoutForm, {
 	PaymentMethods
 } from "../components/payments/CheckoutForm";
 import UserData from "../UserData";
+import { SubscriptionEvents } from "../metrics/GoogleAnalytics";
 
 let modal;
 
@@ -42,7 +43,7 @@ let lastFocus = null;
 let lastLabel = null;
 let loadedCheckout = false;
 
-const loadCheckout = () => {
+const loadCheckout = (location?: string) => {
 	if (loadedCheckout) {
 		return;
 	}
@@ -51,7 +52,8 @@ const loadCheckout = () => {
 	}
 	window.hsreplaynet_load_hscheckout(
 		document.getElementById("modal-checkout"),
-		document.getElementById("premium-plan-data")
+		document.getElementById("premium-plan-data"),
+		location
 	);
 	loadedCheckout = true;
 };
@@ -63,7 +65,7 @@ const openModal = (modalToOpen, label?: string) => {
 	modalIsOpen = true;
 	modalToOpen.style.display = "flex";
 
-	loadCheckout();
+	loadCheckout(label);
 
 	// setup focus
 	lastFocus = document.activeElement;
@@ -166,7 +168,8 @@ const getDataAttributes = (element: Element) => {
 
 window.hsreplaynet_load_hscheckout = (
 	targetElement: HTMLDivElement,
-	plansElements: HTMLScriptElement
+	plansElements: HTMLScriptElement,
+	location?: string
 ) => {
 	const apiKey = targetElement.getAttribute("data-api-key");
 	const stripeCheckoutImage = targetElement.getAttribute(
@@ -206,6 +209,11 @@ window.hsreplaynet_load_hscheckout = (
 				paypalPlans={planData.paypal}
 				paypalSubmitUrl={paypalSubmitUrl}
 				supportStripeElements={supportStripeElements}
+				onSubscribe={(value: number) => {
+					SubscriptionEvents.onSubscribe(value, location, {
+						transport: "beacon"
+					});
+				}}
 			/>,
 			targetElement
 		);

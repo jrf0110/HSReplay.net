@@ -57,8 +57,18 @@ class StripeElementsCheckoutForm extends React.Component<
 		};
 	}
 
+	private getPlanData(stripeId: string): StripePlan | null {
+		return this.props.plans
+			? this.props.plans.find(p => p.stripeId === stripeId)
+			: null;
+	}
+
 	private async handleSubmit(event) {
 		event.preventDefault();
+
+		if (this.state.selectedPlan === null) {
+			return;
+		}
 
 		if (this.state.step === StripeCheckoutStep.CONFIRM_3D_SECURE) {
 			// continue with card, despite 3D Secure
@@ -150,6 +160,12 @@ class StripeElementsCheckoutForm extends React.Component<
 					() => this.submit()
 				);
 				break;
+		}
+
+		// emit event
+		const selectedPlan = this.getPlanData(this.state.selectedPlan);
+		if (selectedPlan) {
+			this.props.onSubscribe(selectedPlan.amount / 100);
 		}
 	}
 

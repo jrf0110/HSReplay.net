@@ -201,7 +201,8 @@ interface Window {
 	hsreplaynet_load_stripe: (targetElement: any) => void;
 	hsreplaynet_load_hscheckout: (
 		targetElement: any,
-		plansElements: any
+		plansElements: any,
+		location?: string
 	) => void;
 }
 

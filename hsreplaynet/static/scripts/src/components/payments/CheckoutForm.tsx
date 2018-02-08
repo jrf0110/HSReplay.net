@@ -27,12 +27,14 @@ interface CheckoutFormProps extends React.ClassAttributes<CheckoutForm> {
 	paypalSubmitUrl: string;
 	supportStripeElements?: boolean;
 	csrfElement: { __html: string };
+	onSubscribe: (value: number) => any;
 }
 
 export interface CheckoutFormInstanceProps {
 	submitUrl: string;
 	csrfElement: { __html: string };
-	onDisable?: (disabled: boolean) => void;
+	onDisable: (disabled: boolean) => any;
+	onSubscribe: (value: number) => any;
 }
 
 interface CheckoutFormState {
@@ -139,6 +141,7 @@ export default class CheckoutForm extends React.Component<
 						onDisable={(disabled: boolean) =>
 							this.setState({ disabled })
 						}
+						onSubscribe={this.props.onSubscribe}
 					/>
 				);
 			case PaymentMethods.CREDITCARD:
@@ -154,6 +157,7 @@ export default class CheckoutForm extends React.Component<
 								onDisable={(disabled: boolean) =>
 									this.setState({ disabled })
 								}
+								onSubscribe={this.props.onSubscribe}
 							/>
 						</Elements>
 					</StripeProvider>
@@ -168,6 +172,7 @@ export default class CheckoutForm extends React.Component<
 						onDisable={(disabled: boolean) =>
 							this.setState({ disabled })
 						}
+						onSubscribe={this.props.onSubscribe}
 					/>
 				);
 		}
