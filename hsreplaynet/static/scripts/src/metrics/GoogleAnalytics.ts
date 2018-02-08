@@ -12,7 +12,8 @@ export default class GoogleAnalytics {
 			}
 			const requiredParams: UniversalAnalytics.FieldsObject = {
 				eventCategory: category,
-				eventAction: action
+				eventAction: action,
+				eventLabel: label
 			};
 			const defaults: UniversalAnalytics.FieldsObject = {
 				hitType: "event",
