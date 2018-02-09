@@ -480,7 +480,7 @@ class PaypalSuccessView(BasePaypalView):
 
 		prepared_agreement.execute()
 
-		messages.info(self.request, "You are now subscribed with Paypal!")
+		messages.info(self.request, "You are now subscribed with PayPal!")
 		return redirect(self.get_success_url())
 
 
