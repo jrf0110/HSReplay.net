@@ -457,6 +457,12 @@ class BasePaypalView(View):
 class PaypalSuccessView(BasePaypalView):
 	success_url = reverse_lazy("premium")
 
+	def get_success_url(self):
+		success_url = self.request.GET.get("next", "")
+		if success_url and is_safe_url(success_url):
+			return success_url
+		return self.success_url
+
 	def get(self, request):
 		from djpaypal.models import PreparedBillingAgreement
 
@@ -475,7 +481,7 @@ class PaypalSuccessView(BasePaypalView):
 		prepared_agreement.execute()
 
 		messages.info(self.request, "You are now subscribed with Paypal!")
-		return redirect(self.success_url)
+		return redirect(self.get_success_url())
 
 
 class PaypalCancelView(BasePaypalView):

@@ -16,7 +16,7 @@
 		data-stripe-coupon="{{ customer.coupon.human_readable }}"
 	{% endif %}
 	{% endwith %}
-	data-paypal-submit-url="{% url 'pp_subscribe' %}"
+	data-paypal-submit-url="{% url 'pp_subscribe' %}?next={{ request.path|urlencode }}"
 	data-csrf-token="{% csrf_token %}"
 	data-support-stripe-elements="{{ support_stripe_elements|default:"0" }}"
 ></div>
