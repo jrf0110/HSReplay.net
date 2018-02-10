@@ -170,9 +170,14 @@ export default class Tooltip extends React.Component<
 			});
 		};
 
-		let content = this.getSelectedContent();
-		if (typeof content === "string") {
-			content = <p>{content}</p>;
+		const content = [];
+		if (this.props.content) {
+			const selectedContent = this.getSelectedContent();
+			if (typeof selectedContent === "string") {
+				content.push(<p>{selectedContent}</p>);
+			} else {
+				content.push(selectedContent);
+			}
 		}
 
 		return (
