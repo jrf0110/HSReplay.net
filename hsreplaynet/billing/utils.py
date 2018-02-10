@@ -18,6 +18,10 @@ def check_for_referrals(user) -> bool:
 	if not referral_hit:
 		return False
 
+	if user == referral_hit.referral_link.user:
+		# Guard against self-referrals
+		return False
+
 	referral, created = Referral.objects.get_or_create(
 		hit_user=user, defaults={
 			"referral_hit": referral_hit,
